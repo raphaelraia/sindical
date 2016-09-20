@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.ImpressaoWeb;
+import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoServico;
@@ -34,6 +35,33 @@ import oracle.toplink.essentials.exceptions.EJBQLException;
  * @author Claudemir Rtools
  */
 public class MovimentoDao extends DB {
+
+    public List<Movimento> findByEvt(Integer evt_id) {
+        Lote l = new LoteDao().pesquisaLotePorEvt(evt_id);
+        return findByLote(l.getId(), true);
+    }
+
+    public List<Movimento> findByLote(Integer lote_id) {
+        return findByLote(lote_id, true);
+    }
+
+    public List<Movimento> findByLote(Integer lote_id, Boolean ativos) {
+        try {
+            Query query;
+            if (ativos == null) {
+                query = getEntityManager().createQuery(" SELECT M FROM Movimento AS M WHERE M.lote.id = :lote_id ORDER BY M.dtVencimento ASC, M.id ASC");
+            } else if (ativos) {
+                query = getEntityManager().createQuery(" SELECT M FROM Movimento AS M WHERE M.lote.id = :lote_id AND M.ativo = true ORDER BY M.dtVencimento ASC, M.id ASC");
+                query.setParameter("lote_id", lote_id);
+            } else {
+                query = getEntityManager().createQuery(" SELECT M FROM Movimento AS M WHERE M.lote.id = :lote_id AND M.ativo = false ORDER BY M.dtVencimento ASC, M.id ASC");
+                query.setParameter("lote_id", lote_id);
+            }
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 
     private Integer limit = null;
 

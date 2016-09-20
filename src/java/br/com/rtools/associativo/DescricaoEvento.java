@@ -24,7 +24,7 @@ public class DescricaoEvento implements java.io.Serializable {
     }
 
     public DescricaoEvento() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
         this.grupoEvento = new GrupoEvento();
     }

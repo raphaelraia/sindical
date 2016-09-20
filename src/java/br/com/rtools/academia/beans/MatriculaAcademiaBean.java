@@ -481,7 +481,7 @@ public class MatriculaAcademiaBean implements Serializable {
         }
         if (matriculaAcademia.getId() == -1) {
             AcademiaDao academiaDao = new AcademiaDao();
-            if (academiaDao.existeAlunoModalidade(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getAcademiaServicoValor().getServicos().getId(), matriculaAcademia.getServicoPessoa().getDtEmissao())) {
+            if (academiaDao.existeAlunoModalidadePeriodo(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getAcademiaServicoValor().getServicos().getId(), matriculaAcademia.getAcademiaServicoValor().getId(), matriculaAcademia.getServicoPessoa().getDtEmissao())) {
                 message = "Aluno já cadastrado para esta modalidade!";
                 return null;
             }
@@ -2037,7 +2037,7 @@ public class MatriculaAcademiaBean implements Serializable {
 
         Dao dao = new Dao();
         TipoServico tipoServico;
-        
+
         if (proporcional) {
             vencimento = DataHoje.data();
             // ADICIONADO PARA NÃO GERAR UMA TAXA CASO O DATA DE VENCIMENTO FOR A MESMA QUE DATA ATUAL (HOJE)

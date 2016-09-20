@@ -20,4 +20,14 @@ public class AEventoDao extends DB {
         return list;
     }
 
+    public AEvento findByDescricaoEvento(Integer descricao_evento_id) {
+        try {
+            Query qry = getEntityManager().createQuery("SELECT AE FROM AEvento AS AE WHERE AE.descricaoEvento.id = :descricao_evento_id ORDER BY AE.descricaoEvento.grupoEvento.descricao ASC, AE.descricaoEvento.descricao ASC");
+            qry.setParameter("descricao_evento_id", descricao_evento_id);
+            return (AEvento) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

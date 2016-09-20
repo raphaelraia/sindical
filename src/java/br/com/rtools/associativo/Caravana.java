@@ -28,7 +28,7 @@ public class Caravana implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @JoinColumn(name = "id_aevento", referencedColumnName = "id")
+    @JoinColumn(name = "id_evento", referencedColumnName = "id")
     @ManyToOne
     private AEvento evento;
     @Temporal(TemporalType.DATE)

@@ -29,7 +29,6 @@ public class CaravanaBean implements Serializable {
     private Servicos servicos;
     private EventoServico eventoServico;
     private EventoServicoValor eventoServicoValor;
-    private String msgConfirma;
     private Integer idDescricaoEvento;
     private Integer idGrupoEvento;
     private Integer idServicos;
@@ -40,9 +39,9 @@ public class CaravanaBean implements Serializable {
     private List<Caravana> listaCaravana;
     private boolean habilitado;
 
-    private final List<SelectItem> listaDescricaoEvento = new ArrayList();
-    private final List<SelectItem> listaGrupoEvento = new ArrayList();
-    private final List<SelectItem> listaServicos = new ArrayList();
+    private List<SelectItem> listaDescricaoEvento = new ArrayList();
+    private List<SelectItem> listaGrupoEvento = new ArrayList();
+    private List<SelectItem> listaServicos = new ArrayList();
 
     @PostConstruct
     public void init() {
@@ -50,7 +49,6 @@ public class CaravanaBean implements Serializable {
         servicos = new Servicos();
         eventoServico = new EventoServico();
         eventoServicoValor = new EventoServicoValor();
-        msgConfirma = "";
         idDescricaoEvento = 0;
         idGrupoEvento = 0;
         idServicos = 0;
@@ -60,7 +58,9 @@ public class CaravanaBean implements Serializable {
         listaServicosAdd = new ArrayList();
         listaCaravana = new ArrayList();
         habilitado = true;
-
+        listaDescricaoEvento = new ArrayList();
+        listaGrupoEvento = new ArrayList();
+        listaServicos = new ArrayList();
         loadListaServicos();
         loadListaGrupoEvento();
         loadListaDescricaoEvento();
@@ -72,201 +72,168 @@ public class CaravanaBean implements Serializable {
     }
 
     public void loadListaServicos() {
-        listaServicos.clear();
-
-        ServicosDao db = new ServicosDao();
-        List<Servicos> select = db.pesquisaTodos(138);
-        for (int i = 0; i < select.size(); i++) {
-            listaServicos.add(
-                    new SelectItem(
-                            i,
-                            select.get(i).getDescricao(),
-                            Integer.toString(select.get(i).getId())
-                    )
-            );
+        listaServicos = new ArrayList();
+        List<Servicos> list = new ServicosDao().pesquisaTodos(138);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idServicos = list.get(i).getId();
+            }
+            listaServicos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
 
     public void loadListaGrupoEvento() {
-        listaGrupoEvento.clear();
-        List<GrupoEvento> select = (List<GrupoEvento>) new Dao().list(new GrupoEvento(), true);
-        for (int i = 0; i < select.size(); i++) {
-            listaGrupoEvento.add(
-                    new SelectItem(
-                            i,
-                            select.get(i).getDescricao(),
-                            Integer.toString(select.get(i).getId())
-                    )
-            );
+        listaGrupoEvento = new ArrayList();
+        List<GrupoEvento> list = (List<GrupoEvento>) new Dao().list(new GrupoEvento(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idGrupoEvento = list.get(i).getId();
+            }
+            listaGrupoEvento.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
 
     public void loadListaDescricaoEvento() {
-        listaDescricaoEvento.clear();
-
+        listaDescricaoEvento = new ArrayList();
         if (listaGrupoEvento.isEmpty()) {
             return;
         }
-
-//        DescricaoEventoDB db = new DescricaoEventoDao();
-//        List<DescricaoEvento> select = db.pesquisaDescricaoPorGrupo(Integer.parseInt(listaGrupoEvento.get(idGrupoEvento).getDescription()));
-        DescricaoEventoDao db = new DescricaoEventoDao();
-        List<DescricaoEvento> select = db.pesquisaDescricaoPorGrupo(2);
-        for (int i = 0; i < select.size(); i++) {
-            listaDescricaoEvento.add(
-                    new SelectItem(
-                            i,
-                            select.get(i).getDescricao(),
-                            Integer.toString(select.get(i).getId())
-                    )
-            );
+        List<DescricaoEvento> list = new DescricaoEventoDao().pesquisaDescricaoPorGrupo(2);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idDescricaoEvento = list.get(i).getId();
+            }
+            listaDescricaoEvento.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
 
     public Boolean validaSalvar() {
         if (listaDescricaoEvento.isEmpty()) {
-            msgConfirma = "Cadastrar descrição de eventos!";
+            GenericaMensagem.warn("Validação", "CADASTRAR DESCRIÇÃO DE EVENTOS!");
             return false;
         }
 
         if (caravana.getDataSaida().isEmpty()) {
-            msgConfirma = "Digite uma Data de Saída!";
+            GenericaMensagem.warn("Validação", "DIGITE UMA DATA DE SAÍDA!");
             return false;
         }
 
         if (caravana.getHoraSaida().isEmpty()) {
-            msgConfirma = "Digite um Horário de Saída!";
+            GenericaMensagem.warn("Validação", "DIGITE UM HORÁRIO DE SAÍDA!");
             return false;
         }
 
         if (caravana.getDataChegada().isEmpty()) {
-            msgConfirma = "Digite uma Data de Chegada!";
+            GenericaMensagem.warn("Validação", "DIGITE UMA DATA DE CHEGADA!");
             return false;
         }
 
         if (caravana.getHoraChegada().isEmpty()) {
-            msgConfirma = "Digite um Horário de Chegada!";
+            GenericaMensagem.warn("Validação", "DIGITE UM HORÁRIO DE CHEGADA!");
             return false;
         }
 
         if (caravana.getDataRetorno().isEmpty()) {
-            msgConfirma = "Digite uma Data de Retorno!";
+            GenericaMensagem.warn("Validação", "DIGITE UMA DATA DE RETORNO!");
             return false;
         }
 
         if (caravana.getHoraRetorno().isEmpty()) {
-            msgConfirma = "Digite um Horário de Retorno!";
+            GenericaMensagem.warn("Validação", "DIGITE UM HORÁRIO DE RETORNO!");
             return false;
         }
 
         return true;
     }
 
-    public String salvar() {
+    public void save() {
         if (!validaSalvar()) {
-            GenericaMensagem.warn("Atenção", msgConfirma);
-            return null;
+            return;
         }
 
         Dao dao = new Dao();
         AEvento aEvento = new AEvento();
         dao.openTransaction();
 
-        DescricaoEvento de = (DescricaoEvento) dao.find(new DescricaoEvento(), Integer.parseInt(getListaDescricaoEvento().get(idDescricaoEvento).getDescription()));
+        DescricaoEvento de = (DescricaoEvento) dao.find(new DescricaoEvento(), idDescricaoEvento);
         if (caravana.getId() == -1) {
             Evt evt = new Evt();
             if (!dao.save(evt)) {
-                msgConfirma = "Erro ao salvar EVT!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO SALVAR EVT");
                 dao.rollback();
-                return null;
+                return;
             }
             caravana.setEvt(evt);
 
             aEvento.setDescricaoEvento(de);
             if (!dao.save(aEvento)) {
-                msgConfirma = "Erro ao salvar Evento!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO SALVAR EVENTO!");
                 dao.rollback();
-                return null;
+                return;
             }
 
             caravana.setEvento(aEvento);
             if (!dao.save(caravana)) {
-                msgConfirma = "Erro ao salvar caravana!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO INSERIR REGISTRO!");
                 dao.rollback();
-                return null;
             } else {
-                msgConfirma = "Caravana salva com sucesso!";
-                GenericaMensagem.info("Sucesso", msgConfirma);
+                GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
                 dao.commit();
-                return null;
             }
         } else {
             if (caravana.getEvt() == null) {
                 Evt evt = new Evt();
                 if (!dao.save(evt)) {
-                    msgConfirma = "Erro ao salvar EVT!";
-                    GenericaMensagem.warn("Erro", msgConfirma);
+                    GenericaMensagem.warn("Erro", "AO SALVAR EVT!");
                     dao.rollback();
-                    return null;
+                    return;
                 }
                 caravana.setEvt(evt);
             }
             aEvento = (AEvento) dao.find(new AEvento(), caravana.getEvento().getId());
             aEvento.setDescricaoEvento(de);
             if (!dao.update(aEvento)) {
-                msgConfirma = "Erro ao atualizar Evento!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR EVENTO!");
                 dao.rollback();
-                return null;
+                return;
             }
             caravana.setEvento(aEvento);
             if (!dao.update(caravana)) {
-                msgConfirma = "Erro ao atulizar caravana!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR CARAVANA!");
                 dao.rollback();
-                return null;
             } else {
-                msgConfirma = "Caravana atualizada com sucesso!";
-                GenericaMensagem.info("Sucesso", msgConfirma);
+                GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
                 dao.commit();
-                return null;
             }
         }
     }
 
     public String adicionarServico() {
         if (getListaServicos().isEmpty()) {
-            msgConfirma = "Não existe nenhum serviço para ser adicionado!";
-            GenericaMensagem.warn("Erro", msgConfirma);
+            GenericaMensagem.warn("Erro", "CADASTRAR SERVIÇOS!");
             return null;
         }
 
         if (caravana.getId() == -1) {
-            msgConfirma = "Salve a Caravana antes de adicionar serviços!";
-            GenericaMensagem.warn("Atenção", msgConfirma);
+            GenericaMensagem.warn("Atenção", "SALVAR A CARAVANA ANTES DE ADICIONAR SERVIÇOS!");
             return null;
         }
 
         Dao dao = new Dao();
         dao.openTransaction();
         servicos = new Servicos();
-        servicos = (Servicos) dao.find(new Servicos(), Integer.parseInt(getListaServicos().get(idServicos).getDescription()));
+        servicos = (Servicos) dao.find(new Servicos(), idServicos);
         float vl = 0;
         eventoServico.setServicos(servicos);
         if (eventoServico.getId() == -1) {
             eventoServico.setEvento(caravana.getEvento());
             if (!dao.save(eventoServico)) {
-                msgConfirma = "Erro ao inserir Evento Serviço!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO INSERIR EVENTO SERVIÇO!");
                 dao.rollback();
                 return null;
             }
         } else if (!dao.update(eventoServico)) {
-            msgConfirma = "Erro ao atualizar Evento Serviço!";
-            GenericaMensagem.warn("Erro", msgConfirma);
+            GenericaMensagem.warn("Erro", "AO ATAULIZAR EVENTO SERVIÇO!");
             dao.rollback();
             return null;
         }
@@ -275,21 +242,18 @@ public class CaravanaBean implements Serializable {
         eventoServicoValor.setValor(vl);
         if (eventoServicoValor.getId() == -1) {
             if (!dao.save(eventoServicoValor)) {
-                msgConfirma = "Erro ao inserir Evento Serviço Valor!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO INSERIR SERVIÇO VALOR!");
                 dao.rollback();
                 return null;
             }
         } else if (!dao.update(eventoServicoValor)) {
-            msgConfirma = "Erro ao atualizar Evento Serviço Valor!";
-            GenericaMensagem.warn("Erro", msgConfirma);
+            GenericaMensagem.warn("Erro", "AO ATUALIZAR SERVIÇO VALOR!");
             dao.rollback();
             return null;
         }
 
         dao.commit();
-        msgConfirma = "Serviço adicionado!";
-        GenericaMensagem.info("Sucesso", msgConfirma);
+        GenericaMensagem.info("Sucesso", "SERVIÇO INSERIDO");
         if (eventoServico.isIndividual()) {
             listaServicosAdd.add(new DataObject(servicos, eventoServico, eventoServicoValor, eventoServico.isIndividual(), valor, "<< Sim >>"));
         } else {
@@ -301,7 +265,7 @@ public class CaravanaBean implements Serializable {
         return null;
     }
 
-    public String excluir() {
+    public void delete() {
         Dao dao = new Dao();
         dao.openTransaction();
         if (caravana.getId() != -1) {
@@ -313,36 +277,28 @@ public class CaravanaBean implements Serializable {
                     dtObj = listaServicosAdd1;
                     if (!excluirServicos(dao, dtObj)) {
                         dao.rollback();
-                        msgConfirma = "Erro ao excluir lista de Serviços!";
-                        GenericaMensagem.warn("Erro", msgConfirma);
-                        return null;
+                        GenericaMensagem.warn("Erro", "AO REMOVER LISTA DE SERVIÇOS!");
+                        return;
                     }
                 }
             }
             if (!dao.delete(caravana)) {
-                msgConfirma = "Erro ao excluír caravana!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO REMOVER CARAVANA");
                 dao.rollback();
-                return null;
+                return;
             }
 
             if (!dao.delete(aEvento)) {
-                msgConfirma = "Erro ao excluir Evento!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", "AO REMOVER EVENTO!");
                 dao.rollback();
-                return null;
             } else {
                 dao.commit();
-                msgConfirma = "Caravana excluído com sucesso!";
                 caravana = new Caravana();
-                GenericaMensagem.info("Sucesso", msgConfirma);
-                return null;
+                GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
             }
         } else {
-            msgConfirma = "Pesquise uma caravana antes de excluir!";
-            GenericaMensagem.warn("Erro", msgConfirma);
+            GenericaMensagem.warn("Erro", "PESQUISE UMA CARAVANA!");
             dao.rollback();
-            return null;
         }
     }
 
@@ -362,18 +318,15 @@ public class CaravanaBean implements Serializable {
         eventoServico = (EventoServico) dao.find(new EventoServico(), ((EventoServico) dtObj.getArgumento1()).getId());
         eventoServicoValor = (EventoServicoValor) dao.find(new EventoServicoValor(), ((EventoServicoValor) dtObj.getArgumento2()).getId());
         if (!dao.delete(eventoServicoValor)) {
-            msgConfirma = "Erro ao Excluir evento serviço valor!";
-            GenericaMensagem.warn("Erro", msgConfirma);
+            GenericaMensagem.warn("Erro", "AO REMOVER SERVIÇO VALOR!");
             return false;
         }
 
         if (!dao.delete(eventoServico)) {
-            msgConfirma = "Erro ao Excluir evento serviço!";
-            GenericaMensagem.warn("Erro", msgConfirma);
+            GenericaMensagem.warn("Erro", "AO REMOVER EVENTO SERVIÇO!");
             return false;
         } else {
-            msgConfirma = "Serviço excluido!";
-            GenericaMensagem.info("Sucesso", msgConfirma);
+            GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
             eventoServico = new EventoServico();
             eventoServicoValor = new EventoServicoValor();
             return true;
@@ -386,17 +339,14 @@ public class CaravanaBean implements Serializable {
     }
 
     public String editar(Caravana car) {
-        caravana = car;//(Caravana) listaCaravana.get(idIndex);
+        caravana = (Caravana) new Dao().rebind(car);
+        idDescricaoEvento = caravana.getEvento().getDescricaoEvento().getId();
+        idGrupoEvento = caravana.getEvento().getDescricaoEvento().getGrupoEvento().getId();
+        String url = (String) GenericaSessao.getString("urlRetorno");
         GenericaSessao.put("linkClicado", true);
-        for (int i = 0; i < getListaGrupoEvento().size(); i++) {
-            if (Integer.parseInt(getListaGrupoEvento().get(i).getDescription()) == caravana.getEvento().getDescricaoEvento().getGrupoEvento().getId()) {
-                idGrupoEvento = i;
-            }
-        }
-        for (int i = 0; i < getListaDescricaoEvento().size(); i++) {
-            if (Integer.parseInt(getListaDescricaoEvento().get(i).getDescription()) == caravana.getEvento().getDescricaoEvento().getId()) {
-                idDescricaoEvento = i;
-            }
+        if (url != null) {
+            GenericaSessao.put("caravanaPesquisa", caravana);
+            return url;
         }
         return "caravana";
     }
@@ -404,12 +354,7 @@ public class CaravanaBean implements Serializable {
     public void editEventoServicoValor(DataObject esv) {
         eventoServico = (EventoServico) esv.getArgumento1();
         eventoServicoValor = (EventoServicoValor) esv.getArgumento2();
-        for (int i = 0; i < getListaServicos().size(); i++) {
-            if (Integer.parseInt(getListaServicos().get(i).getDescription()) == eventoServicoValor.getEventoServico().getServicos().getId()) {
-                idServicos = i;
-                break;
-            }
-        }
+        idServicos = eventoServicoValor.getEventoServico().getServicos().getId();
         valor = eventoServicoValor.getValorString();
     }
 
@@ -458,14 +403,6 @@ public class CaravanaBean implements Serializable {
 
     public void setCaravana(Caravana caravana) {
         this.caravana = caravana;
-    }
-
-    public String getMsgConfirma() {
-        return msgConfirma;
-    }
-
-    public void setMsgConfirma(String msgConfirma) {
-        this.msgConfirma = msgConfirma;
     }
 
     public Servicos getServicos() {

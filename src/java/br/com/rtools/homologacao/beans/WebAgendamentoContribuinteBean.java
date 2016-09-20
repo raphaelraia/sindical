@@ -450,7 +450,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         DataHoje dataH = new DataHoje();
         Demissao demissao = (Demissao) dao.find(new Demissao(), Integer.parseInt(listaMotivoDemissao.get(idMotivoDemissao).getDescription()));
         if (!demissao.getMotivoWeb()) {
-            GenericaMensagem.warn("Validação", demissao.getMensagemMotivoWeb());
+            GenericaMensagem.warn("Sistema", demissao.getMensagemMotivoWeb());
             return;
         }
         if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
@@ -1051,6 +1051,13 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
     public void setStrEndereco(String strEndereco) {
         this.strEndereco = strEndereco;
+    }
+
+    public void loadMotivoFalecimento() {
+        Demissao demissao = (Demissao) new Dao().find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
+        if (!demissao.getMotivoWeb()) {
+            GenericaMensagem.warn("Sistema", demissao.getMensagemMotivoWeb());
+        }
     }
 
     public int getIdMotivoDemissao() {

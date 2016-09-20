@@ -211,7 +211,7 @@ public class Titulo implements Serializable {
 
     public String getAnoLancamentoString() {
         if (anoLancamento == 0) {
-            return "";
+            return "2016";
         } else {
             return Integer.toString(anoLancamento);
         }

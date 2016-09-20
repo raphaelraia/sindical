@@ -29,7 +29,7 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Caravana" styleClass="fonteHeader" />
-                        <h:form id="formCaravana">
+                        <h:form id="form_caravana">
                             <c:set scope="request" var="object" value="${caravanaBean.caravana}"/>
                             <h:panelGrid columns="3" style="clear: both">
                                 <p:column>
@@ -199,7 +199,7 @@
 
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="#{caravanaBean.eventoServico.id == -1 ? 'Adicionar ' : 'Atualizar'} Serviço" action="#{caravanaBean.adicionarServico}" style="margin-left: 20px" update="formCaravana" disabled="#{controleAcessoBean.botaoSalvar}" />   
+                                        <p:commandButton value="#{caravanaBean.eventoServico.id == -1 ? 'Adicionar ' : 'Atualizar'} Serviço" action="#{caravanaBean.adicionarServico}" style="margin-left: 20px" update="form_caravana" disabled="#{controleAcessoBean.botaoSalvar}" />   
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -207,7 +207,7 @@
                             <p:dataTable value="#{caravanaBean.listaServicosAdd}" var="linha" id="tbl" emptyMessage="Nenhum serviço foi adicionado!">
 
                                 <p:column width="30">
-                                    <p:commandButton icon="ui-icon-pencil" action="#{caravanaBean.editEventoServicoValor(linha)}" disabled="#{controleAcessoBean.botaoAlterar}" update=":formCaravana:" />
+                                    <p:commandButton icon="ui-icon-pencil" action="#{caravanaBean.editEventoServicoValor(linha)}" disabled="#{controleAcessoBean.botaoAlterar}" update=":form_caravana:" />
                                 </p:column>                                  
 
                                 <p:column headerText="Serviços">
@@ -235,7 +235,7 @@
                                 </p:column>
 
                                 <p:column width="30">
-                                    <p:commandButton icon="ui-icon-trash" action="#{caravanaBean.excluirServicos(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update="tbl :formCaravana:i_msg" />
+                                    <p:commandButton icon="ui-icon-trash" action="#{caravanaBean.excluirServicos(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update="tbl :form_caravana:i_msg" />
                                 </p:column>                                
                             </p:dataTable>
 
@@ -249,7 +249,7 @@
                             <p:dialog widgetVar="i_dlg_s" header="Deseja Salvar esta Caravana" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.salvar()}" update="formCaravana" onclick="PF('i_dlg_s').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.save()}" update="form_caravana" onclick="PF('i_dlg_s').hide()" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" icon="ui-icon-close"/>       
                                     </h:panelGrid>
                                 </f:facet>
@@ -258,7 +258,7 @@
                             <p:dialog widgetVar="i_dlg_e" header="Deseja Excluir esta Caravana" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.excluir()}" update="formCaravana" onclick="PF('i_dlg_e').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.delete()}" update="form_caravana" onclick="PF('i_dlg_e').hide()" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()"  icon="ui-icon-close"/>       
                                     </h:panelGrid>
                                 </f:facet>

@@ -8,11 +8,12 @@ import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
@@ -21,116 +22,113 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class DescricaoEventoBean implements Serializable {
 
-    private DescricaoEvento descricaoEvento = new DescricaoEvento();
-    private int idGrupoEvento = 0;
-    private List<DescricaoEvento> listaDescricaoEvento = new ArrayList();
-    private List<SelectItem> listaGrupoEvento = new ArrayList();
+    private DescricaoEvento descricaoEvento;
+    private Integer idGrupoEvento;
+    private List<DescricaoEvento> listDescricaoEvento;
+    private List<SelectItem> listGrupoEvento;
 
-    public void salvar() {
-        if (descricaoEvento.getDescricao().isEmpty()) {
-            GenericaMensagem.warn("Validação", "Digite um nome para o Evento!");
-            PF.update("formDescricaoEvento:i_msg");
-            return;
-        }
-
-        if (getListaGrupoEvento().isEmpty()) {
-            GenericaMensagem.warn("Validaçao", "Lista de Grupo Evento vazia!");
-            PF.update("formDescricaoEvento:i_msg");
-            return;
-        }
-
-        DescricaoEventoDao dedb = new DescricaoEventoDao();
-        Dao dao = new Dao();
-        GrupoEvento grupoEvento = (GrupoEvento) dao.find(new GrupoEvento(), Integer.parseInt(getListaGrupoEvento().get(idGrupoEvento).getDescription()));
-        descricaoEvento.setGrupoEvento(grupoEvento);
-
-        if (dedb.existeDescricaoEvento(descricaoEvento)) {
-            GenericaMensagem.warn("Validaçao", "Descrição já cadastrada para o grupo selecionado!");
-            PF.update("formDescricaoEvento:i_msg");
-            return;
-        }
-
-        dao.openTransaction();
-
-        if (descricaoEvento.getId() == -1) {
-            if (!dao.save(descricaoEvento)) {
-                dao.rollback();
-                GenericaMensagem.warn("Erro", "Ao adicionar registro!");
-                PF.update("formDescricaoEvento:i_msg");
-                GenericaMensagem.info("Sucesso", "Registro adicionado");
-            }
-
-            NovoLog novoLog = new NovoLog();
-            novoLog.save(descricaoEvento.toString());
-        } else if (!dao.update(descricaoEvento)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Ao adicionar registro!");
-            PF.update("formDescricaoEvento:i_msg");
-            return;
-        }
-
-        dao.commit();
+    @PostConstruct
+    public void init() {
         descricaoEvento = new DescricaoEvento();
-        listaDescricaoEvento.clear();
-        PF.update("formDescricaoEvento");
+        idGrupoEvento = 0;
+        listDescricaoEvento = new ArrayList();
+        listGrupoEvento = new ArrayList();
+        loadListGrupoEvento();
+        loadListDescricaoEvento();
     }
 
-    public void excluir(DescricaoEvento de) {
+    @PreDestroy
+    public void destroy() {
+        GenericaSessao.remove("descricaoEventoBean");
+    }
+
+    public void save() {
+        if (descricaoEvento.getDescricao().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE O NOME DO EVENTO!");
+            return;
+        }
+        if (listGrupoEvento.isEmpty()) {
+            GenericaMensagem.warn("Validaçao", "CADASTRAR GRUPO EVENTO!");
+            return;
+        }
         Dao dao = new Dao();
-        List<AEvento> ae = new AEventoDao().pesquisaPorDescricaoEvento(de.getId());
+        GrupoEvento grupoEvento = (GrupoEvento) dao.find(new GrupoEvento(), idGrupoEvento);
+        descricaoEvento.setGrupoEvento(grupoEvento);
         dao.openTransaction();
-        for (AEvento ae1 : ae) {
-            if (!dao.delete((AEvento) dao.find(ae1))) {
+        if (new DescricaoEventoDao().existeDescricaoEvento(descricaoEvento)) {
+            dao.rollback();
+            GenericaMensagem.warn("Validaçao", "DESCRIÇÃO JÁ EXISTE PARA ESTE GRUPO!");
+            return;
+        }
+        if (descricaoEvento.getId() == null) {
+            if (!dao.save(descricaoEvento)) {
                 dao.rollback();
-                GenericaMensagem.warn("Erro", "Ao excluir evento!");
-                PF.update("formDescricaoEvento:i_msg");
+                GenericaMensagem.warn("Erro", "AO ADICIONAR DESCRIÇÃO EVENTO!");
+                return;
+            }
+//            AEvento aEvento = new AEvento();
+//            if (!dao.save(aEvento)) {
+//                dao.rollback();
+//                GenericaMensagem.warn("Erro", "AO ADICIONAR EVENTO!");
+//                return;
+//            }
+            dao.commit();
+            new NovoLog().save("GRUPO EVENTO: " + descricaoEvento.getGrupoEvento().getDescricao() + " - DESCRIÇÃO: " + descricaoEvento.getDescricao());
+            loadListDescricaoEvento();
+            GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
+        } else if (!dao.update(descricaoEvento, true)) {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "AO ADICIONAR REGISTRO!");
+        } else {
+            dao.commit();
+            new NovoLog().update("", "GRUPO EVENTO: " + descricaoEvento.getGrupoEvento().getDescricao() + " - DESCRIÇÃO: " + descricaoEvento.getDescricao());
+            loadListDescricaoEvento();
+            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
+        }
+    }
+
+    public void delete(DescricaoEvento de) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        List<AEvento> list = new AEventoDao().pesquisaPorDescricaoEvento(descricaoEvento.getId());
+        for (int i = 0; i < list.size(); i++) {
+            if (!dao.delete(list.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER EVENTO, EVENTO JÁ EM USO!");
                 return;
             }
         }
-        if (!dao.delete((DescricaoEvento) dao.find(de))) {
-            dao.commit();
-            GenericaMensagem.warn("Erro", "Ao excluir registro");
-            PF.update("formDescricaoEvento:i_msg");
-        } else {
-            NovoLog novoLog = new NovoLog();
-            novoLog.delete(de.toString());
-            dao.commit();
-            GenericaMensagem.info("Sucesso", "Registro excluído!");
-            listaDescricaoEvento.clear();
-            PF.update("formDescricaoEvento");
+        if (!dao.delete(de)) {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "AO REMOVER DESCRIÇÃO EVENTO");
+            return;
         }
+        dao.commit();
+        new NovoLog().delete("GRUPO EVENTO: " + de.getGrupoEvento().getDescricao() + " - DESCRIÇÃO: " + de.getDescricao());
+        GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
+        loadListDescricaoEvento();
+        descricaoEvento = new DescricaoEvento();
     }
 
-    public void editar(DescricaoEvento de) {
-        descricaoEvento = de;
+    public void edit(DescricaoEvento de) {
+        descricaoEvento = (DescricaoEvento) new Dao().rebind(de);
+        idGrupoEvento = descricaoEvento.getGrupoEvento().getId();
+    }
 
-        for (int i = 0; i < listaGrupoEvento.size(); i++) {
-            if (Objects.equals(descricaoEvento.getGrupoEvento().getId(), Integer.valueOf(listaGrupoEvento.get(i).getDescription()))) {
-                idGrupoEvento = i;
-                break;
+    public void loadListDescricaoEvento() {
+        listDescricaoEvento = new ArrayList();
+        listDescricaoEvento = (List<DescricaoEvento>) new Dao().list(new DescricaoEvento(), true);
+    }
+
+    public void loadListGrupoEvento() {
+        listGrupoEvento = new ArrayList();
+        List<GrupoEvento> list = (List<GrupoEvento>) new Dao().list(new GrupoEvento(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idGrupoEvento = list.get(i).getId();
             }
+            listGrupoEvento.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
-    }
-
-    public List<DescricaoEvento> getListaDescricaoEvento() {
-        if (listaDescricaoEvento.isEmpty()) {
-            listaDescricaoEvento = (List<DescricaoEvento>) new Dao().list(new DescricaoEvento(), true);
-        }
-        return listaDescricaoEvento;
-    }
-
-    public void setListaDescricaoEvento(List<DescricaoEvento> listaDescricaoEvento) {
-        this.listaDescricaoEvento = listaDescricaoEvento;
-    }
-
-    public List<SelectItem> getListaGrupoEvento() {
-        if (listaGrupoEvento.isEmpty()) {
-            List<GrupoEvento> list = (List<GrupoEvento>) new Dao().list(new GrupoEvento(), true);
-            for (int i = 0; i < list.size(); i++) {
-                listaGrupoEvento.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
-            }
-        }
-        return listaGrupoEvento;
     }
 
     public DescricaoEvento getDescricaoEvento() {
@@ -141,15 +139,28 @@ public class DescricaoEventoBean implements Serializable {
         this.descricaoEvento = descricaoEvento;
     }
 
-    public int getIdGrupoEvento() {
+    public Integer getIdGrupoEvento() {
         return idGrupoEvento;
     }
 
-    public void setIdGrupoEvento(int idGrupoEvento) {
+    public void setIdGrupoEvento(Integer idGrupoEvento) {
         this.idGrupoEvento = idGrupoEvento;
     }
 
-    public void setListaGrupoEvento(List<SelectItem> listaGrupoEvento) {
-        this.listaGrupoEvento = listaGrupoEvento;
+    public List<DescricaoEvento> getListDescricaoEvento() {
+        return listDescricaoEvento;
     }
+
+    public void setListDescricaoEvento(List<DescricaoEvento> listDescricaoEvento) {
+        this.listDescricaoEvento = listDescricaoEvento;
+    }
+
+    public List<SelectItem> getListGrupoEvento() {
+        return listGrupoEvento;
+    }
+
+    public void setListGrupoEvento(List<SelectItem> listGrupoEvento) {
+        this.listGrupoEvento = listGrupoEvento;
+    }
+
 }

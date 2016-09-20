@@ -2847,10 +2847,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void editPessoaEmpresaEdit(PessoaEmpresa pessoaEmpresaEdit) {
         Agendamento a = pessoaEmpresaEdit.getAgendamento();
         if (a != null) {
-            if (a.getStatus().getId() == 2 || a.getStatus().getId() == 4 || a.getStatus().getId() == 5 || a.getStatus().getId() == 6) {
-                GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR EMPRESA AGENDADA, EM ATENDIMENTO OU HOMOLOGADA! ");
-                return;
-            }
+//            if (a.getStatus().getId() == 2 || a.getStatus().getId() == 4 || a.getStatus().getId() == 5 || a.getStatus().getId() == 6) {
+//                GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR EMPRESA AGENDADA, EM ATENDIMENTO OU HOMOLOGADA! ");
+//                return;
+//            }
         }
         this.pessoaEmpresaEdit = pessoaEmpresaEdit;
         PF.openDialog("dlg_pessoa_empresa");
