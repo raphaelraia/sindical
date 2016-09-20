@@ -30,7 +30,7 @@ public class Caravana implements java.io.Serializable {
     private int id;
     @JoinColumn(name = "id_aevento", referencedColumnName = "id")
     @ManyToOne
-    private AEvento aEvento;
+    private AEvento evento;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_saida", nullable = false)
     private Date dtSaida;
@@ -62,11 +62,11 @@ public class Caravana implements java.io.Serializable {
     @ManyToOne
     private Evt evt;
 
-    public Caravana(int id, AEvento aEvento, String dataSaida, String dataRetorno, String dataChegada, String horaSaida, String horaRetorno,
+    public Caravana(int id, AEvento evento, String dataSaida, String dataRetorno, String dataChegada, String horaSaida, String horaRetorno,
             String horaChegada, boolean isCafe, boolean isAlmoco, boolean isJantar, int quantidadePoltronas,
             int guiaRecolhimento, String observacao, Evt evt) {
         this.id = id;
-        this.aEvento = aEvento;
+        this.evento = evento;
         setDataSaida(dataSaida);
         setDataRetorno(dataRetorno);
         setDataChegada(dataChegada);
@@ -84,7 +84,7 @@ public class Caravana implements java.io.Serializable {
 
     public Caravana() {
         this.id = -1;
-        this.aEvento = new AEvento();
+        this.evento = new AEvento();
         setDataSaida("");
         setDataRetorno("");
         setDataChegada("");
@@ -108,12 +108,12 @@ public class Caravana implements java.io.Serializable {
         this.id = id;
     }
 
-    public AEvento getaEvento() {
-        return aEvento;
+    public AEvento getEvento() {
+        return evento;
     }
 
-    public void setaEvento(AEvento aEvento) {
-        this.aEvento = aEvento;
+    public void setEvento(AEvento evento) {
+        this.evento = evento;
     }
 
     public Date getDtSaida() {

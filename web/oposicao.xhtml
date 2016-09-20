@@ -11,7 +11,7 @@
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
-            .ui-button { padding: 3px!important; }
+            .ui-button { padding: 3px!important; } 
         </style>        
     </h:head>
     <h:body>
@@ -28,7 +28,7 @@
                         <h:form id="form_oposicao">
                             <c:set scope="request" var="object" value="${oposicaoBean.oposicao}" id="idObject"/>
                             <h:outputScript name="tradutor_primefaces.js" library="js" /> 
-                            <p:growl id="growl" showDetail="true"/> 
+                            <p:growl id="growl" showDetail="true"/>
                             <p:outputLabel value="Cadastro de Oposição" styleClass="fonteHeader"/>
                             <div class="clear"></div>
                             <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true"/>
@@ -217,10 +217,10 @@
                             </p:dialog>                    
                             <p:dialog widgetVar="dlg_trocar_empresa" modal="true" resizable="false" header="Deseja cadastrar oposição desta pessoa para outra empresa?">
                                 <f:facet name="footer">
-                                <h:panelGrid columns="2">
-                                    <p:commandButton value="Confirmar" title="Confirmar" action="#{oposicaoBean.outraEmpresa}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_trocar_empresa').hide();"/>
-                                    <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_trocar_empresa').hide();"/>
-                                </h:panelGrid>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" title="Confirmar" action="#{oposicaoBean.outraEmpresa}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_trocar_empresa').hide();"/>
+                                        <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_trocar_empresa').hide();"/>
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:dialog>                    
                         </h:form>

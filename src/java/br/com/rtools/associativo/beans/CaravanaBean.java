@@ -191,7 +191,7 @@ public class CaravanaBean implements Serializable {
                 return null;
             }
 
-            caravana.setaEvento(aEvento);
+            caravana.setEvento(aEvento);
             if (!dao.save(caravana)) {
                 msgConfirma = "Erro ao salvar caravana!";
                 GenericaMensagem.warn("Erro", msgConfirma);
@@ -214,7 +214,7 @@ public class CaravanaBean implements Serializable {
                 }
                 caravana.setEvt(evt);
             }
-            aEvento = (AEvento) dao.find(new AEvento(), caravana.getaEvento().getId());
+            aEvento = (AEvento) dao.find(new AEvento(), caravana.getEvento().getId());
             aEvento.setDescricaoEvento(de);
             if (!dao.update(aEvento)) {
                 msgConfirma = "Erro ao atualizar Evento!";
@@ -222,7 +222,7 @@ public class CaravanaBean implements Serializable {
                 dao.rollback();
                 return null;
             }
-            caravana.setaEvento(aEvento);
+            caravana.setEvento(aEvento);
             if (!dao.update(caravana)) {
                 msgConfirma = "Erro ao atulizar caravana!";
                 GenericaMensagem.warn("Erro", msgConfirma);
@@ -257,7 +257,7 @@ public class CaravanaBean implements Serializable {
         float vl = 0;
         eventoServico.setServicos(servicos);
         if (eventoServico.getId() == -1) {
-            eventoServico.setaEvento(caravana.getaEvento());
+            eventoServico.setEvento(caravana.getEvento());
             if (!dao.save(eventoServico)) {
                 msgConfirma = "Erro ao inserir Evento Serviço!";
                 GenericaMensagem.warn("Erro", msgConfirma);
@@ -306,7 +306,7 @@ public class CaravanaBean implements Serializable {
         dao.openTransaction();
         if (caravana.getId() != -1) {
             caravana = (Caravana) dao.find(caravana);
-            AEvento aEvento = (AEvento) dao.find(caravana.getaEvento());
+            AEvento aEvento = (AEvento) dao.find(caravana.getEvento());
             if (!listaServicosAdd.isEmpty()) {
                 DataObject dtObj = null;
                 for (DataObject listaServicosAdd1 : listaServicosAdd) {
@@ -389,12 +389,12 @@ public class CaravanaBean implements Serializable {
         caravana = car;//(Caravana) listaCaravana.get(idIndex);
         GenericaSessao.put("linkClicado", true);
         for (int i = 0; i < getListaGrupoEvento().size(); i++) {
-            if (Integer.parseInt(getListaGrupoEvento().get(i).getDescription()) == caravana.getaEvento().getDescricaoEvento().getGrupoEvento().getId()) {
+            if (Integer.parseInt(getListaGrupoEvento().get(i).getDescription()) == caravana.getEvento().getDescricaoEvento().getGrupoEvento().getId()) {
                 idGrupoEvento = i;
             }
         }
         for (int i = 0; i < getListaDescricaoEvento().size(); i++) {
-            if (Integer.parseInt(getListaDescricaoEvento().get(i).getDescription()) == caravana.getaEvento().getDescricaoEvento().getId()) {
+            if (Integer.parseInt(getListaDescricaoEvento().get(i).getDescription()) == caravana.getEvento().getDescricaoEvento().getId()) {
                 idDescricaoEvento = i;
             }
         }
@@ -432,7 +432,7 @@ public class CaravanaBean implements Serializable {
             listaServicosAdd.clear();
             List<EventoServico> evs;
             EventoServicoValor ev;
-            evs = dbE.listaEventoServico(caravana.getaEvento().getId());
+            evs = dbE.listaEventoServico(caravana.getEvento().getId());
             for (int i = 0; i < evs.size(); i++) {
                 ev = dbEv.pesquisaEventoServicoValor(evs.get(i).getId());
                 if (evs.get(i).isIndividual()) {

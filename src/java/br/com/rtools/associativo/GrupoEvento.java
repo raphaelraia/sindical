@@ -10,10 +10,11 @@ import javax.persistence.*;
     @NamedQuery(name = "GrupoEvento.findName", query = "SELECT GE FROM GrupoEvento AS GE WHERE UPPER(GE.descricao) LIKE :pdescricao ORDER BY GE.descricao ASC ")
 })
 public class GrupoEvento implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 100, nullable = true, unique = true)
     private String descricao;
 
@@ -22,16 +23,16 @@ public class GrupoEvento implements java.io.Serializable {
         this.descricao = "";
     }
 
-    public GrupoEvento(int id, String descricao) {
+    public GrupoEvento(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -15,25 +15,33 @@ public class Demissao implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 50, nullable = false)
     private String descricao;
+    @Column(name = "is_motivo_web", columnDefinition = "boolean default false")
+    private Boolean motivoWeb;
+    @Column(name = "ds_mensagem_motivo_web", length = 1000, nullable = false)
+    private String mensagemMotivoWeb;
 
     public Demissao() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
+        this.motivoWeb = false;
+        this.mensagemMotivoWeb = "";
     }
 
-    public Demissao(int id, String descricao) {
+    public Demissao(Integer id, String descricao, Boolean motivoWeb, String mensagemMotivoWeb) {
         this.id = id;
         this.descricao = descricao;
+        this.motivoWeb = motivoWeb;
+        this.mensagemMotivoWeb = mensagemMotivoWeb;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -43,5 +51,21 @@ public class Demissao implements Serializable {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Boolean getMotivoWeb() {
+        return motivoWeb;
+    }
+
+    public void setMotivoWeb(Boolean motivoWeb) {
+        this.motivoWeb = motivoWeb;
+    }
+
+    public String getMensagemMotivoWeb() {
+        return mensagemMotivoWeb;
+    }
+
+    public void setMensagemMotivoWeb(String mensagemMotivoWeb) {
+        this.mensagemMotivoWeb = mensagemMotivoWeb;
     }
 }

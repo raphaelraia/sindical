@@ -33,11 +33,11 @@
                         <h:form id="formPesquisaCaravana">
                             <p:dataTable value="#{caravanaBean.listaCaravana}" var="linha" id="tbl" emptyMessage="Nenhuma Caravana foi encontrada!">
                                 <p:column headerText="Descrição">
-                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(linha)}" value="#{linha.aEvento.descricaoEvento.descricao}"/>
+                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(linha)}" value="#{linha.evento.descricaoEvento.descricao}"/>
                                 </p:column>
 
                                 <p:column headerText="Grupo" style="width: 70px; text-align: center">
-                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(linha)}" value="#{linha.aEvento.descricaoEvento.grupoEvento.descricao}"/>
+                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(linha)}" value="#{linha.evento.descricaoEvento.grupoEvento.descricao}"/>
                                 </p:column>
 
                                 <p:column headerText="Data Saída" style="width: 80px; text-align: center">

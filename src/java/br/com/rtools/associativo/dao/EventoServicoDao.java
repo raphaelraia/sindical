@@ -11,7 +11,7 @@ public class EventoServicoDao extends DB {
         try {
             Query qry = getEntityManager().createQuery("select es "
                     + "  from EventoServico es"
-                    + " where es.aEvento.id = " + idAEvento);
+                    + " where es.evento.id = " + idAEvento);
             return (qry.getResultList());
         } catch (Exception e) {
             e.getMessage();
@@ -23,7 +23,7 @@ public class EventoServicoDao extends DB {
         try {
             Query qry = getEntityManager().createQuery("select es "
                     + "  from EventoServico es"
-                    + " where es.aEvento.id = " + idAEvento
+                    + " where es.evento.id = " + idAEvento
                     + "   and es.servicos.id = " + idServico);
             return (EventoServico) qry.getSingleResult();
         } catch (Exception e) {

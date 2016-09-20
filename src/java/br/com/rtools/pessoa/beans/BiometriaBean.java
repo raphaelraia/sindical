@@ -13,11 +13,17 @@ import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.beans.RotinaBean;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.WSSocket;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -116,6 +122,15 @@ public class BiometriaBean implements Serializable {
             dao.save(biometriaCaptura, true);
             biometria = null;
             for (int i = 0; i < 10; i++) {
+//                try {
+//                    Socket socket = new Socket("192.168.1.160", 5566);
+//                    socket.getInputStream();
+//                    socket.close();
+//                } catch (UnknownHostException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 if (isStatus()) {
                     BiometriaErro biometriaErro = biometriaErroDao.findByMac(((MacFilial) GenericaSessao.getObject("acessoFilial")).getId());
                     if (biometriaErro != null) {

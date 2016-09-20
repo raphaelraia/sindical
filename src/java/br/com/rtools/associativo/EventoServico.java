@@ -22,7 +22,7 @@ public class EventoServico implements java.io.Serializable {
     private int id;
     @JoinColumn(name = "id_evento", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private AEvento aEvento;
+    private AEvento evento;
     @JoinColumn(name = "id_servicos", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Servicos servicos;
@@ -40,7 +40,7 @@ public class EventoServico implements java.io.Serializable {
 
     public EventoServico() {
         this.id = -1;
-        this.aEvento = new AEvento();
+        this.evento = new AEvento();
         this.servicos = new Servicos();
         this.mesa = true;
         this.individual = true;
@@ -49,9 +49,9 @@ public class EventoServico implements java.io.Serializable {
         this.socio = false;
     }
 
-    public EventoServico(int id, AEvento aEvento, Servicos servicos, boolean isMesa, boolean isIndividual, String descricao, Categoria categoria, boolean socio) {
+    public EventoServico(int id, AEvento evento, Servicos servicos, boolean isMesa, boolean isIndividual, String descricao, Categoria categoria, boolean socio) {
         this.id = id;
-        this.aEvento = aEvento;
+        this.evento = evento;
         this.servicos = servicos;
         this.mesa = isMesa;
         this.individual = isIndividual;
@@ -68,12 +68,12 @@ public class EventoServico implements java.io.Serializable {
         this.id = id;
     }
 
-    public AEvento getaEvento() {
-        return aEvento;
+    public AEvento getEvento() {
+        return evento;
     }
 
-    public void setaEvento(AEvento aEvento) {
-        this.aEvento = aEvento;
+    public void setEvento(AEvento evento) {
+        this.evento = evento;
     }
 
     public Servicos getServicos() {

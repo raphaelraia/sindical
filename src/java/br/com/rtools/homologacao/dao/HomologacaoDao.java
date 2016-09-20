@@ -272,45 +272,45 @@ public class HomologacaoDao extends DB {
         String innerPessoaEmpresa = "";
         String pessoaEmpresaCampo = "";
         if (idPessoaFisica > 0 || idPessoaJuridica > 0) {
-            innerPessoaEmpresa = " INNER JOIN pes_pessoa_empresa pesemp ON pesemp.id = age.id_pessoa_empresa ";
+            innerPessoaEmpresa = " INNER JOIN pes_pessoa_empresa pesemp ON pesemp.id = age.id_pessoa_empresa \n";
             if (idPessoaFisica > 0) {
-                pessoaEmpresaCampo = " AND pesemp.id_fisica = " + idPessoaFisica;
+                pessoaEmpresaCampo = " AND pesemp.id_fisica = " + idPessoaFisica + "\n";
             } else {
-                pessoaEmpresaCampo = " AND pesemp.id_juridica = " + idPessoaJuridica;
+                pessoaEmpresaCampo = " AND pesemp.id_juridica = " + idPessoaJuridica + "\n";
             }
         }
         if (dataInicial != null) {
-            dataCampo = " AND age.dt_data = '" + DataHoje.converteData(dataInicial) + "'  ";
+            dataCampo = " AND age.dt_data = '" + DataHoje.converteData(dataInicial) + "'  \n";
         }
         if (dataFinal != null && dataInicial != null) {
-            dataCampo = " AND age.dt_data BETWEEN '" + DataHoje.converteData(dataInicial) + "' AND '" + DataHoje.converteData(dataFinal) + "'  ";
+            dataCampo = " AND age.dt_data BETWEEN '" + DataHoje.converteData(dataInicial) + "' AND '" + DataHoje.converteData(dataFinal) + "'  \n";
         }
         if (idUsuario != 0) {
             if (idUsuario != -1) {
-                homologadorCampo = " and age.id_homologador = " + idUsuario + " ";
+                homologadorCampo = " and age.id_homologador = " + idUsuario + " \n";
             }
         }
         if (idStatus > 0) {
-            statusCampo = " AND age.id_status = " + idStatus;
+            statusCampo = " AND age.id_status = " + idStatus + "\n";
         }
         if (somenteAtivos) {
-            somenteAtivosString = " AND hor.ativo = true ";
+            somenteAtivosString = " AND hor.ativo = true \n";
         }
         try {
             String textQuery
-                    = "       SELECT age.*                                      "
-                    + "       FROM hom_agendamento age                         "
-                    + "      INNER JOIN hom_horarios hor ON hor.id = age.id_horario "
+                    = "       SELECT age.*                                      \n"
+                    + "       FROM hom_agendamento age                          \n"
+                    + "      INNER JOIN hom_horarios hor ON hor.id = age.id_horario\n "
                     + innerPessoaEmpresa
-                    + "      WHERE age.id_horario IS NOT NULL                  "
+                    + "      WHERE age.id_horario IS NOT NULL                  \n"
                     + dataCampo
                     + homologadorCampo
                     + statusCampo
-                    + pessoaEmpresaCampo
+                    + pessoaEmpresaCampo    
                     + somenteAtivosString
-                    + "        AND age.id_filial = " + idFilial
-                    + "      ORDER BY age.dt_data DESC, hor.ds_hora ASC      "
-                    + "      LIMIT 1000                                        ";
+                    + "        AND age.id_filial = " + idFilial + " \n"
+                    + "      ORDER BY age.dt_data DESC, hor.ds_hora ASC      \n"
+                    + "      LIMIT 1000                                        \n";
 
             Query qry = getEntityManager().createNativeQuery(textQuery, Agendamento.class);
 

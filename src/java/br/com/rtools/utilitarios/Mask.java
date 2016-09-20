@@ -34,6 +34,7 @@ public class Mask {
             case "cei":
                 return pi + "99.999.99999/99";
             case "nascimento":
+            case "data":
                 return "99/99/9999";
             default:
                 return "";

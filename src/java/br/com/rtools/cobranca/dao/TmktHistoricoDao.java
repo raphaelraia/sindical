@@ -22,7 +22,7 @@ public class TmktHistoricoDao extends DB {
         this.order = order;
     }
 
-    public List<TmktHistorico> fimd(String description, String by, String filterMatchMode) {
+    public List<TmktHistorico> find(String description, String by, String filterMatchMode) {
         if (description.isEmpty()) {
             return new ArrayList();
         }
