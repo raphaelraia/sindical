@@ -35,19 +35,75 @@ public class Catraca implements Serializable {
     private String numero;
     @Column(name = "ds_ip")
     private String ip;
+    @Column(name = "nr_numero")
+    private Integer nrNumero;
+    @Column(name = "nr_porta")
+    private Integer porta;
+    @Column(name = "nr_quantidade_digitos")
+    private Integer quantidadeDigitos;
+    @Column(name = "is_bloquear_sem_foto")
+    private Boolean bloquearSemFoto;
+    @Column(name = "nr_tipo_giro_catraca")
+    private Integer tipoGiroCatraca;
+    @Column(name = "ds_lado_giro_catraca")
+    private String ladoGiroCatraca;
+    @Column(name = "ds_servidor_foto")
+    private String servidorFoto;
+    @Column(name = "is_servidor_beep")
+    private Boolean servidorBeep;
+    @Column(name = "is_biometrico")
+    private Boolean biometrico;
+    @Column(name = "is_leitor_biometrico_externo")
+    private Boolean leitorBiometricoExterno;
+    @Column(name = "is_grava_frequencia_catraca")
+    private Boolean gravaFrequenciaCatraca;
+    @Column(name = "is_verifica_biometria")
+    private Boolean verificaBiometria;
+    @Column(name = "is_verifica_liberacao")
+    private Boolean verificaLiberacao;
+    @Column(name = "is_ativo")
+    private Boolean ativo;
 
     public Catraca() {
         this.id = -1;
         this.departamento = new Departamento();
-        this.numero = "";
+        this.numero = "01";
         this.ip = "";
+        this.nrNumero = 1;
+        this.porta = 3570;
+        this.quantidadeDigitos = 14;
+        this.bloquearSemFoto = false;
+        this.tipoGiroCatraca = 1;
+        this.ladoGiroCatraca = "direita";
+        this.servidorFoto = "";
+        this.servidorBeep = false;
+        this.biometrico = false;
+        this.leitorBiometricoExterno = true;
+        this.gravaFrequenciaCatraca = false;
+        this.verificaBiometria = false;
+        this.verificaLiberacao = true;
+        this.ativo = true;
     }
 
-    public Catraca(Integer id, Departamento departamento, String numero, String ip) {
+    public Catraca(Integer id, Departamento departamento, String numero, String ip, Integer nrNumero, Integer porta, Integer quantidadeDigitos, Boolean bloquearSemFoto, Integer tipoGiroCatraca, String ladoGiroCatraca, String servidorFoto, Boolean servidorBeep, Boolean biometrico, Boolean leitorBiometricoExterno, Boolean gravaFrequenciaCatraca, Boolean verificaBiometria, Boolean verificaLiberacao, Boolean ativo) {
         this.id = id;
         this.departamento = departamento;
         this.numero = numero;
         this.ip = ip;
+        this.nrNumero = nrNumero;
+        this.porta = porta;
+        this.quantidadeDigitos = quantidadeDigitos;
+        this.bloquearSemFoto = bloquearSemFoto;
+        this.tipoGiroCatraca = tipoGiroCatraca;
+        this.ladoGiroCatraca = ladoGiroCatraca;
+        this.servidorFoto = servidorFoto;
+        this.servidorBeep = servidorBeep;
+        this.biometrico = biometrico;
+        this.leitorBiometricoExterno = leitorBiometricoExterno;
+        this.gravaFrequenciaCatraca = gravaFrequenciaCatraca;
+        this.verificaBiometria = verificaBiometria;
+        this.verificaLiberacao = verificaLiberacao;
+        this.ativo = ativo;
     }
 
     public Integer getId() {
@@ -82,4 +138,115 @@ public class Catraca implements Serializable {
         this.ip = ip;
     }
 
+    public Integer getNrNumero() {
+        return nrNumero;
+    }
+
+    public void setNrNumero(Integer nrNumero) {
+        this.nrNumero = nrNumero;
+    }
+    
+    public Integer getPorta() {
+        return porta;
+    }
+
+    public void setPorta(Integer porta) {
+        this.porta = porta;
+    }
+    
+    public Integer getQuantidadeDigitos() {
+        return quantidadeDigitos;
+    }
+
+    public void setQuantidadeDigitos(Integer quantidadeDigitos) {
+        this.quantidadeDigitos = quantidadeDigitos;
+    }
+
+    public Boolean getBloquearSemFoto() {
+        return bloquearSemFoto;
+    }
+
+    public void setBloquearSemFoto(Boolean bloquearSemFoto) {
+        this.bloquearSemFoto = bloquearSemFoto;
+    }
+
+    public Integer getTipoGiroCatraca() {
+        return tipoGiroCatraca;
+    }
+
+    public void setTipoGiroCatraca(Integer tipoGiroCatraca) {
+        this.tipoGiroCatraca = tipoGiroCatraca;
+    }
+
+    public String getLadoGiroCatraca() {
+        return ladoGiroCatraca;
+    }
+
+    public void setLadoGiroCatraca(String ladoGiroCatraca) {
+        this.ladoGiroCatraca = ladoGiroCatraca;
+    }
+
+    public String getServidorFoto() {
+        return servidorFoto;
+    }
+
+    public void setServidorFoto(String servidorFoto) {
+        this.servidorFoto = servidorFoto;
+    }
+
+    public Boolean getServidorBeep() {
+        return servidorBeep;
+    }
+
+    public void setServidorBeep(Boolean servidorBeep) {
+        this.servidorBeep = servidorBeep;
+    }
+
+    public Boolean getBiometrico() {
+        return biometrico;
+    }
+
+    public void setBiometrico(Boolean biometrico) {
+        this.biometrico = biometrico;
+    }
+
+    public Boolean getLeitorBiometricoExterno() {
+        return leitorBiometricoExterno;
+    }
+
+    public void setLeitorBiometricoExterno(Boolean leitorBiometricoExterno) {
+        this.leitorBiometricoExterno = leitorBiometricoExterno;
+    }
+
+    public Boolean getGravaFrequenciaCatraca() {
+        return gravaFrequenciaCatraca;
+    }
+
+    public void setGravaFrequenciaCatraca(Boolean gravaFrequenciaCatraca) {
+        this.gravaFrequenciaCatraca = gravaFrequenciaCatraca;
+    }
+
+    public Boolean getVerificaBiometria() {
+        return verificaBiometria;
+    }
+
+    public void setVerificaBiometria(Boolean verificaBiometria) {
+        this.verificaBiometria = verificaBiometria;
+    }
+
+    public Boolean getVerificaLiberacao() {
+        return verificaLiberacao;
+    }
+
+    public void setVerificaLiberacao(Boolean verificaLiberacao) {
+        this.verificaLiberacao = verificaLiberacao;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
 }

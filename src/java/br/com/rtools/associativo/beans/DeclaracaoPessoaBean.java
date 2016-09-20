@@ -50,13 +50,49 @@ public class DeclaracaoPessoaBean implements Serializable {
     private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
 
     private Boolean chkTodosConvenios = false;
-
+    
     public DeclaracaoPessoaBean() {
         loadListaDeclaracaoTipo();
         loadListaConvenio();
         loadListaDeclaracaoPessoa();
     }
+    
+    public void excluir(){
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        
+        String delete_log
+                = "Pessoa: " + declaracaoPessoa.getPessoa().getDocumento() + ": " + declaracaoPessoa.getPessoa().getNome() + " \n "
+                + "Convênio: " + declaracaoPessoa.getConvenio().getDocumento() + ": " + declaracaoPessoa.getConvenio().getNome() + " \n "
+                + "Tipo Declaração: " + declaracaoPessoa.getDeclaracaoTipo().getDescricao();
+        
+        Integer declaracao_id = declaracaoPessoa.getId();
+        if (!dao.delete(declaracaoPessoa)){
+            dao.rollback();
+            GenericaMensagem.error("Atenção", "Erro ao excluir declaração!");
+            return;
+        }
+        
 
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("soc_declaracao_pessoa");
+
+        novoLog.setCodigo(declaracao_id);
+        
+        novoLog.delete(
+                delete_log
+        );
+
+        dao.commit();
+        
+        declaracaoPessoa = new DeclaracaoPessoa();
+        
+        loadListaDeclaracaoPessoa();
+        
+        GenericaMensagem.info("Sucesso", "Declaração excluída!");
+    }
+    
     public void novo() {
         GenericaSessao.put("declaracaoPessoaBean", new DeclaracaoPessoaBean());
     }

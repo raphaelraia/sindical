@@ -13,6 +13,10 @@
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
+            
+            .column00 {
+                padding-right: 15px; 
+            }
         </style>
 
         <script type="text/javascript">
@@ -33,7 +37,7 @@
                         <div style="clear: both"></div>
                         <h:form id="formCatraca">
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="6">
+                                <h:panelGrid columns="7">
                                     <h:column>
                                         <p:outputLabel value="Departamento" /><br />
                                         <p:selectOneMenu value="#{catracaBean.indexDepartamento}" style="width: 200px">
@@ -49,40 +53,143 @@
 
                                     <h:column>
                                         <p:outputLabel value="IP servidor Catraca" /><br />
-                                        <p:inputMask value="#{catracaBean.catraca.ip}" style="width: 150px; text-align: center" mask="999.999.999.999"/>
+                                        <p:inputMask value="#{catracaBean.catraca.ip}" style="width: 150px; text-align: center" mask="999.999.??9.999"/>
                                     </h:column>
 
                                     <h:column>
-                                        <br />
-                                        <p:commandButton value="Novo" action="#{catracaBean.novo()}" update="@form" rendered="#{catracaBean.catraca.id ne -1}"/>
+                                        <p:outputLabel value="Porta" /><br />
+                                        <p:inputMask value="#{catracaBean.catraca.porta}" style="width: 50px; text-align: center" mask="9999"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Qnt. Digitos" /><br />
+                                        <p:inputMask value="#{catracaBean.catraca.quantidadeDigitos}" style="width: 70px; text-align: center" mask="99"/>
                                     </h:column>
                                     
                                     <h:column>
-                                        <br />
-                                        <p:commandButton icon="ui-icon-check" value="#{catracaBean.catraca.id eq -1 ? 'Adicionar' : 'Atualizar'}" action="#{catracaBean.salvar()}" update="@form"/>
+                                        <p:outputLabel value="Lado Giro Catraca" /><br />
+                                        <p:selectOneMenu value="#{catracaBean.catraca.ladoGiroCatraca}" style="width: 80px">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItem itemValue="direita" itemLabel="Direita" />
+                                            <f:selectItem itemValue="esquerda" itemLabel="Esquerda" />
+                                        </p:selectOneMenu>
                                     </h:column>
                                     
                                     <h:column>
-                                        <br />
-                                        <p:commandButton icon="ui-icon-close" value="Excluir" onclick="PF('dlg_excluir').show()" rendered="#{catracaBean.catraca.id ne -1}"/>
+                                        <p:outputLabel value="Tipo Giro Catraca" /><br />
+                                        <p:selectOneMenu value="#{catracaBean.catraca.tipoGiroCatraca}">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItem itemValue="0" itemLabel="Não utilizado (Coletor)" />
+                                            <f:selectItem itemValue="1" itemLabel="Catraca Entrada/Saída" />
+                                            <f:selectItem itemValue="2" itemLabel="Catraca Entrada" />
+                                            <f:selectItem itemValue="3" itemLabel="Catraca Saída" />
+                                            <f:selectItem itemValue="4" itemLabel="Catraca Saída Liberada" />
+                                            <f:selectItem itemValue="5" itemLabel="Catraca Entrada Liberada" />
+                                            <f:selectItem itemValue="6" itemLabel="Catraca Liberada 2 Sentidos" />
+                                            <f:selectItem itemValue="7" itemLabel="Catraca Liberada 2 Sentidos(Sentido Giro)" />
+                                            <f:selectItem itemValue="8" itemLabel="Catraca com Urna" />
+                                        </p:selectOneMenu>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
 
+                            <p:panel>
+                                <h:panelGrid columns="10" columnClasses="column00, column00, column00, column00, column00, column00, column00, column00, column00">
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.biometrico}" itemLabel="Biométrico" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.bloquearSemFoto}" itemLabel="Bloquear Quando sem Foto" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.gravaFrequenciaCatraca}" itemLabel="Gravar Frequência Catraca" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.leitorBiometricoExterno}" itemLabel="Leitor Biométrico Externo" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.servidorBeep}" itemLabel="Som pelo Servidor" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.verificaBiometria}" itemLabel="Verificar Biometria" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{catracaBean.catraca.verificaLiberacao}" itemLabel="Verificar Liberação" />
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <h:panelGrid columns="3">
+                                <h:column>
+                                    <br />
+                                    <p:commandButton icon="ui-icon-document" value="Novo" action="#{catracaBean.novo()}" update="@form" rendered="#{catracaBean.catraca.id ne -1}"/>
+                                </h:column>
+
+                                <h:column>
+                                    <br />
+                                    <p:commandButton icon="ui-icon-check" value="#{catracaBean.catraca.id eq -1 ? 'Salvar' : 'Atualizar'}" action="#{catracaBean.salvar()}" update="@form"/>
+                                </h:column>
+
+                                <h:column>
+                                    <br />
+                                    <p:commandButton icon="ui-icon-close" value="Excluir" onclick="PF('dlg_excluir').show()" rendered="#{catracaBean.catraca.id ne -1}"/>
+                                </h:column>
+                            </h:panelGrid>
+                            <br />
                             <p:messages showDetail="true" closable="true" />
 
-                            <p:dataTable value="#{catracaBean.listaCatraca}" var="linha_catraca" emptyMessage="Nenhum Registro Encontrado.">
+                            <p:poll global="false" update="tbl_catraca" interval="2" listener="#{catracaBean.loadListaCatraca()}"/>
+
+                            <p:dataTable id="tbl_catraca" value="#{catracaBean.listaCatraca}" var="linha_catraca" emptyMessage="Nenhum Registro Encontrado.">
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
                                 <p:column headerText="Departamento">
-                                    <p:commandLink value="#{linha_catraca.departamento.descricao}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
+                                    <p:commandLink value="#{linha_catraca.catraca.departamento.descricao}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
                                 </p:column>
 
                                 <p:column headerText="Número" style="width: 50px; text-align: center">
-                                    <p:commandLink value="#{linha_catraca.numero}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
+                                    <p:commandLink value="#{linha_catraca.catraca.numero}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
                                 </p:column>
 
                                 <p:column headerText="IP" style="width: 100px; text-align: center">
-                                    <p:commandLink value="#{linha_catraca.ip}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
+                                    <p:commandLink value="#{linha_catraca.catraca.ip}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
                                 </p:column>
+                                
+                                <p:column headerText="Porta" style="width: 50px; text-align: center">
+                                    <p:commandLink value="#{linha_catraca.catraca.porta}" action="#{catracaBean.editar(linha_catraca)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Ping" style="width: 70px; text-align: center;">
+                                    <p:outputLabel value="#{linha_catraca.catracaMonitora.ping}" style="background: #{linha_catraca.catracaMonitora.ativo ? '#c6ffcb' : '#ffc6c6'}; padding: 30px; "/>
+                                </p:column>
+
+                                <p:column headerText="Status" style="width: 150px; text-align: center">
+                                    <p:outputLabel value="#{linha_catraca.catracaMonitora.status}" />
+                                </p:column>
+                                
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                        <p:column>
+                                            <p:outputLabel value="Qnt Dígitos" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha_catraca.catraca.quantidadeDigitos}"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
                             </p:dataTable>
 
                             <p:dialog widgetVar="dlg_excluir" modal="true" header="Excluir Catraca" width="400" resizable="false">

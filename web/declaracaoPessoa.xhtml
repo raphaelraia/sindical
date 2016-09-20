@@ -12,7 +12,10 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
-            .ui-selectonemenu {padding-right: 25px!important;}
+            
+            .column00{
+                padding: 10px;
+            }
         </style>
 
         <script type="text/javascript">
@@ -35,18 +38,18 @@
                             <p:outputLabel value="Criar Nova Declaração" style="font-size: 11pt!important; font-weight: bold"/>
                             <p:separator />
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid id="panel_declaracao_tipo" columns="4">
+                                <h:panelGrid id="panel_declaracao_tipo" columns="2">
                                     <h:column>
                                         <p:outputLabel value="Tipo" /><br />
-                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoTipo}" style="width: 180px">
+                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoTipo}" style="width: 200px" autoWidth="false">
                                             <p:ajax event="change" update="panel_declaracao_tipo" listener="#{declaracaoPessoaBean.loadListaConvenio()}" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaDeclaracaoTipo}" />
                                         </p:selectOneMenu>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Convênio" /><br />
-                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}" style="width: 550px">
+                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}" style="width: 880px" autoWidth="false">
                                             <p:ajax event="change" listener="#{declaracaoPessoaBean.loadListaDeclaracaoPessoa()}" update="@form" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaConvenio}"/>
                                         </p:selectOneMenu>
@@ -56,7 +59,7 @@
                                         <br />
                                         <p:commandButton value="Pesquisar Pessoa" action="#{declaracaoPessoaBean.limparPesquisa()}" onclick="PF('dlg_pesquisar').show()" icon="ui-icon-search" update="formDeclaracaoPessoa:panel_pesquisar"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox itemLabel="Mostrar de Todos Convênios" value="#{declaracaoPessoaBean.chkTodosConvenios}">
@@ -127,13 +130,17 @@
                                     <p:commandButton icon="ui-icon-print" action="#{declaracaoPessoaBean.imprimir_jasper(linha_declaracao)}" ajax="false"/>
                                 </p:column>
                                 
+                                <p:column style="width: 50px; text-align: center">
+                                    <p:commandButton icon="ui-icon-close" action="#{declaracaoPessoaBean.setDeclaracaoPessoa(linha_declaracao)}" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_excluir_declaracao').show()" update="formDeclaracaoPessoa:panel_excluir_declaracao"/>
+                                </p:column>
+
                                 <p:rowExpansion>
                                     <h:panelGrid columns="2" style="height: 40px" styleClass="sbb">
                                         <p:column>
                                             <p:outputLabel value="TIPO" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha_declaracao.declaracaoTipo.descricao}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="CONVÊNIO" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha_declaracao.convenio.documento} - #{linha_declaracao.convenio.nome}"/>
@@ -180,6 +187,28 @@
 
                                 <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{declaracaoPessoaBean.imprimir()}" ajax="false" update="@form" onclick="PF('dlg_imprimir').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_imprimir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="dlg_excluir_declaracao" header="Excluir Declaração" resizable="false" width="600" modal="true">
+                                <h:panelGrid id="panel_excluir_declaracao" style="width: 100%">
+                                    <p:outputLabel value="Deseja realmente excluir esta declaração?" style="font-size: 11pt!important; font-weight: bold; color: red"/>
+                                    
+                                    <h:panelGrid columns="3" columnClasses="column00, column00">
+                                        <h:column>
+                                            <p:outputLabel value="Beneficiário" /><br />
+                                            <p:outputLabel value="#{declaracaoPessoaBean.declaracaoPessoa.pessoa.nome}" style="font-weight: bold"/>
+                                        </h:column>
+                                        
+                                        <h:column>
+                                            <p:outputLabel value="Categoria" /><br />
+                                            <p:outputLabel value="#{declaracaoPessoaBean.declaracaoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}" style="font-weight: bold"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                                <br />
+
+                                <p:commandButton value="Excluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{declaracaoPessoaBean.excluir()}" ajax="false" update="@form" onclick="PF('dlg_excluir_declaracao').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir_declaracao').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
                         </h:form>
                     </p:panel>
