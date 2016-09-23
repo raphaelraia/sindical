@@ -2312,6 +2312,12 @@
             <redirect/>
         </navigation-case>             
         
+        <navigation-case>
+            <from-outcome>sisCarta</from-outcome>
+            <to-view-id>/sisCarta.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

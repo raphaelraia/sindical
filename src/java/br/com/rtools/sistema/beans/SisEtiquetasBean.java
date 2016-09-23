@@ -1,6 +1,7 @@
 package br.com.rtools.sistema.beans;
 
 import br.com.rtools.impressao.Etiquetas;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisEtiquetas;
 import br.com.rtools.sistema.dao.SisEtiquetasDao;
@@ -62,13 +63,11 @@ public class SisEtiquetasBean implements Serializable {
             } else {
                 GenericaMensagem.warn("Erro", "Ao inserir registro!");
             }
+        } else if (dao.update(sisEtiquetas, true)) {
+            GenericaMensagem.info("Sucesso", "Registro atualizado");
+            listSisEtiquetas.clear();
         } else {
-            if (dao.update(sisEtiquetas, true)) {
-                GenericaMensagem.info("Sucesso", "Registro atualizado");
-                listSisEtiquetas.clear();
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
-            }
+            GenericaMensagem.warn("Erro", "Ao atualizar registro!");
         }
     }
 
@@ -136,6 +135,119 @@ public class SisEtiquetasBean implements Serializable {
                 "/Relatorios/ETIQUETAS.jasper",
                 "etiquetas",
                 (Collection) c
+        );
+    }
+
+    /**
+     * *
+     * Imprime endereços de uma lista do Objeto Pessoa
+     *
+     * @param listPessoas
+     */
+    public static void printList(List<Pessoa> listPessoas) {
+        printList(listPessoas, 2);
+    }
+
+    /**
+     * Imprime endereços de uma lista do Objeto Pessoa
+     *
+     * @param listPessoas
+     * @param tipo_endereco_id
+     */
+    public static void printList(List<Pessoa> listPessoas, Integer tipo_endereco_id) {
+        String in_pessoas = "";
+        for (int i = 0; i < listPessoas.size(); i++) {
+            if (i == 0) {
+                in_pessoas = "" + listPessoas.get(i).getId();
+            } else {
+                in_pessoas += "," + listPessoas.get(i).getId();
+            }
+        }
+        printIn(in_pessoas, tipo_endereco_id);
+    }
+
+    /**
+     * Imprime endereços de uma lista de id pessoas
+     *
+     * @param in_pessoa_id
+     */
+    public static void printIn(List<Integer> in_pessoa_id) {
+        printIn(in_pessoa_id, 2);
+    }
+
+    /**
+     * Imprime endereços de uma lista de id pessoas
+     *
+     * @param in_pessoa_id
+     * @param tipo_endereco_id
+     */
+    public static void printIn(List<Integer> in_pessoa_id, Integer tipo_endereco_id) {
+        String in_pessoas = "";
+        if (in_pessoa_id.isEmpty()) {
+            GenericaMensagem.info("Sistema", "Nenhum endereço informado!");
+            return;
+        }
+        for (int i = 0; i < in_pessoa_id.size(); i++) {
+            if (i == 0) {
+                in_pessoas = "" + in_pessoa_id.get(i);
+            } else {
+                in_pessoas += "," + in_pessoa_id.get(i);
+            }
+        }
+        printIn(in_pessoas, tipo_endereco_id);
+    }
+
+    public static void printIn(String in_pessoas) {
+        printIn(in_pessoas, 2);
+    }
+
+    public static void printIn(String in_pessoas, Integer tipo_endereco_id) {
+        List list = new SisEtiquetasDao().findEnderecosByInPessoa(in_pessoas, tipo_endereco_id);
+        List<Etiquetas> c = new ArrayList<>();
+        Etiquetas e = new Etiquetas();
+        for (Object list1 : list) {
+            List o = (List) list1;
+            try {
+                e = new Etiquetas(
+                        o.get(1), // Nome
+                        o.get(4), // Logradouro
+                        o.get(5), // Endereço
+                        o.get(6), // Número
+                        o.get(8), // Bairro
+                        o.get(9), // Cidade
+                        o.get(10), // UF
+                        o.get(11), // Cep
+                        o.get(7), // Complemento
+                        "" // Observação
+                );
+            } catch (Exception ex) {
+
+            }
+            c.add(e);
+        }
+
+        if (c.isEmpty()) {
+            GenericaMensagem.info("Sistema", "Nenhum registro encontrado!");
+            return;
+        }
+
+        Jasper.printReports(
+                "/Relatorios/ETIQUETAS.jasper",
+                "etiquetas",
+                (Collection) c
+        );
+    }
+
+    public static void print(List<Etiquetas> listEtiquetas) {
+        if (listEtiquetas.isEmpty()) {
+            GenericaMensagem.info("Sistema", "Nenhum registro encontrado!");
+            return;
+        }
+
+        Jasper.printReports(
+                "/Relatorios/ETIQUETAS.jasper",
+                "etiquetas",
+                (Collection) listEtiquetas
         );
     }
 

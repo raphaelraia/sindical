@@ -118,7 +118,7 @@
                                                     <p:selectOneMenu value="#{relatorioSociosInativosBean.status}">
                                                         <p:ajax event="change" update="@this" />
                                                         <f:selectItem itemLabel="QUE HOJE ESTÃO ATIVOS" itemValue="inativos_hoje_ativos" />
-                                                        <f:selectItem itemLabel="QUE AINDA ESTÃO INÁTIVOS" itemValue="inativos" />
+                                                        <f:selectItem itemLabel="QUE AINDA ESTÃO INATIVOS" itemValue="inativos" />
                                                     </p:selectOneMenu>
                                                 </p:panel>
                                             </h:panelGroup>                                
@@ -136,7 +136,13 @@
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="1" id="i_btns" cellpadding="3">
-                                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioSociosInativosBean.print()}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioSociosInativosBean.listTipoRelatorio}"/>
+                                        <h:column>
+                                            <h:panelGrid columns="2">
+                                                <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioSociosInativosBean.print(false)}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioSociosInativosBean.listTipoRelatorio}"/>
+                                                <p:commandButton value="Etiquetas" title="Etiquetas" action="#{relatorioSociosInativosBean.print(true)}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioSociosInativosBean.listTipoRelatorio}"/>
+                                            </h:panelGrid>                                            
+                                        </h:column>
+
                                         <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>

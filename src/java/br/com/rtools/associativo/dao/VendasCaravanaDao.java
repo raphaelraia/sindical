@@ -33,7 +33,7 @@ public class VendasCaravanaDao extends DB {
                     + "       0 valor \n"
                     + "  FROM car_reservas r\n"
                     + " INNER JOIN eve_evento_servico es ON es.id = r.id_evento_servico\n"
-                    + " WHERE r.id_cvenda = " + id_venda + "\n"
+                    + " WHERE r.id_caravana_venda = " + id_venda + " AND r.dt_cancelamento IS NULL \n"
                     + " GROUP BY es.ds_descricao\n"
                     + " ORDER BY es.ds_descricao"
             );

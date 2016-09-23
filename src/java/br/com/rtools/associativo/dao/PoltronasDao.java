@@ -11,7 +11,7 @@ public class PoltronasDao extends DB {
     public List<Integer> listaPoltronasUsadas(int idEvento) {
         List<Integer> list = new ArrayList();
         try {
-            Query query = getEntityManager().createQuery("SELECT CR.poltrona FROM CaravanaReservas CR WHERE CR.venda.evento.id = :evento_id ORDER BY CR.poltrona");
+            Query query = getEntityManager().createQuery("SELECT CR.poltrona FROM CaravanaReservas CR WHERE CR.venda.evento.id = :evento_id AND CR.dtCancelamento IS NULL ORDER BY CR.poltrona");
             query.setParameter("evento_id", idEvento);
             list = query.getResultList();
             return list;

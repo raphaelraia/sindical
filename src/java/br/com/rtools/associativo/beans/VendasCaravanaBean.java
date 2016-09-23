@@ -206,11 +206,18 @@ public class VendasCaravanaBean implements Serializable {
             tipo[i] = linha.get(0);
             quantidade[i] = linha.get(1);
             //valor[i] = linha.get(2);
+            float desconto = 0;
+            for (ListaReservas lr : listaReservas) {
+                CaravanaReservas r = (CaravanaReservas) lr.getReservas();
+                if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
+                    desconto += lr.getReservas().getDesconto();
+                }
+            }
             for (ListaReservas lr : listaReservas) {
                 CaravanaReservas r = (CaravanaReservas) lr.getReservas();
                 if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
                     if ((Float) valor[i] == null) {
-                        valor[i] = Moeda.converteUS$(lr.getValor()) * Integer.parseInt(linha.get(1).toString());
+                        valor[i] = (Moeda.converteUS$(lr.getValor()) * Integer.parseInt(linha.get(1).toString())) - desconto;
                         total = total + (Float) valor[i];
                     }
                 }
@@ -275,7 +282,7 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void cancel() {
-        if (isLocked()) {
+        if (isBlock()) {
             GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
             return;
         }
@@ -531,6 +538,16 @@ public class VendasCaravanaBean implements Serializable {
         loadListParcelas();
         pessoa = vendas.getResponsavel();
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
+        int countBaixa = 0;
+        if (!listMovimento.isEmpty()) {
+            for (int i = 0; i < listMovimento.size(); i++) {
+                if (listMovimento.get(i).getBaixa() != null) {
+                    countBaixa++;
+                }
+            }
+            countBaixa++;
+            parcelas = countBaixa;
+        }
         return "vendasCaravana";
     }
 
@@ -568,7 +585,7 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void save() {
-        if (isLocked()) {
+        if (isBlock()) {
             GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
             return;
         }
@@ -663,11 +680,12 @@ public class VendasCaravanaBean implements Serializable {
                     GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
                     return;
                 }
-                for (int i = 0; i < listaReservas.size(); i++) {
-                    if (listaReservas.get(i).getReservas().getDtCancelamento() != null) {
-                        listaReservas.remove(i);
-                    }
-                }
+            }
+        }
+
+        for (int i = 0; i < listaReservas.size(); i++) {
+            if (listaReservas.get(i).getReservas().getDtCancelamento() != null) {
+                listaReservas.remove(i);
             }
         }
 
@@ -810,7 +828,7 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void alter() {
-        if (isLocked()) {
+        if (isBlock()) {
             GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
             return;
         }
@@ -979,7 +997,15 @@ public class VendasCaravanaBean implements Serializable {
     public String pesquisaPassageiro(int index) {
         idAdicionar = index;
         GenericaSessao.put("pesquisaFisicaTipo", "passageiro");
-        return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).pesquisaPessoaFisica();
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoaFisica();
+    }
+
+    public String cadastrarPassageiro(int index) {
+        idAdicionar = index;
+        GenericaSessao.put("cadastrar", true);
+        GenericaSessao.put("pesquisaFisicaTipo", "passageiro");
+        GenericaSessao.remove("fisicaBean");
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pessoaFisica();
     }
 
     public void removerPessoa() {
@@ -1177,6 +1203,9 @@ public class VendasCaravanaBean implements Serializable {
                 GenericaMensagem.warn("Validação", "PASSAGEIRO JÁ CADASTRADO PARA ESSA CARAVANA!");
                 return listaReservas;
             }
+            if (!fis.getPessoa().getPessoaComplemento().getObsAviso().isEmpty()) {
+                GenericaMensagem.fatal("Mensagem", "AVISO: " + fis.getPessoa().getPessoaComplemento().getObsAviso());
+            }
             if (vendas.getId() != null) {
                 disabledGerarParcelas = true;
             }
@@ -1231,6 +1260,23 @@ public class VendasCaravanaBean implements Serializable {
 
     public void setParcelasString(String parcelasString) {
         this.parcelas = Integer.parseInt(parcelasString);
+        if (this.parcelas == 0) {
+            this.parcelas = 1;
+        }
+        int countBaixa = 0;
+        if (!listMovimento.isEmpty()) {
+            for (int i = 0; i < listMovimento.size(); i++) {
+                if (listMovimento.get(i).getBaixa() != null) {
+                    countBaixa++;
+                }
+            }
+            if (this.parcelas <= countBaixa) {
+                GenericaMensagem.warn("Validação", "JÁ EXISTE(M) " + countBaixa + " PARCELA(S) PAGA(S), SENDO PERMITIDO QUE MÍNIMO SEJAM GERADAS " + (countBaixa + 1) + " PARCELAS");
+                countBaixa++;
+                parcelas = countBaixa;
+
+            }
+        }
     }
 
     public String getDataEntrada() {
@@ -1736,7 +1782,7 @@ public class VendasCaravanaBean implements Serializable {
         this.listPoltronasReservadas = listPoltronasReservadas;
     }
 
-    public boolean isLocked() {
+    public boolean isBlock() {
         if (bloqueioRotina != null) {
             if (bloqueioRotina.getId() != -1) {
                 return true;

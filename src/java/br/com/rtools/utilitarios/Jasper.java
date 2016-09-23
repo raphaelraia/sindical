@@ -173,7 +173,15 @@ public class Jasper implements Serializable {
      */
     public static Filial FILIAL;
 
+    private List jasperPrintList = new ArrayList();
+
     static {
+        load();
+    }
+
+    @PostConstruct
+    public void init() {
+        jasperPrintList = new ArrayList();
         load();
     }
 
@@ -183,11 +191,6 @@ public class Jasper implements Serializable {
 
     public void setEXPORT_TYPE(String aEXPORT_TYPE) {
         EXPORT_TYPE = aEXPORT_TYPE;
-    }
-
-    @PostConstruct
-    public void init() {
-        load();
     }
 
     public static void load() {
@@ -217,6 +220,73 @@ public class Jasper implements Serializable {
         dbe = null;
         IS_QUERY_STRING = false;
         QUERY_STRING = "";
+    }
+
+    /**
+     * Inicia uma lista de Jaspers
+     */
+    public void start() {
+        jasperPrintList = new ArrayList();
+    }
+
+    /**
+     * Adiciona um jasper a Lista
+     *
+     * @param fileName
+     * @param c
+     */
+    public void add(String fileName, Collection c) {
+        add(load(fileName), null, c);
+    }
+
+    /**
+     * Adiciona um jasper a Lista
+     *
+     * @param jasperReport
+     * @param c
+     */
+    public void add(JasperReport jasperReport, Collection c) {
+        add(jasperReport, null, c);
+    }
+
+    /**
+     * Adiciona um jasper a Lista
+     *
+     * @param fileName
+     * @param map
+     * @param c
+     */
+    public void add(String fileName, Map map, Collection c) {
+        add(load(fileName), map, c);
+    }
+
+    /**
+     * Adiciona um jasper a Lista
+     *
+     * @param jasperReport
+     * @param map
+     * @param c
+     */
+    public void add(JasperReport jasperReport, Map map, Collection c) {
+        JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource((Collection) c);
+        jasperPrintList.add(Jasper.fillObject(jasperReport, map, dtSource));
+    }
+
+    /**
+     * Imprime a lista gerada
+     */
+    public void finish() {
+        Jasper.printReports("down   load", jasperPrintList);
+    }
+
+    /**
+     * Imprime a lista gerada com nome do arquivo
+     *
+     * @param filename
+     */
+    public void finish(String filename) {
+        Jasper.printReports(filename, jasperPrintList);
+        jasperPrintList = new ArrayList();
     }
 
     public static void printReports(String jasperName, String fileName, Collection c) {
@@ -877,6 +947,28 @@ public class Jasper implements Serializable {
         return list;
     }
 
+    public static JasperReport load(String filename) {
+        try {
+            return (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + filename)));
+        } catch (Exception e1) {
+            try {
+                return (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + filename)));
+            } catch (Exception e2) {
+
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Cria uma lista tipo fill, para adicionar varios Jaspers diferentes a uma
+     * lista genérica
+     *
+     * @param jasperReport
+     * @param parameters
+     * @param dataSource
+     * @return
+     */
     public static FillObject fillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
         return new FillObject(jasperReport, parameters, dataSource);
     }

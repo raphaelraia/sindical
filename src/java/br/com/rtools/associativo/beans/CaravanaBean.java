@@ -7,11 +7,17 @@ import br.com.rtools.associativo.*;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
+import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.Upload;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +25,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
+import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -42,6 +51,7 @@ public class CaravanaBean implements Serializable {
     private List<SelectItem> listaDescricaoEvento = new ArrayList();
     private List<SelectItem> listaGrupoEvento = new ArrayList();
     private List<SelectItem> listaServicos = new ArrayList();
+    private List listFiles;
 
     @PostConstruct
     public void init() {
@@ -61,6 +71,7 @@ public class CaravanaBean implements Serializable {
         listaDescricaoEvento = new ArrayList();
         listaGrupoEvento = new ArrayList();
         listaServicos = new ArrayList();
+        listFiles = new ArrayList();
         loadListaServicos();
         loadListaGrupoEvento();
         loadListaDescricaoEvento();
@@ -156,7 +167,7 @@ public class CaravanaBean implements Serializable {
         dao.openTransaction();
 
         DescricaoEvento de = (DescricaoEvento) dao.find(new DescricaoEvento(), idDescricaoEvento);
-        if (caravana.getId() == -1) {
+        if (caravana.getId() == null) {
             Evt evt = new Evt();
             if (!dao.save(evt)) {
                 GenericaMensagem.warn("Erro", "AO SALVAR EVT");
@@ -214,7 +225,7 @@ public class CaravanaBean implements Serializable {
             return null;
         }
 
-        if (caravana.getId() == -1) {
+        if (caravana.getId() == null) {
             GenericaMensagem.warn("Atenção", "SALVAR A CARAVANA ANTES DE ADICIONAR SERVIÇOS!");
             return null;
         }
@@ -268,7 +279,7 @@ public class CaravanaBean implements Serializable {
     public void delete() {
         Dao dao = new Dao();
         dao.openTransaction();
-        if (caravana.getId() != -1) {
+        if (caravana.getId() != null) {
             caravana = (Caravana) dao.find(caravana);
             AEvento aEvento = (AEvento) dao.find(caravana.getEvento());
             if (!listaServicosAdd.isEmpty()) {
@@ -373,7 +384,7 @@ public class CaravanaBean implements Serializable {
     public List<DataObject> getListaServicosAdd() {
         EventoServicoDao dbE = new EventoServicoDao();
         EventoServicoValorDao dbEv = new EventoServicoValorDao();
-        if (caravana.getId() != -1) {
+        if (caravana.getId() != null) {
             listaServicosAdd.clear();
             List<EventoServico> evs;
             EventoServicoValor ev;
@@ -495,4 +506,42 @@ public class CaravanaBean implements Serializable {
     public void setIdIndexServicos(Integer idIndexServicos) {
         this.idIndexServicos = idIndexServicos;
     }
+
+    // ARQUIVOS
+    public List getListFiles() {
+        if (caravana.getId() != null) {
+            listFiles.clear();
+            Diretorio.getCliente();
+            listFiles = Diretorio.listaArquivos("arquivos/caravana/" + caravana.getId());
+        }
+        return listFiles;
+    }
+
+    public void upload(FileUploadEvent event) {
+        ConfiguracaoUpload configuracaoUpload = new ConfiguracaoUpload();
+        configuracaoUpload.setArquivo(event.getFile().getFileName());
+        configuracaoUpload.setDiretorio("arquivos/caravana/" + caravana.getId());
+        configuracaoUpload.setEvent(event);
+        configuracaoUpload.setResourceFolder(true);
+        if (Upload.enviar(configuracaoUpload, true)) {
+            listFiles.clear();
+        }
+        getListFiles();
+    }
+
+    public void deleteFiles(int index) {
+        String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/" + getPath() + "/" + (String) ((DataObject) listFiles.get(index)).getArgumento1());
+        File fl = new File(caminho);
+        fl.delete();
+        listFiles.remove(index);
+        listFiles.clear();
+        getListFiles();
+        PF.update("form_caravana:id_grid_uploads");
+        PF.update("form_caravana:id_btn_anexo");
+    }
+
+    public String getPath() {
+        return "resources/cliente/" + GenericaSessao.getString("sessaoCliente").toLowerCase() + "/arquivos/caravana/" + caravana.getId();
+    }
+
 }

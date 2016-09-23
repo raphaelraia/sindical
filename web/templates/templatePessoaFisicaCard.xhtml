@@ -55,5 +55,8 @@
                 <h:outputLabel value="Email: #{pessoaCardBean.pessoaEmpresa.juridica.contabilidade.pessoa.email1}" />
             </h:panelGrid>
         </p:panel>
+        <h:panelGrid rendered="#{pessoaCardBean.fisica.id != -1 and not empty pessoaCardBean.fisica.pessoa.pessoaComplemento.obsAviso}" style="width: 100%" styleClass="margin-top-max">
+            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'AVISO: '.concat(pessoaCardBean.fisica.pessoa.pessoaComplemento.obsAviso))}" escape="false" />
+        </h:panelGrid>        
     </f:view>
 </ui:composition>

@@ -90,7 +90,7 @@ public class OrganizarCaravanaBean implements Serializable {
     public boolean isLocked() {
         if (bloqueioRotina != null) {
             if (bloqueioRotina.getId() != -1) {
-                GenericaMensagem.warn("Sistema", "Evento bloqueado para organizar poltronas: " + bloqueioRotina.getUsuario().getPessoa().getNome());
+                // GenericaMensagem.warn("Sistema", "Evento bloqueado para organizar poltronas: " + bloqueioRotina.getUsuario().getPessoa().getNome());
                 return true;
             }
         }
@@ -132,6 +132,13 @@ public class OrganizarCaravanaBean implements Serializable {
         this.listReservas = listReservas;
     }
 
+    public void update() {
+        for (int i = 0; i < listReservas.size(); i++) {
+            new Dao().update(listReservas.get(i).getCaravanaReservas(), true);
+        }
+        loadListaReservas();
+    }
+
     public class Reservas {
 
         private CaravanaReservas caravanaReservas;
@@ -167,7 +174,7 @@ public class OrganizarCaravanaBean implements Serializable {
         }
 
         public List<SelectItem> getListPoltrona() {
-            if (!listPoltrona.isEmpty()) {
+            if (listPoltrona.isEmpty()) {
                 List<Integer> select = new PoltronasDao().listaPoltronasUsadas(caravana.getEvento().getId());
                 boolean adc = true;
                 String pol;
