@@ -1,10 +1,11 @@
 package br.com.rtools.associativo;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "eve_evento")
-public class AEvento implements java.io.Serializable {
+public class AEvento implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +16,7 @@ public class AEvento implements java.io.Serializable {
     private DescricaoEvento descricaoEvento;
 
     public AEvento() {
-        this.id = -1;
+        this.id = null;
         this.descricaoEvento = new DescricaoEvento();
     }
 

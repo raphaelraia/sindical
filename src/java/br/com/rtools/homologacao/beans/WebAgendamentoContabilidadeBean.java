@@ -684,7 +684,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         DataHoje dataH = new DataHoje();
         Demissao demissao = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
         if (!demissao.getMotivoWeb()) {
-            GenericaMensagem.warn("Validação", demissao.getMensagemMotivoWeb());
+            GenericaMensagem.warn("Sistema", demissao.getMensagemMotivoWeb());
             return;
         }
         if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
@@ -1017,6 +1017,13 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public void setIdStatus(int idStatus) {
         this.idStatus = idStatus;
+    }
+
+    public void loadMotivoFalecimento() {
+        Demissao demissao = (Demissao) new Dao().find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
+        if (!demissao.getMotivoWeb()) {
+            GenericaMensagem.warn("Sistema", demissao.getMensagemMotivoWeb());
+        }
     }
 
     public int getIdMotivoDemissao() {

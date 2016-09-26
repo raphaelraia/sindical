@@ -61,7 +61,7 @@
                     <h:panelGrid columns="2">
                         <p:outputLabel value="LOCAL: #{webAgendamentoContribuinteBean.filialLocal.filial.fantasia}" />
                         <p:commandLink value="(Alterar)" onclick="PF('dlg_local').show()" update="i_filial" global="false" rendered="#{webAgendamentoContribuinteBean.listFilial.size() > 1}"/>
-                        
+
                     </h:panelGrid>
                     <p:dataTable value="#{webAgendamentoContribuinteBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max">
                         <p:column width="15">  
@@ -147,7 +147,7 @@
                                 <h:column>
                                     <h:outputLabel value="Motivo Demissão" style="margin-left: 20px; color: red; font-weight: bold"/><br />
                                     <p:selectOneMenu value="#{webAgendamentoContribuinteBean.idMotivoDemissao}" style="margin-left: 20px; width: 230px">
-                                        <p:ajax event="change" update="@this" global="false"/>
+                                        <p:ajax event="change" update="@this" global="false" listener="#{webAgendamentoContribuinteBean.loadMotivoFalecimento}" />
                                         <f:selectItems value="#{webAgendamentoContribuinteBean.listaMotivoDemissao}"/>
                                     </p:selectOneMenu>
                                 </h:column>

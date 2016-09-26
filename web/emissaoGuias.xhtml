@@ -132,7 +132,7 @@
 
                                     <h:column>
                                         <p:outputLabel value="Valor"  /><br />
-                                        <p:commandButton id="i_valor" value="R$ #{emissaoGuiasBean.valor}" action="#{emissaoGuiasBean.openModalPedido}" icon="ui-icon-cart" readonly="true" onclick="PF('dlg_pedido').show()" title="Adicionar itens (produtos) ao serviço" rendered="#{emissaoGuiasBean.servicox.produto}" />
+                                        <p:commandButton id="i_valor" value="R$ #{emissaoGuiasBean.valor}" action="#{emissaoGuiasBean.openModalPedido}" icon="ui-icon-cart" onclick="PF('dlg_pedido').show()" title="Adicionar itens (produtos) ao serviço" rendered="#{emissaoGuiasBean.servicox.produto}" />
                                         <p:inputText size="10" dir="RTL" value="#{emissaoGuiasBean.valor}" disabled="#{!emissaoGuiasBean.servicox.alterarValor}" rendered="#{!emissaoGuiasBean.servicox.produto}" style="#{(!emissaoGuiasBean.servicox.alterarValor) ? 'opacity: 100!important; font-weight: bold; color: black' : ''} ">
                                             <p:ajax event="change" update="i_panel_servicos" />
                                         </p:inputText>

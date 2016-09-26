@@ -4,7 +4,7 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.dao.CategoriaDao;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.impressao.ParametroSociosInativos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -14,6 +14,7 @@ import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioSociosDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.beans.SisEtiquetasBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -107,7 +108,7 @@ public class RelatorioSociosInativosBean implements Serializable {
         listFilters.add(new Filters("motivo", "Motivo", false, false));
     }
 
-    public void print() {
+    public void print(Boolean tag) {
         RelatorioSociosDao db = new RelatorioSociosDao();
 
         Integer categoria_id = null, grupo_categoria_id = null;
@@ -142,8 +143,11 @@ public class RelatorioSociosInativosBean implements Serializable {
         if (listFilters.get(6).getActive()) {
             in_motivo = "" + idMotivo;
         }
-
-        List list = db.listaSociosInativos(listFilters.get(0).getActive(), dtII, dtIF, dtFI, dtFF, categoria_id, grupo_categoria_id, ordernarPor, s, in_motivo);
+        Boolean dependentes = listFilters.get(0).getActive();
+        if (tag != null && tag) {
+            dependentes = false;
+        }
+        List list = db.listaSociosInativos(dependentes, dtII, dtIF, dtFI, dtFF, categoria_id, grupo_categoria_id, ordernarPor, s, in_motivo);
 
         Dao di = new Dao();
 
@@ -151,6 +155,7 @@ public class RelatorioSociosInativosBean implements Serializable {
         PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getId(), 3);
 
         List<ParametroSociosInativos> lista = new ArrayList();
+        String in_pessoas = "";
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             lista.add(new ParametroSociosInativos(
@@ -178,26 +183,36 @@ public class RelatorioSociosInativosBean implements Serializable {
                     o.get(9).toString()) // motivo_inativacao
             );
         }
+        if (tag == null || !tag) {
+            if (!lista.isEmpty()) {
+                try {
+                    Relatorios r = (Relatorios) di.find(new Relatorios(), idRelatorio);
+                    String jasperName = r.getNome();
+                    String jasperFile = r.getJasper();
+                    if (comDependentes) {
+                        jasperName = "relatorio sócios inativos dependente";
+                        jasperFile = "/Relatorios/SOCIOINATIVODEPENDENTE.jasper";
+                    }
 
-        if (!lista.isEmpty()) {
-            try {
-                Relatorios r = (Relatorios) di.find(new Relatorios(), idRelatorio);
-                String jasperName = r.getNome();
-                String jasperFile = r.getJasper();
-                if (comDependentes) {
-                    jasperName = "relatorio sócios inativos dependente";
-                    jasperFile = "/Relatorios/SOCIOINATIVODEPENDENTE.jasper";
+                    Jasper.PART_NAME = AnaliseString.removerAcentos(jasperName.toLowerCase());
+                    Jasper.PATH = "downloads";
+                    if (r.getPorFolha()) {
+                        Jasper.GROUP_NAME = r.getNomeGrupo();
+                    }
+                    Jasper.printReports(jasperFile, "relatorios", (Collection) lista);
+                } catch (Exception e) {
+                    System.err.println(e);
                 }
-
-                Jasper.PART_NAME = AnaliseString.removerAcentos(jasperName.toLowerCase());
-                Jasper.PATH = "downloads";
-                if (r.getPorFolha()) {
-                    Jasper.GROUP_NAME = r.getNomeGrupo();
-                }
-                Jasper.printReports(jasperFile, "relatorios", (Collection) lista);
-            } catch (Exception e) {
-                System.err.println(e);
             }
+        } else {
+            for (int i = 0; i < lista.size(); i++) {
+                if (i == 0) {
+                    in_pessoas = lista.get(i).getCodSocio();
+                } else {
+                    in_pessoas += "," + lista.get(i).getCodSocio();
+                }
+            }
+            SisEtiquetasBean.printIn(in_pessoas, 1);
         }
     }
 

@@ -2,16 +2,16 @@ package br.com.rtools.impressao;
 
 public class Etiquetas {
 
-    private String nome;
-    private String logradouro;
-    private String endereco;
-    private String numero;
-    private String bairro;
-    private String cidade;
-    private String uf;
-    private String cep;
-    private String complemento;
-    private String observacao;
+    private Object nome;
+    private Object logradouro;
+    private Object endereco;
+    private Object numero;
+    private Object bairro;
+    private Object cidade;
+    private Object uf;
+    private Object cep;
+    private Object complemento;
+    private Object observacao;
 
     public Etiquetas() {
         this.nome = "";
@@ -26,7 +26,7 @@ public class Etiquetas {
         this.observacao = "";
     }
 
-    public Etiquetas(String nome, String logradouro, String endereco, String numero, String bairro, String cidade, String uf, String cep, String complemento) {
+    public Etiquetas(Object nome, Object logradouro, Object endereco, Object numero, Object bairro, Object cidade, Object uf, Object cep, Object complemento) {
         this.nome = nome;
         this.logradouro = logradouro;
         this.endereco = endereco;
@@ -38,7 +38,7 @@ public class Etiquetas {
         this.complemento = complemento;
     }
 
-    public Etiquetas(String nome, String logradouro, String endereco, String numero, String bairro, String cidade, String uf, String cep, String complemento, String observacao) {
+    public Etiquetas(Object nome, Object logradouro, Object endereco, Object numero, Object bairro, Object cidade, Object uf, Object cep, Object complemento, Object observacao) {
         this.nome = nome;
         this.logradouro = logradouro;
         this.endereco = endereco;
@@ -51,83 +51,83 @@ public class Etiquetas {
         this.observacao = observacao;
     }
 
-    public String getNome() {
+    public Object getNome() {
         return nome;
     }
 
-    public void setNome(String nome) {
+    public void setNome(Object nome) {
         this.nome = nome;
     }
 
-    public String getLogradouro() {
+    public Object getLogradouro() {
         return logradouro;
     }
 
-    public void setLogradouro(String logradouro) {
+    public void setLogradouro(Object logradouro) {
         this.logradouro = logradouro;
     }
 
-    public String getEndereco() {
+    public Object getEndereco() {
         return endereco;
     }
 
-    public void setEndereco(String endereco) {
+    public void setEndereco(Object endereco) {
         this.endereco = endereco;
     }
 
-    public String getNumero() {
+    public Object getNumero() {
         return numero;
     }
 
-    public void setNumero(String numero) {
+    public void setNumero(Object numero) {
         this.numero = numero;
     }
 
-    public String getBairro() {
+    public Object getBairro() {
         return bairro;
     }
 
-    public void setBairro(String bairro) {
+    public void setBairro(Object bairro) {
         this.bairro = bairro;
     }
 
-    public String getCidade() {
+    public Object getCidade() {
         return cidade;
     }
 
-    public void setCidade(String cidade) {
+    public void setCidade(Object cidade) {
         this.cidade = cidade;
     }
 
-    public String getUf() {
+    public Object getUf() {
         return uf;
     }
 
-    public void setUf(String uf) {
+    public void setUf(Object uf) {
         this.uf = uf;
     }
 
-    public String getCep() {
+    public Object getCep() {
         return cep;
     }
 
-    public void setCep(String cep) {
+    public void setCep(Object cep) {
         this.cep = cep;
     }
 
-    public String getComplemento() {
+    public Object getComplemento() {
         return complemento;
     }
 
-    public void setComplemento(String complemento) {
+    public void setComplemento(Object complemento) {
         this.complemento = complemento;
     }
 
-    public String getObservacao() {
+    public Object getObservacao() {
         return observacao;
     }
 
-    public void setObservacao(String observacao) {
+    public void setObservacao(Object observacao) {
         this.observacao = observacao;
     }
 }

@@ -27,6 +27,8 @@ public class BloqueioRotina implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_bloqueio", nullable = true)
     private Date bloqueio;
+    @Column(name = "nr_codigo")
+    private Integer codigo;
 
     public BloqueioRotina() {
         this.id = -1;
@@ -34,14 +36,16 @@ public class BloqueioRotina implements Serializable {
         this.usuario = new Usuario();
         this.pessoa = new Pessoa();
         this.bloqueio = null;
+        this.codigo = null;
     }
 
-    public BloqueioRotina(int id, Rotina rotina, Usuario usuario, Pessoa pessoa, Date bloqueio) {
+    public BloqueioRotina(int id, Rotina rotina, Usuario usuario, Pessoa pessoa, Date bloqueio, Integer codigo) {
         this.id = id;
         this.rotina = rotina;
         this.usuario = usuario;
         this.pessoa = pessoa;
         this.bloqueio = bloqueio;
+        this.codigo = codigo;
     }
 
     public int getId() {
@@ -82,5 +86,13 @@ public class BloqueioRotina implements Serializable {
 
     public void setBloqueio(Date bloqueio) {
         this.bloqueio = bloqueio;
+    }
+
+    public Integer getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(Integer codigo) {
+        this.codigo = codigo;
     }
 }

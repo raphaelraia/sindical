@@ -17,14 +17,12 @@ public class Diretorio {
     }
 
     public static boolean criar(String diretorio, boolean ignore) {
-        if(diretorio.equals("cookie")) {
+        if (diretorio.equals("cookie")) {
             diretorio = "/resources/global/cookie";
+        } else if (!ignore) {
+            diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
         } else {
-            if (!ignore) {
-                diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
-            } else {
-                diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
-            }
+            diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
         }
         try {
             String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(diretorio);
@@ -102,7 +100,17 @@ public class Diretorio {
 
     public static List listaArquivos(String diretorio) {
         List listaArquivos = new ArrayList();
-        String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/" + diretorio);
+        String caminho = "";
+        try {
+            caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/" + diretorio);
+        } catch (Exception ef) {
+        }
+        if (caminho == null || caminho.isEmpty()) {
+            try {
+                caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio;
+            } catch (Exception ef2) {
+            }
+        }
         try {
             File files = new File(caminho);
             if (!files.exists()) {

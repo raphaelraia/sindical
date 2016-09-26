@@ -54,7 +54,7 @@
                                 <h:column rendered="#{vendasCaravanaBean.type eq 'reservas'}">
                                     <p:dataTable value="#{vendasCaravanaBean.listReservas}" var="reservas" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="20" styleClass="margin-top-max">
                                         <p:column styleClass="text-center" width="30">
-                                            <p:commandButton icon="ui-icon-link" action="#{vendasCaravanaBean.editar(reservas.venda)}" title="Editar registro nº #{reservas.id}"/>
+                                            <p:commandButton icon="ui-icon-link" action="#{vendasCaravanaBean.edit(reservas.venda)}" title="Editar registro nº #{reservas.id}"/>
                                         </p:column>
                                         <p:column headerText="Caravana">
                                             #{reservas.venda.evento.descricaoEvento.descricao}
@@ -66,7 +66,7 @@
                                             #{reservas.venda.caravana.dataRetorno}
                                         </p:column>                                        
                                         <p:column headerText="Data reserva"  styleClass="text-center" width="80">
-                                            #{reservas.venda.dataEmissaoString}
+                                            #{reservas.venda.emissao}
                                         </p:column>
                                         <p:column headerText="Passageiro">
                                             #{reservas.pessoa.nome}
@@ -88,7 +88,7 @@
                                 <h:column rendered="#{vendasCaravanaBean.type eq 'caravana'}">
                                     <p:dataTable value="#{vendasCaravanaBean.listVenda}" var="venda" emptyMessage="Nenhum registro encontrado!"  styleClass="margin-top-max" paginator="true" rows="20">
                                         <p:column styleClass="text-center" width="30">
-                                            <p:commandButton icon="ui-icon-link" action="#{vendasCaravanaBean.editar(venda)}" title="Editar registro nº #{venda.id}"/>
+                                            <p:commandButton icon="ui-icon-link" action="#{vendasCaravanaBean.edit(venda)}" title="Editar registro nº #{venda.id}"/>
                                         </p:column>
                                         <p:column headerText="Caravana">
                                             #{venda.evento.descricaoEvento.descricao}
@@ -100,7 +100,7 @@
                                             #{venda.caravana.dataRetorno}
                                         </p:column>
                                         <p:column headerText="Data reserva" styleClass="text-center" width="80">
-                                            #{venda.dataEmissaoString}
+                                            #{venda.emissao}
                                         </p:column>
                                         <p:column headerText="Quarto" styleClass="text-center" width="50">
                                             #{venda.quarto}

@@ -1,7 +1,6 @@
 package br.com.rtools.pessoa;
 
 import br.com.rtools.endereco.Endereco;
-import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Mask;
 import javax.persistence.*;
 
@@ -96,26 +95,54 @@ public class PessoaEndereco implements java.io.Serializable {
 
     public String getEnderecoCompletoString() {
         String enderecoString = "";
-        if (!this.endereco.getLogradouro().getDescricao().equals("")) {
-            enderecoString += this.endereco.getLogradouro().getDescricao();
+        try {
+            if (!this.endereco.getLogradouro().getDescricao().equals("")) {
+                enderecoString += this.endereco.getLogradouro().getDescricao();
+            }
+        } catch (Exception e) {
+
         }
-        if (!this.endereco.getDescricaoEndereco().getDescricao().equals("")) {
-            enderecoString += " " + this.endereco.getDescricaoEndereco().getDescricao();
+        try {
+            if (!this.endereco.getDescricaoEndereco().getDescricao().equals("")) {
+                enderecoString += " " + this.endereco.getDescricaoEndereco().getDescricao();
+            }
+        } catch (Exception e) {
+
         }
-        if (!numero.equals("")) {
-            enderecoString += ", nº" + numero + " ";
+        try {
+            if (!numero.equals("")) {
+                enderecoString += ", nº" + numero + " ";
+            }
+        } catch (Exception e) {
+
         }
-        if (!complemento.equals("")) {
-            enderecoString += " - " + this.complemento;
+        try {
+            if (!complemento.equals("")) {
+                enderecoString += " - " + this.complemento;
+            }
+        } catch (Exception e) {
+
         }
-        if (!this.endereco.getCidade().getCidade().equals("")) {
-            enderecoString += " - " + this.endereco.getCidade().getCidade();
+        try {
+            if (!this.endereco.getCidade().getCidade().equals("")) {
+                enderecoString += " - " + this.endereco.getCidade().getCidade();
+            }
+        } catch (Exception e) {
+
         }
-        if (!this.endereco.getCidade().getUf().equals("")) {
-            enderecoString += " - " + this.endereco.getCidade().getUf();
+        try {
+            if (!this.endereco.getCidade().getUf().equals("")) {
+                enderecoString += " - " + this.endereco.getCidade().getUf();
+            }
+        } catch (Exception e) {
+
         }
-        if (!this.endereco.getCep().equals("")) {
-            enderecoString += " - CEP: " + Mask.cep(this.endereco.getCep());
+        try {
+            if (!this.endereco.getCep().equals("")) {
+                enderecoString += " - CEP: " + Mask.cep(this.endereco.getCep());
+            }
+        } catch (Exception e) {
+
         }
         return enderecoString;
     }

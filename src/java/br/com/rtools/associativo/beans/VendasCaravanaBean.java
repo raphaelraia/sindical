@@ -1,16 +1,17 @@
 package br.com.rtools.associativo.beans;
 
-import br.com.rtools.associativo.CVenda;
+import br.com.rtools.associativo.CaravanaVenda;
 import br.com.rtools.associativo.Caravana;
 import br.com.rtools.associativo.EventoServico;
 import br.com.rtools.associativo.EventoServicoValor;
 import br.com.rtools.associativo.MatriculaSocios;
-import br.com.rtools.associativo.Reservas;
-import br.com.rtools.associativo.dao.CVendaDao;
+import br.com.rtools.associativo.CaravanaReservas;
+import br.com.rtools.associativo.dao.CaravanaVendaDao;
 import br.com.rtools.associativo.dao.CaravanaDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.dao.EventoServicoValorDao;
-import br.com.rtools.associativo.dao.ReservasDao;
+import br.com.rtools.associativo.dao.CaravanaReservasDao;
+import br.com.rtools.associativo.dao.PoltronasDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.dao.VendasCaravanaDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
@@ -19,7 +20,9 @@ import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.MovimentoInativo;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.impressao.ParametroFichaReserva;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
@@ -38,7 +41,10 @@ import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.sistema.BloqueioRotina;
+import br.com.rtools.sistema.dao.BloqueioRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -46,9 +52,11 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -57,17 +65,16 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-@SuppressWarnings("serial")
 @ManagedBean
 @SessionScoped
 public class VendasCaravanaBean implements Serializable {
 
     private Caravana caravana;
-    private CVenda vendas;
+    private CaravanaVenda vendas;
+    private CaravanaReservas reservas;
     private EventoServicoValor eventoServicoValor;
     private EventoServico eventoServico;
     private Fisica pessoaFisica;
-    private Fisica fisica;
     private Juridica pessoaJuridica;
     private PessoaEndereco pessoaEndereco;
     private List<Caravana> listaCaravana;
@@ -79,13 +86,13 @@ public class VendasCaravanaBean implements Serializable {
     private List<ListaReservas> listaReservas;
     private List<SelectItem> listaTipo;
     private List<SelectItem> listaDataVencimento;
-    private int idCaravana;
-    private int idTipo;
-    private int idAdicionar;
-    private int idDataEntrada;
-    private int idMesVencimento;
-    private int idDiaVencimento;
-    private int parcelas;
+    private Integer idCaravanaSelect;
+    private Integer idTipo;
+    private Integer idAdicionar;
+    private Integer idDataEntrada;
+    private Integer idMesVencimento;
+    private Integer idDiaVencimento;
+    private Integer parcelas;
     private String dataEntrada;
     private Pessoa pessoa;
     private String valorTotal;
@@ -93,24 +100,32 @@ public class VendasCaravanaBean implements Serializable {
     private String valorOutras;
     private String valorEntrada;
     private Registro registro;
-    private List<CVenda> listCVenda;
+    // private List<CaravanaVenda> listCVenda;
     private String type;
     private String by;
     private String as;
     private String description;
-    private List<Reservas> listReservas;
-    private List<CVenda> listVenda;
+    private List<CaravanaReservas> listReservas;
+    private List<CaravanaReservas> listReservasCanceladas;
+    private List<CaravanaVenda> listVenda;
     private Boolean disabledSave;
     private Boolean locked;
+    private Boolean old;
+    private String motivoCancelamento;
+    private Boolean novoParcelamento;
+    private List<Movimento> listMovimento;
+    private Boolean disabledGerarParcelas;
+    private List<Integer> listPoltronasReservadas;
+    private Boolean canceled;
+    private BloqueioRotina bloqueioRotina;
 
     @PostConstruct
     public void init() {
         caravana = new Caravana();
-        vendas = new CVenda();
+        vendas = new CaravanaVenda();
         eventoServicoValor = new EventoServicoValor();
         eventoServico = new EventoServico();
         pessoaFisica = new Fisica();
-        fisica = new Fisica();
         pessoaJuridica = new Juridica();
         pessoaEndereco = new PessoaEndereco();
         listaCaravana = new ArrayList();
@@ -122,7 +137,7 @@ public class VendasCaravanaBean implements Serializable {
         listaReservas = new ArrayList();
         listaTipo = new ArrayList();
         listaDataVencimento = new ArrayList();
-        idCaravana = 0;
+        idCaravanaSelect = 0;
         idTipo = 0;
         idAdicionar = -1;
         idDataEntrada = 0;
@@ -136,20 +151,29 @@ public class VendasCaravanaBean implements Serializable {
         valorOutras = "0,00";
         valorEntrada = "0,00";
         registro = new Registro();
-        listCVenda = new ArrayList();
+        // listCVenda = new ArrayList();
         disabledSave = false;
         type = "caravana";
         by = "I";
         as = "nome";
         description = "";
+        listMovimento = new ArrayList();
         listReservas = new ArrayList();
         listVenda = new ArrayList();
+        listPoltronasReservadas = new ArrayList();
         locked = false;
+        old = false;
+        loadListaCaravanaSelect();
+        motivoCancelamento = "";
+        novoParcelamento = false;
+        disabledGerarParcelas = false;
+        canceled = false;
+        new BloqueioRotinaDao().liberaRotinaBloqueada(new Rotina().get().getId());
     }
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("rendasCaravanaBean");
+        GenericaSessao.remove("vendasCaravanaBean");
         GenericaSessao.remove("fisicaPesquisa");
         GenericaSessao.remove("pessoaPesquisa");
         GenericaSessao.remove("pesquisaFisicaTipo");
@@ -169,7 +193,6 @@ public class VendasCaravanaBean implements Serializable {
                 empresa_cnpj = pem.getJuridica().getPessoa().getDocumento();
             }
         }
-
         Object tipo[] = new Object[6];
         Object quantidade[] = new Object[6];
         Object valor[] = new Object[6];
@@ -183,11 +206,18 @@ public class VendasCaravanaBean implements Serializable {
             tipo[i] = linha.get(0);
             quantidade[i] = linha.get(1);
             //valor[i] = linha.get(2);
+            float desconto = 0;
             for (ListaReservas lr : listaReservas) {
-                Reservas r = (Reservas) lr.getReservas();
+                CaravanaReservas r = (CaravanaReservas) lr.getReservas();
+                if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
+                    desconto += lr.getReservas().getDesconto();
+                }
+            }
+            for (ListaReservas lr : listaReservas) {
+                CaravanaReservas r = (CaravanaReservas) lr.getReservas();
                 if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
                     if ((Float) valor[i] == null) {
-                        valor[i] = Moeda.converteUS$(lr.getValor()) * Integer.parseInt(linha.get(1).toString());
+                        valor[i] = (Moeda.converteUS$(lr.getValor()) * Integer.parseInt(linha.get(1).toString())) - desconto;
                         total = total + (Float) valor[i];
                     }
                 }
@@ -218,7 +248,7 @@ public class VendasCaravanaBean implements Serializable {
                             "De " + caravana.getDataSaida() + " à " + caravana.getDataRetorno(),
                             DataHoje.calculoDosDias(caravana.getDtSaida(), caravana.getDtRetorno()),
                             vendas.getEvento().getDescricaoEvento().getDescricao(),
-                            DataHoje.dataExtenso(vendas.getDataEmissaoString(), 3), // NÃO TEM EM vendas.getData
+                            DataHoje.dataExtenso(vendas.getEmissao(), 3), // NÃO TEM EM vendas.getData
                             DataHoje.dataExtenso(DataHoje.data(), 3),
                             tipo[0],
                             tipo[1],
@@ -251,34 +281,66 @@ public class VendasCaravanaBean implements Serializable {
         Jasper.printReports("FICHA_RESERVA.jasper", "Ficha de Reserva", l);
     }
 
-    public void excluir() {
+    public void cancel() {
+        if (isBlock()) {
+            GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
+            return;
+        }
         if (vendas.getId() == -1) {
             GenericaMensagem.warn("Erro", "Pesquise uma venda para ser cancelada!");
             return;
         }
-
-        List<Reservas> lr;
+        if (vendas.getMotivoCancelamento().isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR UM MOTIVO PARA O CANCELAMENTO DESTA VENDA!");
+            return;
+        }
+        if (vendas.getMotivoCancelamento().length() < 5) {
+            GenericaMensagem.warn("Validação", "INFORMAR UM MOTIVO VÁLIDO!");
+            return;
+        }
+        vendas.setOperadorCancelamento(Usuario.getUsuario());
+        vendas.setDtCancelamento(new Date());
+        List<CaravanaReservas> lr;
         Dao dao = new Dao();
-        VendasCaravanaDao db = new VendasCaravanaDao();
-        Reservas res;
+        CaravanaReservas res;
         dao.openTransaction();
 
-        lr = db.listaReservasVenda(vendas.getId());
-        for (Reservas lr1 : lr) {
-            res = (Reservas) dao.find(lr1);
-            if (!dao.delete(res)) {
-                GenericaMensagem.warn("Erro", "Erro ao cancelar reservas!");
-                dao.rollback();
-                return;
-            }
-        }
-        List<Movimento> listaMovimento = db.listaMovCaravana(vendas.getResponsavel().getId(), caravana.getEvt().getId());
-        if (!listaMovimento.isEmpty()) {
-            for (Movimento listaMovimento1 : listaMovimento) {
-                if (listaMovimento1.getBaixa() != null) {
-                    GenericaMensagem.warn("Erro", "Reserva com parcela paga não pode ser excluída!");
+        lr = new CaravanaReservasDao().listaReservasVenda(vendas.getId());
+        Usuario usuario = Usuario.getUsuario();
+        for (CaravanaReservas lr1 : lr) {
+            res = (CaravanaReservas) dao.find(lr1);
+            if (res.getCancelamento() != null) {
+                res.setOperadorCancelamento(usuario);
+                res.setDtCancelamento(new Date());
+                res.setMotivoCancelamento(vendas.getMotivoCancelamento());
+                if (!dao.update(res)) {
+                    GenericaMensagem.warn("Erro", "AO CANCELAR RESERVAS!");
                     dao.rollback();
                     return;
+                }
+            }
+        }
+        MovimentoDao md = new MovimentoDao();
+        List<Movimento> listaMovimento = md.findByLote(vendas.getLote().getId());
+        if (!listaMovimento.isEmpty()) {
+            for (Movimento listaMovimento1 : listaMovimento) {
+                if (listaMovimento1.getBaixa() == null) {
+                    listaMovimento1.setAtivo(false);
+                    if (!dao.update(listaMovimento1)) {
+                        GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
+                        dao.rollback();
+                        return;
+                    }
+                    MovimentoInativo movimentoInativo = new MovimentoInativo();
+                    movimentoInativo.setMovimento(listaMovimento1);
+                    movimentoInativo.setDtData(new Date());
+                    movimentoInativo.setUsuario(usuario);
+                    movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataSaida());
+                    if (!dao.save(movimentoInativo)) {
+                        GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
+                        dao.rollback();
+                        return;
+                    }
                 }
             }
             Movimento mov;
@@ -286,34 +348,34 @@ public class VendasCaravanaBean implements Serializable {
             Evt evt = new Evt();
             List<Lote> listLote = new ArrayList();
             List<Evt> listEvt = new ArrayList();
-            for (Movimento listaMovimento1 : listaMovimento) {
-                mov = (Movimento) dao.find(listaMovimento1);
-                if (!dao.delete(mov)) {
-                    GenericaMensagem.warn("Erro", "Erro ao excluir movimentos!");
-                    dao.rollback();
-                    return;
-                }
-                if (mov.getLote().getId() != lot.getId()) {
-                    lot = mov.getLote();
-                    listLote.add(lot);
-                }
-            }
-            for (int i = 0; i < listLote.size(); i++) {
-                if (!dao.delete(listLote.get(i))) {
-                    GenericaMensagem.warn("Erro", "Erro ao excluir Lote!");
-                    dao.rollback();
-                    return;
-                }
-                if (listLote.get(i).getEvt().getId() != evt.getId()) {
-                    evt = listLote.get(i).getEvt();
-                    listEvt.add(evt);
-                }
-            }
-            if (!dao.delete(vendas)) {
-                GenericaMensagem.warn("Erro", "Erro ao cancelar Venda!");
-                dao.rollback();
-                return;
-            }
+//            for (Movimento listaMovimento1 : listaMovimento) {
+//                mov = (Movimento) dao.find(listaMovimento1);
+//                if (!dao.delete(mov)) {
+//                    GenericaMensagem.warn("Erro", "Erro ao excluir movimentos!");
+//                    dao.rollback();
+//                    return;
+//                }
+//                if (mov.getLote().getId() != lot.getId()) {
+//                    lot = mov.getLote();
+//                    listLote.add(lot);
+//                }
+//            }
+//            for (int i = 0; i < listLote.size(); i++) {
+//                if (!dao.delete(listLote.get(i))) {
+//                    GenericaMensagem.warn("Erro", "Erro ao excluir Lote!");
+//                    dao.rollback();
+//                    return;
+//                }
+//                if (listLote.get(i).getEvt().getId() != evt.getId()) {
+//                    evt = listLote.get(i).getEvt();
+//                    listEvt.add(evt);
+//                }
+//            }
+//            if (!dao.delete(vendas)) {
+//                GenericaMensagem.warn("Erro", "Erro ao cancelar Venda!");
+//                dao.rollback();
+//                return;
+//            }
 //            for (int i = 0; i < listEvt.size(); i++) {
 //                if (!dao.delete(listEvt.get(i))) {
 //                    GenericaMensagem.warn("Erro", "Erro ao excluir EVT!");
@@ -321,8 +383,14 @@ public class VendasCaravanaBean implements Serializable {
 //                    return;
 //                }
 //            }
-
-            GenericaMensagem.info("Sucesso", "Reserva cancelada com sucesso!");
+            vendas.setOperadorCancelamento(usuario);
+            vendas.setDtCancelamento(new Date());
+            if (!dao.update(vendas)) {
+                GenericaMensagem.warn("Erro", "Erro ao cancelar Venda!");
+                dao.rollback();
+                return;
+            }
+            GenericaMensagem.info("Sucesso", "RESERVA CANCELADA COM SUCESSO!");
             dao.commit();
             GenericaSessao.remove("vendasCaravanaBean");
         } else {
@@ -337,67 +405,149 @@ public class VendasCaravanaBean implements Serializable {
         }
     }
 
-    public void load() {
-        if (GenericaSessao.exists("baixa_sucesso", true)) {
-            VendasCaravanaDao db = new VendasCaravanaDao();
-            List<Movimento> listaMovimento = db.listaMovCaravana(vendas.getResponsavel().getId(), caravana.getEvt().getId());
-            listaParcelas = new ArrayList();
-            for (Movimento listaMovimento1 : listaMovimento) {
-                if (listaMovimento1.getBaixa() == null) {
-                    listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), false, listaMovimento1));
-                } else {
-                    listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), true, listaMovimento1));
+    public void loadListReservas() {
+        listaReservas = new ArrayList();
+        float valor = 0;
+        List<CaravanaReservas> lr = new CaravanaReservasDao().findByCaravanaVenda(vendas.getId(), true);
+        FisicaDao dbf = new FisicaDao();
+        EventoServicoValorDao dbe = new EventoServicoValorDao();
+        SociosDao dbs = new SociosDao();
+        for (CaravanaReservas lr1 : lr) {
+            valor = dbs.descontoSocioEve(lr1.getPessoa().getId(), lr1.getEventoServico().getServicos().getId());
+            if (valor == 0) {
+                valor = dbe.pesquisaEventoServicoValor(lr1.getEventoServico().getId()).getValor();
+                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), lr1.getPoltrona(), Moeda.converteR$Float(valor), Moeda.converteR$Float(lr1.getDesconto()), lr1, null, new ArrayList()));
+            } else {
+                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), lr1.getPoltrona(), Moeda.converteR$Float(valor), Moeda.converteR$Float(lr1.getDesconto()), lr1, null, new ArrayList()));
+            }
+        }
+    }
+
+    public void loadListReservasCanceladas() {
+        listReservasCanceladas = new ArrayList();
+        listReservasCanceladas = new CaravanaReservasDao().findByCaravanaVenda(vendas.getId(), false);
+    }
+
+    public void loadPoltronasReservas() {
+        listPoltronasReservadas = new ArrayList();
+        int pos = -1;
+        for (int i = 0; i < listaReservas.size(); i++) {
+            listPoltronasReservadas.add(listaReservas.get(i).getPoltrona());
+            if (listaReservas.get(i).getFisica().getId() == -1) {
+                listaReservas.get(i).getListPoltrona().clear();
+                pos = i;
+            }
+        }
+        if (pos != -1) {
+            listaReservas.get(pos).getListPoltrona();
+            for (int i = 0; i < listaReservas.get(pos).getListPoltrona().size(); i++) {
+                for (int j = 0; j < listPoltronasReservadas.size(); j++) {
+                    if (listaReservas.get(pos).getListPoltrona().get(i).getValue().equals(listPoltronasReservadas.get(j))) {
+                        listaReservas.get(pos).getListPoltrona().remove(i);
+                    }
                 }
             }
+        }
+    }
+
+    public void editReserva(CaravanaReservas cr) {
+        reservas = new CaravanaReservas();
+        reservas = cr;
+    }
+
+    public void updateReserva() {
+        new Dao().update(reservas, true);
+
+    }
+
+    public void cancelReserva() {
+        int countReservas = 0;
+        for (int i = 0; i < listaReservas.size(); i++) {
+            if (listaReservas.get(i).getReservas().getId() != null && listaReservas.get(i).getReservas().getDtCancelamento() == null) {
+                countReservas++;
+            }
+        }
+        if (countReservas < 2) {
+            GenericaMensagem.warn("Validação", "É NECESSÁRIO NO MÍNIMO DUAS RESERVAS CONCLUÍDAS PARA REALIZAR O CANCELAMENTO INDIVIDUAL!");
+            GenericaMensagem.warn("Sistema", "FAÇA O CANCELAMENTO DA VENDA PARA CANCELAR UMA ÚNICA RESERVA!");
+            return;
+
+        }
+        if (vendas.getId() == -1) {
+            GenericaMensagem.warn("Erro", "Pesquise uma venda para ser cancelada!");
+            return;
+        }
+        if (motivoCancelamento.isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR UM MOTIVO PARA O CANCELAMENTO DESTA VENDA!");
+            return;
+        }
+        if (motivoCancelamento.length() < 5) {
+            GenericaMensagem.warn("Validação", "INFORMAR UM MOTIVO VÁLIDO!");
+            return;
+        }
+        reservas.setOperadorCancelamento(Usuario.getUsuario());
+        reservas.setDtCancelamento(new Date());
+        reservas.setMotivoCancelamento(motivoCancelamento);
+        GenericaMensagem.warn("IMPORTANTE", "PARA FINALIZAR O CANCELAMENTO DESTA RESERVA CONCLUA O PROCESSO");
+        //loadListReservasCanceladas();
+        reservas = null;
+        disabledGerarParcelas = true;
+    }
+
+    public void load() {
+        if (GenericaSessao.exists("baixa_sucesso", true)) {
+            loadListMovimento();
+            loadListParcelas();
 
         }
     }
 
-    public String editar(CVenda v) {
-        locked = true;
-        vendas = v;
-        CaravanaDao dbc = new CaravanaDao();
-        caravana = dbc.pesquisaCaravanaPorEvento(vendas.getEvento().getId());
-
-        for (int i = 0; i < listaCaravanaSelect.size(); i++) {
-            if (caravana.getId() == Integer.valueOf(listaCaravanaSelect.get(i).getDescription())) {
-                idCaravana = i;
-                break;
-            }
+    public void loadListMovimento() {
+        listMovimento = new ArrayList();
+        if (vendas.getLote() != null) {
+            MovimentoDao md = new MovimentoDao();
+            listMovimento = md.findByLote(vendas.getLote().getId());
         }
+    }
 
-        List<Reservas> lr;
-        VendasCaravanaDao db = new VendasCaravanaDao();
-        FisicaDao dbf = new FisicaDao();
-        EventoServicoValorDao dbe = new EventoServicoValorDao();
-        SociosDao dbs = new SociosDao();
-        float valor;
-        lr = db.listaReservasVenda(vendas.getId());
-        listaReservas.clear();
-        for (Reservas lr1 : lr) {
-            valor = dbs.descontoSocioEve(lr1.getPessoa().getId(), lr1.getEventoServico().getServicos().getId());
-            if (valor == 0) {
-                valor = dbe.pesquisaEventoServicoValor(lr1.getEventoServico().getId()).getValor();
-                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), 0, Moeda.converteR$Float(valor), Moeda.converteR$Float(lr1.getDesconto()), lr1, null));
-            } else {
-                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), 0, Moeda.converteR$Float(valor), Moeda.converteR$Float(lr1.getDesconto()), lr1, null));
-            }
-        }
-
-        //List<Movimento> listaMovimento = db.listaMovCaravana(vendas.getResponsavel().getId(), vendas.getEvt().getId());
-        List<Movimento> listaMovimento = db.listaMovCaravana(vendas.getResponsavel().getId(), caravana.getEvt().getId());
-
-        listaParcelas.clear();
-        for (Movimento listaMovimento1 : listaMovimento) {
+    public void loadListParcelas() {
+        listaParcelas = new ArrayList();
+        for (Movimento listaMovimento1 : listMovimento) {
             if (listaMovimento1.getBaixa() == null) {
-                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), false, listaMovimento1));
+                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), false, listaMovimento1, listaMovimento1.isAtivo()));
             } else {
-                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), true, listaMovimento1));
+                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), true, listaMovimento1, listaMovimento1.isAtivo()));
             }
         }
+    }
 
+    public String edit(CaravanaVenda v) {
+        locked = true;
+        vendas = (CaravanaVenda) new Dao().rebind(v);
+        loadListReservas();
+        loadListReservasCanceladas();
+        if (vendas.getCaravana() == null) {
+            CaravanaDao dbc = new CaravanaDao();
+            caravana = dbc.pesquisaCaravanaPorEvento(vendas.getEvento().getId());
+        } else {
+            caravana = vendas.getCaravana();
+        }
+        idCaravanaSelect = vendas.getCaravana().getId();
+        bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(142, vendas.getCaravana().getId());
+        loadListMovimento();
+        loadListParcelas();
         pessoa = vendas.getResponsavel();
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
+        int countBaixa = 0;
+        if (!listMovimento.isEmpty()) {
+            for (int i = 0; i < listMovimento.size(); i++) {
+                if (listMovimento.get(i).getBaixa() != null) {
+                    countBaixa++;
+                }
+            }
+            countBaixa++;
+            parcelas = countBaixa;
+        }
         return "vendasCaravana";
     }
 
@@ -434,7 +584,18 @@ public class VendasCaravanaBean implements Serializable {
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).pessoaJuridicaComParametros();
     }
 
-    public void salvar() {
+    public void save() {
+        if (isBlock()) {
+            GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
+            return;
+        }
+        Boolean save = true;
+        if (vendas.getId() != null) {
+            save = false;
+        }
+        if (canceled) {
+            canceled = false;
+        }
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquise um responsável!");
             return;
@@ -443,6 +604,14 @@ public class VendasCaravanaBean implements Serializable {
         if (listaReservas.isEmpty()) {
             GenericaMensagem.warn("Validação", "Não é possivel concluir nenhuma Reserva!");
             return;
+        }
+
+        if (save) {
+            CaravanaVendaDao cVendaDao = new CaravanaVendaDao();
+            if (cVendaDao.findByResponsavel(caravana.getId(), vendas.getResponsavel().getId()) != null) {
+                GenericaMensagem.warn("Validação", "RESPONSÁVEL JÁ CADASTRADO!");
+                return;
+            }
         }
 
         if (listaParcelas.isEmpty()) {
@@ -467,7 +636,10 @@ public class VendasCaravanaBean implements Serializable {
 
         Dao dao = new Dao();
         dao.openTransaction();
-        if (vendas.getId() == -1) {
+        Usuario usuario = Usuario.getUsuario();
+        if (vendas.getId() == null) {
+            vendas.setOperador(usuario);
+            vendas.setCaravana(caravana);
             if (!dao.save(vendas)) {
                 GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
                 dao.rollback();
@@ -479,20 +651,41 @@ public class VendasCaravanaBean implements Serializable {
             return;
         }
 
+        CaravanaReservasDao crd = new CaravanaReservasDao();
         for (ListaReservas lr : listaReservas) {
-            if (lr.getReservas().getId() == -1) {
-                Reservas res = new Reservas(-1,
-                        vendas,
-                        lr.getFisica().getPessoa(),
-                        lr.getPoltrona(),
-                        Moeda.converteUS$(lr.getDesconto()),
-                        ((Reservas) lr.getReservas()).getEventoServico());
+            if (lr.getReservas().getId() == null) {
+                if (!crd.findPoltronaDisponivel(vendas.getCaravana().getId(), lr.getPoltrona()).isEmpty()) {
+                    GenericaMensagem.warn("Validação", "Esta poltrona já foi reservada! Poltrona nº" + lr.getPoltrona());
+                    dao.rollback();
+                    return;
+                }
+                CaravanaReservas res = new CaravanaReservas();
+                res.setVenda(vendas);
+                res.setPessoa(lr.getFisica().getPessoa());
+                res.setPoltrona(lr.getPoltrona());
+                res.setDesconto(Moeda.converteUS$(lr.getDesconto()));
+                res.setEventoServico(((CaravanaReservas) lr.getReservas()).getEventoServico());
+                res.setOperador(Usuario.getUsuario());
+                res.setDtReserva(new Date());
                 if (!dao.save(res)) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
                     return;
                 }
                 lr.setReservas(res);
+            } else {
+                lr.getReservas().setPoltrona(lr.getPoltrona());
+                if (!dao.update(lr.getReservas())) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
+                    return;
+                }
+            }
+        }
+
+        for (int i = 0; i < listaReservas.size(); i++) {
+            if (listaReservas.get(i).getReservas().getDtCancelamento() != null) {
+                listaReservas.remove(i);
             }
         }
 
@@ -502,8 +695,8 @@ public class VendasCaravanaBean implements Serializable {
         } else {
             condicaoPagamento = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
         }
-        Lote lote = null;
-        if (vendas.getId() == -1) {
+        Lote lote;
+        if (vendas.getLote() == null) {
             lote = new Lote(
                     -1,
                     (Rotina) dao.find(new Rotina(), 142),
@@ -535,17 +728,38 @@ public class VendasCaravanaBean implements Serializable {
                 dao.rollback();
                 return;
             }
+            vendas.setLote(lote);
         } else {
-            for (int i = 0; i < listaReservas.size(); i++) {
-                if (listaParcelas.get(i).getMovimento().getId() != -1) {
-                    lote = listaParcelas.get(i).getMovimento().getLote();
-                    break;
+            lote = vendas.getLote();
+        }
+        if (novoParcelamento) {
+            MovimentoDao md = new MovimentoDao();
+            List<Movimento> listaMovimento = md.findByLote(vendas.getLote().getId());
+            if (!listaMovimento.isEmpty()) {
+                for (Movimento listaMovimento1 : listaMovimento) {
+                    if (listaMovimento1.getBaixa() == null) {
+                        listaMovimento1.setAtivo(false);
+                        if (!dao.update(listaMovimento1)) {
+                            GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
+                            dao.rollback();
+                            return;
+                        }
+                        MovimentoInativo movimentoInativo = new MovimentoInativo();
+                        movimentoInativo.setMovimento(listaMovimento1);
+                        movimentoInativo.setDtData(new Date());
+                        movimentoInativo.setUsuario(usuario);
+                        movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataSaida());
+                        if (!dao.save(movimentoInativo)) {
+                            GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
+                            dao.rollback();
+                            return;
+                        }
+                    }
                 }
+                novoParcelamento = false;
             }
         }
-
         Movimento movimento;
-        EventoServicoValor esv;
         for (int i = 0; i < listaParcelas.size(); i++) {
             if (listaParcelas.get(i).getMovimento().getId() == -1) {
                 movimento = new Movimento(
@@ -592,15 +806,37 @@ public class VendasCaravanaBean implements Serializable {
                 return;
             }
         }
-
         NovoLog novoLog = new NovoLog();
-        novoLog.save("ID: " + vendas.getId() + " - Responsável: " + vendas.getResponsavel().getNome() + " - Evento: (" + vendas.getEvento().getId() + ") - " + vendas.getEvento().getDescricaoEvento().getDescricao() + " - Quarto: " + vendas.getQuarto() + " - Serviço : (" + eventoServico.getServicos().getId() + ") " + eventoServico.getServicos().getDescricao());
-        GenericaMensagem.info("Sucesso", "Reserva concluída com Sucesso!");
+        // novoLog.save("ID: " + vendas.getId() + " - Responsável: " + vendas.getResponsavel().getNome() + " - Evento: (" + vendas.getEvento().getId() + ") - " + vendas.getEvento().getDescricaoEvento().getDescricao() + " - Quarto: " + vendas.getQuarto() + " - Serviço : (" + eventoServico.getServicos().getId() + ") " + eventoServico.getServicos().getDescricao());
         dao.commit();
+        loadListMovimento();
+        loadListParcelas();
+        loadListReservasCanceladas();
+        if (lote != null) {
+            float vlTotal = 0;
+            for (int i = 0; i < listMovimento.size(); i++) {
+                vlTotal += listMovimento.get(i).getValor();
+            }
+            lote.setValor(vlTotal);
+            dao.update(lote, true);
+            vendas.setLote(lote);
+            dao.update(vendas, true);
+        }
+        listaPoltrona = new ArrayList();
+        locked = true;
+        GenericaMensagem.info("Sucesso", "Reserva concluída com Sucesso!");
     }
 
     public void alter() {
-        locked = false;
+        if (isBlock()) {
+            GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
+            return;
+        }
+        if (vendas.getDtCancelamento() == null) {
+            locked = false;
+        } else {
+            GenericaMensagem.warn("Sistema", "ESSA VENDA ENCONTRA-SE CANCELADA!");
+        }
     }
 
     public void gerarParcelas() {
@@ -608,20 +844,22 @@ public class VendasCaravanaBean implements Serializable {
         if (parcelas < 0) {
             return;
         }
+        if (vendas.getId() != null) {
+            novoParcelamento = true;
+        }
 
         String vencs = dataEntrada;
         String vlEnt = valorEntrada;
         float vE = Moeda.substituiVirgulaFloat(valorEntrada);
         DataHoje dh = new DataHoje();
         String vencimento = dataVencimento();
-        if (vendas.getId() == -1) {
-            vencimento = dataVencimento();
-            listaParcelas = new ArrayList();
-        }
+        vencimento = dataVencimento();
+        List<Parcelas> listaParcelasMem = listaParcelas;
+        listaParcelas = new ArrayList();
         if (parcelas == 1) {
-            listaParcelas.add(new Parcelas(vencs, Moeda.converteR$(valorTotal), false, new Movimento()));
+            listaParcelas.add(new Parcelas(vencs, Moeda.converteR$(valorTotal), false, new Movimento(), true));
         } else if (vE > 0) {
-            listaParcelas.add(new Parcelas(dataEntrada, Moeda.converteR$(valorEntrada), false, new Movimento()));
+            listaParcelas.add(new Parcelas(dataEntrada, Moeda.converteR$(valorEntrada), false, new Movimento(), true));
             vlEnt = Moeda.converteR$Float(
                     Moeda.divisaoValores(
                             Moeda.subtracaoValores(Moeda.substituiVirgulaFloat(valorTotal), Moeda.substituiVirgulaFloat(vlEnt)
@@ -633,21 +871,40 @@ public class VendasCaravanaBean implements Serializable {
                 if (i > 1) {
                     vencimento = dh.incrementarMeses(1, vencimento);
                 }
-                listaParcelas.add(new Parcelas(vencimento, Moeda.converteR$(vlEnt), false, new Movimento()));
+                listaParcelas.add(new Parcelas(vencimento, Moeda.converteR$(vlEnt), false, new Movimento(), false));
             }
         } else {
-            float vParcela;
-            for (int i = 0; i < parcelas; i++) {
-                vParcela = Moeda.substituiVirgulaFloat(valorTotal) / parcelas;
+            float vParcela = 0;
+            float qtdeParcelas = parcelas;
+            float vTotal = Moeda.substituiVirgulaFloat(valorTotal);
+            if (vendas.getId() != null) {
+                int qtdeBaixada = 0;
+                vTotal = Moeda.substituiVirgulaFloat(valorTotal) - Moeda.substituiVirgulaFloat(valorPago);
+                for (int i = 0; i < listMovimento.size(); i++) {
+                    if (listMovimento.get(i).getBaixa() != null) {
+                        qtdeBaixada++;
+                        listaParcelas.add(new Parcelas(listMovimento.get(i).getVencimento(), Moeda.converteR$("" + listMovimento.get(i).getValor()), true, listMovimento.get(i), true));
+                        vencimento = dh.incrementarMeses(1, listMovimento.get(i).getVencimento());
+                    }
+                }
+                qtdeParcelas = parcelas - qtdeBaixada;
+            }
+            if (qtdeParcelas == 0) {
+                GenericaMensagem.warn("Validação", "O NÚMERO DE PARCELAS DEVE SER SUPERIOR AO NÚMERO JÁ BAIXADO!");
+                listaParcelas = listaParcelasMem;
+                return;
+            }
+            for (int i = 0; i < qtdeParcelas; i++) {
+                vParcela = vTotal / qtdeParcelas;
                 if (i > 0) {
                     vencimento = dh.incrementarMeses(1, vencimento);
                 }
-                listaParcelas.add(new Parcelas(vencimento, Moeda.converteR$("" + vParcela), false, new Movimento()));
+                listaParcelas.add(new Parcelas(vencimento, Moeda.converteR$("" + vParcela), false, new Movimento(), true));
             }
         }
 
-        listaDataEntrada.clear();
-
+        listaDataEntrada = new ArrayList();
+        disabledGerarParcelas = false;
         atualizaValoresParcela(0);
     }
 
@@ -681,6 +938,16 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void adicionarReserva() {
+        if (canceled) {
+            GenericaMensagem.warn("Validação", "ANTES DE ADICIONAR UMA RESERVA É NECESSÁRIO CONCLUIR O CANCELAMENTO E REFAZER AS PARCELAS!");
+            return;
+        }
+        for (int i = 0; i < listaReservas.size(); i++) {
+            if (listaReservas.get(i).getFisica().getId() == -1) {
+                GenericaMensagem.warn("Validação", "INCLUIR PASSAGEIRO A RESERVA ADICIONADA!");
+                return;
+            }
+        }
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Erro", "Pesquise um responsável!");
             return;
@@ -690,7 +957,6 @@ public class VendasCaravanaBean implements Serializable {
             GenericaMensagem.warn("Erro", "Cadastre um endereço para este responsável!");
             return;
         }
-
         if (pessoaFisica.getId() != -1) {
             // VERIFICA SE PESSOA É MAIOR DE IDADE
             DataHoje dh = new DataHoje();
@@ -700,12 +966,10 @@ public class VendasCaravanaBean implements Serializable {
                 return;
             }
         }
-
-        if (listaCaravana.get(idCaravana).getId() == -1) {
+        if (listaCaravana.get(getIndexCaravanaSelect()).getId() == -1) {
             GenericaMensagem.warn("Erro", "Erro confirmar caravana!");
             return;
         }
-
         if (getListaPoltrona().isEmpty()) {
             GenericaMensagem.warn("Erro", "Não existe mais poltronas disponíveis!");
             return;
@@ -714,16 +978,34 @@ public class VendasCaravanaBean implements Serializable {
         //EventoServicoDB dbEs = new EventoServicoDao();
         // PASSAGEIRO --- VALOR --- DESCONTO --- TIPO / VALOR
         //listaReserva.add(new DataObject(new Fisica(), 0, "0,00", "0,00", dbEs.pesquisaCodigo(Integer.valueOf(listaTipo.get(idTipo).getDescription())), eventoServico));
-        Reservas re = new Reservas();
+        CaravanaReservas re = new CaravanaReservas();
         re.setEventoServico(eventoServico);
-        //listaReserva.add(new DataObject(new Fisica(), 0, "0,00", "0,00", eventoServico, eventoServicoValor));
-        listaReservas.add(new ListaReservas(new Fisica(), 0, "0,00", "0,00", re, eventoServicoValor));
+        //listaReserva.add(new DataObject(new Fisica(), 0, "0,00", "0,00", eventoServico, eventoServicoValor));        
+        listaReservas.add(new ListaReservas(new Fisica(), 0, "0,00", "0,00", re, eventoServicoValor, new ArrayList()));
+        loadPoltronasReservas();
+    }
+
+    public void adicionarReservaResponsavel() {
+        idAdicionar = listReservas.size();
+        Fisica f = (Fisica) new Dao().find(new Fisica(), pessoa.getFisica().getId());
+        GenericaSessao.put("fisicaPesquisa", f);
+        GenericaSessao.put("pesquisaFisicaTipo", "passageiro");
+        adicionarReserva();
+
     }
 
     public String pesquisaPassageiro(int index) {
         idAdicionar = index;
         GenericaSessao.put("pesquisaFisicaTipo", "passageiro");
-        return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).pesquisaPessoaFisica();
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoaFisica();
+    }
+
+    public String cadastrarPassageiro(int index) {
+        idAdicionar = index;
+        GenericaSessao.put("cadastrar", true);
+        GenericaSessao.put("pesquisaFisicaTipo", "passageiro");
+        GenericaSessao.remove("fisicaBean");
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pessoaFisica();
     }
 
     public void removerPessoa() {
@@ -735,51 +1017,52 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void atualizaCaravana() {
-        caravana = listaCaravana.get(idCaravana);
+        caravana = listaCaravana.get(getIdCaravanaSelect());
         vendas.setEvento(caravana.getEvento());
         listaTipo.clear();
+        bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(142, caravana.getId());
     }
 
     public void atualizaTipo() {
         listaTipo.clear();
     }
 
-    public List<SelectItem> getListaCaravanaSelect() {
-        if (listaCaravanaSelect.isEmpty()) {
-            List<Caravana> result = new Dao().list(new Caravana(), true);
-            if (!result.isEmpty()) {
-                for (int i = 0; i < result.size(); i++) {
-                    listaCaravanaSelect.add(new SelectItem(i, result.get(i).getDataSaida() + " - " + result.get(i).getHoraSaida() + " - " + result.get(i).getEvento().getDescricaoEvento().getDescricao(), String.valueOf(result.get(i).getId())));
-                    listaCaravana.add(result.get(i));
+    public void loadListaCaravanaSelect() {
+        listaCaravanaSelect = new ArrayList();
+        listaCaravana = new ArrayList();
+        List<Caravana> list = new CaravanaDao().findAll((old ? "old" : "current"));
+        if (!list.isEmpty()) {
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idCaravanaSelect = list.get(i).getId();
+                    caravana = list.get(i);
+                    vendas.setEvento(list.get(i).getEvento());
                 }
-                caravana = listaCaravana.get(idCaravana);
-                vendas.setEvento(caravana.getEvento());
+                listaCaravanaSelect.add(new SelectItem(list.get(i).getId(), list.get(i).getDataSaida() + " - " + list.get(i).getHoraSaida() + " - " + list.get(i).getEvento().getDescricaoEvento().getDescricao(), Integer.toString(i)));
+                listaCaravana.add(list.get(i));
+
             }
+            bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(new Rotina().get().getId(), caravana.getId());
         }
+
+    }
+
+    public List<SelectItem> getListaCaravanaSelect() {
         return listaCaravanaSelect;
     }
 
-    public Fisica getFisica() {
-        if (GenericaSessao.exists("fisicaPesquisa") && idAdicionar == -1 && GenericaSessao.getString("pesquisaFisicaTipo").equals("passageiro")) {
-            fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
-        }
-
-        return fisica;
-    }
-
-    public void setFisica(Fisica fisica) {
-        this.fisica = fisica;
+    public void setListaCaravanaSelect(List<SelectItem> listaCaravanaSelect) {
+        this.listaCaravanaSelect = listaCaravanaSelect;
     }
 
     public List<SelectItem> getListaPoltrona() {
         List<Integer> select;
-        VendasCaravanaDao db = new VendasCaravanaDao();
         if (!listaCaravana.isEmpty() && listaPoltrona.isEmpty()) {
-            select = db.listaPoltronasUsadas(listaCaravana.get(idCaravana).getEvento().getId());
+            select = new PoltronasDao().listaPoltronasUsadas(listaCaravana.get((int) getIndexCaravanaSelect()).getEvento().getId());
 
             boolean adc = true;
             String pol;
-            for (int i = 1; i <= listaCaravana.get(idCaravana).getQuantidadePoltronas(); i++) {
+            for (int i = 1; i <= listaCaravana.get(getIndexCaravanaSelect()).getQuantidadePoltronas(); i++) {
                 for (Integer select1 : select) {
                     if (i == select1) {
                         adc = false;
@@ -788,7 +1071,7 @@ public class VendasCaravanaBean implements Serializable {
                 }
                 if (adc) {
                     pol = "000" + i;
-                    listaPoltrona.add(new SelectItem(i, pol.substring(pol.length() - 2, pol.length()), "" + i));
+                    listaPoltrona.add(new SelectItem(i, pol.substring(pol.length() - 2, pol.length())));
                 }
                 adc = true;
             }
@@ -796,15 +1079,24 @@ public class VendasCaravanaBean implements Serializable {
         return listaPoltrona;
     }
 
+    public Boolean getShowResponsavel() {
+        for (int i = 0; i < listaReservas.size(); i++) {
+            if (listaReservas.get(i).getFisica().getPessoa().getId() == pessoa.getId()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public List<SelectItem> getListaTipo() {
         if (!listaCaravana.isEmpty()) {
 
-            if (listaTipo.isEmpty() && listaCaravana.get(idCaravana).getId() != -1) {
+            if (listaTipo.isEmpty() && listaCaravana.get(getIndexCaravanaSelect()).getId() != -1) {
                 List<EventoServico> select;
                 EventoServicoDao db = new EventoServicoDao();
                 EventoServicoValorDao dbE = new EventoServicoValorDao();
-                if (listaCaravana.get(idCaravana).getId() != -1) {
-                    select = db.listaEventoServico(listaCaravana.get(idCaravana).getEvento().getId());
+                if (listaCaravana.get(getIndexCaravanaSelect()).getId() != -1) {
+                    select = db.listaEventoServico(listaCaravana.get(getIndexCaravanaSelect()).getEvento().getId());
                     for (int i = 0; i < select.size(); i++) {
                         listaTipo.add(new SelectItem(i, select.get(i).getDescricao(), "" + select.get(i).getId()));
                     }
@@ -836,7 +1128,7 @@ public class VendasCaravanaBean implements Serializable {
         this.idTipo = idTipo;
     }
 
-    public CVenda getVendas() {
+    public CaravanaVenda getVendas() {
         return vendas;
     }
 
@@ -898,7 +1190,25 @@ public class VendasCaravanaBean implements Serializable {
 
     public List<ListaReservas> getListaReservas() {
         if (GenericaSessao.exists("fisicaPesquisa") && idAdicionar != -1) {
+            disabledGerarParcelas = false;
             Fisica fis = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
+            for (int i = 0; i < listaReservas.size(); i++) {
+                if (fis.getPessoa().getId() == listaReservas.get(i).getFisica().getPessoa().getId()) {
+                    GenericaMensagem.warn("Validação", "PASSAGEIRO JÁ CADASTRADO PARA ESSA VENDA!");
+                    return listaReservas;
+                }
+            }
+            CaravanaReservasDao caravanaReservasDao = new CaravanaReservasDao();
+            if (!caravanaReservasDao.findPassageiroCaravana(caravana.getId(), fis.getPessoa().getId()).isEmpty()) {
+                GenericaMensagem.warn("Validação", "PASSAGEIRO JÁ CADASTRADO PARA ESSA CARAVANA!");
+                return listaReservas;
+            }
+            if (!fis.getPessoa().getPessoaComplemento().getObsAviso().isEmpty()) {
+                GenericaMensagem.fatal("Mensagem", "AVISO: " + fis.getPessoa().getPessoaComplemento().getObsAviso());
+            }
+            if (vendas.getId() != null) {
+                disabledGerarParcelas = true;
+            }
 
             if (fis.getIdade() >= listaReservas.get(idAdicionar).getEventoServicoValor().getIdadeInicial() && fis.getIdade() <= listaReservas.get(idAdicionar).getEventoServicoValor().getIdadeFinal()) {
 
@@ -906,13 +1216,12 @@ public class VendasCaravanaBean implements Serializable {
                 GenericaMensagem.warn("Validação", "A IDADE DO PASSAGEIRO SELECIONADO NÃO SE ENQUADRA NO SERVIÇO ESCOLHIDO!");
                 return listaReservas;
             }
-
             listaReservas.get(idAdicionar).setFisica(fis);
 
             SociosDao db = new SociosDao();
             float valor;
             //valor = db.descontoSocioEve(fis.getPessoa().getId() , eventoServico.getServicos().getId() );
-            valor = db.descontoSocioEve(fis.getPessoa().getId(), ((Reservas) listaReservas.get(idAdicionar).getReservas()).getEventoServico().getId());
+            valor = db.descontoSocioEve(fis.getPessoa().getId(), ((CaravanaReservas) listaReservas.get(idAdicionar).getReservas()).getEventoServico().getId());
             if (valor == 0) {
                 listaReservas.get(idAdicionar).setValor(Moeda.converteR$Float(((EventoServicoValor) listaReservas.get(idAdicionar).getEventoServicoValor()).getValor()));
                 //listaReserva.get(idAdicionar).setArgumento3(Moeda.converteR$Float( Moeda.subtracaoValores(eventoServicoValor.getValor(), 0)));// NA VERDADE SUBTRAI PELO DESCONTO
@@ -951,6 +1260,23 @@ public class VendasCaravanaBean implements Serializable {
 
     public void setParcelasString(String parcelasString) {
         this.parcelas = Integer.parseInt(parcelasString);
+        if (this.parcelas == 0) {
+            this.parcelas = 1;
+        }
+        int countBaixa = 0;
+        if (!listMovimento.isEmpty()) {
+            for (int i = 0; i < listMovimento.size(); i++) {
+                if (listMovimento.get(i).getBaixa() != null) {
+                    countBaixa++;
+                }
+            }
+            if (this.parcelas <= countBaixa) {
+                GenericaMensagem.warn("Validação", "JÁ EXISTE(M) " + countBaixa + " PARCELA(S) PAGA(S), SENDO PERMITIDO QUE MÍNIMO SEJAM GERADAS " + (countBaixa + 1) + " PARCELAS");
+                countBaixa++;
+                parcelas = countBaixa;
+
+            }
+        }
     }
 
     public String getDataEntrada() {
@@ -961,12 +1287,12 @@ public class VendasCaravanaBean implements Serializable {
         this.dataEntrada = dataEntrada;
     }
 
-    public int getIdCaravana() {
-        return idCaravana;
+    public Integer getIdCaravanaSelect() {
+        return idCaravanaSelect;
     }
 
-    public void setIdCaravana(int idCaravana) {
-        this.idCaravana = idCaravana;
+    public void setIdCaravanaSelect(Integer idCaravanaSelect) {
+        this.idCaravanaSelect = idCaravanaSelect;
     }
 
     public Caravana getCaravana() {
@@ -982,7 +1308,7 @@ public class VendasCaravanaBean implements Serializable {
             float valor = 0;
             float desconto = 0;
             for (ListaReservas lr : listaReservas) {
-                if (lr.getFisica().getId() != -1) {
+                if (lr.getFisica().getId() != -1 && lr.getReservas().getDtCancelamento() == null) {
                     valor = Moeda.somaValores(valor, Moeda.substituiVirgulaFloat(lr.getValor()));
                     desconto = Moeda.somaValores(desconto, Moeda.substituiVirgulaFloat(lr.getDesconto()));
                 }
@@ -1248,18 +1574,17 @@ public class VendasCaravanaBean implements Serializable {
         this.registro = registro;
     }
 
-    public List<CVenda> getListCVenda() {
-        return listCVenda;
-    }
-
-    public void setListCVenda(List<CVenda> listCVenda) {
-        this.listCVenda = listCVenda;
-    }
-
-    public void loadListCVenda(Integer pessoa_id) {
-        listCVenda = new VendasCaravanaDao().findByPessoa(pessoa_id);
-    }
-
+//    public List<CaravanaVenda> getListCVenda() {
+//        return listCVenda;
+//    }
+//
+//    public void setListCVenda(List<CaravanaVenda> listCVenda) {
+//        this.listCVenda = listCVenda;
+//    }
+//
+//    public void loadListCVenda(Integer pessoa_id) {
+//        listCVenda = new VendasCaravanaDao().findByPessoa(pessoa_id);
+//    }
     public String getCalculaValorMovimentoAlterado() {
         if (!listaParcelas.isEmpty()) {
             try {
@@ -1303,11 +1628,11 @@ public class VendasCaravanaBean implements Serializable {
         this.disabledSave = disabledSave;
     }
 
-    public List<Reservas> getListReservas() {
+    public List<CaravanaReservas> getListReservas() {
         return listReservas;
     }
 
-    public void setListReservas(List<Reservas> listReservas) {
+    public void setListReservas(List<CaravanaReservas> listReservas) {
         this.listReservas = listReservas;
     }
 
@@ -1338,9 +1663,9 @@ public class VendasCaravanaBean implements Serializable {
             return;
         }
         if (type.equals("caravana")) {
-            listVenda = new CVendaDao().find(description, by, as);
+            listVenda = new CaravanaVendaDao().find(description, by, as);
         } else if (type.equals("reservas")) {
-            listReservas = new ReservasDao().find(description, by, as);
+            listReservas = new CaravanaReservasDao().find(description, by, as);
         }
     }
 
@@ -1376,11 +1701,11 @@ public class VendasCaravanaBean implements Serializable {
         this.type = type;
     }
 
-    public List<CVenda> getListVenda() {
+    public List<CaravanaVenda> getListVenda() {
         return listVenda;
     }
 
-    public void setListVenda(List<CVenda> listVenda) {
+    public void setListVenda(List<CaravanaVenda> listVenda) {
         this.listVenda = listVenda;
     }
 
@@ -1401,31 +1726,107 @@ public class VendasCaravanaBean implements Serializable {
         return false;
     }
 
+    public Boolean getOld() {
+        return old;
+    }
+
+    public void setOld(Boolean old) {
+        this.old = old;
+    }
+
+    public Integer getIndexCaravanaSelect() {
+        try {
+            return Integer.parseInt(listaCaravanaSelect.get(idCaravanaSelect).getDescription());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public String getMotivoCancelamento() {
+        return motivoCancelamento;
+    }
+
+    public void setMotivoCancelamento(String motivoCancelamento) {
+        this.motivoCancelamento = motivoCancelamento;
+    }
+
+    public CaravanaReservas getReservas() {
+        return reservas;
+    }
+
+    public void setReservas(CaravanaReservas reservas) {
+        this.reservas = reservas;
+    }
+
+    public List<CaravanaReservas> getListReservasCanceladas() {
+        return listReservasCanceladas;
+    }
+
+    public void setListReservasCanceladas(List<CaravanaReservas> listReservasCanceladas) {
+        this.listReservasCanceladas = listReservasCanceladas;
+    }
+
+    public Boolean getDisabledGerarParcelas() {
+        return disabledGerarParcelas;
+    }
+
+    public void setDisabledGerarParcelas(Boolean disabledGerarParcelas) {
+        this.disabledGerarParcelas = disabledGerarParcelas;
+    }
+
+    public List<Integer> getListPoltronasReservadas() {
+        return listPoltronasReservadas;
+    }
+
+    public void setListPoltronasReservadas(List<Integer> listPoltronasReservadas) {
+        this.listPoltronasReservadas = listPoltronasReservadas;
+    }
+
+    public boolean isBlock() {
+        if (bloqueioRotina != null) {
+            if (bloqueioRotina.getId() != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public BloqueioRotina getBloqueioRotina() {
+        return bloqueioRotina;
+    }
+
+    public void setBloqueioRotina(BloqueioRotina bloqueioRotina) {
+        this.bloqueioRotina = bloqueioRotina;
+    }
+
     public class ListaReservas {
 
         private Fisica fisica;
         private Integer poltrona;
         private String valor;
         private String desconto;
-        private Reservas reservas;
+        private CaravanaReservas reservas;
         private EventoServicoValor eventoServicoValor;
+        private List<SelectItem> listPoltrona;
 
         public ListaReservas() {
             this.fisica = new Fisica();
             this.poltrona = 0;
             this.valor = "0,00";
             this.desconto = "0,00";
-            this.reservas = new Reservas();
+            this.reservas = new CaravanaReservas();
             this.eventoServicoValor = null;
+            this.listPoltrona = new ArrayList();
         }
 
-        public ListaReservas(Fisica fisica, Integer poltrona, String valor, String desconto, Reservas reservas, EventoServicoValor eventoServicoValor) {
+        public ListaReservas(Fisica fisica, Integer poltrona, String valor, String desconto, CaravanaReservas reservas, EventoServicoValor eventoServicoValor, List<SelectItem> listPoltrona) {
             this.fisica = fisica;
             this.poltrona = poltrona;
             this.valor = valor;
             this.desconto = desconto;
             this.reservas = reservas;
             this.eventoServicoValor = eventoServicoValor;
+            this.listPoltrona = listPoltrona;
         }
 
         public Fisica getFisica() {
@@ -1460,11 +1861,11 @@ public class VendasCaravanaBean implements Serializable {
             this.desconto = desconto;
         }
 
-        public Reservas getReservas() {
+        public CaravanaReservas getReservas() {
             return reservas;
         }
 
-        public void setReservas(Reservas reservas) {
+        public void setReservas(CaravanaReservas reservas) {
             this.reservas = reservas;
         }
 
@@ -1476,6 +1877,36 @@ public class VendasCaravanaBean implements Serializable {
             this.eventoServicoValor = eventoServicoValor;
         }
 
+        public List<SelectItem> getListPoltrona() {
+            if (!listaCaravana.isEmpty() && listPoltrona.isEmpty()) {
+                List<Integer> select = new PoltronasDao().listaPoltronasUsadas(listaCaravana.get((int) getIndexCaravanaSelect()).getEvento().getId());
+                boolean adc = true;
+                String pol;
+                if (poltrona != 0) {
+                    listPoltrona.add(new SelectItem(poltrona, (poltrona < 10 ? ("0" + poltrona) : (poltrona + ""))));
+                }
+                for (int i = 1; i <= listaCaravana.get(getIndexCaravanaSelect()).getQuantidadePoltronas(); i++) {
+                    for (Integer select1 : select) {
+                        if (i == select1) {
+                            adc = false;
+                            break;
+                        }
+                    }
+                    if (adc) {
+                        pol = "000" + i;
+                        listPoltrona.add(new SelectItem(i, pol.substring(pol.length() - 2, pol.length())));
+                    }
+                    adc = true;
+                }
+                SelectItemSort.sort(listPoltrona);
+            }
+            return listPoltrona;
+        }
+
+        public void setListPoltrona(List<SelectItem> listPoltrona) {
+            this.listPoltrona = listPoltrona;
+        }
+
     }
 
     public class Parcelas {
@@ -1484,19 +1915,22 @@ public class VendasCaravanaBean implements Serializable {
         private String valor;
         private Boolean baixado;
         private Movimento movimento;
+        private Boolean cancelado;
 
         public Parcelas() {
             this.vencimento = "";
             this.valor = "";
             this.baixado = null;
             this.movimento = null;
+            this.cancelado = null;
         }
 
-        public Parcelas(String vencimento, String valor, Boolean baixado, Movimento movimento) {
+        public Parcelas(String vencimento, String valor, Boolean baixado, Movimento movimento, Boolean cancelado) {
             this.vencimento = vencimento;
             this.valor = valor;
             this.baixado = baixado;
             this.movimento = movimento;
+            this.cancelado = cancelado;
         }
 
         public String getVencimento() {
@@ -1529,6 +1963,14 @@ public class VendasCaravanaBean implements Serializable {
 
         public void setMovimento(Movimento movimento) {
             this.movimento = movimento;
+        }
+
+        public Boolean getCancelado() {
+            return cancelado;
+        }
+
+        public void setCancelado(Boolean cancelado) {
+            this.cancelado = cancelado;
         }
     }
 

@@ -98,8 +98,11 @@
                                     <p:menuitem value="Emissão de Guias"       action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
                                     <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>                                    
                                     <p:submenu label="Eventos">
-                                        <p:menuitem value="Convite Clube"           action="#{chamadaPaginaBean.conviteMovimento}"/>
-                                        <p:menuitem value="Caravana"        action="#{chamadaPaginaBean.pagina('vendasCaravana')}" />
+                                        <p:menuitem value="Convite Clube"       action="#{chamadaPaginaBean.conviteMovimento}"/>
+                                        <p:submenu label="Caravana">
+                                            <p:menuitem value="Vendas"          action="#{chamadaPaginaBean.pagina('vendasCaravana')}" />                                            
+                                            <p:menuitem value="Organizar"       action="#{chamadaPaginaBean.pagina('organizarCaravana')}" />
+                                        </p:submenu>
                                         <p:menuitem value="Baile"           action="#{chamadaPaginaBean.vendasBaile}" />
                                         <p:menuitem value="Sorteio"             action="#{chamadaPaginaBean.pagina('sorteioMovimento')}" />
                                         <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupomMovimento')}" />

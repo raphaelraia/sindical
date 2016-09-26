@@ -330,4 +330,20 @@ public class FilialDao extends DB {
         }
     }
 
+    public List findByHorarios() {
+        try {
+            String queryString = ""
+                    + "     SELECT F.*                                          \n"
+                    + "       FROM pes_filial F                                 \n"
+                    + " INNER JOIN pes_juridica J ON J.id = F.id_filial         \n"
+                    + " INNER JOIN pes_pessoa P ON P.id = J.id_pessoa           \n"
+                    + "      WHERE F.id IN ( SELECT id_filial FROM hom_horarios GROUP BY id_filial ) "
+                    + "   ORDER BY P.ds_nome";
+            Query query = getEntityManager().createNativeQuery(queryString, Filial.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }

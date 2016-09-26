@@ -271,4 +271,20 @@ public class AcademiaDao extends DB {
         }
         return false;
     }
+
+    public Boolean existeAlunoModalidadePeriodo(Integer aluno_id, Integer modalidade_id, Integer periodo_id, Date emissao) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT MA FROM MatriculaAcademia AS MA WHERE MA.servicoPessoa.pessoa.id = :aluno_id AND MA.academiaServicoValor.servicos.id = :modalidade_id AND MA.academiaServicoValor.id = :servico_valor_id AND MA.dtInativo IS NULL AND (MA.dtValidade IS NULL OR MA.dtValidade > CURRENT_TIMESTAMP)");
+            query.setMaxResults(1);
+            query.setParameter("aluno_id", aluno_id);
+            query.setParameter("modalidade_id", modalidade_id);
+            query.setParameter("servico_valor_id", periodo_id);
+            if (!query.getResultList().isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
 }

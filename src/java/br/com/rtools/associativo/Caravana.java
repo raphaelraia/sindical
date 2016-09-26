@@ -2,6 +2,7 @@ package br.com.rtools.associativo;
 
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.utilitarios.DataHoje;
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,16 +20,15 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "car_caravana")
 @NamedQueries({
-    @NamedQuery(name = "Caravana.pesquisaID", query = "SELECT C FROM Caravana AS C WHERE C.id = :pid"),
     @NamedQuery(name = "Caravana.findAll", query = "SELECT C FROM Caravana AS C ORDER BY C.dtSaida DESC, C.horaSaida ASC")
 })
-public class Caravana implements java.io.Serializable {
+public class Caravana implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
-    @JoinColumn(name = "id_aevento", referencedColumnName = "id")
+    private Integer id;
+    @JoinColumn(name = "id_evento", referencedColumnName = "id")
     @ManyToOne
     private AEvento evento;
     @Temporal(TemporalType.DATE)
@@ -47,24 +47,26 @@ public class Caravana implements java.io.Serializable {
     @Column(name = "tm_chegada", nullable = false)
     private String horaChegada;
     @Column(name = "is_cafe", nullable = true)
-    private boolean isCafe;
+    private boolean cafe;
     @Column(name = "is_almoco", nullable = true)
-    private boolean isAlmoco;
+    private boolean almoco;
     @Column(name = "is_jantar", nullable = true)
-    private boolean isJantar;
+    private boolean jantar;
     @Column(name = "nr_poltronas", nullable = true)
-    private int quantidadePoltronas;
+    private Integer quantidadePoltronas;
     @Column(name = "nr_guia_recolhimento", nullable = true)
-    private int guiaRecolhimento;
-    @Column(name = "ds_observacao")
+    private Integer guiaRecolhimento;
+    @Column(name = "ds_observacao", length = 255)
     private String observacao;
     @JoinColumn(name = "id_evt", referencedColumnName = "id")
     @ManyToOne
     private Evt evt;
+    @Column(name = "ds_relatorio", length = 5000)
+    private String relatorio;
 
-    public Caravana(int id, AEvento evento, String dataSaida, String dataRetorno, String dataChegada, String horaSaida, String horaRetorno,
-            String horaChegada, boolean isCafe, boolean isAlmoco, boolean isJantar, int quantidadePoltronas,
-            int guiaRecolhimento, String observacao, Evt evt) {
+    public Caravana(Integer id, AEvento evento, String dataSaida, String dataRetorno, String dataChegada, String horaSaida, String horaRetorno,
+            String horaChegada, Boolean cafe, Boolean almoco, Boolean jantar, Integer quantidadePoltronas,
+            int guiaRecolhimento, String observacao, Evt evt, String relatorio) {
         this.id = id;
         this.evento = evento;
         setDataSaida(dataSaida);
@@ -73,17 +75,18 @@ public class Caravana implements java.io.Serializable {
         this.horaSaida = horaSaida;
         this.horaRetorno = horaRetorno;
         this.horaChegada = horaChegada;
-        this.isCafe = isCafe;
-        this.isAlmoco = isAlmoco;
-        this.isJantar = isJantar;
+        this.cafe = cafe;
+        this.almoco = almoco;
+        this.jantar = jantar;
         this.quantidadePoltronas = quantidadePoltronas;
         this.guiaRecolhimento = guiaRecolhimento;
         this.observacao = observacao;
         this.evt = evt;
+        this.relatorio = relatorio;
     }
 
     public Caravana() {
-        this.id = -1;
+        this.id = null;
         this.evento = new AEvento();
         setDataSaida("");
         setDataRetorno("");
@@ -91,20 +94,21 @@ public class Caravana implements java.io.Serializable {
         this.horaSaida = "";
         this.horaRetorno = "";
         this.horaChegada = "";
-        this.isCafe = false;
-        this.isAlmoco = false;
-        this.isJantar = false;
+        this.cafe = false;
+        this.almoco = false;
+        this.jantar = false;
         this.quantidadePoltronas = 0;
         this.guiaRecolhimento = 0;
         this.observacao = "";
         this.evt = null;
+        this.relatorio = "";
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -164,43 +168,43 @@ public class Caravana implements java.io.Serializable {
         this.horaChegada = horaChegada;
     }
 
-    public boolean isIsCafe() {
-        return isCafe;
+    public Boolean getCafe() {
+        return cafe;
     }
 
-    public void setIsCafe(boolean isCafe) {
-        this.isCafe = isCafe;
+    public void setCafe(Boolean cafe) {
+        this.cafe = cafe;
     }
 
-    public boolean isIsAlmoco() {
-        return isAlmoco;
+    public Boolean getAlmoco() {
+        return almoco;
     }
 
-    public void setIsAlmoco(boolean isAlmoco) {
-        this.isAlmoco = isAlmoco;
+    public void setAlmoco(Boolean almoco) {
+        this.almoco = almoco;
     }
 
-    public boolean isIsJantar() {
-        return isJantar;
+    public Boolean getJantar() {
+        return jantar;
     }
 
-    public void setIsJantar(boolean isJantar) {
-        this.isJantar = isJantar;
+    public void setJantar(Boolean jantar) {
+        this.jantar = jantar;
     }
 
-    public int getQuantidadePoltronas() {
+    public Integer getQuantidadePoltronas() {
         return quantidadePoltronas;
     }
 
-    public void setQuantidadePoltronas(int quantidadePoltronas) {
+    public void setQuantidadePoltronas(Integer quantidadePoltronas) {
         this.quantidadePoltronas = quantidadePoltronas;
     }
 
-    public int getGuiaRecolhimento() {
+    public Integer getGuiaRecolhimento() {
         return guiaRecolhimento;
     }
 
-    public void setGuiaRecolhimento(int guiaRecolhimento) {
+    public void setGuiaRecolhimento(Integer guiaRecolhimento) {
         this.guiaRecolhimento = guiaRecolhimento;
     }
 
@@ -276,5 +280,13 @@ public class Caravana implements java.io.Serializable {
 
     public void setEvt(Evt evt) {
         this.evt = evt;
+    }
+
+    public String getRelatorio() {
+        return relatorio;
+    }
+
+    public void setRelatorio(String relatorio) {
+        this.relatorio = relatorio;
     }
 }

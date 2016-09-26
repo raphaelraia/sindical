@@ -162,6 +162,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     private String inCategoriaSocio = null;
     private List<Fisica> listFisicaSugestao = new ArrayList();
+    private Boolean cadastrar = false;
 
     public FisicaBean() {
 
@@ -614,6 +615,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String editarFisica(Fisica f, Boolean completo) {
+        if (f.getId() == -1) {
+            return null;
+        }
         Dao dao = new Dao();
         selectedFisica = new ArrayList<>();
         multiple = false;
@@ -1801,6 +1805,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void loadList() {
+        cadastrar = false;
         limit = 500;
         offset = 0;
         List list = new ArrayList<>();
@@ -2847,10 +2852,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void editPessoaEmpresaEdit(PessoaEmpresa pessoaEmpresaEdit) {
         Agendamento a = pessoaEmpresaEdit.getAgendamento();
         if (a != null) {
-            if (a.getStatus().getId() == 2 || a.getStatus().getId() == 4 || a.getStatus().getId() == 5 || a.getStatus().getId() == 6) {
-                GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR EMPRESA AGENDADA, EM ATENDIMENTO OU HOMOLOGADA! ");
-                return;
-            }
+//            if (a.getStatus().getId() == 2 || a.getStatus().getId() == 4 || a.getStatus().getId() == 5 || a.getStatus().getId() == 6) {
+//                GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR EMPRESA AGENDADA, EM ATENDIMENTO OU HOMOLOGADA! ");
+//                return;
+//            }
         }
         this.pessoaEmpresaEdit = pessoaEmpresaEdit;
         PF.openDialog("dlg_pessoa_empresa");
@@ -2867,5 +2872,17 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setListFisicaSugestao(List<Fisica> listFisicaSugestao) {
         this.listFisicaSugestao = listFisicaSugestao;
+    }
+
+    public Boolean getCadastrar() {
+        if (GenericaSessao.exists("cadastrar")) {
+            GenericaSessao.remove("cadastrar");
+            cadastrar = true;
+        }
+        return cadastrar;
+    }
+
+    public void setCadastrar(Boolean cadastrar) {
+        this.cadastrar = cadastrar;
     }
 }

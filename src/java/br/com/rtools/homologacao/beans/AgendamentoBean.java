@@ -11,10 +11,8 @@ import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.beans.MovimentosReceberBean;
 import br.com.rtools.financeiro.beans.PlanilhaDebitoBean;
 import br.com.rtools.financeiro.dao.MovimentoDao;
-import br.com.rtools.financeiro.dao.MovimentoReceberDao;
 import br.com.rtools.financeiro.lista.ListMovimentoReceber;
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.Cancelamento;
@@ -31,6 +29,7 @@ import br.com.rtools.impressao.beans.ProtocoloAgendamento;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
+import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.MacFilial;
@@ -73,7 +72,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private List<Movimento> listaMovimento = new ArrayList();
     private final List<SelectItem> listaStatus = new ArrayList();
     private final List<SelectItem> listaDemissao = new ArrayList();
-    private final List<SelectItem> listaHorarioTransferencia = new ArrayList();
+    private List<SelectItem> listaHorarioTransferencia = new ArrayList();
     private final List<ListaAgendamento> listaHorarios = new ArrayList();
     private Juridica juridica = new Juridica();
     private Fisica fisica = new Fisica();
@@ -105,6 +104,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private Cancelamento cancelamento = new Cancelamento();
     private String documentoFisica = "";
     private Date polling;
+    private List<SelectItem> listFilial;
+    private Integer idFilial;
+    private Boolean renderedFilial;
 
     public AgendamentoBean() {
         if (configuracaoHomologacao.getId() == null) {
@@ -124,6 +126,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             this.loadListaHorarios();
             this.loadListaHorariosTransferencia();
         }
+        renderedFilial = false;
         GlobalSync.load();
     }
 
@@ -189,13 +192,32 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         agendamento.setTelefone("");
     }
 
+    public final void alterFilial(Boolean renderedFilial) {
+        this.renderedFilial = renderedFilial;
+        loadListFilial();
+    }
+
+    public void loadListFilial() {
+        listFilial = new ArrayList();
+        List<Filial> list = new FilialDao().findByHorarios();
+        idFilial = macFilial.getFilial().getId();
+        listFilial = new ArrayList();
+        for (int i = 0; i < list.size(); i++) {
+            listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
+        }
+    }
+
     public final void loadListaHorariosTransferencia() {
-        listaHorarioTransferencia.clear();
+        loadListaHorariosTransferencia(macFilial.getFilial().getId());
+    }
+
+    public final void loadListaHorariosTransferencia(Integer filial_id) {
+        listaHorarioTransferencia = new ArrayList();
         idHorarioTransferencia = 0;
 
         HomologacaoDao db = new HomologacaoDao();
         int idDiaSemana = DataHoje.diaDaSemana(dataTransferencia);
-        List<Horarios> select = db.pesquisaTodosHorariosDisponiveis(macFilial.getFilial().getId(), idDiaSemana);
+        List<Horarios> select = db.pesquisaTodosHorariosDisponiveis(filial_id, idDiaSemana);
         if (select.isEmpty()) {
             listaHorarioTransferencia.add(new SelectItem(0, "Nenhum horário encontrado", "0"));
             return;
@@ -340,6 +362,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         NovoLog novoLog = new NovoLog();
         Horarios h = (Horarios) dao.find(new Horarios(), Integer.valueOf(listaHorarioTransferencia.get(idHorarioTransferencia).getDescription()));
         agendamento.setHorarios(h);
+
+        if (renderedFilial) {
+            agendamento.setFilial(h.getFilial());
+        }
 
         dao.openTransaction();
         agendamento.setAgendador((Usuario) GenericaSessao.getObject("sessaoUsuario"));
@@ -1076,6 +1102,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         ocultarHorarioAlternativo = true;
         imprimirPro = true;
         WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+        renderedFilial = false;
     }
 
     public String salvarMais() {
@@ -1758,6 +1785,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setVisibleModal(boolean visibleModal) {
         if (!visibleModal) {
+            renderedFilial = false;
             HorarioReservaDao hrd = new HorarioReservaDao();
             hrd.clear();
             hrd.begin();
@@ -1859,5 +1887,29 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setListaMovimento(List<Movimento> listaMovimento) {
         this.listaMovimento = listaMovimento;
+    }
+
+    public List<SelectItem> getListFilial() {
+        return listFilial;
+    }
+
+    public void setListFilial(List<SelectItem> listFilial) {
+        this.listFilial = listFilial;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
+    }
+
+    public Boolean getRenderedFilial() {
+        return renderedFilial;
+    }
+
+    public void setRenderedFilial(Boolean renderedFilial) {
+        this.renderedFilial = renderedFilial;
     }
 }
