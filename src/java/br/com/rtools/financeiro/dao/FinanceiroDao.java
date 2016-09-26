@@ -1718,8 +1718,10 @@ public class FinanceiroDao extends DB {
 
     public List<Object> listaMovimentoEstornado(Integer id_caixa, String data_baixa) {
         Query qry = getEntityManager().createNativeQuery(
-                "SELECT pue.ds_nome AS operador,\n"
-                + "       p.ds_nome AS responsavel_movimento,\n"
+                "SELECT pue.id AS operador_id, \n "
+                + "       pue.ds_nome AS operador, \n"
+                + "       c.ds_descricao AS caixa, \n"
+                + "       p.ds_nome AS responsavel_movimento, \n"
                 + "       sum(me.nr_valor_baixa) AS nr_valor_baixa, \n"
                 + "       l.dt_baixa AS dt_caixa, \n"
                 + "       l.dt_lancamento AS dt_estorno,  \n"
@@ -1733,7 +1735,7 @@ public class FinanceiroDao extends DB {
                 + " INNER JOIN pes_pessoa        AS p   ON p.id = m.id_pessoa \n"
                 + " WHERE l.id_caixa = " + id_caixa + " \n"
                 + "   AND l.dt_baixa = '" + data_baixa + "' \n"
-                + " GROUP BY pue.ds_nome, p.ds_nome, l.dt_baixa, l.dt_lancamento, l.ds_motivo "
+                + " GROUP BY pue.id, pue.ds_nome, c.ds_descricao, p.ds_nome, l.dt_baixa, l.dt_lancamento, l.ds_motivo "
         );
 
         try {

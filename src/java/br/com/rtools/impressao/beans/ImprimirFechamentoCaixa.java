@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.financeiro.beans.ConfiguracaoFinanceiroBean;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.impressao.ParametroEstornoCaixa;
 import br.com.rtools.impressao.ParametroFechamentoCaixa;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -14,9 +15,11 @@ import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.annotation.PostConstruct;
+import net.sf.jasperreports.engine.JasperReport;
 
 public class ImprimirFechamentoCaixa {
 
@@ -138,6 +141,15 @@ public class ImprimirFechamentoCaixa {
 
         float total_dinheiro = dinheiro_baixa;
         float valor_transferido = Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(dinheiro_baixa, cheque), cheque_pre), ticket), saldo_atual);
+
+        JasperReport j_fechamento_caixa = Jasper.load("FECHAMENTO_CAIXA.jasper");
+        JasperReport j_estorno_caixa = Jasper.load("ESTORNO_CAIXA.jasper");
+
+        Jasper jasper = new Jasper();
+        jasper.start();
+        
+        List<Object> result_list_estorno = db.listaMovimentoEstornado(caixa.getId(), fc.getData());
+        
         if (!lista_cheque.isEmpty()) {
             for (int i = 0; i < lista_cheque.size(); i++) {
                 ChequeRec cr = (ChequeRec) lista_cheque.get(i).getArgumento0();
@@ -170,7 +182,8 @@ public class ImprimirFechamentoCaixa {
                         Moeda.converteR$Float(transferencia_bancaria),
                         Moeda.converteR$Float(ticket),
                         Moeda.converteR$Float(debito),
-                        Moeda.converteR$Float(boleto)
+                        Moeda.converteR$Float(boleto),
+                        (!result_list_estorno.isEmpty()) ? "* Existe(m) estorno(s) para este caixa *" : ""
                 ));
             }
         } else {
@@ -203,22 +216,37 @@ public class ImprimirFechamentoCaixa {
                     Moeda.converteR$Float(transferencia_bancaria),
                     Moeda.converteR$Float(ticket),
                     Moeda.converteR$Float(debito),
-                    Moeda.converteR$Float(boleto)
+                    Moeda.converteR$Float(boleto),
+                    (!result_list_estorno.isEmpty()) ? "* Existe(m) estorno(s) para este caixa *" : ""
             ));
         }
+
+        jasper.add(j_fechamento_caixa, lista);
+
         
-        List<Object> result_list_estorno = db.listaMovimentoEstornado(caixa.getId(), fc.getData());
-        
-        if (!result_list_estorno.isEmpty()){
-            
+
+        if (!result_list_estorno.isEmpty()) {
+            List<ParametroEstornoCaixa> li = new ArrayList();
+
+            for (Object ob : result_list_estorno) {
+                List linha = (List) ob;
+                li.add(
+                        new ParametroEstornoCaixa(
+                                linha.get(0),
+                                linha.get(1),
+                                linha.get(2),
+                                linha.get(3),
+                                linha.get(4),
+                                linha.get(5),
+                                linha.get(6),
+                                linha.get(7)
+                        )
+                );
+            }
+
+            jasper.add(j_estorno_caixa, li);
         }
-        
-        try {
-            Jasper.PATH = "downloads";
-            Jasper.PART_NAME = "";
-            Jasper.printReports("/Relatorios/FECHAMENTO_CAIXA.jasper", "fechamento_caixa", lista);
-        } catch (Exception e) {
-            e.getMessage();
-        }
+
+        jasper.finish("Fechamento Caixa");
     }
 }

@@ -1,6 +1,7 @@
 package br.com.rtools.impressao;
 
 public class ParametroFechamentoCaixa {
+
     private String data = "";
     private String filial = "";
     private String caixa = "";
@@ -30,11 +31,12 @@ public class ParametroFechamentoCaixa {
     private String ticket = "";
     private String debito_automatico = "";
     private String boleto = "";
-    
+    private String mensagem_estorno = "";
+
     public ParametroFechamentoCaixa(String data, String filial, String caixa, String usuario, String valor_fechamento, String valor_informado, String saldo_anterior,
-            String dinheiro, String cheque, String cheque_pre, String cartao_credito, String cartao_debito, String transferencia_entrada, String transferencia_saida, String pagamento, String status, String banco, String banco_dados, 
+            String dinheiro, String cheque, String cheque_pre, String cartao_credito, String cartao_debito, String transferencia_entrada, String transferencia_saida, String pagamento, String status, String banco, String banco_dados,
             String descricao_caixa, boolean mostrar_valor_informado, String valor_caixa, String valor_transferido, String saldo_atual, String deposito_bancario, String doc_bancario, String transferencia_bancaria,
-            String ticket, String debito_automatico, String boleto) {
+            String ticket, String debito_automatico, String boleto, String mensagem_estorno) {
         this.data = data;
         this.filial = filial;
         this.caixa = caixa;
@@ -63,9 +65,9 @@ public class ParametroFechamentoCaixa {
         this.transferencia_bancaria = transferencia_bancaria;
         this.ticket = ticket;
         this.debito_automatico = debito_automatico;
-        this.boleto = boleto;        
+        this.boleto = boleto;
+        this.mensagem_estorno = mensagem_estorno;
     }
-
 
     public String getData() {
         return data;
@@ -299,5 +301,12 @@ public class ParametroFechamentoCaixa {
         this.boleto = boleto;
     }
 
-    
+    public String getMensagem_estorno() {
+        return mensagem_estorno;
+    }
+
+    public void setMensagem_estorno(String mensagem_estorno) {
+        this.mensagem_estorno = mensagem_estorno;
+    }
+
 }
