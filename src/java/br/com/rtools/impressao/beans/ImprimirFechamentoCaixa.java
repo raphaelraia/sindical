@@ -206,6 +206,13 @@ public class ImprimirFechamentoCaixa {
                     Moeda.converteR$Float(boleto)
             ));
         }
+        
+        List<Object> result_list_estorno = db.listaMovimentoEstornado(caixa.getId(), fc.getData());
+        
+        if (!result_list_estorno.isEmpty()){
+            
+        }
+        
         try {
             Jasper.PATH = "downloads";
             Jasper.PART_NAME = "";

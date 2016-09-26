@@ -1,16 +1,22 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 
 public class CaixaFederalSindical extends Cobranca {
 
     public CaixaFederalSindical(Integer id_pessoa, float valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
+    }
+
+    public CaixaFederalSindical(List<Movimento> listaMovimento) {
+        super(listaMovimento);
     }
 
     @Override

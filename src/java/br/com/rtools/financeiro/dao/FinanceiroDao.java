@@ -1715,4 +1715,32 @@ public class FinanceiroDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List<Object> listaMovimentoEstornado(Integer id_caixa, String data_baixa) {
+        Query qry = getEntityManager().createNativeQuery(
+                "SELECT pue.ds_nome AS operador,\n"
+                + "       p.ds_nome AS responsavel_movimento,\n"
+                + "       sum(me.nr_valor_baixa) AS nr_valor_baixa, \n"
+                + "       l.dt_baixa AS dt_caixa, \n"
+                + "       l.dt_lancamento AS dt_estorno,  \n"
+                + "       l.ds_motivo AS motivo\n"
+                + "  FROM fin_estorno_caixa_lote AS l \n"
+                + " INNER JOIN fin_caixa         AS c   ON c.id = l.id_caixa \n"
+                + " INNER JOIN seg_usuario       AS ue  ON ue.id = l.id_usuario_estorno \n"
+                + " INNER JOIN pes_pessoa        AS pue ON pue.id = ue.id_pessoa \n"
+                + " INNER JOIN fin_estorno_caixa AS me  ON me.id_estorno_caixa_lote = l.id \n"
+                + " INNER JOIN fin_movimento     AS m   ON m.id = me.id_movimento \n"
+                + " INNER JOIN pes_pessoa        AS p   ON p.id = m.id_pessoa \n"
+                + " WHERE l.id_caixa = " + id_caixa + " \n"
+                + "   AND l.dt_baixa = '" + data_baixa + "' \n"
+                + " GROUP BY pue.ds_nome, p.ds_nome, l.dt_baixa, l.dt_lancamento, l.ds_motivo "
+        );
+
+        try {
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
 }

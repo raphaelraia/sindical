@@ -1063,6 +1063,8 @@ public class GerarMovimento extends DB {
                 }
 
                 for (int i = 0; i < lista.size(); i++) {
+                    Float valor_baixa = lista.get(i).getValorBaixa();
+
                     lista.get(i).setBaixa(null);
                     lista.get(i).setJuros(0);
                     lista.get(i).setMulta(0);
@@ -1076,7 +1078,7 @@ public class GerarMovimento extends DB {
                         return false;
                     }
 
-                    if (!dao.save(new EstornoCaixa(-1, ecl, lista.get(i)))) {
+                    if (!dao.save(new EstornoCaixa(-1, ecl, lista.get(i), valor_baixa))) {
                         dao.rollback();
                         return false;
                     }
@@ -1120,6 +1122,8 @@ public class GerarMovimento extends DB {
                     return false;
                 }
 
+                Float valor_baixa = movimento.getValorBaixa();
+
                 movimento.setBaixa(null);
                 movimento.setJuros(0);
                 movimento.setMulta(0);
@@ -1133,7 +1137,7 @@ public class GerarMovimento extends DB {
                     return false;
                 }
 
-                if (!dao.save(new EstornoCaixa(-1, ecl, movimento))) {
+                if (!dao.save(new EstornoCaixa(-1, ecl, movimento, valor_baixa))) {
                     dao.rollback();
                     return false;
                 }

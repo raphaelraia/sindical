@@ -127,7 +127,7 @@ public abstract class Cobranca {
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SICOB)) {
             //cobranca = new CaixaFederalSicob(lista_movimento);
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SIGCB)) {
-            //cobranca = new CaixaFederalSigCB(lista_movimento);
+            cobranca = new CaixaFederalSigCB(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.itau)) {
             //cobranca = new Itau(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.bancoDoBrasil)) {

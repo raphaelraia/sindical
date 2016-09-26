@@ -432,11 +432,9 @@
                                             <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>
-                                    
+
                                     <h:column>
-                                        <p:commandLink action="#{extratoTelaBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK" styleClass="margin-left-max">
-                                            <p:commandButton icon="ui-icon-print" value="Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>
-                                        </p:commandLink>
+                                        <p:commandButton icon="ui-icon-print" value="Remessa" title="Gerar Remessa de Boletos Selecionados" onclick="PF('dlg_gerar_remessa').show()"/>
                                     </h:column>
 
                                     <h:column>
@@ -484,6 +482,19 @@
 
                                 </h:panelGrid>
                             </p:panel>
+
+                            <p:dialog widgetVar="dlg_gerar_remessa" header="Gerar Arquivo Remessa" resizable="false" modal="true" width="400">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente gerar Arquivo Remessa desses arquivos?" style="font-weight: bold; font-size: 12pt!important"/>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="2">
+                                    <p:commandLink action="#{extratoTelaBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK">
+                                        <p:commandButton icon="ui-icon-print" value="Gerar Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>
+                                    </p:commandLink>
+                                    <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar Geração" onclick="PF('dlg_gerar_remessa').hide()" global="false"/>
+                                </h:panelGrid>
+                            </p:dialog>
 
                             <p:dialog widgetVar="dlg_excluir" header="Excluir Movimentos" resizable="false" modal="true" width="400">
                                 <h:panelGrid>
