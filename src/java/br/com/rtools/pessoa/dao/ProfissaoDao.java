@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.dao;
 
+import br.com.rtools.endereco.Logradouro;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Profissao;
 import br.com.rtools.principal.DB;
@@ -112,5 +113,34 @@ public class ProfissaoDao extends DB {
             return new ArrayList();
         }
         return new FindDao().findNotInByTabela(Filial.class, "pes_profissao", new String[]{column}, table, column, colum_filter_key, colum_filter_value, "");
+    }
+
+    public Profissao find(String descricao) {
+        try {
+            return (Profissao) find(descricao, true).get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Boolean exists(String descricao) {
+        return find(descricao) != null;
+    }
+
+    public List find(String descricao, Boolean filter) {
+        try {
+            Query query;
+            if (filter) {
+                query = getEntityManager().createNativeQuery("SELECT P.* FROM pes_profissao AS P WHERE TRIM(UPPER(FUNC_TRANSLATE(P.ds_profissao))) = TRIM(UPPER(FUNC_TRANSLATE('" + descricao + "'))) ", Profissao.class);
+            } else {
+                query = getEntityManager().createNativeQuery("SELECT P.* FROM pes_profissao AS P WHERE TRIM(UPPER(P.ds_profissao)) = TRIM(UPPER('" + descricao + "')) ", Profissao.class);
+            }
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
     }
 }

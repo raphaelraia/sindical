@@ -134,4 +134,48 @@ public class CidadeDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List<Cidade> findByCidade(String descricao) {
+        try {
+            return (List<Cidade>) find(descricao, null, true);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Cidade find(String descricao, String uf) {
+        try {
+            return (Cidade) find(descricao, uf, true).get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Boolean exists(String cidade, String uf) {
+        return find(cidade, uf) != null;
+    }
+
+    public List find(String cidade, String uf, Boolean filter) {
+        try {
+            Query query;
+            if (filter) {
+                if (uf == null) {
+                    query = getEntityManager().createNativeQuery("SELECT C.* FROM end_cidade AS C WHERE TRIM(UPPER(FUNC_TRANSLATE(C.ds_cidade))) = TRIM(UPPER(FUNC_TRANSLATE('" + cidade + "')))", Cidade.class);
+                } else {
+                    query = getEntityManager().createNativeQuery("SELECT C.* FROM end_cidade AS C WHERE TRIM(UPPER(FUNC_TRANSLATE(C.ds_cidade))) = TRIM(UPPER(FUNC_TRANSLATE('" + cidade + "'))) AND C.ds_uf = '" + uf.toUpperCase() + "'", Cidade.class);
+                }
+            } else if (uf == null) {
+                query = getEntityManager().createNativeQuery("SELECT C.* FROM end_cidade AS C WHERE TRIM(UPPER(C.ds_cidade)) = TRIM(UPPER('" + cidade + "'))", Cidade.class);
+            } else {
+                query = getEntityManager().createNativeQuery("SELECT C.* FROM end_cidade AS C WHERE TRIM(UPPER(C.ds_cidade)) = TRIM(UPPER('" + cidade + "')) AND C.ds_uf = '" + uf.toUpperCase() + "'", Cidade.class);
+
+            }
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
 }

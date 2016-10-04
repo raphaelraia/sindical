@@ -33,6 +33,10 @@ public class CEPService {
      * http://www.republicavirtual.com.br/cep/exemplos.php
      */
     public void procurar() {
+        procurar(null);
+    }
+
+    public void procurar(Dao dao) {
         if (cep.isEmpty()) {
             return;
         }
@@ -59,6 +63,7 @@ public class CEPService {
                 String value = parameters.getProperty(name);
                 urlString += (++counter == 1 ? "?" : "&") + name + "=" + value;
             }
+            Boolean autocommit = false;
             try {
                 URL url = new URL(urlString);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -77,7 +82,10 @@ public class CEPService {
                 Annotations.configureAliases(xstream, CepAlias.class);
                 xstream.alias("webservicecep", CepAlias.class);
                 CepAlias cepAlias = (CepAlias) xstream.fromXML(newData.toString());
-                Dao dao = new Dao();
+                if (dao == null) {
+                    autocommit = true;
+                    dao = new Dao();
+                }
                 Cidade cidade = cidadeDB.pesquisaCidadePorEstadoCidade(cepAlias.getUf(), cepAlias.getCidade());
                 if (cidade == null) {
                     return;
@@ -88,7 +96,7 @@ public class CEPService {
                     if (!cepAlias.getTipo_logradouro().isEmpty()) {
                         logradouro = new Logradouro();
                         logradouro.setDescricao(cepAlias.getTipo_logradouro());
-                        dao.save(logradouro, true);
+                        dao.save(logradouro, autocommit);
                     }
                 }
                 BairroDao bairroDao = new BairroDao();
@@ -97,7 +105,7 @@ public class CEPService {
                     if (!cepAlias.getBairro().isEmpty()) {
                         bairro = new Bairro();
                         bairro.setDescricao(cepAlias.getBairro());
-                        dao.save(bairro, true);
+                        dao.save(bairro, autocommit);
                     }
                 }
                 DescricaoEnderecoDao descricaoEnderecoDao = new DescricaoEnderecoDao();
@@ -106,7 +114,7 @@ public class CEPService {
                     if (!cepAlias.getLogradouro().isEmpty()) {
                         descricaoEndereco = new DescricaoEndereco();
                         descricaoEndereco.setDescricao(cepAlias.getLogradouro());
-                        dao.save(descricaoEndereco, true);
+                        dao.save(descricaoEndereco, autocommit);
                     }
                 }
                 if (!cep.isEmpty() && bairro != null && logradouro != null && descricaoEndereco != null) {
@@ -123,7 +131,7 @@ public class CEPService {
                             endereco.getCidade().getId()
                     );
                     if (list.isEmpty()) {
-                        dao.save(endereco, true);
+                        dao.save(endereco, autocommit);
                     } else {
                         endereco = new Endereco();
                         list.clear();

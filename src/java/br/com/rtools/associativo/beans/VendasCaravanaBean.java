@@ -505,8 +505,7 @@ public class VendasCaravanaBean implements Serializable {
     public void loadListMovimento() {
         listMovimento = new ArrayList();
         if (vendas.getLote() != null) {
-            MovimentoDao md = new MovimentoDao();
-            listMovimento = md.findByLote(vendas.getLote().getId());
+            listMovimento = new MovimentoDao().findByLote(vendas.getLote().getId());
         }
     }
 
@@ -522,6 +521,8 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public String edit(CaravanaVenda v) {
+        listaCaravanaSelect = new ArrayList();
+        loadListaCaravanaSelect();
         locked = true;
         vendas = (CaravanaVenda) new Dao().rebind(v);
         loadListReservas();
@@ -531,6 +532,11 @@ public class VendasCaravanaBean implements Serializable {
             caravana = dbc.pesquisaCaravanaPorEvento(vendas.getEvento().getId());
         } else {
             caravana = vendas.getCaravana();
+        }
+        if (listaCaravanaSelect.isEmpty()) {
+            idCaravanaSelect = caravana.getId();
+            listaCaravanaSelect.add(new SelectItem(caravana.getId(), caravana.getDataSaida() + " - " + caravana.getHoraSaida() + " - " + caravana.getEvento().getDescricaoEvento().getDescricao(), "0"));
+            listaCaravana.add(caravana);
         }
         idCaravanaSelect = vendas.getCaravana().getId();
         bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(142, vendas.getCaravana().getId());
@@ -800,10 +806,14 @@ public class VendasCaravanaBean implements Serializable {
                     GenericaMensagem.warn("Erro", "Não é possivel salvar movimento!");
                     return;
                 }
-            } else if (!dao.update(listaParcelas.get(i).getMovimento())) {
-                dao.rollback();
-                GenericaMensagem.warn("Erro", "Não é possivel atualizar movimento!");
-                return;
+            } else {
+                listaParcelas.get(i).getMovimento().setVencimento(listaParcelas.get(i).getVencimento());
+                listaParcelas.get(i).getMovimento().setValorString(listaParcelas.get(i).getValor());
+                if (!dao.update(listaParcelas.get(i).getMovimento())) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "Não é possivel atualizar movimento!");
+                    return;
+                }
             }
         }
         NovoLog novoLog = new NovoLog();
@@ -1203,8 +1213,10 @@ public class VendasCaravanaBean implements Serializable {
                 GenericaMensagem.warn("Validação", "PASSAGEIRO JÁ CADASTRADO PARA ESSA CARAVANA!");
                 return listaReservas;
             }
-            if (!fis.getPessoa().getPessoaComplemento().getObsAviso().isEmpty()) {
-                GenericaMensagem.fatal("Mensagem", "AVISO: " + fis.getPessoa().getPessoaComplemento().getObsAviso());
+            if (fis.getPessoa().getPessoaComplemento() != null && fis.getPessoa().getPessoaComplemento().getId() != -1) {
+                if (fis.getPessoa().getPessoaComplemento().getObsAviso() != null && !fis.getPessoa().getPessoaComplemento().getObsAviso().isEmpty()) {
+                    GenericaMensagem.fatal("Mensagem", "AVISO: " + fis.getPessoa().getPessoaComplemento().getObsAviso());
+                }
             }
             if (vendas.getId() != null) {
                 disabledGerarParcelas = true;

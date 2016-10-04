@@ -158,7 +158,9 @@
                             <h:panelGrid id="i_panel_protocolo" columns="3" rendered="#{agendamentoBean.agendamento.id != -1}" styleClass="float-right">
                                 <h:outputLabel value="Alterar" />
                                 <p:commandLink value="Horário" title="Transferir horário" action="#{agendamentoBean.loadListaHorariosTransferencia()}" oncomplete="PF('dlg_transferir_horario').show()" update="i_panel_transferir_horario" rendered="#{agendamentoBean.agendamento.id != -1}" style="float: right" global="false" actionListener="#{agendamentoBean.alterFilial(false)}"/>
-                                <p:commandLink value="/ Filial" title="Transferir filial e horário (TROCAR FILIAL AGENDAMENTO - ALTERAÇÃO)" action="#{agendamentoBean.loadListaHorariosTransferencia()}" oncomplete="PF('dlg_transferir_horario').show()" update="i_panel_transferir_horario" rendered="#{agendamentoBean.agendamento.id != -1 and controleAcessoBean.verificarPermissao('trocar_filial_agendamento', 3)}" style="float: right" global="false" actionListener="#{agendamentoBean.alterFilial(true)}" />
+                                <h:column rendered="#{agendamentoBean.agendamento.id != -1}">
+                                    <p:commandLink value="/ Filial" title="Transferir filial e horário (TROCAR FILIAL AGENDAMENTO - ALTERAÇÃO)" action="#{agendamentoBean.loadListaHorariosTransferencia()}" oncomplete="PF('dlg_transferir_horario').show()" update="i_panel_transferir_horario" rendered="#{!controleAcessoBean.verificarPermissao('trocar_filial_agendamento', 3)}" style="float: right" global="false" actionListener="#{agendamentoBean.alterFilial(true)}" />
+                                </h:column>
                             </h:panelGrid>
 
                             <h:panelGrid id="i_panel_agendamento">

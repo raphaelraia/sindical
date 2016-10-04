@@ -24,6 +24,8 @@ public class EnderecoDao extends DB {
         try {
             if (iniParcial.equals("I")) {
                 descricao = descricao.trim() + "%";
+            } else if (iniParcial.equals("T")) {
+                descricao = descricao.trim();
             } else {
                 descricao = "%" + descricao.trim() + "%";
             }

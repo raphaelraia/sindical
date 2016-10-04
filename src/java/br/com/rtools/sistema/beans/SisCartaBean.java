@@ -1,6 +1,7 @@
 package br.com.rtools.sistema.beans;
 
 import br.com.rtools.impressao.Carta;
+import br.com.rtools.impressao.ParametroContrato;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.seguranca.Registro;
@@ -15,7 +16,9 @@ import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -52,8 +55,8 @@ public class SisCartaBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar titulo!");
             return;
         }
-        if (sisCarta.getDetalhes().isEmpty()) {
-            GenericaMensagem.warn("Validação", "Descrever os detalhes!");
+        if (sisCarta.getTexto().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informar um texto!");
             return;
         }
         if (sisCarta.getSql().isEmpty()) {
@@ -109,8 +112,7 @@ public class SisCartaBean implements Serializable {
             for (int i = 0; i < listPessoaEndereco.size(); i++) {
                 try {
                     List<Carta> c = new ArrayList<>();
-                    Carta carta = new Carta();
-                    carta = new Carta(
+                    Carta carta = new Carta(
                             sisCarta.getTitulo(), // titulo
                             "Texto", // Texto
                             "Assinatura", // Assinatura
@@ -163,6 +165,22 @@ public class SisCartaBean implements Serializable {
         } catch (Exception e) {
             e.getMessage();
         }
+    }
+
+    public void printTest() {
+        List list = new ArrayList();
+        Map map = new HashMap();
+        sisCarta.setTexto(sisCarta.getTexto().replace("<br>", "<br />"));
+        try {
+           // sisCarta.setTexto(sisCarta.getTexto().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));
+        } catch (Exception e) {
+
+        }
+        map.put("teste", sisCarta.getTexto());
+        ParametroContrato pc = new ParametroContrato();
+        pc.setNomePessoa("aaa");
+        list.add(pc);
+        Jasper.printReports("CARTA2.jasper", "aaaaa", list, map);
     }
 
     /**
@@ -231,7 +249,7 @@ public class SisCartaBean implements Serializable {
     public static void printIn(String in_pessoas, Integer tipo_endereco_id) {
         List list = new SisCartaDao().findEnderecosByInPessoa(in_pessoas, tipo_endereco_id);
         List<Carta> c = new ArrayList<>();
-        Carta carta = new Carta();
+        Carta carta;
         for (Object list1 : list) {
             List o = (List) list1;
             carta = new Carta(
@@ -277,7 +295,7 @@ public class SisCartaBean implements Serializable {
 
     public SisCarta getSisCarta() {
         if (GenericaSessao.exists("usuarioPesquisa")) {
-            sisCarta.setSolicitante((Usuario) GenericaSessao.getObject("usuarioPesquisa", true));
+            sisCarta.setOperador((Usuario) GenericaSessao.getObject("usuarioPesquisa", true));
         }
         return sisCarta;
     }

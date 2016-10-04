@@ -29,11 +29,18 @@
                     </p:panel>
                     <p:panel styleClass="margin-top-max" id="id_lista" header="Compromissos">
                         <h:panelGrid columns="15">
+                            <p:outputLabel value="Status: " styleClass="margin-left-max"/>
+                            <p:selectOneMenu label="Cancelados" value="#{compromissoBean.cancelados}" filter="true">
+                                <p:ajax event="change" global="false" update="@this :form_compromisso:id_lista" listener="#{compromissoBean.listener('reload_tipos')}"/>
+                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                <f:selectItem itemValue="ativos" itemLabel="Ativos" />
+                                <f:selectItem itemValue="cancelados" itemLabel="Cancelados" />
+                            </p:selectOneMenu>                            
                             <p:selectOneMenu label="Histórico" value="#{compromissoBean.tipoHistorico}" filter="true" filterMatchMode="startsWith">
                                 <p:ajax event="change" global="false" update="@this id_lista" />
                                 <f:selectItem itemValue="hoje" itemLabel="Hoje" />
                                 <f:selectItem itemValue="hoje_amanha" itemLabel="Hoje e Amanhã" />
-                                <f:selectItem itemValue="agendados" itemLabel="Agendados" />
+                                <f:selectItem itemValue="agendados" itemLabel="Agendados" itemDisabled="#{compromissoBean.cancelados eq 'cancelados'}"/>
                                 <f:selectItem itemValue="permanentes" itemLabel="Permanentes" />
                                 <f:selectItem itemValue="essa_semana" itemLabel="Essa semana" />
                                 <f:selectItem itemValue="semana_que_vem" itemLabel="Próxima semana" />
@@ -65,17 +72,10 @@
                                 <f:selectItem itemValue="" itemLabel="NENHUM"/>
                                 <f:selectItems value="#{compromissoBean.listUsuario}"/>
                             </p:selectOneMenu>
-                            <p:outputLabel value="Status: " styleClass="margin-left-max"/>
-                            <p:selectOneMenu label="Cancelados" value="#{compromissoBean.cancelados}" filter="true">
-                                <p:ajax event="change" global="false" update="@this"/>
-                                <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                <f:selectItem itemValue="ativos" itemLabel="Ativos" />
-                                <f:selectItem itemValue="cancelados" itemLabel="Cancelados" />
-                            </p:selectOneMenu>
                             <p:commandButton value="Filtrar" update="i_compromissos" action="#{compromissoBean.listener('pesquisar')}" styleClass="margin-left-max"/>
                         </h:panelGrid>
                         <h:panelGrid id="i_compromissos">
-                            <p:dataTable value="#{compromissoBean.listCompromissos}" var="compromisso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="15"  rowStyleClass="#{(compromisso.particular and empty compromisso.cancelamento) ? 'bg-info' : (compromisso.periodoRepeticao.id == 2 ? 'bg-green-ligth' : (not empty compromisso.cancelamento ? 'bg-salmon' : ''))}">
+                            <p:dataTable value="#{compromissoBean.listCompromissos}" var="compromisso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="15"  rowStyleClass="#{(compromisso.particular and empty compromisso.cancelamento) ? 'bg-info' : ((compromisso.periodoRepeticao.id == 2 and empty compromisso.cancelamento) ? 'bg-green-ligth' : (not empty compromisso.cancelamento ? 'bg-salmon' : ''))}">
                                 <p:column width="15">
                                     <h:column>
                                         <p:rowToggler rendered="#{not empty compromisso.listCompromissoUsuario}"/>                                          

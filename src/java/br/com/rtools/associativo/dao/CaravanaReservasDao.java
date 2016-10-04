@@ -126,7 +126,7 @@ public class CaravanaReservasDao extends DB {
     }
 
     public List<CaravanaReservas> findPoltronaDisponivel(Integer caravana_id, Integer poltrona) {
-        return findByCaravanaVenda(caravana_id, true);
+        return findPoltronaDisponivel(caravana_id, poltrona, true);
     }
 
     public List<CaravanaReservas> findPoltronaDisponivel(Integer caravana_id, Integer poltrona, Boolean ativas) {

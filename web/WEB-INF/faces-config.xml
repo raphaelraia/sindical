@@ -2318,6 +2318,18 @@
             <redirect/>
         </navigation-case>             
         
+        <navigation-case>
+            <from-outcome>relatorioResumoImpressaoBoletos</from-outcome>
+            <to-view-id>/relatorioResumoImpressaoBoletos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
+        <navigation-case>
+            <from-outcome>importacao</from-outcome>
+            <to-view-id>/importacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

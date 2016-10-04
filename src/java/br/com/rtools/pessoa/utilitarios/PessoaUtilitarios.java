@@ -23,6 +23,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 
 @ManagedBean(name = "pessoaUtilitariosBean")
@@ -281,5 +282,67 @@ public class PessoaUtilitarios implements Serializable {
 
     public void setUsuarioSessao(Usuario usuarioSessao) {
         this.usuarioSessao = usuarioSessao;
+    }
+
+    public static List loadListPaises() {
+        List listPaises = new ArrayList();
+        listPaises.add("Africana(o)");
+        listPaises.add("Afegã(o)");
+        listPaises.add("Alemã(o)");
+        listPaises.add("Americana(o)");
+        listPaises.add("Angolana(o)");
+        listPaises.add("Argelina(o)");
+        listPaises.add("Argentina(o)");
+        listPaises.add("Asiática(o)");
+        listPaises.add("Australiana(o)");
+        listPaises.add("Belga(o)");
+        listPaises.add("Boliviana(o)");
+        listPaises.add("Brasileira(o)");
+        listPaises.add("Canadense(o)");
+        listPaises.add("Canadiana(o)");
+        listPaises.add("Chilena(o)");
+        listPaises.add("Chinesa(o)");
+        listPaises.add("Colombiana(o)");
+        listPaises.add("Cubana(o)");
+        listPaises.add("Da Nova Zelândia(o)");
+        listPaises.add("Dinamarquesa(o)");
+        listPaises.add("Egípcia(o)");
+        listPaises.add("Equatoriana(o)");
+        listPaises.add("Espanha(o)");
+        listPaises.add("Espanhola(o)");
+        listPaises.add("Europeu(o)");
+        listPaises.add("Finlandesa(o)");
+        listPaises.add("Francesa(o)");
+        listPaises.add("Grega(o)");
+        listPaises.add("Haitiana(o)");
+        listPaises.add("Holandesa(o)");
+        listPaises.add("Hondurenha(o)");
+        listPaises.add("Hungara(o)");
+        listPaises.add("Indiana(o)");
+        listPaises.add("Inglesa(o)");
+        listPaises.add("Iraneana(o)");
+        listPaises.add("Iraquiana(o)");
+        listPaises.add("Italiana(o)");
+        listPaises.add("Jamaicana(o)");
+        listPaises.add("Japonesa(o)");
+        listPaises.add("Marroquina(o)");
+        listPaises.add("Mexicana(o)");
+        listPaises.add("Norte Americana(o)");
+        listPaises.add("Norueguesa(o)");
+        listPaises.add("Paquistanesa(o)");
+        listPaises.add("Paraguaia(o)");
+        listPaises.add("Peruana(o)");
+        listPaises.add("Polaca(o)");
+        listPaises.add("Portuguesa(o)");
+        listPaises.add("Queniana(o)");
+        listPaises.add("Russa(o)");
+        listPaises.add("Sueca(o)");
+        listPaises.add("Suiça(o)");
+        listPaises.add("Sul-Africana(o)");
+        listPaises.add("Sul-Coreana(o)");
+        listPaises.add("Turca(o)");
+        listPaises.add("Uraguaia(o)");
+        listPaises.add("Venezuelana(o)");
+        return listPaises;
     }
 }

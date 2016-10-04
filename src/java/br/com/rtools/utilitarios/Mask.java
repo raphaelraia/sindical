@@ -80,6 +80,18 @@ public class Mask {
         }
     }
 
+    public static String pis(final String v) {
+        String vMask = "";
+        try {
+            if (!v.equals("")) {
+                vMask = v.substring(0, 3) + "." + v.substring(3, 6) + "." + v.substring(6, 9) + "-" + v.substring(9, 11);
+            }
+            return vMask;
+        } catch (Exception e) {
+            return v;
+        }
+    }
+
     public static String cnpj(final String cnpj) {
         String cnpjMask = "";
         try {
@@ -89,6 +101,23 @@ public class Mask {
             return cnpjMask;
         } catch (Exception e) {
             return cnpj;
+        }
+    }
+
+    public static String applyPhoneMask(final String v) {
+        if (v.isEmpty()) {
+            return "";
+        }
+        String vMask = "";
+        try {
+            if (v.length() == 10) {
+                vMask = "(" + v.substring(0, 2) + ") " + v.substring(2, 6) + "-" + v.substring(6, 10);
+            } else if (v.length() == 11) {
+                vMask = "(" + v.substring(0, 2) + ") " + v.substring(2, 7) + "-" + v.substring(7, 11);
+            }
+            return vMask;
+        } catch (Exception e) {
+            return v;
         }
     }
 

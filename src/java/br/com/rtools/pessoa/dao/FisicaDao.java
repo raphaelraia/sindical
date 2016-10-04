@@ -598,9 +598,8 @@ public class FisicaDao extends DB {
     }
 
     public List<Fisica> pesquisaFisicaPorDoc(String doc, boolean like) {
-        String documento = doc;
         if (like) {
-            documento = "%" + doc + "%";
+            doc = "%" + doc + "%";
         }
         try {
 //            Query qry = getEntityManager().createQuery("SELECT FIS FROM Fisica AS FIS WHERE FIS.pessoa.documento LIKE :documento");
@@ -609,7 +608,7 @@ public class FisicaDao extends DB {
                     " SELECT f.* \n "
                     + " FROM pes_fisica AS f \n"
                     + "INNER JOIN pes_pessoa p ON p.id = f.id_pessoa \n"
-                    + "WHERE p.ds_documento LIKE '" + documento + "'", Fisica.class
+                    + "WHERE p.ds_documento LIKE '" + doc + "'", Fisica.class
             );
             List list = qry.getResultList();
             if (!list.isEmpty()) {
@@ -891,7 +890,7 @@ public class FisicaDao extends DB {
         }
         return new ArrayList();
     }
-    
+
     public Integer getLimit() {
         return limit;
     }

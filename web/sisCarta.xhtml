@@ -25,30 +25,32 @@
                                 <p:ajax event="change" update="@this" />
                             </p:inputText>
                             <p:outputLabel value="Detalhes:" />
-                            <p:inputTextarea value="#{sisCartaBean.sisCarta.detalhes}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="255" cols="80" rows="5"/>
+                            <p:inputTextarea value="#{sisCartaBean.sisCarta.operador}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="255" cols="80" rows="5"/>
                             <p:outputLabel value="SQL:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
+                            <p:editor value="#{sisCartaBean.sisCarta.texto}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="border-radius" />
                             <h:inputTextarea value="#{sisCartaBean.sisCarta.sql}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" cols="80" rows="10" styleClass="border-radius" />
                             <p:outputLabel value="Observação da carta" />
-                            <p:inputText value="#{sisCartaBean.sisCarta.observacao}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="50" size="78"/>
+                            <p:inputText value="#{sisCartaBean.sisCarta.operador}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="50" size="78"/>
                             <p:commandButton value="Solicitante" icon="ui-icon-search" title="Pesquisar usuário solicitante" action="#{chamadaPaginaBean.pagina('pesquisaUsuario')}" disabled="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}"/>
-                            <p:outputLabel value="#{sisCartaBean.sisCarta.solicitante.pessoa.nome}" />
+                            <p:outputLabel value="#{sisCartaBean.sisCarta.operador.pessoa.nome}" />
                         </h:panelGrid>
                     </p:panel>
                     <h:panelGrid columns="3" styleClass="margin-top-max">
                         <p:commandButton value="Salvar" title="Salvar" action="#{sisCartaBean.save}" update=":form_carta:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                         <p:commandButton value="Novo" title="Novo" action="#{sisCartaBean.clear}" update=":form_carta:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                         <p:commandButton value="Imprimir" icon="ui-icon-disk" title="Visualizar" action="#{sisCartaBean.print}" ajax="false" update="id_messages_growl" />
+                        <p:commandButton value="Test" icon="ui-icon-disk" title="Visualizar" action="#{sisCartaBean.printTest}" ajax="false" update="id_messages_growl" />
                     </h:panelGrid>
                     <p:dataTable value="#{sisCartaBean.listSisCartas}" var="sisCarta" styleClass="margin-top-max">
                         <p:column width="30" styleClass="text-center">
                             <p:commandButton icon="ui-icon-link" title="Editar" action="#{sisCartaBean.edit(sisCarta)}" update=":form_carta:" />
                         </p:column>
                         <p:column width="30" styleClass="text-center">
-                            <p:commandButton icon="ui-icon-print" title="Imprimir" action="#{sisCartaBean.print(sisCarta)}" ajax="false" update="id_messages_growl" disabled="#{(sisCarta.solicitante != null or segurancaUtilitariosBean.sessaoUsuario.id != sisCarta.solicitante.id)}"/>
+                            <p:commandButton icon="ui-icon-print" title="Imprimir" action="#{sisCartaBean.print(sisCarta)}" ajax="false" update="id_messages_growl" />
                         </p:column>
                         <p:column headerText="Titulo">#{sisCarta.titulo}</p:column>
-                        <p:column headerText="Data da solicitanção" width="100" styleClass="text-center">#{sisCarta.solicitacaoString}</p:column>
-                        <p:column headerText="Solicitante">#{sisCarta.solicitante.pessoa.nome}</p:column>
+                        <p:column headerText="Data da solicitanção" width="100" styleClass="text-center">#{sisCarta.dtCadastro}</p:column>
+                        <p:column headerText="Solicitante">#{sisCarta.operador.pessoa.nome}</p:column>
                         <p:column width="30" styleClass="text-center">
                             <p:commandButton icon="ui-icon-trash" title="Remover" action="#{sisCartaBean.delete(sisCarta)}" update=":form_carta:" disabled="#{controleAcessoBean.botaoExcluir}" />
                         </p:column>

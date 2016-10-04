@@ -8,6 +8,7 @@ import br.com.rtools.agenda.dao.CompromissoDao;
 import br.com.rtools.agenda.dao.CompromissoUsuarioDao;
 import br.com.rtools.agenda.dao.SecretariaDao;
 import br.com.rtools.endereco.Endereco;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.seguranca.Usuario;
@@ -84,6 +85,9 @@ public class CompromissoBean implements Serializable {
 
     public void listener(String tcase) {
         switch (tcase) {
+            case "reload_tipos":
+                tipoHistorico = "";
+                break;
             case "usuario":
                 loadListUsuario();
                 break;
@@ -176,7 +180,9 @@ public class CompromissoBean implements Serializable {
         idRepeticao = null;
         listRepeticao.add(new SelectItem(null, "NENHUM"));
         for (int i = 0; i < list.size(); i++) {
-            listRepeticao.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+            if (list.get(i).getDescricao().contains("SEMANAL")) {
+                listRepeticao.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+            }
         }
     }
 
@@ -221,6 +227,7 @@ public class CompromissoBean implements Serializable {
                 compromisso.setSemana((Semana) dao.find(new Semana(), idSemana));
             }
         }
+        NovoLog novoLog = new NovoLog();
         compromisso.setCompromissoCategoria((CompromissoCategoria) dao.find(new CompromissoCategoria(), idCompromissoCategoria));
         compromisso.setSecretaria(Usuario.getUsuario());
         if (compromisso.getId() == null) {
@@ -241,14 +248,25 @@ public class CompromissoBean implements Serializable {
             dao.commit();
             loadListUsuario();
             loadListCompromissos();
+            String saveString = "ID: " + compromisso.getId() + " - Categoria: " + compromisso.getCompromissoCategoria().getDescricao() + " - Descrição: " + compromisso.getDescricao() + " - Data: " + compromisso.getData() + " - Horário: " + compromisso.getHoraInicial();
+            novoLog.setTabela("age_compromisso");
+            novoLog.setCodigo(compromisso.getId());
+            novoLog.save(saveString);
             GenericaMensagem.info("SUCESSO", "REGISTRO INSERIDO");
-
-        } else if (dao.update(compromisso, true)) {
-            loadListUsuario();
-            loadListCompromissos();
-            GenericaMensagem.info("SUCESSO", "REGISTRO ATUALIZADO");
         } else {
-            GenericaMensagem.warn("ERRO", "AO ATUALIZADO REGISTRO!");
+            Compromisso c = (Compromisso) dao.find(new Compromisso(), compromisso.getId());
+            String beforeUpdate = "ID: " + c.getId() + " - Categoria: " + c.getCompromissoCategoria().getDescricao() + " - Descrição: " + c.getDescricao() + " - Data: " + c.getData() + " - Horário: " + c.getHoraInicial();
+            String afterUpdate = "ID: " + compromisso.getId() + " - Categoria: " + compromisso.getCompromissoCategoria().getDescricao() + " - Descrição: " + compromisso.getDescricao() + " - Data: " + compromisso.getData() + " - Horário: " + compromisso.getHoraInicial();
+            if (dao.update(compromisso, true)) {
+                novoLog.setTabela("age_compromisso");
+                novoLog.setCodigo(compromisso.getId());
+                novoLog.update(beforeUpdate, afterUpdate);
+                loadListUsuario();
+                loadListCompromissos();
+                GenericaMensagem.info("SUCESSO", "REGISTRO ATUALIZADO");
+            } else {
+                GenericaMensagem.warn("ERRO", "AO ATUALIZADO REGISTRO!");
+            }
         }
         compromissoUsuario = null;
     }
@@ -289,6 +307,11 @@ public class CompromissoBean implements Serializable {
             if (new Dao().delete(compromisso, true)) {
                 GenericaMensagem.info("SUCESSO", "REGISTRO REMOVIDO");
                 GenericaSessao.remove("compromissoBean");
+                NovoLog novoLog = new NovoLog();
+                String deleteString = "ID: " + compromisso.getId() + " - Categoria: " + compromisso.getCompromissoCategoria().getDescricao() + " - Descrição: " + compromisso.getDescricao() + " - Data: " + compromisso.getData() + " - Horário: " + compromisso.getHoraInicial();
+                novoLog.setTabela("age_compromisso");
+                novoLog.setCodigo(compromisso.getId());
+                novoLog.delete(deleteString);
             } else {
                 GenericaMensagem.warn("ERRO", "AO REMOVER REGISTRO!");
             }
@@ -391,6 +414,9 @@ public class CompromissoBean implements Serializable {
     }
 
     public void setVisibled(Boolean visibled) {
+        if (data != null) {
+            compromisso.setData(DataHoje.converteData(data));
+        }
         this.visibled = visibled;
     }
 

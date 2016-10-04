@@ -1,6 +1,5 @@
 package br.com.rtools.agenda.dao;
 
-import br.com.rtools.agenda.Compromisso;
 import br.com.rtools.agenda.CompromissoUsuario;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
