@@ -65,7 +65,8 @@
                                         <p:menuitem value="Filial Departamento"     action="#{chamadaPaginaBean.pagina('filialDepartamento')}" />
                                         <p:menuitem value="Filial Rotina"           action="#{chamadaPaginaBean.pagina('filialRotina')}" />
                                         <p:menuitem value="Permissão Catraca"       action="#{chamadaPaginaBean.pagina('permissaoCatraca')}" />
-                                        <p:menuitem value="Cadastro Depto"            action="#{chamadaPaginaBean.paginaSimples('Departamento', 'Departamento')}" />
+                                        <p:menuitem value="Cadastro Depto"          action="#{chamadaPaginaBean.paginaSimples('Departamento', 'Departamento')}" />
+                                        <p:menuitem value="Importação"              action="#{chamadaPaginaBean.pagina('importacao')}" />
                                     </p:submenu>  
                                     <p:submenu label="Departamentos">  
                                         <p:menuitem value="Manutenção"  action="#{chamadaPaginaBean.pagina('configuracaoDepartamento')}"/>
@@ -83,6 +84,7 @@
                                         <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                         <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                         <p:menuitem value="Atualizar Base"          action="#{chamadaPaginaBean.pagina('atualizarBase')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and controleUsuarioBean.clienteString eq 'Rtools'}" />
+                                        <p:menuitem value="Canvas"                  action="#{chamadaPaginaBean.pagina('canvas')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                     </p:submenu> 
                                     <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"> 
                                         <p:menuitem value="Ordem Serviço"    />
@@ -214,20 +216,31 @@
                                     </p:panel>
                                     <p:panel styleClass="margin-top-max" id="id_lista" header="Agenda de Compromissos" rendered="#{!controleAcessoBean.verificarPermissao('consulta_agenda_compromissos', 4)}">
                                         <h:panelGrid columns="15">
-                                            <p:selectOneMenu label="Histórico" value="#{compromissoUsuarioBean.tipoHistorico}">
-                                                <p:ajax event="change" global="false" update="@this :formMenuPrincipal:id_lista" />
-                                                <f:selectItem itemValue="hoje" itemLabel="Hoje" />
-                                                <f:selectItem itemValue="hoje_amanha" itemLabel="Hoje e Amanhã" />
-                                                <f:selectItem itemValue="agendados" itemLabel="Agendados" />
-                                                <f:selectItem itemValue="permanentes" itemLabel="Permanentes" />
-                                                <f:selectItem itemValue="essa_semana" itemLabel="Essa semana" />
-                                                <f:selectItem itemValue="semana_que_vem" itemLabel="Próxima semana" />
-                                                <f:selectItem itemValue="ontem" itemLabel="Ontem" />
-                                                <f:selectItem itemValue="mes" itemLabel="Ultimos 30 dias" />
-                                                <f:selectItem itemValue="semestre" itemLabel="Ultimo Semestre" />
-                                                <f:selectItem itemValue="ano" itemLabel="Ultimo Ano" />
-                                                <f:selectItem itemValue="especifico" itemLabel="Específicar" />
+                                            <p:outputLabel value="Status: "/>
+                                            <p:selectOneMenu label="Cancelados" value="#{compromissoUsuarioBean.cancelados}">
+                                                <p:ajax event="change" global="false" update="@this :formMenuPrincipal:id_lista" listener="#{compromissoUsuarioBean.listener('reload_tipos')}"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="ativos" itemLabel="Ativos" />
+                                                <f:selectItem itemValue="cancelados" itemLabel="Cancelados" />
                                             </p:selectOneMenu>
+                                            <h:column>
+                                                <h:panelGroup layout="block">
+                                                    <p:selectOneMenu label="Histórico" value="#{compromissoUsuarioBean.tipoHistorico}"  styleClass="margin-left-max">
+                                                        <p:ajax event="change" global="false" update="@this :formMenuPrincipal:id_lista" />
+                                                        <f:selectItem itemValue="hoje" itemLabel="Hoje" />
+                                                        <f:selectItem itemValue="hoje_amanha" itemLabel="Hoje e Amanhã" />
+                                                        <f:selectItem itemValue="agendados" itemLabel="Agendados" itemDisabled="#{compromissoUsuarioBean.cancelados eq 'cancelados'}"/>
+                                                        <f:selectItem itemValue="permanentes" itemLabel="Permanentes" />
+                                                        <f:selectItem itemValue="essa_semana" itemLabel="Essa semana" />
+                                                        <f:selectItem itemValue="semana_que_vem" itemLabel="Próxima semana" />
+                                                        <f:selectItem itemValue="ontem" itemLabel="Ontem" />
+                                                        <f:selectItem itemValue="mes" itemLabel="Ultimos 30 dias" />
+                                                        <f:selectItem itemValue="semestre" itemLabel="Ultimo Semestre" />
+                                                        <f:selectItem itemValue="ano" itemLabel="Ultimo Ano" />
+                                                        <f:selectItem itemValue="especifico" itemLabel="Específicar" />
+                                                    </p:selectOneMenu>
+                                                </h:panelGroup>
+                                            </h:column>
                                             <p:outputLabel value="Tipo de data: " rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico'}" styleClass="margin-left-max"/>
                                             <p:selectOneMenu label="Tipo de pesquisa" value="#{compromissoUsuarioBean.tipoData}" filter="true" filterMatchMode="startsWith" rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico'}">
                                                 <p:ajax event="change" global="false" update="@this id_lista"/>
@@ -244,17 +257,10 @@
                                             <p:inputMask value="#{compromissoUsuarioBean.dataFinal}" converter="#{isDateString}" rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico' and compromissoUsuarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999" styleClass="text-center">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
-                                            <p:outputLabel value="Status: " styleClass="margin-left-max"/>
-                                            <p:selectOneMenu label="Cancelados" value="#{compromissoUsuarioBean.cancelados}">
-                                                <p:ajax event="change" global="false" update="@this"/>
-                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                                <f:selectItem itemValue="ativos" itemLabel="Ativos" />
-                                                <f:selectItem itemValue="cancelados" itemLabel="Cancelados" />
-                                            </p:selectOneMenu>
                                             <p:commandButton value="Filtrar" update="i_compromissos" action="#{compromissoUsuarioBean.listener('pesquisar')}" styleClass="margin-left-max"/>
                                         </h:panelGrid>
                                         <h:panelGrid id="i_compromissos">
-                                            <p:dataTable value="#{compromissoUsuarioBean.listCompromissoUsuario}" var="list" scrollable="true" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="10" rowStyleClass="#{list.compromisso.periodoRepeticao.id == 2 ? 'bg-green-ligth' : not empty list.compromisso.cancelamento ? 'bg-salmon' : ''}">
+                                            <p:dataTable value="#{compromissoUsuarioBean.listCompromissoUsuario}" var="list" scrollable="true" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="10" rowStyleClass="#{(list.compromisso.particular and empty list.compromisso.cancelamento) ? 'bg-info' : ((list.compromisso.periodoRepeticao.id == 2 and empty list.compromisso.cancelamento) ? 'bg-green-ligth' : (not empty list.compromisso.cancelamento ? 'bg-salmon' : ''))}">
                                                 <p:column width="15">  
                                                     <p:rowToggler rendered="#{not empty list.compromisso.listCompromissoUsuario}"/>  
                                                 </p:column>
@@ -274,7 +280,7 @@
                                                     #{list.compromisso.descricao}
                                                 </p:column>
                                                 <p:column headerText="Cancelado">
-                                                    #{compromisso.cancelamento} por #{compromisso.usuarioCancelador.pessoa.nome}
+                                                    #{list.compromisso.cancelamento} por #{list.compromisso.usuarioCancelador.pessoa.nome}
                                                 </p:column>                                                
                                                 <p:rowExpansion>
                                                     <p:dataTable value="#{list.compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!" rendered="false">
@@ -283,9 +289,9 @@
                                                         </p:column>                                    
                                                     </p:dataTable>
                                                     <p:panelGrid styleClass="margin-top-max" columns="1">
-                                                        <p:outputLabel value="DETALHES: #{compromisso.detalhes}" rendered="#{not empty compromisso.detalhes}" />                                    
-                                                        <p:outputLabel value="LOCAL: #{compromisso.local.enderecoSimplesToString} - #{compromisso.local.cidade.cidade} / #{compromisso.local.cidade.uf}" rendered="#{compromisso.local != null}"/>
-                                                        <p:outputLabel value="COM: #{compromisso.pessoa.nome} (#{compromisso.pessoa.documento})" rendered="#{compromisso.pessoa != null}"/>
+                                                        <p:outputLabel value="DETALHES: #{compromissoUsuario.compromisso.detalhes}" rendered="#{not empty compromissoUsuario.compromisso.detalhes}" />                                    
+                                                        <p:outputLabel value="LOCAL: #{compromissoUsuario.compromisso.local.enderecoSimplesToString} - #{compromissoUsuario.compromisso.local.cidade.cidade} / #{compromissoUsuario.compromisso.local.cidade.uf}" rendered="#{compromissoUsuario.compromisso.local != null}"/>
+                                                        <p:outputLabel value="COM: #{compromissoUsuario.compromisso.pessoa.nome} (#{compromissoUsuario.pessoa.documento})" rendered="#{compromissoUsuario.compromisso.compromisso.pessoa != null}"/>
                                                     </p:panelGrid>
                                                 </p:rowExpansion>
                                             </p:dataTable>

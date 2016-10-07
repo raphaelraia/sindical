@@ -322,7 +322,8 @@ public class Jasper implements Serializable {
     public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport, JRDataSource jRDataSource) throws SecurityException, IllegalArgumentException {
         Jasper.LIST_FILE_GENERATED = new ArrayList();
         Dao dao = new Dao();
-
+        // Integer idUsuario = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId();
+        Usuario u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         //Juridica juridica = (Juridica) dao.find(new Juridica(), 1);
         byte[] bytesComparer = null;
         byte[] b = null;
@@ -463,6 +464,9 @@ public class Jasper implements Serializable {
                 parameters.put("sindicato_email", juridica.getPessoa().getEmail1());
                 parameters.put("companhia_email", juridica.getPessoa().getEmail1());
             }
+            if (parameters.get("operador") == null) {
+                parameters.put("operador", u.getPessoa().getNome());
+            }
             // CORREÇÃO
             // parameters.put("companhia_nome", juridica.getPessoa().getNome());
             // parameters.put("companhia_documento", juridica.getPessoa().getDocumento());
@@ -496,8 +500,6 @@ public class Jasper implements Serializable {
         // RETORNO NULL
         // DATA DE ALTERAÇÃO 07/05/2015
         // CHAMADO 736 - Priscila
-        // Integer idUsuario = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId();
-        Usuario u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         Pessoa p = (u != null) ? u.getPessoa() : (Pessoa) GenericaSessao.getObject("sessaoUsuarioAcessoWeb");
         Integer idPessoa = p.getId();
 
@@ -947,6 +949,14 @@ public class Jasper implements Serializable {
         return list;
     }
 
+    /**
+     * *
+     * Carrega um objeto JasperReport nos caminhos já predefinidos no sistema,
+     * cliente ou personalizado
+     *
+     * @param filename
+     * @return
+     */
     public static JasperReport load(String filename) {
         try {
             return (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + filename)));

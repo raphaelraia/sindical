@@ -820,9 +820,7 @@ public class JuridicaBean implements Serializable {
                 }
             }
         } else {
-            if (juridica.getPessoa().getDtAtualizacao() == null) {
-                juridica.getPessoa().setDtAtualizacao(new Date());
-            }
+            juridica.getPessoa().setDtAtualizacao(new Date());
             if (juridica.getPessoa().getNome().isEmpty()) {
                 GenericaMensagem.error("Erro", "O campo nome não pode ser nulo!");
                 return null;

@@ -70,6 +70,9 @@ public class CompromissoUsuarioBean implements Serializable {
                 listCompromissoUsuario = new ArrayList();
                 listCompromissoUsuario = new CompromissoUsuarioDao().findCompromissos(null, tipoHistorico, tipoData, dataInicial, dataFinal, cancelados, Usuario.getUsuario().getId());
                 break;
+            case "reload_tipos":
+                tipoHistorico = "";
+                break;
             default:
                 break;
         }

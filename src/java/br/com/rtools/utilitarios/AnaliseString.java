@@ -176,7 +176,7 @@ public class AnaliseString {
 
         return value;
     }
-    
+
     public static String normalizeUpper(String value) {
 
         value = Normalizer.normalize(value, Normalizer.Form.NFD);
@@ -187,7 +187,7 @@ public class AnaliseString {
 
     public static String mascaraCep(final String cep) {
         String cepMask = cep;
-        if (!cep.isEmpty() && cep.length() == 8) { 
+        if (!cep.isEmpty() && cep.length() == 8) {
             cepMask = cep.substring(0, 2) + "." + cep.substring(2, 5) + "-" + cep.substring(5, 8);
         }
         return cepMask;
@@ -204,7 +204,7 @@ public class AnaliseString {
             return cnpj;
         }
     }
-    
+
     public static String mascaraCEI(final String cei) {
         String ceiMask = "";
         try {
@@ -217,7 +217,7 @@ public class AnaliseString {
             return cei;
         }
     }
-    
+
     public static String mascaraCPF(final String cpf) {
         String cpfMask = "";
         try {
@@ -250,10 +250,8 @@ public class AnaliseString {
         for (int i = 0; i < strings.length; i++) {
             if (strings[i].toUpperCase().equals("POR") || strings[i].toUpperCase().equals("DOS") || strings[i].toUpperCase().equals("DAS") || strings[i].toUpperCase().equals("DE")) {
                 novaDescricao += strings[i] + " ";
-            } else {
-                if (strings[i].length() > 0) {
-                    novaDescricao += strings[i].substring(0, 1).toUpperCase() + strings[i].substring(1) + " ";
-                }
+            } else if (strings[i].length() > 0) {
+                novaDescricao += strings[i].substring(0, 1).toUpperCase() + strings[i].substring(1) + " ";
             }
         }
         return novaDescricao;
@@ -327,5 +325,13 @@ public class AnaliseString {
 
     public static String removeDiff(String string, Integer length) {
         return AnaliseString.removeDiff(string, length, false);
+    }
+
+    public static String onlyNumbers(String str) {
+        if (str != null) {
+            return str.replaceAll("[^0123456789]", "");
+        } else {
+            return "";
+        }
     }
 }

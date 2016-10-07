@@ -23,38 +23,39 @@ public class SisCarta implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @JoinColumn(name = "id_solicitante", referencedColumnName = "id")
+    @JoinColumn(name = "id_tipo", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private Usuario solicitante;
+    private SisCartaTipo tipo;
+    @JoinColumn(name = "id_operador", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private Usuario operador;
     @Temporal(TemporalType.DATE)
-    @Column(name = "dt_solicitacao", nullable = true)
-    private Date dtSolicitacao;
+    @Column(name = "dt_cadastro", nullable = true)
+    private Date dtCadastro;
     @Column(name = "ds_titulo", length = 100)
     private String titulo;
-    @Column(name = "ds_detalhes", length = 500)
-    private String detalhes;
-    @Column(name = "ds_obs", length = 50)
-    private String observacao;
+    @Column(name = "ds_texto", length = 5000)
+    private String texto;
     @Column(name = "ds_sql", length = 2000)
     private String sql;
 
     public SisCarta() {
         this.id = null;
-        this.solicitante = null;
-        this.dtSolicitacao = DataHoje.dataHoje();
+        this.operador = null;
+        this.tipo = null;
+        this.dtCadastro = DataHoje.dataHoje();
         this.titulo = "";
-        this.detalhes = "";
-        this.observacao = "";
+        this.texto = "";
         this.sql = "";
     }
 
-    public SisCarta(Integer id, Usuario solicitante, Date dtSolicitacao, String titulo, String detalhes, String observacao, String sql) {
+    public SisCarta(Integer id, SisCartaTipo tipo, Usuario operador, Date dtCadastro, String titulo, String texto, String sql) {
         this.id = id;
-        this.solicitante = solicitante;
-        this.dtSolicitacao = dtSolicitacao;
+        this.tipo = tipo;
+        this.operador = operador;
+        this.dtCadastro = dtCadastro;
         this.titulo = titulo;
-        this.detalhes = detalhes;
-        this.observacao = observacao;
+        this.texto = texto;
         this.sql = sql;
     }
 
@@ -66,28 +67,28 @@ public class SisCarta implements Serializable {
         this.id = id;
     }
 
-    public Usuario getSolicitante() {
-        return solicitante;
+    public SisCartaTipo getTipo() {
+        return tipo;
     }
 
-    public void setSolicitante(Usuario solicitante) {
-        this.solicitante = solicitante;
+    public void setTipo(SisCartaTipo tipo) {
+        this.tipo = tipo;
     }
 
-    public Date getDtSolicitacao() {
-        return dtSolicitacao;
+    public Usuario getOperador() {
+        return operador;
     }
 
-    public void setDtSolicitacao(Date dtSolicitacao) {
-        this.dtSolicitacao = dtSolicitacao;
+    public void setOperador(Usuario operador) {
+        this.operador = operador;
     }
 
-    public String getSolicitacaoString() {
-        return DataHoje.converteData(dtSolicitacao);
+    public Date getDtCadastro() {
+        return dtCadastro;
     }
 
-    public void setSolicitacaoString(String solicitacaoString) {
-        this.dtSolicitacao = DataHoje.converte(solicitacaoString);
+    public void setDtCadastro(Date dtCadastro) {
+        this.dtCadastro = dtCadastro;
     }
 
     public String getTitulo() {
@@ -98,20 +99,12 @@ public class SisCarta implements Serializable {
         this.titulo = titulo;
     }
 
-    public String getDetalhes() {
-        return detalhes;
+    public String getTexto() {
+        return texto;
     }
 
-    public void setDetalhes(String detalhes) {
-        this.detalhes = detalhes;
-    }
-
-    public String getObservacao() {
-        return observacao;
-    }
-
-    public void setObservacao(String observacao) {
-        this.observacao = observacao;
+    public void setTexto(String texto) {
+        this.texto = texto;
     }
 
     public String getSql() {

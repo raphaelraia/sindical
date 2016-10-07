@@ -31,6 +31,7 @@ import br.com.rtools.pessoa.dao.MalaDiretaGrupoDao;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.sistema.Cor;
+import br.com.rtools.sistema.SisCartaTipo;
 import br.com.rtools.sistema.SisNotificacaoCategoria;
 import br.com.rtools.suporte.ProStatus;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -391,6 +392,9 @@ public class SimplesBean implements Serializable {
             case "CompromissoCategoria":
                 o = (CompromissoCategoria) new CompromissoCategoria(id, descricao);
                 break;
+            case "SisCartaTipo":
+                o = (SisCartaTipo) new SisCartaTipo(id, descricao);
+                break;
         }
         return o;
     }
@@ -495,6 +499,9 @@ public class SimplesBean implements Serializable {
                 break;
             case "CompromissoCategoria":
                 ((CompromissoCategoria) objeto).setDescricao(descricao);
+                break;
+            case "SisCartaTipo":
+                ((SisCartaTipo) objeto).setDescricao(descricao);
                 break;
         }
     }
@@ -635,6 +642,10 @@ public class SimplesBean implements Serializable {
             case "CompromissoCategoria":
                 descricao = ((CompromissoCategoria) obj).getDescricao();
                 id = ((CompromissoCategoria) objeto).getId();
+                break;
+            case "SisCartaTipo":
+                descricao = ((SisCartaTipo) obj).getDescricao();
+                id = ((SisCartaTipo) objeto).getId();
                 break;
         }
         Dao dao = new Dao();
@@ -805,6 +816,11 @@ public class SimplesBean implements Serializable {
                 break;
             case "CompromissoCategoria":
                 if (((CompromissoCategoria) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "SisCartaTipo":
+                if (((SisCartaTipo) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
                 }
                 break;

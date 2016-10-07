@@ -44,24 +44,24 @@
                                     <p:menuitem value="Conta Banco"             action="#{chamadaPaginaBean.contaBanco}" />
                                     <p:menuitem value="Conta Cobrança"          action="#{chamadaPaginaBean.contaCobranca}" />
                                     <p:menuitem value="Serv Conta Cobrança"     action="#{chamadaPaginaBean.servicoContaCobranca}" />
-                                    <p:menuitem value="Conta Caixa / Banco"            action="#{chamadaPaginaBean.pagina('contaRotina')}" />
+                                    <p:menuitem value="Conta Caixa / Banco"     action="#{chamadaPaginaBean.pagina('contaRotina')}" />
                                     <p:submenu label="Índices">
-                                        <p:menuitem value="Índice"              action="#{chamadaPaginaBean.indice}" />
-                                        <p:menuitem value="Índice Mensal"       action="#{chamadaPaginaBean.indiceMensal}" />
+                                        <p:menuitem value="Manutenção"          action="#{chamadaPaginaBean.indiceMensal}" />
+                                        <p:menuitem value="Índices"             action="#{chamadaPaginaBean.paginaSimples('Indice', 'Índice')}"/>
                                     </p:submenu>
                                     <p:submenu label="Serviços">
-                                        <p:menuitem value="Serviço"             action="#{chamadaPaginaBean.servicos}" />
-                                        <p:menuitem value="Tipo de Serviço"     action="#{chamadaPaginaBean.tipoServico}" />
+                                        <p:menuitem value="Manutenção"          action="#{chamadaPaginaBean.servicos}" />
+                                        <p:menuitem value="Tipo de Serviço"     action="#{chamadaPaginaBean.paginaSimples('TipoServico', 'Tipo de Serviço')}"/>
                                         <p:menuitem value="Bloqueio Serviços"   action="#{chamadaPaginaBean.bloqueioServicos}" />
                                         <p:menuitem value="Serviço Rotina"      action="#{chamadaPaginaBean.pagina('servicoRotina')}" />
                                         <p:menuitem value="Grupo Financeiro"    action="#{chamadaPaginaBean.grupoFinanceiro()}" />
                                     </p:submenu>
                                     <p:submenu label="Produtos">
-                                        <p:menuitem value="Manutenção"             action="#{chamadaPaginaBean.pagina('produto')}" />
-                                        <p:menuitem value="Produto Unidade"     action="#{chamadaPaginaBean.produtoUnidade}"/>
-                                        <p:menuitem value="Produto Grupo"       action="#{chamadaPaginaBean.produtoGrupo}"/>
+                                        <p:menuitem value="Manutenção"          action="#{chamadaPaginaBean.pagina('produto')}" />
+                                        <p:menuitem value="Produto Unidade"     action="#{chamadaPaginaBean.paginaSimples('ProdutoUnidade', 'Produto Unidade')}"/>
+                                        <p:menuitem value="Produto Grupo"       action="#{chamadaPaginaBean.paginaSimples('ProdutoGrupo', 'Produto Grupo')}"/>
                                         <p:menuitem value="Produto SubGrupo"    action="#{chamadaPaginaBean.pagina('produtoSubGrupo')}"/>
-                                        <p:menuitem value="Produto Cor"         action="#{chamadaPaginaBean.cor}"/>
+                                        <p:menuitem value="Cores"               action="#{chamadaPaginaBean.paginaSimples('Cor', 'Cores')}"/>
                                         <p:menuitem value="Baixa de Produtos"   action="#{chamadaPaginaBean.pagina('baixaProdutoConsumo')}" title="(Consumo)"/>
                                     </p:submenu>                                    
                                     <p:menuitem value="Correção"                action="#{chamadaPaginaBean.pagina('correcao')}" />
@@ -76,10 +76,10 @@
                                 </p:submenu>
 
                                 <p:submenu label="Movimento" icon="ui-icon-document" style="margin-right: 15px">
-                                    <p:menuitem value="Lançamento Financeiro" action="#{chamadaPaginaBean.lancamentoFinanceiro()}"/>
-                                    <p:menuitem value="Fechamento Diário" action="#{chamadaPaginaBean.pagina('fechamentoDiario')}"/>
-                                    <p:menuitem value="Prev. Pagamento"       action="#{chamadaPaginaBean.pagina('previsaoPagamento')}" title="Previsão de Pagamentos"/>
-                                    <p:menuitem value="Recibo Gerado"         action="#{chamadaPaginaBean.reciboGerado()}" />
+                                    <p:menuitem value="Lançamento Financeiro"   action="#{chamadaPaginaBean.lancamentoFinanceiro()}"/>
+                                    <p:menuitem value="Fechamento Diário"       action="#{chamadaPaginaBean.pagina('fechamentoDiario')}"/>
+                                    <p:menuitem value="Prev. Pagamento"         action="#{chamadaPaginaBean.pagina('previsaoPagamento')}" title="Previsão de Pagamentos"/>
+                                    <p:menuitem value="Recibo Gerado"           action="#{chamadaPaginaBean.reciboGerado()}" />                                    
                                     <p:submenu label="Caixa">
                                         <p:menuitem value="Fechamento de Caixa"   action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
                                         <p:menuitem value="Transf. Entre Caixas"  onclick="PF('i_dlg_t').show()"/>
@@ -104,15 +104,17 @@
                                         <p:menuitem value="Plano de Contas"     action="#{chamadaPaginaBean.pagina('relatorioPlanoContas')}"/>
                                     </p:submenu>
                                     <p:submenu label="Financeiro">
-                                        <p:menuitem value="Financeiro"              action="#{chamadaPaginaBean.pagina('relatorioFinanceiro')}"/>
-                                        <p:menuitem value="Cheques Recebidos"       action="#{chamadaPaginaBean.relatorioChequesRecebidos()}"/>
-                                        <p:menuitem value="Fechamento Guias"        action="#{chamadaPaginaBean.pagina('relatorioFechamentoGuias')}"/>
-                                        <p:menuitem value="Estornos"                action="#{chamadaPaginaBean.pagina('relatorioEstorno')}"/>
-                                        <p:menuitem value="Tabela de Preços"        action="#{chamadaPaginaBean.pagina('relatorioTabelaPrecos')}"/>
-                                        <p:menuitem value="Caixa"                   action="#{chamadaPaginaBean.pagina('relatorioCaixa')}"/>
-                                        <p:menuitem value="Contas a Pagar"          action="#{chamadaPaginaBean.pagina('relatorioContasPagar')}"/>
-                                        <p:menuitem value="Produtos"                action="#{chamadaPaginaBean.pagina('relatorioProdutos')}"/>                                        
-                                        
+                                        <p:menuitem value="Financeiro"          action="#{chamadaPaginaBean.pagina('relatorioFinanceiro')}"/>
+                                        <p:menuitem value="Cheques Recebidos"   action="#{chamadaPaginaBean.relatorioChequesRecebidos()}"/>
+                                        <p:menuitem value="Fechamento Guias"    action="#{chamadaPaginaBean.pagina('relatorioFechamentoGuias')}"/>
+                                        <p:menuitem value="Estornos"            action="#{chamadaPaginaBean.pagina('relatorioEstorno')}"/>
+                                        <p:menuitem value="Tabela de Preços"    action="#{chamadaPaginaBean.pagina('relatorioTabelaPrecos')}"/>
+                                        <p:menuitem value="Caixa"               action="#{chamadaPaginaBean.pagina('relatorioCaixa')}"/>
+                                        <p:menuitem value="Contas a Pagar"      action="#{chamadaPaginaBean.pagina('relatorioContasPagar')}"/>
+                                        <p:menuitem value="Produtos"            action="#{chamadaPaginaBean.pagina('relatorioProdutos')}"/>
+                                        <p:submenu label="Impressão de Boletos">
+                                            <p:menuitem value="Resumo"          action="#{chamadaPaginaBean.pagina('relatorioResumoImpressaoBoletos')}" />
+                                        </p:submenu>
                                     </p:submenu>
                                 </p:submenu>
                             </p:menubar>

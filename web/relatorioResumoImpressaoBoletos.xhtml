@@ -1,0 +1,92 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Relatório Balancete</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Relatório Balancete" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                            <p:outputLabel value="Tipo de Relatório: " />
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioResumoImpressaoBoletosBean.idRelatorio}">
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioResumoImpressaoBoletosBean.listener(1)}"/>
+                                <f:selectItems value="#{relatorioResumoImpressaoBoletosBean.listRelatorios}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioResumoImpressaoBoletosBean.listRelatorioOrdem}"/>
+                            <p:selectOneMenu value="#{relatorioResumoImpressaoBoletosBean.idRelatorioOrdem}" rendered="#{not empty relatorioResumoImpressaoBoletosBean.listRelatorioOrdem}">
+                                <p:ajax event="change" update="@this"/>
+                                <f:selectItems value="#{relatorioResumoImpressaoBoletosBean.listRelatorioOrdem}"/>
+                            </p:selectOneMenu>                            
+                        </h:panelGrid>
+                    </p:panel>                  
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioResumoImpressaoBoletosBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" disabled="#{filter.disabled}">
+                                            <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioResumoImpressaoBoletosBean.load(relatorioResumoImpressaoBoletosBean.listFilters[loop.index])}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+
+                                <p:column>
+                                    <p:panel header="Data" style="width: 100%!important" id="i_panel_v" rendered="#{relatorioResumoImpressaoBoletosBean.listFilters[0].active}">
+                                        <h:panelGrid columns="9" cellpadding="5 ">
+                                            <p:outputLabel value="Impresso em: " />
+                                            <p:selectOneMenu value="#{relatorioResumoImpressaoBoletosBean.dataImpressao}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" update="@this i_panel_v" global="false" listener="#{relatorioResumoImpressaoBoletosBean.listener(3)}"/>
+                                                <f:selectItems value="#{relatorioResumoImpressaoBoletosBean.listDataImpressao}"/>
+                                            </p:selectOneMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioResumoImpressaoBoletosBean.close(relatorioResumoImpressaoBoletosBean.listFilters[0])}" title="Remover filtro" update="form_relatorio" disabled="true"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                                              
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                    <p:panel styleClass="fundoCinza margin-top-max">
+                        <h:panelGrid columns="5" id="i_btns" cellpadding="3">
+                            <h:column>
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioResumoImpressaoBoletosBean.print()}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioResumoImpressaoBoletosBean.listRelatorios}"/>
+                                </h:panelGrid>
+                            </h:column>
+                            <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
+                            <h:column>
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Exportar para " />
+                                    <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                        <p:ajax event="change" global="false" update="@this"/>
+                                        <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                        <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </h:column>
+                        </h:panelGrid>                        
+                    </p:panel>                    
+                </h:form>               
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

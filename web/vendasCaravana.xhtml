@@ -103,7 +103,7 @@
                                 <h:panelGrid rendered="#{vendasCaravanaBean.pessoa.id != -1 and not empty vendasCaravanaBean.pessoa.pessoaComplemento.obsAviso}" style="width: 100%">
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'AVISO: '.concat(vendasCaravanaBean.pessoa.pessoaComplemento.obsAviso))}" escape="false" />
                                 </h:panelGrid>                                
-                                <h:panelGrid rendered="#{vendasCaravanaBean.pessoa.id != -1 and (empty vendasCaravanaBean.pessoa.telefone1 or empty vendasCaravanaBean.pessoa.telefone2 or empty vendasCaravanaBean.pessoa.telefone3)}" style="width: 100%">
+                                <h:panelGrid rendered="#{vendasCaravanaBean.pessoa.id != -1 and (empty vendasCaravanaBean.pessoa.telefone1 and empty vendasCaravanaBean.pessoa.telefone2 and empty vendasCaravanaBean.pessoa.telefone3)}" style="width: 100%">
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('warn', 'NENHUM TELEFONE DE CONTATO CADASTRADO PARA ESTE RESPONSÁVEL')}" escape="false" />
                                 </h:panelGrid>  
                                 <h:panelGroup id="i_caravanas" layout="block">
@@ -113,15 +113,24 @@
                                                 <h:column>
                                                     <h:panelGrid columns="2">
                                                         <h:outputLabel value="CARAVANAS" />
-                                                        <p:selectBooleanCheckbox value="#{vendasCaravanaBean.old}" itemLabel="Antigas" styleClass="margin-left-max" rendered="#{empty vendasCaravanaBean.listaReservas}">
-                                                            <p:ajax event="change" update="@this :form_vendas_caravana:" listener="#{vendasCaravanaBean.loadListaCaravanaSelect}" />
-                                                        </p:selectBooleanCheckbox>
+                                                        <h:column rendered="#{vendasCaravanaBean.vendas.id == null}">
+                                                            <p:selectBooleanCheckbox value="#{vendasCaravanaBean.old}" itemLabel="Antigas" styleClass="margin-left-max" rendered="#{empty vendasCaravanaBean.listaReservas}">
+                                                                <p:ajax event="change" update="@this :form_vendas_caravana:" listener="#{vendasCaravanaBean.loadListaCaravanaSelect}" />
+                                                            </p:selectBooleanCheckbox>
+                                                        </h:column>
                                                     </h:panelGrid>
                                                 </h:column>
-                                                <p:selectOneMenu value="#{vendasCaravanaBean.idCaravanaSelect}" style="width: 400px;" disabled="#{not empty vendasCaravanaBean.listaReservas}">
-                                                    <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaCaravana()}" update="@this :form_vendas_caravana:"/>
-                                                    <f:selectItems value="#{vendasCaravanaBean.listaCaravanaSelect}" />
-                                                </p:selectOneMenu>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{vendasCaravanaBean.idCaravanaSelect}" style="width: 400px;" disabled="#{not empty vendasCaravanaBean.listaReservas}" rendered="#{vendasCaravanaBean.vendas.id eq null}">
+                                                        <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaCaravana()}" update="@this :form_vendas_caravana:"/>
+                                                        <f:selectItems value="#{vendasCaravanaBean.listaCaravanaSelect}" />
+                                                    </p:selectOneMenu>
+                                                    <h:column rendered="#{vendasCaravanaBean.vendas.id ne null}">
+                                                        <h:panelGrid columns="2">
+                                                            <h:outputLabel value="#{vendasCaravanaBean.caravana.dataSaida} - #{vendasCaravanaBean.caravana.horaSaida} - #{vendasCaravanaBean.caravana.evento.descricaoEvento.descricao}" styleClass="bold"/>
+                                                        </h:panelGrid>                                                        
+                                                    </h:column>
+                                                </h:column>
                                             </h:panelGrid>
                                         </h:column>
                                         <h:column>
@@ -136,7 +145,7 @@
                                                 </p:inputText>
                                             </h:panelGrid>
                                         </h:column>
-                                        <h:column>
+                                        <h:column rendered="#{not empty vendasCaravanaBean.listaTipo}">
                                             <h:panelGrid cellspacing="5">
                                                 <h:column>
                                                     <h:panelGrid>
@@ -343,13 +352,13 @@
                             <p:messages autoUpdate="false" closable="false" showDetail="true" showSummary="true" id="i_message"/>
                             <p:dataTable id="i_parcelas" value="#{vendasCaravanaBean.listaParcelas}" var="parcelas" style="width:100%" emptyMessage="Nenhuma Parcela Adicionada" rowIndexVar="index">
                                 <p:column headerText="Vencimento" styleClass="text-center">
-                                    <p:inputMask value="#{parcelas.vencimento}" readonly="#{controleAcessoBean.permissaoValida('alterar_vencimento_vendas_caravana', 3) or (vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.locked)}" mask="99/99/9999" converter="#{isDateString}" size="8" styleClass="text-center" title="Alterar Vencimento Vendas Caravana" >
+                                    <p:inputMask value="#{parcelas.vencimento}" readonly="#{controleAcessoBean.permissaoValida('alterar_vencimento_vendas_caravana', 3) or (vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.locked) or parcelas.baixado}" mask="99/99/9999" converter="#{isDateString}" size="8" styleClass="text-center" title="Alterar Vencimento Vendas Caravana" >
                                         <p:ajax event="change" update="@this" global="false"/>
                                     </p:inputMask>
                                 </p:column>
                                 <p:column headerText="Valor da Parcela" styleClass="text-center">
                                     <h:outputLabel value="R$ "/>
-                                    <p:inputText value="#{parcelas.valor}" style="text-align: right; width: 80px; color: #{(not empty vendasCaravanaBean.valorEntrada and vendasCaravanaBean.valorEntrada eq parcelas.valor and index eq 0) ? 'blue; font-weight: bold;' : 'black'}" converter="#{toCurrency}" readonly="#{(not empty vendasCaravanaBean.valorEntrada and vendasCaravanaBean.valorEntrada eq parcelas.valor and index eq 0) or (vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.locked)}">
+                                    <p:inputText value="#{parcelas.valor}" style="text-align: right; width: 80px; color: #{(not empty vendasCaravanaBean.valorEntrada and vendasCaravanaBean.valorEntrada eq parcelas.valor and index eq 0) ? 'blue; font-weight: bold;' : 'black'}" converter="#{toCurrency}" readonly="#{(not empty vendasCaravanaBean.valorEntrada and vendasCaravanaBean.valorEntrada eq parcelas.valor and index eq 0) or (vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.locked or  parcelas.baixado)}">
                                         <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaValoresParcela(index)}" update="@this, :form_vendas_caravana:i_message :form_vendas_caravana:i_actions"/>
                                     </p:inputText>
                                 </p:column>
@@ -368,7 +377,7 @@
                                         <p:commandButton value="Cancelar Venda" title="Cancelar esta venda" onclick="PF('dlg_cancel').show()" disabled="#{vendasCaravanaBean.vendas.id == null}" rendered="#{(vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.vendas.dtCancelamento == null)}"/>
                                     </h:column>
                                     <p:commandButton ajax="false" value="Pesquisar" title="Pesquisar" action="#{chamadaPaginaBean.pesquisaVendasCaravana()}"/>
-                                    <p:commandButton ajax="false" value="Imprimir Ficha de Reserva" title="Imprimir Ficha de Reserva" action="#{vendasCaravanaBean.imprimirFichaReserva()}" onclick="form.target = '_blank'" icon="ui-icon-print" disabled="#{vendasCaravanaBean.vendas.id == null}" rendered="#{vendasCaravanaBean.vendas.id != null}"/>                                    
+                                    <p:commandButton ajax="false" value="Imprimir Ficha de Reserva" title="#{vendasCaravanaBean.vendas.dtCancelamento eq null ? 'Imprimir Ficha de Reserva' : 'Não é possível imprimir ficha de reserva cancelada!'}" action="#{vendasCaravanaBean.imprimirFichaReserva()}" onclick="form.target = '_blank'" icon="ui-icon-print" disabled="#{vendasCaravanaBean.vendas.id == null or vendasCaravanaBean.vendas.dtCancelamento ne null}" rendered="#{vendasCaravanaBean.vendas.id != null}"/>
                                     <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceberSocial')}" value="Movimentos a receber social" actionListener="#{genericaSessao.putObject('pessoaPesquisa', vendasCaravanaBean.pessoa)}" rendered="#{vendasCaravanaBean.vendas.id != null}"/>
                                 </h:panelGrid>                                
                             </f:facet>
@@ -452,7 +461,7 @@
                                 <p:commandButton action="#{vendasCaravanaBean.updatePessoaComplemento}" update="i_msg :form_vendas_caravana:" value="Alterar" oncomplete="PF('dlg_alterar_dia_vencto').hide()"/>
                             </h:panelGrid>
                         </p:dialog>                        
-                        <p:dialog id="id_responsavel" widgetVar="dlg_responsavel" modal="true" header="Selecione a pesquisa" resizable="false">
+                        <p:dialog id="id_responsavel" widgetVar="dlg_responsavel" modal="true" header="Selecione a pesquisa" resizable="false" closeOnEscape="true">
                             <h:panelGrid columns="2">                                
                                 <p:commandButton value="Pessoa Física" icon="ui-icon-search"  action="#{chamadaPaginaBean.pesquisaPessoaFisica}" title="Pesquisar pessoa física" id="idPesquisarPFisica" actionListener="#{genericaSessao.putString('pesquisaFisicaTipo', 'responsavel')}"/>
                                 <p:commandButton value="Pessoa Jurídica" icon="ui-icon-search"  action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" title="Pesquisar pessoa jurídica" id="idPesquisarPJuridica" />
