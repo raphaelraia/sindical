@@ -3,6 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.ContaSaldo;
+import br.com.rtools.financeiro.EstornoCaixaLote;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FechamentoCaixa;
 import br.com.rtools.financeiro.TransferenciaCaixa;
@@ -78,7 +79,10 @@ public final class FechamentoCaixaBean implements Serializable {
                 } else if (Moeda.converteUS$(lista.get(i).get(2).toString()) < Moeda.converteUS$(lista.get(i).get(3).toString())) {
                     status = 2;
                     soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(3).toString()), Moeda.converteUS$(lista.get(i).get(2).toString()));
+                } else if (lista.get(i).get(5).toString() == null || lista.get(i).get(5).toString().isEmpty()) {
+                    status = 3;
                 }
+
                 listaFechamento.add(new DataObject(lista.get(i),
                         DataHoje.converteData((Date) lista.get(i).get(4)), // DATA
                         lista.get(i).get(5).toString(), // HORA
@@ -210,7 +214,7 @@ public final class FechamentoCaixaBean implements Serializable {
         try {
             Jasper.PATH = "downloads";
             Jasper.PART_NAME = "";
-            Jasper.printReports("/Relatorios/RESUMO_FECHAMENTO_CAIXA.jasper", "fechamento_caixa", lista);
+            Jasper.printReports("/Relatorios/RESUMO_FECHAMENTO_CAIXA.jasper", "resumo_fechamento_caixa", lista);
 
 //            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RESUMO_FECHAMENTO_CAIXA.jasper"));
 //            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
@@ -240,7 +244,11 @@ public final class FechamentoCaixaBean implements Serializable {
             id_fechamento = fechamento.getId();
         }
 
-        ifc.imprimir(id_fechamento, Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
+        if (id_fechamento != null) {
+            ifc.imprimir(id_fechamento, Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
+        } else {
+            ifc.imprimirApenasEstorno(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), linha.getArgumento1().toString());
+        }
 
     }
 
@@ -331,16 +339,37 @@ public final class FechamentoCaixaBean implements Serializable {
         List<TransferenciaCaixa> lEntrada;
         List<TransferenciaCaixa> lSaida;
 
+        List<EstornoCaixaLote> result_estorno;
+
         // true NÃO TEM PERMISSÃO
         boolean permissao = cab.getBotaoFecharCaixaOutroUsuario();
 
         result_entrada = db.listaMovimentoCaixa(caixa.getId(), "E", null, fechamento.getData());
         result_saida = db.listaMovimentoCaixa(caixa.getId(), "S", null, fechamento.getData());
+
         lEntrada = db.listaTransferenciaEntrada(caixa.getId(), null, fechamento.getData());
         lSaida = db.listaTransferenciaSaida(caixa.getId(), null, fechamento.getData());
 
-        if (result_entrada.isEmpty() && result_saida.isEmpty() && lEntrada.isEmpty() && lSaida.isEmpty()) {
+        result_estorno = db.listaEstornoCaixaLote(caixa.getId(), null, fechamento.getData());
+
+        if (result_entrada.isEmpty() && result_saida.isEmpty() && lEntrada.isEmpty() && lSaida.isEmpty() && result_estorno.isEmpty()) {
             GenericaMensagem.warn("Erro", "Não existe movimentos para este Caixa!");
+            return;
+        }
+
+        if (result_entrada.isEmpty() && result_saida.isEmpty() && lEntrada.isEmpty() && lSaida.isEmpty() && !result_estorno.isEmpty()) {
+            dao.openTransaction();
+            for (EstornoCaixaLote ec : result_estorno) {
+                ec.setMovimento(false);
+                if (!dao.update(ec)) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "Não foi possível salvar lista de estornos!");
+                    return;
+                }
+            }
+            dao.commit();
+
+            GenericaMensagem.info("Atenção", "Apenas estornos foram fechados!");
             return;
         }
 
@@ -351,8 +380,26 @@ public final class FechamentoCaixaBean implements Serializable {
             List<TransferenciaCaixa> lEntrada_user = db.listaTransferenciaEntrada(caixa.getId(), usuario.getId(), fechamento.getData());
             List<TransferenciaCaixa> lSaida_user = db.listaTransferenciaSaida(caixa.getId(), usuario.getId(), fechamento.getData());
 
-            if (result_entrada_user.isEmpty() && result_saida_user.isEmpty() && lEntrada_user.isEmpty() && lSaida_user.isEmpty()) {
+            List<EstornoCaixaLote> result_estorno_user = db.listaEstornoCaixaLote(caixa.getId(), usuario.getId(), fechamento.getData());
+
+            if (result_entrada_user.isEmpty() && result_saida_user.isEmpty() && lEntrada_user.isEmpty() && lSaida_user.isEmpty() && result_estorno_user.isEmpty()) {
                 GenericaMensagem.warn("Erro", "Usuário não efetuou recebimento neste Caixa!");
+                return;
+            }
+
+            if (result_entrada_user.isEmpty() && result_saida_user.isEmpty() && lEntrada_user.isEmpty() && lSaida_user.isEmpty() && !result_estorno_user.isEmpty()) {
+                dao.openTransaction();
+                for (EstornoCaixaLote ec : result_estorno_user) {
+                    ec.setMovimento(false);
+                    if (!dao.update(ec)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "Não foi possível salvar lista de estornos!");
+                        return;
+                    }
+                }
+                dao.commit();
+
+                GenericaMensagem.info("Atenção", "Apenas estornos foram fechados!");
                 return;
             }
         }
@@ -441,6 +488,18 @@ public final class FechamentoCaixaBean implements Serializable {
             dao.update(fechamento);
         }
 
+        if (!result_estorno.isEmpty()) {
+            for (EstornoCaixaLote ec : result_estorno) {
+                ec.setFechamentoCaixa(fechamento);
+                if (!dao.update(ec)) {
+                    GenericaMensagem.warn("Erro", "Não foi possivel alterar Fechamento Estorno!");
+                    dao.rollback();
+                    fechamento = new FechamentoCaixa();
+                    return;
+                }
+            }
+        }
+
         fechamento.setValorFechamento(Moeda.somaValores(fechamento.getValorFechamento(), Moeda.converteUS$(saldoAtual)));
 
         // CALCULO PARA SOMAR OS VALORES DA QUERY
@@ -462,23 +521,25 @@ public final class FechamentoCaixaBean implements Serializable {
             if (cfb.getConfiguracaoFinanceiro().isTransferenciaAutomaticaCaixa()) {
                 if (cfb.getConfiguracaoFinanceiro().isModalTransferencia()) {
                     //valorTransferencia = Moeda.converteR$Float(Moeda.subtracaoValores(fechamento.getValorFechamento(), caixa.getFundoFixo()));
-                    
+
                     // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
-                    if (fechamento.getValorInformado() < 0)
+                    if (fechamento.getValorInformado() < 0) {
                         valorTransferencia = Moeda.converteR$Float(0);
-                    else
+                    } else {
                         valorTransferencia = cf.somaValorTransferencia(fechamento, caixa);
-                    
+                    }
+
                     PF.openDialog("i_dlg_transferir");
                     PF.update(":i_panel_transferencia");
                 } else {
                     //valorTransferencia = Moeda.converteR$Float(Moeda.subtracaoValores(fechamento.getValorFechamento(), caixa.getFundoFixo()));
                     // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
-                    if (fechamento.getValorInformado() < 0)
+                    if (fechamento.getValorInformado() < 0) {
                         valorTransferencia = Moeda.converteR$Float(0);
-                    else
+                    } else {
                         valorTransferencia = cf.somaValorTransferencia(fechamento, caixa);
-                    
+                    }
+
                     transferirParaCentral();
                 }
             }

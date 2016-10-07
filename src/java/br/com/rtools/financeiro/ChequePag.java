@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 import javax.persistence.*;
@@ -27,6 +28,12 @@ public class ChequePag implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_cancelamento")
     private Date dtCancelamento;
+    @JoinColumn(name = "id_operador_impressao", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario operadorImpressao;
+    @JoinColumn(name = "id_operador_cancelamento", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario operadorCancelamento;
 
     public ChequePag() {
         this.id = -1;
@@ -35,15 +42,19 @@ public class ChequePag implements java.io.Serializable {
         this.dtVencimento = null;
         this.plano5 = new Plano5();
         this.dtCancelamento = null;
+        this.operadorImpressao = null;
+        this.operadorCancelamento = null;
     }
 
-    public ChequePag(int id, String cheque, String emissao, String vencimento, Plano5 plano5, String cancelamento) {
+    public ChequePag(int id, String cheque, Date dtEmissao, Date dtVencimento, Plano5 plano5, Date dtCancelamento, Usuario operadorImpressao, Usuario operadorCancelamento) {
         this.id = id;
         this.cheque = cheque;
-        this.setEmissao(emissao);
-        this.setVencimento(vencimento);
+        this.dtEmissao = dtEmissao;
+        this.dtVencimento = dtVencimento;
         this.plano5 = plano5;
-        this.setCancelamento(cancelamento);
+        this.dtCancelamento = dtCancelamento;
+        this.operadorImpressao = operadorImpressao;
+        this.operadorCancelamento = operadorCancelamento;
     }
 
     public int getId() {
@@ -70,12 +81,12 @@ public class ChequePag implements java.io.Serializable {
         this.dtEmissao = dtEmissao;
     }
 
-    public String getEmissao() {
+    public String getDtEmissaoString() {
         return DataHoje.converteData(dtEmissao);
     }
 
-    public void setEmissao(String emissao) {
-        this.dtEmissao = DataHoje.converte(emissao);
+    public void setDtEmissaoString(String emissaoString) {
+        this.dtEmissao = DataHoje.converte(emissaoString);
     }
 
     public Date getDtVencimento() {
@@ -86,12 +97,12 @@ public class ChequePag implements java.io.Serializable {
         this.dtVencimento = dtVencimento;
     }
 
-    public String getVencimento() {
+    public String getDtVencimentoString() {
         return DataHoje.converteData(dtVencimento);
     }
 
-    public void setVencimento(String vencimento) {
-        this.dtVencimento = DataHoje.converte(vencimento);
+    public void setDtVencimentoString(String vencimentoString) {
+        this.dtVencimento = DataHoje.converte(vencimentoString);
     }
 
     public Plano5 getPlano5() {
@@ -102,11 +113,36 @@ public class ChequePag implements java.io.Serializable {
         this.plano5 = plano5;
     }
 
-    public String getCancelamento() {
+    public Date getDtCancelamento() {
+        return dtCancelamento;
+    }
+
+    public void setDtCancelamento(Date dtCancelamento) {
+        this.dtCancelamento = dtCancelamento;
+    }
+    
+    public String getDtCancelamentoString() {
         return DataHoje.converteData(dtCancelamento);
     }
 
-    public void setCancelamento(String cancelamento) {
-        this.dtCancelamento = DataHoje.converte(cancelamento);
+    public void setDtCancelamentoString(String cancelamentoString) {
+        this.dtCancelamento = DataHoje.converte(cancelamentoString);
+    }    
+
+    public Usuario getOperadorImpressao() {
+        return operadorImpressao;
     }
+
+    public void setOperadorImpressao(Usuario operadorImpressao) {
+        this.operadorImpressao = operadorImpressao;
+    }
+
+    public Usuario getOperadorCancelamento() {
+        return operadorCancelamento;
+    }
+
+    public void setOperadorCancelamento(Usuario operadorCancelamento) {
+        this.operadorCancelamento = operadorCancelamento;
+    }
+
 }

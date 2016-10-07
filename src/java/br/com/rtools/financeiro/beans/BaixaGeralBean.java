@@ -321,7 +321,7 @@ public class BaixaGeralBean implements Serializable {
                 ChequePag ch_p = new ChequePag();
                 ch_p.setCheque(numeroChequePag);
                 ch_p.setPlano5(pl);
-                ch_p.setVencimento(vencimento);
+                ch_p.setDtVencimentoString(vencimento);
 
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
             } else {

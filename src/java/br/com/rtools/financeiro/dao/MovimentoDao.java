@@ -7,7 +7,6 @@ package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.financeiro.Boleto;
-import br.com.rtools.financeiro.Cheques;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Historico;
@@ -221,17 +220,6 @@ public class MovimentoDao extends DB {
         return result;
     }
 
-    public Cheques pesquisaCheques(int id) {
-        Cheques result = null;
-        try {
-            Query qry = getEntityManager().createQuery("select c from Cheques c where c.movimento.id = :pid");
-            qry.setParameter("pid", id);
-            result = (Cheques) qry.getSingleResult();
-        } catch (Exception e) {
-        }
-        return result;
-    }
-
     public boolean delete(Movimento movimento) {
         try {
             getEntityManager().remove(movimento);
@@ -259,16 +247,6 @@ public class MovimentoDao extends DB {
             return true;
         } catch (Exception e) {
             return false;
-        }
-    }
-
-    public String deleteChque(Cheques cheque) {
-        try {
-            getEntityManager().remove(cheque);
-            getEntityManager().flush();
-            return "ok";
-        } catch (Exception e) {
-            return e.getMessage();
         }
     }
 

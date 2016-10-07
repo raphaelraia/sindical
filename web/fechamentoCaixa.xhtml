@@ -114,6 +114,7 @@
                                     <h:outputText value="OK" rendered="#{linha.argumento5 == 0}" style="font-weight: bold;"/>
                                     <h:outputText value="EM FALTA R$ #{linha.argumento6}" rendered="#{linha.argumento5 == 1}" style="font-weight: bold; color: #cc0000" title="O valor do fechamento é maior que o valor informado!"/>
                                     <h:outputText value="EM SOBRA R$ #{linha.argumento6}" rendered="#{linha.argumento5 == 2}" style="font-weight: bold; color: #006600" title="O valor informado é maior que o valor de fechamento!"/>
+                                    <h:outputText value="ESTORNO" rendered="#{linha.argumento5 == 3}" style="font-weight: bold;" title="Fechamento apenas com estornos efetuados!"/>
                                 </p:column>
                                 
                                 <p:column headerText="..." style="text-align: center">
@@ -124,7 +125,7 @@
                                 </p:column>
                                 
                                 <p:column headerText="" style="text-align: center">
-                                    <p:commandButton icon="ui-icon-print" ajax="false" value="Relatório Analítico" action="#{fechamentoCaixaBean.analitico(linha)}" title="Imprimir Relatório Analítivo" onclick="this.form.target='_blank'" />
+                                    <p:commandButton icon="ui-icon-print" ajax="false" value="Relatório Analítico" action="#{fechamentoCaixaBean.analitico(linha)}" title="Imprimir Relatório Analítivo" onclick="this.form.target='_blank'" disabled="#{linha.argumento5 == 3}" />
                                 </p:column>
                             </p:dataTable>
                             

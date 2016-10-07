@@ -30,13 +30,49 @@ public class ImprimirFechamentoCaixa {
         cfb.init();
     }
 
-    public void imprimir(Integer id_fechamento, Integer id_caixa) {
-        cfb.init();
-        FechamentoCaixa fc = (FechamentoCaixa) (new Dao().find(new FechamentoCaixa(), id_fechamento));
+    public void imprimirApenasEstorno(Integer id_caixa, String data) {
+        FinanceiroDao db = new FinanceiroDao();
 
         Caixa caixa = (Caixa) (new Dao().find(new Caixa(), id_caixa));
+        List<Object> result_list_estorno = db.listaEstornoFechamentoCaixa(caixa.getId(), data);
 
+        JasperReport j_estorno_caixa = Jasper.load("ESTORNO_CAIXA.jasper");
+
+        Jasper jasper = new Jasper();
+        jasper.start();
+
+        if (!result_list_estorno.isEmpty()) {
+            List<ParametroEstornoCaixa> li = new ArrayList();
+
+            for (Object ob : result_list_estorno) {
+                List linha = (List) ob;
+                li.add(
+                        new ParametroEstornoCaixa(
+                                linha.get(0),
+                                linha.get(1),
+                                linha.get(2),
+                                linha.get(3),
+                                linha.get(4),
+                                linha.get(5),
+                                linha.get(6),
+                                linha.get(7)
+                        )
+                );
+            }
+
+            jasper.add(j_estorno_caixa, li);
+        }
+        jasper.finish("Estornos do Caixa");
+    }
+
+    public void imprimir(Integer id_fechamento, Integer id_caixa) {
+        cfb.init();
+        Caixa caixa = (Caixa) (new Dao().find(new Caixa(), id_caixa));
         FinanceiroDao db = new FinanceiroDao();
+        FechamentoCaixa fc = (FechamentoCaixa) (new Dao().find(new FechamentoCaixa(), id_fechamento));
+
+        List<Object> result_list_estorno = db.listaEstornoFechamentoCaixa(fc.getId());
+
         List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "E");
         List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "S");
         float transferencia_entrada = 0, transferencia_saida = 0, dinheiro_baixa = 0, cheque = 0, cheque_pre = 0, cartao_cre = 0, cartao_deb = 0, saldo_atual = 0;
@@ -147,9 +183,7 @@ public class ImprimirFechamentoCaixa {
 
         Jasper jasper = new Jasper();
         jasper.start();
-        
-        List<Object> result_list_estorno = db.listaMovimentoEstornado(caixa.getId(), fc.getData());
-        
+
         if (!lista_cheque.isEmpty()) {
             for (int i = 0; i < lista_cheque.size(); i++) {
                 ChequeRec cr = (ChequeRec) lista_cheque.get(i).getArgumento0();
@@ -222,8 +256,6 @@ public class ImprimirFechamentoCaixa {
         }
 
         jasper.add(j_fechamento_caixa, lista);
-
-        
 
         if (!result_list_estorno.isEmpty()) {
             List<ParametroEstornoCaixa> li = new ArrayList();

@@ -32,14 +32,19 @@ public class EstornoCaixaLote implements java.io.Serializable {
     private Usuario usuarioEstorno;
     @JoinColumn(name = "id_usuario_caixa", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private Usuario usuarioCaixa;    
+    private Usuario usuarioCaixa;
     @JoinColumn(name = "id_caixa", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private Caixa caixa;  
+    private Caixa caixa;
     @Column(name = "ds_motivo")
     private String motivo;
     @Column(name = "nr_id_baixa")
     private int nrIdBaixa;
+    @JoinColumn(name = "id_fechamento_caixa", referencedColumnName = "id")
+    @ManyToOne
+    private FechamentoCaixa fechamentoCaixa;
+    @Column(name = "is_movimento")
+    private Boolean movimento;
 
     public EstornoCaixaLote() {
         this.id = -1;
@@ -50,9 +55,11 @@ public class EstornoCaixaLote implements java.io.Serializable {
         this.caixa = new Caixa();
         this.motivo = "";
         this.nrIdBaixa = -1;
+        this.fechamentoCaixa = null;
+        this.movimento = true;
     }
 
-    public EstornoCaixaLote(int id, Date dtLancamento, Date dtBaixa, Usuario usuarioEstorno, Usuario usuarioCaixa, Caixa caixa, String motivo, int nrIdBaixa) {
+    public EstornoCaixaLote(int id, Date dtLancamento, Date dtBaixa, Usuario usuarioEstorno, Usuario usuarioCaixa, Caixa caixa, String motivo, int nrIdBaixa, FechamentoCaixa fechamentoCaixa, Boolean movimento) {
         this.id = id;
         this.dtLancamento = dtLancamento;
         this.dtBaixa = dtBaixa;
@@ -61,8 +68,10 @@ public class EstornoCaixaLote implements java.io.Serializable {
         this.caixa = caixa;
         this.motivo = motivo;
         this.nrIdBaixa = nrIdBaixa;
+        this.fechamentoCaixa = fechamentoCaixa;
+        this.movimento = movimento;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -126,6 +135,21 @@ public class EstornoCaixaLote implements java.io.Serializable {
     public void setNrIdBaixa(int nrIdBaixa) {
         this.nrIdBaixa = nrIdBaixa;
     }
-    
-    
+
+    public FechamentoCaixa getFechamentoCaixa() {
+        return fechamentoCaixa;
+    }
+
+    public void setFechamentoCaixa(FechamentoCaixa fechamentoCaixa) {
+        this.fechamentoCaixa = fechamentoCaixa;
+    }
+
+    public Boolean getMovimento() {
+        return movimento;
+    }
+
+    public void setMovimento(Boolean movimento) {
+        this.movimento = movimento;
+    }
+
 }

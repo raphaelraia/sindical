@@ -3,6 +3,7 @@ package br.com.rtools.cobranca;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
+import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
@@ -166,18 +168,25 @@ public class CaixaFederalSigCB extends Cobranca {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDao dbmov = new MovimentoDao();
 
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto());
+        if (!dao.save(remessa)) {
+            dao.rollback();
+            return null;
+        }
+
+        String nome_arquivo = "E" + DataHoje.data().substring(0, 2) + "00000".substring(0, 5 - ("" + remessa.getId()).length()) + ("" + remessa.getId()) + ".REM";
+
+        remessa.setNomeArquivo(nome_arquivo);
+
+        if (!dao.update(remessa)) {
+            dao.rollback();
+            return null;
+        }
+
         try {
-            String nome_arquivo = "ARQX" + DataHoje.hora().replace(":", "") + ".txt";
-            Dao dao = new Dao();
-
-            dao.openTransaction();
-
-            Remessa remessa = new Remessa(-1, nome_arquivo, DataHoje.dataHoje(), DataHoje.horaMinuto());
-            if (!dao.save(remessa)) {
-                dao.rollback();
-                return null;
-            }
-
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
             File fileA = new File(patch + "/downloads");
             if (!fileA.exists()) {
@@ -209,7 +218,7 @@ public class CaixaFederalSigCB extends Cobranca {
             if (listaMovimento.isEmpty()) {
                 return null;
             }
-            // header ----------------------------------------------------------
+            // header do arquivo -----------------------------------------------
             // -----------------------------------------------------------------
             Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
@@ -229,7 +238,8 @@ public class CaixaFederalSigCB extends Cobranca {
             String codigo_cedente = boleto_rem.getContaCobranca().getCodCedente();
 
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Agência Mantenedora da Conta 53 57 9(005) Preencher com o código da agência detentora da conta, com um zero à esquerda *G008
-            CONTEUDO_REMESSA += moduloOnze("00000".substring(0, 5 - agencia.length()) + agencia); // 09.0 Dígito Verificador da Agência 58 58 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G009
+            //CONTEUDO_REMESSA += moduloOnze("00000".substring(0, 5 - agencia.length()) + agencia); // 09.0 Dígito Verificador da Agência 58 58 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G009
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.0 Dígito Verificador da Agência 58 58 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G009
             CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 10.0 Código do Beneficiário 59 64 9(006) Código fornecido pela CAIXA, através da agência de relacionamento do cliente; trata-se do código do Beneficiário (6 posições) *G007
             CONTEUDO_REMESSA += "0000000"; // 11.0 Uso Exclusivo CAIXA 65 71 9(007) Preencher com zeros -
             CONTEUDO_REMESSA += "0"; // 12.0 Uso Exclusivo CAIXA 72 72 9(001) Preencher com zeros -
@@ -244,7 +254,7 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "00000"; // 21.0 Densidade de Gravação do Arquivo 167 171 9(005) Preencher com zeros G020
             CONTEUDO_REMESSA += "                    "; // 22.0 Uso Exclusivo CAIXA Filler 172 191 X(020) Preencher com espaços G021
 
-            if (1 == 1) { // REMESSA-TESTE -- Periodo de homologação
+            if (1 == 2) { // REMESSA-TESTE -- Periodo de homologação
                 CONTEUDO_REMESSA += "REMESSA-TESTE       "; // 23.0 Reservado Empresa Situação do Arquivo 192 211 X(020) Preencher com ‘REMESSA-TESTE' na fase de testes (simulado); Preencher com ‘REMESSA-PRODUCAO’, se estiver em produção G022
             } else { // REMESSA-PRODUÇÃO -- Apos homologação
                 CONTEUDO_REMESSA += "REMESSA-PRODUCAO    "; // 23.0 Reservado Empresa Situação do Arquivo 192 211 X(020) Preencher com ‘REMESSA-TESTE' na fase de testes (simulado); Preencher com ‘REMESSA-PRODUCAO’, se estiver em produção G022
@@ -258,56 +268,59 @@ public class CaixaFederalSigCB extends Cobranca {
             buff_writer.write(CONTEUDO_REMESSA);
             buff_writer.newLine();
             CONTEUDO_REMESSA = "";
+
+            Integer sequencial_lote = 1;
+
+            // header do lote ------------------------------------------------------------
+            // ---------------------------------------------------------------------------
+            CONTEUDO_REMESSA += "104"; // 01.0 Código do Banco 1 3 9(003) Preencher '104’ G001
+            CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.1 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um Lote pode haver vários serviços (segmentos); o campo Lote de Serviço de cada um dos segmentos de um mesmo Lote deve ser igual ao informado neste campo 02.1. Após o fechamento de um Lote, o próximo Lote deve possuir o número do lote anterior acrescido de 1, e a mesma lógica do segmentos do novo lote seguirem o número dele se aplica *G002
+            CONTEUDO_REMESSA += "1"; // 03.1 Tipo de Registro 8 8 9(001) Preencher '1’ (equivale a Header de Lote) *G003
+            CONTEUDO_REMESSA += "R"; // 04.1 Serviço Tipo de Operação 9 9 X(001) Preencher ‘R’  (equivale a Arquivo Remessa) *G028
+
+            // SE COBRANÇA REGISTRADA
+            if (true == true) {
+                CONTEUDO_REMESSA += "01"; // 05.1 Tipo de Serviço 10 11 9(002) Preencher com ‘01', se Cobrança Registrada; ou ‘02’, se Cobrança Sem Registro/Serviços *G025
+            } else {
+                CONTEUDO_REMESSA += "02"; // 05.1 Tipo de Serviço 10 11 9(002) Preencher com ‘01', se Cobrança Registrada; ou ‘02’, se Cobrança Sem Registro/Serviços *G025
+            }
+
+            CONTEUDO_REMESSA += "00"; // 06.1 Filler 12 13 9(002) Preencher com zeros G004
+            CONTEUDO_REMESSA += "030"; // 07.1 Nº da Versão do Layout do Lote 14 16 9(003) Preencher '030' *G030
+            CONTEUDO_REMESSA += " "; // 08.1 CNAB Filler 17 17 X(001) Preencher com espaços G004
+
+            CONTEUDO_REMESSA += "2"; // 09.1 Empresa Tipo de Inscrição do Beneficiário 18 18 9(001) Preencher com o tipo de inscrição do beneficiário: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
+            CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_sindicato.length()) + documento_sindicato; // 10.1 Número de Inscrição do Beneficiário 19 33 9(015) Ver Nota Explicativa G006 *G006
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Beneficiário 34 39 9(006) Código fornecido pela CAIXA, através da agência de relacionamento do cliente; trata-se do código do Beneficiário (6 posições) *G007
+            CONTEUDO_REMESSA += "00000000000000"; // 11.1 Uso Exclusivo CAIXA 40 53 9(014) Preencher com zeros -\
+            CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Agência Mantenedora da Conta 54 58 9(005) Preencher com o código da agência detentora da conta, com um zero à esquerda *G008
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 13.1 Dígito Verificador da Agência 59 59 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G011
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 14.1 Código do Convênio no Banco 60 65 9(006) Mesmo código do campo 11.1 *G007
+            CONTEUDO_REMESSA += "0000000"; // 15.1 Código do Modelo de Boleto Personalizado 66 72 9(007) Código fornecido pela CAIXA/Gráfica, utilizado somente quando o modelo do boleto for personalizado; do contrário, preencher com zeros C078
+            CONTEUDO_REMESSA += "0"; // 16.1 Uso Exclusivo CAIXA 73 73 9(001) Preencher '0’                 
+            CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 17.1 Nome da Empresa 74 103 X(030) Preencher com o Nome da empresa G013
+            CONTEUDO_REMESSA += "                                        "; // 18.1 Informações Mensagem 1 104 143 X(040) Ver Nota Explicativa C073 C073
+            CONTEUDO_REMESSA += "                                        "; // 19.1 Mensagem 2 144 183 X(040) Ver Nota Explicativa C073 C073
+            CONTEUDO_REMESSA += "00000000".substring(0, 8 - ("" + remessa.getId()).length()) + ("" + remessa.getId()); // 21.1 Controle da Cobrança Número da Remessa 184 191 9(008) Número Seqüencial do Arquivo; preencher com a mesma numeração sequencial de arquivo (campo 19.0) G079
+            CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 21.1 Data de Gravação Remessa 192 199 9(008) Preencher com a data da gravação do arquivo, no formato DDMMAAAA (Dia, Mês e Ano) G068
+            CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito Filler 200 207 9(008) Preencher com zeros C003 
+            CONTEUDO_REMESSA += "                                 "; // 23.1 CNAB Filler 208 240 X(033) Preencher com espaços G004
+
+            buff_writer.write(CONTEUDO_REMESSA);
+            buff_writer.newLine();
+            CONTEUDO_REMESSA = "";
+
+            Float valor_total_lote = (float) 0;
+
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
-            Integer sequencial_registro = 1;
+            Integer sequencial_registro_lote = 1;
             for (Integer i = 0; i < listaMovimento.size(); i++) {
                 Movimento mov = listaMovimento.get(i);
-                // header do lote ------------------------------------------------------------
-                // ---------------------------------------------------------------------------
-                CONTEUDO_REMESSA += "104"; // 01.0 Código do Banco 1 3 9(003) Preencher '104’ G001
-                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 02.1 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um Lote pode haver vários serviços (segmentos); o campo Lote de Serviço de cada um dos segmentos de um mesmo Lote deve ser igual ao informado neste campo 02.1. Após o fechamento de um Lote, o próximo Lote deve possuir o número do lote anterior acrescido de 1, e a mesma lógica do segmentos do novo lote seguirem o número dele se aplica *G002
-                CONTEUDO_REMESSA += "1"; // 03.1 Tipo de Registro 8 8 9(001) Preencher '1’ (equivale a Header de Lote) *G003
-                CONTEUDO_REMESSA += "R"; // 04.1 Serviço Tipo de Operação 9 9 X(001) Preencher ‘R’  (equivale a Arquivo Remessa) *G028
-
-                // SE COBRANÇA REGISTRADA
-                if (true == true) {
-                    CONTEUDO_REMESSA += "01"; // 05.1 Tipo de Serviço 10 11 9(002) Preencher com ‘01', se Cobrança Registrada; ou ‘02’, se Cobrança Sem Registro/Serviços *G025
-                } else {
-                    CONTEUDO_REMESSA += "02"; // 05.1 Tipo de Serviço 10 11 9(002) Preencher com ‘01', se Cobrança Registrada; ou ‘02’, se Cobrança Sem Registro/Serviços *G025
-                }
-
-                CONTEUDO_REMESSA += "00"; // 06.1 Filler 12 13 9(002) Preencher com zeros G004
-                CONTEUDO_REMESSA += "030"; // 07.1 Nº da Versão do Layout do Lote 14 16 9(003) Preencher '030' *G030
-                CONTEUDO_REMESSA += " "; // 08.1 CNAB Filler 17 17 X(001) Preencher com espaços G004
-
-                CONTEUDO_REMESSA += "2"; // 09.1 Empresa Tipo de Inscrição do Beneficiário 18 18 9(001) Preencher com o tipo de inscrição do beneficiário: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
-                CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_sindicato.length()) + documento_sindicato; // 10.1 Número de Inscrição do Beneficiário 19 33 9(015) Ver Nota Explicativa G006 *G006
-                CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Beneficiário 34 39 9(006) Código fornecido pela CAIXA, através da agência de relacionamento do cliente; trata-se do código do Beneficiário (6 posições) *G007
-                CONTEUDO_REMESSA += "00000000000000"; // 11.1 Uso Exclusivo CAIXA 40 53 9(014) Preencher com zeros -\
-                CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Agência Mantenedora da Conta 54 58 9(005) Preencher com o código da agência detentora da conta, com um zero à esquerda *G008
-                CONTEUDO_REMESSA += moduloOnze("00000".substring(0, 5 - agencia.length()) + agencia); // 13.1 Dígito Verificador da Agência 59 59 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G011
-                CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 14.1 Código do Convênio no Banco 60 65 9(006) Mesmo código do campo 11.1 *G007
-                CONTEUDO_REMESSA += "0000000"; // 15.1 Código do Modelo de Boleto Personalizado 66 72 9(007) Código fornecido pela CAIXA/Gráfica, utilizado somente quando o modelo do boleto for personalizado; do contrário, preencher com zeros C078
-                CONTEUDO_REMESSA += "0"; // 16.1 Uso Exclusivo CAIXA 73 73 9(001) Preencher '0’                 
-                //CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                              ").substring(0, 30)); // 17.1 Nome da Empresa 74 103 X(030) Preencher com o Nome da empresa G013
-                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 17.1 Nome da Empresa 74 103 X(030) Preencher com o Nome da empresa G013
-                CONTEUDO_REMESSA += "                                        "; // 18.1 Informações Mensagem 1 104 143 X(040) Ver Nota Explicativa C073 C073
-                CONTEUDO_REMESSA += "                                        "; // 19.1 Mensagem 2 144 183 X(040) Ver Nota Explicativa C073 C073
-                CONTEUDO_REMESSA += "00000000".substring(0, 8 - ("" + remessa.getId()).length()) + ("" + remessa.getId()); // 20.1 Controle da Cobrança Número da Remessa 184 191 9(008) Número Seqüencial do Arquivo; preencher com a mesma numeração sequencial de arquivo (campo 19.0) G079
-                CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 21.1 Data de Gravação Remessa 192 199 9(008) Preencher com a data da gravação do arquivo, no formato DDMMAAAA (Dia, Mês e Ano) G068
-                CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito Filler 200 207 9(008) Preencher com zeros C003 
-                CONTEUDO_REMESSA += "                                 "; // 23.1 CNAB Filler 208 240 X(033) Preencher com espaços G004
-
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
-                CONTEUDO_REMESSA = "";
-
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
-                Integer sequencial_registro_lote = 1;
                 CONTEUDO_REMESSA += "104"; // 01.3P Controle Código do Banco 1 3 9(003) Preencher '104’ G001
-                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 02.3P Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3P Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
                 CONTEUDO_REMESSA += "3"; // 03.3P Tipo de Registro 8 8 9(001) Preencher '3’ (equivale a Detalhe de Lote) *G003
 
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3P Serviço Nº Sequencial do Registro no Lote 9 13 9(005) Ver Nota Explicativa G038; evoluir de 1 em 1 para cada Segmento do Lote *G038
@@ -315,7 +328,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += " "; // 06.3P Filler 15 15 X(001) Preencher com espaços G004
                 CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa 16 17 9(002) Ver Nota Explicativa C004 *C004
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Código de identificação do Beneficiário Agência Mantenedora da Conta 18 22 9(005) Prencher com o código da agência detentora da conta, com um zero à esquerda *G008
-                CONTEUDO_REMESSA += moduloOnze("00000".substring(0, 5 - agencia.length()) + agencia); // 09.3P Dígito Verificador da Agência 23 23 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G009
+                CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P Dígito Verificador da Agência 23 23 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G009
                 CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 10.3P Código do Convênio no Banco 24 29 9(006) Código fornecido pela CAIXA, através da agência de relacionamento do cliente; trata-se do código do Beneficiário (6 posições) *G007
                 CONTEUDO_REMESSA += "00000000"; // 11.3P Uso Exclusivo CAIXA - Filler 30 37 9(008) Preencher com zeros 
                 CONTEUDO_REMESSA += "000"; // 12.3P Uso Exclusivo CAIXA Filler 38 40 9(003) Preencher com zeros 
@@ -336,7 +349,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor do Título Valor Nominal do Título 86 100 9(013) Preencher com o valor original do título, utilizando 2 casas decimais (exemplo: título de valor 530,44 - preencher 0000000053044) *G070
                 CONTEUDO_REMESSA += "00000"; // 22.3P Ag. Cobradora Agência Encarregada da Cobrança 101 105 9(005) Preencher com zeros *C014
                 CONTEUDO_REMESSA += "0"; // 23.3P DV Dígito Verificador da Agência 106 106 X(001) Preencher '0’ *C014
-                CONTEUDO_REMESSA += "OU";//boleto_rem.getContaCobranca().getEspecieDoc(); // 24.3P Espécie de Título Espécie do Título 107 108 9(002) Ver Nota Explicativa C015 *C015
+                CONTEUDO_REMESSA += "02";//CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getEspecieDoc(); // 24.3P Espécie de Título Espécie do Título 107 108 9(002) Ver Nota Explicativa C015 *C015
 
                 String aceite = boleto_rem.getContaCobranca().getAceite().equals("N") ? boleto_rem.getContaCobranca().getAceite() : "A";
                 CONTEUDO_REMESSA += aceite; // 25.3P Aceite Identific. de Título Aceito/Não Aceito 109 109 X(001) Indica se o título de cobrança possui aceite do pagador; preencher com ‘A’ (Aceite) ou ‘N’ (Não Aceite) C016
@@ -353,7 +366,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "3"; // 36.3P Código p/ Protesto Código para Protesto 221 221 9(001) Preencher conforme desejado com  ‘1’ (Protestar); ou ‘3’ (Não Protestar); ou ‘9’ (Cancelamento Protesto Automático); ATENÇÃO: O código 9 somente pode ser utilizado se a informação do campo 07.3P (Código de Movimento Remessa) for igual a '31': C026
                 CONTEUDO_REMESSA += "00"; // 37.3P Prazo p/ Protesto Número de Dias para Protesto 222 223 9(002) Preencher com o número desejado de dias após a data de vencimento para inicialização do processo de cobrança via protesto; pode ser de 02 a 90 dias, sendo: De 02 a 05   = dias úteis; Acima de 05 = dias corridos C027
                 CONTEUDO_REMESSA += "1"; // 38.3P Código p/ Baixa/ Devolução Código para Baixa/Devolução 224 224 9(001) Preencher com o procedimento que deseja que CAIXA realize para o título vencido: '1’ (Baixar / Devolver) ou ‘2’ (Não Baixar / Não  Devolver) C028
-                CONTEUDO_REMESSA += " 05"; // 39.3P Prazo p/ Baixa/ Devolução Número de Dias para Baixa/ Devolução 225 227 X(003) Preencher com o número desejado de dias corridos após a data de vencimento do  título não pago em que a CAIXA deverá baixá-lo da carteira e devolvê-lo; pode ser de 05 a 120 dias corridos; ATENÇÃO: Esse prazo não pode ser menor que o prazo para protesto (campo 37.3P), quando este existir C029
+                CONTEUDO_REMESSA += "030"; // 39.3P Prazo p/ Baixa/ Devolução Número de Dias para Baixa/ Devolução 225 227 X(003) Preencher com o número desejado de dias corridos após a data de vencimento do  título não pago em que a CAIXA deverá baixá-lo da carteira e devolvê-lo; pode ser de 05 a 120 dias corridos; ATENÇÃO: Esse prazo não pode ser menor que o prazo para protesto (campo 37.3P), quando este existir C029
                 CONTEUDO_REMESSA += "09"; // 40.3P Código da Moeda Código da Moeda 228 229 9(002) Preencher ‘09’ (REAL) *G065
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Uso Exclusivo CAIXA Filler 230 239 9(010) Preencher com zeros -
                 CONTEUDO_REMESSA += " "; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
@@ -365,7 +378,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 // tipo 3 - segmento Q -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "104"; // 01.3Q Controle Código do Banco 1 3 9(003) Preencher '104’ G001
-                CONTEUDO_REMESSA += CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 02.3Q Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Q Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
                 CONTEUDO_REMESSA += "3"; // 03.3Q Tipo de Registro 8 8 9(001) Preencher '3’ (equivale a Detalhe de Lote) *G003
 
                 sequencial_registro_lote++;
@@ -381,7 +394,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 }
 
                 String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
-                CONTEUDO_REMESSA += "00000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição do Pagador 19 33 9(015) Preencher com o número do CNPJ ou CPF do Pagador, conforme o caso *G006
+                CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição do Pagador 19 33 9(015) Preencher com o número do CNPJ ou CPF do Pagador, conforme o caso *G006
 
                 CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome do Pagador 34 73 X(040) Preencher com Nome do Pagador 
 
@@ -396,7 +409,7 @@ public class CaixaFederalSigCB extends Cobranca {
                             end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
 
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
-                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "            ").substring(0, 12)); // 12.3Q Bairro do Pagador 114 128 X(015) G032
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro do Pagador 114 128 X(015) G032
                     String cep = end_cep.replace("-", "").replace(".", "");
                     CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
                     CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
@@ -404,7 +417,7 @@ public class CaixaFederalSigCB extends Cobranca {
                     CONTEUDO_REMESSA += end_uf; // 16.3Q Unidade da Federação do Pagador 152 153 X(002) Preencher com o código do Estado ou Unidade da Federação correspondente ao município G036
                 } else {
                     CONTEUDO_REMESSA += "                                        "; // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
-                    CONTEUDO_REMESSA += "            "; // 12.3Q Bairro do Pagador 114 128 X(015) G032
+                    CONTEUDO_REMESSA += "               "; // 12.3Q Bairro do Pagador 114 128 X(015) G032
                     CONTEUDO_REMESSA += "     "; // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
                     CONTEUDO_REMESSA += "   "; // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
                     CONTEUDO_REMESSA += "               "; // 15.3Q Cidade do Pagador 137 151 X(015) Preencher com o nome do município correspondente ao endereço do Pagador G033
@@ -414,7 +427,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "0"; // 17.3Q Dados do Sacador/Avalista Tipo de Inscrição do Sacador/Avalista 154 154 9(001) Preencher obrigatoriamente caso a empresa cliente não seja o Beneficiário original do título, com: '1' (CPF - se Sacador Avalista for pessoa física); ou '2' (CNPJ - se pessoa jurídica); nos demais casos, preencher com zeros *G005
                 CONTEUDO_REMESSA += "000000000000000"; // 18.3Q Número de Inscrição do Sacador/Avalista 155 169 9(015) Preencher obrigatoriamente com o número do CNPJ ou CPF do Sacador Avalista, nos casos explicitados no conteúdo do campo 17.3Q *G006
                 CONTEUDO_REMESSA += "                                        "; // 19.3Q Nome do Sacador/Avalista 170 209 X(040) Preencher obrigatoriamente com o Nome do Sacador Avalista, nos casos explicitados no conteúdo do campo 17.3Q C060
-                CONTEUDO_REMESSA += "000"; // 20.3Q Banco Correspondente Cód. Bco. Corresp. na Compensação 210 212 9(003) Preencher com zeros; campo exclusivo para troca de arquivos entre bancos *C031
+                CONTEUDO_REMESSA += "   "; // 20.3Q Banco Correspondente Cód. Bco. Corresp. na Compensação 210 212 9(003) Preencher com zeros; campo exclusivo para troca de arquivos entre bancos *C031
                 CONTEUDO_REMESSA += "                    "; // 21.3Q Nosso Núm. Bco. Correspondente Nosso Nº no Banco Correspondente 213 232 X(020) Preencher com espaços; campo exclusivo para troca de arquivos entre bancos *C032
                 CONTEUDO_REMESSA += "        "; // 22.3Q CNAB Filler 233 240 X(008) Preencher com espaços G004
 
@@ -422,44 +435,52 @@ public class CaixaFederalSigCB extends Cobranca {
                 buff_writer.newLine();
                 CONTEUDO_REMESSA = "";
 
-                // rodapé(footer) do lote ----------------------------------------------------
-                // ---------------------------------------------------------------------------                
-                CONTEUDO_REMESSA += "104"; // 01.5 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
-                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 02.5 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
-                CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 8 8 9(001) Preencher ‘5’ (equivale a Trailer de Lote) *G003
-                CONTEUDO_REMESSA += "         "; // 04.5 CNAB Filler 9 17 X(009) Preencher com espaços G004
-                CONTEUDO_REMESSA += "000004"; // 05.5 Qtde de Registros Quantidade de Registros no Lote 18 23 9(006) Preencher com a Quantidade de registros no lote; trata-se da somatória dos registros de tipo 1, 3, e 5 *G057
-                CONTEUDO_REMESSA += "000002"; // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança Simples 24 29 9(006) Preencher com a Quantidade total de títulos informados no lote *C070
-                String valor_total = mov.getValorString().replace(".", "").replace(",", "");
-                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dos Títulos em Carteiras de Cobrança Simples 30 46 9(017) Preencher com o Valor total de títulos informados no lote *C071
-                CONTEUDO_REMESSA += "000000"; // 08.5 Totalização da Cobrança Caucionada Quantidade de Títulos em Cobranças Caucionadas 47 52 9(006) Preencher com zeros *C070
-                CONTEUDO_REMESSA += "00000000000000000"; // 09.5 Valor Total dos Títulos em Carteiras Caucionadas 53 69 9(017) Preencher com zeros *C071
-                CONTEUDO_REMESSA += "000000"; // 10.5 Totalização da Cobrança Descontada Quantidade de Títulos em Cobrança Descontada 70 75 9(006) Preencher com zeros *C070
-                CONTEUDO_REMESSA += "00000000000000000"; // 11.5 Quantidade de Títulos em Carteiras Descontadas 76 92 9(017) Preencher com zeros *C071
-                CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
-                CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
-//                if (1 == 1) { // REMESSA-TESTE -- Periodo de homologação
-//                    CONTEUDO_REMESSA += "                                                                    REMESSA-TESTE                                    "; // 13.5 CNAB Filler 124 240 X(117) G004
-//                } else {
-//                    CONTEUDO_REMESSA += "                                                                    REMESSA-PRODUCAO                                 "; // 13.5 CNAB Filler 124 240 X(117) G004
-//                }
+                sequencial_registro_lote++;
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
-                CONTEUDO_REMESSA = "";
+                valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
 
-                sequencial_registro++;
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
+
+                if (!dao.save(remessaBanco)) {
+                    dao.rollback();
+                    return null;
+                }
             }
 
+            // rodapé(footer) do lote ----------------------------------------------------
+            // ---------------------------------------------------------------------------                
+            CONTEUDO_REMESSA += "104"; // 01.5 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
+            CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
+            CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 8 8 9(001) Preencher ‘5’ (equivale a Trailer de Lote) *G003
+            CONTEUDO_REMESSA += "         "; // 04.5 CNAB Filler 9 17 X(009) Preencher com espaços G004
+            Integer quantidade_lote = (2 * listaMovimento.size()) + 2;
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Qtde de Registros Quantidade de Registros no Lote 18 23 9(006) Preencher com a Quantidade de registros no lote; trata-se da somatória dos registros de tipo 1, 3, e 5 *G057
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaMovimento.size()).length()) + ("" + listaMovimento.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança Simples 24 29 9(006) Preencher com a Quantidade total de títulos informados no lote *C070
+            String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
+            CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dos Títulos em Carteiras de Cobrança Simples 30 46 9(017) Preencher com o Valor total de títulos informados no lote *C071
+            CONTEUDO_REMESSA += "000000"; // 08.5 Totalização da Cobrança Caucionada Quantidade de Títulos em Cobranças Caucionadas 47 52 9(006) Preencher com zeros *C070
+            CONTEUDO_REMESSA += "00000000000000000"; // 09.5 Valor Total dos Títulos em Carteiras Caucionadas 53 69 9(017) Preencher com zeros *C071
+            CONTEUDO_REMESSA += "000000"; // 10.5 Totalização da Cobrança Descontada Quantidade de Títulos em Cobrança Descontada 70 75 9(006) Preencher com zeros *C070
+            CONTEUDO_REMESSA += "00000000000000000"; // 11.5 Quantidade de Títulos em Carteiras Descontadas 76 92 9(017) Preencher com zeros *C071
+            CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
+            CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
+
+            buff_writer.write(CONTEUDO_REMESSA);
+            buff_writer.newLine();
+            CONTEUDO_REMESSA = "";
+
+            // rodapé(footer) do arquivo ----------------------------------------------------
+            // ---------------------------------------------------------------------------                
             CONTEUDO_REMESSA += "104"; // 01.9 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
             CONTEUDO_REMESSA += "9999"; // 02.9 Lote de Serviço 4 7 9(004) Preencher ‘9999’ *G002
             CONTEUDO_REMESSA += "9"; // 03.9 Tipo de Registro 8 8 9(001) Preencher ‘9’ (equivale a Trailer de Arquivo) *G003
             CONTEUDO_REMESSA += "         "; // 04.9 CNAB Filler 9 17 X(009) Preencher com espaços G004
             //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
-            Integer quantidade_lote = listaMovimento.size() + 2;
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
 
-            Integer quantidade_registros = (4 * listaMovimento.size()) + 2;
+            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+            CONTEUDO_REMESSA += "000001"; // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+
+            Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24 29 9(006) Informar o Número do total de registros enviados no arquivo; trata-se da somatória dos registros de tipo 0, 1, 3, 5 e 9 G056
             CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004

@@ -11,6 +11,7 @@ import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.BloqueiaServicoPessoa;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.ContaSaldo;
+import br.com.rtools.financeiro.EstornoCaixaLote;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Historico;
@@ -278,14 +279,14 @@ public class FinanceiroDao extends DB {
             String and = (id_usuario == null) ? "" : " AND u.id = " + id_usuario;
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT distinct(f.id), \n "
-                    + "       m.ds_es, \n "
-                    + "	b.dt_baixa, \n "
-                    + "	b.id_caixa, \n "
-                    + "	p.ds_nome, \n "
-                    + "	tp.ds_descricao, \n "
-                    + "	f.nr_valor, \n "
-                    + "       cx.id_filial, \n "
-                    + "       b.id \n "
+                    + "     m.ds_es, \n "
+                    + "	    b.dt_baixa, \n "
+                    + "     b.id_caixa, \n "
+                    + "     p.ds_nome, \n "
+                    + "     tp.ds_descricao, \n "
+                    + "     f.nr_valor, \n "
+                    + "     cx.id_filial, \n "
+                    + "     b.id \n "
                     + "  FROM fin_forma_pagamento AS f \n "
                     + " INNER JOIN fin_baixa AS b ON b.id = f.id_baixa \n "
                     + " INNER JOIN seg_usuario AS u ON u.id = b.id_usuario \n "
@@ -298,6 +299,23 @@ public class FinanceiroDao extends DB {
                     + "   AND m.is_ativo = TRUE \n "
                     + "   AND b.dt_baixa = '" + data + "' \n "
                     + "   AND m.ds_es = '" + es + "' \n " + and);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<EstornoCaixaLote> listaEstornoCaixaLote(int id_caixa, Integer id_usuario, String data) {
+        try {
+            String and = (id_usuario == null) ? "" : " AND ec.id_usuario_caixa = " + id_usuario;
+
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT ec.* \n "
+                    + "  FROM fin_estorno_caixa_lote AS ec \n "
+                    + " WHERE ec.id_caixa = " + id_caixa + " \n "
+                    + "   AND ec.dt_baixa = '" + data + "' \n "
+                    + "   AND ec.is_movimento = true " + and, EstornoCaixaLote.class
+            );
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();
@@ -340,16 +358,15 @@ public class FinanceiroDao extends DB {
     public List listaFechamentoCaixaTransferencia(int id_caixa) {
         try {
             String text
-                    = "SELECT 	tc.id_caixa_entrada, "
-                    + "        tc.id_fechamento_entrada, "
-                    + "        fc.nr_valor_fechamento, "
-                    + "        fc.nr_valor_informado, "
-                    + "        fc.dt_data, "
-                    + "        fc.ds_hora  "
+                    = "SELECT tc.id_caixa_entrada, "
+                    + "       tc.id_fechamento_entrada, "
+                    + "       fc.nr_valor_fechamento, "
+                    + "       fc.nr_valor_informado, "
+                    + "       fc.dt_data, "
+                    + "       fc.ds_hora  "
                     + "  FROM fin_fechamento_caixa fc  "
                     + " INNER JOIN fin_transferencia_caixa tc ON tc.id_fechamento_entrada = fc.id AND tc.id_caixa_entrada = " + id_caixa
-                    + //" WHERE tc.id_fechamento_entrada NOT IN (SELECT id_fechamento_entrada FROM fin_transferencia_caixa WHERE id_caixa_saida = "+id_caixa+" AND id_status = 12) " +
-                    " WHERE tc.id_fechamento_entrada NOT IN (SELECT id_fechamento_saida FROM fin_transferencia_caixa WHERE id_caixa_saida = " + id_caixa + " AND id_status = 12) "
+                    + " WHERE tc.id_fechamento_entrada NOT IN (SELECT id_fechamento_saida FROM fin_transferencia_caixa WHERE id_caixa_saida = " + id_caixa + " AND id_status = 12) "
                     + " GROUP BY tc.id_caixa_entrada, "
                     + "          tc.id_fechamento_entrada, "
                     + "          fc.nr_valor_fechamento, "
@@ -357,16 +374,15 @@ public class FinanceiroDao extends DB {
                     + "          fc.dt_data, "
                     + "          fc.ds_hora "
                     + "UNION "
-                    + "SELECT 	b.id_caixa, "
-                    + "        b.id_fechamento_caixa, "
-                    + "        fc.nr_valor_fechamento, "
-                    + "        fc.nr_valor_informado, "
-                    + "        fc.dt_data, "
-                    + "        fc.ds_hora   "
+                    + "SELECT b.id_caixa, "
+                    + "       b.id_fechamento_caixa, "
+                    + "       fc.nr_valor_fechamento, "
+                    + "       fc.nr_valor_informado, "
+                    + "       fc.dt_data, "
+                    + "       fc.ds_hora   "
                     + "  FROM fin_fechamento_caixa fc  "
                     + " INNER JOIN fin_baixa b ON b.id_caixa = " + id_caixa + " AND b.id_fechamento_caixa = fc.id "
-                    + //" WHERE b.id_fechamento_caixa NOT IN (SELECT id_fechamento_entrada FROM fin_transferencia_caixa WHERE id_caixa_saida = "+id_caixa+" AND id_status = 12) " +
-                    " WHERE b.id_fechamento_caixa NOT IN (SELECT id_fechamento_saida FROM fin_transferencia_caixa WHERE id_caixa_saida = " + id_caixa + " AND id_status = 12) "
+                    + " WHERE b.id_fechamento_caixa NOT IN (SELECT id_fechamento_saida FROM fin_transferencia_caixa WHERE id_caixa_saida = " + id_caixa + " AND id_status = 12) "
                     + " GROUP BY b.id_caixa, "
                     + "          b.id_fechamento_caixa, "
                     + "          fc.nr_valor_fechamento, "
@@ -382,35 +398,47 @@ public class FinanceiroDao extends DB {
 
     public List listaFechamentoCaixa(int id_caixa) {
         String text
-                = "SELECT  tc.id_caixa_entrada, "
-                + "        tc.id_fechamento_entrada, "
-                + "        fc.nr_valor_fechamento, "
-                + "        fc.nr_valor_informado, "
-                + "        fc.dt_data, "
-                + "        fc.ds_hora  "
-                + "  FROM fin_fechamento_caixa fc  "
-                + " INNER JOIN fin_transferencia_caixa tc ON tc.id_fechamento_entrada = fc.id AND tc.id_caixa_entrada = " + id_caixa
-                + " GROUP BY tc.id_caixa_entrada, "
-                + "          tc.id_fechamento_entrada, "
-                + "          fc.nr_valor_fechamento, "
-                + "          fc.nr_valor_informado, "
-                + "          fc.dt_data, "
-                + "          fc.ds_hora "
-                + "UNION "
-                + "SELECT 	b.id_caixa, "
-                + "        b.id_fechamento_caixa, "
-                + "        fc.nr_valor_fechamento, "
-                + "        fc.nr_valor_informado, "
-                + "        fc.dt_data, "
-                + "        fc.ds_hora   "
-                + "  FROM fin_fechamento_caixa fc  "
-                + " INNER JOIN fin_baixa b ON b.id_caixa = " + id_caixa + " AND b.id_fechamento_caixa = fc.id "
-                + " GROUP BY b.id_caixa, "
-                + "          b.id_fechamento_caixa, "
-                + "          fc.nr_valor_fechamento, "
-                + "          fc.nr_valor_informado, "
-                + "          fc.dt_data, "
-                + "          fc.ds_hora "
+                = "SELECT  tc.id_caixa_entrada, \n"
+                + "        tc.id_fechamento_entrada, \n"
+                + "        fc.nr_valor_fechamento, \n"
+                + "        fc.nr_valor_informado, \n"
+                + "        fc.dt_data, \n"
+                + "        fc.ds_hora \n"
+                + "  FROM fin_fechamento_caixa fc \n"
+                + " INNER JOIN fin_transferencia_caixa tc ON tc.id_fechamento_entrada = fc.id AND tc.id_caixa_entrada = " + id_caixa + " \n"
+                + " GROUP BY tc.id_caixa_entrada, \n"
+                + "          tc.id_fechamento_entrada, \n"
+                + "          fc.nr_valor_fechamento, \n"
+                + "          fc.nr_valor_informado, \n"
+                + "          fc.dt_data, \n"
+                + "          fc.ds_hora \n"
+                + "UNION \n"
+                + "SELECT 	b.id_caixa, \n"
+                + "        b.id_fechamento_caixa, \n"
+                + "        fc.nr_valor_fechamento, \n"
+                + "        fc.nr_valor_informado, \n"
+                + "        fc.dt_data, \n"
+                + "        fc.ds_hora \n"
+                + "  FROM fin_fechamento_caixa fc  \n"
+                + " INNER JOIN fin_baixa b ON b.id_caixa = " + id_caixa + " AND b.id_fechamento_caixa = fc.id \n"
+                + " GROUP BY b.id_caixa, \n"
+                + "          b.id_fechamento_caixa, \n"
+                + "          fc.nr_valor_fechamento, \n"
+                + "          fc.nr_valor_informado, \n"
+                + "          fc.dt_data, \n"
+                + "          fc.ds_hora \n"
+                + " UNION          \n"
+                + "SELECT null, \n"
+                + "       null, \n"
+                + "       0, \n"
+                + "       0, \n"
+                + "       ec.dt_baixa, \n"
+                + "       '' \n"
+                + "  FROM fin_estorno_caixa_lote ec \n"
+                + " WHERE ec.id_caixa = " + id_caixa + " \n"
+                + "   AND id_fechamento_caixa IS NULL \n"
+                + "   AND is_movimento = false \n"
+                + " GROUP BY ec.dt_baixa \n"
                 + " ORDER BY 5 desc, 6 desc";
 
         try {
@@ -1572,7 +1600,16 @@ public class FinanceiroDao extends DB {
 
     public String dataFechamentoCaixa(Integer id_caixa) {
         try {
-            Query qry = getEntityManager().createNativeQuery("SELECT MIN(dt_baixa) FROM fin_baixa WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015'");
+            //Query qry = getEntityManager().createNativeQuery("SELECT MIN(dt_baixa) FROM fin_baixa WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015'");
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT MIN(dt_baixa) FROM \n"
+                    + "( \n "
+                    + "SELECT MIN(dt_baixa) AS dt_baixa FROM fin_baixa WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015' \n"
+                    + "UNION \n"
+                    + "SELECT min(dt_baixa) AS dt_baixa FROM fin_estorno_caixa_lote \n"
+                    + "WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015' AND is_movimento = TRUE \n"
+                    + ") AS x"
+            );
             List<Object> result = qry.getResultList();
             if (!result.isEmpty() && ((List) result.get(0)).get(0) != null) {
                 return DataHoje.converteData((Date) ((List) result.get(0)).get(0));
@@ -1597,14 +1634,33 @@ public class FinanceiroDao extends DB {
 
     public Object listaQuantidadeCaixasAberto(String data_fechamento) {
         try {
+//            Query qry = getEntityManager().createNativeQuery(
+//                    "  SELECT CAST(COUNT(*) AS INT) \n"
+//                    + "  FROM fin_baixa AS b \n"
+//                    + " INNER JOIN fin_caixa c ON c.id = b.id_caixa \n"
+//                    + " WHERE b.id_caixa IS NOT NULL \n"
+//                    + "   AND b.id_fechamento_caixa IS NULL \n"
+//                    + "   AND b.dt_baixa <= '" + data_fechamento + "'  \n"
+//                    + "   AND c.nr_caixa <> 1"
+//            );
             Query qry = getEntityManager().createNativeQuery(
-                    "  SELECT CAST(COUNT(*) AS INT) \n"
+                    "SELECT SUM(qnt) FROM \n"
+                    + "( \n"
+                    + "SELECT CAST(COUNT(*) AS INT) AS qnt \n"
                     + "  FROM fin_baixa AS b \n"
                     + " INNER JOIN fin_caixa c ON c.id = b.id_caixa \n"
                     + " WHERE b.id_caixa IS NOT NULL \n"
                     + "   AND b.id_fechamento_caixa IS NULL \n"
-                    + "   AND b.dt_baixa <= '" + data_fechamento + "'  \n"
-                    + "   AND c.nr_caixa <> 1"
+                    + "   AND b.dt_baixa <= '" + data_fechamento + "' \n"
+                    + "   AND c.nr_caixa <> 1 \n"
+                    + " UNION \n"
+                    + "SELECT CAST(COUNT(*) AS INT) AS qnt \n"
+                    + "  FROM fin_estorno_caixa_lote AS ec \n"
+                    + " INNER JOIN fin_caixa c ON c.id = ec.id_caixa \n"
+                    + " WHERE ec.id_fechamento_caixa IS NULL \n"
+                    + "   AND ec.dt_baixa <= '" + data_fechamento + "' \n"
+                    + "   AND c.nr_caixa <> 1 \n"
+                    + ") AS x"
             );
             return qry.getSingleResult();
         } catch (Exception e) {
@@ -1716,7 +1772,27 @@ public class FinanceiroDao extends DB {
         return new ArrayList();
     }
 
-    public List<Object> listaMovimentoEstornado(Integer id_caixa, String data_baixa) {
+    public List<Object> listaEstornoFechamentoCaixa(Integer id_caixa, String data_baixa) {
+        return listaEstornoFechamentoCaixa(id_caixa, data_baixa, null);
+    }
+
+    public List<Object> listaEstornoFechamentoCaixa(Integer id_fechamento_caixa) {
+        return listaEstornoFechamentoCaixa(null, null, id_fechamento_caixa);
+    }
+
+    protected List<Object> listaEstornoFechamentoCaixa(Integer id_caixa, String data_baixa, Integer id_fechamento_caixa) {
+        String where = "";
+
+        if (id_caixa != null) {
+            where = " WHERE l.id_caixa = " + id_caixa + " \n"
+                    + "   AND l.dt_baixa = '" + data_baixa + "' \n"
+                    + "   AND l.is_movimento = FALSE \n";
+        }
+
+        if (id_fechamento_caixa != null) {
+            where = " WHERE l.id_fechamento_caixa = " + id_fechamento_caixa + " \n";
+        }
+
         Query qry = getEntityManager().createNativeQuery(
                 "SELECT pue.id AS operador_id, \n "
                 + "       pue.ds_nome AS operador, \n"
@@ -1733,8 +1809,7 @@ public class FinanceiroDao extends DB {
                 + " INNER JOIN fin_estorno_caixa AS me  ON me.id_estorno_caixa_lote = l.id \n"
                 + " INNER JOIN fin_movimento     AS m   ON m.id = me.id_movimento \n"
                 + " INNER JOIN pes_pessoa        AS p   ON p.id = m.id_pessoa \n"
-                + " WHERE l.id_caixa = " + id_caixa + " \n"
-                + "   AND l.dt_baixa = '" + data_baixa + "' \n"
+                + where
                 + " GROUP BY pue.id, pue.ds_nome, c.ds_descricao, p.ds_nome, l.dt_baixa, l.dt_lancamento, l.ds_motivo "
         );
 
@@ -1745,4 +1820,5 @@ public class FinanceiroDao extends DB {
         }
         return new ArrayList();
     }
+
 }

@@ -1054,7 +1054,9 @@ public class GerarMovimento extends DB {
                         baixa.getUsuario(),
                         baixa.getCaixa(),
                         motivoEstorno,
-                        baixa.getId()
+                        baixa.getId(),
+                        null,
+                        true
                 );
 
                 if (!dao.save(ecl)) {
@@ -1114,7 +1116,9 @@ public class GerarMovimento extends DB {
                         baixa.getUsuario(),
                         baixa.getCaixa(),
                         motivoEstorno,
-                        baixa.getId()
+                        baixa.getId(),
+                        null,
+                        true
                 );
 
                 if (!dao.save(ecl)) {
@@ -1308,7 +1312,7 @@ public class GerarMovimento extends DB {
                 if (fp1.getChequePag() != null) {
                     ch_p.setCheque(fp1.getChequePag().getCheque());
                     ch_p.setPlano5(fp1.getChequePag().getPlano5());
-                    ch_p.setVencimento(fp1.getChequePag().getVencimento());
+                    ch_p.setDtVencimento(fp1.getChequePag().getDtVencimento());
 
                     if (!dao.save(ch_p)) {
                         dao.rollback();
