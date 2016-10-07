@@ -465,7 +465,9 @@ public class Jasper implements Serializable {
                 parameters.put("companhia_email", juridica.getPessoa().getEmail1());
             }
             if (parameters.get("operador") == null) {
-                parameters.put("operador", u.getPessoa().getNome());
+                if (u != null) {
+                    parameters.put("operador", u.getPessoa().getNome());
+                }
             }
             // CORREÇÃO
             // parameters.put("companhia_nome", juridica.getPessoa().getNome());

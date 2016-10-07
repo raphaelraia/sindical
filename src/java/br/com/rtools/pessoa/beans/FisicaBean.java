@@ -102,7 +102,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private List<PessoaEmpresa> listaPessoaEmpresa = new ArrayList();
     private final List<SelectItem> listaProfissoes = new ArrayList();
     private List<SelectItem> listaPaises = new ArrayList();
-    private int idPais = 11;
+    private String pais = "Brasileira(o)";
     private int idProfissao = 0;
     private int idIndexFisica = 0;
     private int idIndexPessoaEmp = 0;
@@ -351,7 +351,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 return;
             }
             if (dao.save(pessoa)) {
-                fisica.setNacionalidade(getListaPaises().get(idPais).getLabel());
+                fisica.setNacionalidade(pais);
                 fisica.setPessoa(pessoa);
                 if (dao.save(fisica)) {
 
@@ -417,7 +417,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
 
-            fisica.setNacionalidade(getListaPaises().get(idPais).getLabel());
+            fisica.setNacionalidade(pais);
             if (dao.update(fisica.getPessoa())) {
                 logs.setTabela("pes_fisica");
                 logs.setCodigo(fisica.getId());
@@ -669,9 +669,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
         }
-        for (int i = 0; i < listaPaises.size(); i++) {
-            if ((listaPaises.get(i).getLabel().toUpperCase()).equals(fisica.getNacionalidade().toUpperCase())) {
-                idPais = i;
+        for (int i = 0; i < getListaPaises().size(); i++) {
+            if ((listaPaises.get(i).getLabel().toUpperCase()).contains(fisica.getNacionalidade().toUpperCase())) {
+                pais = listaPaises.get(i).getLabel();
                 break;
             }
         }
@@ -755,7 +755,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 FisicaDao db = new FisicaDao();
                 f = db.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome(), fisica.getDtNascimento());
                 if (f != null) {
-                    String x = editarFisicaParametro(f);
+                    editarFisicaParametro(f);
                     pessoaUpper();
                     loadMalaDireta();
                     loadListaInativacao();
@@ -779,7 +779,23 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void useFisicaSugestao(Fisica f) {
-        editarFisica(f);
+        editarFisicaParametro(f);
+        pessoaUpper();
+        loadMalaDireta();
+        loadListaInativacao();
+        pessoaComplemento = fisica.getPessoa().getPessoaComplemento();
+        PessoaProfissaoDao dbp = new PessoaProfissaoDao();
+        pessoaProfissao = dbp.pesquisaProfPorFisica(fisica.getId());
+        if (pessoaProfissao.getId() != -1) {
+            for (int i = 0; i < listaProfissoes.size(); i++) {
+                if (Objects.equals(Integer.valueOf(listaProfissoes.get(i).getDescription()), pessoaProfissao.getProfissao().getId())) {
+                    idProfissao = i;
+                    break;
+                }
+            }
+        }
+        loadMalaDireta();
+        loadListaInativacao();
     }
 
     public String editarFisicaParametro(Fisica f) {
@@ -807,7 +823,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             profissao = new Profissao();
             renderJuridicaPesquisa = false;
         }
-
+        for (int i = 0; i < getListaPaises().size(); i++) {
+            if ((listaPaises.get(i).getLabel().toUpperCase()).contains(f.getNacionalidade().toUpperCase())) {
+                pais = listaPaises.get(i).getLabel();
+                break;
+            }
+        }
         listaServicoPessoa.clear();
         editarFisicaSocio(fisica);
         GenericaSessao.put("linkClicado", true);
@@ -1141,67 +1162,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListaPaises() {
         if (listaPaises.isEmpty()) {
-            // String[] lista = new String[]{};
-            String[] lista = new String[]{
-                "Africana(o)",
-                "Afegã(o)",
-                "Alemã(o)",
-                "Americana(o)",
-                "Angolana(o)",
-                "Argelina(o)",
-                "Argentina(o)",
-                "Asiática(o)",
-                "Australiana(o)",
-                "Belga(o)",
-                "Boliviana(o)",
-                "Brasileira(o)",
-                "Canadense(o)",
-                "Canadiana(o)",
-                "Chilena(o)",
-                "Chinesa(o)",
-                "Colombiana(o)",
-                "Cubana(o)",
-                "Da Nova Zelândia(o)",
-                "Dinamarquesa(o)",
-                "Egípcia(o)",
-                "Equatoriana(o)",
-                "Espanha(o)",
-                "Espanhola(o)",
-                "Europeu(o)",
-                "Finlandesa(o)",
-                "Francesa(o)",
-                "Grega(o)",
-                "Haitiana(o)",
-                "Holandesa(o)",
-                "Hondurenha(o)",
-                "Hungara(o)",
-                "Indiana(o)",
-                "Inglesa(o)",
-                "Iraneana(o)",
-                "Iraquiana(o)",
-                "Italiana(o)",
-                "Jamaicana(o)",
-                "Japonesa(o)",
-                "Marroquina(o)",
-                "Mexicana(o)",
-                "Norte Americana(o)",
-                "Norueguesa(o)",
-                "Paquistanesa(o)",
-                "Paraguaia(o)",
-                "Peruana(o)",
-                "Polaca(o)",
-                "Portuguesa(o)",
-                "Queniana(o)",
-                "Russa(o)",
-                "Sueca(o)",
-                "Suiça(o)",
-                "Sul-Africana(o)",
-                "Sul-Coreana(o)",
-                "Turca(o)",
-                "Uraguaia(o)",
-                "Venezuelana(o)"};
-            for (int i = 0; i < lista.length; i++) {
-                listaPaises.add(new SelectItem(i, lista[i], String.valueOf(i)));
+            List listNacionalidade = PessoaUtilitarios.loadListPaises();
+            for (int i = 0; i < listNacionalidade.size(); i++) {
+                listaPaises.add(new SelectItem(listNacionalidade.get(i).toString(), listNacionalidade.get(i).toString()));
             }
 //            if (fisica.getId() != -1) {
 //                for (int i = 0; i < listaPaises.size(); i++) {
@@ -1233,7 +1196,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String getCidadeNaturalidade() {
         String nat;
-        if (idPais != 11) {
+        if (!pais.equals("Brasileira(o)")) {
             readyOnlineNaturalidade = false;
             disabledNaturalidade = true;
             nat = "";
@@ -1266,7 +1229,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     cidade = ((PessoaEndereco) dbPes.pesquisaEndPorPessoa(pes.getId()).get(0)).getEndereco().getCidade();
                     nat = cidade.getCidade();
                     nat = nat + " - " + cidade.getUf();
-                    if (idPais != 11) {
+                    if (!pais.equals("Brasileira(o)")) {
                         fisica.setNaturalidade("");
                     } else {
                         fisica.setNaturalidade(nat);
@@ -1552,12 +1515,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         this.renAbreEnd = renAbreEnd;
     }
 
-    public int getIdPais() {
-        return idPais;
+    public String getPais() {
+        return pais;
     }
 
-    public void setIdPais(int idPais) {
-        this.idPais = idPais;
+    public void setPais(String pais) {
+        this.pais = pais;
     }
 
     public int getIdProfissao() {
@@ -2469,6 +2432,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         } else if (socios.getId() != -1 && (socios.getMatriculaSocios().getDtInativo() != null || !socios.getServicoPessoa().isAtivo())) {
             // lblSocio = "ASSOCIAR";
             inativoDesde = (!socios.getMatriculaSocios().getInativo().isEmpty()) ? socios.getMatriculaSocios().getInativo() : socios.getServicoPessoa().getReferenciaValidade();
+            if (inativoDesde.isEmpty()) {
+                inativoDesde = socios.getServicoPessoa().getInativacao();
+            }
+            if (!inativoDesde.isEmpty() && !socios.getServicoPessoa().getMotivoInativacao().isEmpty()) {
+                inativoDesde += " - MOTIVO: " + socios.getServicoPessoa().getMotivoInativacao().toUpperCase();
+            }
+
         } else {
             //   lblSocio = "VER CADASTRO";
             inativoDesde = "";

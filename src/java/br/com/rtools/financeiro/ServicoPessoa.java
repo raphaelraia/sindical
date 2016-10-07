@@ -59,6 +59,11 @@ public class ServicoPessoa implements java.io.Serializable {
     @JoinColumn(name = "id_parceiro", referencedColumnName = "id")
     @ManyToOne
     private Pessoa parceiro;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_inativacao")
+    private Date dtInativacao;
+    @Column(name = "ds_motivo_inativacao", length = 500)
+    private String motivoInativacao;
 
     public ServicoPessoa() {
         this.id = -1;
@@ -79,10 +84,13 @@ public class ServicoPessoa implements java.io.Serializable {
         this.cobrancaMovimento = null;
         this.evt = null;
         this.parceiro = null;
+        this.dtInativacao = null;
+        this.motivoInativacao = "";
     }
 
     public ServicoPessoa(int id, String emissao, Pessoa pessoa, boolean descontoFolha, Servicos servicos, float nr_desconto, String referenciaVigoracao,
-            String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, float nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt, Pessoa parceiro) {
+            String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, float nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt, Pessoa parceiro,
+            Date dtInativacao, String motivoInativacao) {
         this.id = id;
         this.setEmissao(emissao);
         this.pessoa = pessoa;
@@ -101,6 +109,8 @@ public class ServicoPessoa implements java.io.Serializable {
         this.cobrancaMovimento = cobrancaMovimento;
         this.evt = evt;
         this.parceiro = parceiro;
+        this.dtInativacao = dtInativacao;
+        this.motivoInativacao = motivoInativacao;
     }
 
     public int getId() {
@@ -279,5 +289,35 @@ public class ServicoPessoa implements java.io.Serializable {
 
     public void setParceiro(Pessoa parceiro) {
         this.parceiro = parceiro;
+    }
+
+    public Date getDtInativacao() {
+        return dtInativacao;
+    }
+
+    public void setDtInativacao(Date dtInativacao) {
+        this.dtInativacao = dtInativacao;
+    }
+
+    public String getInativacao() {
+        if (dtInativacao != null) {
+            return DataHoje.converteData(dtInativacao);
+        } else {
+            return "";
+        }
+    }
+
+    public void setInativacao(String inativacao) {
+        if (!(inativacao.isEmpty())) {
+            this.dtInativacao = DataHoje.converte(inativacao);
+        }
+    }
+
+    public String getMotivoInativacao() {
+        return motivoInativacao;
+    }
+
+    public void setMotivoInativacao(String motivoInativacao) {
+        this.motivoInativacao = motivoInativacao;
     }
 }

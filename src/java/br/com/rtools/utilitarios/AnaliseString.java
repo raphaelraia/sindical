@@ -328,10 +328,14 @@ public class AnaliseString {
     }
 
     public static String onlyNumbers(String str) {
-        if (str != null) {
-            return str.replaceAll("[^0123456789]", "");
-        } else {
-            return "";
+        try {
+            if (str != null) {
+                return str.replaceAll("[^0123456789]", "");
+            } else {
+                return "";
+            }            
+        } catch (Exception e) {
+            return "";            
         }
     }
 }

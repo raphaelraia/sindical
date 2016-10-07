@@ -983,6 +983,8 @@ public class SociosBean implements Serializable {
                 }
             }
 
+            NovoLog novoLog = new NovoLog();
+            novoLog.startList();
             dao.openTransaction();
 
             ServicoPessoa sp = (ServicoPessoa) dao.find(new ServicoPessoa(), servicoPessoa.getId());
@@ -997,11 +999,25 @@ public class SociosBean implements Serializable {
             for (int i = 0; i < listaDps.size(); i++) {
                 ServicoPessoa sp2 = (ServicoPessoa) dao.find(new ServicoPessoa(), listaDps.get(i).getServicoPessoa().getId());
                 sp2.setAtivo(false);
+                sp2.setInativacao(dataInativacao);
+                sp2.setMotivoInativacao(smi.getDescricao() + " " + matriculaSocios.getMotivo());
                 if (!dao.update(sp2)) {
                     GenericaMensagem.error("Erro", "Erro ao alterar Serviço Pessoa!");
                     dao.rollback();
                     return;
                 }
+                novoLog = new NovoLog();
+                novoLog.setTabela("fin_servico_pessoa");
+                novoLog.setCodigo(sp2.getId());
+                novoLog.update("Dependente inativado",
+                        " Serviço Pessoa: (" + sp2.getId() + ") "
+                        + " - Pessoa: (" + sp2.getPessoa().getId() + ") - " + sp2.getPessoa().getNome()
+                        + " - Titular: (" + matriculaSocios.getTitular().getId() + ") - " + matriculaSocios.getTitular().getNome()
+                        + " - Matrícula: " + matriculaSocios.getNrMatricula()
+                        + " - Categoria: " + matriculaSocios.getCategoria().getCategoria()
+                        + " - Parentesco: " + listaDps.get(i).getParentesco().getParentesco()
+                        + " - Motivo Inativação: " + smi.getDescricao() + " " + matriculaSocios.getMotivo()
+                );
                 sp2 = new ServicoPessoa();
             }
 
@@ -1028,7 +1044,7 @@ public class SociosBean implements Serializable {
             //listaDependentesInativos.clear();
             atualizarListaDependenteAtivo();
             atualizarListaDependenteInativo();
-            NovoLog novoLog = new NovoLog();
+            novoLog = new NovoLog();
             novoLog.setTabela("matr_socios");
             novoLog.setCodigo(matriculaSocios.getId());
             novoLog.update("Inativação de Sócio - Motivo: " + matriculaSocios.getMotivo(),
@@ -1037,7 +1053,7 @@ public class SociosBean implements Serializable {
                     + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
                     + " - Data da inativação: " + dataInativacao
             );
-
+            novoLog.saveList();
         } else {
             GenericaMensagem.warn("Erro", "Não existe sócio para ser inativado!");
         }
@@ -1460,7 +1476,9 @@ public class SociosBean implements Serializable {
                                 servicoPessoa.getDescontoSocial(),
                                 null,
                                 null,
-                                null
+                                null,
+                                null,
+                                ""
                         );
                         if (!dao.save(servicoPessoaDependente)) {
                             GenericaMensagem.warn("Erro", "Erro ao salvar Serviço Pessoa: " + listDependentes.get(i).getFisica().getPessoa().getNome());
@@ -2304,7 +2322,24 @@ public class SociosBean implements Serializable {
     public boolean inativaDependentes(Dao dao, Socios soc) {
         if (soc.getServicoPessoa().isAtivo()) {
             soc.getServicoPessoa().setAtivo(false);
-            return dao.update(soc.getServicoPessoa());
+            soc.getServicoPessoa().setDtInativacao(new Date());
+            soc.getServicoPessoa().setMotivoInativacao("DEPENDENTE FOI INATIVADO PELO OPERADOR");
+            if (dao.update(soc.getServicoPessoa())) {
+                NovoLog novoLog = new NovoLog();
+                novoLog.setTabela("fin_servico_pessoa");
+                novoLog.setCodigo(soc.getServicoPessoa().getId());
+                novoLog.update("Dependente inativado",
+                        " Serviço Pessoa: (" + soc.getServicoPessoa().getId() + ") "
+                        + " - Pessoa: (" + soc.getServicoPessoa().getPessoa().getId() + ") - " + soc.getServicoPessoa().getPessoa().getNome()
+                        + " - Titular: (" + soc.getMatriculaSocios().getTitular().getId() + ") - " + soc.getMatriculaSocios().getTitular().getNome()
+                        + " - Matrícula: " + soc.getMatriculaSocios().getNrMatricula()
+                        + " - Categoria: " + soc.getMatriculaSocios().getCategoria().getCategoria()
+                        + " - Parentesco: " + soc.getParentesco().getParentesco()
+                        + " - Motivo Inativação: " + "DEPENDENTE FOI INATIVADO PELO OPERADOR"
+                );
+                return true;
+            }
+            return false;
         } else {
             return excluirDependentes(dao, (Socios) dao.find(soc));
         }
@@ -2451,6 +2486,8 @@ public class SociosBean implements Serializable {
                 s = sociosDao.pesquisaSocioPorServicoPessoa(list.get(i).getId());
                 if (s.getMatriculaSocios().getId() == socios.getMatriculaSocios().getId()) {
                     list.get(i).setAtivo(true);
+                    list.get(i).setDtInativacao(null);
+                    list.get(i).setMotivoInativacao("");
                     try {
                         list.get(i).setReferenciaValidade(listDependentesInativos.get(index).getValidadeDependente());
                     } catch (Exception e) {

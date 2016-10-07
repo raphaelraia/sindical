@@ -8,6 +8,7 @@ import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.File;
@@ -212,6 +213,13 @@ public class Pessoa implements Serializable {
 
     public void setDocumento(String documento) {
         this.documento = documento;
+    }
+
+    public String getDocumentoSomentoNumeros() {
+        if (!documento.isEmpty()) {
+            return AnaliseString.onlyNumbers(documento);
+        }
+        return "";
     }
 
     public Date getDtCriacao() {

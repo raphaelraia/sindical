@@ -193,12 +193,24 @@ public class Titulo implements Serializable {
         this.imprimeEtiqueta = imprimeEtiqueta;
     }
 
+    public String getDataString() {
+        return DataHoje.converteData(data);
+    }
+
     public void setDataString(String data) {
         this.data = DataHoje.converte(data);
     }
 
-    public String getDataString() {
-        return DataHoje.converteData(data);
+    public String getAnoLancamentoString() {
+        try {
+            if (anoLancamento == 0) {
+                return "";
+            } else {
+                return Integer.toString(anoLancamento);
+            }
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public void setAnoLancamentoString(String anoLancamento) {
@@ -206,14 +218,6 @@ public class Titulo implements Serializable {
             this.anoLancamento = Integer.parseInt(anoLancamento);
         } catch (Exception e) {
             this.anoLancamento = 0;
-        }
-    }
-
-    public String getAnoLancamentoString() {
-        if (anoLancamento == 0) {
-            return "2016";
-        } else {
-            return Integer.toString(anoLancamento);
         }
     }
 

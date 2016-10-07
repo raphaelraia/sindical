@@ -240,7 +240,7 @@
                                                 <h:panelGrid columns="3" style="margin-top: 10px" id="i_p_n">
                                                     <p:column>
                                                         <p:outputLabel value="Nacionalidade"/><br />
-                                                        <p:selectOneMenu value="#{fisicaBean.idPais}" style="width: 170px; margin-right: 10px">
+                                                        <p:selectOneMenu value="#{fisicaBean.pais}" style="width: 170px; margin-right: 10px">
                                                             <p:ajax event="change" update="@this i_p_n" />
                                                             <f:selectItems value="#{fisicaBean.listaPaises}"/>
                                                         </p:selectOneMenu>

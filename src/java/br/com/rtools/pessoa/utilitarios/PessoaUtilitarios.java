@@ -19,6 +19,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -341,8 +342,10 @@ public class PessoaUtilitarios implements Serializable {
         listPaises.add("Sul-Africana(o)");
         listPaises.add("Sul-Coreana(o)");
         listPaises.add("Turca(o)");
-        listPaises.add("Uraguaia(o)");
         listPaises.add("Venezuelana(o)");
+        listPaises.add("Uraguaia(o)");
+        listPaises.add("Libanês(a)");
+        Collections.sort(listPaises);
         return listPaises;
     }
 }

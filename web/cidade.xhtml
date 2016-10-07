@@ -10,10 +10,10 @@
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(document).ready(function () {
                 resizeContent();
                 //attach on resize event
-                $(window).resize(function() {
+                $(window).resize(function () {
                     resizeContent();
                 });
             });
@@ -84,7 +84,7 @@
                                         <h:panelGrid columns="3"> 
                                             <p:commandButton action="#{cidadeBean.acaoPesquisaInicial}" value="Inicial" update=":formCidadePesquisar:i_panel_grid"/>
                                             <p:commandButton action="#{cidadeBean.acaoPesquisaParcial}" value="Parcial" update=":formCidadePesquisar:i_panel_grid" />
-                                            <p:commandButton value="Adicionar nova Cidade" action="#{cidadeBean.clear()}" update=":formCidadeSalvar:i_panel_novo" disabled="#{controleAcessoBean.botaoSalvar}" style="float: right; margin-left: 330px " onclick="PF('dlg_save').show()" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
+                                            <p:commandButton value="Adicionar nova Cidade" action="#{cidadeBean.clear()}" update=":formCidadeSalvar:i_panel_novo" disabled="#{controleAcessoBean.botaoSalvar}" style="float: right; margin-left: 330px " onclick="PF('dlg_save').show()" rendered="false" />
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </h:panelGrid>
@@ -99,7 +99,7 @@
                                     <p:column width="30">
                                         <p:commandButton icon="ui-icon-arrowreturnthick-1-w"  action="#{cidadeBean.edit(cidade)}" />
                                     </p:column>
-                                    
+
                                     <p:column headerText="Editar" styleClass="text-center" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" width="50">
                                         <p:commandButton icon="ui-icon-pencil"  action="#{cidadeBean.editPagina(cidade)}" update=":formCidadeSalvar:i_panel_novo" onclick="PF('dlg_save').show()" title="Clique para editar esta Cidade" />
                                     </p:column>

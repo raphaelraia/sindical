@@ -12,6 +12,8 @@ import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.endereco.dao.LogradouroDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.FisicaImportacao;
+import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.JuridicaImportacao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -21,6 +23,8 @@ import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.FisicaImportacaoDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.pessoa.dao.JuridicaImportacaoDao;
 import br.com.rtools.pessoa.dao.ProfissaoDao;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.Registro;
@@ -59,7 +63,9 @@ import org.primefaces.event.FileUploadEvent;
 public class ImportacaoBean implements Serializable {
 
     private FisicaImportacao fisicaImportacao = new FisicaImportacao();
+    private JuridicaImportacao juridicaImportacao = new JuridicaImportacao();
     private List<FisicaImportacao> listFisicaImportacao;
+    private List<JuridicaImportacao> listJuridicaImportacao;
     private String type = "fisica";
     private Boolean run = false;
     private Boolean cancel = false;
@@ -68,13 +74,13 @@ public class ImportacaoBean implements Serializable {
 
     public void loadListFisicaImportacao() {
         listFisicaImportacao = new ArrayList();
+        listJuridicaImportacao = new ArrayList();
     }
 
-    public void uploadPessoaFisica(FileUploadEvent event) {
-        type = "fisica";
+    public void uploadPessoa(FileUploadEvent event) {
         ConfiguracaoUpload configuracaoUpload = new ConfiguracaoUpload();
         configuracaoUpload.setArquivo(event.getFile().getFileName());
-        configuracaoUpload.setDiretorio("arquivos/importacao/fisica/");
+        configuracaoUpload.setDiretorio("arquivos/importacao/" + type + "/");
         configuracaoUpload.setEvent(event);
         configuracaoUpload.setSubstituir(true);
         configuracaoUpload.setRenomear("importacao.json");
@@ -83,158 +89,285 @@ public class ImportacaoBean implements Serializable {
     }
 
     public void proccess() {
-        if (type.equals("fisica")) {
-            run = true;
-            fisica();
-            // thread = new Thread(execute);
-            // thread.start();
+        if (!run) {
+            if (type.equals("fisica")) {
+                run = true;
+                fisica();
+                // thread = new Thread(execute);
+                // thread.start();
+            }
+            if (type.equals("juridica")) {
+                run = true;
+                juridica();
+                // thread = new Thread(execute);
+                // thread.start();
+            }
         }
     }
 
     public void finish() {
-        List<TipoEndereco> listTipoEndereco;
         if (type.equals("fisica")) {
-            Dao dao = new Dao();
-            FisicaDao fisicaDao = new FisicaDao();
-            listTipoEndereco = dao.find("TipoEndereco", new int[]{1, 3, 4});
-            listFisicaImportacao = new Dao().list(new FisicaImportacao());
-            dao.openTransaction();
-            for (FisicaImportacao fi : listFisicaImportacao) {
-                try {
-                    Boolean a = false;
-                    if (fi.getDtHomologacao() == null) {
-                        PessoaProfissao pessoaProfissao = new PessoaProfissao();
-                        TipoDocumento tipoDocumento = null;
-                        String d = "";
-                        if (fi.getDocumento().isEmpty() || fi.getDocumento().equals("0")) {
-                            if (fi.getDtNascimento() != null) {
-                                if (fisicaDao.pesquisaFisicaPorNomeNascimento(fi.getNome(), fi.getDtNascimento()) != null) {
-                                    continue;
-                                }
-                            }
-                            d = fi.getDocumento();
-                            tipoDocumento = (TipoDocumento) dao.find(new TipoDocumento(), 4);
-                        } else {
-                            if (fi.getDocumento().length() == 11) {
-                                fi.reviseDocumento();
-                                d = Mask.cpf(fi.getDocumento());
-                            }
-                            if (!fisicaDao.pesquisaFisicaPorDoc(d).isEmpty()) {
-                                continue;
-                            }
-                            fi.setDocumento(d);
-                            tipoDocumento = (TipoDocumento) dao.find(new TipoDocumento(), 1);
-
-                        }
-                        /**
-                         * Pessoa
-                         */
-                        Pessoa pessoa = new Pessoa();
-                        pessoa.setNome(fi.getNome());
-                        pessoa.setDocumento(d);
-                        pessoa.setTelefone1(fi.getTelefone1());
-                        pessoa.setTelefone2(fi.getTelefone2());
-                        pessoa.setTelefone3(fi.getTelefone3());
-                        pessoa.setTelefone4(fi.getTelefone4());
-                        pessoa.setEmail1(fi.getEmail1());
-                        pessoa.setEmail2(fi.getEmail2());
-                        pessoa.setEmail3(fi.getEmail3());
-                        pessoa.setObs(fi.getObservacao());
-                        pessoa.setSite(fi.getSite());
-                        pessoa.setTipoDocumento(tipoDocumento);
-                        if (!dao.save(pessoa)) {
-                            dao.rollback();
-                            GenericaMensagem.warn("ERRO", "Ao salvar pessoa. " + dao.EXCEPCION.getMessage());
-                            return;
-                        }
-                        /**
-                         * Física
-                         */
-                        Fisica fisica = new Fisica();
-                        fisica.setPessoa(pessoa);
-                        fisica.setRg(fi.getRg());
-                        fisica.setPai(fi.getPai());
-                        fisica.setMae(fi.getMae());
-                        fisica.setPis(fi.getPis());
-                        fisica.setNacionalidade(fi.getNacionalidade());
-                        if (fi.getNaturalidadeObjeto() != null) {
-                            fisica.setNaturalidade(fi.getNaturalidadeObjeto().getCidade() + " - " + fi.getNaturalidadeObjeto().getUf());
-                        }
-                        fisica.setSexo(fi.getSexo());
-                        fisica.setEstadoCivil(fi.getEstado_civil());
-                        fisica.setFoto(fi.getFoto());
-                        fisica.setDtAposentadoria(fi.getDtAposentadoria());
-                        fisica.setDtNascimento(fi.getDtNascimento());
-                        fisica.setCarteira(fi.getCarteira());
-                        fisica.setSerie(fi.getSerie());
-                        fisica.setTituloEleitor(fi.getTitulo_eleitor());
-                        fisica.setTituloZona(fi.getTitulo_zona());
-                        fisica.setTituloSecao(fi.getTitulo_secao());
-                        fisica.setNit("");
-                        fisica.setOrgaoEmissaoRG(fi.getOrgao_emissao_rg());
-                        fisica.setUfEmissaoRG(fi.getUf_emissao_rg());
-                        if (!dao.save(fisica)) {
-                            dao.rollback();
-                            GenericaMensagem.warn("ERRO", "Ao salvar física. " + dao.EXCEPCION.getMessage());
-                            return;
-                        }
-                        if (fi.getProfissao() != null) {
-                            pessoaProfissao.setFisica(fisica);
-                            pessoaProfissao.setProfissao(fi.getProfissaoObjeto());
-                            if (!dao.save(pessoaProfissao)) {
-                                dao.rollback();
-                                GenericaMensagem.warn("ERRO", "Ao salvar pessoa profissao. " + dao.EXCEPCION.getMessage());
-                                return;
-                            }
-                        }
-                        if (fi.getEndereco() != null) {
-                            for (int z = 0; z < listTipoEndereco.size(); z++) {
-                                PessoaEndereco pessoaEndereco = new PessoaEndereco();
-                                pessoaEndereco.setPessoa(pessoa);
-                                pessoaEndereco.setComplemento(fi.getComplemento());
-                                pessoaEndereco.setNumero(fi.getNumero());
-                                pessoaEndereco.setTipoEndereco(listTipoEndereco.get(z));
-                                pessoaEndereco.setEndereco(fi.getEndereco());
-                                if (!dao.save(pessoaEndereco)) {
-                                    dao.rollback();
-                                    GenericaMensagem.warn("ERRO", "Ao salvar pessoa endereço. " + dao.EXCEPCION.getMessage());
-                                    return;
-                                }
-
-                            }
-                        }
-                        PessoaComplemento pessoaComplemento = new PessoaComplemento();
-                        pessoaComplemento.setObsAviso("ATUALIZAR ESTE CADASTRO!");
-                        pessoaComplemento.setPessoa(pessoa);
-                        if (!dao.save(pessoaComplemento)) {
-                            dao.rollback();
-                            GenericaMensagem.warn("ERRO", "Ao salvar pessoa complemento. " + dao.EXCEPCION.getMessage());
-                            return;
-                        }
-                        fi.setDtHomologacao(new Date());
-                        fi.setFisica(fisica);
-                        if (!dao.update(fi)) {
-                            dao.rollback();
-                            GenericaMensagem.warn("ERRO", "Ao homologar essa importação. " + dao.EXCEPCION.getMessage());
-                            return;
-                        }
-                    }
-                } catch (Exception e) {
-                    dao.rollback();
-                    GenericaMensagem.warn("ERRO", "Ao realizar importação. " + e.getMessage());
-                    return;
-                }
-
-            }
-            dao.commit();
-            GenericaMensagem.info("Sucesso", "IMPORTAÇÃO REALIZADA COM SUCESSO.");
-            // thread = new Thread(execute);
-            // thread.start();
+            finishFisica();
+        }
+        if (type.equals("juridica")) {
+            finishJuridica();
         }
     }
 
+    public void finishFisica() {
+        Dao dao = new Dao();
+        FisicaDao fisicaDao = new FisicaDao();
+        List<TipoEndereco> listTipoEndereco = dao.find("TipoEndereco", new int[]{1, 3, 4});
+        listFisicaImportacao = new Dao().list(new FisicaImportacao());
+        dao.openTransaction();
+        for (FisicaImportacao fi : listFisicaImportacao) {
+            try {
+                Boolean a = false;
+                if (fi.getDtHomologacao() == null) {
+                    PessoaProfissao pessoaProfissao = new PessoaProfissao();
+                    TipoDocumento tipoDocumento = null;
+                    String d = "";
+                    if (fi.getDocumento().isEmpty() || fi.getDocumento().equals("0")) {
+                        if (fi.getDtNascimento() != null) {
+                            if (fisicaDao.pesquisaFisicaPorNomeNascimento(fi.getNome(), fi.getDtNascimento()) != null) {
+                                continue;
+                            }
+                        }
+                        d = fi.getDocumento();
+                        tipoDocumento = (TipoDocumento) dao.find(new TipoDocumento(), 4);
+                    } else {
+                        if (fi.getDocumento().length() == 11) {
+                            fi.reviseDocumento();
+                            d = Mask.cpf(fi.getDocumento());
+                        }
+                        if (!fisicaDao.pesquisaFisicaPorDoc(d).isEmpty()) {
+                            continue;
+                        }
+                        fi.setDocumento(d);
+                        tipoDocumento = (TipoDocumento) dao.find(new TipoDocumento(), 1);
+
+                    }
+                    /**
+                     * Pessoa
+                     */
+                    Pessoa pessoa = new Pessoa();
+                    pessoa.setNome(fi.getNome());
+                    pessoa.setDocumento(d);
+                    pessoa.setTelefone1(fi.getTelefone1());
+                    pessoa.setTelefone2(fi.getTelefone2());
+                    pessoa.setTelefone3(fi.getTelefone3());
+                    pessoa.setTelefone4(fi.getTelefone4());
+                    pessoa.setEmail1(fi.getEmail1());
+                    pessoa.setEmail2(fi.getEmail2());
+                    pessoa.setEmail3(fi.getEmail3());
+                    pessoa.setObs(fi.getObservacao());
+                    pessoa.setSite(fi.getSite());
+                    pessoa.setTipoDocumento(tipoDocumento);
+                    if (!dao.save(pessoa)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao salvar pessoa. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                    /**
+                     * Física
+                     */
+                    Fisica fisica = new Fisica();
+                    fisica.setPessoa(pessoa);
+                    fisica.setRg(fi.getRg());
+                    fisica.setPai(fi.getPai());
+                    fisica.setMae(fi.getMae());
+                    fisica.setPis(fi.getPis());
+                    fisica.setNacionalidade(fi.getNacionalidade());
+                    if (fi.getNaturalidadeObjeto() != null) {
+                        fisica.setNaturalidade(fi.getNaturalidadeObjeto().getCidade() + " - " + fi.getNaturalidadeObjeto().getUf());
+                    }
+                    fisica.setSexo(fi.getSexo());
+                    fisica.setEstadoCivil(fi.getEstado_civil());
+                    fisica.setFoto(fi.getFoto());
+                    fisica.setDtAposentadoria(fi.getDtAposentadoria());
+                    fisica.setDtNascimento(fi.getDtNascimento());
+                    fisica.setCarteira(fi.getCarteira());
+                    fisica.setSerie(fi.getSerie());
+                    fisica.setTituloEleitor(fi.getTitulo_eleitor());
+                    fisica.setTituloZona(fi.getTitulo_zona());
+                    fisica.setTituloSecao(fi.getTitulo_secao());
+                    fisica.setNit("");
+                    fisica.setOrgaoEmissaoRG(fi.getOrgao_emissao_rg());
+                    fisica.setUfEmissaoRG(fi.getUf_emissao_rg());
+                    if (!dao.save(fisica)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao salvar física. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                    if (fi.getProfissao() != null) {
+                        pessoaProfissao.setFisica(fisica);
+                        pessoaProfissao.setProfissao(fi.getProfissaoObjeto());
+                        if (!dao.save(pessoaProfissao)) {
+                            dao.rollback();
+                            GenericaMensagem.warn("ERRO", "Ao salvar pessoa profissao. " + dao.EXCEPCION.getMessage());
+                            return;
+                        }
+                    }
+                    if (fi.getEndereco() != null) {
+                        for (int z = 0; z < listTipoEndereco.size(); z++) {
+                            PessoaEndereco pessoaEndereco = new PessoaEndereco();
+                            pessoaEndereco.setPessoa(pessoa);
+                            pessoaEndereco.setComplemento(fi.getComplemento());
+                            pessoaEndereco.setNumero(fi.getNumero());
+                            pessoaEndereco.setTipoEndereco(listTipoEndereco.get(z));
+                            pessoaEndereco.setEndereco(fi.getEndereco());
+                            if (!dao.save(pessoaEndereco)) {
+                                dao.rollback();
+                                GenericaMensagem.warn("ERRO", "Ao salvar pessoa endereço. " + dao.EXCEPCION.getMessage());
+                                return;
+                            }
+
+                        }
+                    }
+                    PessoaComplemento pessoaComplemento = new PessoaComplemento();
+                    pessoaComplemento.setObsAviso("ATUALIZAR ESTE CADASTRO!");
+                    pessoaComplemento.setPessoa(pessoa);
+                    if (!dao.save(pessoaComplemento)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao salvar pessoa complemento. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                    fi.setDtHomologacao(new Date());
+                    fi.setFisica(fisica);
+                    if (!dao.update(fi)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao homologar essa importação. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                dao.rollback();
+                GenericaMensagem.warn("ERRO", "Ao realizar importação. " + e.getMessage());
+                return;
+            }
+
+        }
+        dao.commit();
+        GenericaMensagem.info("Sucesso", "IMPORTAÇÃO REALIZADA COM SUCESSO.");
+        // thread = new Thread(execute);
+        // thread.start();        
+    }
+
+    public void finishJuridica() {
+        Dao dao = new Dao();
+        JuridicaDao juridicaDao = new JuridicaDao();
+        List<TipoEndereco> listTipoEndereco = dao.find("TipoEndereco", new int[]{2, 3, 4, 5});
+        listJuridicaImportacao = new Dao().list(new JuridicaImportacao());
+        dao.openTransaction();
+        for (JuridicaImportacao ji : listJuridicaImportacao) {
+            try {
+                if (ji.getDtHomologacao() == null) {
+                    TipoDocumento tipoDocumento = null;
+                    String d = "";
+                    if (ji.getDocumento().isEmpty() || ji.getDocumento().equals("0")) {
+                        d = ji.getDocumento();
+                        tipoDocumento = (TipoDocumento) dao.find(new TipoDocumento(), 4);
+                    } else {
+                        if (ji.getDocumento().length() == 11) {
+                            ji.reviseDocumento();
+                            d = Mask.cnpj(ji.getDocumento());
+                        }
+                        ji.setDocumento(d);
+                        tipoDocumento = (TipoDocumento) dao.find(new TipoDocumento(), 2);
+
+                    }
+                    /**
+                     * Pessoa
+                     */
+                    Pessoa pessoa = new Pessoa();
+                    pessoa.setNome(ji.getNome());
+                    pessoa.setDocumento(d);
+                    pessoa.setTelefone1(ji.getTelefone1());
+                    pessoa.setTelefone2(ji.getTelefone2());
+                    pessoa.setTelefone3(ji.getTelefone3());
+                    pessoa.setTelefone4(ji.getTelefone4());
+                    pessoa.setEmail1(ji.getEmail1());
+                    pessoa.setEmail2(ji.getEmail2());
+                    pessoa.setEmail3(ji.getEmail3());
+                    pessoa.setObs(ji.getObservacao());
+                    pessoa.setSite(ji.getSite());
+                    pessoa.setTipoDocumento(tipoDocumento);
+                    if (!dao.save(pessoa)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao salvar pessoa. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                    /**
+                     * Jurídica
+                     */
+                    Juridica juridica = new Juridica();
+                    juridica.setPessoa(pessoa);
+                    juridica.setFantasia(ji.getFantasia());
+                    if (juridica.getFantasia().isEmpty()) {
+                        juridica.setFantasia(ji.getNome());
+                    }
+                    juridica.setInscricaoEstadual(ji.getInscricao_estadual());
+                    juridica.setInscricaoMunicipal(ji.getInscricao_municipal());
+                    if (!ji.getContabilidade_nome().isEmpty()) {
+                        juridica.setContabilidade(ji.getContabilidade());
+                    }
+                    juridica.setAbertura(ji.getAbertura());
+                    juridica.setFechamento(ji.getFechamento());
+                    juridica.setCnae(ji.getCnae());
+                    juridica.setPorte(ji.getPorte());
+                    juridica.setFoto(ji.getFoto());
+                    if (!dao.save(juridica)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao salvar jurídica. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                    if (ji.getEndereco() != null) {
+                        for (int z = 0; z < listTipoEndereco.size(); z++) {
+                            PessoaEndereco pessoaEndereco = new PessoaEndereco();
+                            pessoaEndereco.setPessoa(pessoa);
+                            pessoaEndereco.setComplemento(ji.getComplemento());
+                            pessoaEndereco.setNumero(ji.getNumero());
+                            pessoaEndereco.setTipoEndereco(listTipoEndereco.get(z));
+                            pessoaEndereco.setEndereco(ji.getEndereco());
+                            if (!dao.save(pessoaEndereco)) {
+                                dao.rollback();
+                                GenericaMensagem.warn("ERRO", "Ao salvar pessoa endereço. " + dao.EXCEPCION.getMessage());
+                                return;
+                            }
+
+                        }
+                    }
+                    PessoaComplemento pessoaComplemento = new PessoaComplemento();
+                    pessoaComplemento.setObsAviso("ATUALIZAR ESTE CADASTRO!");
+                    pessoaComplemento.setPessoa(pessoa);
+                    if (!dao.save(pessoaComplemento)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao salvar pessoa complemento. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                    ji.setDtHomologacao(new Date());
+                    ji.setJuridica(juridica);
+                    if (!dao.update(ji)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("ERRO", "Ao homologar essa importação. " + dao.EXCEPCION.getMessage());
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                dao.rollback();
+                GenericaMensagem.warn("ERRO", "Ao realizar importação. " + e.getMessage());
+                return;
+            }
+
+        }
+        dao.commit();
+        GenericaMensagem.info("Sucesso", "IMPORTAÇÃO REALIZADA COM SUCESSO.");
+        // thread = new Thread(execute);
+        // thread.start();        
+    }
+
     public void cancel() {
-        if (type.equals("fisica")) {
+        if (type.equals("fisica") || type.equals("juridica")) {
             run = false;
         }
 
@@ -294,6 +427,7 @@ public class ImportacaoBean implements Serializable {
                         list.get(i).getDtFiliacao();
                         list.get(i).getDtInativacao();
                         list.get(i).getDtCriacao();
+                        list.get(i).reviseDatas();
                         String d = Mask.cpf(list.get(i).getDocumento());
                         if (!list.get(i).getDocumento().isEmpty() && !list.get(i).getDocumento().equals("0")) {
                             if (!ValidaDocumentos.isValidoCPF(list.get(i).getDocumento())) {
@@ -311,13 +445,15 @@ public class ImportacaoBean implements Serializable {
                                 list.get(i).setPis(Mask.pis(list.get(i).getPis()));
                             }
                         }
+                        String city = "";
+                        String state = "";
                         if (!list.get(i).getNaturalidade().isEmpty()) {
                             String n[] = list.get(i).getNaturalidade().split("-");
                             if (n.length == 0) {
                                 n = list.get(i).getNaturalidade().split("/");
                             }
-                            String city = list.get(i).getNaturalidade();
-                            String state = enderecoPrincipal.getCidade().getUf();
+                            city = list.get(i).getNaturalidade();
+                            state = enderecoPrincipal.getCidade().getUf();
                             if (n.length > 1) {
                                 city = list.get(i).replace(n[0]).toUpperCase().trim();
                                 state = list.get(i).replace(n[1]).toUpperCase().trim();
@@ -350,6 +486,24 @@ public class ImportacaoBean implements Serializable {
                                 }
                             }
                             if (!nacionalidadeExiste) {
+                                for (int z = 0; z < listNacionalidade.size(); z++) {
+                                    if (listNacionalidade.get(z).toString().toUpperCase().contains(city.toUpperCase())) {
+                                        list.get(i).setNacionalidade(listNacionalidade.get(z).toString());
+                                        nacionalidadeExiste = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!nacionalidadeExiste) {
+                                for (int z = 0; z < listNacionalidade.size(); z++) {
+                                    if (listNacionalidade.get(z).toString().toUpperCase().contains(state.toUpperCase())) {
+                                        list.get(i).setNacionalidade(listNacionalidade.get(z).toString());
+                                        nacionalidadeExiste = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!nacionalidadeExiste) {
                                 listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "NÚMERO NACIONALIDADE NÃO EXISTE! " + list.get(i).getNacionalidade()));
                             }
                         }
@@ -362,6 +516,210 @@ public class ImportacaoBean implements Serializable {
                             }
                         }
                         list.get(i).setProfissaoObjeto(profissao);
+                        Boolean saveEndereco = true;
+                        Endereco endereco = new Endereco();
+                        if (!list.get(i).getLogradouro().isEmpty() || !list.get(i).getDescricao_endereco().isEmpty() || !list.get(i).getBairro().isEmpty() || !list.get(i).getCidade().isEmpty()) {
+                            list.get(i).setDescricao_endereco(list.get(i).getDescricao_endereco().replace("'", " "));
+                            List<Endereco> listEndereco = new ArrayList();
+                            if (!list.get(i).getLogradouro().isEmpty() && !list.get(i).getDescricao_endereco().isEmpty() && !list.get(i).getBairro().isEmpty() && !list.get(i).getCidade().isEmpty()) {
+                                listEndereco = enderecoDao.pesquisaEnderecoDes(list.get(i).getUf(), list.get(i).getCidade(), list.get(i).getLogradouro(), list.get(i).getDescricao_endereco(), "T");
+                                endereco = new Endereco();
+                            }
+                            if (list.get(i).getNumero().isEmpty()) {
+                                saveEndereco = false;
+                                listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "NÚMERO NÃO INFORMADO!"));
+                            }
+                            Logradouro logradouro = null;
+                            if (!listEndereco.isEmpty()) {
+                                for (int z = 0; z < listEndereco.size(); z++) {
+                                    if (listEndereco.get(z).getCep().endsWith(list.get(i).getCep())) {
+                                        endereco = listEndereco.get(z);
+                                        list.get(i).setCep(endereco.getCep());
+                                        break;
+                                    }
+                                }
+                                if (endereco.getId() == -1) {
+                                    endereco = new Endereco();
+                                    endereco = listEndereco.get(0);
+                                    if (endereco != null && endereco.getId() != -1) {
+                                        if (endereco.getCep().isEmpty()) {
+                                            list.get(i).setCep(endereco.getCep());
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (list.get(i).getCep().isEmpty()) {
+                                    saveEndereco = false;
+                                    listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "CEP NÃO INFORMADO!"));
+                                } else {
+                                    CEPService cEPService = new CEPService();
+                                    cEPService.setCep(list.get(i).getCep());
+                                    cEPService.procurar(dao);
+                                    if (cEPService.getEndereco() == null) {
+                                        endereco = new Endereco();
+                                    } else {
+                                        endereco = cEPService.getEndereco();
+                                    }
+                                }
+
+                                if (saveEndereco) {
+                                    if (endereco.getId() == -1) {
+                                        if (list.get(i).getLogradouro().isEmpty()) {
+                                            saveEndereco = false;
+                                            listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "LOGRADOURO NÃO INFORMADO!"));
+                                        } else {
+                                            logradouro = new LogradouroDao().find(list.get(i).getLogradouro());
+                                            if (logradouro == null) {
+                                                saveEndereco = false;
+                                                listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "LOGRADOURO NÃO EXISTE NO SISTEMA! " + list.get(i).getLogradouro()));
+                                                // logradouro = (Logradouro) dao.find(new Logradouro(), 0);
+                                            }
+                                        }
+                                        if (list.get(i).getDescricao_endereco().isEmpty()) {
+                                            descricaoEndereco = (DescricaoEndereco) dao.find(new DescricaoEndereco(), 0);
+                                        } else {
+                                            descricaoEndereco = new DescricaoEnderecoDao().find(list.get(i).getDescricao_endereco());
+                                            if (descricaoEndereco == null) {
+                                                descricaoEndereco = new DescricaoEndereco();
+                                                descricaoEndereco.setAtivo(false);
+                                                descricaoEndereco.setDescricao(list.get(i).getDescricao_endereco().trim());
+                                                if (!dao.save(descricaoEndereco)) {
+                                                    dao.rollback();
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                        if (list.get(i).getBairro().isEmpty()) {
+                                            bairro = (Bairro) dao.find(new Bairro(), 0);
+                                        } else {
+                                            bairro = new BairroDao().find(list.get(i).getBairro());
+                                            if (bairro == null) {
+                                                bairro = new Bairro();
+                                                bairro.setAtivo(false);
+                                                bairro.setDescricao(list.get(i).getBairro().trim());
+                                                if (!dao.save(bairro)) {
+                                                    dao.rollback();
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                        if (list.get(i).getCidade().isEmpty()) {
+                                            saveEndereco = false;
+                                            listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "CIDADE NÃO INFORMADA!"));
+                                            cidade = (Cidade) dao.find(new Cidade(), 0);
+                                        } else {
+                                            cidade = new CidadeDao().find(list.get(i).getCidade(), list.get(i).getUf());
+                                            if (cidade == null) {
+                                                saveEndereco = false;
+                                                // cidade = (Cidade) dao.find(new Cidade(), 0);
+                                                listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "CIDADE NÃO EXISTE NO SISTEMA! " + list.get(i).getCidade()));
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+
+                            if ((endereco != null && endereco.getId() == -1) || endereco == null && saveEndereco) {
+                                if (list.get(i).getCep().isEmpty()) {
+                                    saveEndereco = false;
+                                    listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "CEP NÃO ENCONTRADO!"));
+                                }
+                                endereco = new Endereco();
+                                endereco.setCep(list.get(i).getCep());
+                                endereco.setAtivo(false);
+                                endereco.setLogradouro(logradouro);
+                                endereco.setBairro(bairro);
+                                endereco.setCidade(cidade);
+                                endereco.setDescricaoEndereco(descricaoEndereco);
+                                if (endereco.getId() == -1 && saveEndereco) {
+                                    if (!dao.save(endereco)) {
+                                        dao.rollback();
+                                        return;
+                                    }
+                                }
+                            } else if (endereco.getId() != -1) {
+                                list.get(i).setEndereco(endereco);
+                            }
+
+                        }
+
+                        if (!dao.save(list.get(i))) {
+                            dao.rollback();
+                            return;
+                        }
+                        dao.commit();
+                    }
+                } catch (Exception e2) {
+                    e2.getMessage();
+                }
+                if (!run) {
+                    break;
+                }
+            }
+            for (int i = 0; i < listCritica.size(); i++) {
+                new Dao().save(listCritica.get(i), true);
+            }
+            sisProcesso.finish();
+            // Saída: id: 123; first name: Wektabyte
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        run = false;
+
+    }
+
+    public void juridica() {
+        Rotina r = new Rotina().get();
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();
+        try {
+            String json = "";
+            File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + GenericaSessao.getString("sessaoCliente").toLowerCase() + "/arquivos/importacao/juridica/importacao.json"));
+            Gson gson = new Gson();
+            if (file.exists()) {
+                json = FileUtils.readFileToString(file);
+                // json = json.replace("[", "{");
+                // json = json.replace("]", "}");
+                // json = gson.toJson(json);
+            }
+            List<JuridicaImportacao> list = new ArrayList();
+            list = gson.fromJson(json, new TypeToken<List<JuridicaImportacao>>() {
+            }.getType()); // retorna um objeto User.
+            total = list.size();
+            boolean error = true;
+            // System.out.println(String.format("%d-%s", list.toString()));
+            Dao dao = new Dao();
+            EnderecoDao enderecoDao = new EnderecoDao();
+            List<Critica> listCritica = new ArrayList();
+            Registro registro = Registro.get();
+            Endereco enderecoPrincipal = registro.getFilial().getPessoa().getPessoaEndereco().getEndereco();
+            for (int i = 0; i < list.size(); i++) {
+                try {
+                    if (new JuridicaImportacaoDao().find(list.get(i).getNome(), list.get(i).getDocumento()).isEmpty()) {
+                        dao.openTransaction();
+                        DescricaoEndereco descricaoEndereco = null;
+                        Bairro bairro = null;
+                        Cidade cidade = null;
+                        list.get(i).reviseDocumento();
+                        list.get(i).reviseTelefone();
+                        list.get(i).reviseCEP();
+                        list.get(i).getDtAbertura();
+                        list.get(i).getDtFechamento();
+                        list.get(i).getDtInativacao();
+                        list.get(i).getDtInativacao();
+                        list.get(i).getDtCriacao();
+                        list.get(i).reviseDatas();
+                        String d = Mask.cpf(list.get(i).getDocumento());
+                        if (!list.get(i).getDocumento().isEmpty() && !list.get(i).getDocumento().equals("0")) {
+                            if (!ValidaDocumentos.isValidoCPF(list.get(i).getDocumento())) {
+                                listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "CPF INVÁLIDO! " + list.get(i).getDocumento()));
+                            } else if (list.get(i).getDocumento().length() == 11) {
+                                list.get(i).setDocumento(d);
+                            } else {
+                                listCritica.add(new Critica(r, list.get(i).getDocumento(), list.get(i).getNome(), "CPF COM ERROS NÃO DETECTADO(S)! " + d));
+                            }
+                        }
                         Boolean saveEndereco = true;
                         Endereco endereco = new Endereco();
                         if (!list.get(i).getLogradouro().isEmpty() || !list.get(i).getDescricao_endereco().isEmpty() || !list.get(i).getBairro().isEmpty() || !list.get(i).getCidade().isEmpty()) {
@@ -554,7 +912,7 @@ public class ImportacaoBean implements Serializable {
     public Integer getTotal() {
         if (total == null || total == 0) {
             String json = "";
-            File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + GenericaSessao.getString("sessaoCliente").toLowerCase() + "/arquivos/importacao/fisica/importacao.json"));
+            File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + GenericaSessao.getString("sessaoCliente").toLowerCase() + "/arquivos/importacao/" + type + "/importacao.json"));
             Gson gson = new Gson();
             if (file.exists()) {
                 try {
@@ -568,15 +926,25 @@ public class ImportacaoBean implements Serializable {
             }
 
             List<FisicaImportacao> list = new ArrayList();
-            list = gson.fromJson(json, new TypeToken<List<FisicaImportacao>>() {
-            }.getType()); // retorna um objeto User.
+            if (type.equals("fisica")) {
+                list = gson.fromJson(json, new TypeToken<List<FisicaImportacao>>() {
+                }.getType());
+            } else if (type.equals("juridica")) {
+                list = gson.fromJson(json, new TypeToken<List<JuridicaImportacao>>() {
+                }.getType());
+            }
             total = list.size();
         }
         return total;
     }
 
     public Integer getProccessed() {
-        return new FisicaImportacaoDao().count();
+        if (type.equals("fisica")) {
+            return new FisicaImportacaoDao().count();
+        } else if (type.equals("juridica")) {
+            return new JuridicaImportacaoDao().count();
+        }
+        return 0;
     }
 
     public Integer getPercent() {
@@ -586,5 +954,41 @@ public class ImportacaoBean implements Serializable {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public JuridicaImportacao getJuridicaImportacao() {
+        return juridicaImportacao;
+    }
+
+    public void setJuridicaImportacao(JuridicaImportacao juridicaImportacao) {
+        this.juridicaImportacao = juridicaImportacao;
+    }
+
+    public List<JuridicaImportacao> getListJuridicaImportacao() {
+        return listJuridicaImportacao;
+    }
+
+    public void setListJuridicaImportacao(List<JuridicaImportacao> listJuridicaImportacao) {
+        this.listJuridicaImportacao = listJuridicaImportacao;
+    }
+
+    public Boolean getCancel() {
+        return cancel;
+    }
+
+    public void setCancel(Boolean cancel) {
+        this.cancel = cancel;
+    }
+
+    public Thread getThread() {
+        return thread;
+    }
+
+    public void setThread(Thread thread) {
+        this.thread = thread;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
     }
 }

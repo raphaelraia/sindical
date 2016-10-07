@@ -1,5 +1,10 @@
 package br.com.rtools.utilitarios;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.faces.component.UIInput;
+import javax.faces.validator.ValidatorException;
+
 public class ValidaDocumentos {
 
     private static final int[] pesoCPF = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2};
@@ -131,5 +136,15 @@ public class ValidaDocumentos {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static boolean isEmailValido(String v) {
+        if ((v == null) || (v.trim().isEmpty())) {
+            return true;
+        }
+        String emailPattern = "\\b(^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-])+(\\.[A-Za-z0-9-]+)*((\\.[A-Za-z0-9]{2,})|(\\.[A-Za-z0-9]{2,}\\.[A-Za-z0-9]{2,}))$)\\b";
+        Pattern pattern = Pattern.compile(emailPattern, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(v);
+        return matcher.matches();
     }
 }

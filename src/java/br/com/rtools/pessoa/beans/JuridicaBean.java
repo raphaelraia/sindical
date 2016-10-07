@@ -31,10 +31,13 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.WebService;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoCnpj;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.SisAutorizacoes;
+import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.*;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -159,6 +162,9 @@ public class JuridicaBean implements Serializable {
     private PesquisaCNPJ pesquisaCNPJ = new PesquisaCNPJ();
     private List<SelectItem> listaCnaeReceita = new ArrayList();
     private Integer idCnaeReceita = 1;
+    private SisAutorizacoes sisAutorizacoes;
+    private String alterType;
+    private List<SisAutorizacoes> listSisAutorizacoes;
 
     @PostConstruct
     public void init() {
@@ -167,6 +173,9 @@ public class JuridicaBean implements Serializable {
         disabled[1] = false;
         disabled[2] = false;
         configuracaoCnpj = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
+        sisAutorizacoes = new SisAutorizacoes();
+        listSisAutorizacoes = new ArrayList();
+        alterType = "";
     }
 
     @PreDestroy
@@ -744,6 +753,19 @@ public class JuridicaBean implements Serializable {
 
         juridica.setPorte((Porte) dao.find(new Porte(), Integer.parseInt(getListaPorte().get(idPorte).getDescription())));
 
+        if (!ValidaDocumentos.isEmailValido(juridica.getPessoa().getEmail1())) {
+            GenericaMensagem.error("Erro", "Email 1 inválido!");
+            return null;
+        }
+        if (!ValidaDocumentos.isEmailValido(juridica.getPessoa().getEmail2())) {
+            GenericaMensagem.error("Erro", "Email 2 inválido!");
+            return null;
+        }
+        if (!ValidaDocumentos.isEmailValido(juridica.getPessoa().getEmail3())) {
+            GenericaMensagem.error("Erro", "Email 3 inválido!");
+            return null;
+        }
+
 //        if (!chkEndContabilidade) {
 //            juridica.setEmailEscritorio(false);
 //        }
@@ -1041,7 +1063,8 @@ public class JuridicaBean implements Serializable {
                 return url;
             }
         }
-        juridica = j;
+        juridica = (Juridica) dao.rebind(j);
+        juridica.setPessoa((Pessoa) dao.rebind(j.getPessoa()));
         listSocios.clear();
         listaContribuintesInativos.clear();
         listaEmpresasPertencentes.clear();
@@ -2965,6 +2988,147 @@ public class JuridicaBean implements Serializable {
 
     public void setIdCnaeReceita(Integer idCnaeReceita) {
         this.idCnaeReceita = idCnaeReceita;
+    }
+
+    // public void
+    public SisAutorizacoes getSisAutorizacoes() {
+        return sisAutorizacoes;
+    }
+
+    public void setSisAutorizacoes(SisAutorizacoes sisAutorizacoes) {
+        this.sisAutorizacoes = sisAutorizacoes;
+    }
+
+    public void openRequest(String alterType) {
+        this.alterType = alterType;
+        sisAutorizacoes = new SisAutorizacoes();
+    }
+
+    public void sendRequest() {
+        SisAutorizacoesDao sad = new SisAutorizacoesDao();
+        sisAutorizacoes.setRotina(new Rotina().get());
+        sisAutorizacoes.setOperador(Usuario.getUsuario());
+        sisAutorizacoes.setPessoa(juridica.getPessoa());
+        if (sisAutorizacoes.getMotivoSolicitacao().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informar o motivo da solicitação!");
+            return;
+        }
+        if (sisAutorizacoes.getDadosAlterados().isEmpty()) {
+            GenericaMensagem.warn("Validação", "O campo de alteração não pode ser vazio!");
+            return;
+        }
+        if (sisAutorizacoes.getDadosAlterados().length() < 5) {
+            GenericaMensagem.warn("Validação", "Informar um motivo válido!");
+            return;
+        }
+        if (alterType.equals("cnpj")) {
+            if (!new JuridicaDao().pesquisaJuridicaPorDoc(sisAutorizacoes.getDadosAlterados()).isEmpty()) {
+                GenericaMensagem.warn("Validação", "Empresa já existente no Sistema!");
+                return;
+            }
+            if (!validaTipoDocumento(Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription()), sisAutorizacoes.getDadosAlterados())) {
+                GenericaMensagem.warn("Erro", "Documento Invalido!");
+                return;
+            }
+            sisAutorizacoes.setTabela("pes_pessoa");
+            sisAutorizacoes.setColuna("ds_documento");
+            sisAutorizacoes.setCodigo(juridica.getPessoa().getId());
+            sisAutorizacoes.setDadosOriginais(juridica.getPessoa().getDocumento());
+            sisAutorizacoes.setMotivoSolicitacao("Alteração do documento: " + sisAutorizacoes.getMotivoSolicitacao());
+        } else if (alterType.equals("nome")) {
+            if (juridica.getPessoa().getNome().equals(sisAutorizacoes.getDadosAlterados().toUpperCase())) {
+                GenericaMensagem.warn("Validação", "PARA ALTERAR DEVE SE UTILIZAR OUTRO NOME!");
+                return;
+            }
+            sisAutorizacoes.setTabela("pes_pessoa");
+            sisAutorizacoes.setColuna("ds_nome");
+            sisAutorizacoes.setCodigo(juridica.getPessoa().getId());
+            sisAutorizacoes.setDadosOriginais(juridica.getPessoa().getNome());
+            sisAutorizacoes.setDadosAlterados(sisAutorizacoes.getDadosAlterados().toUpperCase());
+            sisAutorizacoes.setMotivoSolicitacao("Alteração do nome: " + sisAutorizacoes.getMotivoSolicitacao());
+        }
+        Dao dao = new Dao();
+        if (sad.exists(sisAutorizacoes)) {
+            GenericaMensagem.warn("Validação", "SOLICITAÇÃO JÁ REALIZADA EM ANDAMENTO!");
+            return;
+        }
+        dao.openTransaction();
+        Boolean isGestor = false;
+        if (!new ControleAcessoBean().verificarPermissao("autorizar", 3)) {
+            if (!sad.execute(dao, sisAutorizacoes)) {
+                dao.rollback();
+                Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
+                return;
+            }
+            isGestor = true;
+            sisAutorizacoes.setGestor(Usuario.getUsuario());
+            sisAutorizacoes.setDtAutorizacao(DataHoje.dataHoje());
+            sisAutorizacoes.setHoraAutorizacao(DataHoje.horaMinuto());
+            sisAutorizacoes.setAutorizado(true);
+        }
+        if (!dao.save(sisAutorizacoes)) {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "Ao enviar a solicitação!");
+            return;
+        }
+        dao.commit();
+        sisAutorizacoes = new SisAutorizacoes();
+        if (isGestor) {
+            Juridica j = new Juridica();
+            String antes = " ID: " + j.getId()
+                    + " - Nome: " + j.getPessoa().getNome()
+                    + " - Documento: " + j.getPessoa().getDocumento();
+            juridica.getPessoa().setDtAtualizacao(new Date());
+            NovoLog novoLog = new NovoLog();
+            novoLog.setTabela("pes_pessoa");
+            novoLog.setCodigo(juridica.getPessoa().getId());
+            novoLog.update(antes, " ID: " + juridica.getId()
+                    + " - Nome: " + juridica.getPessoa().getNome()
+                    + " - Documento: " + juridica.getPessoa().getDocumento());
+            juridica = (Juridica) new Dao().rebind(juridica);
+            juridica.setPessoa((Pessoa) dao.rebind(juridica.getPessoa()));
+            PF.update("formPessoaJuridica");
+            GenericaMensagem.info("Sucesso", "DADOS ALTERADOS COM SUCESSO");
+        } else {
+            GenericaMensagem.info("Sucesso", "SOLICITAÇÃO ENVIADA");
+        }
+    }
+
+    public void removeRequest(SisAutorizacoes sa) {
+        if (!new Dao().delete(sa, true)) {
+            GenericaMensagem.warn("Erro", "Ao remover a solicitação!");
+            return;
+        }
+        GenericaMensagem.info("Sucesso", "SOLICITAÇÃO REMOVIDA");
+        loadListSisAutorizacoes();
+    }
+
+    public String getAlterType() {
+        return alterType;
+    }
+
+    public void setAlterType(String alterType) {
+        this.alterType = alterType;
+    }
+
+    public List<SisAutorizacoes> getListSisAutorizacoes() {
+        return listSisAutorizacoes;
+    }
+
+    public void setListSisAutorizacoes(List<SisAutorizacoes> listSisAutorizacoes) {
+        this.listSisAutorizacoes = listSisAutorizacoes;
+    }
+
+    public void loadListSisAutorizacoes() {
+        listSisAutorizacoes = new ArrayList();
+        listSisAutorizacoes = new SisAutorizacoesDao().findByPessoa(juridica.getPessoa().getId());
+    }
+
+    public String getMascaraAlteracao() {
+        if (alterType != null && !alterType.isEmpty()) {
+            return Mask.getMascaraPesquisa(alterType, true);
+        }
+        return "";
     }
 
 }

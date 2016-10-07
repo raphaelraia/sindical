@@ -28,7 +28,9 @@
 
             .column03{
                 width: 50px;
-            }            
+            } 
+
+            .ui-inplace-display{font-weight: bold!important}
         </style>
 
         <script type="text/javascript">
@@ -164,10 +166,12 @@
 
                                                 <p:column>
                                                     <br />
-                                                    <p:inputMask id="i_documento" size="18" value="#{juridicaBean.juridica.pessoa.documento}" mask="#{juridicaBean.colocarMascara}">
+                                                    <p:inputMask id="i_documento" size="18" value="#{juridicaBean.juridica.pessoa.documento}" mask="#{juridicaBean.colocarMascara}" rendered="#{juridicaBean.juridica.id == -1 and (not empty juridicaBean.juridica.pessoa.documento or juridicaBean.juridica.pessoa.documento ne '0')}">
                                                         <p:ajax event="change" listener="#{juridicaBean.pesquisaDocumento}" update=":formPessoaJuridica:i_msg"/>
                                                     </p:inputMask>
-                                                </p:column>
+                                                    <p:inputText size="18" value="#{juridicaBean.juridica.pessoa.documento}" readonly="true" rendered="#{juridicaBean.juridica.id != -1 and (not empty juridicaBean.juridica.pessoa.documento or juridicaBean.juridica.pessoa.documento eq '0')}" />
+                                                    <p:commandButton icon="ui-icon-pencil" update=":formPessoaJuridica:i_solicita_alteracao" global="true" actionListener="#{juridicaBean.openRequest('cnpj')}" oncomplete="PF('dlg_solicita_alteracao').show()" rendered="#{juridicaBean.juridica.id != -1 and (not empty juridicaBean.juridica.pessoa.documento or juridicaBean.juridica.pessoa.documento eq '0')}"  styleClass="margin-left"/>
+                                                </p:column>                                                        
 
                                                 <p:column>
                                                     <br />
@@ -176,23 +180,37 @@
 
                                                 <p:column>
                                                     <br />
-                                                    <h:outputLink value="http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao.asp" target="_blank"  style="float: right">
+                                                    <h:outputLink value="http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao2.asp?cnpj=#{juridicaBean.juridica.pessoa.documentoSomentoNumeros}" target="_blank"  style="float: right">
                                                         <f:verbatim> Ir para o site da Receita </f:verbatim>
                                                     </h:outputLink>
                                                 </p:column>
                                             </h:panelGrid>                                            
-                                            <h:panelGrid id="i_panel_fantasia" columns="2" style="width: 100%">
+                                            <h:panelGrid id="i_panel_fantasia" columns="1"  style="width: 100%">
                                                 <p:column>
-                                                    <h:outputLabel value="Razão Social" /><br />
-                                                    <p:inputText value="#{juridicaBean.juridica.pessoa.nome}" style="width: 100%" converter="#{toUpperCase}" title="#{juridicaBean.juridica.pessoa.id}">
-                                                        <p:ajax event="change" update="@this i_fantasia" global="true"/>
-                                                    </p:inputText>
+                                                    <h:panelGrid  style="width: 100%">
+                                                        <h:outputLabel value="Razão Social" />
+                                                        <h:column>
+                                                            <h:column>
+                                                                <p:inputText value="#{juridicaBean.juridica.pessoa.nome}" converter="#{toUpperCase}" title="#{juridicaBean.juridica.pessoa.id}" rendered="#{juridicaBean.juridica.pessoa.id == -1}" style="width: 100%">
+                                                                    <p:ajax event="change" update="@this i_fantasia" global="true"/>
+                                                                </p:inputText>                                                                
+                                                            </h:column>
+                                                            <h:column>
+                                                                <h:panelGrid style="width: 100%" columns="2">
+                                                                    <p:inputText style="width: 100%" value="#{juridicaBean.juridica.pessoa.nome}" converter="#{toUpperCase}" title="Solicitar alteração #{juridicaBean.juridica.pessoa.id}" readonly="#{juridicaBean.juridica.pessoa.id != -1}" rendered="#{juridicaBean.juridica.pessoa.id != -1}" styleClass="bold" />
+                                                                    <p:commandButton icon="ui-icon-pencil" update=":formPessoaJuridica:i_solicita_alteracao" global="true" actionListener="#{juridicaBean.openRequest('nome')}" oncomplete="PF('dlg_solicita_alteracao').show()" rendered="#{juridicaBean.juridica.pessoa.id != -1}" styleClass="margin-left"/>                                                                    
+                                                                </h:panelGrid>
+                                                            </h:column>
+                                                        </h:column>                                                        
+                                                    </h:panelGrid>
                                                 </p:column>                                                
                                                 <p:column>
-                                                    <h:outputLabel value="Nome Fantasia" /><br />
-                                                    <p:inputText id="i_fantasia" value="#{juridicaBean.juridica.fantasia}" style="width: 100%" converter="#{toUpperCase}">
-                                                        <p:ajax event="change" update="@this" global="true"/>
-                                                    </p:inputText>
+                                                    <h:panelGrid  style="width: 100%">
+                                                        <h:outputLabel value="Nome Fantasia" />
+                                                        <p:inputText id="i_fantasia" value="#{juridicaBean.juridica.fantasia}" style="width: 100%" converter="#{toUpperCase}" styleClass="bold" >
+                                                            <p:ajax event="change" update="@this" global="true"/>
+                                                        </p:inputText>                                                        
+                                                    </h:panelGrid>
                                                 </p:column>
                                             </h:panelGrid>
                                         </p:panel>
@@ -495,6 +513,7 @@
                                 <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" disabled="#{chamadaPaginaBean.disabled}"/>
                                 <p:commandButton value="Extrato na Tela" action="#{juridicaBean.extratoTela}" disabled="#{juridicaBean.habilitar}" style="width: 150px;" />
                                 <p:commandButton value="INFORMAÇÕES CADASTRAIS" rendered="#{juridicaBean.juridica.id != -1}" action="#{chamadaPaginaBean.pagina('pessoa')}" styleClass="font-color-red bold" icon="ui-icon-plus" actionListener="#{genericaSessao.putString('tipoPessoa', 'pessoaJuridica')}" immediate="true"/>
+                                <p:commandButton value="Solicitações" title="Solicitações de alteração" onclick="PF('dlg_solicitacoes').show();" update=":formPessoaJuridica:i_solicitacoes" actionListener="#{juridicaBean.loadListSisAutorizacoes}" rendered="#{juridicaBean.juridica.id != -1}" />
                             </h:panelGrid>
 
                             <p:dialog id="dlg_confirma_pesquisa_cpnj" widgetVar="dlg_confirma_pesquisa_cpnj" modal="true" header="Pesquisar CNPJ na Receita" width="400" resizable="false">
@@ -683,6 +702,68 @@
                                 <f:facet name="footer">
                                     <p:commandButton value="Confirmar" title="Confirmar" onclick="PF('dlg_recadastro').hide();" update=":formPessoaJuridica:i_tabview_juridica" action="#{juridicaBean.updateDataRecadastro}"/>
                                     <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_recadastro').hide();" action="#{juridicaBean.loadDataRecadastro()}" />
+                                </f:facet>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_solicita_alteracao" modal="true" resizable="false" height="200" width="600" header="Solicitação de alteração" closeOnEscape="true">
+                                <p:ajax event="close" update=":formPessoaJuridica:"/>
+                                <h:panelGroup id="i_solicita_alteracao">
+                                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                                    <h:panelGrid style="width: 100%" >
+                                        <p:outputLabel value="Alterar para:" />
+                                        <p:inputMask value="#{juridicaBean.sisAutorizacoes.dadosAlterados}" mask="#{juridicaBean.mascaraAlteracao}" style="width: 100%" >
+                                            <p:ajax event="change" update="@this" global="false"/>                                        
+                                        </p:inputMask>
+                                        <p:inputTextarea value="#{juridicaBean.sisAutorizacoes.motivoSolicitacao}" style="width: 100%"  rows="5" maxlength="500" placeholder="Motivo da solicitação" styleClass="margin-top-max">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Confirmar" title="Confirmar" action="#{juridicaBean.sendRequest}"/>
+                                        <p:commandButton value="Sair" title="Sair" onclick="PF('dlg_solicita_alteracao').hide();" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_solicitacoes" modal="true" resizable="false" height="200" width="1000" header="Solicitações" closeOnEscape="true">
+                                <h:panelGroup id="i_solicitacoes">
+                                    <p:dataTable value="#{juridicaBean.listSisAutorizacoes}" var="sisAutorizacoes" paginator="true" rows="20" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column style="width:15px">  
+                                            <p:rowToggler />  
+                                        </p:column>                                          
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-close" action="#{juridicaBean.removeRequest(sisAutorizacoes)}" update=":formPessoaJuridica:i_solicitacoes" disabled="#{(sisAutorizacoes.dtAutorizacao != null and sisAutorizacoes.autorizado)}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq sisAutorizacoes.operador.id}"/>
+                                        </p:column>
+                                        <p:column headerText="Data" width="80" styleClass="text-center">
+                                            #{sisAutorizacoes.solicitacao}
+                                        </p:column>
+                                        <p:column headerText="Pessoa" width="80" styleClass="text-center">
+                                            #{sisAutorizacoes.pessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="Autorização" width="80" styleClass="text-center">
+                                            #{sisAutorizacoes.autorizacao}
+                                        </p:column>
+                                        <p:column headerText="Motivo">
+                                            #{sisAutorizacoes.motivoSolicitacao}                                            
+                                        </p:column>
+                                        <p:column headerText="Dados Originais">
+                                            #{sisAutorizacoes.dadosOriginais}
+                                        </p:column>
+                                        <p:column headerText="Dados Alterados">
+                                            #{sisAutorizacoes.dadosAlterados}
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            #{sisAutorizacoes.motivoRecusa} <br />
+                                            OPERADOR: #{sisAutorizacoes.operador.pessoa.nome} <br />
+                                            GESTOR: #{sisAutorizacoes.gestor.pessoa.nome} <br />
+                                        </p:rowExpansion>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Fechar" title="Fechar" onclick="PF('dlg_solicitacoes').hide();" />                                        
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
                         </h:form>

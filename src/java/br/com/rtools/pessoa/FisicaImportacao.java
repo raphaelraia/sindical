@@ -109,6 +109,20 @@ public class FisicaImportacao implements Serializable {
     private String cidade;
     @Column(name = "ds_uf", length = 2)
     private String uf;
+    @Column(name = "ds_logradouro_extraido", length = 100)
+    private String logradouro_extraido;
+    @Column(name = "ds_descricao_endereco_extraida", length = 100)
+    private String descricao_endereco_extraida;
+    @Column(name = "ds_numero_extraido", length = 30)
+    private String numero_extraido;
+    @Column(name = "ds_complemento_extraido", length = 100)
+    private String complemento_extraido;
+    @Column(name = "ds_bairro_extraido", length = 100)
+    private String bairro_extraido;
+    @Column(name = "ds_cidade_extraida", length = 100)
+    private String cidade_extraida;
+    @Column(name = "ds_uf_extraido", length = 2)
+    private String uf_extraido;
     @Column(name = "ds_cep", length = 25)
     private String cep;
     @Column(name = "ds_endereco_original", length = 500)
@@ -191,6 +205,13 @@ public class FisicaImportacao implements Serializable {
         this.bairro = "";
         this.cidade = "";
         this.uf = "";
+        this.logradouro_extraido = "";
+        this.descricao_endereco_extraida = "";
+        this.numero_extraido = "";
+        this.complemento_extraido = "";
+        this.bairro_extraido = "";
+        this.cidade_extraida = "";
+        this.uf_extraido = "";
         this.cep = "";
         this.endereco_original = "";
         this.empresa_documento = "";
@@ -209,7 +230,7 @@ public class FisicaImportacao implements Serializable {
         this.codigo = null;
     }
 
-    public FisicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade, String naturalidade, String orgao_emissao_rg, String uf_emissao_rg, String estado_civil, String pai, String mae, String nit, String pis, Date dtAposentadoria, String titulo_eleitor, String titulo_secao, String titulo_zona, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String matricula, String categoria, String profissao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String cep, String endereco_original, String empresa_documento, Date dtFiliacao, Endereco endereco, Fisica fisica, Profissao profissaoObjeto, Date dtHomologacao, Cidade naturalidadeObjeto, String codigo) {
+    public FisicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade, String naturalidade, String orgao_emissao_rg, String uf_emissao_rg, String estado_civil, String pai, String mae, String nit, String pis, Date dtAposentadoria, String titulo_eleitor, String titulo_secao, String titulo_zona, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String matricula, String categoria, String profissao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String empresa_documento, Date dtFiliacao, Endereco endereco, Fisica fisica, Profissao profissaoObjeto, Date dtHomologacao, Cidade naturalidadeObjeto, String codigo) {
         this.id = id;
         this.nome = nome;
         this.documento = documento;
@@ -254,6 +275,13 @@ public class FisicaImportacao implements Serializable {
         this.bairro = bairro;
         this.cidade = cidade;
         this.uf = uf;
+        this.logradouro_extraido = logradouro;
+        this.descricao_endereco_extraida = descricao_endereco_extraida;
+        this.numero_extraido = numero_extraido;
+        this.complemento_extraido = complemento_extraido;
+        this.bairro_extraido = bairro;
+        this.cidade_extraida = cidade_extraida;
+        this.uf_extraido = uf_extraido;
         this.cep = cep;
         this.endereco_original = endereco_original;
         this.empresa_documento = empresa_documento;
@@ -711,7 +739,7 @@ public class FisicaImportacao implements Serializable {
     }
 
     public Date getDtCriacao() {
-        if (filiacao != null && !criacao.isEmpty()) {
+        if (criacao != null && !criacao.isEmpty()) {
             dtCriacao = DataHoje.converte(criacao);
         }
         return dtCriacao;
@@ -804,12 +832,22 @@ public class FisicaImportacao implements Serializable {
     public void reviseSexo() {
         if (!sexo.isEmpty()) {
             sexo = (AnaliseString.removerAcentos(sexo)).toUpperCase();
-            if (sexo.contains("MASCULINO") || sexo.contains("HOMEM")) {
+            if (sexo.equals("M") || sexo.contains("MASC") || sexo.contains("MASCULINO") || sexo.contains("HOMEM")) {
                 sexo = "M";
-            } else if (sexo.contains("FEMININO") || sexo.contains("MULHER")) {
+            } else if (sexo.equals("F") || sexo.contains("FEM") || sexo.contains("FEMININO") || sexo.contains("MULHER")) {
                 sexo = "F";
             } else {
                 sexo = "F";
+            }
+        }
+    }
+
+    public void reviseDatas() {
+        if (dtCriacao == null) {
+            if (dtFiliacao != null) {
+                dtCriacao = dtFiliacao;
+            } else {
+                dtCriacao = DataHoje.converte("01/01/1900");
             }
         }
     }
@@ -819,21 +857,21 @@ public class FisicaImportacao implements Serializable {
             estado_civil = "Indefinido(a)";
         } else {
             estado_civil = (AnaliseString.removerAcentos(estado_civil)).toUpperCase();
-            if (estado_civil.contains("AMASIADO") || estado_civil.contains("AMASIADO")) {
+            if (estado_civil.contains("AMASIAD")) {
                 estado_civil = "Amasiado(a)";
-            } else if (estado_civil.contains("CASADO") || estado_civil.contains("CASADA")) {
+            } else if (estado_civil.contains("CASAD")) {
                 estado_civil = "Casado(a)";
-            } else if (estado_civil.contains("DESQUITADO") || estado_civil.contains("DESQUITADO")) {
+            } else if (estado_civil.contains("DESQUITAD")) {
                 estado_civil = "Desquitado(a)";
-            } else if (estado_civil.contains("DIVORCIADO") || estado_civil.contains("DIVORCIADA")) {
+            } else if (estado_civil.contains("DIVORCIAD")) {
                 estado_civil = "Divorciado(a)";
-            } else if (estado_civil.contains("INDEFINIDO") || estado_civil.contains("INDEFINIDA")) {
+            } else if (estado_civil.contains("INDEFINID")) {
                 estado_civil = "Indefinido(a)";
-            } else if (estado_civil.contains("SEPARADO") || estado_civil.contains("SEPARADA")) {
+            } else if (estado_civil.contains("SEPARAD")) {
                 estado_civil = "Separado(a)";
-            } else if (estado_civil.contains("SOLTEIRO") || estado_civil.contains("SOLTEIRA")) {
+            } else if (estado_civil.contains("SOLTEIR")) {
                 estado_civil = "Solteiro(a)";
-            } else if (estado_civil.contains("VIUVO") || estado_civil.contains("VIUVA")) {
+            } else if (estado_civil.contains("VIUV")) {
                 estado_civil = "Viuvo(a)";
             } else {
                 estado_civil = "Indefinido(a)";
@@ -930,6 +968,10 @@ public class FisicaImportacao implements Serializable {
 
     }
 
+    public void reviseEndereco() {
+
+    }
+
     public Cidade getNaturalidadeObjeto() {
         return naturalidadeObjeto;
     }
@@ -944,6 +986,62 @@ public class FisicaImportacao implements Serializable {
 
     public void setCodigo(String codigo) {
         this.codigo = codigo;
+    }
+
+    public String getLogradouro_extraido() {
+        return logradouro_extraido;
+    }
+
+    public void setLogradouro_extraido(String logradouro_extraido) {
+        this.logradouro_extraido = logradouro_extraido;
+    }
+
+    public String getDescricao_endereco_extraida() {
+        return descricao_endereco_extraida;
+    }
+
+    public void setDescricao_endereco_extraida(String descricao_endereco_extraida) {
+        this.descricao_endereco_extraida = descricao_endereco_extraida;
+    }
+
+    public String getNumero_extraido() {
+        return numero_extraido;
+    }
+
+    public void setNumero_extraido(String numero_extraido) {
+        this.numero_extraido = numero_extraido;
+    }
+
+    public String getComplemento_extraido() {
+        return complemento_extraido;
+    }
+
+    public void setComplemento_extraido(String complemento_extraido) {
+        this.complemento_extraido = complemento_extraido;
+    }
+
+    public String getBairro_extraido() {
+        return bairro_extraido;
+    }
+
+    public void setBairro_extraido(String bairro_extraido) {
+        this.bairro_extraido = bairro_extraido;
+    }
+
+    public String getCidade_extraida() {
+        return cidade_extraida;
+    }
+
+    public void setCidade_extraida(String cidade_extraida) {
+        this.cidade_extraida = cidade_extraida;
+    }
+
+    public String getUf_extraido() {
+        return uf_extraido;
+    }
+
+    public void setUf_extraido(String uf_extraido) {
+        this.uf_extraido = uf_extraido;
     }
 
 }
