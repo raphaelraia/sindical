@@ -8,6 +8,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.SisCarta;
+import br.com.rtools.sistema.SisCartaTipo;
 import br.com.rtools.sistema.dao.SisCartaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -63,7 +64,11 @@ public class SisCartaBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar código SQL!");
             return;
         }
+        
         Dao dao = new Dao();
+        
+        sisCarta.setTipo((SisCartaTipo) dao.find(new SisCartaTipo(), 1));
+        
         if (sisCarta.getId() == null) {
             if (dao.save(sisCarta, true)) {
                 GenericaMensagem.info("Sucesso", "Registro inserido");

@@ -160,4 +160,40 @@ public class ParentescoDao extends DB {
     public void setSexo(String sexo) {
         this.sexo = sexo;
     }
+
+    public Parentesco find(String descricao, String sexo) {
+        try {
+            return (Parentesco) find(descricao, sexo, true).get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Boolean exists(String parentesco, String uf) {
+        return find(parentesco, uf) != null;
+    }
+
+    public List find(String parentesco, String sexo, Boolean filter) {
+        try {
+            Query query;
+            if (filter) {
+                if (sexo == null) {
+                    query = getEntityManager().createNativeQuery("SELECT P.* FROM soc_parentesco AS P WHERE TRIM(UPPER(FUNC_TRANSLATE(P.ds_parentesco))) = TRIM(UPPER(FUNC_TRANSLATE('" + parentesco + "')))", Parentesco.class);
+                } else {
+                    query = getEntityManager().createNativeQuery("SELECT P.* FROM soc_parentesco AS P WHERE TRIM(UPPER(FUNC_TRANSLATE(P.ds_parentesco))) = TRIM(UPPER(FUNC_TRANSLATE('" + parentesco + "'))) AND P.ds_sexo = '" + sexo.toUpperCase() + "'", Parentesco.class);
+                }
+            } else if (sexo == null) {
+                query = getEntityManager().createNativeQuery("SELECT P.* FROM soc_parentesco AS P WHERE TRIM(UPPER(P.ds_parentesco)) = TRIM(UPPER('" + parentesco + "'))", Parentesco.class);
+            } else {
+                query = getEntityManager().createNativeQuery("SELECT P.* FROM soc_parentesco AS P WHERE TRIM(UPPER(P.ds_parentesco)) = TRIM(UPPER('" + parentesco + "')) AND P.ds_sexo = '" + sexo.toUpperCase() + "'", Parentesco.class);
+
+            }
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
 }

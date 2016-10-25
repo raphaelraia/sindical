@@ -50,12 +50,15 @@
                             <p:panel id="i_tela">
                                 <h:panelGrid columns="5" styleClass="5">
                                     <p:selectOneMenu value="#{importacao.type}" disabled="#{importacao.run}">
+                                        <p:ajax event="change" update="@this" />
                                         <f:selectItem itemValue="fisica" itemLabel="Física"/>
                                         <f:selectItem itemValue="juridica" itemLabel="Jurídica"/>
+                                        <f:selectItem itemValue="contabilidade" itemLabel="Contabilidade"/>
                                     </p:selectOneMenu>
                                     <p:commandButton ajax="false" value="Processar" action="#{importacao.proccess}" update=":form_importacao:" />
                                     <p:commandButton value="Anexar documentos" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" disabled="#{importacao.run}"/>
                                     <p:commandButton value="Finalizar" type="button" onclick="PF('i_dlg_s').show();" rendered="#{!importacao.run}"/>
+                                    <p:commandButton ajax="false" value="Corrigir Endereços" action="#{importacao.corrigirEnderecos}" update=":form_importacao:" />
                                 </h:panelGrid>
                             </p:panel>
                             <p:dialog widgetVar="i_dlg_s" header="Deseja concluir o processo de importação?" resizable="false" width="400" modal="true">

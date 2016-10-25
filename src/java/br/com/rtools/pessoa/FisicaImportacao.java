@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa;
 
+import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.seguranca.Registro;
@@ -149,6 +150,13 @@ public class FisicaImportacao implements Serializable {
     private Cidade naturalidadeObjeto;
     @Column(name = "nr_codigo", length = 25)
     private String codigo;
+    @Column(name = "ds_parentesco", length = 150)
+    private String parentesco;
+    @JoinColumn(name = "id_parentesco", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.EAGER)
+    private Parentesco parentescoObjecto;
+    @Column(name = "ds_codigo_titular", length = 25)
+    private String codigo_titular;
     @Transient
     private String nascimento;
     @Transient
@@ -228,9 +236,12 @@ public class FisicaImportacao implements Serializable {
         this.dtHomologacao = null;
         this.naturalidadeObjeto = null;
         this.codigo = null;
+        this.parentesco = "";
+        this.parentescoObjecto = null;
+        this.codigo_titular = null;
     }
 
-    public FisicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade, String naturalidade, String orgao_emissao_rg, String uf_emissao_rg, String estado_civil, String pai, String mae, String nit, String pis, Date dtAposentadoria, String titulo_eleitor, String titulo_secao, String titulo_zona, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String matricula, String categoria, String profissao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String empresa_documento, Date dtFiliacao, Endereco endereco, Fisica fisica, Profissao profissaoObjeto, Date dtHomologacao, Cidade naturalidadeObjeto, String codigo) {
+    public FisicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade, String naturalidade, String orgao_emissao_rg, String uf_emissao_rg, String estado_civil, String pai, String mae, String nit, String pis, Date dtAposentadoria, String titulo_eleitor, String titulo_secao, String titulo_zona, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String matricula, String categoria, String profissao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String empresa_documento, Date dtFiliacao, Endereco endereco, Fisica fisica, Profissao profissaoObjeto, Date dtHomologacao, Cidade naturalidadeObjeto, String codigo, String parentesco, Parentesco parentescoObjecto, String codigo_titular) {
         this.id = id;
         this.nome = nome;
         this.documento = documento;
@@ -292,6 +303,9 @@ public class FisicaImportacao implements Serializable {
         this.dtHomologacao = dtHomologacao;
         this.cidade = cidade;
         this.codigo = codigo;
+        this.parentesco = parentesco;
+        this.parentescoObjecto = parentescoObjecto;
+        this.codigo_titular = codigo_titular;
     }
 
     public Integer getId() {
@@ -1042,6 +1056,30 @@ public class FisicaImportacao implements Serializable {
 
     public void setUf_extraido(String uf_extraido) {
         this.uf_extraido = uf_extraido;
+    }
+
+    public String getParentesco() {
+        return parentesco;
+    }
+
+    public void setParentesco(String parentesco) {
+        this.parentesco = parentesco;
+    }
+
+    public Parentesco getParentescoObjecto() {
+        return parentescoObjecto;
+    }
+
+    public void setParentescoObjecto(Parentesco parentescoObjecto) {
+        this.parentescoObjecto = parentescoObjecto;
+    }
+
+    public String getCodigo_titular() {
+        return codigo_titular;
+    }
+
+    public void setCodigo_titular(String codigo_titular) {
+        this.codigo_titular = codigo_titular;
     }
 
 }
