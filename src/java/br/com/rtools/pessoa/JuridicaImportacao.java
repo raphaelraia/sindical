@@ -5,6 +5,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Mask;
+import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -21,6 +22,8 @@ public class JuridicaImportacao implements Serializable {
     private String nome;
     @Column(name = "ds_documento", length = 30)
     private String documento;
+    @Column(name = "ds_documento_original", length = 30)
+    private String documento_original;
     @Column(name = "ds_telefone1", length = 20)
     private String telefone1;
     @Column(name = "ds_telefone2", length = 20)
@@ -29,15 +32,15 @@ public class JuridicaImportacao implements Serializable {
     private String telefone3;
     @Column(name = "ds_telefone4", length = 20)
     private String telefone4;
-    @Column(name = "ds_email1", length = 50)
+    @Column(name = "ds_email1", length = 250)
     private String email1;
-    @Column(name = "ds_email2", length = 50)
+    @Column(name = "ds_email2", length = 250)
     private String email2;
-    @Column(name = "ds_email3", length = 50)
+    @Column(name = "ds_email3", length = 250)
     private String email3;
-    @Column(name = "ds_site", length = 50)
+    @Column(name = "ds_site", length = 250)
     private String site;
-    @Column(name = "ds_obs", length = 1000)
+    @Column(name = "ds_obs", length = 5000)
     private String observacao;
     @Column(name = "ds_foto", length = 1000)
     private String foto;
@@ -94,18 +97,20 @@ public class JuridicaImportacao implements Serializable {
     private Juridica contabilidade;
     @Column(name = "ds_contabilidade_nome", length = 150)
     private String contabilidade_nome;
+    @Column(name = "nr_contabilidade_codigo", length = 25)
+    private String contabilidade_codigo;
     @Column(name = "ds_inscricao_estadual")
     private String inscricao_estadual;
     @Column(name = "ds_inscricao_municipal")
     private String inscricao_municipal;
-    @Column(name = "ds_contato", length = 50)
+    @Column(name = "ds_contato", length = 250)
     private String contato;
-    @Column(name = "ds_responsavel", length = 50)
+    @Column(name = "ds_responsavel", length = 250)
     private String responsavel;
     @JoinColumn(name = "id_porte", referencedColumnName = "id")
     @ManyToOne
     private Porte porte;
-    @Column(name = "ds_porte_descricao", length = 500)
+    @Column(name = "ds_porte_descricao", length = 100)
     private String porte_descricao;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_abertura")
@@ -130,11 +135,20 @@ public class JuridicaImportacao implements Serializable {
     private String abertura;
     @Transient
     private String fechamento;
+    @Column(name = "nr_capital_social", length = 25)
+    private String capital_social;
+    @Column(name = "ds_situacao", length = 2)
+    private String situacao;
+    @Column(name = "nr_atividade_codigo", length = 25)
+    private String atividade_codigo;
+    @Column(name = "is_contabilidade", columnDefinition = "boolean default false")
+    private Boolean is_contabilidade;
 
     public JuridicaImportacao() {
         this.id = null;
         this.nome = "";
         this.documento = "";
+        this.documento_original = "";
         this.telefone1 = "";
         this.telefone2 = "";
         this.telefone3 = "";
@@ -184,12 +198,17 @@ public class JuridicaImportacao implements Serializable {
         this.criacao = null;
         this.abertura = null;
         this.fechamento = null;
+        this.capital_social = null;
+        this.situacao = null;
+        this.atividade_codigo = null;
+        this.is_contabilidade = false;
     }
 
-    public JuridicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String fantasia, Cnae cnae, String cnae_descricao, Juridica contabilidade, String contabilidade_nome, String inscricao_estadual, String inscricao_municipal, String contato, String responsavel, Porte porte, String porte_descricao, Date dtAbertura, Date dtFechamento, Juridica juridica, Endereco endereco, String codigo, Date dtHomologacao, String criacao, String abertura, String fechamento) {
+    public JuridicaImportacao(Integer id, String nome, String documento, String documento_original, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String fantasia, Cnae cnae, String cnae_descricao, Juridica contabilidade, String contabilidade_nome, String contabilidade_codigo, String inscricao_estadual, String inscricao_municipal, String contato, String responsavel, Porte porte, String porte_descricao, Date dtAbertura, Date dtFechamento, Juridica juridica, Endereco endereco, String codigo, Date dtHomologacao, String criacao, String abertura, String fechamento, String capital_social, String situacao, String atividade_codigo, Boolean is_contabilidade) {
         this.id = id;
         this.nome = nome;
         this.documento = documento;
+        this.documento_original = documento_original;
         this.telefone1 = telefone1;
         this.telefone2 = telefone2;
         this.telefone3 = telefone3;
@@ -239,6 +258,10 @@ public class JuridicaImportacao implements Serializable {
         this.abertura = abertura;
         this.fechamento = fechamento;
         this.dtHomologacao = dtHomologacao;
+        this.capital_social = capital_social;
+        this.situacao = situacao;
+        this.atividade_codigo = atividade_codigo;
+        this.is_contabilidade = is_contabilidade;
     }
 
     public Integer getId() {
@@ -255,6 +278,19 @@ public class JuridicaImportacao implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getDocumento() {
+        return documento.trim();
+    }
+
+    public String getDocumentoSomenteNumeros() {
+        String doc = documento.replace("-", "");
+        doc = doc.replace(".", "");
+        doc = doc.replace("_", "");
+        doc = doc.replace("/", "");
+        doc = doc.replace(" ", "");
+        return doc.trim();
     }
 
     public void setDocumento(String documento) {
@@ -435,14 +471,6 @@ public class JuridicaImportacao implements Serializable {
 
     public void setInativacao(String inativacao) {
         this.dtInativacao = DataHoje.converte(inativacao);
-    }
-
-    public String getCriacao() {
-        return DataHoje.converteData(dtCriacao);
-    }
-
-    public void setCriacao(String criacao) {
-        this.dtCriacao = DataHoje.converte(criacao);
     }
 
     public Date getDtImportacao() {
@@ -655,6 +683,9 @@ public class JuridicaImportacao implements Serializable {
     }
 
     public String getAbertura() {
+        if (abertura == null) {
+            abertura = "";
+        }
         return abertura;
     }
 
@@ -663,6 +694,9 @@ public class JuridicaImportacao implements Serializable {
     }
 
     public String getFechamento() {
+        if (fechamento == null) {
+            fechamento = "";
+        }
         return fechamento;
     }
 
@@ -670,23 +704,39 @@ public class JuridicaImportacao implements Serializable {
         this.fechamento = fechamento;
     }
 
-    public String getDocumento() {
-        documento = documento.replace("-", "");
-        documento = documento.replace(".", "");
-        documento = documento.replace("_", "");
-        return documento.trim();
-    }
-
     public void reviseDocumento() {
         if (!documento.isEmpty() && !documento.equals("0")) {
             documento = replace(documento);
-            if (documento.length() < 14) {
-                while (documento.length() < 14) {
-                    documento = "0" + documento;
-                }
-            }
         } else {
             documento = "0";
+        }
+    }
+
+    public void revisePorte() {
+        try {
+            if (porte_descricao == null || porte_descricao.isEmpty()) {
+                porte_descricao = "";
+                String[] p = nome.split(" ");
+                String p2 = "OUTROS";
+                for (int i = 0; i < p.length; i++) {
+                    if (p[i].toString().toUpperCase().equals("LTDA")) {
+                        p2 = "OUTROS";
+                        porte_descricao = p2;
+                    }
+                    if (p[i].toString().toUpperCase().equals("ME")) {
+                        p2 = "ME";
+                        porte_descricao = p2;
+                        break;
+                    }
+                    if (p[i].toString().toUpperCase().equals("EPP")) {
+                        p2 = "EPP";
+                        porte_descricao = p2;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+
         }
     }
 
@@ -714,6 +764,36 @@ public class JuridicaImportacao implements Serializable {
                 dtCriacao = dtAbertura;
             } else {
                 dtCriacao = DataHoje.converte("01/01/1900");
+            }
+        }
+    }
+
+    public void reviseEmail() {
+        if (email1 != null && !email1.isEmpty()) {
+            email1.trim();
+            if (!ValidaDocumentos.isEmailValido(email1)) {
+                observacao += " \n" + email1;
+                email1 = "";
+            } else {
+                email1 = ("                                                  ".substring(0, 50 - email1.length()) + email1).trim();
+            }
+        }
+        if (email2 != null && !email2.isEmpty()) {
+            email2.trim();
+            if (!ValidaDocumentos.isEmailValido(email2)) {
+                observacao += " \n" + email2;
+                email2 = "";
+            } else {
+                email2 = ("                                                  ".substring(0, 50 - email2.length()) + email2).trim();
+            }
+        }
+        if (email3 != null && !email3.isEmpty()) {
+            email3.trim();
+            if (!ValidaDocumentos.isEmailValido(email3)) {
+                observacao += " \n" + email3;
+                email3 = "";
+            } else {
+                email3 = ("                                                  ".substring(0, 50 - email3.length()) + email3).trim();
             }
         }
     }
@@ -763,6 +843,8 @@ public class JuridicaImportacao implements Serializable {
                 v = v.replace("]", "");
                 v = v.replace("|", "");
                 v = v.replace("*", "");
+                v = v.replace("/", "");
+                v = v.replace("\\", "");
             }
         } catch (Exception e) {
 
@@ -780,6 +862,62 @@ public class JuridicaImportacao implements Serializable {
 
     public void setDtHomologacao(Date dtHomologacao) {
         this.dtHomologacao = dtHomologacao;
+    }
+
+    public String getCriacao() {
+        return DataHoje.converteData(dtCriacao);
+    }
+
+    public void setCriacao(String criacao) {
+        this.dtCriacao = DataHoje.converte(criacao);
+    }
+
+    public String getContabilidade_codigo() {
+        return contabilidade_codigo;
+    }
+
+    public void setContabilidade_codigo(String contabilidade_codigo) {
+        this.contabilidade_codigo = contabilidade_codigo;
+    }
+
+    public String getCapital_social() {
+        return capital_social;
+    }
+
+    public void setCapital_social(String capital_social) {
+        this.capital_social = capital_social;
+    }
+
+    public String getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(String situacao) {
+        this.situacao = situacao;
+    }
+
+    public String getAtividade_codigo() {
+        return atividade_codigo;
+    }
+
+    public void setAtividade_codigo(String atividade_codigo) {
+        this.atividade_codigo = atividade_codigo;
+    }
+
+    public String getDocumento_original() {
+        return documento_original;
+    }
+
+    public void setDocumento_original(String documento_original) {
+        this.documento_original = documento_original;
+    }
+
+    public Boolean getIs_contabilidade() {
+        return is_contabilidade;
+    }
+
+    public void setIs_contabilidade(Boolean is_contabilidade) {
+        this.is_contabilidade = is_contabilidade;
     }
 
 }

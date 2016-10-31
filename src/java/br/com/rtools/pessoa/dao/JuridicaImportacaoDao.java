@@ -10,19 +10,74 @@ public class JuridicaImportacaoDao extends DB {
 
     public List find(String nome, String documento) {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE TRIM(UPPER(FUNC_TRANSLATE(I.ds_nome))) = TRIM(UPPER(FUNC_TRANSLATE('" + nome + "'))) AND I.ds_documento = '" + documento + "'", JuridicaImportacao.class);
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE TRIM(UPPER(FUNC_TRANSLATE(I.ds_nome))) = TRIM(UPPER(FUNC_TRANSLATE('" + nome + "'))) AND I.ds_documento_original = '" + documento + "'", JuridicaImportacao.class);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
         }
     }
 
-    public Integer count() {
+    public List find(String nome, String documento, Boolean is_contabilidade) {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT id FROM pes_juridica_importacao");
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE TRIM(UPPER(FUNC_TRANSLATE(I.ds_nome))) = TRIM(UPPER(FUNC_TRANSLATE('" + nome + "'))) AND I.ds_documento_original = '" + documento + "' AND is_contabilidade = " + is_contabilidade, JuridicaImportacao.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public Integer countEmpresas() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT id FROM pes_juridica_importacao WHERE is_contabilidade = false");
             return query.getResultList().size();
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    public Integer countContabilidade() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT id FROM pes_juridica_importacao WHERE is_contabilidade = true");
+            return query.getResultList().size();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public List<JuridicaImportacao> findEmpresasPorContabilidade(String contabilidade_codigo) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE I.nr_contabilidade_codigo = '" + contabilidade_codigo + "' AND I.is_contabilidade = false", JuridicaImportacao.class);
+
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<JuridicaImportacao> findAllEmpresas() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE I.is_contabilidade = false", JuridicaImportacao.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<JuridicaImportacao> findAll() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I", JuridicaImportacao.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<JuridicaImportacao> findAllContabilidades() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE I.is_contabilidade = true", JuridicaImportacao.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
         }
     }
 }

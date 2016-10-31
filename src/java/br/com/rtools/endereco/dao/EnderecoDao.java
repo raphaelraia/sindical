@@ -98,4 +98,29 @@ public class EnderecoDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List pesquisaEnderecoImportacao(String uf, String cidade, String logradouro, String descricao, String cep, String iniParcial, Boolean ativo) {
+        try {
+            descricao = descricao.trim();
+            String queryString = " "
+                    + "SELECT E.* FROM end_endereco E WHERE E.id IN (                                                 \n"
+                    + "     SELECT id \n"
+                    + "     FROM endereco_vw\n"
+                    + "      WHERE TRIM(UPPER(func_translate(cidade))) = TRIM(UPPER(func_translate('" + cidade + "')))         \n"
+                    + "      AND uf = '" + uf + "'                              \n"
+                    + "      AND TRIM(UPPER(func_translate(logradouro))) = TRIM(UPPER(func_translate('" + logradouro + "'))) \n"
+                    + "      AND TRIM(UPPER(func_translate(endereco))) = TRIM(UPPER(func_translate('" + descricao + "'))) \n"
+                    + "      AND cep = '" + cep + "'                       \n"
+                    + "      AND ativo = " + ativo + " \n"
+                    + ")";
+            Query qry = getEntityManager().createNativeQuery(queryString, Endereco.class);
+            List list = qry.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (EJBQLException e) {
+            return null;
+        }
+        return new ArrayList();
+    }
 }

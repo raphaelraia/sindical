@@ -91,6 +91,14 @@ public class SisCarta implements Serializable {
         this.dtCadastro = dtCadastro;
     }
 
+    public String getDtCadastroString() {
+        return DataHoje.converteData(dtCadastro);
+    }
+
+    public void setDtCadastroString(String dtCadastroString) {
+        this.dtCadastro = DataHoje.converte(dtCadastroString);
+    }
+
     public String getTitulo() {
         return titulo;
     }

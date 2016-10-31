@@ -31,9 +31,9 @@ public class SisCartaDao extends DB {
         try {
             Query query;
             if (usuario == 1) {
-                query = getEntityManager().createQuery("SELECT C FROM SisCarta AS C ORDER BY C.dtSolicitacao DESC, C.titulo ASC");
+                query = getEntityManager().createQuery("SELECT C FROM SisCarta AS C ORDER BY C.dtCadastro DESC, C.titulo ASC");
             } else {
-                query = getEntityManager().createQuery("SELECT C FROM SisCarta AS C WHERE C.solicitante.id = :usuario AND C.solicitante IS NULL ORDER BY C.dtSolicitacao DESC, C.titulo ASC");
+                query = getEntityManager().createQuery("SELECT C FROM SisCarta AS C WHERE C.operador.id = :usuario AND C.operador IS NULL ORDER BY C.dtCadastro DESC, C.titulo ASC");
                 query.setParameter("usuario", usuario);
             }
             List list = query.getResultList();

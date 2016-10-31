@@ -7,6 +7,16 @@
     <h:head>
         <title>Carta</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+
+            .column00{
+                vertical-align: top!important;
+                width: 50%;
+                height: 300px;
+            }
+        </style>
     </h:head>
     <h:body class="divMenu">
         <f:subview id="header">
@@ -18,30 +28,44 @@
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
                     <h:outputText value="Carta" styleClass="fonteHeader"/>
                     <div class="clear"></div>
-                    <p:panel>
-                        <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max" cellpadding="5">
-                            <p:outputLabel value="Titulo:" />
-                            <p:inputText value="#{sisCartaBean.sisCarta.titulo}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="50" size="78" converter="#{toUpperCase}">
-                                <p:ajax event="change" update="@this" />
-                            </p:inputText>
-                            <p:outputLabel value="Detalhes:" />
-                            <p:inputTextarea value="#{sisCartaBean.sisCarta.operador}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="255" cols="80" rows="5"/>
-                            <p:outputLabel value="SQL:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
-                            <p:editor value="#{sisCartaBean.sisCarta.texto}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="border-radius" />
-                            <h:inputTextarea value="#{sisCartaBean.sisCarta.sql}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" cols="80" rows="10" styleClass="border-radius" />
-                            <p:outputLabel value="Observação da carta" />
-                            <p:inputText value="#{sisCartaBean.sisCarta.operador}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="50" size="78"/>
-                            <p:commandButton value="Solicitante" icon="ui-icon-search" title="Pesquisar usuário solicitante" action="#{chamadaPaginaBean.pagina('pesquisaUsuario')}" disabled="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}"/>
-                            <p:outputLabel value="#{sisCartaBean.sisCarta.operador.pessoa.nome}" />
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid columns="2" id="id_panel">
+                            <h:column>
+                                <p:outputLabel value="Titulo" /><br />
+                                <p:inputText value="#{sisCartaBean.sisCarta.titulo}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" maxlength="50" converter="#{toUpperCase}" style="width: 300px">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>
+                            </h:column>
+
+                            <h:column>
+                                <p:outputLabel value="Operador" /><br />
+                                <p:inputText value="#{sisCartaBean.sisCarta.operador.pessoa.nome}" readonly="true" maxlength="50" style="width: 400px"/>
+                                <p:commandButton value="Operador" icon="ui-icon-search" title="Pesquisar Usuário Operador" action="#{chamadaPaginaBean.pagina('pesquisaUsuario')}" disabled="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}"/>
+                            </h:column>
                         </h:panelGrid>
                     </p:panel>
-                    <h:panelGrid columns="3" styleClass="margin-top-max">
-                        <p:commandButton value="Salvar" title="Salvar" action="#{sisCartaBean.save}" update=":form_carta:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                        <p:commandButton value="Novo" title="Novo" action="#{sisCartaBean.clear}" update=":form_carta:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                        <p:commandButton value="Imprimir" icon="ui-icon-disk" title="Visualizar" action="#{sisCartaBean.print}" ajax="false" update="id_messages_growl" />
-                        <p:commandButton value="Test" icon="ui-icon-disk" title="Visualizar" action="#{sisCartaBean.printTest}" ajax="false" update="id_messages_growl" />
+                    <br />
+                    <h:panelGrid columns="2" id="id_panel_2" style="width: 100%" columnClasses="column00, column00">
+                        <h:column>
+                            <p:outputLabel value="Detalhes" style="font-weight: bold"/><br />
+                            <p:inputTextarea value="#{sisCartaBean.sisCarta.texto}" readonly="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}" style="width: 100%" rows="17" scrollHeight="200"/>
+                        </h:column>
+
+                        <h:column>
+                            <p:outputLabel value="SQL" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" style="font-weight: bold"/><br />
+                            <!-- NAO ENTENDI PORQUE USAR EDITOR --><p:editor value="#{sisCartaBean.sisCarta.sql}" rendered="false" styleClass="border-radius" style="width: 100%; height: 280px" />
+                            <p:inputTextarea value="#{sisCartaBean.sisCarta.sql}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" style="width: 100%" rows="17" scrollHeight="10" />
+                        </h:column>
                     </h:panelGrid>
-                    <p:dataTable value="#{sisCartaBean.listSisCartas}" var="sisCarta" styleClass="margin-top-max">
+
+                    <h:panelGrid columns="3">
+                        <p:commandButton value="Salvar" icon="ui-icon-disk" title="Salvar" action="#{sisCartaBean.save}" update=":form_carta:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                        <p:commandButton value="Novo" icon="ui-icon-document"  title="Novo" action="#{sisCartaBean.clear}" update=":form_carta:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Visualizar" action="#{sisCartaBean.print}" ajax="false" update="id_messages_growl" />
+                        <p:commandButton value="Test" icon="ui-icon-disk" title="Visualizar" action="#{sisCartaBean.printTest}" ajax="false" update="id_messages_growl" rendered="false"/>
+                    </h:panelGrid>
+
+                    <p:dataTable value="#{sisCartaBean.listSisCartas}" var="sisCarta" styleClass="margin-top-max" emptyMessage="Nenhuma Carta Encontrada">
                         <p:column width="30" styleClass="text-center">
                             <p:commandButton icon="ui-icon-link" title="Editar" action="#{sisCartaBean.edit(sisCarta)}" update=":form_carta:" />
                         </p:column>
@@ -49,8 +73,8 @@
                             <p:commandButton icon="ui-icon-print" title="Imprimir" action="#{sisCartaBean.print(sisCarta)}" ajax="false" update="id_messages_growl" />
                         </p:column>
                         <p:column headerText="Titulo">#{sisCarta.titulo}</p:column>
-                        <p:column headerText="Data da solicitanção" width="100" styleClass="text-center">#{sisCarta.dtCadastro}</p:column>
-                        <p:column headerText="Solicitante">#{sisCarta.operador.pessoa.nome}</p:column>
+                        <p:column headerText="Data do Cadastro" width="100" styleClass="text-center">#{sisCarta.dtCadastroString}</p:column>
+                        <p:column headerText="Operador">#{sisCarta.operador.pessoa.nome}</p:column>
                         <p:column width="30" styleClass="text-center">
                             <p:commandButton icon="ui-icon-trash" title="Remover" action="#{sisCartaBean.delete(sisCarta)}" update=":form_carta:" disabled="#{controleAcessoBean.botaoExcluir}" />
                         </p:column>
