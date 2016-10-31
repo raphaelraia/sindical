@@ -121,7 +121,7 @@
                                                     </h:panelGrid>
                                                 </h:column>
                                                 <h:column>
-                                                    <p:selectOneMenu value="#{vendasCaravanaBean.idCaravanaSelect}" style="width: 400px;" disabled="#{not empty vendasCaravanaBean.listaReservas}" rendered="#{vendasCaravanaBean.vendas.id eq null}">
+                                                    <p:selectOneMenu value="#{vendasCaravanaBean.idCaravanaSelect}" style="width: 270px;" disabled="#{not empty vendasCaravanaBean.listaReservas}" rendered="#{vendasCaravanaBean.vendas.id eq null}" autoWidth="false">
                                                         <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaCaravana()}" update="@this :form_vendas_caravana:"/>
                                                         <f:selectItems value="#{vendasCaravanaBean.listaCaravanaSelect}" />
                                                     </p:selectOneMenu>
@@ -152,7 +152,7 @@
                                                         <h:outputLabel value="TIPO" />                                                                                                        
                                                     </h:panelGrid>
                                                 </h:column>
-                                                <p:selectOneMenu value="#{vendasCaravanaBean.idTipo}" style="padding-right: 20px" disabled="#{vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.locked}">
+                                                <p:selectOneMenu value="#{vendasCaravanaBean.idTipo}" style="width: 270px" disabled="#{vendasCaravanaBean.vendas.id != null and vendasCaravanaBean.locked}" autoWidth="false">
                                                     <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaTipo()}" update="i_panel"/>
                                                     <f:selectItems value="#{vendasCaravanaBean.listaTipo}"/>
                                                 </p:selectOneMenu>

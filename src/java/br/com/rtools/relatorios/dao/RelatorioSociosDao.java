@@ -58,6 +58,9 @@ public class RelatorioSociosDao extends DB {
      * @param dia_aniversario_final
      * @param ordemAniversario
      * @param listDateFilters
+     * @param chk_validade_dependente
+     * @param ref_validade_dependente_inicial
+     * @param ref_validade_dependente_final
      * @return
      */
     public List find(
@@ -119,7 +122,13 @@ public class RelatorioSociosDao extends DB {
             /**
              * DATAS
              */
-            List<DateFilters> listDateFilters) {
+            List<DateFilters> listDateFilters,
+            /**
+             * VALIDADE DEPENDENTE
+             */
+            Boolean chk_validade_dependente,
+            String ref_validade_dependente_inicial,
+            String ref_validade_dependente_final) {
         if (listDateFilters == null) {
             listDateFilters = new ArrayList();
         }
@@ -351,8 +360,8 @@ public class RelatorioSociosDao extends DB {
         if (in_socios != null && !in_socios.isEmpty()) {
             listWhere.add("p.codigo IN(" + in_socios + ")");
         }
-        // SEXO ----------------------
 
+        // SEXO ----------------------
         if (!sexo.isEmpty()) {
             listWhere.add("p.sexo = '" + sexo + "'");
         }
@@ -722,6 +731,23 @@ public class RelatorioSociosDao extends DB {
             }
             subquery += " ) \n";
             listWhere.add(subquery);
+        }
+
+        if (chk_validade_dependente != null) {
+            if (chk_validade_dependente) {
+                listWhere.add(" (so.validade IS NULL OR so.validade = '')");
+            } else if (ref_validade_dependente_inicial != null && ref_validade_dependente_final == null) {
+                String r_ini = ref_validade_dependente_inicial.substring(3, 7) + ref_validade_dependente_inicial.substring(0, 2);
+                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) >= '" + r_ini + "'");
+            } else if (ref_validade_dependente_inicial == null && ref_validade_dependente_final != null) {
+                String r_fim = ref_validade_dependente_final.substring(3, 7) + ref_validade_dependente_final.substring(0, 2);
+                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) <= '" + r_fim + "'");
+            } else {
+                String r_ini = ref_validade_dependente_inicial.substring(3, 7) + ref_validade_dependente_inicial.substring(0, 2);
+                String r_fim = ref_validade_dependente_final.substring(3, 7) + ref_validade_dependente_final.substring(0, 2);
+                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) >= '" + r_ini + "'");
+                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) <= '" + r_fim + "'");
+            }
         }
 
         String ordem = "";

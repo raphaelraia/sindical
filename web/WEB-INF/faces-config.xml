@@ -2342,6 +2342,12 @@
             <redirect/>
         </navigation-case>             
         
+        <navigation-case>
+            <from-outcome>verifica_impressora_cheque</from-outcome>
+            <to-view-id>/verifica_impressora_cheque.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

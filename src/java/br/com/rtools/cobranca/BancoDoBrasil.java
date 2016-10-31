@@ -88,6 +88,36 @@ public class BancoDoBrasil extends Cobranca {
         }
     }
 
+    public String moduloOnzeBB(String composicao) {
+        int i = composicao.length();
+        int j = 9;
+        int soma = 0;
+        String m;
+        while (i > 0) {
+            if (j < 2) {
+                j = 9;
+            }
+            m = composicao.substring(i - 1, i);
+            soma += Integer.parseInt(m) * j;
+            j--;
+            i--;
+        }
+        /*
+        I. Se o resto for menor que 10 (dez) o DV será igual ao resto;  
+        
+        II. Se o resto for igual a 10 /dez/ o DV será igual a X; 
+        
+        III. Se o resto for igual a 0 /zero/ o DV será igual a 0; 
+        
+        IV. No exemplo acima o digito verificador será igual a 3;
+         */
+        if ((soma % 11) < 10) {
+            return Integer.toString(soma % 11);
+        } else {
+            return "X";
+        } 
+    }
+
     @Override
     public String codigoBarras() {
         String codigoBarras = "";
@@ -95,16 +125,29 @@ public class BancoDoBrasil extends Cobranca {
         codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
         int i = 0;
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
-        while (i != (10 - tam)) { // zeros
-            codigoBarras += "0";
-            i++;
+        String v_string = Moeda.limparPonto(Moeda.converteR$Float(valor));
+        codigoBarras += "0000000000".substring(0, 10 - v_string.length()) + v_string;
+
+//        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();        
+//        while (i != (10 - tam)) { // zeros
+//            codigoBarras += "0";
+//            i++;
+//        }
+// COBRANÇA CONVÊNIO DE 7 POSIÇÕES
+        if (boleto.getBoletoComposto().length() == 17) {
+            //codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
+            codigoBarras += "000000";
+            codigoBarras += boleto.getBoletoComposto();       // nosso numero
+            codigoBarras += boleto.getContaCobranca().getCarteira();        // carteira
+            codigoBarras = codigoBarras.substring(0, 4) + this.moduloOnzeDV(codigoBarras) + codigoBarras.substring(4, codigoBarras.length());
+        } else {
+// COBRANÇA CONVÊNIO DE 6 POSIÇÕES
+            codigoBarras += boleto.getBoletoComposto();       // nosso numero
+            codigoBarras += "0000".substring(0, 4 - boleto.getContaCobranca().getContaBanco().getAgencia().length()) + boleto.getContaCobranca().getContaBanco().getAgencia(); // agencia
+            codigoBarras += "00000000".substring(0, 8 - boleto.getContaCobranca().getCodCedente().length()) + boleto.getContaCobranca().getCodCedente(); // agencia
+            codigoBarras += boleto.getContaCobranca().getCarteira();        // carteira
+            codigoBarras = codigoBarras.substring(0, 4) + this.moduloOnzeDV(codigoBarras) + codigoBarras.substring(4, codigoBarras.length());
         }
-        codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
-        codigoBarras += "000000";
-        codigoBarras += boleto.getBoletoComposto();       // nosso numero
-        codigoBarras += boleto.getContaCobranca().getCarteira();        // carteira
-        codigoBarras = codigoBarras.substring(0, 4) + this.moduloOnzeDV(codigoBarras) + codigoBarras.substring(4, codigoBarras.length());
         return codigoBarras;
     }
 
@@ -141,7 +184,11 @@ public class BancoDoBrasil extends Cobranca {
 
     @Override
     public String getNossoNumeroFormatado() {
-        return boleto.getBoletoComposto();
+        if (boleto.getBoletoComposto().length() == 17) {
+            return boleto.getBoletoComposto();
+        } else {
+            return boleto.getBoletoComposto() + "-" + moduloOnzeBB(boleto.getBoletoComposto());
+        }
     }
 
     @Override
@@ -190,7 +237,7 @@ public class BancoDoBrasil extends Cobranca {
             FacesContext context = FacesContext.getCurrentInstance();
             String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/");
             String destino = caminho + "/" + remessa.getId();
-            
+
             File flDes = new File(destino); // 0 DIA, 1 MES, 2 ANO
             flDes.mkdir();
 
@@ -246,7 +293,7 @@ public class BancoDoBrasil extends Cobranca {
             Integer sequencial_registro = 1;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial do Registro:”000001”
             sequencial_registro++;
-            
+
             buff_writer.write(CONTEUDO_REMESSA);
             buff_writer.newLine();
 
@@ -274,7 +321,8 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += moduloOnze(codigo_cedente); // 031 a 031 X(001) Dígito Verificador - D.V. - do Número da Conta Corrente do Cedente 
                 CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7); // NÚMERO DO CONVÊNIO (criar campo no banco pra isso) // 032 a 038 9(007) Número do Convênio de Cobrança do Cedente
                 CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 039 a 063 X(025) Código de Controle da Empresa 
-                CONTEUDO_REMESSA += (boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7) + "0000000000").substring(0, 17 - (""+(Integer.valueOf(mov.getDocumento()))).length()) + (""+(Integer.valueOf(mov.getDocumento()))); // 064 a 080 9(017) Nosso-Número 
+                //CONTEUDO_REMESSA += (boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7) + "0000000000").substring(0, 17 - ("" + (Integer.valueOf(mov.getDocumento()))).length()) + ("" + (Integer.valueOf(mov.getDocumento()))); // 064 a 080 9(017) Nosso-Número 
+                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 -  mov.getDocumento().length()) + mov.getDocumento(); // 064 a 080 9(017) Nosso-Número 
                 CONTEUDO_REMESSA += "00"; // 081 a 082 9(002) Número da Prestação: “00” (Zeros)
                 CONTEUDO_REMESSA += "00"; // 083 a 084 9(002) Grupo de Valor: “00” (Zeros)
                 CONTEUDO_REMESSA += "   "; // 085 a 087 X(003) Complemento do Registro: “Brancos”
@@ -308,7 +356,7 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "00"; // 159 a 160 9(002) Instrução Codificada 
 
                 CONTEUDO_REMESSA += "0000000000000"; // 161 a 173 9(011)v99 Juros de Mora por Dia de Atraso
-                CONTEUDO_REMESSA += data_vencimento[0] + data_vencimento[1] + data_vencimento[2].substring(2, 4); // 174 a 179 9(006) Data Limite para Concessão de Desconto/Data de Operação do BBVendor/Juros de Mora. 
+                CONTEUDO_REMESSA += "000000"; // 174 a 179 9(006) Data Limite para Concessão de Desconto/Data de Operação do BBVendor/Juros de Mora. 
                 CONTEUDO_REMESSA += "0000000000000"; // 180 a 192 9(011)v99 Valor do Desconto 
                 CONTEUDO_REMESSA += "0000000000000"; // 193 a 205 9(011)v99 Valor do IOF/Qtde Unidade Variável. 
                 CONTEUDO_REMESSA += "0000000000000"; // 206 a 218 9(011)v99 Valor do Abatimento 

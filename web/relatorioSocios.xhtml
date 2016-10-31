@@ -456,6 +456,32 @@
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('validade_dependente')}">
+                                                <p:panel header="Validade do Dependente">
+                                                    <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkValidadeDependente}" itemLabel="Dependentes Sem Validade">
+                                                        <p:ajax event="change" update="panel_validade_dependente" />
+                                                    </p:selectBooleanCheckbox>
+                                                    <br />
+                                                    <h:panelGrid id="panel_validade_dependente">
+                                                        <h:panelGrid columns="3" rendered="#{!relatorioSociosBean.chkValidadeDependente}" style="width: 300px;text-align: center">
+                                                            <h:column>
+                                                                <h:outputLabel value="Validade Inicial" style="font-weight: bold"/><br />
+                                                                <p:inputMask value="#{relatorioSociosBean.refValidadeDependenteInicial}" mask="99/9999" style="text-align: center; width: 115px" />
+                                                            </h:column>
+
+                                                            <h:column>
+                                                                <br />
+                                                                <p:outputLabel value="ate" style="text-align: center"/>
+                                                            </h:column>
+                                                            
+                                                            <h:column>
+                                                                <h:outputLabel value="Validade Final" style="font-weight: bold"/><br />
+                                                                <p:inputMask value="#{relatorioSociosBean.refValidadeDependenteFinal}" mask="99/9999" style="text-align: center; width: 115px" />
+                                                            </h:column>
+                                                        </h:panelGrid>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
                                         </h:panelGrid>
                                         <!-- FINANCEIRO -->
                                         <h:panelGrid style="width: 100%!important">

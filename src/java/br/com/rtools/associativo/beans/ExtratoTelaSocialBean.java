@@ -305,6 +305,9 @@ public class ExtratoTelaSocialBean implements Serializable {
     }
 
     public void enviarEmail() {
+        /*
+        REVER METODO
+         */
         if (baixado()) {
             GenericaMensagem.warn("Atenção", "Boletos BAIXADOS não podem ser excluídos!");
             return;
@@ -444,7 +447,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         String resposta = GerarMovimento.excluirUmAcordoSocial(movimento);
-        if (resposta.isEmpty()){
+        if (resposta.isEmpty()) {
             GenericaMensagem.info("OK", "Acordo Excluído com sucesso!");
 
             loadLista();
@@ -453,7 +456,7 @@ public class ExtratoTelaSocialBean implements Serializable {
             PF.closeDialog("dlg_acordo");
             return;
         }
-        
+
         GenericaMensagem.error("Atenção", resposta);
     }
 

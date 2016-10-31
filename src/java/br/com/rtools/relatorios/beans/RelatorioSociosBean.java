@@ -154,6 +154,10 @@ public class RelatorioSociosBean implements Serializable {
     private String idadeFinal;
     private String diaInicial;
     private String diaFinal;
+    
+    private Boolean chkValidadeDependente;
+    private String refValidadeDependenteInicial;
+    private String refValidadeDependenteFinal;
 
     public RelatorioSociosBean() {
         idRelatorio = null;
@@ -195,6 +199,11 @@ public class RelatorioSociosBean implements Serializable {
         idadeFinal = "500";
         diaInicial = "1";
         diaFinal = "31";
+        
+        chkValidadeDependente = true;
+        refValidadeDependenteInicial = "";
+        refValidadeDependenteFinal = "";
+        
         loadRelatorios();
         loadRelatoriosOrdem();
         loadFilters();
@@ -270,6 +279,7 @@ public class RelatorioSociosBean implements Serializable {
         filtersSocio.add(new Filters("suspencao", "Suspenção", false));
         filtersSocio.add(new Filters("telefone", "Telefone", false));
         filtersSocio.add(new Filters("votante", "Votante", false));
+        filtersSocio.add(new Filters("validade_dependente", "Val. Dependente", false));
 
         // EMPRESA
         filtersEmpresa = new ArrayList<>();
@@ -757,6 +767,21 @@ public class RelatorioSociosBean implements Serializable {
             idEmpresas = empresa.getId();
 
         }
+        Boolean chk_validade_dependente = null;
+        String refVD_inicial = null, refVD_final = null;
+        
+        if (getShow("validade_dependente")){
+            chk_validade_dependente = chkValidadeDependente;
+            if (!chk_validade_dependente){
+                if (refValidadeDependenteInicial == null && refValidadeDependenteFinal == null){
+                    GenericaMensagem.warn("Validação", "DIGITE UMA REFERÊNCIA VÁLIDA!");
+                    return new ArrayList();
+                }
+                refVD_inicial = refValidadeDependenteInicial;
+                refVD_final = refValidadeDependenteFinal;
+            }
+        }
+        
         RelatorioDao db = new RelatorioDao();
         Relatorios relatorios = db.pesquisaRelatorios(idRelatorio);
         relatorioSociosDao.setRelatorios(relatorios);
@@ -819,7 +844,13 @@ public class RelatorioSociosBean implements Serializable {
                 /**
                  * DATAS
                  */
-                listDateFilters
+                listDateFilters,
+                /**
+                 * VALIDADE DEPENDENTE
+                 */
+                chk_validade_dependente,
+                refVD_inicial,
+                refVD_final
         );
         List<ParametroSocios> pses = new ArrayList();
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
@@ -3151,5 +3182,29 @@ public class RelatorioSociosBean implements Serializable {
 
     public void setSelectedGroups(String selectedGroups) {
         this.selectedGroups = selectedGroups;
+    }
+
+    public Boolean getChkValidadeDependente() {
+        return chkValidadeDependente;
+    }
+
+    public void setChkValidadeDependente(Boolean chkValidadeDependente) {
+        this.chkValidadeDependente = chkValidadeDependente;
+    }
+
+    public String getRefValidadeDependenteInicial() {
+        return refValidadeDependenteInicial;
+    }
+
+    public void setRefValidadeDependenteInicial(String refValidadeDependenteInicial) {
+        this.refValidadeDependenteInicial = refValidadeDependenteInicial;
+    }
+
+    public String getRefValidadeDependenteFinal() {
+        return refValidadeDependenteFinal;
+    }
+
+    public void setRefValidadeDependenteFinal(String refValidadeDependenteFinal) {
+        this.refValidadeDependenteFinal = refValidadeDependenteFinal;
     }
 }

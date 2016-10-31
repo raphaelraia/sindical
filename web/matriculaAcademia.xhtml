@@ -411,13 +411,13 @@
                     </p:dialog>
 
                     <p:dialog widgetVar="dlg_inative" modal="true" header="Deseja inativar esta matrícula?" resizable="true" width="400">
-                        <h:panelGrid columns="1">
+                        <h:panelGrid columns="1" style="width: 100%">
                             <p:outputLabel value="Motivo Inativação" />
-                            <p:inputTextarea value="#{matriculaAcademiaBean.matriculaAcademia.motivoInativacao}" cols="65"/>
+                            <p:inputTextarea value="#{matriculaAcademiaBean.matriculaAcademia.motivoInativacao}" style="width: 100%"/>
                         </h:panelGrid>
                         <f:facet name="footer">
-                            <p:commandButton value="Confirmar" title="Inativar matricula" action="#{matriculaAcademiaBean.inative}" update=":form_matricula_academia:"/>
-                            <p:commandButton value="Cancelar" onclick="PF('dlg_inative').hide()"/>
+                            <p:commandButton icon="ui-icon-check" value="Inativar" title="Inativar matricula" action="#{matriculaAcademiaBean.inative}" update=":form_matricula_academia:" style="font-weight: bold"/>
+                            <p:commandButton icon="ui-icon-close" value="Cancelar" onclick="PF('dlg_inative').hide()"/>
                         </f:facet>
                     </p:dialog>
 

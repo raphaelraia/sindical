@@ -250,17 +250,17 @@
                                     </h:column>
 
                                     <h:column rendered="#{baixaGeralBean.es == 'S'}">
-                                        <h:panelGrid id="i_x">
+                                        <h:panelGrid id="i_x" style="width: 100%;">
                                             <h:outputLabel value="Para a Conta" style="font-weight: bold"/>
-                                            <p:selectOneMenu style="padding-right: 15px; width: 335px" value="#{baixaGeralBean.idBancoSaida}">
+                                            <p:selectOneMenu style="" value="#{baixaGeralBean.idBancoSaida}">
                                                 <p:ajax event="change" update="i_x i_cheque" />
                                                 <f:selectItems value="#{baixaGeralBean.listaBancoSaida}"/>
                                             </p:selectOneMenu>
                                         </h:panelGrid>
 
-                                        <h:panelGrid id="i_panel_ch_p">
+                                        <h:panelGrid id="i_panel_ch_p" style="width: 100%;">
                                             <h:outputLabel value="Número do Cheque" />
-                                            <p:inputText id="i_numero_ch_p" value="#{baixaGeralBean.numeroChequePag}" style="width: 350px">
+                                            <p:inputText id="i_numero_ch_p" value="#{baixaGeralBean.numeroChequePag}" style="width: 100%; font-weight: bold; opacity: 0.8; font-size: 11pt!important" disabled="true">
                                                 <p:ajax event="change" update="i_panel_ch_p" listener="#{baixaGeralBean.alteraNumeroChequeConta()}" />
                                             </p:inputText>
                                             <p:watermark value="Número do Cheque" for="i_numero_ch_p"/>

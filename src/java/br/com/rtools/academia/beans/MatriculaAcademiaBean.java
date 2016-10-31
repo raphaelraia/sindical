@@ -834,25 +834,51 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void inative() {
         if (matriculaAcademia.getServicoPessoa().isAtivo()) {
+            if (matriculaAcademia.getMotivoInativacao().isEmpty() || matriculaAcademia.getMotivoInativacao().length() < 5) {
+                GenericaMensagem.error("Atenção", "Digite um motivo de inativação válido!");
+                return;
+            }
+
             matriculaAcademia.getServicoPessoa().setAtivo(false);
             matriculaAcademia.setDtInativo(new Date());
             Dao dao = new Dao();
-            dao.update(matriculaAcademia, true);
-            dao.update(matriculaAcademia.getServicoPessoa(), true);
-            GenericaMensagem.info("Sucesso", "Matrícula inativada");
+
+            dao.openTransaction();
+
+            if (!dao.update(matriculaAcademia)) {
+                dao.rollback();
+                GenericaMensagem.error("Atenção", "Erro ao atualizar matrícula!");
+                return;
+            }
+
+            if (!dao.update(matriculaAcademia.getServicoPessoa())) {
+                dao.rollback();
+                GenericaMensagem.error("Atenção", "Erro ao atualizar serviço pessoa!");
+                return;
+            }
+
             desabilitaCamposMovimento = true;
             desabilitaDiaVencimento = true;
             listaAcademia.clear();
-            NovoLog novoLog = new NovoLog();
-            novoLog.setTabela("matr_academia");
-            novoLog.setCodigo(matriculaAcademia.getId());
-            novoLog.update("", ""
-                    + "ID: " + matriculaAcademia.getId()
-                    + " - Pessoa: (" + matriculaAcademia.getServicoPessoa().getPessoa().getId() + ") " + matriculaAcademia.getServicoPessoa().getPessoa().getNome()
-                    + " - Cobrança: (" + matriculaAcademia.getServicoPessoa().getCobranca().getId() + ") " + matriculaAcademia.getServicoPessoa().getCobranca().getNome()
-                    + " - Serviço: (" + matriculaAcademia.getAcademiaServicoValor().getServicos().getId() + ") " + matriculaAcademia.getAcademiaServicoValor().getServicos().getDescricao()
-                    + " - Motivo: " + matriculaAcademia.getMotivoInativacao()
-            );
+            try {
+                NovoLog novoLog = new NovoLog();
+                novoLog.setTabela("matr_academia");
+                novoLog.setCodigo(matriculaAcademia.getId());
+                novoLog.update("", ""
+                        + "ID: " + matriculaAcademia.getId()
+                        + " - Pessoa: (" + matriculaAcademia.getServicoPessoa().getPessoa().getId() + ") " + matriculaAcademia.getServicoPessoa().getPessoa().getNome()
+                        + " - Cobrança: (" + matriculaAcademia.getServicoPessoa().getCobranca().getId() + ") " + matriculaAcademia.getServicoPessoa().getCobranca().getNome()
+                        + " - Serviço: (" + matriculaAcademia.getAcademiaServicoValor().getServicos().getId() + ") " + matriculaAcademia.getAcademiaServicoValor().getServicos().getDescricao()
+                        + " - Motivo: " + matriculaAcademia.getMotivoInativacao()
+                );
+            } catch (Exception e) {
+                GenericaMensagem.error("Atenção", e.getMessage());
+                dao.rollback();
+                return;
+            }
+            
+            dao.commit();
+            GenericaMensagem.info("Sucesso", "Matrícula Inativada");
         }
     }
 
@@ -1752,14 +1778,12 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                    {
-                        if (Moeda.converteUS$(valorLiquido) > 0) {
+                     if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
-                    }
                     if (Moeda.converteUS$(valorLiquido) > 0) {
                         if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");

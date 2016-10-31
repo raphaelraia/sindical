@@ -200,7 +200,7 @@
 
                                                 <h:column>
                                                     <br />
-                                                    <p:selectOneMenu value="#{conviteMovimentoBean.indexTipoDocumento}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}"  style="width: 50px; opacity: 0.8">
+                                                    <p:selectOneMenu value="#{conviteMovimentoBean.indexTipoDocumento}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}"  style="width: 50px; opacity: 0.8" autoWidth="false">
                                                         <p:ajax event="change" update="@this input_cpf" global="false"/>
                                                         <f:selectItems value="#{conviteMovimentoBean.listTipoDocumento}" />
                                                     </p:selectOneMenu>
@@ -292,7 +292,7 @@
                                             <h:panelGrid columns="3">
                                                 <h:column>
                                                     <p:outputLabel value="Serviços" style="font-weight: bold" /><br />
-                                                    <p:selectOneMenu value="#{conviteMovimentoBean.idServico}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 335px; opacity: 0.8;">
+                                                    <p:selectOneMenu value="#{conviteMovimentoBean.idServico}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 335px; opacity: 0.8;" autoWidth="false">
                                                         <p:ajax event="change" update="form_convite" listener="#{conviteMovimentoBean.atualizaDescontoValor()}" />
                                                         <f:selectItems value="#{conviteMovimentoBean.conviteServicos}" />
                                                     </p:selectOneMenu>

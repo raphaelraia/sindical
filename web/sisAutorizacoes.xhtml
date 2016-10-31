@@ -70,7 +70,17 @@
                                     <p:commandButton icon="ui-icon-close" action="#{sisAutorizacoesBean.refused(sisAutorizacoes)}" update=":form_autorizacoes:i_refused" disabled="#{(sisAutorizacoes.dtAutorizacao != null and sisAutorizacoes.autorizado)}" title="Recusar" onclick="PF('dlg_refuded').show()"/>
                                 </p:column>                                
                                 <p:rowExpansion>
-                                    #{sisAutorizacoes.motivoRecusa} <br />
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                        <p:column rendered="#{not empty sisAutorizacoes.motivoRecusa}">
+                                            <p:outputLabel value="Motivo da Recusa" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.motivoRecusa}"/>
+                                        </p:column>
+                                        
+                                        <p:column>
+                                            <p:outputLabel value="CNPJ Empresa" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.pessoa.documento}"/>
+                                        </p:column>
+                                    </h:panelGrid>
                                 </p:rowExpansion>
                             </p:dataTable>                                
                             <p:dialog widgetVar="dlg_refuded" modal="true" resizable="false" height="200" width="600" header="Motivo da recusa" closeOnEscape="true">

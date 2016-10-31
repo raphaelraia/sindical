@@ -64,8 +64,9 @@ public class BloqueioRotinaDao extends DB {
             Query qry = getEntityManager().createNativeQuery(
                     " SELECT *                                          "
                     + "   FROM sis_bloqueio_rotina                      "
-                    + "  WHERE dt_bloqueio < CURRENT_DATE LIMIT 1       "
-                    + "    AND id_rotina = " + rotina_id);
+                    + "  WHERE dt_bloqueio < CURRENT_DATE               "
+                    + "    AND id_rotina = " + rotina_id+ "  LIMIT 1    "
+            );
             if (!qry.getResultList().isEmpty()) {
                 getEntityManager().getTransaction().begin();
                 Query qryUpdateAgendamento = getEntityManager().createNativeQuery(

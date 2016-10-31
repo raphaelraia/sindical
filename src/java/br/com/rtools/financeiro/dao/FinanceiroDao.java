@@ -1607,7 +1607,7 @@ public class FinanceiroDao extends DB {
                     + "SELECT MIN(dt_baixa) AS dt_baixa FROM fin_baixa WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015' \n"
                     + "UNION \n"
                     + "SELECT min(dt_baixa) AS dt_baixa FROM fin_estorno_caixa_lote \n"
-                    + "WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015' AND is_movimento = TRUE \n"
+                    + "WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '11/10/2016' AND is_movimento = TRUE \n"
                     + ") AS x"
             );
             List<Object> result = qry.getResultList();

@@ -70,13 +70,14 @@ public class ControleUsuarioBean implements Serializable {
         csb.init();
         ConfiguracaoSocial cs = csb.getConfiguracaoSocial();
         if (cs.getInativaDemissionado() && DataHoje.maiorData(DataHoje.dataHoje(), cs.getDataInativacaoDemissionado()) && cs.getGrupoCategoriaInativaDemissionado() != null) {
-            db.demissionaSocios(cs.getGrupoCategoriaInativaDemissionado().getId(), cs.getDiasInativaDemissionado());
-            Dao di = new Dao();
-            cs = (ConfiguracaoSocial) di.find(cs);
-            di.openTransaction();
-            cs.setDataInativacaoDemissionado(DataHoje.dataHoje());
-            di.update(cs);
-            di.commit();
+            if (db.demissionaSocios(cs.getGrupoCategoriaInativaDemissionado().getId(), cs.getDiasInativaDemissionado())){
+                Dao di = new Dao();
+                cs = (ConfiguracaoSocial) di.find(cs);
+                di.openTransaction();
+                cs.setDataInativacaoDemissionado(DataHoje.dataHoje());
+                di.update(cs);
+                di.commit();
+            }
         }
     }
 

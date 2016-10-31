@@ -9,7 +9,7 @@
             <p:dialog widgetVar="dlg_photo_capture" header="Captura de Imagem" rendered="#{photoCapture.renderedPhotoCapture}">
                 <p:ajax event="close" listener="#{photoCapture.close()}" />
                 <h:panelGrid id="photo_capture_panel_imagem" columns="1">
-                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.update}" style="width: 500px" rendered="#{photoCapture.renderedPhotoCapture}" forceFlash="false" />
+                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.update}" style="width: 500px" rendered="#{photoCapture.renderedPhotoCapture}" forceFlash="true" />
                     <h:column>
                         <p:commandButton type="button" value="CAPTURAR">
                             <p:ajax event="click" oncomplete="PF('pc').capture();"/>

@@ -649,6 +649,9 @@ public class WebREPISBean implements Serializable {
                         case 8:
                             file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/CERTIDAO_PARCELAMENTO_REAJUSTE_SALARIAL.jasper"));
                             break;
+                        case 9:
+                            file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ADESAO_SEMANA_ESPANHOLA.jasper"));
+                            break;
                     }
 
                     JasperReport jasper = (JasperReport) JRLoader.loadObject(file);

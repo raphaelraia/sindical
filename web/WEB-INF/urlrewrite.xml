@@ -54,6 +54,29 @@
         <from>^/web/(.*)</from>
         <to>/indexAcessoWeb.jsf?cliente=$1</to>
     </rule>
+    
+    <!-- CAMINHOS PARA WEB SERVICE -->
+    <rule>
+        <from>^/ws/(.*)/verifica_impressora/(.*)$</from>
+        <to>/ws/impressora_cheque_verificar.jsf?cliente=$1&amp;numero_impressora=$2</to>
+    </rule>
+    
+    <rule>
+        <from>^/ws/(.*)/ativa_impressora/(.*)/(.*)$</from>
+        <to>/ws/impressora_cheque_ativar.jsf?cliente=$1&amp;numero_impressora=$2&amp;ativar=$3</to>
+    </rule>
+    
+    <rule>
+        <from>^/ws/(.*)/limpa_impressora/(.*)/(.*)$</from>
+        <to>/ws/impressora_cheque_limpar.jsf?cliente=$1&amp;numero_impressora=$2&amp;mensagem=$3</to>
+    </rule>
+    
+    <rule>
+        <from>^/ws/(.*)/lista_impressora</from>
+        <to>/ws/impressora_cheque_lista.jsf?cliente=$1</to>
+    </rule>
+    <!-- FIM CAMINHOS PARA WEB SERVICE -->
+    
     <!-- REDIRECT CLIENTES -->
     <rule>
         <from>^/ComercioLimeira$</from>

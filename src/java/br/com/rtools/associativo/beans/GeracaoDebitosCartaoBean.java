@@ -353,7 +353,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
     public Boolean disabled(Pessoa p, Movimento m) {
         if (registro.isFotoCartao()) {
-            if (p.getFisica().getFoto().isEmpty()) {
+            if (p.getFisica().getFoto() == null || p.getFisica().getFoto().isEmpty()) {
                 return true;
             } else if (m != null) {
                 return true;

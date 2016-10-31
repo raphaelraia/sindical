@@ -107,7 +107,7 @@ public class SisAutorizacoesBean implements Serializable {
         this.refusedMotive = refusedMotive;
     }
 
-    public void loadListSisAutorizacoes() {
+    public final void loadListSisAutorizacoes() {
         listSisAutorizacoes = new ArrayList();
         listSisAutorizacoes = new SisAutorizacoesDao().findAll(typeFilter);
     }

@@ -241,6 +241,9 @@ public class ImpressaoBoletoSocialBean {
         atualizaValores();
     }
 
+    /*
+    METODO ANTIGO
+     */
     public void imprimir() {
         if (!listaPessoaSemEndereco.isEmpty()) {
             GenericaMensagem.fatal("Atenção", "Existem pessoas sem endereço, favor cadastra-las!");
@@ -266,6 +269,9 @@ public class ImpressaoBoletoSocialBean {
         ib.visualizar(null);
     }
 
+    /*
+    METODO ATUAL EM USO
+     */
     public void imprimir2() {
         if (!listaPessoaSemEndereco.isEmpty()) {
             GenericaMensagem.fatal("Atenção", "Existem pessoas sem endereço, favor cadastra-las!");

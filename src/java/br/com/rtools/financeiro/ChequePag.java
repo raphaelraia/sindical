@@ -34,6 +34,9 @@ public class ChequePag implements java.io.Serializable {
     @JoinColumn(name = "id_operador_cancelamento", referencedColumnName = "id")
     @ManyToOne
     private Usuario operadorCancelamento;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_impressao")
+    private Date dtImpressao;
 
     public ChequePag() {
         this.id = -1;
@@ -44,9 +47,10 @@ public class ChequePag implements java.io.Serializable {
         this.dtCancelamento = null;
         this.operadorImpressao = null;
         this.operadorCancelamento = null;
+        this.dtImpressao = null;
     }
 
-    public ChequePag(int id, String cheque, Date dtEmissao, Date dtVencimento, Plano5 plano5, Date dtCancelamento, Usuario operadorImpressao, Usuario operadorCancelamento) {
+    public ChequePag(int id, String cheque, Date dtEmissao, Date dtVencimento, Plano5 plano5, Date dtCancelamento, Usuario operadorImpressao, Usuario operadorCancelamento, Date dtImpressao) {
         this.id = id;
         this.cheque = cheque;
         this.dtEmissao = dtEmissao;
@@ -55,6 +59,7 @@ public class ChequePag implements java.io.Serializable {
         this.dtCancelamento = dtCancelamento;
         this.operadorImpressao = operadorImpressao;
         this.operadorCancelamento = operadorCancelamento;
+        this.dtImpressao = dtImpressao;
     }
 
     public int getId() {
@@ -120,14 +125,14 @@ public class ChequePag implements java.io.Serializable {
     public void setDtCancelamento(Date dtCancelamento) {
         this.dtCancelamento = dtCancelamento;
     }
-    
+
     public String getDtCancelamentoString() {
         return DataHoje.converteData(dtCancelamento);
     }
 
     public void setDtCancelamentoString(String cancelamentoString) {
         this.dtCancelamento = DataHoje.converte(cancelamentoString);
-    }    
+    }
 
     public Usuario getOperadorImpressao() {
         return operadorImpressao;
@@ -143,6 +148,22 @@ public class ChequePag implements java.io.Serializable {
 
     public void setOperadorCancelamento(Usuario operadorCancelamento) {
         this.operadorCancelamento = operadorCancelamento;
+    }
+
+    public Date getDtImpressao() {
+        return dtImpressao;
+    }
+
+    public void setDtImpressao(Date dtImpressao) {
+        this.dtImpressao = dtImpressao;
+    }
+
+    public String getDtImpressaoString() {
+        return DataHoje.converteData(dtImpressao);
+    }
+
+    public void setDtImpressaoString(String dtImpressaoString) {
+        this.dtImpressao = DataHoje.converte(dtImpressaoString);
     }
 
 }

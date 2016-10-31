@@ -2194,12 +2194,18 @@ public class ImprimirBoleto {
         return arquivo;
     }
 
+    /*
+    METODO ANTIGO
+     */
     public byte[] imprimirBoletoSocial(Boleto boleto, String view, boolean imprimeVerso) {
         List<Boleto> l = new ArrayList();
         l.add(boleto);
         return imprimirBoletoSocial(l, view, imprimeVerso);
     }
 
+    /*
+    METODO ANTIGO
+     */
     public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
@@ -2351,6 +2357,9 @@ public class ImprimirBoleto {
         return arquivo;
     }
 
+    /*
+    METODO ATUAL EM USO
+     */
     public byte[] imprimirBoletoSocial_2(String listaBoleto, String view, String tipo, boolean imprimeVerso) {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
@@ -2496,7 +2505,7 @@ public class ImprimirBoleto {
                         String insert_impressao
                                 = "INSERT INTO fin_impressao (dt_impressao, dt_vencimento, ds_hora, id_movimento, id_usuario) \n "
                                 + "VALUES (CURRENT_DATE, '" + DataHoje.converteData((Date) linha.get(7)) + "', '" + DataHoje.hora() + "', " + Integer.valueOf(linha.get(1).toString()) + ", " + usuario.getId() + ")";
-                        
+
                         dao.openTransaction();
                         if (!dao.executeQuery(insert_impressao)) {
                             dao.rollback();

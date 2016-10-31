@@ -182,6 +182,12 @@
                                 </p:column>
 
                                 <p:column>
+                                    <p:panel rendered="#{not empty sisAutorizacoesBean.listSisAutorizacoes and !controleAcessoBean.verificarPermissao('autorizar', 3)}">
+                                        <f:facet name="header">
+                                            <p:outputLabel value="ATUALIZAÇÃO DE CADASTRO SOLICITADA" style="font-size: 12pt; color: #dd3b58; font-weight: bold" />
+                                        </f:facet>
+                                        <p:commandLink value="Clique para visualizar" action="#{chamadaPaginaBean.pagina('sisAutorizacoes')}" style="font-size: 11pt!important"/>
+                                    </p:panel>                                    
                                     <p:panel rendered="#{not empty sisNotificacaoView.listNotificacao}">
                                         <f:facet name="header">
                                             <p:outputLabel value="NOTIFICAÇÕES DO SISTEMA" style="font-size: 12pt; color: #dd3b58; font-weight: bold" />

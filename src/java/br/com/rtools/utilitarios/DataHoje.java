@@ -780,7 +780,7 @@ public class DataHoje {
             if (dataH[1] < novaData[1]) {
                 idade--;
             } else if (dataH[1] == novaData[1]) {
-                if (dataH[0] < dataH[0]) {
+                if (dataH[0] < dataN[0]) {
                     idade--;
                 }
             }

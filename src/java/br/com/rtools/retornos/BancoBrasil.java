@@ -5,6 +5,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.GenericaRetorno;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,19 +16,20 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
 public class BancoBrasil extends ArquivoRetorno {
-    private String linha = "", 
-                   pasta = "", 
-                   cnpj = "", 
-                   codigoCedente = "", 
-                   nossoNumero = "", 
-                   dataVencimento = "", 
-                   valorTaxa = "",
-                   valorPago = "",
-                   valorCredito = "",
-                   valorRepasse = "",
-                   dataPagamento = "",
-                   dataCredito = "";
-    
+
+    private String linha = "",
+            pasta = "",
+            cnpj = "",
+            codigoCedente = "",
+            nossoNumero = "",
+            dataVencimento = "",
+            valorTaxa = "",
+            valorPago = "",
+            valorCredito = "",
+            valorRepasse = "",
+            dataPagamento = "",
+            dataCredito = "";
+
     public BancoBrasil(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
@@ -42,6 +44,7 @@ public class BancoBrasil extends ArquivoRetorno {
         List<GenericaRetorno> listaRetorno = new ArrayList();
         if (listFile != null) {
             int qntRetornos = listFile.length;
+            String valorDescontado = "";
             for (int u = 0; u < qntRetornos; u++) {
                 try {
                     FileReader reader = new FileReader(host + listFile[u].getName());
@@ -59,7 +62,11 @@ public class BancoBrasil extends ArquivoRetorno {
                             codigoCedente = ((String) lista.get(i)).substring(58, 70);
                         }
                         if (((String) lista.get(i)).substring(13, 14).equals("T")) {
-                            nossoNumero = ((String) lista.get(i)).substring(37, 57).trim();
+                            if (super.getContaCobranca().getBoletoInicial().length() == 17) {
+                                nossoNumero = ((String) lista.get(i)).substring(37, 57).trim();
+                            } else {
+                                nossoNumero = ((String) lista.get(i)).substring(37, 48).trim();
+                            }
                             valorTaxa = ((String) lista.get(i)).substring(198, 213);
                             dataVencimento = ((String) lista.get(i)).substring(73, 81);
                         }
@@ -68,11 +75,20 @@ public class BancoBrasil extends ArquivoRetorno {
                             if (con == 0) {
                                 dataVencimento = "11111111";
                             }
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                         i++;
                         if (i < lista.size() && ((String) lista.get(i)).substring(13, 14).equals("U")) {
                             valorPago = ((String) lista.get(i)).substring(77, 92);
                             dataPagamento = ((String) lista.get(i)).substring(137, 145);
+                            valorDescontado = ((String) lista.get(i)).substring(196, 204).trim();
+                            if (!valorDescontado.isEmpty()) {
+                                float valor_pago = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)), 100);
+                                float valor_descontado = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorDescontado)), 100);
+                                String calculo = Moeda.converteR$Float(Moeda.somaValores(valor_descontado, valor_pago));
+                                String calculo_s = ("" + calculo).replace(",", "").replace(".", "");
+                                valorPago = "000000000000000".substring(0, 15 - calculo_s.length()) + calculo_s;
+                            }
 
                             listaRetorno.add(new GenericaRetorno(
                                     cnpj, //1 ENTIDADE
@@ -96,7 +112,7 @@ public class BancoBrasil extends ArquivoRetorno {
                         }
                     }
                 } catch (Exception e) {
-                    
+
                 }
             }
         }
@@ -124,7 +140,7 @@ public class BancoBrasil extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSigCBSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
@@ -136,7 +152,7 @@ public class BancoBrasil extends ArquivoRetorno {
         String mensagem = super.baixarArquivo(this.sicob(true, caminho), caminho, usuario);
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSicobSocial(String caminho, Usuario usuario) {
         String mensagem = super.baixarArquivoSocial(this.sicob(true, caminho), caminho, usuario);
