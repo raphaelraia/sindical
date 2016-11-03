@@ -13,16 +13,16 @@
             <ui:include src="templates/templatePrime.xhtml"/>
         </f:subview>
         <f:view>
-            <p:panel styleClass="wrapper no-border">
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h:outputScript name="tradutor_primefaces.js" library="js" />
                 <h:form id="form_relatorio">            
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
                     <h:outputText value="Relatório Convite Clube" styleClass="fonteHeader"/>
                     <div class="clear"></div>
                     <p:panel styleClass="fundoCinza">
-                        <h:panelGrid  cellpadding="5" columns="2">
+                        <h:panelGrid  cellpadding="5" columns="4">
                             <p:outputLabel value="Tipo de Relatório: " />
-                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioConviteClubeBean.idRelatorios}" style="padding-right: 10px;">
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioConviteClubeBean.idRelatorios}">
                                 <p:ajax event="change" update="@this" />
                                 <f:selectItems value="#{relatorioConviteClubeBean.listaTipoRelatorios}"/>
                             </p:selectOneMenu>

@@ -38,10 +38,10 @@ public class RelatorioConviteClubeBean implements Serializable {
     private Fisica fisica = new Fisica();
     private SisPessoa sisPessoa = new SisPessoa();
     private Usuario usuario = new Usuario();
-    private List<ParametroConviteClube> parametroConviteClubes = new ArrayList<ParametroConviteClube>();
-    private List<SelectItem> listaTipoRelatorios = new ArrayList<SelectItem>();
-    private List<SelectItem> listaOperadores = new ArrayList<SelectItem>();
-    private List<SelectItem> listaDiretores = new ArrayList<SelectItem>();
+    private List<ParametroConviteClube> parametroConviteClubes = new ArrayList();
+    private List<SelectItem> listaTipoRelatorios = new ArrayList();
+    private List<SelectItem> listaOperadores = new ArrayList();
+    private List<SelectItem> listaDiretores = new ArrayList();
     private int idRelatorios = 0;
     private String idCortesia = "todos";
     private int idOperador = 0;

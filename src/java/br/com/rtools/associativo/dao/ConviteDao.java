@@ -414,8 +414,9 @@ public class ConviteDao extends DB {
             }
         }
         String filtroOrder = " ";
+        listOrder.add(" sp.ds_nome ASC ");
         if (!listOrder.isEmpty()) {
-            filtroOrder = " ORDER BY  ";
+            filtroOrder = " ORDER BY ";
             for (int i = 0; i < listOrder.size(); i++) {
                 if (i == 0) {
                     filtroOrder += " " + listOrder.get(i).toString();
