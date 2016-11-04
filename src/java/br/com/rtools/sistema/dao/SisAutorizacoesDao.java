@@ -1,8 +1,10 @@
 package br.com.rtools.sistema.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisAutorizacoes;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -10,7 +12,7 @@ import javax.persistence.Query;
 public class SisAutorizacoesDao extends DB {
 
     public List<SisAutorizacoes> findAll() {
-        return findAll("aberto");
+        return findAll("aberto", "", "", "");
     }
 
     public Boolean exists(SisAutorizacoes sa) {
@@ -33,22 +35,48 @@ public class SisAutorizacoesDao extends DB {
         }
     }
 
-    public List<SisAutorizacoes> findAll(String tcase) {
+    public List<SisAutorizacoes> findAll(String status, String filter, String value, String value2) {
         try {
+            String queryString = "SELECT SA.*                                   \n"
+                    + "             FROM sis_autorizacoes SA                    \n"
+                    + "       INNER JOIN pes_pessoa P ON P.id = SA.id_pessoa    \n"
+                    + "            WHERE                                        \n";
             Query query = null;
-            switch (tcase) {
+            switch (status) {
                 case "autorizado":
-                    query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes SA WHERE SA.dtAutorizacao IS NOT NULL AND SA.autorizado = true ORDER BY SA.dtSolicitacao DESC");
+                    queryString += "SA.dt_autorizacao IS NOT NULL               \n"
+                            + "     AND SA.is_autorizado = true                 \n";
                     break;
                 case "recusado":
-                    query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes SA WHERE SA.dtAutorizacao IS NOT NULL AND SA.autorizado = false ORDER BY SA.dtSolicitacao DESC");
+                    queryString += " SA.dt_solicitacao IS NOT NULL              \n"
+                            + "      AND SA.is_autorizado = false               \n";
                     break;
                 case "aberto":
-                    query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes SA WHERE SA.dtAutorizacao IS NULL AND SA.autorizado = false ORDER BY SA.dtSolicitacao DESC");
+                    queryString += " SA.dt_solicitacao IS NULL                  \n"
+                            + "      AND SA.is_autorizado = false               \n";
                     break;
                 default:
                     break;
             }
+            switch (filter) {
+                case "rotina":
+                    queryString += " AND SA.id_rotina = " + value + "           \n";
+                    break;
+                case "pessoa":
+                    queryString += " AND TRIM(UPPER(func_translate(P.ds_nome))) LIKE TRIM(UPPER(func_translate('%" + value + "%')))       \n";
+                    break;
+                case "operador":
+                    queryString += " AND SA.id_operador = " + value + "         \n";
+                    break;
+                case "gestor":
+                    queryString += " AND SA.id_gestor = " + value + "           \n";
+                    break;
+                case "data":
+                    queryString += " AND SA.dt_solicitacao = '" + value + "'    \n";
+                    break;
+            }
+            queryString += " ORDER BY SA.dt_solicitacao DESC ";
+            query = getEntityManager().createNativeQuery(queryString, SisAutorizacoes.class);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

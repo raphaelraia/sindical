@@ -2,6 +2,7 @@ package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.MotivoInativacao;
+import br.com.rtools.associativo.CatracaFrequencia;
 import br.com.rtools.associativo.CupomMovimento;
 import br.com.rtools.associativo.HistoricoCarteirinha;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
@@ -10,6 +11,7 @@ import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.dao.CupomMovimentoDao;
 import br.com.rtools.associativo.dao.EmissaoGuiasDao;
+import br.com.rtools.associativo.dao.FrequenciaCatracaDao;
 import br.com.rtools.associativo.dao.HistoricoEmissaoGuiasDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
@@ -206,6 +208,15 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 return;
             }
             novoLog.save("REMOVER PESSOA COMPLEMENTO: " + pc.toString());
+        }
+        List<CatracaFrequencia> listCatracaFrequencia = new FrequenciaCatracaDao().findPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listCatracaFrequencia.size(); i++) {
+            listCatracaFrequencia.get(i).setPessoa(manter.getPessoa());
+            if (!dao.update(listCatracaFrequencia.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA CATRACA FREQUÊNCIA!");
+                return;
+            }
         }
         String movimentoLogString = "";
         List<Movimento> listMovimentosPessoa = new MovimentoDao().findByPessoa(remover.getPessoa().getId());

@@ -28,14 +28,59 @@
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <c:set scope="request" var="object" value="${sisAutorizacoesBean.sisAutorizacoes}"/>
                             <p:panel styleClass="fundoCinza margin-top-max">
-                                <h:panelGrid columns="2">
+                                <h:panelGrid columns="10" id="i_filters" cellpadding="5">
                                     <p:outputLabel value="Solicitações: " />
-                                    <p:selectOneMenu value="#{sisAutorizacoesBean.typeFilter}">
-                                        <p:ajax event="change" update="@this :form_autorizacoes:" listener="#{sisAutorizacoesBean.loadListSisAutorizacoes}"/>
+                                    <p:selectOneMenu value="#{sisAutorizacoesBean.status}">
+                                        <p:ajax event="change" update="@this"/>
                                         <f:selectItem itemValue="aberto" itemLabel="Abertas" />
                                         <f:selectItem itemValue="autorizado" itemLabel="Autorizadas" />
                                         <f:selectItem itemValue="recusado" itemLabel="Recusadas" />
                                     </p:selectOneMenu>
+                                    <p:outputLabel value="Filtrar por: " />
+                                    <p:selectOneMenu value="#{sisAutorizacoesBean.filter}">
+                                        <p:ajax event="change" update="@this :form_autorizacoes:i_filters" />
+                                        <f:selectItem itemValue="" itemLabel="Nenhum" />
+                                        <f:selectItem itemValue="rotina" itemLabel="Rotinas" />
+                                        <f:selectItem itemValue="operador" itemLabel="Operadores" />
+                                        <f:selectItem itemValue="gestor" itemLabel="Gestores" />
+                                        <f:selectItem itemValue="pessoa" itemLabel="Pessoa" />
+                                        <f:selectItem itemValue="data" itemLabel="Data" />
+                                    </p:selectOneMenu>
+                                    <h:column>
+                                        <h:column>
+                                            <p:selectOneMenu value="#{sisAutorizacoesBean.idRotina}" rendered="#{sisAutorizacoesBean.filter eq 'rotina'}">
+                                                <p:ajax event="change" update="@this"  />
+                                                <f:selectItems value="#{sisAutorizacoesBean.listRotinas}"/>
+                                            </p:selectOneMenu>                                        
+                                        </h:column>
+                                        <h:column>
+                                            <p:selectOneMenu value="#{sisAutorizacoesBean.idGestor}" rendered="#{sisAutorizacoesBean.filter eq 'gestor'}">
+                                                <p:ajax event="change" update="@this"/>
+                                                <f:selectItems value="#{sisAutorizacoesBean.listGestores}"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                        <h:column>
+                                            <p:selectOneMenu value="#{sisAutorizacoesBean.idOperador}" rendered="#{sisAutorizacoesBean.filter eq 'operador'}">
+                                                <p:ajax event="change" update="@this"  />
+                                                <f:selectItems value="#{sisAutorizacoesBean.listOperadores}"/>
+                                            </p:selectOneMenu>                                                                                    
+                                        </h:column>
+                                        <h:column>
+                                            <h:column rendered="#{sisAutorizacoesBean.filter eq 'data'}">
+                                                <p:inputMask value="#{sisAutorizacoesBean.value}" mask="99/99/9999" converter="#{isDateString}" size="10">
+                                                    <p:ajax event="change" update="@this"  />                                            
+                                                </p:inputMask>
+                                            </h:column>
+                                        </h:column>
+                                        <h:column>
+                                            <h:column rendered="#{sisAutorizacoesBean.filter eq 'pessoa'}">
+                                                <p:inputText value="#{sisAutorizacoesBean.value}" size="30">
+                                                    <p:ajax event="change" update="@this"  />                                            
+                                                </p:inputText>
+                                            </h:column>
+                                        </h:column>
+                                    </h:column>
+                                    <p:commandButton value="Filtrar" action="#{sisAutorizacoesBean.loadListSisAutorizacoes}" update=":form_autorizacoes:" />
                                 </h:panelGrid>
                             </p:panel>
                             <p:dataTable value="#{sisAutorizacoesBean.listSisAutorizacoes}" var="sisAutorizacoes" paginator="true" rows="10" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
@@ -75,10 +120,20 @@
                                             <p:outputLabel value="Motivo da Recusa" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{sisAutorizacoes.motivoRecusa}"/>
                                         </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Documento" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.pessoa.documento}"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Rotina" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.rotina.rotina}"/>
+                                        </p:column>
                                         
                                         <p:column>
-                                            <p:outputLabel value="CNPJ Empresa" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{sisAutorizacoes.pessoa.documento}"/>
+                                            <p:outputLabel value="Pessoa" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.pessoa.nome}"/>
                                         </p:column>
                                     </h:panelGrid>
                                 </p:rowExpansion>

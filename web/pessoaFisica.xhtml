@@ -79,10 +79,18 @@
                                                         <p:column>
                                                             <h:panelGrid>
                                                                 <p:outputLabel value="CPF" />
-                                                                <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento and fisicaBean.fisica.pessoa.documento ne '___.___.___-__') ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold" >
-                                                                    <p:ajax event="blur" listener="#{fisicaBean.existePessoaDocumento}"  />
-                                                                </p:inputMask>                                        
-                                                            </h:panelGrid>
+                                                                <h:column rendered="#{fisicaBean.fisica.id == -1 or empty fisicaBean.fisica.pessoa.documento}">
+                                                                    <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento and fisicaBean.fisica.pessoa.documento ne '___.___.___-__') ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold">
+                                                                        <p:ajax event="blur" listener="#{fisicaBean.existePessoaDocumento}"  />
+                                                                    </p:inputMask>
+                                                                </h:column>
+                                                                <h:column rendered="#{fisicaBean.fisica.id != -1 and (not empty fisicaBean.fisica.pessoa.documento or fisicaBean.fisica.pessoa.documento eq '')}" >
+                                                                    <h:panelGrid style="width: 100%" columns="2">
+                                                                        <p:inputText size="18" value="#{fisicaBean.fisica.pessoa.documento}" readonly="true" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento and fisicaBean.fisica.pessoa.documento ne '___.___.___-__') ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold"/>
+                                                                        <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('cpf')}" oncomplete="PF('dlg_solicita_alteracao').show()" styleClass="margin-left" title="Solicitar alteração"/>
+                                                                    </h:panelGrid>
+                                                                </h:column>
+                                                            </h:panelGrid>                                                                    
                                                         </p:column>
 
                                                         <p:column>
@@ -112,9 +120,17 @@
 
                                                     <h:panelGrid columns="1" style="width: 100%">
                                                         <p:outputLabel value="Nome"/>
-                                                        <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%" styleClass="font-size-12 bg-yellow-ligth">
-                                                            <p:ajax event="change" update="@this" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
-                                                        </p:inputText>
+                                                        <h:column>
+                                                            <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%" styleClass="font-size-12 bg-yellow-ligth" rendered="#{fisicaBean.fisica.pessoa.id == -1}">
+                                                                <p:ajax event="change" update="@this" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
+                                                            </p:inputText>                                                            
+                                                        </h:column>
+                                                        <h:column>
+                                                            <h:panelGrid style="width: 100%" columns="2">
+                                                                <p:inputText style="width: 100%" value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" title="Solicitar alteração #{fisicaBean.fisica.pessoa.id}" readonly="#{fisicaBean.fisica.pessoa.id != -1}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" styleClass="bold" />
+                                                                <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('nome')}" oncomplete="PF('dlg_solicita_alteracao').show()" rendered="#{fisicaBean.fisica.pessoa.id != -1}" styleClass="margin-left" title="Solicitar alteração"/>
+                                                            </h:panelGrid>
+                                                        </h:column>                                                        
                                                     </h:panelGrid>
                                                 </p:panel>
 
@@ -659,7 +675,7 @@
                                     </f:facet>
                                 </p:dialog>
 
-                                <h:panelGrid columns="9">
+                                <h:panelGrid columns="10">
                                     <p:commandButton value="Voltar" action="#{chamadaPaginaBean.back()}" icon="ui-icon-arrowreturnthick-1-w" title="Voltar" immediate="true" actionListener="#{fisicaBean.editarFisica(fisicaBean.fisica)}" rendered="#{fisicaBean.cadastrar}"/>
                                     <h:column>
                                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id == -1}"/>                                        
@@ -681,6 +697,7 @@
                                             </h:panelGrid>                                        
                                         </h:panelGrid>                                        
                                     </h:column>
+                                    <p:commandButton value="Solicitações" title="Solicitações de alteração" onclick="PF('dlg_solicitacoes').show();" update=":form_pessoa_fisica:i_solicitacoes" actionListener="#{fisicaBean.loadListSisAutorizacoes}" rendered="#{fisicaBean.fisica.id != -1}" />
                                 </h:panelGrid>
 
                                 <p:dialog modal="true" width="400" widgetVar="dlg_mensagem_aviso" closable="false" header="Aviso" visible="#{fisicaBean.visibleMsgAviso}">
@@ -938,6 +955,67 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
+                            <p:dialog widgetVar="dlg_solicita_alteracao" modal="true" resizable="false" height="200" width="600" header="Solicitação de alteração" closeOnEscape="true">
+                                <p:ajax event="close" update=":form_pessoa_fisica:"/>
+                                <h:panelGroup id="i_solicita_alteracao">
+                                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                                    <h:panelGrid style="width: 100%" >
+                                        <p:outputLabel value="Alterar para:" />
+                                        <p:inputMask value="#{fisicaBean.sisAutorizacoes.dadosAlterados}" mask="#{fisicaBean.mascaraAlteracao}" style="width: 100%" >
+                                            <p:ajax event="change" update="@this" global="false"/>                                        
+                                        </p:inputMask>
+                                        <p:inputTextarea value="#{fisicaBean.sisAutorizacoes.motivoSolicitacao}" style="width: 100%"  rows="5" maxlength="500" placeholder="Motivo da solicitação" styleClass="margin-top-max">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Confirmar" title="Confirmar" action="#{fisicaBean.sendRequest}"/>
+                                        <p:commandButton value="Sair" title="Sair" onclick="PF('dlg_solicita_alteracao').hide();" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_solicitacoes" modal="true" resizable="false" height="200" width="1000" header="Solicitações" closeOnEscape="true">
+                                <h:panelGroup id="i_solicitacoes">
+                                    <p:dataTable value="#{fisicaBean.listSisAutorizacoes}" var="sisAutorizacoes" paginator="true" rows="20" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column style="width:15px">  
+                                            <p:rowToggler />  
+                                        </p:column>                                          
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-close" action="#{fisicaBean.removeRequest(sisAutorizacoes)}" update=":form_pessoa_fisica:i_solicitacoes" disabled="#{(sisAutorizacoes.dtAutorizacao != null and sisAutorizacoes.autorizado)}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq sisAutorizacoes.operador.id}"/>
+                                        </p:column>
+                                        <p:column headerText="Data" width="80" styleClass="text-center">
+                                            #{sisAutorizacoes.solicitacao}
+                                        </p:column>
+                                        <p:column headerText="Pessoa" width="80" styleClass="text-center">
+                                            #{sisAutorizacoes.pessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="Autorização" width="80" styleClass="text-center">
+                                            #{sisAutorizacoes.autorizacao}
+                                        </p:column>
+                                        <p:column headerText="Motivo">
+                                            #{sisAutorizacoes.motivoSolicitacao}                                            
+                                        </p:column>
+                                        <p:column headerText="Dados Originais">
+                                            #{sisAutorizacoes.dadosOriginais}
+                                        </p:column>
+                                        <p:column headerText="Dados Alterados">
+                                            #{sisAutorizacoes.dadosAlterados}
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            #{sisAutorizacoes.motivoRecusa} <br />
+                                            OPERADOR: #{sisAutorizacoes.operador.pessoa.nome} <br />
+                                            GESTOR: #{sisAutorizacoes.gestor.pessoa.nome} <br />
+                                        </p:rowExpansion>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Fechar" title="Fechar" onclick="PF('dlg_solicitacoes').hide();" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>                            
                         </h:form>
                     </p:panel>
                     <h:form id="form_aplicativos">
