@@ -58,22 +58,24 @@ public class SisAutorizacoesDao extends DB {
                 default:
                     break;
             }
-            switch (filter) {
-                case "rotina":
-                    queryString += " AND SA.id_rotina = " + value + "           \n";
-                    break;
-                case "pessoa":
-                    queryString += " AND TRIM(UPPER(func_translate(P.ds_nome))) LIKE TRIM(UPPER(func_translate('%" + value + "%')))       \n";
-                    break;
-                case "operador":
-                    queryString += " AND SA.id_operador = " + value + "         \n";
-                    break;
-                case "gestor":
-                    queryString += " AND SA.id_gestor = " + value + "           \n";
-                    break;
-                case "data":
-                    queryString += " AND SA.dt_solicitacao = '" + value + "'    \n";
-                    break;
+            if (value != null) {
+                switch (filter) {
+                    case "rotina":
+                        queryString += " AND SA.id_rotina = " + value + "           \n";
+                        break;
+                    case "pessoa":
+                        queryString += " AND TRIM(UPPER(func_translate(P.ds_nome))) LIKE TRIM(UPPER(func_translate('%" + value + "%')))       \n";
+                        break;
+                    case "operador":
+                        queryString += " AND SA.id_operador = " + value + "         \n";
+                        break;
+                    case "gestor":
+                        queryString += " AND SA.id_gestor = " + value + "           \n";
+                        break;
+                    case "data":
+                        queryString += " AND SA.dt_solicitacao = '" + value + "'    \n";
+                        break;
+                }
             }
             queryString += " ORDER BY SA.dt_solicitacao DESC ";
             query = getEntityManager().createNativeQuery(queryString, SisAutorizacoes.class);

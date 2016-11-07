@@ -38,7 +38,7 @@
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Filtrar por: " />
                                     <p:selectOneMenu value="#{sisAutorizacoesBean.filter}">
-                                        <p:ajax event="change" update="@this :form_autorizacoes:i_filters" />
+                                        <p:ajax event="change" update="@this :form_autorizacoes:i_filters" listener="#{sisAutorizacoesBean.listener}" />
                                         <f:selectItem itemValue="" itemLabel="Nenhum" />
                                         <f:selectItem itemValue="rotina" itemLabel="Rotinas" />
                                         <f:selectItem itemValue="operador" itemLabel="Operadores" />
@@ -130,7 +130,7 @@
                                             <p:outputLabel value="Rotina" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{sisAutorizacoes.rotina.rotina}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Pessoa" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{sisAutorizacoes.pessoa.nome}"/>

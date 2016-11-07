@@ -148,6 +148,13 @@ public class SisAutorizacoesBean implements Serializable {
         listSisAutorizacoes = new SisAutorizacoesDao().findAll(status, filter, value, "");
     }
 
+    public void listener() {
+        idGestor = null;
+        idOperador = null;
+        idRotina = null;
+        value = "";
+    }
+
     public String getFilter() {
         return filter;
     }
