@@ -123,7 +123,7 @@ public abstract class Cobranca {
         Cobranca cobranca = null;
         if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
             // ÚNICO CASO QUE UTILIZA O id_pessoa
-            //cobranca = new CaixaFederalSindical(lista_movimento);
+            cobranca = new CaixaFederalSindical(lista_movimento);
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SICOB)) {
             //cobranca = new CaixaFederalSicob(lista_movimento);
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SIGCB)) {

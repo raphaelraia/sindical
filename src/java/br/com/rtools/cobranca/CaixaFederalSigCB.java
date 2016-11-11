@@ -256,8 +256,10 @@ public class CaixaFederalSigCB extends Cobranca {
 
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
             CONTEUDO_REMESSA = "";
 
             Integer sequencial_lote = 1;
@@ -288,8 +290,10 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito Data do Crédito 200 207 8 - Num  C003
             CONTEUDO_REMESSA += "                                 "; // 23.1 CNAB Uso Exclusivo FEBRABAN/CNAB  208 240 33 - Alfa Brancos G004
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
             CONTEUDO_REMESSA = "";
 
             Float valor_total_lote = (float) 0;
@@ -352,8 +356,10 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Número do Contrato Nº do Contrato da Operação de Créd. 230 239 10 - Num  C030
                 CONTEUDO_REMESSA += " "; // 42.3P Uso livre banco/empresa Uso livre banco/empresa ou autorização de pagamento parcial 240 240 1 - Alfa  C077 
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Q -------------------------------------------------------
@@ -413,8 +419,10 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "                    "; // 21.3Q Nosso Núm. Bco. Correpondente Nosso Nº no Banco Correspondente 213 232 20 - Alfa  *C032 
                 CONTEUDO_REMESSA += "        "; // 22.3Q CNAB Uso Exclusivo FEBRABAN/CNAB 233 240 8 - Alfa Brancos G004 
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Y-53 ----------------------------------------------------
@@ -443,8 +451,10 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
                 CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
                 CONTEUDO_REMESSA = "";
 
                 sequencial_registro_lote++;
@@ -479,8 +489,10 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "        "; // 14.5 N. do Aviso Número do Aviso de Lançamento 116 123 8 - Alfa  *C072 
             CONTEUDO_REMESSA += "                                                                                                                     "; // 15.5 CNAB Uso Exclusivo FEBRABAN/CNAB 124 240 117 - Alfa Brancos G004 
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------
@@ -542,22 +554,13 @@ public class CaixaFederalSigCB extends Cobranca {
 
         try {
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
-            File fileA = new File(patch + "/downloads");
-            if (!fileA.exists()) {
-                fileA.mkdir();
-            }
-
-            File fileB = new File(patch + "/downloads/remessa");
-            if (!fileB.exists()) {
-                fileB.mkdir();
-            }
-
+            
             FacesContext context = FacesContext.getCurrentInstance();
             String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/");
             String destino = caminho + "/" + remessa.getId();
 
-            File flDes = new File(destino); // 0 DIA, 1 MES, 2 ANO
-            flDes.mkdir();
+            File flDes = new File(destino);
+            flDes.mkdirs();
 
             destino += "/" + nome_arquivo;
 
@@ -619,8 +622,9 @@ public class CaixaFederalSigCB extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
             CONTEUDO_REMESSA = "";
 
             Integer sequencial_lote = 1;
@@ -660,8 +664,10 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito Filler 200 207 9(008) Preencher com zeros C003 
             CONTEUDO_REMESSA += "                                 "; // 23.1 CNAB Filler 208 240 X(033) Preencher com espaços G004
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
             CONTEUDO_REMESSA = "";
 
             Float valor_total_lote = (float) 0;
@@ -725,8 +731,10 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Uso Exclusivo CAIXA Filler 230 239 9(010) Preencher com zeros -
                 CONTEUDO_REMESSA += " "; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Q -------------------------------------------------------
@@ -785,9 +793,10 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "                    "; // 21.3Q Nosso Núm. Bco. Correspondente Nosso Nº no Banco Correspondente 213 232 X(020) Preencher com espaços; campo exclusivo para troca de arquivos entre bancos *C032
                 CONTEUDO_REMESSA += "        "; // 22.3Q CNAB Filler 233 240 X(008) Preencher com espaços G004
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
-                
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
                 CONTEUDO_REMESSA = "";
 
                 sequencial_registro_lote++;
@@ -820,8 +829,10 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------
