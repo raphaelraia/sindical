@@ -157,7 +157,9 @@ public class SocioCarteirinhaDao extends DB {
                     + "            pt.codigo_funcional AS codigo_funcional_titular,         \n" // 39 CÓDIGO FUNCIONAL - TITULAR
                     + "            s.titular AS titular_id,                                 \n" // 40 TITULAR ID
                     + "            s.grupo_categoria,                                       \n" // 41 GRUPO CATEGORIA
-                    + "            f.dt_aposentadoria                                       \n" // 42 APOSENTADORIA
+                    + "            f.dt_aposentadoria,                                      \n" // 42 APOSENTADORIA
+                    + "            f.ds_pai,                                                \n" // 43 PAI
+                    + "            f.ds_mae                                                 \n" // 44 MÃE
                     + "       FROM pes_fisica           AS f                                                                \n"
                     + " INNER JOIN pes_pessoa           AS p    ON p.id         = f.id_pessoa                               \n"
                     + " INNER JOIN pes_pessoa_vw        AS px   ON p.id         = px.codigo                                 \n"
@@ -360,7 +362,9 @@ public class SocioCarteirinhaDao extends DB {
                     + "          pt.codigo_funcional,                        \n"
                     + "          s.titular,                                  \n"
                     + "          s.grupo_categoria,                          \n"
-                    + "          f.dt_aposentadoria                          \n";
+                    + "          f.dt_aposentadoria,                         \n"
+                    + "          f.ds_pai,                                   \n"
+                    + "          f.ds_mae                                    \n";
 
             // ORDEM DA QUERY
             switch (indexOrdem) {

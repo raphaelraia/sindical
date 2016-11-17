@@ -2,7 +2,6 @@ package br.com.rtools.impressao;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class CartaoSocial {
 
@@ -47,6 +46,9 @@ public class CartaoSocial {
     private String via;
     private Collection<CartaoSocial> listDependentes;
     private String assinatura;
+    private Object imagem_fundo_verso;
+    private Object pai;
+    private Object mae;
 
     public CartaoSocial() {
         this.matricula = "";
@@ -90,9 +92,12 @@ public class CartaoSocial {
         this.via = "";
         this.listDependentes = new ArrayList();
         this.assinatura = "";
+        this.imagem_fundo_verso = "";
+        this.pai = "";
+        this.mae = "";
     }
 
-    public CartaoSocial(String matricula, String barras, String nome, String empresa, String cnpj, String admissao, String validade, String empresa_cidade, String empresa_uf, String logo, String imagem, String filiacao, String profissao, String cpf, String rg, int id_pessoa, String endereco, String cidade, String nacionalidade, String nascimento, String estado_civil, String carteira, String serie, String imagem_fundo, String codigo_funcional, String orgao_expeditor, String parentesco, String categoria, String fantasia, String titular, String dependente, String fantasia_titular, String codigo_funcional_titular, Integer titular_id, String grupo_categoria, String imagemExtra, String imagemExtra2, String dataAposentadoria, String via, Collection<CartaoSocial> listDependentes, String assinatura) {
+    public CartaoSocial(String matricula, String barras, String nome, String empresa, String cnpj, String admissao, String validade, String empresa_cidade, String empresa_uf, String logo, String imagem, String filiacao, String profissao, String cpf, String rg, int id_pessoa, String endereco, String cidade, String nacionalidade, String nascimento, String estado_civil, String carteira, String serie, String imagem_fundo, String codigo_funcional, String orgao_expeditor, String parentesco, String categoria, String fantasia, String titular, String dependente, String fantasia_titular, String codigo_funcional_titular, Integer titular_id, String grupo_categoria, String imagemExtra, String imagemExtra2, String dataAposentadoria, String via, Collection<CartaoSocial> listDependentes, String assinatura, Object imagem_fundo_verso, Object pai, Object mae) {
         this.matricula = matricula;
         this.barras = barras;
         this.nome = nome;
@@ -134,6 +139,9 @@ public class CartaoSocial {
         this.via = via;
         this.listDependentes = listDependentes;
         this.assinatura = assinatura;
+        this.imagem_fundo_verso = imagem_fundo_verso;
+        this.pai = pai;
+        this.mae = mae;
     }
 
     public String getMatricula() {
@@ -462,5 +470,29 @@ public class CartaoSocial {
 
     public void setAssinatura(String assinatura) {
         this.assinatura = assinatura;
+    }
+
+    public Object getImagem_fundo_verso() {
+        return imagem_fundo_verso;
+    }
+
+    public void setImagem_fundo_verso(Object imagem_fundo_verso) {
+        this.imagem_fundo_verso = imagem_fundo_verso;
+    }
+
+    public Object getPai() {
+        return pai;
+    }
+
+    public void setPai(Object pai) {
+        this.pai = pai;
+    }
+
+    public Object getMae() {
+        return mae;
+    }
+
+    public void setMae(Object mae) {
+        this.mae = mae;
     }
 }
