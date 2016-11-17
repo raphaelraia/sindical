@@ -77,17 +77,17 @@
                                                         </p:column>
 
                                                         <p:column>
-                                                            <h:panelGrid>
+                                                            <h:panelGrid id="i_p_cpf">
                                                                 <p:outputLabel value="CPF" />
-                                                                <h:column rendered="#{fisicaBean.fisica.id == -1 or empty fisicaBean.fisica.pessoa.documento}">
-                                                                    <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento and fisicaBean.fisica.pessoa.documento ne '___.___.___-__') ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold">
+                                                                <h:column rendered="#{fisicaBean.alteraCpf}">
+                                                                    <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento) ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold">
                                                                         <p:ajax event="blur" listener="#{fisicaBean.existePessoaDocumento}"  />
                                                                     </p:inputMask>
                                                                 </h:column>
-                                                                <h:column rendered="#{fisicaBean.fisica.id != -1 and (not empty fisicaBean.fisica.pessoa.documento or fisicaBean.fisica.pessoa.documento eq '')}" >
+                                                                <h:column rendered="#{!fisicaBean.alteraCpf}">
                                                                     <h:panelGrid style="width: 100%" columns="2">
-                                                                        <p:inputText size="18" value="#{fisicaBean.fisica.pessoa.documento}" readonly="true" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento and fisicaBean.fisica.pessoa.documento ne '___.___.___-__') ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold"/>
-                                                                        <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('cpf')}" oncomplete="PF('dlg_solicita_alteracao').show()" styleClass="margin-left" title="Solicitar alteração"/>
+                                                                        <p:inputText size="18" value="#{fisicaBean.fisica.pessoa.documento}" readonly="true" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento) ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold"/>
+                                                                        <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('cpf')}" oncomplete="PF('dlg_solicita_alteracao').show()" styleClass="margin-left" title="Solicitar alteração" />
                                                                     </h:panelGrid>
                                                                 </h:column>
                                                             </h:panelGrid>                                                                    
@@ -1024,7 +1024,7 @@
                             <br /><br />
                             <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="#{biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
                         </p:dialog>
-                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="#{biometriaBean.disabled}" autoStart="#{fisicaBean.fisica.id == -1 ? false : true}" delay="5" ignoreAutoUpdate="true"/>
+                        <p:poll id="i_app_leitor" interval="#{biometriaBean.status ? 5 : 60}" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="#{biometriaBean.disabled}" autoStart="#{fisicaBean.fisica.id == -1 ? false : (biometriaBean.openBiometria ? true : false)}" delay="5" ignoreAutoUpdate="true" />
                         <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
                             <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
                             <f:facet name="footer">

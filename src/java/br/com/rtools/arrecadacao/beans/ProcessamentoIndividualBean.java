@@ -52,9 +52,9 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@ManagedBean(name = "processamentoIndividualBean")
+@ManagedBean
 @SessionScoped
-public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implements Serializable {
+public class ProcessamentoIndividualBean extends MovimentoValorBean implements Serializable {
 
     private String frenteVerso = "false";
     private String nImpressos = "false";
@@ -68,8 +68,8 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     private int idIndex = -1;
     private Object processamento = new Object();
     private String vencimento = DataHoje.data();
-    private String msgConfirma = "";
-    private String msgConfirmaTela = "";
+    // private String msgConfirma = "";
+    // private String msgConfirmaTela = "";
     private String strReferencia = DataHoje.dataReferencia(vencimento);
     private String tipoEnvio = "empresa";
     private String linkAcesso = "";
@@ -84,11 +84,11 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     private boolean marcarReferencia = true;
     private boolean marcarVencimento = true;
     private boolean outrasEmpresas = false;
-    DataObject dataObject;
+    private DataObject dataObject;
     List<Boolean> marcados = new ArrayList<>();
     private Pessoa pessoaEnvio = new Pessoa();
 
-    public ProcessamentoIndividualJSFBean() {
+    public ProcessamentoIndividualBean() {
 
     }
 
@@ -99,16 +99,10 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     public void salvarEmail() {
         if (this.pessoaEnvio.getId() != -1) {
             Dao dao = new Dao();
-            dao.openTransaction();
-
-            if (dao.update(this.pessoaEnvio)) {
-                msgConfirma = "Email atualizado";
-                GenericaMensagem.info("Sucesso", msgConfirma);
-                dao.commit();
+            if (dao.update(this.pessoaEnvio, true)) {
+                GenericaMensagem.info("Sucesso", "Email atualizado");
             } else {
-                msgConfirma = "Erro ao atualizar Email";
-                GenericaMensagem.warn("Erro", msgConfirma);
-                dao.rollback();
+                GenericaMensagem.warn("Erro", "Erro ao atualizar Email");
             }
         }
     }
@@ -122,7 +116,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     public String getStatusContribuinte() {
         JuridicaDao db = new JuridicaDao();
         if (juridica.getId() != -1) {
-            List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId());
+            List<List> listax = db.listaJuridicaContribuinte(juridica.getId());
 
             if (listax.isEmpty()) {
                 return "NÃO CONTRIBUINTE";
@@ -213,8 +207,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
     public synchronized String adicionarMovimento() {
         if (juridica.getId() == -1) {
-            msgConfirmaTela = "Pesquise uma empresa!";
-            GenericaMensagem.warn("Erro", msgConfirmaTela);
+            GenericaMensagem.warn("Erro", "Pesquise uma empresa!");
             return null;
         }
         Dao dao = new Dao();
@@ -228,8 +221,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         tipoServico = dbTipo.pesquisaCodigo(Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
         contaCob = ctaCobraDB.pesquisaServicoCobranca(servicos.getId(), tipoServico.getId());
         if (contaCob == null) {
-            msgConfirmaTela = "Não existe conta Cobrança para gerar!";
-            GenericaMensagem.warn("Erro", msgConfirmaTela);
+            GenericaMensagem.warn("Erro", "Não existe conta Cobrança para gerar!");
             return null;
         }
         Movimento movim = new Movimento();
@@ -238,8 +230,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
         if (movim != null) {
             if (movim.getBaixa() != null && movim.getBaixa().getId() != -1) {
-                msgConfirmaTela = "Movimento já foi baixado!";
-                GenericaMensagem.warn("Erro", msgConfirmaTela);
+                GenericaMensagem.warn("Erro", "Movimento já foi baixado!");
                 return null;
             }
         }
@@ -249,8 +240,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 tipoServico.getId(),
                 servicos.getId());
         if (mensagemConvencao == null) {
-            msgConfirmaTela = "Não existe mensagem para esta referência !";
-            GenericaMensagem.warn("Erro", msgConfirmaTela);
+            GenericaMensagem.warn("Erro", "Não existe mensagem para esta referência !");
             return null;
         }
 
@@ -324,17 +314,14 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                             outrasEmpresas = true;
                         }
                     } else {
-                        msgConfirmaTela = "Esse movimento já está adicionado abaixo!";
-                        GenericaMensagem.warn("Erro", msgConfirmaTela);
+                        GenericaMensagem.warn("Erro", "Esse movimento já está adicionado abaixo!");
                     }
                 }
                 marcados.add(true);
                 carregaList = true;
                 renVisualizar = false;
                 renLimparTodos = false;
-                msgConfirmaTela = "";
             }
-            msgConfirmaTela = "";
         }
 
         return null;
@@ -376,8 +363,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
             strReferencia = DataHoje.dataReferencia(vencimento);
             return;
         }
-        msgConfirma = "";
-
         MensagemConvencao mensagemConvencao = menDB.retornaDiaString(
                 juridica.getId(),
                 strReferencia,
@@ -393,13 +378,13 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 vencimento = DataHoje.data();
             }
         } else {
-            msgConfirma = "Não existe mensagem!";
+            GenericaMensagem.warn("Validação", "Não existe mensagem!");
             vencimento = DataHoje.data();
         }
         validaReferenciaVencimento(mensagemConvencao);
     }
 
-    public synchronized String atualizaRef() {
+    public synchronized void atualizaRef() {
         try {
             if (DataHoje.converte(vencimento).before(DataHoje.dataHoje())) {
                 //vencimento = DataHoje.data();
@@ -407,7 +392,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         } catch (Exception e) {
             vencimento = DataHoje.data();
         }
-        return null;
     }
 
     @Override
@@ -444,7 +428,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
     public String btnExcluirMov(int index) {
         listMovimentos.remove(index);
-        msgConfirma = "";
         processou = false;
         return null;
     }
@@ -459,7 +442,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
     public String limparTodos() {
         listMovimentos = new ArrayList();
-        msgConfirma = "";
         renLimparTodos = false;
         renVisualizar = false;
         juridica = new Juridica();
@@ -519,9 +501,10 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                                 + " - Valor: " + movim.getValorString()
                                 + " - Vencimento: " + movim.getVencimento()
                         );
-                        msgConfirma = "Alterado com sucesso!";
+                        GenericaMensagem.info("Sucesso", "Alterado");
                     } else {
-                        msgConfirma = "Erro ao alterar boletos!";
+                        GenericaMensagem.warn("Erro", "Ao alterar boletos!");
+
                     }
 
                     movim.setVencimento(((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento());
@@ -542,9 +525,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                                 + " - Valor: " + movim.getValorString()
                                 + " - Vencimento: " + movim.getVencimento()
                         );
-                        msgConfirma = "Gerado com sucesso!";
+                        GenericaMensagem.info("Sucesso", "Gerado");
                     } else {
-                        msgConfirma = "Erro ao Gerar boletos!";
+                        GenericaMensagem.warn("Erro", "Ao gerar boletos!");
                     }
                 }
                 movimentoBefore = new Movimento();
@@ -609,7 +592,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
         Registro reg = new Registro();
         reg = Registro.get();
-        msgConfirma = "";
         if (tipoEnvio.equals("empresa")) {
             if (!listMovimentos.isEmpty()) {
                 for (int i = 0; i < listMovimentos.size(); i++) {
@@ -624,8 +606,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                     jur = new Juridica();
                 }
                 if (!empresasSemEmail.equals("")) {
-                    msgConfirma = " Empresas " + empresasSemEmail + " não contém e-mail para envio!";
-                    GenericaMensagem.warn("Erro", msgConfirma);
+                    GenericaMensagem.warn("Erro", " Empresas " + empresasSemEmail + " não contém e-mail para envio!");
                     return null;
                 }
 
@@ -701,11 +682,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                     String[] retorno = mail.send("personalizado");
 
                     if (!retorno[1].isEmpty()) {
-                        msgConfirma = retorno[1];
-                        GenericaMensagem.warn("Erro", msgConfirma);
+                        GenericaMensagem.warn("Erro", retorno[1]);
                     } else {
-                        msgConfirma = retorno[0];
-                        GenericaMensagem.info("Sucesso", msgConfirma);
+                        GenericaMensagem.info("Sucesso", retorno[0]);
                     }
 
                     movs.clear();
@@ -796,11 +775,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                         String[] retorno = mail.send("personalizado");
 
                         if (!retorno[1].isEmpty()) {
-                            msgConfirma = retorno[1];
-                            GenericaMensagem.warn("Erro", msgConfirma);
+                            GenericaMensagem.warn("Erro", retorno[1]);
                         } else {
-                            msgConfirma = retorno[0];
-                            GenericaMensagem.info("Sucesso", msgConfirma);
+                            GenericaMensagem.info("Sucesso", retorno[0]);
                         }
 
                         m.clear();
@@ -875,11 +852,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                         String[] retorno = mail.send("personalizado");
 
                         if (!retorno[1].isEmpty()) {
-                            msgConfirma = retorno[1];
-                            GenericaMensagem.warn("Erro", msgConfirma);
+                            GenericaMensagem.warn("Erro", retorno[1]);
                         } else {
-                            msgConfirma = retorno[0];
-                            GenericaMensagem.info("Sucesso", msgConfirma);
+                            GenericaMensagem.info("Sucesso", retorno[0]);
                         }
 
                         m.clear();
@@ -891,8 +866,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 }
             }
             if (!empresasSemEmail.equals("")) {
-                msgConfirma = msgConfirma + empresasSemEmail + " não contém e-mail para envio!";
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", empresasSemEmail + " não contém e-mail para envio!");
             }
             return null;
         }
@@ -973,11 +947,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
             String[] retorno = mail.send("personalizado");
 
             if (!retorno[1].isEmpty()) {
-                msgConfirma = retorno[1];
-                GenericaMensagem.warn("Erro", msgConfirma);
+                GenericaMensagem.warn("Erro", retorno[1]);
             } else {
-                msgConfirma = retorno[0];
-                GenericaMensagem.info("Sucesso", msgConfirma);
+                GenericaMensagem.info("Sucesso", retorno[0]);
             }
         }
     }
@@ -1180,14 +1152,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         this.nImpressos = nImpressos;
     }
 
-    public String getMsgConfirma() {
-        return msgConfirma;
-    }
-
-    public void setMsgConfirma(String msgConfirma) {
-        this.msgConfirma = msgConfirma;
-    }
-
     public boolean isRenVisualizar() {
         return renVisualizar;
     }
@@ -1275,14 +1239,6 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
     public void setProcessou(boolean processou) {
         this.processou = processou;
-    }
-
-    public String getMsgConfirmaTela() {
-        return msgConfirmaTela;
-    }
-
-    public void setMsgConfirmaTela(String msgConfirmaTela) {
-        this.msgConfirmaTela = msgConfirmaTela;
     }
 
     public Pessoa getPessoaEnvio() {

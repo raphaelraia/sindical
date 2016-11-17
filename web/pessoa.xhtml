@@ -528,6 +528,49 @@
                                 </p:panel>
                             </h:panelGroup>
 
+                            <!-- FUNCIONÁRIOS -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'funcionarios'}">
+                                <p:panel header="Funcionários" >
+                                    <h:panelGrid columns="1">
+                                        <h:column>
+                                            <p:outputLabel value="Filtrar por" /><br />
+                                            <p:selectOneMenu value="#{pessoaBean.situacaoFuncionario}">
+                                                <p:ajax event="change" listener="#{pessoaBean.loadListFuncionarios}" update="tbl_funcionarios"/>
+                                                <f:selectItem itemValue="ativos"     itemLabel="Ativos"/>
+                                                <f:selectItem itemValue="demissionados" itemLabel="Demissionados"/>
+                                                <f:selectItem itemValue="todos"      itemLabel="Todas"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                    </h:panelGrid>
+                                    <h:panelGroup layout="block" id="tbl_funcionarios">
+                                        <p:dataTable value="#{pessoaBean.listFuncionarios}" var="funcionarios" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" styleClass="margin-top-max">
+                                            <p:column width="15">
+                                                <p:rowToggler />                                                
+                                            </p:column>
+                                            <p:column headerText="Funcionário">
+                                                #{funcionarios.fisica.pessoa.nome}
+                                            </p:column>
+                                            <p:column headerText="CPF" width="150" styleClass="text-center">
+                                                #{funcionarios.fisica.pessoa.documento}
+                                            </p:column>
+                                            <p:column headerText="Admissão" width="80" styleClass="text-center">
+                                                #{funcionarios.admissao}
+                                            </p:column>
+                                            <p:column headerText="Demissão" width="80" styleClass="text-center">
+                                                #{funcionarios.demissao}
+                                            </p:column>
+                                            <p:column headerText="Função" styleClass="text-center">
+                                                #{funcionarios.funcao.profissao}
+                                            </p:column>
+                                            <p:column styleClass="text-center">
+                                                #{((funcionarios.demissao ne null and funcionarios.agendamento.status.id eq 4) ? 'DEMISSÃO HOMOLOGADA' : 'CONSULTAR EM HOMOLOGAÇÕES')}
+                                            </p:column>                                        
+                                        </p:dataTable>
+                                    </h:panelGroup>
+                                </p:panel>
+                            </h:panelGroup>
+
                             <!-- DOCUMENTOS -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'documentos'}">

@@ -25,80 +25,154 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Autorizar Carteirinha" styleClass="fonteHeader" />
-                        <h:form id="formAutorizaCarteirinha">
-                            <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="3">
-                                    <h:outputLabel value="Eu, "/>
-                                    <h:outputLabel value="#{autorizaCarteirinhaBean.usuario.pessoa.nome}" style="font-weight: bold"/>
-                                    <h:outputLabel value=" autorizo a emissão de carteirinha para "/>
-                                </h:panelGrid>
+                        <h:form id="form_autoriza_carteirinha">
+                            <div class="clear"></div>
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('info', 'Eu, '.concat(autorizaCarteirinhaBean.usuario.pessoa.nome).concat(' autorizo a emissão de carteirinha para'))}" escape="false"  />
+                            <p:messages id="i_msg" showDetail="true" autoUpdate="true" />
+                            <p:panel styleClass="margin-top-max">
+                                <f:facet name="header">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Adicionar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false" rendered="#{autorizaCarteirinhaBean.fisica.id == -1}"/>
+                                        <h:outputLabel value="#{autorizaCarteirinhaBean.fisica.pessoa.nome}" rendered="#{autorizaCarteirinhaBean.fisica.id != -1}" styleClass="font-size-12"/>
+                                    </h:panelGrid>                                    
+                                </f:facet>
+
+                                <h:panelGrid columns="4" rendered="#{autorizaCarteirinhaBean.fisica.id != -1}">
+                                    <p:column>
+                                        <h:panelGrid>
+                                            <h:outputLabel value="DATA" />
+                                            <p:inputText value="#{autorizaCarteirinhaBean.impressaoCartao.emissao}" readonly="true" size="8"/>                                            
+                                        </h:panelGrid>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:panelGrid>
+                                            <h:outputLabel value="MODELO" />
+                                            <p:selectOneMenu value="#{autorizaCarteirinhaBean.idModelo}">
+                                                <f:selectItems value="#{autorizaCarteirinhaBean.listaModelo}" />
+                                            </p:selectOneMenu>                                            
+                                        </h:panelGrid>
+                                    </p:column>
+                                </h:panelGrid>                                
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2" cellpadding="5" rendered="#{autorizaCarteirinhaBean.fisica.id != -1}">
+                                        <p:commandButton value="Autorizar" onclick="PF('i_dlg_s').show()" update="i_confirma"/>
+                                        <p:commandButton value="Novo" action="#{genericaSessao.removeSession('autorizaCarteirinhaBean')}" update=":form_autoriza_carteirinha:"/>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:panel>
-                            
-                            <p:messages id="i_msg" showDetail="true" />  
-                            
-                            <h:panelGrid columns="2" style="margin-top: 10px">
-                                <p:commandButton value="Adicionar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false" rendered="#{autorizaCarteirinhaBean.fisica.id == -1}"/>
-                                <h:outputLabel value="#{autorizaCarteirinhaBean.fisica.pessoa.nome}" rendered="#{autorizaCarteirinhaBean.fisica.id != -1}" style="font-size: 11pt!important"/>
-                            </h:panelGrid>
-                            
-                            <h:panelGrid columns="4" style="margin-top: 10px;" rendered="#{autorizaCarteirinhaBean.fisica.id != -1}">
-                                <p:column>
-                                    <h:outputLabel value="Data" /><br />
-                                    <p:inputText value="#{autorizaCarteirinhaBean.impressaoCartao.emissao}" readonly="true" size="8"/>
-                                </p:column>
-                                
-                                <p:column>
-                                    <h:outputLabel value="Modelo" /><br />
-                                    <p:selectOneMenu value="#{autorizaCarteirinhaBean.idModelo}" style="padding-right: 20px;">
-                                        <f:selectItems value="#{autorizaCarteirinhaBean.listaModelo}" />
-                                    </p:selectOneMenu>
-                                </p:column>
-                                
-                                <p:column>
-                                    <br />
-                                    <p:commandButton value="Autorizar" onclick="PF('i_dlg_s').show()" />
-                                </p:column>
-                                    
-                                <p:column>
-                                    <br />
-                                    <p:selectBooleanCheckbox value="#{autorizaCarteirinhaBean.impressaoCartao.foto}" style="margin-left: 370px;" itemLabel="Imprimir com foto no Cartão?">
+
+                            <h:panelGroup layout="block" rendered="#{autorizaCarteirinhaBean.fisica.id == -1}">
+                                <p:accordionPanel prependId="false" activeIndex="5" styleClass="margin-top-max fundoCinza">
+                                    <p:tab title=">> Filtrar Lista">                                    
+                                        <h:panelGroup styleClass="margin-top-max" id="i_filtros" layout="block">
+                                            <h:panelGrid columns="4">                                
+                                                <h:outputLabel value="OPERADOR: " />
+                                                <p:selectOneMenu value="#{autorizaCarteirinhaBean.idOperador}">
+                                                    <p:ajax event="change" update="@this"  global="false"/>
+                                                    <f:selectItems value="#{autorizaCarteirinhaBean.listOperador}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>                                    
+                                            <h:panelGrid cellspacing="5" columns="5">
+                                                <p:selectOneMenu value="#{autorizaCarteirinhaBean.status}">
+                                                    <p:ajax event="change" update="@this i_filtros" listener="#{autorizaCarteirinhaBean.listener('reload')}"  global="false"/>
+                                                    <f:selectItem itemValue="ontem" itemLabel="ONTEM" />
+                                                    <f:selectItem itemValue="hoje" itemLabel="HOJE" />
+                                                    <f:selectItem itemValue="ultimos_30_dias" itemLabel="ÚLTIMOS 30 DIAS" />
+                                                    <f:selectItem itemValue="emissao" itemLabel="AUTORIZADO EM" />
+                                                    <f:selectItem itemValue="impressos" itemLabel="IMPRESSOS" />
+                                                </p:selectOneMenu>                                                                                
+                                                <p:outputLabel value="FILTRO:" styleClass="margin-left-max" />
+                                                <p:selectOneMenu value="#{autorizaCarteirinhaBean.filter}">
+                                                    <p:ajax event="change" update="@this i_filtros" listener="#{autorizaCarteirinhaBean.listener('query')}"  global="false"/>
+                                                    <f:selectItem itemValue="" itemLabel="Nenhum" />
+                                                    <f:selectItem itemValue="nome" itemLabel="Nome" />
+                                                    <f:selectItem itemValue="cpf" itemLabel="CPF" />
+                                                    <f:selectItem itemValue="codigo" itemLabel="Código" />
+                                                    <f:selectItem itemValue="nascimento" itemLabel="Nascimento" />
+                                                </p:selectOneMenu>
+                                                <h:column>
+                                                    <h:panelGroup id="i_query">
+                                                        <p:inputMask value="#{autorizaCarteirinhaBean.query}" mask="#{autorizaCarteirinhaBean.mascaraAlteracao}" placeholder="DÍGITE A/O #{autorizaCarteirinhaBean.filter.toUpperCase()} AQUI" style="width: #{autorizaCarteirinhaBean.size}px" rendered="#{not empty autorizaCarteirinhaBean.filter}" converter="#{(autorizaCarteirinhaBean.filter eq 'matricula' or autorizaCarteirinhaBean.filter eq 'codigo') ? thisNumber : ''}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>                                                                                    
+                                                    </h:panelGroup>
+                                                </h:column>
+                                                <p:commandButton action="#{autorizaCarteirinhaBean.listener('query')}" icon="ui-icon-close" title="Limpar" update="i_query"/>
+                                            </h:panelGrid>
+                                            <h:panelGrid columns="5" cellspacing="5" id="i_panel_datas"  rendered="#{autorizaCarteirinhaBean.status eq 'emissao' or autorizaCarteirinhaBean.status eq 'impressos'}">
+                                                <p:outputLabel value="Período de #{autorizaCarteirinhaBean.status eq 'impressos' ? 'impressão' : 'autorização'}:" />
+                                                <p:selectOneMenu label="Data" value="#{autorizaCarteirinhaBean.typeDate}">
+                                                    <p:ajax event="change" update="@this i_panel_datas" global="false" />
+                                                    <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                    <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                    <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                    <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                    <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                </p:selectOneMenu>
+                                                <p:inputMask mask="99/99/9999" value="#{autorizaCarteirinhaBean.startDate}" converter="#{isDateString}" rendered="#{autorizaCarteirinhaBean.typeDate ne 'todos'}" size="10" styleClass="text-center">
+                                                    <p:ajax event="change" global="false" />
+                                                </p:inputMask>
+                                                <p:outputLabel value="até" rendered="#{autorizaCarteirinhaBean.typeDate eq 'faixa'}" styleClass="margin-left-max"/>
+                                                <p:inputMask mask="99/99/9999" value="#{autorizaCarteirinhaBean.finishDate}" converter="#{isDateString}" rendered="#{autorizaCarteirinhaBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
+                                                    <p:ajax event="change" global="false" />
+                                                </p:inputMask>
+                                            </h:panelGrid>
+                                            <h:panelGrid columns="4" styleClass="margin-top"> 
+                                                <p:commandButton value="Filtrar" action="#{autorizaCarteirinhaBean.loadListAutorizacao}" update=":form_autoriza_carteirinha:"/>
+                                            </h:panelGrid>
+                                        </h:panelGroup>
+                                    </p:tab>
+                                </p:accordionPanel>                            
+                                <p:dataTable value="#{autorizaCarteirinhaBean.listaAutorizacao}" var="linha" emptyMessage="Nenhuma registro encontrado!" paginator="true" rows="10">
+                                    <p:column width="30">  
+                                        <p:commandButton icon="ui-icon-close" action="#{autorizaCarteirinhaBean.excluir(linha)}" update=":form_autoriza_carteirinha"/>
+                                    </p:column>  
+
+                                    <p:column headerText="Pessoa">  
+                                        <h:outputText value="#{linha.pessoa.nome}" />  
+                                    </p:column>  
+
+                                    <p:column headerText="Autorizado por">  
+                                        <h:outputText value="#{linha.usuario.pessoa.nome}" />  
+                                    </p:column>  
+
+                                    <p:column headerText="Modelo">  
+                                        <h:outputText value="#{linha.modeloCarteirinha.descricao}" />  
+                                    </p:column>  
+
+                                    <p:column headerText="Foto">  
+                                        <h:outputText value="IMPRIMIR" rendered="#{linha.foto}"/>
+                                        <h:outputText value="NÃO IMPRIMIR" rendered="#{!linha.foto}"/>
+                                    </p:column>  
+
+                                    <p:column headerText="Autorizado em" width="80">  
+                                        <h:outputText value="#{linha.emissao}" />  
+                                    </p:column> 
+
+                                    <p:column headerText="Impressos" rendered="#{autorizaCarteirinhaBean.status eq 'impressos'}" width="80">
+                                        <h:outputText value="#{linha.historicoCarteirinha.emissao}" />  
+                                    </p:column>
+
+                                    <p:column headerText="Impresso por" rendered="#{autorizaCarteirinhaBean.status eq 'impressos'}">  
+                                        <h:outputText value="#{linha.historicoCarteirinha.usuario.pessoa.nome}" />  
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGroup>
+
+                            <p:dialog widgetVar="i_dlg_s" header="Deseja Autorizar esta Pessoa" resizable="false" width="400" modal="true">
+                                <h:panelGrid rendered="#{autorizaCarteirinhaBean.fisica.id != -1}" id="i_confirma">
+                                    <p:selectBooleanCheckbox value="#{autorizaCarteirinhaBean.impressaoCartao.foto}" itemLabel="Imprimir com foto no Cartão?">
                                         <p:ajax event="change" update="@this" />
                                     </p:selectBooleanCheckbox>
-                                </p:column>
-                            </h:panelGrid>
-                            
-                            <p:dialog widgetVar="i_dlg_s" header="Deseja Autorizar esta Pessoa" resizable="false" width="400" modal="true">
-                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{autorizaCarteirinhaBean.autorizar()}" update="formAutorizaCarteirinha" onclick="PF('i_dlg_s').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>                                                                
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2" cellspacing="5">
+                                        <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{autorizaCarteirinhaBean.autorizar()}" update="form_autoriza_carteirinha" onclick="PF('i_dlg_s').hide()" icon="ui-icon-check"/>
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>                                               
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
-                            
-                            
-                            <p:dataTable value="#{autorizaCarteirinhaBean.listaAutorizacao}" var="linha" emptyMessage="Nenhuma autorização encontrada." style="margin-top: 20px;">
-                                <p:column headerText="">  
-                                    <p:commandButton icon="ui-icon-close" action="#{autorizaCarteirinhaBean.excluir(linha)}" update=":formAutorizaCarteirinha"/>
-                                </p:column>  
-                                
-                                <p:column headerText="Pessoa">  
-                                    <h:outputText value="#{linha.pessoa.nome}" />  
-                                </p:column>  
-                                
-                                <p:column headerText="Usuário">  
-                                    <h:outputText value="#{linha.usuario.pessoa.nome}" />  
-                                </p:column>  
-                                
-                                <p:column headerText="Modelo">  
-                                    <h:outputText value="#{linha.modeloCarteirinha.descricao}" />  
-                                </p:column>  
-                                
-                                <p:column headerText="Foto">  
-                                    <h:outputText value="IMPRIMIR" rendered="#{linha.foto}"/>
-                                    <h:outputText value="NÃO IMPRIMIR" rendered="#{!linha.foto}"/>
-                                </p:column>  
-                                
-                                <p:column headerText="Emitido">  
-                                    <h:outputText value="#{linha.emissao}" />  
-                                </p:column>  
-                            </p:dataTable>
                         </h:form>
                     </p:panel>
                 </f:view>

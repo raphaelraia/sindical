@@ -50,7 +50,7 @@ public class HistoricoCarteirinha implements java.io.Serializable {
         this.movimento = null;
         this.usuario = Usuario.getUsuario();
     }
-    
+
     public HistoricoCarteirinha(int id, String emissao, String hora, String descricao, SocioCarteirinha carteirinha, Movimento movimento, Usuario usuario) {
         this.id = id;
         this.setEmissao(emissao);
@@ -76,7 +76,7 @@ public class HistoricoCarteirinha implements java.io.Serializable {
     public void setDtEmissao(Date dtEmissao) {
         this.dtEmissao = dtEmissao;
     }
-    
+
     public String getEmissao() {
         if (dtEmissao != null) {
             return DataHoje.converteData(dtEmissao);
@@ -89,7 +89,7 @@ public class HistoricoCarteirinha implements java.io.Serializable {
         if (!(emissao.isEmpty())) {
             this.dtEmissao = DataHoje.converte(emissao);
         }
-    }    
+    }
 
     public String getHora() {
         return hora;
@@ -130,4 +130,4 @@ public class HistoricoCarteirinha implements java.io.Serializable {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
-}
+    }

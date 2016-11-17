@@ -59,6 +59,10 @@ public class ConfiguracaoSocial implements Serializable {
     private Boolean atualizaViaCarteirinha;
     @Column(name = "nr_intervalo_minuto")
     private Integer intervaloMinuto;
+    @Column(name = "ds_obs_convite ", length = 8000)
+    private String observacaoConvite;
+    @Column(name = "is_imprime_convite_teste", columnDefinition = "boolean default false")
+    private Boolean imprimeConviteTeste;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -79,9 +83,11 @@ public class ConfiguracaoSocial implements Serializable {
         this.liberaConviteDia = false;
         this.atualizaViaCarteirinha = false;
         this.intervaloMinuto = 0;
+        this.observacaoConvite = "";
+        this.imprimeConviteTeste = false;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -100,6 +106,8 @@ public class ConfiguracaoSocial implements Serializable {
         this.liberaConviteDia = liberaConviteDia;
         this.atualizaViaCarteirinha = atualizaViaCarteirinha;
         this.intervaloMinuto = intervaloMinuto;
+        this.observacaoConvite = observacaoConvite;
+        this.imprimeConviteTeste = imprimeConviteTeste;
     }
 
     public Integer getId() {
@@ -256,5 +264,21 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setIntervaloMinuto(Integer intervaloMinuto) {
         this.intervaloMinuto = intervaloMinuto;
+    }
+
+    public String getObservacaoConvite() {
+        return observacaoConvite;
+    }
+
+    public void setObservacaoConvite(String observacaoConvite) {
+        this.observacaoConvite = observacaoConvite;
+    }
+
+    public Boolean getImprimeConviteTeste() {
+        return imprimeConviteTeste;
+    }
+
+    public void setImprimeConviteTeste(Boolean imprimeConviteTeste) {
+        this.imprimeConviteTeste = imprimeConviteTeste;
     }
 }

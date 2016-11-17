@@ -30,218 +30,198 @@
 
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:form id="formCartaoSocial" >
+                        <h:form id="form_cartao_social" >
+                            <p:poll id="i_reload" ignoreAutoUpdate="true" listener="#{cartaoSocialBean.loadList}" interval="10" update="i_reload :form_cartao_social:i_filtros :form_cartao_social:i_panel_grid" delay="5" global="false" stop="#{cartaoSocialBean.status ne 'nao_impressos'}"/>
                             <h:outputText value="Cartão Social" styleClass="fonteHeader" />
                             <div class="clear"></div>
-                            <p:panel styleClass="fundoCinza margin-top-max">
-                                <h:panelGrid columns="2">
-                                    <h:outputLabel value="Filial: "/>
-                                    <p:selectOneMenu value="#{cartaoSocialBean.idFilial}">
-                                        <p:ajax event="change" update="@this formCartaoSocial" listener="#{cartaoSocialBean.pesquisar()}"/>
-                                        <f:selectItems value="#{cartaoSocialBean.listFilial}"/>
-                                    </p:selectOneMenu>                                
-                                </h:panelGrid>
-                            </p:panel>
-                            <p:messages autoUpdate="true" showDetail="true" closable="true"/>
-                            <p:menu style="width:200px; float: left;" styleClass="margin-top-max">
-                                <p:submenu label="Não Impressos">  
-                                    <p:menuitem value="Todos" action="#{cartaoSocialBean.naoImpressoTodos()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Empresa" action="#{cartaoSocialBean.naoImpressoEmpresa()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="CNPJ" action="#{cartaoSocialBean.naoImpressoCNPJ()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                </p:submenu> 
-
-
-                                <p:submenu label="Impressos">  
-                                    <p:menuitem value="Todos" action="#{cartaoSocialBean.impressoTodos()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Empresa" action="#{cartaoSocialBean.impressoEmpresa()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="CNPJ" action="#{cartaoSocialBean.impressoCNPJ()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Ontem" action="#{cartaoSocialBean.impressoDias(1)}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Hoje" action="#{cartaoSocialBean.impressoDias(0)}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Últimos 30 dias" action="#{cartaoSocialBean.impressoDias(2)}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                </p:submenu>  
-
-                                <p:submenu label="Pessoa" >  
-                                    <p:menuitem value="Nome" action="#{cartaoSocialBean.pessoaNome()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Matrícula" action="#{cartaoSocialBean.sociosMatricula()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="Código" action="#{cartaoSocialBean.pessoaID()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                    <p:menuitem value="CPF" action="#{cartaoSocialBean.pessoaCPF()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="#{cartaoSocialBean.listaSelecionado.clear()}"/>  
-                                </p:submenu>  
-                            </p:menu>
-
-                            <h:panelGrid id="i_panel" style="float: left; margin-left: 20px;" styleClass="margin-top-max">
-
-                                <p:panel rendered="#{cartaoSocialBean.por == 'niEmpresaTodos' or cartaoSocialBean.por == 'niEmpresa' or cartaoSocialBean.por == 'iEmpresaTodos' or cartaoSocialBean.por == 'iEmpresa' or cartaoSocialBean.por == 'iDias'}" styleClass="fundoCinza" style="font-weight: bold">
-                                    <h:outputLabel value="#{cartaoSocialBean.porLabel}" />
-                                </p:panel>
-                                <p:panel rendered="#{cartaoSocialBean.por == 'niEmpresa' or cartaoSocialBean.por == 'iEmpresa' or cartaoSocialBean.por == 'iDias'}">
-                                    <h:panelGrid columns="3">
-                                        <h:column>
-                                            <p:inputText id="b_nome_empresa" style="width: 420px" value="#{cartaoSocialBean.descricao}"/>
-                                            <p:watermark for="b_nome_empresa" value="Digite o Nome da Empresa" />                                            
-                                        </h:column>
-                                        <p:commandButton value="Pesquisar" action="#{cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>                                        
-                                    </h:panelGrid>
-                                </p:panel>
-
-                                <p:panel rendered="#{cartaoSocialBean.por == 'niCNPJ' or cartaoSocialBean.por == 'iCNPJ'}" styleClass="fundoCinza" style="font-weight: bold">
-                                    <h:outputLabel value="#{cartaoSocialBean.porLabel}" />
-                                </p:panel>
-                                <p:panel rendered="#{cartaoSocialBean.por == 'niCNPJ' or cartaoSocialBean.por == 'iCNPJ'}">
-                                    <h:panelGrid columns="3">
-                                        <h:column>
-                                            <p:inputMask id="b_cnpj_empresa" style="width: 420px" value="#{cartaoSocialBean.descricao}" mask="99.999?.999/9999-99"/>
-                                            <p:watermark for="b_cnpj_empresa" value="Digite o CNPJ da Empresa" />
-                                        </h:column>                                    
-                                        <p:commandButton value="Pesquisar" action="#{cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>
-                                    </h:panelGrid>
-                                </p:panel>
-
-                                <p:panel rendered="#{cartaoSocialBean.por == 'iNome' or cartaoSocialBean.por == 'iMatricula' or cartaoSocialBean.por == 'iID'}" styleClass="fundoCinza" style="font-weight: bold">
-                                    <h:outputLabel value="#{cartaoSocialBean.porLabel}" />
-                                </p:panel>
-                                <p:panel rendered="#{cartaoSocialBean.por == 'iNome' or cartaoSocialBean.por == 'iMatricula' or cartaoSocialBean.por == 'iID'}">
-                                    <h:panelGrid columns="3">
-                                        <h:column>
-                                            <p:inputText id="b_nome_socio" style="width: 420px" value="#{cartaoSocialBean.descricao}">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
-                                            <p:watermark for="b_nome_socio" value="Digite sua pesquisa" />                                            
-                                        </h:column>                                    
-                                        <p:commandButton value="Pesquisar" action="#{cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>
-                                    </h:panelGrid>
-                                </p:panel>
-
-                                <p:panel rendered="#{cartaoSocialBean.por == 'iCPF'}" styleClass="fundoCinza" style="font-weight: bold">
-                                    <h:outputLabel value="#{cartaoSocialBean.porLabel}" />
-                                </p:panel>
-                                <p:panel rendered="#{cartaoSocialBean.por == 'iCPF'}">
-                                    <h:panelGrid columns="3">
-                                        <h:column>
-                                            <p:inputMask id="b_cpf_socio" mask="999?.999.999-99" style="width: 420px" value="#{cartaoSocialBean.descricao}"/>
-                                            <p:watermark for="b_cpf_socio" value="Digite o CPF do Sócio" />
-                                        </h:column>
-                                        <p:commandButton value="Pesquisar" action="#{cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>
-                                    </h:panelGrid>
-                                </p:panel>
-
-                                <p:panel styleClass="fundoCinza" style="font-weight: bold">
-                                    <h:outputLabel value="Ordenar por" /><br />
-                                    <p:selectOneMenu value="#{cartaoSocialBean.indexOrdem}" style="padding-right: 20px">
-                                        <p:ajax event="change" listener="#{cartaoSocialBean.pesquisar()}" update="i_panel_grid"/>
-                                        <f:selectItem itemLabel="Nome" itemValue="0"/>
-                                        <f:selectItem itemLabel="Empresa" itemValue="1"/>
-                                        <f:selectItem itemLabel="CNPJ" itemValue="2"/>
-                                        <f:selectItem itemLabel="Dt.Impressão, Nome" itemValue="3"/>
-                                        <f:selectItem itemLabel="Dt.Impressão, Empresa" itemValue="4"/>                                
+                            <p:messages autoUpdate="true" showDetail="true" closable="true" id="i_messages"/>
+                            <p:panel styleClass="margin-top fundoCinza" header="Filtros" id="i_filtros">
+                                <f:facet name="header">
+                                    <h:panelGrid columns="4">
+                                        <h:outputLabel value="FILIAL: "/>
+                                        <p:selectOneMenu value="#{cartaoSocialBean.idFilial}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                            <p:ajax event="change" update="@this"  global="false" />
+                                            <f:selectItems value="#{cartaoSocialBean.listFilial}"/>
+                                        </p:selectOneMenu>                                
+                                        <h:outputLabel value="Operador: " styleClass="margin-left-max" rendered="#{cartaoSocialBean.status ne 'nao_impressos'}"/>
+                                        <p:selectOneMenu value="#{cartaoSocialBean.idOperador}" rendered="#{cartaoSocialBean.status ne 'nao_impressos'}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                            <p:ajax event="change" update="@this"  global="false"/>
+                                            <f:selectItems value="#{cartaoSocialBean.listOperador}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                                <h:panelGrid cellspacing="5" columns="5">
+                                    <p:selectOneMenu value="#{cartaoSocialBean.status}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                        <p:ajax event="change" update="@this i_filtros i_reload" listener="#{cartaoSocialBean.listener('reload')}"  global="false"/>
+                                        <f:selectItem itemValue="nao_impressos" itemLabel="NÃO IMPRESSOS" />
+                                        <f:selectItem itemValue="impressos" itemLabel="IMPRESSOS" />
+                                        <f:selectItem itemValue="ontem" itemLabel="ONTEM" />
+                                        <f:selectItem itemValue="hoje" itemLabel="HOJE" />
+                                        <f:selectItem itemValue="ultimos_30_dias" itemLabel="ÚLTIMOS 30 DIAS" />
+                                    </p:selectOneMenu>                                                                                
+                                    <p:outputLabel value="FILTRO:" styleClass="margin-left-max" />
+                                    <p:selectOneMenu value="#{cartaoSocialBean.filter}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                        <p:ajax event="change" update="@this i_filtros" listener="#{cartaoSocialBean.listener('query')}"  global="false"/>
+                                        <f:selectItem itemValue="" itemLabel="Nenhum" />
+                                        <f:selectItem itemValue="empresa" itemLabel="Empresa" />
+                                        <f:selectItem itemValue="cnpj" itemLabel="CNPJ" />
+                                        <f:selectItem itemValue="nome" itemLabel="Nome" />
+                                        <f:selectItem itemValue="cpf" itemLabel="CPF" />
+                                        <f:selectItem itemValue="nome_titular" itemLabel="Titular" />
+                                        <f:selectItem itemValue="cpf_titular" itemLabel="CPF Titular" />
+                                        <f:selectItem itemValue="matricula" itemLabel="Matrícula" />
+                                        <f:selectItem itemValue="codigo" itemLabel="Código" />
+                                        <f:selectItem itemValue="nascimento" itemLabel="Nascimento" />
                                     </p:selectOneMenu>
-                                </p:panel>
+                                    <h:column>
+                                        <h:panelGroup id="i_query">
+                                            <p:inputMask value="#{cartaoSocialBean.query}" mask="#{cartaoSocialBean.mascaraAlteracao}" placeholder="DÍGITE A/O #{cartaoSocialBean.filter.toUpperCase()} AQUI" style="width: #{cartaoSocialBean.size}px" rendered="#{not empty cartaoSocialBean.filter}" converter="#{(cartaoSocialBean.filter eq 'matricula' or cartaoSocialBean.filter eq 'codigo') ? thisNumber : ''}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>                                                                                    
+                                        </h:panelGroup>
+                                    </h:column>
+                                    <p:commandButton action="#{cartaoSocialBean.listener('query')}" icon="ui-icon-close" title="Limpar" update="i_query" rendered="#{!cartaoSocialBean.disabledImpressaoExterna}"/>
+                                </h:panelGrid>
+                                <h:panelGrid columns="5" cellspacing="5" id="i_panel_datas"  rendered="#{cartaoSocialBean.status eq 'impressos' or cartaoSocialBean.status eq 'nao_impressos'}">
+                                    <p:outputLabel value="Período de #{cartaoSocialBean.status eq 'impressos' ? 'impressão' : 'emissão'}:" />
+                                    <p:selectOneMenu label="Data" value="#{cartaoSocialBean.typeDate}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                        <p:ajax event="change" update="@this i_panel_datas" global="false" />
+                                        <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                        <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                        <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                        <f:selectItem itemValue="ate" itemLabel="Até" />
+                                        <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                    </p:selectOneMenu>
+                                    <p:inputMask mask="99/99/9999" value="#{cartaoSocialBean.startDate}" converter="#{isDateString}" rendered="#{cartaoSocialBean.typeDate ne 'todos'}" size="10" styleClass="text-center">
+                                        <p:ajax event="change" global="false" />
+                                    </p:inputMask>
+                                    <p:outputLabel value="até" rendered="#{cartaoSocialBean.typeDate eq 'faixa'}" styleClass="margin-left-max"/>
+                                    <p:inputMask mask="99/99/9999" value="#{cartaoSocialBean.finishDate}" converter="#{isDateString}" rendered="#{cartaoSocialBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
+                                        <p:ajax event="change" global="false" />
+                                    </p:inputMask>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="4" styleClass="margin-top"> 
+                                        <p:commandButton value="Filtrar" action="#{cartaoSocialBean.loadList}" actionListener="#{cartaoSocialBean.setPrinted(false)}" update=":form_cartao_social:" disabled="#{cartaoSocialBean.disabledImpressaoExterna}"/>
+                                        <h:outputLabel value="Ordenar por" styleClass="margin-left-max"/>
+                                        <p:selectOneMenu value="#{cartaoSocialBean.indexOrdem}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                            <p:ajax event="change"  update="@this"  global="false"/>
+                                            <f:selectItem itemLabel="Nome" itemValue="0"/>
+                                            <f:selectItem itemLabel="Empresa" itemValue="1"/>
+                                            <f:selectItem itemLabel="CNPJ" itemValue="2"/>
+                                            <f:selectItem itemLabel="Dt.Impressão, Nome" itemValue="3"/>
+                                            <f:selectItem itemLabel="Dt.Impressão, Empresa" itemValue="4"/>                                
+                                        </p:selectOneMenu>
+                                        <h:column>
+                                            <ui:include src="templates/templateStatusLoader.xhtml"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>                           
+                            <div class="clear"></div>
+                            <p:panel styleClass="margin-top-max" >
+                                <f:facet name="header">
+                                    <h:panelGrid columns="2">
+                                        <p:splitButton value="Imprimir"  icon="ui-icon-print" action="#{cartaoSocialBean.print}" disabled="#{empty cartaoSocialBean.listaCarteirinha}" title="Imprimir selecionados" ajax="false">
+                                            <p:menuitem value="Imprimir 2º Via" ajax="false" rendered="false"/>
+                                            <p:menuitem value="Etiqueta" ajax="false" action="#{cartaoSocialBean.imprimirEtiqueta}" disabled="#{empty cartaoSocialBean.listaCarteirinha}"/>
+                                            <p:menuitem value="Etiqueta Térmica" ajax="false" action="#{cartaoSocialBean.imprimirEtiquetaTermica}" disabled="#{empty cartaoSocialBean.listaCarteirinha}"/>
+                                            <p:menuitem value="Histórico de Impressões (Selecionados)" oncomplete="PF('i_dlg').show()" update="i_panel_dlgx" action="#{cartaoSocialBean.historicoCarteirinha}"  global="false"/>
+                                            <p:menuitem value="Imprimir Test" ajax="false" action="#{cartaoSocialBean.printTest}"  rendered="false"/>
+                                        </p:splitButton>
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGroup id="i_panel_grid" style="width: 100%">
+                                    <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[0]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index">
 
-                            </h:panelGrid>
+                                        <f:facet name="header" >
+                                            <p:outputLabel value="Selecionados #{cartaoSocialBean.listaSelecionado.size()} de #{cartaoSocialBean.listaCarteirinha.size()}" />
+                                        </f:facet>
+                                        <!-- <p:ajax event="rowSelect" update="@this :form_cartao_social:i_panel_grid" listener="# {cartaoSocialBean.onRowSelect}"/> -->
+                                        <p:ajax event="rowSelectCheckbox" update="@this :form_cartao_social:i_panel_grid" listener="#{cartaoSocialBean.onRowSelect}"/>
+                                        <!-- <p:ajax event="rowUnselect" update="@this :form_cartao_social:i_panel_grid" listener="# {cartaoSocialBean.onRowUnselect}"/> -->
+                                        <p:ajax event="rowUnselectCheckbox" update="@this :form_cartao_social:i_panel_grid" listener="#{cartaoSocialBean.onRowUnselect}"/>
+                                        <p:ajax event="toggleSelect" update=":form_cartao_social:i_panel_grid :form_cartao_social:i_tbl" listener="#{cartaoSocialBean.toggleSelectedListener}"/>
+                                        <p:ajax event="page" listener="#{cartaoSocialBean.selectedPage}" />
+                                        <p:ajax event="filter" listener="#{cartaoSocialBean.listernetFilter}" />
 
-                            <p:panel id="i_panel_botoes" styleClass="fundoCinza margin-top-max"  style="float: right; font-weight: bold; width: 200px">
-                                <p:commandLink ajax="false" value="Imprimir" action="#{cartaoSocialBean.imprimirCarteirinha()}" 
-                                               rendered="#{cartaoSocialBean.listaCarteirinha.size() != 0}"/>
 
-                                <p:commandLink ajax="false" value="Imprimir 2º Via" action="#{cartaoSocialBean.reImprimirCarteirinha()}" 
-                                               rendered="false"/>
 
-                                <br /><br />    
-                                <p:commandLink ajax="false" value="Etiqueta" action="#{cartaoSocialBean.imprimirEtiqueta()}" rendered="#{cartaoSocialBean.listaCarteirinha.size() != 0}"/>
-                                <br /><br />
-                                <p:commandLink ajax="false" value="Etiqueta Térmica" action="#{cartaoSocialBean.imprimirEtiquetaTermica()}" rendered="#{cartaoSocialBean.listaCarteirinha.size() != 0}"/>
-                                <br /><br />
-                                <p:commandLink value="Histórico de Impressões (Selecionados)" actionListener="#{cartaoSocialBean.historicoCarteirinha()}" oncomplete="PF('i_dlg').show()" update="i_panel_dlgx"
-                                               rendered="#{(cartaoSocialBean.por != 'niEmpresa' or cartaoSocialBean.por != 'niCNPJ') and cartaoSocialBean.listaCarteirinha.size() != 0}"/>
-                                <br /><br />    
-                                <p:commandLink ajax="false" value="Imprimir Test" action="#{cartaoSocialBean.printTest()}" rendered="false"/>
+                                        <p:column style="width: 25px!important" styleClass="text-center">  
+                                            <h:outputText value="#{index+1}" />  
+                                        </p:column>
+
+                                        <p:column style="width:20px">  
+                                            <p:rowToggler />  
+                                        </p:column>  
+
+                                        <p:column selectionMode="multiple" width="25" styleClass="text-center"/>  
+
+                                        <p:column headerText="Matrícula" style="text-align: center; width: 80px" sortBy="#{linha[10]}">  
+                                            <h:outputText value="#{linha[10]}" />  
+                                        </p:column>  
+
+                                        <p:column headerText="Nome" filterMatchMode="global" sortBy="#{linha[1]}">
+                                            <p:commandLink value="#{linha[1]}" onclick="PF('dlg_pessoa_card').show()" update=":form_cartao_social:i_pessoa_card" action="#{pessoaCardBean.cardPessoa(linha[0])}" title="Ver detalhes"/>
+                                        </p:column>  
+
+                                        <p:column headerText="CNPJ / Empresa">  
+                                            <h:outputText value="#{linha[2]} - #{linha[3]}" />  
+                                        </p:column>  
+
+                                        <p:column headerText="Fantasia">  
+                                            <h:outputText value="#{linha[9]}" />  
+                                        </p:column> 
+
+                                        <p:column headerText="Cidade">  
+                                            <h:outputText value="#{linha[5]} - #{linha[7]}" />  
+                                        </p:column>  
+
+                                        <p:column headerText="Impresso" style="text-align: center; width: 80px" sortBy="#{linha[4]}">
+                                            <h:outputText value="#{linha[4]}" />  
+                                        </p:column>  
+
+                                        <p:column headerText="Modelo" style="text-align: center; width: 100px">  
+                                            <h:outputText value="#{linha[20]}" />  
+                                        </p:column>
+
+                                        <p:rowExpansion>
+                                            <p:panelGrid columns="3" styleClass="sbb">
+                                                <p:column>Parentesco: #{linha[36]}</p:column>
+                                                <p:column>Categoria: #{linha[37]}</p:column>
+                                                <p:column>Validade da Carteirinha: #{linha[6]}</p:column>
+                                            </p:panelGrid>
+                                        </p:rowExpansion>
+
+                                        <f:facet name="footer">
+                                            <p:commandButton value="Limpar tudo" action="#{genericaSessao.removeSession('cartaoSocialBean')}" ajax="false">
+                                                <p:ajax event="click" update=":form_cartao_social:"  />
+                                            </p:commandButton>
+                                            <p:commandButton value="Limpar selecão" action="#{cartaoSocialBean.clear}" ajax="false" styleClass="margin-left" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                                <p:ajax event="click" update=":form_cartao_social:"  />
+                                            </p:commandButton>
+                                            <p:commandButton value="Cartões selecionados" onclick="PF('dlg_selecionadas').show()" styleClass="margin-left">
+                                                <p:ajax event="click" update=":form_cartao_social:i_selecionadas"  />
+                                            </p:commandButton>
+                                            <p:outputLabel value="Faixa Inicial: " styleClass="margin-left-max"/>
+                                            <p:inputText value="#{cartaoSocialBean.firstIndex}" size="2" styleClass="text-center">
+                                                <p:ajax update="@this" event="change" />
+                                            </p:inputText>
+                                            <p:outputLabel value="Final: " styleClass="margin-left-max"/>
+                                            <p:inputText value="#{cartaoSocialBean.lastIndex}" size="2" styleClass="text-center">
+                                                <p:ajax update="@this" event="change" />
+                                            </p:inputText>
+                                            <p:commandButton value="Selecionar por faixa" styleClass="margin-left-max" action="#{cartaoSocialBean.loadSelecteds}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
+                                                <p:ajax event="click" update="@this :form_cartao_social:i_tbl"  />
+                                            </p:commandButton>
+                                            <p:commandButton value="Selecionar todos" styleClass="margin-left-max" action="#{cartaoSocialBean.selectedAll}" />
+                                        </f:facet>
+
+                                    </p:dataTable>  
+                                </h:panelGroup>
                             </p:panel>
-                            <h:panelGrid id="i_panel_grid" style="float: left; clear: both; width: 100%">
-                                <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[0]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index">
 
-                                    <f:facet name="header" >
-                                        <p:outputLabel value="Selecionados #{cartaoSocialBean.listaSelecionado.size()} de #{cartaoSocialBean.listaCarteirinha.size()}" />
-                                    </f:facet>
-                                    <!-- <p:ajax event="rowSelect" update="@this :formCartaoSocial:i_panel_grid" listener="#{cartaoSocialBean.onRowSelect}"/> -->
-                                    <p:ajax event="rowSelectCheckbox" update="@this :formCartaoSocial:i_panel_grid" listener="#{cartaoSocialBean.onRowSelect}"/>
-                                    <!-- <p:ajax event="rowUnselect" update="@this :formCartaoSocial:i_panel_grid" listener="#{cartaoSocialBean.onRowUnselect}"/> -->
-                                    <p:ajax event="rowUnselectCheckbox" update="@this :formCartaoSocial:i_panel_grid" listener="#{cartaoSocialBean.onRowUnselect}"/>
-                                    <p:ajax event="toggleSelect" update=":formCartaoSocial:i_panel_grid :formCartaoSocial:i_tbl" listener="#{cartaoSocialBean.toggleSelectedListener}"/>
-                                    <p:ajax event="page" listener="#{cartaoSocialBean.selectedPage}" />
-                                    <p:ajax event="filter" listener="#{cartaoSocialBean.listernetFilter}" />
-
-
-
-                                    <p:column style="width: 25px!important" styleClass="text-center">  
-                                        <h:outputText value="#{index+1}" />  
-                                    </p:column>
-
-                                    <p:column style="width:20px">  
-                                        <p:rowToggler />  
-                                    </p:column>  
-
-                                    <p:column selectionMode="multiple" width="25" styleClass="text-center"/>  
-
-                                    <p:column headerText="Matrícula" style="text-align: center; width: 80px" filterBy="#{linha[10]}" sortBy="#{linha[10]}">  
-                                        <h:outputText value="#{linha[10]}" />  
-                                    </p:column>  
-
-                                    <p:column headerText="Nome" filterBy="#{linha[1]}" filterMatchMode="global" sortBy="#{linha[1]}">
-                                        <p:commandLink value="#{linha[1]}" onclick="PF('dlg_pessoa_card').show()" update=":formCartaoSocial:i_pessoa_card" action="#{pessoaCardBean.cardPessoa(linha[0])}" title="Ver detalhes"/>
-                                    </p:column>  
-
-                                    <p:column headerText="CNPJ / Empresa">  
-                                        <h:outputText value="#{linha[2]} - #{linha[3]}" />  
-                                    </p:column>  
-
-                                    <p:column headerText="Fantasia">  
-                                        <h:outputText value="#{linha[9]}" />  
-                                    </p:column> 
-
-                                    <p:column headerText="Cidade">  
-                                        <h:outputText value="#{linha[5]} - #{linha[7]}" />  
-                                    </p:column>  
-
-                                    <p:column headerText="Impresso" style="text-align: center; width: 80px" sortBy="#{linha[4]}">
-                                        <h:outputText value="#{linha[4]}" />  
-                                    </p:column>  
-
-                                    <p:column headerText="Modelo" style="text-align: center; width: 100px">  
-                                        <h:outputText value="#{linha[20]}" />  
-                                    </p:column>
-
-                                    <p:rowExpansion>
-                                        <p:panelGrid columns="3" styleClass="sbb">
-                                            <p:column>Parentesco: #{linha[36]}</p:column>
-                                            <p:column>Categoria: #{linha[37]}</p:column>
-                                            <p:column>Validade da Carteirinha: #{linha[6]}</p:column>
-                                        </p:panelGrid>
-                                    </p:rowExpansion>
-
-                                    <f:facet name="footer">
-                                        <p:commandButton value="Limpar selecão" action="#{cartaoSocialBean.clear}">
-                                            <p:ajax event="click" update=":formCartaoSocial:"  />
-                                        </p:commandButton>
-                                        <p:commandButton value="Cartões selecionados" onclick="PF('dlg_selecionadas').show()" styleClass="margin-left">
-                                            <p:ajax event="click" update=":formCartaoSocial:i_selecionadas"  />
-                                        </p:commandButton>
-                                        <p:outputLabel value="Faixa Inicial: " styleClass="margin-left-max"/>
-                                        <p:inputText value="#{cartaoSocialBean.firstIndex}" size="2" styleClass="text-center">
-                                            <p:ajax update="@this" event="change" />
-                                        </p:inputText>
-                                        <p:outputLabel value="Final: " styleClass="margin-left-max"/>
-                                        <p:inputText value="#{cartaoSocialBean.lastIndex}" size="2" styleClass="text-center">
-                                            <p:ajax update="@this" event="change" />
-                                        </p:inputText>
-                                        <p:commandButton value="Selecionar por faixa" styleClass="margin-left-max" action="#{cartaoSocialBean.loadSelecteds}">
-                                            <p:ajax event="click" update="@this :formCartaoSocial:i_tbl"  />
-                                        </p:commandButton>
-                                        <p:commandButton value="Selecionar todos" styleClass="margin-left-max" action="#{cartaoSocialBean.selectedAll}" />
-                                    </f:facet>
-
-                                </p:dataTable>  
-                            </h:panelGrid>
-
-                            <p:dialog id="i_panel_dlgx" widgetVar="i_dlg" header="Lista de Impressões" modal="true" height="300" width="1000">
+                            <p:dialog id="i_panel_dlgx" widgetVar="i_dlg" header="Lista de Impressões" modal="true" height="300" width="1000"  closeOnEscape="true">
                                 <h:panelGrid id="i_panel_dlg">
                                     <h:column rendered="#{cartaoSocialBean.listaSelecionado.size() == 0}">
                                         <h:outputLabel value="Nenhuma carteirinha foi selecionada!" />  
@@ -278,45 +258,51 @@
                                 <br />
                                 <p:commandButton value="OK" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg').hide()" icon="ui-icon-close"/>       
                             </p:dialog>
-                            <p:dialog widgetVar="dlg_selecionadas" header="Lista de Selecionadas" modal="true">
+                            <p:dialog widgetVar="dlg_selecionadas" header="Lista de Selecionadas" modal="true" closeOnEscape="true">
                                 <h:panelGrid id="i_selecionadas">
                                     <h:column rendered="#{cartaoSocialBean.listaSelecionado.size() == 0}">
                                         <h:outputLabel value="Nenhuma carteirinha foi selecionada!" />  
                                     </h:column>
                                     <h:column>
-                                        <p:dataTable id="i_tbl_selecionados" var="linha" value="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhum histórico foi encontrado!" paginator="true" rows="10"> 
-                                            <p:column style="width: 0px!important">  
-                                                <h:outputText value="#{linha[0]}" />  
-                                            </p:column>
+                                        <h:panelGroup id="i_tbl_selecionados">
+                                            <p:dataTable var="linha" value="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhum histórico foi encontrado!" paginator="true" rows="10"> 
+                                                <p:column width="30">  
+                                                    <p:commandButton title="Remove item" icon="ui-icon-close" action="#{cartaoSocialBean.removeSelect(linha)}" update=" :form_cartao_social:i_tbl_selecionados :form_cartao_social:i_panel_grid" />
+                                                </p:column>
 
-                                            <p:column headerText="Matrícula" style="text-align: center; width: 80px" filterBy="#{linha[10]}" sortBy="#{linha[10]}">  
-                                                <h:outputText value="#{linha[10]}" />  
-                                            </p:column>  
+                                                <p:column style="width: 0px!important">  
+                                                    <h:outputText value="#{linha[0]}" />  
+                                                </p:column>
 
-                                            <p:column headerText="Nome" filterBy="#{linha[1]}" filterMatchMode="global" sortBy="#{linha[1]}">
-                                                <p:commandLink value="#{linha[1]}" onclick="PF('dlg_pessoa_card').show()" update=":formCartaoSocial:i_pessoa_card" action="#{pessoaCardBean.cardPessoa(linha[0])}" title="Ver detalhes"/>
-                                            </p:column>  
+                                                <p:column headerText="Matrícula" style="text-align: center; width: 80px" filterBy="#{linha[10]}" sortBy="#{linha[10]}">  
+                                                    <h:outputText value="#{linha[10]}" />  
+                                                </p:column>  
 
-                                            <p:column headerText="CNPJ / Empresa">  
-                                                <h:outputText value="#{linha[2]} - #{linha[3]}" />  
-                                            </p:column>  
+                                                <p:column headerText="Nome" filterBy="#{linha[1]}" filterMatchMode="global" sortBy="#{linha[1]}">
+                                                    <p:commandLink value="#{linha[1]}" onclick="PF('dlg_pessoa_card').show()" update=":form_cartao_social:i_pessoa_card" action="#{pessoaCardBean.cardPessoa(linha[0])}" title="Ver detalhes"/>
+                                                </p:column>  
 
-                                            <p:column headerText="Fantasia">  
-                                                <h:outputText value="#{linha[9]}" />  
-                                            </p:column> 
+                                                <p:column headerText="CNPJ / Empresa">  
+                                                    <h:outputText value="#{linha[2]} - #{linha[3]}" />  
+                                                </p:column>  
 
-                                            <p:column headerText="Cidade">  
-                                                <h:outputText value="#{linha[5]} - #{linha[7]}" />  
-                                            </p:column>  
+                                                <p:column headerText="Fantasia">  
+                                                    <h:outputText value="#{linha[9]}" />  
+                                                </p:column> 
 
-                                            <p:column headerText="Impresso" style="text-align: center; width: 80px">  
-                                                <h:outputText value="#{linha[4]}" />  
-                                            </p:column>  
+                                                <p:column headerText="Cidade">  
+                                                    <h:outputText value="#{linha[5]} - #{linha[7]}" />  
+                                                </p:column>  
 
-                                            <p:column headerText="Modelo" style="text-align: center; width: 100px">  
-                                                <h:outputText value="#{linha[20]}" />  
-                                            </p:column>
-                                        </p:dataTable>
+                                                <p:column headerText="Impresso" style="text-align: center; width: 80px">  
+                                                    <h:outputText value="#{linha[4]}" />  
+                                                </p:column>  
+
+                                                <p:column headerText="Modelo" style="text-align: center; width: 100px">  
+                                                    <h:outputText value="#{linha[20]}" />  
+                                                </p:column>
+                                            </p:dataTable>                                            
+                                        </h:panelGroup>
                                     </h:column>
                                 </h:panelGrid>
                                 <br />                            
@@ -345,3 +331,108 @@
         </div>
     </h:body>
 </ui:composition>
+<!-- 
+                            <p:menu style="width:200px; float: left;" styleClass="margin-top-max">
+                                <p:submenu label="Não Impressos">  
+                                    <p:menuitem value="Todos" action="# {cartaoSocialBean.naoImpressoTodos()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Empresa" action="# {cartaoSocialBean.naoImpressoEmpresa()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="CNPJ" action="# {cartaoSocialBean.naoImpressoCNPJ()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                </p:submenu> 
+
+
+                                <p:submenu label="Impressos">  
+                                    <p:menuitem value="Todos" action="# {cartaoSocialBean.impressoTodos()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Empresa" action="# {cartaoSocialBean.impressoEmpresa()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="CNPJ" action="# {cartaoSocialBean.impressoCNPJ()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Ontem" action="# {cartaoSocialBean.impressoDias(1)}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Hoje" action="# {cartaoSocialBean.impressoDias(0)}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Últimos 30 dias" action="# {cartaoSocialBean.impressoDias(2)}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                </p:submenu>  
+
+                                <p:submenu label="Pessoa" >  
+                                    <p:menuitem value="Nome" action="# {cartaoSocialBean.pessoaNome()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Matrícula" action="# {cartaoSocialBean.sociosMatricula()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="Código" action="# {cartaoSocialBean.pessoaID()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                    <p:menuitem value="CPF" action="# {cartaoSocialBean.pessoaCPF()}" update="i_panel i_panel_grid i_panel_botoes" actionListener="# {cartaoSocialBean.listaSelecionado.clear()}"/>  
+                                </p:submenu>  
+                            </p:menu> -->
+
+<!-- 
+<h:panelGrid id="i_panel" style="float: left; margin-left: 20px;" styleClass="margin-top-max">
+
+    <p:panel rendered="# {cartaoSocialBean.por == 'niEmpresaTodos' or cartaoSocialBean.por == 'niEmpresa' or cartaoSocialBean.por == 'iEmpresaTodos' or cartaoSocialBean.por == 'iEmpresa' or cartaoSocialBean.por == 'iDias'}" styleClass="fundoCinza" style="font-weight: bold">
+        <h:outputLabel value="# {cartaoSocialBean.porLabel}" />
+    </p:panel>
+    <p:panel rendered="# {cartaoSocialBean.por == 'niEmpresa' or cartaoSocialBean.por == 'iEmpresa' or cartaoSocialBean.por == 'iDias'}">
+        <h:panelGrid columns="3">
+            <h:column>
+                <p:inputText id="b_nome_empresa" style="width: 420px" value="# {cartaoSocialBean.descricao}"/>
+                <p:watermark for="b_nome_empresa" value="Digite o Nome da Empresa" />                                            
+            </h:column>
+            <p:commandButton value="Pesquisar" action="# {cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>                                        
+        </h:panelGrid>
+    </p:panel>
+
+    <p:panel rendered="# {cartaoSocialBean.por == 'niCNPJ' or cartaoSocialBean.por == 'iCNPJ'}" styleClass="fundoCinza" style="font-weight: bold">
+        <h:outputLabel value="# {cartaoSocialBean.porLabel}" />
+    </p:panel>
+    <p:panel rendered="# {cartaoSocialBean.por == 'niCNPJ' or cartaoSocialBean.por == 'iCNPJ'}">
+        <h:panelGrid columns="3">
+            <h:column>
+                <p:inputMask id="b_cnpj_empresa" style="width: 420px" value="# {cartaoSocialBean.descricao}" mask="99.999?.999/9999-99"/>
+                <p:watermark for="b_cnpj_empresa" value="Digite o CNPJ da Empresa" />
+            </h:column>                                    
+            <p:commandButton value="Pesquisar" action="# {cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>
+        </h:panelGrid>
+    </p:panel>
+
+    <p:panel rendered="# {cartaoSocialBean.por == 'iNome' or cartaoSocialBean.por == 'iMatricula' or cartaoSocialBean.por == 'iID'}" styleClass="fundoCinza" style="font-weight: bold">
+        <h:outputLabel value="# {cartaoSocialBean.porLabel}" />
+    </p:panel>
+    <p:panel rendered="# {cartaoSocialBean.por == 'iNome' or cartaoSocialBean.por == 'iMatricula' or cartaoSocialBean.por == 'iID'}">
+        <h:panelGrid columns="3">
+            <h:column>
+                <p:inputText id="b_nome_socio" style="width: 420px" value="# {cartaoSocialBean.descricao}">
+                    <p:ajax event="change" update="@this" />
+                </p:inputText>
+                <p:watermark for="b_nome_socio" value="Digite sua pesquisa" />                                            
+            </h:column>                                    
+            <p:commandButton value="Pesquisar" action="# {cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>
+        </h:panelGrid>
+    </p:panel>
+
+    <p:panel rendered="# {cartaoSocialBean.por == 'iCPF'}" styleClass="fundoCinza" style="font-weight: bold">
+        <h:outputLabel value="# {cartaoSocialBean.porLabel}" />
+    </p:panel>
+    <p:panel rendered="# {cartaoSocialBean.por == 'iCPF'}">
+        <h:panelGrid columns="3">
+            <h:column>
+                <p:inputMask id="b_cpf_socio" mask="999?.999.999-99" style="width: 420px" value="# {cartaoSocialBean.descricao}"/>
+                <p:watermark for="b_cpf_socio" value="Digite o CPF do Sócio" />
+            </h:column>
+            <p:commandButton value="Pesquisar" action="# {cartaoSocialBean.pesquisar()}" update="i_panel_grid i_panel_botoes"/>
+        </h:panelGrid>
+    </p:panel>
+
+
+
+</h:panelGrid>
+
+<p:panel id="i_panel_botoes" styleClass="fundoCinza margin-top-max"  style="float: right; font-weight: bold; width: 200px">
+    <p:commandLink ajax="false" value="Imprimir" action="# {cartaoSocialBean.imprimirCarteirinha()}" 
+                   rendered="# {cartaoSocialBean.listaCarteirinha.size() != 0}"/>
+
+    <p:commandLink ajax="false" value="Imprimir 2º Via" action="# {cartaoSocialBean.reImprimirCarteirinha()}" 
+                   rendered="false"/>
+
+    <br /><br />    
+    <p:commandLink ajax="false" value="Etiqueta" action="# {cartaoSocialBean.imprimirEtiqueta()}" rendered="# {cartaoSocialBean.listaCarteirinha.size() != 0}"/>
+    <br /><br />
+    <p:commandLink ajax="false" value="Etiqueta Térmica" action="# {cartaoSocialBean.imprimirEtiquetaTermica()}" rendered="# {cartaoSocialBean.listaCarteirinha.size() != 0}"/>
+    <br /><br />
+    <p:commandLink value="Histórico de Impressões (Selecionados)" actionListener="# {cartaoSocialBean.historicoCarteirinha()}" oncomplete="PF('i_dlg').show()" update="i_panel_dlgx"
+                   rendered="# {(cartaoSocialBean.por != 'niEmpresa' or cartaoSocialBean.por != 'niCNPJ') and cartaoSocialBean.listaCarteirinha.size() != 0}"/>
+    <br /><br />    
+    <p:commandLink ajax="false" value="Imprimir Test" action="# {cartaoSocialBean.printTest()}" rendered="false"/>
+</p:panel>
+-->

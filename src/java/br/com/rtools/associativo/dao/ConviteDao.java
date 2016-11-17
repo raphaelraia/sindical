@@ -142,7 +142,7 @@ public class ConviteDao extends DB {
     }
 
     public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa, String dataInicial, String dataFinal, boolean ativo) {
-        if (descricaoPesquisa.isEmpty() && (!porPesquisa.equals("todos") && !porPesquisa.equals("data"))) {
+        if (descricaoPesquisa.isEmpty() && (!porPesquisa.equals("todos") && !porPesquisa.equals("data") && !porPesquisa.equals("ontem") && !porPesquisa.equals("hoje") && !porPesquisa.equals("ultima_semana"))) {
             return new ArrayList();
         }
 
@@ -204,6 +204,15 @@ public class ConviteDao extends DB {
 
                     list_where.add("LOWER(TRANSLATE(sp.ds_nome)) LIKE ('" + descricaoPesquisa + "')");
                 }
+                break;
+            case "hoje":
+                list_where.add("cm.dt_emissao = CURRENT_DATE ");
+                break;
+            case "ontem":
+                list_where.add("cm.dt_emissao = (CURRENT_DATE-1) ");
+                break;
+            case "ultima_semana":
+                list_where.add("cm.dt_emissao BETWEEN (CURRENT_DATE-7) AND CURRENT_DATE ");
                 break;
             case "todos":
                 DataHoje dh = new DataHoje();

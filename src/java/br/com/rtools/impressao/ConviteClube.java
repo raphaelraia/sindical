@@ -3,93 +3,104 @@ package br.com.rtools.impressao;
 public class ConviteClube {
 
     // CONVIDADO
-    private String nome;
-    private String emissao;
-    private String validade;
+    private Object nome;
+    private Object emissao;
+    private Object validade;
     // LOGO DO CONVITE
-    private String foto;
-    private String barras;
-    private String obs;
-    private String semana;
+    private Object foto;
+    private Object barras;
+    private Object semana;
+    private Object obs;
+    private Object rodape;
 
     public ConviteClube() {
         this.nome = "";
-        this.emissao = "";;
+        this.emissao = "";
         this.validade = "";
         this.foto = "";
         this.barras = "";
         this.semana = "";
         this.obs = "";
+        this.rodape = "";
     }
 
-    public ConviteClube(String nome, String emissao, String validade, String foto, String barras, String obs, String semana) {
+    public ConviteClube(Object nome, Object emissao, Object validade, Object foto, Object barras, Object semana, Object obs, Object rodape) {
         this.nome = nome;
         this.emissao = emissao;
         this.validade = validade;
         this.foto = foto;
         this.barras = barras;
-        this.obs = obs;
         this.semana = semana;
+        this.obs = obs;
+        this.rodape = rodape;
     }
 
     // CONVIDADO    
-    public String getNome() {
+    public Object getNome() {
         return nome;
     }
 
     // CONVIDADO
-    public void setNome(String nome) {
+    public void setNome(Object nome) {
         this.nome = nome;
     }
 
-    public String getEmissao() {
+    public Object getEmissao() {
         return emissao;
     }
 
-    public void setEmissao(String emissao) {
+    public void setEmissao(Object emissao) {
         this.emissao = emissao;
     }
 
-    public String getValidade() {
+    public Object getValidade() {
         return validade;
     }
 
-    public void setValidade(String validade) {
+    public void setValidade(Object validade) {
         this.validade = validade;
     }
 
     // LOGO DO CONVITE    
-    public String getFoto() {
+    public Object getFoto() {
         return foto;
     }
 
     // LOGO DO CONVITE    
-    public void setFoto(String foto) {
+    public void setFoto(Object foto) {
         this.foto = foto;
     }
 
-    public String getBarras() {
+    public Object getBarras() {
         return barras;
     }
 
-    public void setBarras(String barras) {
+    public void setBarras(Object barras) {
         this.barras = barras;
     }
 
-    public String getObs() {
-        return obs;
-    }
-
-    public void setObs(String obs) {
-        this.obs = obs;
-    }
-
-    public String getSemana() {
+    public Object getSemana() {
         return semana;
     }
 
-    public void setSemana(String semana) {
+    public void setSemana(Object semana) {
         this.semana = semana;
+    }
+
+    public Object getObs() {
+        return obs;
+    }
+
+    public void setObs(Object obs) {
+        this.obs = obs;
+    }
+
+    public Object getRodape() {
+        return rodape;
+    }
+
+    public void setRodape(Object rodape) {
+        this.rodape = rodape;
     }
 
 }

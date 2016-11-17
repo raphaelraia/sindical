@@ -1444,6 +1444,7 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public synchronized String menuSocial() {
+        GenericaSessao.remove("socialBean");
         GenericaSessao.put("idModulo", SOCIAL);
         loadMacFilial(6);
         return metodoGenerico(0, "menuSocial");

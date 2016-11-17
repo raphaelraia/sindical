@@ -48,9 +48,11 @@ import br.com.rtools.pessoa.dao.PessoaProfissaoDao;
 import br.com.rtools.seguranca.SisEmailProtocolo;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Links;
+import br.com.rtools.sistema.SisAutorizacoes;
 import br.com.rtools.sistema.dao.EmailDao;
 import br.com.rtools.sistema.dao.EmailPessoaDao;
 import br.com.rtools.sistema.dao.LinksDao;
+import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -450,6 +452,16 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 return;
             }
             novoLog.save("CUPOM MOVIMENTO: " + listCupomMovimento.get(i).toString());
+        }
+        List<SisAutorizacoes> listSisAutorizacoes = new SisAutorizacoesDao().findByPessoa(remover.getPessoa().getId(), true);
+        for (int i = 0; i < listSisAutorizacoes.size(); i++) {
+            listSisAutorizacoes.get(i).setPessoa(manter.getPessoa());
+            if (!dao.update(listSisAutorizacoes.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR AUTORIZAÇÕES DA PESSOA! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("AUTORIZAÇÕES: " + listSisAutorizacoes.get(i).toString());
         }
         List<Links> listLinks = new LinksDao().findAllByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listLinks.size(); i++) {

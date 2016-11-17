@@ -22,6 +22,9 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -29,6 +32,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.ImpressaoParaSocios;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Mask;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,10 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-// import java.util.Vector;
 import javax.faces.model.SelectItem;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -58,10 +60,10 @@ public class CartaoSocialBean implements Serializable {
      * NOVO *
      */
     private String descricao = "";
-    private List<Vector> listaCarteirinha = new ArrayList();
-    private List<Vector> filteredCarteirinha = new ArrayList();
-    private List<Vector> listaSelecionado = new ArrayList();
-    private List<Vector> listaSelecionadoMemoria = new ArrayList();
+    private List<List> listaCarteirinha = new ArrayList();
+    private List<List> filteredCarteirinha = new ArrayList();
+    private List<List> listaSelecionado = new ArrayList();
+    private List<List> listaSelecionadoMemoria = new ArrayList();
     private List<SelectItem> listFilial = new ArrayList();
     private List listaHistorico = new ArrayList();
     private String por = "";
@@ -74,6 +76,19 @@ public class CartaoSocialBean implements Serializable {
     private Integer lastIndex = 0;
     private Boolean disabled;
     private ConfiguracaoSocial configuracaoSocial;
+    private String status;
+    private String filter;
+    private String query;
+    private Boolean printed;
+    private Integer idOperador;
+    private List<SelectItem> listOperador;
+    private String typeDate;
+    private String startDate;
+    private String finishDate;
+    private Boolean paginacao;
+    private Integer resultadosPorPagina;
+    private Boolean somenteAutorizados;
+    private Boolean disabledImpressaoExterna;
 
     public CartaoSocialBean() {
         configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
@@ -81,9 +96,23 @@ public class CartaoSocialBean implements Serializable {
         if (configuracaoSocial.getControlaCartaoFilial()) {
             disabled = true;
         }
+        status = "nao_impressos";
+        filter = "";
+        query = "";
+        somenteAutorizados = false;
+        listOperador = new ArrayList();
+        loadOperador();
         getListFilial();
-        this.naoImpressoTodos();
         Jasper.load();
+        printed = false;
+        typeDate = "todos";
+        startDate = "";
+        finishDate = "";
+        paginacao = true;
+        resultadosPorPagina = 10;
+        disabledImpressaoExterna = false;
+        GenericaSessao.remove("status");
+        loadList();
     }
 
     public void historicoCarteirinha() {
@@ -104,150 +133,182 @@ public class CartaoSocialBean implements Serializable {
         }
     }
 
-    public void naoImpressoTodos() {
-        por = "niEmpresaTodos";
-        porLabel = "Lista de TODOS NÃO IMPRESSOS";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", "", indexOrdem, getFilialInteger());
-    }
-
-    public void naoImpressoEmpresa() {
-        por = "niEmpresa";
-        porLabel = "Pesquisa por Não Impressos / EMPRESAS";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
-    }
-
-    public void naoImpressoCNPJ() {
-        por = "niCNPJ";
-        porLabel = "Pesquisa por Não Impressos / CNPJ";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
-    }
-
-    public void impressoTodos() {
-        por = "iEmpresaTodos";
-        porLabel = "Lista de TODOS IMPRESSOS";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", "", indexOrdem, getFilialInteger());
-    }
-
-    public void impressoEmpresa() {
-        por = "iEmpresa";
-        porLabel = "Pesquisa por Impressos / EMPRESAS";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
-    }
-
-    public void impressoCNPJ() {
-        por = "iCNPJ";
-        porLabel = "Pesquisa por Impressos / CNPJ";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
-    }
-
-    /**
-     * dias == 0 (Hoje) dias == 1 (Ontem) dias == 2 (Ultimos 30 dias)
-     *
-     * @param dias
-     */
-    public void impressoDias(Integer dias) {
-        por = "iDias";
-        porLabel = "Pesquisa por Impressos / ÚLTIMOS 30 DIAS";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        String tipo = "";
-        if (dias == 0) {
-            tipo = "iHoje";
-        } else if (dias == 1) {
-            tipo = "iOntem";
-        } else if (dias == 2) {
-            tipo = "iDias";
-        }
-        listaCarteirinha = db.pesquisaCarteirinha(tipo, descricao, indexOrdem, getFilialInteger());
-    }
-
-    public void pessoaNome() {
-        por = "iNome";
-        porLabel = "Pesquisa por Pessoa / NOME";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
-    }
-
-    public void sociosMatricula() {
-        por = "iMatricula";
-        porLabel = "Pesquisa por Sócio / MATRÍCULA";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        if (descricao.isEmpty()) {
-            listaCarteirinha = new ArrayList<>();
-            return;
-        }
-        listaCarteirinha = db.pesquisaCarteirinha("iMatricula", descricao, indexOrdem, getFilialInteger());
-    }
-
-    public void pessoaID() {
-        por = "iID";
-        porLabel = "Pesquisa por Pessoa / Código";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        if (!descricao.isEmpty()) {
-            listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
-        } else {
-            listaCarteirinha = new ArrayList<>();
+    public final void loadList() {
+        if (!printed) {
+            if (status.isEmpty()) {
+                status = "hoje";
+            }
+            if ((filter.equals("nascimento") || filter.equals("nome") || filter.equals("codigo") || filter.equals("cpf") || filter.equals("empresa") || filter.equals("cnpj")) && query.isEmpty()) {
+                GenericaMensagem.warn("Validação", "Específicar um valor válido para o filtro selecionado!");
+                return;
+            }
+            printed = true;
+            // listaSelecionado = new ArrayList();
+            String inPessoasImprimir = "";
+            if (GenericaSessao.exists("inPessoasImprimir")) {
+                inPessoasImprimir = GenericaSessao.getString("inPessoasImprimir", true);
+            }
+            listaCarteirinha = new ArrayList();
+            listaCarteirinha = new SocioCarteirinhaDao().find(status, filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, inPessoasImprimir);
+            if (!inPessoasImprimir.isEmpty()) {
+                if (!listaCarteirinha.isEmpty()) {
+                    listaSelecionado = new ArrayList();
+                    for (int i = 0; i < listaCarteirinha.size(); i++) {
+                        listaSelecionado.add(listaCarteirinha.get(i));
+                    }
+                    disabledImpressaoExterna = true;                    
+                    inPessoasImprimir = "";
+                } else {
+                    listaCarteirinha = new SocioCarteirinhaDao().find("nao_impressos", filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, "");
+                }
+            }
         }
     }
 
-    public void pessoaCPF() {
-        por = "iCPF";
-        porLabel = "Pesquisa por Pessoa / CPF";
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
+//    public void naoImpressoTodos() {
+//        por = "niEmpresaTodos";
+//        porLabel = "Lista de TODOS NÃO IMPRESSOS";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", "", indexOrdem, getFilialInteger());
+//    }
+//
+//    public void naoImpressoEmpresa() {
+//        por = "niEmpresa";
+//        porLabel = "Pesquisa por Não Impressos / EMPRESAS";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void naoImpressoCNPJ() {
+//        por = "niCNPJ";
+//        porLabel = "Pesquisa por Não Impressos / CNPJ";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void impressoTodos() {
+//        por = "iEmpresaTodos";
+//        porLabel = "Lista de TODOS IMPRESSOS";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", "", indexOrdem, getFilialInteger());
+//    }
+//
+//    public void impressoEmpresa() {
+//        por = "iEmpresa";
+//        porLabel = "Pesquisa por Impressos / EMPRESAS";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void impressoCNPJ() {
+//        por = "iCNPJ";
+//        porLabel = "Pesquisa por Impressos / CNPJ";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    /**
+//     * dias == 0 (Hoje) dias == 1 (Ontem) dias == 2 (Ultimos 30 dias)
+//     *
+//     * @param dias
+//     */
+//    public void impressoDias(Integer dias) {
+//        por = "iDias";
+//        porLabel = "Pesquisa por Impressos / ÚLTIMOS 30 DIAS";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        String tipo = "";
+//        if (dias == 0) {
+//            tipo = "iHoje";
+//        } else if (dias == 1) {
+//            tipo = "iOntem";
+//        } else if (dias == 2) {
+//            tipo = "iDias";
+//        }
+//        listaCarteirinha = db.pesquisaCarteirinha(tipo, descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void pessoaNome() {
+//        por = "iNome";
+//        porLabel = "Pesquisa por Pessoa / NOME";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void sociosMatricula() {
+//        por = "iMatricula";
+//        porLabel = "Pesquisa por Sócio / MATRÍCULA";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        if (descricao.isEmpty()) {
+//            listaCarteirinha = new ArrayList<>();
+//            return;
+//        }
+//        listaCarteirinha = db.pesquisaCarteirinha("iMatricula", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void pessoaID() {
+//        por = "iID";
+//        porLabel = "Pesquisa por Pessoa / Código";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        if (!descricao.isEmpty()) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
+//        } else {
+//            listaCarteirinha = new ArrayList<>();
+//        }
+//    }
+//
+//    public void pessoaCPF() {
+//        por = "iCPF";
+//        porLabel = "Pesquisa por Pessoa / CPF";
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
+//    }
+//
+//    public void pesquisar() {
+//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
+//        if (por.equals("niEmpresa")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("niCNPJ")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iEmpresa")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iCNPJ")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iDias")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iDias", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iNome")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iID")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iMatricula")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iMatricula", descricao, indexOrdem, getFilialInteger());
+//        }
+//
+//        if (por.equals("iCPF")) {
+//            listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
+//        }
+//    }
+    public void print() {
+        print(null);
     }
 
-    public void pesquisar() {
-        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        if (por.equals("niEmpresa")) {
-            listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("niCNPJ")) {
-            listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iEmpresa")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iCNPJ")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iDias")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iDias", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iNome")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iID")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iMatricula")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iMatricula", descricao, indexOrdem, getFilialInteger());
-        }
-
-        if (por.equals("iCPF")) {
-            listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
-        }
-    }
-
-    public void imprimirCarteirinha() {
-        imprimirCarteirinha(null);
-    }
-
-    public void imprimirCarteirinha(Vector vector) {
+    public void print(List vector) {
+        printed = false;
         Dao dao = new Dao();
-        List<Vector> list = new ArrayList();
+        List<List> list = new ArrayList();
         if (!listaSelecionado.isEmpty() && vector == null) {
             list = listaSelecionado;
         } else if (vector != null) {
@@ -302,8 +363,10 @@ public class CartaoSocialBean implements Serializable {
                         if (pe.getId() == -1) {
                             GenericaMensagem.error("Atenção", "Empresa Não Vinculada a pessoa " + pessoa.getNome());
                             validacao = true;
+                            listaSelecionado = new ArrayList();
                         }
                     }
+                    listaSelecionado.remove(vector);
                 }
 
                 if (validacao) {
@@ -361,9 +424,16 @@ public class CartaoSocialBean implements Serializable {
 
             if (ImpressaoParaSocios.imprimirCarteirinha(list)) {
                 dao.commit();
-                listaCarteirinha.clear();
-                listaSelecionado.clear();
-                listaSelecionadoMemoria.clear();
+                if (status.equals("nao_impressos")) {
+                    printed = false;
+                }
+                if (disabledImpressaoExterna) {
+                    disabledImpressaoExterna = false;
+                    GenericaSessao.put("status", "hoje");
+                }
+                listaCarteirinha = new ArrayList();
+                listaSelecionado = new ArrayList();
+                listaSelecionadoMemoria = new ArrayList();
                 novoLog.print(printLog);
                 novoLog.saveList();
             } else {
@@ -553,11 +623,11 @@ public class CartaoSocialBean implements Serializable {
         this.descricao = descricao;
     }
 
-    public List<Vector> getListaCarteirinha() {
+    public List<List> getListaCarteirinha() {
         return listaCarteirinha;
     }
 
-    public void setListaCarteirinha(List<Vector> listaCarteirinha) {
+    public void setListaCarteirinha(List<List> listaCarteirinha) {
         this.listaCarteirinha = listaCarteirinha;
     }
 
@@ -577,11 +647,11 @@ public class CartaoSocialBean implements Serializable {
         this.porLabel = porLabel;
     }
 
-    public List<Vector> getListaSelecionado() {
+    public List<List> getListaSelecionado() {
         return listaSelecionado;
     }
 
-    public void setListaSelecionado(List<Vector> listaSelecionado) {
+    public void setListaSelecionado(List<List> listaSelecionado) {
         if (toggle != null || toggle) {
 //            this.listaSelecionado = listaSelecionado;
 //            toggle = true;
@@ -603,11 +673,11 @@ public class CartaoSocialBean implements Serializable {
         this.listaHistorico = listaHistorico;
     }
 
-    public List<Vector> getFilteredCarteirinha() {
+    public List<List> getFilteredCarteirinha() {
         return filteredCarteirinha;
     }
 
-    public void setFilteredCarteirinha(List<Vector> filteredCarteirinha) {
+    public void setFilteredCarteirinha(List<List> filteredCarteirinha) {
         this.filteredCarteirinha = filteredCarteirinha;
     }
 
@@ -624,26 +694,58 @@ public class CartaoSocialBean implements Serializable {
     }
 
     public void onRowSelect(SelectEvent event) {
-        listaSelecionado.add(((Vector) event.getObject()));
+        List list = ((List) event.getObject());
+//         if (new Registro().isCobrancaCarteirinha()) {
+//            if (!status.equals("nao_impressos")) {
+//                String validadeCarteirinha = list.get(6).toString();
+//                if (DataHoje.maiorData(DataHoje.data(), validadeCarteirinha)) {
+//                    GenericaMensagem.warn("SISTEMA", "CARTÃO ENCONTRA-SE VENCIDO! GERAR UMA NOVA VIA");
+//                    return;
+//                }
+//            }             
+//         }
+        listaSelecionado.add(((List) event.getObject()));
     }
 
     public void onRowUnselect(UnselectEvent event) {
-        for (int i = 0; i < listaSelecionado.size(); i++) {
-            if (((Vector) listaSelecionado.get(i)).get(0) == ((Vector) event.getObject()).get(0)) {
-                listaSelecionado.remove(i);
-                break;
-            }
-        }
+        listaSelecionado.remove((List) event.getObject());
+//        for (int i = 0; i < listaSelecionado.size(); i++) {
+//            if (((List) listaSelecionado.get(i)).get(0) == ((List) event.getObject()).get(0)) {
+//                listaSelecionado.remove(i);
+//                break;
+//            }
+//        }
+    }
+
+    public void removeSelect(List<List> list) {
+        listaSelecionado.remove(list);
     }
 
     public String clear() {
-        listaSelecionado.clear();
+        listaSelecionado = new ArrayList();
         page = null;
-        return "cartaoSocial";
+        // return  "cartaoSocial";
+        return null;
     }
 
     public void listernetFilter(FilterEvent filterEvent) {
         toggle = true;
+    }
+
+    public void listener(String tcase) {
+        if (tcase.equals("query")) {
+            query = "";
+        }
+        if (tcase.equals("reload")) {
+            listaSelecionado = new ArrayList();
+            listaSelecionadoMemoria = new ArrayList();
+            if (status.equals("nao_impressos")) {
+                typeDate = "todos";
+            } else {
+                loadOperador();
+
+            }
+        }
     }
 
     public void toggleSelectedListener() {
@@ -896,11 +998,11 @@ public class CartaoSocialBean implements Serializable {
         GenericaSessao.put("cartao_social_sucesso", true);
     }
 
-    public List<Vector> getListaSelecionadoMemoria() {
+    public List<List> getListaSelecionadoMemoria() {
         return listaSelecionadoMemoria;
     }
 
-    public void setListaSelecionadoMemoria(List<Vector> listaSelecionadoMemoria) {
+    public void setListaSelecionadoMemoria(List<List> listaSelecionadoMemoria) {
         this.listaSelecionadoMemoria = listaSelecionadoMemoria;
     }
 
@@ -943,8 +1045,8 @@ public class CartaoSocialBean implements Serializable {
             coll.add(bean);
 
             bean = new BeanWithList(Arrays.asList("Rome"), 3);
-            coll.add(bean);            
-            
+            coll.add(bean);
+
             Map<String, Object> params = new HashMap<>();
             Jasper.printReports("TESTE.jasper", "TESTE.jasper", coll);
         } catch (Exception e) {
@@ -969,6 +1071,123 @@ public class CartaoSocialBean implements Serializable {
         return new JRBeanCollectionDataSource(coll);
     }
 
+    public String getStatus() {
+        if (GenericaSessao.exists("status")) {
+            status = GenericaSessao.getString("status", true);
+        }
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public Boolean getPrinted() {
+        return printed;
+    }
+
+    public void setPrinted(Boolean printed) {
+        this.printed = printed;
+    }
+
+    public Integer getIdOperador() {
+        return idOperador;
+    }
+
+    public void setIdOperador(Integer idOperador) {
+        this.idOperador = idOperador;
+    }
+
+    public List<SelectItem> getListOperador() {
+        return listOperador;
+    }
+
+    public void setListOperador(List<SelectItem> listOperador) {
+        this.listOperador = listOperador;
+    }
+
+    public void loadOperador() {
+        listOperador = new ArrayList();
+        listOperador.add(new SelectItem(null, "TODOS"));
+        idOperador = null;
+        List<Usuario> list = new UsuarioDao().findByTabela("soc_historico_carteirinha");
+        for (int i = 0; i < list.size(); i++) {
+            listOperador.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome()));
+        }
+    }
+
+    public String getTypeDate() {
+        return typeDate;
+    }
+
+    public void setTypeDate(String typeDate) {
+        this.typeDate = typeDate;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(String finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public Boolean getPaginacao() {
+        return paginacao;
+    }
+
+    public void setPaginacao(Boolean paginacao) {
+        this.paginacao = paginacao;
+    }
+
+    public Integer getResultadosPorPagina() {
+        return resultadosPorPagina;
+    }
+
+    public void setResultadosPorPagina(Integer resultadosPorPagina) {
+        this.resultadosPorPagina = resultadosPorPagina;
+    }
+
+    public Boolean getSomenteAutorizados() {
+        return somenteAutorizados;
+    }
+
+    public void setSomenteAutorizados(Boolean somenteAutorizados) {
+        this.somenteAutorizados = somenteAutorizados;
+    }
+
+    public Boolean getDisabledImpressaoExterna() {
+        return disabledImpressaoExterna;
+    }
+
+    public void setDisabledImpressaoExterna(Boolean disabledImpressaoExterna) {
+        this.disabledImpressaoExterna = disabledImpressaoExterna;
+    }
+
     public class BeanWithList {
 
         private List<String> m_cities;
@@ -986,5 +1205,38 @@ public class CartaoSocialBean implements Serializable {
         public Integer getId() {
             return m_id;
         }
+    }
+
+    public String getMascaraAlteracao() {
+        if (filter != null && !filter.isEmpty()) {
+            String f = filter;
+            if (filter.equals("cpf_titular")) {
+                f = "cpf";
+            }
+            return Mask.getMascaraPesquisa(f, true);
+        }
+        return "";
+    }
+
+    public Integer getSize() {
+        if (filter != null && !filter.isEmpty()) {
+            switch (filter) {
+                case "nome":
+                case "nome_titular":
+                case "empresa":
+                    return 500;
+                case "cpf":
+                case "cpf_titular":
+                    return 120;
+                case "cnpj":
+                    return 150;
+                case "codigo":
+                case "matricula":
+                    return 80;
+                case "nascimento":
+                    return 100;
+            }
+        }
+        return 50;
     }
 }

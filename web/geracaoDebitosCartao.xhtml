@@ -76,7 +76,7 @@
                         <p:commandButton value="Novo" action="#{geracaoDebitosCartaoBean.clear(0)}" update="form_gdc" />
                         <p:commandButton value="Limpar e manter sócio" action="#{geracaoDebitosCartaoBean.clear(1)}" update="form_gdc" />
                         <p:commandButton ajax="false" value="Imprimir Cartões Baixados" action="#{cartaoSocialBean.imprimirSocioCarteirinha(geracaoDebitosCartaoBean.listHistoricoCarteirinhas)}" rendered="#{not empty geracaoDebitosCartaoBean.listHistoricoCarteirinhas}" icon="ui-icon-print"/>
-                        <p:commandLink value="Cartão Social" action="#{chamadaPaginaBean.cartaoSocial}" rendered="#{empty geracaoDebitosCartaoBean.listHistoricoCarteirinhas}"/>
+                        <p:commandButton icon="ui-icon-print" value="Cartão Social" action="#{chamadaPaginaBean.cartaoSocial}" rendered="#{empty geracaoDebitosCartaoBean.listHistoricoCarteirinhas}" actionListener="#{geracaoDebitosCartaoBean.sendPrint}" styleClass="margin-left-max" title="Imprimir cartão social" />
                     </h:panelGrid>
                     <p:dialog header="Deseja salvar este Registro?" widgetVar="dlg_save" modal="true" closable="true">
                         <f:facet name="footer">

@@ -20,6 +20,7 @@ import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.EnviarEmail;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaString;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.SalvaArquivos;
 import java.io.File;
 import java.io.Serializable;
@@ -49,24 +50,26 @@ public class ImprimirConviteClube implements Serializable {
     }
 
     public void imprimir(ConviteMovimento cm) {
-        try {
-            Collection lista = parametroConvite(cm);
-            File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CONVITE_CLUBE.jasper"));
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(fl);
-            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-            JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
-            Diretorio.criar("Arquivos/downloads/convite");
-            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-            String nomeDownload = "imp_convite_clube_" + cm.getId() + ".pdf";
-            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/convite");
-            SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
-            salvaArquivos.salvaNaPasta(pathPasta);
-            Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
-            download.baixar();
-            download.remover();
-        } catch (JRException e) {
-            e.getMessage();
-        }
+        Collection lista = parametroConvite(cm);
+//            File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CONVITE_CLUBE.jasper"));
+//            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(fl);
+//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
+//            JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
+//            Diretorio.criar("Arquivos/downloads/convite");
+//            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
+//            String nomeDownload = "imp_convite_clube_" + cm.getId() + ".pdf";
+//            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/convite");
+//            SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
+//            salvaArquivos.salvaNaPasta(pathPasta);
+//            Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
+//            download.baixar();
+//            download.remover();
+        Jasper.PART_NAME = "";
+        Jasper.printReports("/Relatorios/CONVITE_CLUBE.jasper", "convite_clube", lista);
+//        try {
+//        } catch (JRException e) {
+//            e.getMessage();
+//        }
     }
 
     public void enviar(ConviteMovimento cm) {
@@ -143,7 +146,7 @@ public class ImprimirConviteClube implements Serializable {
         return pessoaEndereco;
     }
 
-    public Collection<ParametroProtocolo> parametroConvite(ConviteMovimento cm) {
+    public Collection<ConviteClube> parametroConvite(ConviteMovimento cm) {
         if (cm.getId() == -1) {
             return new ArrayList();
         }
@@ -199,12 +202,13 @@ public class ImprimirConviteClube implements Serializable {
 
         lista.add(new ConviteClube(
                 cm.getSisPessoa().getNome(),
-                cm.getEmissao(),
+                cm.getDtEmissao(),
                 "VÁLIDO ATÉ " + cm.getValidade(),
                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoConvite.png"),
                 barras,
-                GenericaString.converterNullToString(cm.getSisPessoa().getObservacao()),
-                (!cm.isCortesia()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA PARA OS DIAS: " + listSemana
+                (!cm.isCortesia()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA PARA OS DIAS: " + listSemana,
+                cm.getSisPessoa().getObservacao(),
+                cs.getObservacaoConvite()
         ));
         return lista;
     }

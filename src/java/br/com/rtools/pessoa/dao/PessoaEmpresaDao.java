@@ -133,4 +133,54 @@ public class PessoaEmpresaDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List findAllByJuridica(Integer juridica_id) {
+        return findAllByJuridica(juridica_id, null);
+    }
+
+    public List findAllByJuridica(Integer juridica_id, Boolean demissionado) {
+        try {
+            Query query;
+            if (demissionado == null) {
+                query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.juridica.id = :juridica_id ORDER BY PE.dtAdmissao DESC ");
+            } else if (demissionado) {
+                query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.juridica.id = :juridica_id AND PE.dtDemissao IS NOT NULL ORDER BY PE.dtAdmissao DESC ");
+            } else {
+                query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.juridica.id = :juridica_id AND PE.dtDemissao IS NULL ORDER BY PE.dtAdmissao DESC ");
+            }
+            query.setParameter("juridica_id", juridica_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public List findAllByPessoa(Integer pessoa_id) {
+        return findAllByPessoa(pessoa_id, null);
+    }
+
+    public List findAllByPessoa(Integer pessoa_id, Boolean demissionado) {
+        try {
+            Query query;
+            if (demissionado == null) {
+                query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.juridica.pessoa.id = :pessoa_id ORDER BY PE.dtAdmissao DESC ");
+            } else if (demissionado) {
+                query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.juridica.pessoa.id = :pessoa_id AND PE.dtDemissao IS NOT NULL ORDER BY PE.dtAdmissao DESC ");
+            } else {
+                query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.juridica.pessoa.id = :pessoa_id AND PE.dtDemissao IS NULL ORDER BY PE.dtAdmissao DESC ");
+            }
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }

@@ -1,7 +1,12 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.HistoricoCarteirinha;
+import br.com.rtools.associativo.ModeloCarteirinha;
+import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
+import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.dao.ModeloCarteirinhaCategoriaDao;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
@@ -49,7 +54,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     private List<Movimento> listMovimentos;
     private Boolean habilitaImpressao;
     private List<HistoricoCarteirinha> listHistoricoCarteirinhas;
-    
+
     // FOTO
 //    private StreamedContent fotoStreamed = null;
 //    private String nomeFoto = "";    
@@ -87,14 +92,14 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     }
 
     public StreamedContent getFotoStreamed() {
-        String id_pessoa = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("image_pessoa_id");  
+        String id_pessoa = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("image_pessoa_id");
 //        
 ////        FacesContext context = FacesContext.getCurrentInstance();
 ////        HttpServletRequest myRequest = (HttpServletRequest)context.getExternalContext().getRequest();
 ////        HttpSession mySession = myRequest.getSession();        
 ////        String id_pessoa = myRequest.getParameter("image_pessoa_id");
 //        //String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("image_id");
-        if (id_pessoa == null) {  
+        if (id_pessoa == null) {
             return null;
         }
         FisicaDao fisicaDB = new FisicaDao();
@@ -222,13 +227,47 @@ public class GeracaoDebitosCartaoBean implements Serializable {
                 lote = new Lote();
                 return null;
             }
+            ModeloCarteirinhaCategoria mcc = new ModeloCarteirinhaCategoriaDao().findByModeloCarteirinha(170, selected.get(i).getMatriculaSocios().getCategoria().getId());
+            if (mcc == null) {
+                GenericaMensagem.warn("Erro", "Modelo carteirinha não encontrado!");
+                dao.rollback();
+                lote = new Lote();
+                return null;
+            }
+            SocioCarteirinha socioCarteirinha = new SocioCarteirinhaDao().pesquisaCarteirinhaPessoa(selected.get(i).getServicoPessoa().getPessoa().getId(), mcc.getModeloCarteirinha().getId());
+            if (socioCarteirinha == null) {
+                GenericaMensagem.warn("Erro", "Nenhuma carteirinha encontrada!");
+                dao.rollback();
+                lote = new Lote();
+                return null;
+            } else {
+                socioCarteirinha.setDtEmissao(null);
+                if (!dao.update(socioCarteirinha)) {
+                    GenericaMensagem.warn("Erro", "Ao atualizar carteirinha!");
+                    dao.rollback();
+                    lote = new Lote();
+                    return null;
+                }
+            }
         }
 
         dao.commit();
 
+        List<Movimento> listMovimentoSelected = new ArrayList();
+        for (int i = 0; i < selected.size(); i++) {
+            for (int x = 0; x < listMovimentos.size(); x++) {
+                if (selected.get(i).getServicoPessoa().getPessoa().getId() == listMovimentos.get(x).getBeneficiario().getId()) {
+                    listMovimentos.set(x, ((Movimento) dao.find(listMovimentos.get(x))));
+                    if (listMovimentos.get(x).getBaixa() == null) {
+                        listMovimentoSelected.add(listMovimentos.get(x));
+                        break;
+                    }
+                }
+            }
+        }
         listaSocios.clear();
         BaixaGeralBean.listenerTipoCaixaSession("caixa");
-        GenericaSessao.put("listaMovimento", listMovimentos);
+        GenericaSessao.put("listaMovimento", listMovimentoSelected);
         GenericaMensagem.info("Sucesso", "Geração efetuada com sucesso!");
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         // return null;
@@ -378,6 +417,23 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
     public void setListHistoricoCarteirinhas(List<HistoricoCarteirinha> listHistoricoCarteirinhas) {
         this.listHistoricoCarteirinhas = listHistoricoCarteirinhas;
+    }
+
+    public void sendPrint() {
+        String inPessoasImprimir = "";
+        for (int i = 0; i < listaSocios.size(); i++) {
+            if (disabled(listaSocios.get(i).getServicoPessoa().getPessoa(), (Movimento) listaSocios.get(i).getObject())) {
+                if (inPessoasImprimir.isEmpty()) {
+                    inPessoasImprimir = "" + listaSocios.get(i).getServicoPessoa().getPessoa().getId();
+                } else {
+                    inPessoasImprimir += "," + listaSocios.get(i).getServicoPessoa().getPessoa().getId();
+                }
+            }
+        }
+        if (!inPessoasImprimir.isEmpty()) {
+            GenericaSessao.put("inPessoasImprimir", inPessoasImprimir);
+        }
+        selected = null;
     }
 
 //    public StreamedContent getFotoStreamed() {
