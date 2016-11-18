@@ -280,7 +280,9 @@ public class ExtratoTelaBean implements Serializable {
             }
 
             if (linha_list.get(12) == null) {
-                classTbl = "tblExtratoTelaX";
+                if (!porPesquisa.equals("excluidos")) {
+                    classTbl = "tblExtratoTelaX";
+                }
             } else {
                 classTbl = "";
             }

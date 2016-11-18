@@ -521,6 +521,7 @@ public class MovimentoDao extends DB {
             }
         }
 
+        String ativo = "true";
         switch (tipo) {
             case "todos":
                 break;
@@ -533,6 +534,9 @@ public class MovimentoDao extends DB {
             case "atrasadas":
                 qry_condicao = "   and m.id_baixa is null \n "
                         + "   and m.dt_vencimento < '" + DataHoje.data() + "' \n ";
+                break;
+            case "excluidos":
+                ativo = "false";
                 break;
         }
 
@@ -561,7 +565,6 @@ public class MovimentoDao extends DB {
         } else {
             ordem += "ba.dt_importacao desc";
         }
-
         textQuery = "select m.id            as id, \n "
                 + "       p.ds_documento  as documento, \n "
                 + "       p.ds_nome       as nome, \n "
@@ -599,7 +602,7 @@ public class MovimentoDao extends DB {
                 + "       fin_servicos s, \n "
                 + "       fin_tipo_servico t \n "
                 + " where m.id_servicos in (select sr.id_servicos from fin_servico_rotina sr where sr.id_rotina = 4) \n "
-                + "   and m.is_ativo = true \n "
+                + "   and m.is_ativo = " + ativo + " \n "
                 + "   and m.id_pessoa = p.id \n "
                 + "   and m.id_servicos = s.id \n "
                 + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao

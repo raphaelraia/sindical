@@ -1,0 +1,177 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:cc="http://java.sun.com/jsf/composite">
+
+    <h:head>
+        <title>Sindical - Unificar Cadastros de Pessoa Jurídica</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <meta http-equiv="pragma" content="no-cache" /> 
+        <meta http-equiv="cache-control" content="no-cache" /> 
+        <meta http-equiv="expires" content="0" /> 
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/> 
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->          
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="form_pessoa_juridica_mesclar">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <p:outputLabel value="Unificar Cadastros de Pessoa Jurídica" styleClass="fonteHeader"/>
+                            <c:set scope="request" var="object" value="${pessoaJuridicaMesclarBean.juridica}"/>
+                            <div class="clear"></div>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="4" cellspacing="5">
+                                    <p:commandButton value="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" ajax="false" rendered="#{pessoaJuridicaMesclarBean.juridica.id == -1}"/>
+                                    <h:outputLabel value="ID: #{pessoaJuridicaMesclarBean.juridica.pessoa.id} #{pessoaJuridicaMesclarBean.juridica.pessoa.nome} - Documento: #{pessoaJuridicaMesclarBean.juridica.pessoa.documento} Abertura: #{pessoaJuridicaMesclarBean.juridica.abertura}" rendered="#{pessoaJuridicaMesclarBean.juridica.id != -1}" />
+                                    <p:commandButton icon="ui-icon-contact" update="i_pessoa_juridica_card" onclick="PF('dlg_pessoa_juridica_card').show()" action="#{pessoaCardBean.cardJuridica(pessoaJuridicaMesclarBean.juridica.pessoa.id)}" title="Ver detalhes" rendered="#{pessoaJuridicaMesclarBean.juridica.id != -1}" />
+                                    <p:commandButton action="#{pessoaJuridicaMesclarBean.add}" update=":form_pessoa_juridica_mesclar:" icon="ui-icon-plus" rendered="#{pessoaJuridicaMesclarBean.juridica.id != -1}" />
+                                </h:panelGrid>                                
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="3" cellspacing="5" styleClass="margin-top-max">                                
+                                        <p:commandButton action="#{pessoaJuridicaMesclarBean.destroy}" update=":form_pessoa_juridica_mesclar:" value="Novo" rendered="#{not empty pessoaJuridicaMesclarBean.listPessoaJuridica}"/>
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                            </p:panel>
+                            <p:panel rendered="#{not empty pessoaJuridicaMesclarBean.listPessoaJuridica}" styleClass="margin-top-max">
+                                <h:panelGroup id="i_tbl" layout="block">
+                                    <p:dataTable value="#{pessoaJuridicaMesclarBean.listPessoaJuridica}" var="juridica" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column style="width:15px">  
+                                            <p:rowToggler />  
+                                        </p:column>                                         
+                                        <p:column width="50" styleClass="text-center" headerText="MANTER">
+                                            <p:selectBooleanCheckbox value="#{juridica.selected}" disabled="#{pessoaJuridicaMesclarBean.listPessoaJuridica.size() eq 1}">
+                                                <p:ajax event="change" update=":form_pessoa_juridica_mesclar:i_tbl" listener="#{pessoaJuridicaMesclarBean.loadDefault(juridica)}" />
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>
+                                        <p:column headerText="ID" styleClass="text-center" width="50">
+                                            <h:outputLabel value="#{juridica.pessoa.id}" style="#{juridica.selected ? 'color: blue; font-weight: bold;' : 'text-decoration:line-through; color: red'}"/>
+                                        </p:column>
+                                        <p:column headerText="NOME" >
+                                            <p:inplace style="#{juridica.selected ? 'color: blue;' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}">
+                                                <p:inputTextarea value="#{juridica.pessoa.nome}" styleClass="text-center" style="width: 100%">
+                                                    <p:ajax event="blur" update="@this" global="false"/>
+                                                </p:inputTextarea>
+                                            </p:inplace>                                            
+                                        </p:column>
+                                        <p:column headerText="DOCUMENTO" styleClass="text-center">
+                                            <p:inplace style="#{juridica.selected ? 'color: blue; font-weight: bold;' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}">
+                                                <p:inputMask value="#{juridica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center">                                                                                                                        
+                                                    <p:ajax event="blur" update="@this" global="false"/>
+                                                </p:inputMask>
+                                            </p:inplace>
+                                        </p:column>
+                                        <p:column headerText="ABERTURA" styleClass="text-center">
+                                            <p:inplace style="#{juridica.selected ? 'color: blue' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}">
+                                                <p:inputMask value="#{juridica.abertura}" mask="99/99/9999" styleClass="text-center">
+                                                    <p:ajax event="blur" update="@this" global="false"/>
+                                                </p:inputMask>
+                                            </p:inplace>
+                                        </p:column>                                        
+                                        <p:column width="30" styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-contact" update=":form_pessoa_juridica_mesclar:i_pessoa_juridica_card" onclick="PF('dlg_pessoa_juridica_card').show()" action="#{pessoaCardBean.cardJuridica(juridica.pessoa.id)}" title="Ver detalhes" />
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            <h:outputScript name="script_primefaces.js" library="js" />
+                                            <h:panelGrid styleClass="sbb">
+                                                <h:column>
+                                                    <h:outputLabel value="TELEFONE 1: " />
+                                                    <p:inplace style="#{juridica.selected ? 'color: blue' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}" rendered="#{not empty juridica.pessoa.telefone1}">
+                                                        <p:inputMask value="#{juridica.pessoa.telefone1}" styleClass="text-center" mask="(99) 9999-9999" size="13" maxlength="10">
+                                                            <p:ajax event="blur" update="@this" global="false"/>
+                                                        </p:inputMask>
+                                                    </p:inplace>
+                                                    <p:inputMask value="#{juridica.pessoa.telefone1}" styleClass="text-center" mask="(99) 9999-9999" size="13" maxlength="10" rendered="#{empty juridica.pessoa.telefone1}">
+                                                        <p:ajax event="blur" update="@this" global="false"/>
+                                                    </p:inputMask>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:outputLabel value="TELEFONE 2: " />
+                                                    <p:inplace style="#{juridica.selected ? 'color: blue' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}" rendered="#{not empty juridica.pessoa.telefone2}">
+                                                        <p:inputMask value="#{juridica.pessoa.telefone2}" styleClass="text-center" mask="(99) 9999-9999" size="13" maxlength="10">
+                                                            <p:ajax event="blur" update="@this" global="false"/>
+                                                        </p:inputMask>
+                                                    </p:inplace>
+                                                    <p:inputMask value="#{juridica.pessoa.telefone2}" styleClass="text-center" mask="(99) 9999-9999" size="13" maxlength="10" rendered="#{empty juridica.pessoa.telefone2}" disabled="#{!juridica.selected}">                                                                                                                        
+                                                        <p:ajax event="blur" update="@this" global="false"/>
+                                                    </p:inputMask>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:outputLabel value="CELULAR 1: " />
+                                                    <p:inplace style="#{juridica.selected ? 'color: blue' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}" rendered="#{not empty juridica.pessoa.telefone3}">
+                                                        <p:inputText value="#{juridica.pessoa.telefone3}" size="13" maxlength="10" styleClass="ddd_telefone text-center">       
+                                                            <p:ajax event="blur" update="@this" global="false"/>
+                                                        </p:inputText>
+                                                    </p:inplace>
+                                                    <p:inputText value="#{juridica.pessoa.telefone3}" size="13" maxlength="10" styleClass="ddd_telefone text-center" rendered="#{empty juridica.pessoa.telefone3}" disabled="#{!juridica.selected}">
+                                                        <p:ajax event="blur" update="@this" global="false"/>
+                                                    </p:inputText>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:outputLabel value="CELULAR 2: " />
+                                                    <p:inplace style="#{juridica.selected ? 'color: blue' : 'text-decoration:line-through; color: red'}" disabled="#{!juridica.selected}" rendered="#{not empty juridica.pessoa.telefone4}">
+                                                        <p:inputText value="#{juridica.pessoa.telefone4}" size="13" maxlength="10" styleClass="ddd_telefone text-center">
+                                                            <p:ajax event="blur" update="@this" global="false"/>
+                                                        </p:inputText>
+                                                    </p:inplace>
+                                                    <p:inputText value="#{juridica.pessoa.telefone4}" size="13" maxlength="10" styleClass="ddd_telefone text-center" rendered="#{empty juridica.pessoa.telefone4}" disabled="#{!juridica.selected}"/>
+                                                </h:column>                                                
+                                            </h:panelGrid>
+                                        </p:rowExpansion>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Mesclar" disabled="#{controleAcessoBean.botaoSalvar or 2 > pessoaJuridicaMesclarBean.listPessoaJuridica.size()}" onclick="PF('dlg_save').show()" type="button"  />
+                                        <p:commandButton value="Forçar Exclusão" onclick="PF('dlg_force_remove').show()" type="button" disabled="#{pessoaJuridicaMesclarBean.listPessoaJuridica.size() > 1 or true}" title="EM DESENVOLVIMENTO"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+                            <p:dialog widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja mesclar este registro?">
+                                <f:facet name="footer">
+                                    <p:panelGrid columns="2" styleClass="sbb">
+                                        <p:commandButton action="#{pessoaJuridicaMesclarBean.update}" value="Confirmar"  update=":form_pessoa_juridica_mesclar:" />
+                                        <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_save').hide()"/>
+                                    </p:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_force_remove" modal="true" closable="true" width="300" header="Deseja REMOVER definitivamente este registro e todos seus vínculos?">
+                                <f:facet name="footer">
+                                    <p:panelGrid columns="2" styleClass="sbb">
+                                        <p:commandButton action="#{pessoaJuridicaMesclarBean.forceDelete()}" value="Confirmar"  update=":form_pessoa_juridica_mesclar:" />
+                                        <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_force_remove').hide()"/>
+                                    </p:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_pessoa_juridica_card">
+                                    <ui:include src="templates/templatePessoaJuridicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>                    
+                </f:view>
+
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                   
+    </h:body>
+</ui:composition>

@@ -40,9 +40,29 @@
                             <p:messages id="id_messages" showDetail="true" closable="true" autoUpdate="true"/>
                             <p:growl id="id_messages_growl" showDetail="true"  />
 
-                            <p:panel styleClass="fundoCinza">
-                                <p:outputLabel value="Inativar Sócio Automaticamente" style="font-weight: bold; font-size: 11pt!important"/>
-                                <h:panelGrid id="i_panel_inativar_demissionado"  columns="5">
+                            <p:panel styleClass="fundoCinza" header="Sócios">
+                                <h:panelGrid columns="5">
+
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.bloqueiaCpf}" style="margin-right: 20px" itemLabel="Obrigatório CPF ao associar?">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.obrigatorioEmail}" style="margin-right: 20px" itemLabel="E-mail do titular obrigatório?">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>
+
+                                </h:panelGrid>
+
+                                <br />
+                                <br />
+                                <p:outputLabel value="Inativar Sócio Automaticamente" style="font-weight: bold; font-size: 11pt!important"/>                                        
+                                <h:panelGrid id="i_panel_inativar_demissionado"  columns="5"  styleClass="margin-top-max">
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.inativaDemissionado }" itemLabel="Inativar Sócios Demissionados?" style="margin-right: 20px">
@@ -75,7 +95,9 @@
 
                                     <h:column>
                                         <br />
-                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.inativaOposicao}" style="margin-right: 20px" itemLabel="Inativa por Oposição?"/>
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.inativaOposicao}" style="margin-right: 20px" itemLabel="Inativa por Oposição?">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -101,7 +123,7 @@
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.atualizaViaCarteirinha}" itemLabel="Atualiza Via Carteirinha?" style="margin-right: 20px">
@@ -110,7 +132,7 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Clube" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="4">
@@ -145,17 +167,17 @@
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.liberaConviteDia}" style="margin-right: 20px" itemLabel="Libera Convite por Dia?"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.bloqueiaConviteOposicao}" style="margin-right: 20px" itemLabel="Bloqueia Convite com Oposição?"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Minutos bloqueado após uso do cartão" /><br />
                                         <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.intervaloMinuto}" style="width: 220px; text-align: center"/>
                                     </h:column>
-                                    
+
                                 </h:panelGrid>
                             </p:panel>
 
@@ -165,7 +187,7 @@
                                     <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.obsDescontoFolha}" style="width: 100%" maxlength="2000"/>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Observação convite clube" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="1" style="width: 100%">

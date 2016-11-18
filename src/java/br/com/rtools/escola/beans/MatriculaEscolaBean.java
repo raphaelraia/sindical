@@ -1,5 +1,6 @@
 package br.com.rtools.escola.beans;
 
+import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.MatriculaSocios;
@@ -1362,6 +1363,14 @@ public class MatriculaEscolaBean implements Serializable {
         FisicaDao fisicaDB = new FisicaDao();
         aluno = fisicaDB.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
         if (aluno.getId() != -1) {
+            ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+            if (cs.getObrigatorioEmail()) {
+                if (aluno.getPessoa().getEmail1().isEmpty()) {
+                    GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO PARA O ALUNO!");
+                    GenericaMensagem.warn("Sistema", "CORRIJA ESTE CADASTRO PARA REALIZAR ALTERAÇÕES!");
+                    return null;
+                }
+            }
             getResponsavel();
             verificaSocio();
         }
@@ -2272,7 +2281,7 @@ public class MatriculaEscolaBean implements Serializable {
     public void setMovimento(Movimento movimento) {
         this.movimento = movimento;
     }
-    
+
     public void setHabilitaGerarParcelas(boolean habilitaGerarParcelas) {
         this.habilitaGerarParcelas = habilitaGerarParcelas;
     }

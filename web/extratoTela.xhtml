@@ -47,6 +47,7 @@
                                                 <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
                                                 <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
                                                 <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
+                                                <f:selectItem itemValue="excluidos"         itemLabel="Excluídos" itemDisabled="#{segurancaUtilitariosBean.sessaoUsuario.id != 1}"/>
                                             </p:selectOneMenu>
 
                                             <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{!controleAcessoBean.getListaExtratoTela(false)}">
@@ -209,7 +210,7 @@
                                 </p:column>  
 
                                 <p:column style="width:15px; text-align: center">
-                                    <p:selectBooleanCheckbox value="#{movimentos.argumento0}">
+                                    <p:selectBooleanCheckbox value="#{movimentos.argumento0}" disabled="#{extratoTelaBean.porPesquisa eq 'excluidos'}">
                                         <p:ajax event="change" update="@this" global="false"/>
                                     </p:selectBooleanCheckbox>
                                 </p:column>

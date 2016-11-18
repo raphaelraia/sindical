@@ -24,6 +24,7 @@ import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -89,6 +90,7 @@ public class CartaoSocialBean implements Serializable {
     private Integer resultadosPorPagina;
     private Boolean somenteAutorizados;
     private Boolean disabledImpressaoExterna;
+    private Boolean liberaReimpressao;
 
     public CartaoSocialBean() {
         configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
@@ -111,6 +113,7 @@ public class CartaoSocialBean implements Serializable {
         paginacao = true;
         resultadosPorPagina = 10;
         disabledImpressaoExterna = false;
+        liberaReimpressao = null;
         GenericaSessao.remove("status");
         loadList();
     }
@@ -156,7 +159,7 @@ public class CartaoSocialBean implements Serializable {
                     for (int i = 0; i < listaCarteirinha.size(); i++) {
                         listaSelecionado.add(listaCarteirinha.get(i));
                     }
-                    disabledImpressaoExterna = true;                    
+                    disabledImpressaoExterna = true;
                     inPessoasImprimir = "";
                 } else {
                     listaCarteirinha = new SocioCarteirinhaDao().find("nao_impressos", filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, "");
@@ -1186,6 +1189,26 @@ public class CartaoSocialBean implements Serializable {
 
     public void setDisabledImpressaoExterna(Boolean disabledImpressaoExterna) {
         this.disabledImpressaoExterna = disabledImpressaoExterna;
+    }
+
+    public Boolean getLiberaReimpressao() {
+        if (liberaReimpressao == null) {
+            liberaReimpressao = new ControleAcessoBean().verificaPermissao("cartao_social_libera_reimpressao", 4);
+        }
+        return liberaReimpressao;
+    }
+
+    public void setLiberaReimpressao(Boolean liberaReimpressao) {
+        this.liberaReimpressao = liberaReimpressao;
+    }
+
+    public Boolean liberaReimpressaoPorData(String emissao) {
+        if (getLiberaReimpressao()) {
+            if (!emissao.isEmpty()) {
+                return !DataHoje.igualdadeData(emissao, DataHoje.data());
+            }
+        }
+        return false;
     }
 
     public class BeanWithList {

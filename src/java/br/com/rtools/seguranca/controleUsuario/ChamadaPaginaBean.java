@@ -94,6 +94,19 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     /**
+     * Define uma variável sessão junto a pesquisa;
+     *
+     * @param pagina
+     * @param sessionName
+     * @param sessionValue
+     * @return
+     */
+    public synchronized String pesquisa(String pagina, String sessionName, String sessionValue) {
+        GenericaSessao.put(sessionName, sessionValue);
+        return metodoGenerico(1, pagina);
+    }
+
+    /**
      * <p>
      * <strong>Página</strong></p>
      * <p>

@@ -25,13 +25,13 @@ public class CaravanaDao extends DB {
             if (null != tcase) {
                 switch (tcase) {
                     case "all":
-                        query = getEntityManager().createNativeQuery("SELECT C.* FROM car_caravana AS C ORDER BY C.dt_saida DESC", Caravana.class);
+                        query = getEntityManager().createNativeQuery("SELECT C.* FROM car_caravana AS C ORDER BY C.dt_saida ASC", Caravana.class);
                         break;
                     case "current":
-                        query = getEntityManager().createNativeQuery("SELECT C.* FROM car_caravana AS C WHERE C.dt_saida >= CURRENT_DATE ORDER BY C.dt_saida DESC", Caravana.class);
+                        query = getEntityManager().createNativeQuery("SELECT C.* FROM car_caravana AS C WHERE C.dt_saida >= CURRENT_DATE ORDER BY C.dt_saida ASC", Caravana.class);
                         break;
                     case "old":
-                        query = getEntityManager().createNativeQuery("SELECT C.* FROM car_caravana AS C WHERE C.dt_saida < CURRENT_DATE ORDER BY C.dt_saida DESC", Caravana.class);
+                        query = getEntityManager().createNativeQuery("SELECT C.* FROM car_caravana AS C WHERE C.dt_saida < CURRENT_DATE ORDER BY C.dt_saida ASC", Caravana.class);
                         break;
                     default:
                         break;

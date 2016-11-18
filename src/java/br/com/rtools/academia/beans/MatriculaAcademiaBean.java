@@ -788,6 +788,14 @@ public class MatriculaAcademiaBean implements Serializable {
         FisicaDao fisicaDB = new FisicaDao();
         aluno = fisicaDB.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
         if (aluno.getId() != -1) {
+            ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+            if (cs.getObrigatorioEmail()) {
+                if (aluno.getPessoa().getEmail1().isEmpty()) {
+                    GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO PARA O ALUNO!");
+                    GenericaMensagem.warn("Sistema", "CORRIJA ESTE CADASTRO PARA REALIZAR ALTERAÇÕES!");
+                    return null;
+                }
+            }
             getResponsavel();
             if (responsavel.getId() != -1) {
                 MatriculaEscolaDao med = new MatriculaEscolaDao();
@@ -876,7 +884,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 dao.rollback();
                 return;
             }
-            
+
             dao.commit();
             GenericaMensagem.info("Sucesso", "Matrícula Inativada");
         }
@@ -1778,12 +1786,14 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                     if (Moeda.converteUS$(valorLiquido) > 0) {
+                    {
+                        if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
+                    }
                     if (Moeda.converteUS$(valorLiquido) > 0) {
                         if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");

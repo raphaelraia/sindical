@@ -141,9 +141,7 @@
                                                     </p:dialog>
                                                 </h:panelGrid>
                                             </h:column>
-                                            <p:commandButton icon="ui-icon-search" value="Aluno" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" title="Pesquisar aluno" id="idPesquisarAluno"  disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}">
-                                                <p:ajax event="click" listener="#{matriculaAcademiaBean.pesquisaFisica('aluno')}" />
-                                            </p:commandButton>
+                                            <p:commandButton icon="ui-icon-search" value="Aluno" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica', 'pesquisaFisicaTipo', 'aluno')}" title="Pesquisar aluno" id="idPesquisarAluno"  disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" />
                                             <h:column>
                                                 <p:outputLabel value="Pesquisar um aluno" style="border-bottom: 1px dashed #ECF3FE" rendered="#{matriculaAcademiaBean.aluno.pessoa.id == -1}" />
                                                 <p:commandLink value="#{matriculaAcademiaBean.aluno.pessoa.nome}" rendered="#{matriculaAcademiaBean.aluno.pessoa.id != -1}" title="Ver detalhes" onclick="PF('dlg_pessoa_fisica_card').show()" update="i_pessoa_fisica_card" action="#{pessoaCardBean.cardFisica(matriculaAcademiaBean.aluno.pessoa.id)}"/>

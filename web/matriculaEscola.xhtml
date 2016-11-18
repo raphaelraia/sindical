@@ -70,7 +70,7 @@
                                                         </h:column>
                                                     </h:panelGrid>
                                                 </h:column>
-                                                <p:commandButton icon="ui-icon-search" value="Aluno" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" title="Pesquisar aluno" id="idPesquisarAluno"  disabled="#{matriculaEscolaBean.desabilitaCamposMovimento}" actionListener="#{matriculaEscolaBean.pesquisaFisica('aluno')}" />
+                                                <p:commandButton icon="ui-icon-search" value="Aluno" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica', 'pesquisaFisicaTipo', 'aluno')}" title="Pesquisar aluno" id="idPesquisarAluno"  disabled="#{matriculaEscolaBean.desabilitaCamposMovimento}" />
                                                 <h:column>
                                                     <h:panelGrid columns="8">
                                                         <p:outputLabel value="PESQUISAR ALUNO"  style="border-bottom: 1px dashed gray; color: gray;"  rendered="#{matriculaEscolaBean.servicoPessoa.pessoa.id == -1}" for="idPesquisarAluno"/>

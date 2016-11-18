@@ -1,6 +1,8 @@
 package br.com.rtools.arrecadacao.dao;
 
+import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.principal.DB;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -33,5 +35,16 @@ public class EmpregadosDao extends DB {
         }
         return 0;
     }
+    
+    public List<Empregados> findByJuridica(Integer juridica_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT E FROM Empregados AS E WHERE E.juridica.id = :juridica_id ORDER BY E.dtLancamento ASC ");
+            query.setParameter("juridica_id", juridica_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+
+        }
+    }    
 
 }

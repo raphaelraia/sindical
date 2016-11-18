@@ -132,7 +132,7 @@
                                     </h:panelGrid>
                                 </f:facet>
                                 <h:panelGroup id="i_panel_grid" style="width: 100%">
-                                    <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[0]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index">
+                                    <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[0]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index" disabledSelection="#{cartaoSocialBean.liberaReimpressaoPorData(linha[4])}">
 
                                         <f:facet name="header" >
                                             <p:outputLabel value="Selecionados #{cartaoSocialBean.listaSelecionado.size()} de #{cartaoSocialBean.listaCarteirinha.size()}" />
@@ -148,14 +148,14 @@
 
 
                                         <p:column style="width: 25px!important" styleClass="text-center">  
-                                            <h:outputText value="#{index+1}" />  
+                                            <h:outputText value="#{index+1}" title="#{!cartaoSocialBean.liberaReimpressao ? '' : '? CARTÃO SOCIAL - LIBERA REIMPRESSÃO (Consulta)'}" />  
                                         </p:column>
 
                                         <p:column style="width:20px">  
                                             <p:rowToggler />  
                                         </p:column>  
 
-                                        <p:column selectionMode="multiple" width="25" styleClass="text-center"/>  
+                                        <p:column selectionMode="multiple" width="25" styleClass="text-center"  />  
 
                                         <p:column headerText="Matrícula" style="text-align: center; width: 80px" sortBy="#{linha[10]}">  
                                             <h:outputText value="#{linha[10]}" />  

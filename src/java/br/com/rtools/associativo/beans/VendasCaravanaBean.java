@@ -976,7 +976,7 @@ public class VendasCaravanaBean implements Serializable {
                 return;
             }
         }
-        if (listaCaravana.get(getIndexCaravanaSelect()).getId() == -1) {
+        if (caravana.getId() == -1) {
             GenericaMensagem.warn("Erro", "Erro confirmar caravana!");
             return;
         }
@@ -1027,14 +1027,21 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void atualizaCaravana() {
-        caravana = listaCaravana.get(getIdCaravanaSelect());
+        for (int i = 0; i < listaCaravana.size(); i++) {
+            if (listaCaravana.get(i).getId().equals(getIdCaravanaSelect())) {
+                caravana = listaCaravana.get(i);
+                break;
+            }
+        }
         vendas.setEvento(caravana.getEvento());
-        listaTipo.clear();
+        listaTipo = new ArrayList();
         bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(142, caravana.getId());
     }
 
     public void atualizaTipo() {
-        listaTipo.clear();
+        EventoServicoValorDao dbE = new EventoServicoValorDao();
+        eventoServico = (EventoServico) new Dao().find(new EventoServico(), Integer.parseInt(listaTipo.get(idTipo).getDescription()));
+        eventoServicoValor = dbE.pesquisaEventoServicoValor(eventoServico.getId());
     }
 
     public void loadListaCaravanaSelect() {
@@ -1068,11 +1075,11 @@ public class VendasCaravanaBean implements Serializable {
     public List<SelectItem> getListaPoltrona() {
         List<Integer> select;
         if (!listaCaravana.isEmpty() && listaPoltrona.isEmpty()) {
-            select = new PoltronasDao().listaPoltronasUsadas(listaCaravana.get((int) getIndexCaravanaSelect()).getEvento().getId());
+            select = new PoltronasDao().listaPoltronasUsadas(caravana.getEvento().getId());
 
             boolean adc = true;
             String pol;
-            for (int i = 1; i <= listaCaravana.get(getIndexCaravanaSelect()).getQuantidadePoltronas(); i++) {
+            for (int i = 1; i <= caravana.getQuantidadePoltronas(); i++) {
                 for (Integer select1 : select) {
                     if (i == select1) {
                         adc = false;
@@ -1101,12 +1108,13 @@ public class VendasCaravanaBean implements Serializable {
     public List<SelectItem> getListaTipo() {
         if (!listaCaravana.isEmpty()) {
 
-            if (listaTipo.isEmpty() && listaCaravana.get(getIndexCaravanaSelect()).getId() != -1) {
+            if (listaTipo.isEmpty() && caravana.getId() != -1) {
+                idTipo = 0;
                 List<EventoServico> select;
                 EventoServicoDao db = new EventoServicoDao();
                 EventoServicoValorDao dbE = new EventoServicoValorDao();
-                if (listaCaravana.get(getIndexCaravanaSelect()).getId() != -1) {
-                    select = db.listaEventoServico(listaCaravana.get(getIndexCaravanaSelect()).getEvento().getId());
+                if (caravana.getId() != -1) {
+                    select = db.listaEventoServico(caravana.getEvento().getId());
                     for (int i = 0; i < select.size(); i++) {
                         listaTipo.add(new SelectItem(i, select.get(i).getDescricao(), "" + select.get(i).getId()));
                     }
@@ -1891,26 +1899,28 @@ public class VendasCaravanaBean implements Serializable {
 
         public List<SelectItem> getListPoltrona() {
             if (!listaCaravana.isEmpty() && listPoltrona.isEmpty()) {
-                List<Integer> select = new PoltronasDao().listaPoltronasUsadas(listaCaravana.get((int) getIndexCaravanaSelect()).getEvento().getId());
-                boolean adc = true;
-                String pol;
-                if (poltrona != 0) {
-                    listPoltrona.add(new SelectItem(poltrona, (poltrona < 10 ? ("0" + poltrona) : (poltrona + ""))));
-                }
-                for (int i = 1; i <= listaCaravana.get(getIndexCaravanaSelect()).getQuantidadePoltronas(); i++) {
-                    for (Integer select1 : select) {
-                        if (i == select1) {
-                            adc = false;
-                            break;
+                if (caravana.getId() != -1) {
+                    List<Integer> select = new PoltronasDao().listaPoltronasUsadas(caravana.getEvento().getId());
+                    boolean adc = true;
+                    String pol;
+                    if (poltrona != 0) {
+                        listPoltrona.add(new SelectItem(poltrona, (poltrona < 10 ? ("0" + poltrona) : (poltrona + ""))));
+                    }
+                    for (int i = 1; i <= caravana.getQuantidadePoltronas(); i++) {
+                        for (Integer select1 : select) {
+                            if (i == select1) {
+                                adc = false;
+                                break;
+                            }
                         }
+                        if (adc) {
+                            pol = "000" + i;
+                            listPoltrona.add(new SelectItem(i, pol.substring(pol.length() - 2, pol.length())));
+                        }
+                        adc = true;
                     }
-                    if (adc) {
-                        pol = "000" + i;
-                        listPoltrona.add(new SelectItem(i, pol.substring(pol.length() - 2, pol.length())));
-                    }
-                    adc = true;
+                    SelectItemSort.sort(listPoltrona);
                 }
-                SelectItemSort.sort(listPoltrona);
             }
             return listPoltrona;
         }
