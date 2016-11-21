@@ -52,8 +52,8 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:outputLabel value="IP servidor Catraca" /><br />
-                                        <p:inputMask value="#{catracaBean.catraca.ip}" style="width: 150px; text-align: center" mask="999.999.??9.999"/>
+                                        <p:outputLabel value="IP Catraca" /><br />
+                                        <p:inputText value="#{catracaBean.catraca.ip}" style="width: 150px; text-align: center" />
                                     </h:column>
 
                                     <h:column>
@@ -89,6 +89,13 @@
                                             <f:selectItem itemValue="7" itemLabel="Catraca Liberada 2 Sentidos(Sentido Giro)" />
                                             <f:selectItem itemValue="8" itemLabel="Catraca com Urna" />
                                         </p:selectOneMenu>
+                                    </h:column>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <h:column>
+                                        <p:outputLabel value="Servidor de Fotos" /><br />
+                                        <p:inputText value="#{catracaBean.catraca.servidorFoto}" style="width: 100%" />
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>

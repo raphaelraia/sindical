@@ -258,7 +258,7 @@ public class CaixaFederalSigCB extends Cobranca {
             // -----------------------------------------------------------------
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
-            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
             CONTEUDO_REMESSA = "";
 
@@ -292,7 +292,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
-            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
             CONTEUDO_REMESSA = "";
 
@@ -358,7 +358,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
-                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
                 CONTEUDO_REMESSA = "";
 
@@ -421,7 +421,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
-                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
                 CONTEUDO_REMESSA = "";
 
@@ -453,7 +453,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
-                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
                 CONTEUDO_REMESSA = "";
 
@@ -491,7 +491,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
-            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
             CONTEUDO_REMESSA = "";
 
@@ -624,7 +624,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
-            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
             Integer sequencial_lote = 1;
@@ -666,7 +666,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
-            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
             CONTEUDO_REMESSA = "";
 
@@ -733,7 +733,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
-                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
                 CONTEUDO_REMESSA = "";
 
@@ -795,7 +795,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
-                buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
                 CONTEUDO_REMESSA = "";
 
@@ -831,7 +831,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
-            buff_writer.write(CONTEUDO_REMESSA + "\n\r");
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
             CONTEUDO_REMESSA = "";
 
