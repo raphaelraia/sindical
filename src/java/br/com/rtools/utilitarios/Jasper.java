@@ -276,7 +276,7 @@ public class Jasper implements Serializable {
      * Imprime a lista gerada
      */
     public void finish() {
-        Jasper.printReports("down   load", jasperPrintList);
+        Jasper.printReports("download", jasperPrintList);
     }
 
     /**
@@ -650,6 +650,10 @@ public class Jasper implements Serializable {
                                 fo.setParameters(parameters);
                             } else {
                                 fo.getParameters().putAll(parameters);
+                            }
+                            if(fo.getJasperReport() == null) {
+                                System.out.println("Erro > Jasper não encontrado (null)");
+                                GenericaMensagem.info("Erro", "Jasper não encontrado (null)");
                             }
                             print = JasperFillManager.fillReport(fo.getJasperReport(), fo.getParameters(), fo.getDataSource());
                             listJasper.add(print);

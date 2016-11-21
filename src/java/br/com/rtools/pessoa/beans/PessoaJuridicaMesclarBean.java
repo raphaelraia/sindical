@@ -1,11 +1,13 @@
 package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
+import br.com.rtools.arrecadacao.ContribuintesInativos;
 import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.FolhaEmpresa;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.Rais;
 import br.com.rtools.arrecadacao.RepisMovimento;
+import br.com.rtools.arrecadacao.dao.ContribuintesInativosDao;
 import br.com.rtools.arrecadacao.dao.EmpregadosDao;
 import br.com.rtools.arrecadacao.dao.FolhaEmpresaDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
@@ -50,6 +52,8 @@ import br.com.rtools.homologacao.dao.SenhaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.EnvioEmailsDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.pessoa.dao.JuridicaImportacaoDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -723,6 +727,23 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 return;
             }
         }
+        List<JuridicaImportacao> listJuridicaImportacao = new JuridicaImportacaoDao().findByContabilidade(remover.getId());
+        for (int i = 0; i < listJuridicaImportacao.size(); i++) {
+            listJuridicaImportacao.get(i).setContabilidade(null);
+            if (!dao.update(listJuridicaImportacao.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR CONTABILIDADE!");
+                return;
+            }
+        }
+        JuridicaImportacao juridicaImportacao = new JuridicaImportacaoDao().findByJuridica(remover.getId());
+        if (juridicaImportacao != null) {
+            if (!dao.delete(juridicaImportacao)) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER JURÍDICA IMPORTAÇÃO! " + dao.EXCEPCION);
+                return;
+            }
+        }
         List<PessoaEmpresa> listPessoaEmpresaRemover = new PessoaEmpresaDao().findAllByJuridica(remover.getId());
         for (int i = 0; i < listPessoaEmpresaRemover.size(); i++) {
             List<Agendamento> listAgendamento = new HomologacaoDao().pesquisaAgendamentoPorPessoaEmpresa(listPessoaEmpresaRemover.get(i).getId());
@@ -839,6 +860,26 @@ public class PessoaJuridicaMesclarBean implements Serializable {
             }
             novoLog.save("DELETAR LINKS: " + listLinks.get(i).toString());
         }
+        List<Juridica> listEmpresasDaContabilidade = new JuridicaDao().findByContabilidade(remover.getId());
+        for (int i = 0; i < listEmpresasDaContabilidade.size(); i++) {
+            listEmpresasDaContabilidade.get(i).setContabilidade(null);
+            listEmpresasDaContabilidade.get(i).setCobrancaEscritorio(false);
+            if (!dao.update(listEmpresasDaContabilidade.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR EMPRESA VÍNCULADA!");
+                return;
+            }
+            novoLog.save("DELETAR EMPRESA VÍNCULADA: " + listEmpresasDaContabilidade.get(i).toString());
+        }
+        List<ContribuintesInativos> listContribuintesInativos = new ContribuintesInativosDao().findByJuridica(remover.getId());
+        for (int i = 0; i < listContribuintesInativos.size(); i++) {
+            if (!dao.delete(listContribuintesInativos.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR CONTRIBUINTE INATIVO!");
+                return;
+            }
+            novoLog.save("DELETAR CONTRIBUINTE INÁTIVO: " + listContribuintesInativos.get(i).toString());
+        }
         List<RepisMovimento> listRepisMovimento = new RepisMovimentoDao().findByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listRepisMovimento.size(); i++) {
             if (!dao.delete(listRepisMovimento.get(i))) {
@@ -863,10 +904,10 @@ public class PessoaJuridicaMesclarBean implements Serializable {
         listPessoaJuridica.clear();
         dao.commit();
         novoLog.saveList();
-        FisicaBean fisicaBean = new FisicaBean();
-        fisicaBean.setDescPesquisa(remover.getPessoa().getNome());
-        fisicaBean.acaoPesquisaParcial();
-        GenericaSessao.put("fisicaBean", fisicaBean);
+        JuridicaBean juridicaBean = new JuridicaBean();
+        juridicaBean.setDescPesquisa(remover.getPessoa().getNome());
+        juridicaBean.acaoPesquisaParcial();
+        GenericaSessao.put("juridicaBean", juridicaBean);
         GenericaMensagem.info("SUCESSO", "REGISTRO REMOVIDO");
     }
 

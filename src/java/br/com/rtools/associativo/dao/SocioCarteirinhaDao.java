@@ -908,7 +908,9 @@ public class SocioCarteirinhaDao extends DB {
                 + "            pt.codigo_funcional AS codigo_funcional_titular,           \n" // 39 CÓDIGO FUNCIONAL - TITULAR
                 + "            s.titular AS titular_id,                                   \n" // 40 TITULAR ID
                 + "            s.grupo_categoria,                                         \n" // 41 GRUPO CATEGORIA
-                + "            f.dt_aposentadoria                                         \n" // 42 APOSENTADORIA
+                + "            f.dt_aposentadoria,                                        \n" // 42 APOSENTADORIA
+                + "            f.ds_pai,                                                  \n" // 43 PAI
+                + "            f.ds_mae                                                   \n" // 44 MÃE                
                 + "       FROM pes_pessoa_vw                    AS p                                                \n"
                 + " INNER JOIN soc_socios_vw                    AS s  ON s.codsocio     = p.codigo                  \n"
                 + " INNER JOIN pes_fisica                       AS F  ON F.id_pessoa    = p.codigo                  \n"
@@ -919,90 +921,50 @@ public class SocioCarteirinhaDao extends DB {
                 + "  LEFT JOIN fin_movimento                    AS m  ON m.id_pessoa    = c.id_pessoa AND m.id_servicos IN(SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 120) \n"
                 + "      WHERE s.codsocio = " + id_pessoa;
 
-        textqry += " GROUP BY                                               \n"
-                + "          p.codigo,                                      \n"
-                + // 0 CÓDIGO
-                "            p.nome,                                        \n"
-                + // 1 NOME
-                "            p.cnpj,                                        \n"
-                + // 2 CNPJ
-                "            p.empresa,                                     \n"
-                + // 3 EMPRESA
-                "            to_char(c.dt_emissao, 'DD/MM/YYYY'),           \n"
-                + // 4 DATA EMISSÃO
-                "            p.e_cidade,                                    \n"
-                + // 5 CIDADE
-                "            to_char(s.validade_carteirinha, 'DD/MM/YYYY'), \n"
-                + // 6 VALIDADE
-                "            p.e_uf,                                        \n"
-                + // 7 ESTADO
-                "            to_char(p.admissao, 'DD/MM/YYYY'),             \n"
-                + // 8 ADMISSÃO
-                "            p.fantasia,                                    \n"
-                + // 9 FANTASIA
-                "            s.matricula,                                   \n"
-                + // 10 MATRICULA
-                "            s.nr_via,                                      \n"
-                + // 11 VIA
-                "            s.id_socio,                                    \n"
-                + // 12 CÓDIGO SÓCIO
-                "            to_char(s.filiacao, 'DD/MM/YYYY'),             \n"
-                + // 13 FILIAÇÃO
-                "            p.profissao,                                   \n"
-                + // 14 PROFISSÃO
-                "            p.cpf,                                         \n"
-                + // 15 CPF
-                "            p.ds_rg,                                       \n"
-                + // 16 RG 
-                "            c.nr_cartao,                                   \n"
-                + // 17 NÚMERO CARTÃO
-                "            c.id,                                          \n"
-                + // 18
-                "            mc.ds_descricao,                               \n"
-                + // 19 MODELO CARTEIRINHA
-                "            p.logradouro,                                  \n"
-                + // 20
-                "            p.endereco,                                    \n"
-                + // 21
-                "            p.numero,                                      \n"
-                + // 22
-                "            p.complemento,                                 \n"
-                + // 23
-                "            p.bairro,                                      \n"
-                + // 24
-                "            p.cidade,                                      \n"
-                + // 25
-                "            p.uf,                                          \n"
-                + // 26
-                "            p.cep,                                         \n"
-                + // 27
-                "            p.nacionalidade,                               \n"
-                + // 28
-                "            to_char(p.dt_nascimento, 'DD/MM/YYYY'),        \n"
-                + // 29
-                "            p.estado_civil,                                \n"
-                + // 30
-                "            p.ctps,                                        \n"
-                + // 31
-                "            p.ds_serie,                                    \n"
-                + // 32
-                "            p.ds_orgao_emissao_rg,                         \n"
-                + // 34
-                "            p.codigo_funcional,                            \n"
-                + // 35
-                "            s.parentesco,                                  \n"
-                + // 36
-                "            s.categoria,                                   \n"
-                + // 37
-                "            pt.fantasia,                                   \n"
-                + // 38
-                "            pt.codigo_funcional,                           \n"
-                + // 39
-                "            s.titular,                                     \n"
-                + // 40
-                "            s.grupo_categoria,                             \n"
-                + // 41
-                "            f.dt_aposentadoria                             \n"; // 42
+        textqry += "   GROUP BY p.codigo,                                       \n" // 0 CÓDIGO
+                + "             p.nome,                                         \n" // 1 NOME
+                + "             p.cnpj,                                         \n" // 2 CNPJ
+                + "             p.empresa,                                      \n" // 3 EMPRESA
+                + "             to_char(c.dt_emissao, 'DD/MM/YYYY'),            \n" // 4 DATA EMISSÃO
+                + "             p.e_cidade,                                     \n" // 5 CIDADE
+                + "             to_char(s.validade_carteirinha, 'DD/MM/YYYY'),  \n" // 6 VALIDADE
+                + "             p.e_uf,                                         \n" // 7 ESTADO
+                + "             to_char(p.admissao, 'DD/MM/YYYY'),              \n" // 8 ADMISSÃO
+                + "             p.fantasia,                                     \n" // 9 FANTASIA
+                + "             s.matricula,                                    \n" // 10 MATRICULA
+                + "             s.nr_via,                                       \n" // 11 VIA
+                + "             s.id_socio,                                     \n" // 12 CÓDIGO SÓCIO
+                + "             to_char(s.filiacao, 'DD/MM/YYYY'),              \n" // 13 FILIAÇÃO
+                + "             p.profissao,                                    \n" // 14 PROFISSÃO
+                + "             p.cpf,                                          \n" // 15 CPF
+                + "             p.ds_rg,                                        \n" // 16 RG 
+                + "             c.nr_cartao,                                    \n" // 17 NÚMERO CARTÃO
+                + "             c.id,                                           \n" // 18
+                + "             mc.ds_descricao,                                \n" // 19 MODELO CARTEIRINHA
+                + "             p.logradouro,                                   \n" // 20
+                + "             p.endereco,                                     \n" // 21
+                + "             p.numero,                                       \n" // 22
+                + "             p.complemento,                                  \n" // 23
+                + "             p.bairro,                                       \n" // 24
+                + "             p.cidade,                                       \n" // 25
+                + "             p.uf,                                           \n" // 26
+                + "             p.cep,                                          \n" // 27
+                + "             p.nacionalidade,                                \n" // 28
+                + "             to_char(p.dt_nascimento, 'DD/MM/YYYY'),         \n" // 29
+                + "             p.estado_civil,                                 \n" // 30
+                + "             p.ctps,                                         \n" // 31
+                + "             p.ds_serie,                                     \n" // 32
+                + "             p.ds_orgao_emissao_rg,                          \n" // 34
+                + "             p.codigo_funcional,                             \n" // 35
+                + "             s.parentesco,                                   \n" // 36
+                + "             s.categoria,                                    \n" // 37
+                + "             pt.fantasia,                                    \n" // 38
+                + "             pt.codigo_funcional,                            \n" // 39
+                + "             s.titular,                                      \n" // 40
+                + "             s.grupo_categoria,                              \n" // 41
+                + "             f.dt_aposentadoria,                             \n" // 42
+                + "             f.ds_pai,                                       \n" // 43
+                + "             f.ds_mae                                        \n"; // 44
         try {
             Query qry = getEntityManager().createNativeQuery(textqry);
             if (!qry.getResultList().isEmpty()) {

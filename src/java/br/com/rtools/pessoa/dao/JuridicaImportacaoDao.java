@@ -80,4 +80,22 @@ public class JuridicaImportacaoDao extends DB {
             return new ArrayList();
         }
     }
+
+    public List<JuridicaImportacao> findByContabilidade(Integer contabilidade_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE I.id_contabilidade = " + contabilidade_id, JuridicaImportacao.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public JuridicaImportacao findByJuridica(Integer juridica_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_juridica_importacao AS I WHERE I.id_juridica = " + juridica_id, JuridicaImportacao.class);
+            return (JuridicaImportacao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
