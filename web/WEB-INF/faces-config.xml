@@ -2348,6 +2348,13 @@
             <redirect/>
         </navigation-case>             
         
+        
+        <navigation-case>
+            <from-outcome>pessoaJuridicaMesclar</from-outcome>
+            <to-view-id>/pessoaJuridicaMesclar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

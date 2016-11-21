@@ -1664,8 +1664,11 @@ public class SociosBean implements Serializable {
 
         if (servicoPessoa.getId() == -1) {
             if (servicoPessoa.getPessoa().getDocumento().isEmpty() || servicoPessoa.getPessoa().getDocumento().equals("0")) {
-                GenericaMensagem.warn("Erro", "Para ser titular é necessário ter número de documento (CPF) no cadastro!");
-                return false;
+                ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+                if (cs.getBloqueiaCpf()) {
+                    GenericaMensagem.warn("Erro", "Para ser titular é necessário ter número de documento (CPF) no cadastro!");
+                    return false;
+                }
             }
         }
 

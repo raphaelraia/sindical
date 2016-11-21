@@ -44,9 +44,11 @@
                                                 <f:selectItem itemValue="cnpj"     itemLabel="CNPJ"/>
                                                 <f:selectItem itemValue="cpf"      itemLabel="CPF"/>
                                                 <f:selectItem itemValue="cei"      itemLabel="CEI"/>
-                                                <f:selectItem itemValue="email1" itemLabel="E-mail 1"/>
-                                                <f:selectItem itemValue="email2" itemLabel="E-mail 2"/>
+                                                <f:selectItem itemValue="email1"   itemLabel="E-mail 1"/>
+                                                <f:selectItem itemValue="email2"   itemLabel="E-mail 2"/>
                                                 <f:selectItem itemValue="endereco" itemLabel="Endereço"/>
+                                                <f:selectItem itemValue="codigo"   itemLabel="Código"/>
+                                                <f:selectItem itemValue="contabilidade"   itemLabel="Contabilidade"/>
                                             </p:selectOneMenu>                        
                                             <p:commandLink rendered="#{juridicaBean.porPesquisa eq 'endereco'}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
                                         </h:panelGrid>
@@ -73,7 +75,7 @@
                                     </p:column>  
 
                                     <p:column headerText="ID" styleClass="text-center" width="50">
-                                        <p:commandLink action="#{juridicaBean.editar(juridica)}" value="#{juridica.id}" ajax="false"/>
+                                        <p:commandLink action="#{juridicaBean.editar(juridica)}" value="#{juridica.pessoa.id}" ajax="false" title="Jurídica ID: #{juridica.id}"/>
                                     </p:column>
 
                                     <p:column headerText="Nome">

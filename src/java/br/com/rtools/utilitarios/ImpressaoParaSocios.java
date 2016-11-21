@@ -146,6 +146,11 @@ public class ImpressaoParaSocios {
             if (f.exists()) {
                 assinatura = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
             }
+            String cartaoVerso = "";
+            File fileCartaoVerso = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg"));
+            if (fileCartaoVerso.exists()) {
+                cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg");
+            }
 
             listax.add(
                     new CartaoSocial(
@@ -189,7 +194,10 @@ public class ImpressaoParaSocios {
                             (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
                             via,
                             new ArrayList(),
-                            assinatura
+                            assinatura,
+                            cartaoVerso,
+                            ((List) (listaCartao.get(i))).get(43),
+                            ((List) (listaCartao.get(i))).get(44)
                     )
             );
             if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP")) {
@@ -230,6 +238,7 @@ public class ImpressaoParaSocios {
             List ljasper = new ArrayList();
             JasperReport jasper;
             JasperReport subJasper;
+            JasperReport jasperVerso;
             String subreport = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/DEPENDENTES.jasper");
 //            DBExternal con = new DBExternal();
 //            con.setDatabase(GenericaSessao.getString("sessaoCliente"));
@@ -286,6 +295,20 @@ public class ImpressaoParaSocios {
 //                    Jasper.printReports(modelo.getJasper().trim(), "cartao_social", list, map);
 //                }
                 ljasper.add(Jasper.fillObject(jasper, map, dtSource));
+                try {
+                    File fileVerso = new File(
+                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/CARTAO_VERSO.jasper")
+                    );
+                    if (fileVerso.exists()) {
+                        //* ADD LISTA DE JASPERS *//
+                            dtSource = new JRBeanCollectionDataSource(entry.getValue());
+                        jasperVerso = (JasperReport) JRLoader.loadObject(fileVerso);
+                        ljasper.add(Jasper.fillObject(jasperVerso, map, dtSource));
+                    }
+                } catch (Exception ev) {
+                    GenericaMensagem.warn("Erro", "Ao imprimir verso do cartão! " + ev.getMessage());
+                    break;
+                }
             }
 
 //          EM PRODUÇÃO COMPACTA CARTÕES EM GRANDES QUANTIDADES E PARTICIONA - BRUNO

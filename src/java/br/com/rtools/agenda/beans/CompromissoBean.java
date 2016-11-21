@@ -253,6 +253,7 @@ public class CompromissoBean implements Serializable {
             novoLog.setCodigo(compromisso.getId());
             novoLog.save(saveString);
             GenericaMensagem.info("SUCESSO", "REGISTRO INSERIDO");
+            GenericaSessao.remove("compromissoUsuarioBean");
         } else {
             Compromisso c = (Compromisso) dao.find(new Compromisso(), compromisso.getId());
             String beforeUpdate = "ID: " + c.getId() + " - Categoria: " + c.getCompromissoCategoria().getDescricao() + " - Descrição: " + c.getDescricao() + " - Data: " + c.getData() + " - Horário: " + c.getHoraInicial();
@@ -264,6 +265,7 @@ public class CompromissoBean implements Serializable {
                 loadListUsuario();
                 loadListCompromissos();
                 GenericaMensagem.info("SUCESSO", "REGISTRO ATUALIZADO");
+                GenericaSessao.remove("compromissoUsuarioBean");
             } else {
                 GenericaMensagem.warn("ERRO", "AO ATUALIZADO REGISTRO!");
             }
@@ -312,6 +314,7 @@ public class CompromissoBean implements Serializable {
                 novoLog.setTabela("age_compromisso");
                 novoLog.setCodigo(compromisso.getId());
                 novoLog.delete(deleteString);
+                GenericaSessao.remove("compromissoUsuarioBean");
             } else {
                 GenericaMensagem.warn("ERRO", "AO REMOVER REGISTRO!");
             }
@@ -328,6 +331,7 @@ public class CompromissoBean implements Serializable {
                 GenericaMensagem.info("SUCESSO", "REGISTRO REMOVIDO");
                 loadListCompromissoUsuario();
                 loadListUsuario();
+                GenericaSessao.remove("compromissoUsuarioBean");
             } else {
                 GenericaMensagem.warn("ERRO", "AO REMOVER REGISTRO!");
             }
@@ -340,6 +344,7 @@ public class CompromissoBean implements Serializable {
             GenericaMensagem.info("SUCESSO", "REGISTRO REMOVIDO");
             loadListUsuario();
             loadListCompromissoUsuario();
+            GenericaSessao.remove("compromissoUsuarioBean");
         } else {
             GenericaMensagem.warn("ERRO", "AO REMOVER REGISTRO!");
         }

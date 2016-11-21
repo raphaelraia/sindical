@@ -94,6 +94,19 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     /**
+     * Define uma variável sessão junto a pesquisa;
+     *
+     * @param pagina
+     * @param sessionName
+     * @param sessionValue
+     * @return
+     */
+    public synchronized String pesquisa(String pagina, String sessionName, String sessionValue) {
+        GenericaSessao.put(sessionName, sessionValue);
+        return metodoGenerico(1, pagina);
+    }
+
+    /**
      * <p>
      * <strong>Página</strong></p>
      * <p>
@@ -1444,6 +1457,7 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public synchronized String menuSocial() {
+        GenericaSessao.remove("socialBean");
         GenericaSessao.put("idModulo", SOCIAL);
         loadMacFilial(6);
         return metodoGenerico(0, "menuSocial");

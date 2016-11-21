@@ -4,6 +4,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailArquivo;
 import br.com.rtools.sistema.EmailPessoa;
@@ -72,6 +73,9 @@ public class EmailBean implements Serializable {
     private String filterBy;
     private String descricaoPesquisa;
     private String mensagemDetalhes;
+    private Boolean verTodosUsuarios;
+    private List<SelectItem> listUsuarios;
+    private Integer idUsuario;
 
     @PostConstruct
     public void init() {
@@ -79,9 +83,11 @@ public class EmailBean implements Serializable {
         email = new Email();
         selectedEmail = null;
         listSelectItem = new ArrayList[]{
-            new ArrayList<SelectItem>(),
-            new ArrayList<SelectItem>()
+            new ArrayList<>(),
+            new ArrayList<>()
         };
+        verTodosUsuarios = false;
+        listUsuarios = new ArrayList<>();
         emailPessoa = new EmailPessoa();
         index = new Integer[]{0, 0};
         emails = new ArrayList<Email>();
@@ -119,6 +125,7 @@ public class EmailBean implements Serializable {
                 }
             }
         }
+        loadListUsuarios();
     }
 
     @PreDestroy
@@ -519,6 +526,8 @@ public class EmailBean implements Serializable {
             EmailDao ed = new EmailDao();
             if (filterRascunho) {
                 listEmailPessoas = ed.findRascunho();
+            } else if (verTodosUsuarios) {
+                listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);
             } else {
                 listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, orderBy);
             }
@@ -633,5 +642,39 @@ public class EmailBean implements Serializable {
 
     public void setMensagemDetalhes(String mensagemDetalhes) {
         this.mensagemDetalhes = mensagemDetalhes;
+    }
+
+    public Boolean getVerTodosUsuarios() {
+        return verTodosUsuarios;
+    }
+
+    public void setVerTodosUsuarios(Boolean verTodosUsuarios) {
+        this.verTodosUsuarios = verTodosUsuarios;
+    }
+
+    public void loadListUsuarios() {
+        listUsuarios = new ArrayList();
+        List<Usuario> list = new UsuarioDao().findByTabela("sis_email");
+        listUsuarios.add(new SelectItem(null, "-- NENHUM --"));
+        idUsuario = null;
+        for (int i = 0; i < list.size(); i++) {
+            listUsuarios.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome()));
+        }
+    }
+
+    public Integer getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public List<SelectItem> getListUsuarios() {
+        return listUsuarios;
+    }
+
+    public void setListUsuarios(List<SelectItem> listUsuarios) {
+        this.listUsuarios = listUsuarios;
     }
 }

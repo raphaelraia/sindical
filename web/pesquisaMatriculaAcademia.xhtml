@@ -18,6 +18,7 @@
                 <h:form id="form_pesquisa">                
                     <h:outputText value="Pesquisa Matrícula Academia" styleClass="fonteHeader" />
                     <div class="clear"></div>
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                     <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
                         <h:panelGrid columns="8">
                             <p:inputMask id="id_desc_pesquisa" value="#{matriculaAcademiaBean.descricaoPesquisa}" size="50" mask="#{matriculaAcademiaBean.mascaraPesquisa}">
@@ -53,7 +54,7 @@
                             <p:dataTable value="#{matriculaAcademiaBean.listaAcademia}" var="matriculaAcademia" id="tbl" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true">
                                 <f:facet name="footer">Obs: Nasc. = Nascimento</f:facet>
                                 <p:column styleClass="text-center" width="25">
-                                    <p:commandButton icon="ui-icon-link" action="#{matriculaAcademiaBean.editar(matriculaAcademia)}" title="Editar registro nº #{matriculaAcademia.id}"/>
+                                    <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{matriculaAcademiaBean.editar(matriculaAcademia)}" title="Editar registro nº #{matriculaAcademia.id}"/>
                                 </p:column>
                                 <p:column headerText="ID" styleClass="text-center" width="25">
                                     #{matriculaAcademia.id}

@@ -9,6 +9,7 @@ import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
+import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.associativo.beans.SociosBean;
@@ -69,11 +70,9 @@ import org.primefaces.event.TabChangeEvent;
 public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     private Fisica fisica = new Fisica();
-
     private PessoaProfissao pessoaProfissao = new PessoaProfissao();
     private PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
     private PessoaEmpresa pessoaEmpresaEdit = new PessoaEmpresa();
-
     private Usuario usuario = new Usuario();
     private PessoaComplemento pessoaComplemento = new PessoaComplemento();
     private Socios socios = new Socios();
@@ -169,9 +168,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private SisAutorizacoes sisAutorizacoes;
     private String alterType;
     private List<SisAutorizacoes> listSisAutorizacoes;
+    private ConfiguracaoSocial configuracaoSocial;
 
     public FisicaBean() {
         sisAutorizacoes = new SisAutorizacoes();
+        configuracaoSocial = ConfiguracaoSocial.get();
         listSisAutorizacoes = new ArrayList();
         alterType = "";
     }
@@ -385,6 +386,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 dao.rollback();
             }
         } else {
+            if (fisica.getPessoa().getEmail1().isEmpty()) {
+                if (configuracaoSocial.getObrigatorioEmail()) {
+                    if (fisica.getPessoa().getSocios().getId() != -1) {
+                        if (fisica.getPessoa().getIsTitular()) {
+                            GenericaMensagem.warn("Validação", "INFORMAR E-MAIL DO TITULAR!");
+                            return;
+                        }
+                    }
+                }
+            }
             fisica.getPessoa().setDtAtualizacao(new Date());
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             Fisica f = (Fisica) dao.find(new Fisica(), fisica.getId());
@@ -445,6 +456,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 mensagem = "Cadastro atualizado com Sucesso!";
                 sucesso = true;
                 dao.commit();
+
             } else {
                 mensagem = "Erro ao Atualizar!";
                 dao.rollback();
@@ -717,14 +729,22 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void existePessoaDocumento() {
-        if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__") && fisica.getId() == -1) {
+        if (fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
+            fisica.getPessoa().setDocumento("");
+            PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
+            return;
+        }
+        if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
                 mensagem = "Documento Invalido!";
                 GenericaMensagem.warn("Validação", "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento());
                 PF.update("form_pessoa_fisica:i_tabview_fisica:id_valida_documento");
+                PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
                 fisica.getPessoa().setDocumento("");
                 return;
             }
+        }
+        if (fisica.getId() == -1) {
             FisicaDao db = new FisicaDao();
             List lista = db.pesquisaFisicaPorDoc(fisica.getPessoa().getDocumento());
             Boolean success = false;
@@ -854,6 +874,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
         }
         loadListaInativacao();
+        loadMalaDireta();
         return url;
     }
 
@@ -1349,15 +1370,23 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return null;
         }
         boolean reativar = false;
-        Pessoa p = fisica.getPessoa();
+        Pessoa p = (Pessoa) new Dao().find(fisica.getPessoa());
         if (tipoCadastro == -1) {
             GenericaMensagem.warn("Validação", "Cadastre uma pessoa fisica para associar!");
             return "pessoaFisica";
         } else if (tipoCadastro == 1) {
             if (socios.getId() == -1) {
-                if (fisica.getPessoa().getDocumento().isEmpty() || fisica.getPessoa().getDocumento().equals("0")) {
-                    GenericaMensagem.warn("Erro", "Para se associar é necessário ter número de documento (CPF) no cadastro!");
-                    return null;
+                if (p.getDocumento().isEmpty() || p.getDocumento().equals("0")) {
+                    if (configuracaoSocial.getBloqueiaCpf()) {
+                        GenericaMensagem.warn("Erro", "Para se associar é necessário ter número de documento (CPF) no cadastro!");
+                        return null;
+                    }
+                }
+                if (p.getEmail1().isEmpty()) {
+                    if (configuracaoSocial.getObrigatorioEmail()) {
+                        GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO, PARA ASSOCIAR!");
+                        return null;
+                    }
                 }
             }
             reativar = socios.getServicoPessoa().isAtivo();
@@ -1368,8 +1397,20 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             reativar = socios.getServicoPessoa().isAtivo();
         } else if (tipoCadastro == 4) {
             reativar = socios.getServicoPessoa().isAtivo();
+            if (p.getEmail1().isEmpty()) {
+                if (configuracaoSocial.getObrigatorioEmail()) {
+                    GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO, PARA ASSOCIAR!");
+                    return null;
+                }
+            }
         } else if (tipoCadastro == 5) {
             reativar = socios.getServicoPessoa().isAtivo();
+            if (p.getEmail1().isEmpty()) {
+                if (configuracaoSocial.getObrigatorioEmail()) {
+                    GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO, PARA ASSOCIAR!");
+                    return null;
+                }
+            }
         }
 
         if (socios.getId() == -1 || (socios.getId() != -1 && (socios.getMatriculaSocios().getDtInativo() != null || !socios.getServicoPessoa().isAtivo()))) {
@@ -1408,6 +1449,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public String associarFisica(Pessoa _pessoa) {
         if (!listernerValidacao(fisica, "associarFisica")) {
             return null;
+        }
+        if (fisica.getPessoa().getEmail1().isEmpty()) {
+            if (configuracaoSocial.getObrigatorioEmail()) {
+                GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO, PARA ASSOCIAR!");
+                return null;
+            }
         }
         clear(0);
         String retorno = ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).socios();
@@ -2298,6 +2345,26 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 break;
         }
 
+        // EMAIL OBRIGATÓRIO
+        switch (validacao) {
+            case "matriculaAcademia":
+            case "matriculaEscola":
+                String tipoFisica = "";
+                if (GenericaSessao.exists("pesquisaFisicaTipo")) {
+                    tipoFisica = GenericaSessao.getString("pesquisaFisicaTipo");
+                }
+                if (tipoFisica.equals("aluno")) {
+                    if (fisica.getPessoa().getEmail1().isEmpty()) {
+                        if (configuracaoSocial.getObrigatorioEmail()) {
+                            count++;
+                            GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO, PARA CADASTRAR ALUNO!");
+                            permite = false;
+                        }
+                    }
+                }
+                break;
+        }
+
         // BLOQUEIO
         switch (validacao) {
             case "vendasCaravana":
@@ -2896,6 +2963,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return;
         }
         if (alterType.equals("cpf")) {
+            if (sisAutorizacoes.getDadosAlterados().equals("___.___.___-__")) {
+                GenericaMensagem.warn("Validação", "O campo de alteração não pode ser vazio!");
+                sisAutorizacoes.setDadosAlterados("");
+                return;
+            }
             if (!new FisicaDao().pesquisaFisicaPorDoc(sisAutorizacoes.getDadosAlterados()).isEmpty()) {
                 GenericaMensagem.warn("Validação", "Pessoa já existente no Sistema!");
                 return;
@@ -3005,6 +3077,26 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return Mask.getMascaraPesquisa(alterType, true);
         }
         return "";
+    }
+
+    public Boolean getAlteraCpf() {
+        if (fisica.getId() == -1) {
+            return true;
+        } else {
+            Fisica f = (Fisica) new Dao().find(new Fisica(), fisica.getId());
+            if (f.getPessoa().getDocumento().isEmpty() || f.getPessoa().getDocumento().equals("0")) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public ConfiguracaoSocial getConfiguracaoSocial() {
+        return configuracaoSocial;
+    }
+
+    public void setConfiguracaoSocial(ConfiguracaoSocial configuracaoSocial) {
+        this.configuracaoSocial = configuracaoSocial;
     }
 
 }

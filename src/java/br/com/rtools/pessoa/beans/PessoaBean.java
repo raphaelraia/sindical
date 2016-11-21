@@ -18,7 +18,9 @@ import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.dao.PessoaDao;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -54,6 +56,8 @@ public class PessoaBean implements Serializable {
     private List<Suspencao> listSuspensao;
     private List<DeclaracaoPessoa> listDeclaracaoPessoa;
     private String tipoDeclaracaoPessoa;
+    private String situacaoFuncionario;
+    private List<PessoaEmpresa> listFuncionarios;
 
     @PostConstruct
     public void init() {
@@ -72,6 +76,8 @@ public class PessoaBean implements Serializable {
         listDeclaracaoPessoa = new ArrayList();
         tipoDeclaracaoPessoa = "";
         selectDetalhes = "";
+        situacaoFuncionario = "ativos";
+        listFuncionarios = new ArrayList();
 
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
@@ -188,6 +194,9 @@ public class PessoaBean implements Serializable {
                     // LISTA DECLARAÇÃO FÍSICA (BENEFICIÁRIO)
                     listDeclaracaoPessoa = dao.listaDeclaracaoPessoaFisica(pessoa.getId());
                 }
+                break;
+            case "funcionarios":
+                loadListFuncionarios();
                 break;
         }
     }
@@ -380,6 +389,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("repis", "Repis", "CONSULTA REPIS (PESSOA JURÍDICA)", cab.verificarPermissao("consulta_repis", 4)));
             listSelectDetalhes.add(new SelectItem("homologacao_empresa", "Homologação", "CONSULTA HOMOLOGAÇÃO", cab.verificarPermissao("homologacao_empresa", 4)));
             listSelectDetalhes.add(new SelectItem("declaracao", "Declaração", "DECLARAÇÃO", cab.verificarPermissao("consulta_declaracao", 4)));
+            listSelectDetalhes.add(new SelectItem("funcionarios", "Funcionários", "FUNCIONÁRIOS", cab.verificarPermissao("consulta_funcionarios", 4)));
         }
         // PESSOA FÍSICA E JURÍDICA
         if (tipoPessoa.equals("pessoaFisica") || tipoPessoa.equals("pessoaJuridica")) {
@@ -401,6 +411,22 @@ public class PessoaBean implements Serializable {
                 }
 
             }
+        }
+    }
+
+    public void loadListFuncionarios() {
+        listFuncionarios = new ArrayList();
+        PessoaEmpresaDao pessoaEmpresaDao = new PessoaEmpresaDao();
+        switch (situacaoFuncionario) {
+            case "todos":
+                listFuncionarios = pessoaEmpresaDao.findAllByPessoa(pessoa.getId(), null);
+                break;
+            case "ativos":
+                listFuncionarios = pessoaEmpresaDao.findAllByPessoa(pessoa.getId(), false);
+                break;
+            default:
+                listFuncionarios = pessoaEmpresaDao.findAllByPessoa(pessoa.getId(), true);
+                break;
         }
     }
 
@@ -458,5 +484,21 @@ public class PessoaBean implements Serializable {
 
     public void setTipoDeclaracaoPessoa(String tipoDeclaracaoPessoa) {
         this.tipoDeclaracaoPessoa = tipoDeclaracaoPessoa;
+    }
+
+    public String getSituacaoFuncionario() {
+        return situacaoFuncionario;
+    }
+
+    public void setSituacaoFuncionario(String situacaoFuncionario) {
+        this.situacaoFuncionario = situacaoFuncionario;
+    }
+
+    public List<PessoaEmpresa> getListFuncionarios() {
+        return listFuncionarios;
+    }
+
+    public void setListFuncionarios(List<PessoaEmpresa> listFuncionarios) {
+        this.listFuncionarios = listFuncionarios;
     }
 }

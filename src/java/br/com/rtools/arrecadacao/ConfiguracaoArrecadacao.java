@@ -103,6 +103,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.uploadCertificado = uploadCertificado;
     }
 
+    public Boolean getVisualizaCertificadoRecusado() {
+        return visualizaCertificadoRecusado;
+    }
+
+    public void setVisualizaCertificadoRecusado(Boolean visualizaCertificadoRecusado) {
+        this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
+    }
+
     public static ConfiguracaoArrecadacao get() {
         ConfiguracaoArrecadacao ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
         if (ca == null) {
@@ -110,14 +118,6 @@ public class ConfiguracaoArrecadacao implements Serializable {
             ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
         }
         return ca;
-    }
-
-    public Boolean getVisualizaCertificadoRecusado() {
-        return visualizaCertificadoRecusado;
-    }
-
-    public void setVisualizaCertificadoRecusado(Boolean visualizaCertificadoRecusado) {
-        this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
     }
 
 }

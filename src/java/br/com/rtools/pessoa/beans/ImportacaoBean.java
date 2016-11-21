@@ -26,7 +26,6 @@ import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.FisicaImportacaoDao;
-import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.JuridicaImportacaoDao;
 import br.com.rtools.pessoa.dao.ProfissaoDao;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
@@ -35,7 +34,6 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.sistema.Critica;
 import br.com.rtools.sistema.SisProcesso;
-import br.com.rtools.utilitarios.CEPService;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -99,6 +97,12 @@ public class ImportacaoBean implements Serializable {
                 // thread = new Thread(execute);
                 // thread.start();
             }
+            if (type.equals("dependentes")) {
+                run = true;
+                fisica();
+                // thread = new Thread(execute);
+                // thread.start();
+            }
             if (type.equals("juridica")) {
                 run = true;
                 juridica();
@@ -119,6 +123,9 @@ public class ImportacaoBean implements Serializable {
         if (type.equals("fisica")) {
             finishFisica();
         }
+        if (type.equals("dependentes")) {
+            finishFisica();
+        }
         if (type.equals("juridica") || type.equals("contabilidade")) {
             finishJuridica();
         }
@@ -127,8 +134,13 @@ public class ImportacaoBean implements Serializable {
     public void finishFisica() {
         Dao dao = new Dao();
         FisicaDao fisicaDao = new FisicaDao();
+        FisicaImportacaoDao fisicaImportacaoDao = new FisicaImportacaoDao();
         List<TipoEndereco> listTipoEndereco = dao.find("TipoEndereco", new int[]{1, 3, 4});
-        listFisicaImportacao = new Dao().list(new FisicaImportacao());
+        if (type.equals("fisica")) {
+            listFisicaImportacao = fisicaImportacaoDao.findAllTitulares();
+        } else if (type.equals("dependentes")) {
+            listFisicaImportacao = fisicaImportacaoDao.findAllDependentes();
+        }
         dao.openTransaction();
         for (FisicaImportacao fi : listFisicaImportacao) {
             try {
@@ -218,29 +230,31 @@ public class ImportacaoBean implements Serializable {
                             return;
                         }
                     }
-                    if (fi.getEndereco() != null) {
-                        for (int z = 0; z < listTipoEndereco.size(); z++) {
-                            PessoaEndereco pessoaEndereco = new PessoaEndereco();
-                            pessoaEndereco.setPessoa(pessoa);
-                            pessoaEndereco.setComplemento(fi.getComplemento());
-                            pessoaEndereco.setNumero(fi.getNumero());
-                            pessoaEndereco.setTipoEndereco(listTipoEndereco.get(z));
-                            pessoaEndereco.setEndereco(fi.getEndereco());
-                            if (!dao.save(pessoaEndereco)) {
-                                dao.rollback();
-                                GenericaMensagem.warn("ERRO", "Ao salvar pessoa endereço. " + dao.EXCEPCION.getMessage());
-                                return;
-                            }
+                    if (type.equals("fisica")) {
+                        if (fi.getEndereco() != null) {
+                            for (int z = 0; z < listTipoEndereco.size(); z++) {
+                                PessoaEndereco pessoaEndereco = new PessoaEndereco();
+                                pessoaEndereco.setPessoa(pessoa);
+                                pessoaEndereco.setComplemento(fi.getComplemento());
+                                pessoaEndereco.setNumero(fi.getNumero());
+                                pessoaEndereco.setTipoEndereco(listTipoEndereco.get(z));
+                                pessoaEndereco.setEndereco(fi.getEndereco());
+                                if (!dao.save(pessoaEndereco)) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("ERRO", "Ao salvar pessoa endereço. " + dao.EXCEPCION.getMessage());
+                                    return;
+                                }
 
+                            }
                         }
-                    }
-                    PessoaComplemento pessoaComplemento = new PessoaComplemento();
-                    pessoaComplemento.setObsAviso("ATUALIZAR ESTE CADASTRO!");
-                    pessoaComplemento.setPessoa(pessoa);
-                    if (!dao.save(pessoaComplemento)) {
-                        dao.rollback();
-                        GenericaMensagem.warn("ERRO", "Ao salvar pessoa complemento. " + dao.EXCEPCION.getMessage());
-                        return;
+                        PessoaComplemento pessoaComplemento = new PessoaComplemento();
+                        pessoaComplemento.setObsAviso("");
+                        pessoaComplemento.setPessoa(pessoa);
+                        if (!dao.save(pessoaComplemento)) {
+                            dao.rollback();
+                            GenericaMensagem.warn("ERRO", "Ao salvar pessoa complemento. " + dao.EXCEPCION.getMessage());
+                            return;
+                        }
                     }
                     fi.setDtHomologacao(new Date());
                     fi.setFisica(fisica);
@@ -431,7 +445,7 @@ public class ImportacaoBean implements Serializable {
         sisProcesso.start();
         try {
             String json = "";
-            File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + GenericaSessao.getString("sessaoCliente").toLowerCase() + "/arquivos/importacao/fisica/importacao.json"));
+            File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + GenericaSessao.getString("sessaoCliente").toLowerCase() + "/arquivos/importacao/" + type + "/importacao.json"));
             Gson gson = new Gson();
             if (file.exists()) {
                 json = FileUtils.readFileToString(file);
@@ -452,9 +466,10 @@ public class ImportacaoBean implements Serializable {
             Registro registro = Registro.get();
             Endereco enderecoPrincipal = registro.getFilial().getPessoa().getPessoaEndereco().getEndereco();
             for (int i = 0; i < list.size(); i++) {
-                FisicaImportacao fiResult = (FisicaImportacao) new FisicaImportacaoDao().find(list.get(i).getNome(), list.get(i).getDocumento());
+                List<FisicaImportacao> listVerificacao = new FisicaImportacaoDao().exists(list.get(i).getNome(), list.get(i).getDocumento());
+                // FisicaImportacao fiResult = (FisicaImportacao) new FisicaImportacaoDao().find(list.get(i).getNome(), list.get(i).getDocumento());
                 try {
-                    if (fiResult == null) {
+                    if (listVerificacao.isEmpty()) {
                         dao.openTransaction();
                         DescricaoEndereco descricaoEndereco = null;
                         Bairro bairro = null;
@@ -474,6 +489,9 @@ public class ImportacaoBean implements Serializable {
                         list.get(i).getDtInativacao();
                         list.get(i).getDtCriacao();
                         list.get(i).reviseDatas();
+                        if (type.equals("dependentes")) {
+                            list.get(i).setDependente(true);
+                        }
                         Parentesco parentesco = null;
                         if (!list.get(i).getSexo().isEmpty() && !list.get(i).getParentesco().isEmpty()) {
                             parentesco = new ParentescoDao().find(list.get(i).getParentesco().toUpperCase(), list.get(i).getSexo().toUpperCase());

@@ -481,4 +481,16 @@ public class OposicaoDao extends DB {
             return list;
         }
     }
+
+    public List<Oposicao> findByJuridica(Integer juridica_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT O FROM Oposicao AS O WHERE O.juridica.id = :juridica_id ORDER BY O.dtEmissao ");
+            query.setParameter("juridica_id", juridica_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+
+        }
+    }
+
 }

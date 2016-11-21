@@ -180,6 +180,10 @@ public class GenericaSessao implements Serializable {
     public static void remove(String sessionName) {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(sessionName);
     }
+    
+    public void removeSession(String sessionName) {
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(sessionName);
+    }
 
     public static void remove(List list) {
         for (Object list1 : list) {

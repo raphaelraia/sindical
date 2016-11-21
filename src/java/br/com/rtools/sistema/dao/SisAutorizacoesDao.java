@@ -48,11 +48,11 @@ public class SisAutorizacoesDao extends DB {
                             + "     AND SA.is_autorizado = true                 \n";
                     break;
                 case "recusado":
-                    queryString += " SA.dt_solicitacao IS NOT NULL              \n"
+                    queryString += " SA.dt_autorizacao IS NOT NULL              \n"
                             + "      AND SA.is_autorizado = false               \n";
                     break;
                 case "aberto":
-                    queryString += " SA.dt_solicitacao IS NULL                  \n"
+                    queryString += " SA.dt_autorizacao IS NULL                  \n"
                             + "      AND SA.is_autorizado = false               \n";
                     break;
                 default:
@@ -88,6 +88,16 @@ public class SisAutorizacoesDao extends DB {
     public List<SisAutorizacoes> findByPessoa(Integer pessoa_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes SA WHERE SA.pessoa.id = :pessoa_id AND ((SA.dtAutorizacao IS NULL AND SA.autorizado = false) OR (SA.dtAutorizacao IS NOT NULL AND SA.autorizado = false)) ORDER BY SA.dtSolicitacao DESC");
+            query.setParameter("pessoa_id", pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+    
+    public List<SisAutorizacoes> findByPessoa(Integer pessoa_id, Boolean all) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes SA WHERE SA.pessoa.id = :pessoa_id ORDER BY SA.dtSolicitacao DESC");
             query.setParameter("pessoa_id", pessoa_id);
             return query.getResultList();
         } catch (Exception e) {

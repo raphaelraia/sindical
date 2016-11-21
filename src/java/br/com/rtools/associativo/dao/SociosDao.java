@@ -710,13 +710,30 @@ public class SociosDao extends DB {
      */
     public List pesquisaDependentePorMatricula(Integer idMatriculaSocios, Boolean com_titular) {
         try {
-            Query query;
+            String queryString = " ";
             if (com_titular) {
-                query = getEntityManager().createQuery(" SELECT S FROM Socios AS S WHERE S.matriculaSocios.id = :matriculaSocios AND S.servicoPessoa.ativo = true AND S.servicoPessoa.pessoa.id <> S.matriculaSocios.titular.id ORDER BY S.servicoPessoa.pessoa.nome ASC");
+                queryString = ""
+                        + "     SELECT S.*                                      \n"
+                        + "       FROM soc_socios AS S                          \n"
+                        + " INNER JOIN matr_socios MS ON MS.id = S.id_matricula_socios      \n"
+                        + " INNER JOIN fin_servico_pessoa SP ON SP.id = S.id_servico_pessoa \n"
+                        + " INNER JOIN pes_pessoa P ON P.id = SP.id_pessoa                  \n"
+                        + "      WHERE S.id_matricula_socios =  " + idMatriculaSocios + "   \n"
+                        + "        AND SP.is_ativo = true                                   \n"
+                        + "        AND SP.id_pessoa <> MS.id_titular                        \n"
+                        + "   ORDER BY (SP.id_pessoa = MS.id_titular) DESC, P.ds_nome  ASC  \n";
             } else {
-                query = getEntityManager().createQuery(" SELECT S FROM Socios AS S WHERE S.matriculaSocios.id = :matriculaSocios AND S.servicoPessoa.ativo = true ORDER BY S.servicoPessoa.pessoa.nome ASC");
+                queryString = ""
+                        + "     SELECT S.*                                      \n"
+                        + "       FROM soc_socios AS S                          \n"
+                        + " INNER JOIN matr_socios MS ON MS.id = S.id_matricula_socios      \n"
+                        + " INNER JOIN fin_servico_pessoa SP ON SP.id = S.id_servico_pessoa \n"
+                        + " INNER JOIN pes_pessoa P ON P.id = SP.id_pessoa                  \n"
+                        + "      WHERE S.id_matricula_socios =  " + idMatriculaSocios + "   \n"
+                        + "        AND SP.is_ativo = true                                   \n"
+                        + "   ORDER BY (SP.id_pessoa = MS.id_titular) DESC, P.ds_nome  ASC  \n";
             }
-            query.setParameter("matriculaSocios", idMatriculaSocios);
+            Query query = getEntityManager().createNativeQuery(queryString, Socios.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

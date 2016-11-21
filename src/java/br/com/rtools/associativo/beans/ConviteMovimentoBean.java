@@ -89,7 +89,7 @@ public class ConviteMovimentoBean implements Serializable {
     private String tipoCaptura = "";
     private String descricaoPesquisa = "";
     private String comoPesquisa = "";
-    private String porPesquisa = "todos";
+    private String porPesquisa = "hoje";
     private String valorString = "";
     private String cliente = "";
     private int idServico = 0;
@@ -103,7 +103,7 @@ public class ConviteMovimentoBean implements Serializable {
     private String dataInicial = "";
     private String dataFinal = "";
 
-    private ConfiguracaoSocial cs = new ConfiguracaoSocial();
+    private ConfiguracaoSocial configuracaoSocial;
     //private float desconto = 0;
 
     private Integer indexTipoDocumento = 0;
@@ -111,7 +111,8 @@ public class ConviteMovimentoBean implements Serializable {
 
     public ConviteMovimentoBean() {
         loadUsuario();
-        cs = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
+        configuracaoSocial = new ConfiguracaoSocial();
+        configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         //PhotoCapture.load("temp/convite/" + usuario.getId(), "form_convite:panel_foto");
         loadListTipoDocumento();
     }
@@ -162,7 +163,7 @@ public class ConviteMovimentoBean implements Serializable {
         tipoCaptura = "";
         descricaoPesquisa = "";
         comoPesquisa = "";
-        porPesquisa = "todos";
+        porPesquisa = "hoje";
         conviteMovimentos.clear();
 
         visibility = true;
@@ -217,6 +218,8 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void openDialog() {
         visibility = true;
+        porPesquisa = "hoje";
+        conviteMovimentos = new ArrayList();
         PF.update("form_convite");
     }
 
@@ -232,7 +235,7 @@ public class ConviteMovimentoBean implements Serializable {
         tipoCaptura = "";
         descricaoPesquisa = "";
         comoPesquisa = "";
-        porPesquisa = "todos";
+        porPesquisa = "hoje";
         conviteMovimentos.clear();
 
         idadeConvidado = 0;
@@ -248,7 +251,7 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public boolean validaSave() {
-        if (cs.getCartaoDigitos() <= 0) {
+        if (configuracaoSocial.getCartaoDigitos() <= 0) {
             GenericaMensagem.fatal("ATENÇÃO", "CARTÃO NÃO TEM CÓDIGO DE BARRAS CONFIGURADO!");
             return false;
         }
@@ -318,7 +321,7 @@ public class ConviteMovimentoBean implements Serializable {
                 return false;
             }
         }
-        
+
         if (conviteMovimento.getPessoa().getDocumento().isEmpty() || conviteMovimento.getPessoa().getDocumento().equals("0")) {
             //message = "Sócio sem CPF para pesquisar Oposição!";
             GenericaMensagem.warn("ATENÇÃO", "SÓCIO SEM CPF PARA PESQUISAR OPOSIÇÃO!");
@@ -326,7 +329,7 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         OposicaoDao odbt = new OposicaoDao();
-        if (cs.getBloqueiaConviteOposicao()) {
+        if (configuracaoSocial.getBloqueiaConviteOposicao()) {
             Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getPessoa().getDocumento());
             if (temOposicao) {
                 //message = "Sócio cadastrado em Oposição!";
@@ -641,7 +644,7 @@ public class ConviteMovimentoBean implements Serializable {
 
             // VALIDA SE CONVIDADO TEM OPOSIÇÃO --------------------------------
             OposicaoDao odbt = new OposicaoDao();
-            if (cs.getBloqueiaConviteOposicao()) {
+            if (configuracaoSocial.getBloqueiaConviteOposicao()) {
                 Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
                 // BLOQUEIA SE TIVER OPOSIÇÃO
                 if (temOposicao) {
@@ -828,7 +831,7 @@ public class ConviteMovimentoBean implements Serializable {
 
     public List<ConviteMovimento> getConviteMovimentos() {
         if (conviteMovimentos.isEmpty()) {
-            if (porPesquisa.equals("todos")) {
+            if (porPesquisa.equals("hoje")) {
                 descricaoPesquisa = "";
             }
             conviteMovimentos = (List<ConviteMovimento>) new ConviteDao().pesquisaConviteMovimento(descricaoPesquisa, porPesquisa, comoPesquisa, dataInicial, dataFinal);
@@ -1326,5 +1329,13 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void setDataFinal(String dataFinal) {
         this.dataFinal = dataFinal;
+    }
+
+    public ConfiguracaoSocial getConfiguracaoSocial() {
+        return configuracaoSocial;
+    }
+
+    public void setConfiguracaoSocial(ConfiguracaoSocial configuracaoSocial) {
+        this.configuracaoSocial = configuracaoSocial;
     }
 }

@@ -185,21 +185,23 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         listFilial = new ArrayList();
         Dao dao = new Dao();
         PessoaEnderecoDao dbe = new PessoaEnderecoDao();
-        empresa = (Juridica) dao.find(new Juridica(), Integer.parseInt(listaEmpresas.get(idSelectRadio).getDescription()));
-        enderecoEmpresa = dbe.pesquisaEndPorPessoaTipo(empresa.getPessoa().getId(), 5);
-
-        // sindicatoFilial = new FilialCidade();
-        // FILIAL DA EMPRESA
-        if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
-            FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
-            List<FilialCidade> list = filialCidadeDao.findListBy(enderecoEmpresa.getEndereco().getCidade().getId());
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getPrincipal()) {
-                    idFilial = list.get(i).getFilial().getId();
+        if(!listaEmpresas.isEmpty()) {
+            empresa = (Juridica) dao.find(new Juridica(), Integer.parseInt(listaEmpresas.get(idSelectRadio).getDescription()));
+            enderecoEmpresa = dbe.pesquisaEndPorPessoaTipo(empresa.getPessoa().getId(), 5);            
+            // sindicatoFilial = new FilialCidade();
+            // FILIAL DA EMPRESA
+            if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
+                FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
+                List<FilialCidade> list = filialCidadeDao.findListBy(enderecoEmpresa.getEndereco().getCidade().getId());
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getPrincipal()) {
+                        idFilial = list.get(i).getFilial().getId();
+                    }
+                    listFilial.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getFilial().getFantasia()));
                 }
-                listFilial.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getFilial().getFantasia()));
             }
         }
+
     }
 
     public final void clearHorariosStatus() {

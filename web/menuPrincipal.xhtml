@@ -121,13 +121,14 @@
                                 <p:submenu label="Ferramentas" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:submenu label="Pessoa" icon="ui-icon-contact">
                                         <p:menuitem value="Física"                action="#{chamadaPaginaBean.pessoaFisica}"/>
-                                        <p:menuitem value="Física (Mesclar)"      action="#{chamadaPaginaBean.pagina('pessoaFisicaMesclar')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" title="MESCLAR CADASTROS"/>
                                         <p:menuitem value="Juridica"              action="#{chamadaPaginaBean.pessoaJuridica}"/>                                        
                                         <p:menuitem value="Tipo Documento"        action="#{chamadaPaginaBean.tipoDocumento}"/>
                                         <p:menuitem value="Cnae"                  action="#{chamadaPaginaBean.pagina('cnae')}"/>
                                         <p:menuitem value="Profissão"             action="#{chamadaPaginaBean.pagina('profissao')}"/>
                                         <p:menuitem value="Enviar E-Mails"        action="#{chamadaPaginaBean.enviarEmail}" rendered="false"/>
                                         <p:submenu label="Suporte">
+                                            <p:menuitem value="Física (Mesclar)"      action="#{chamadaPaginaBean.pagina('pessoaFisicaMesclar')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" title="MESCLAR CADASTROS"/>
+                                            <p:menuitem value="Jurídica (Mesclar)"    action="#{chamadaPaginaBean.pagina('pessoaJuridicaMesclar')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" title="MESCLAR CADASTROS" />
                                             <p:menuitem value="Nacionalidade"   action="#{chamadaPaginaBean.paginaSimples('Nacionalidade', 'Nacionalidade')}"/>
                                         </p:submenu>
                                         <p:menuitem value="Mala Direta Grupo"   action="#{chamadaPaginaBean.paginaSimples('MalaDiretaGrupo', 'Mala Direta Grupo')}"/>

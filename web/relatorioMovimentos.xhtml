@@ -69,12 +69,12 @@
                                     <p:column>
                                         <h:panelGrid>
                                             <h:outputText value="Filtrar Por" />
-                                            <p:selectOneMenu value="#{relatorioMovimentoBean.situacao}" style="width: 100px">
-                                                <f:selectItem itemValue="todas"         itemLabel="Todas"/>
-                                                <f:selectItem itemValue="recebidas"     itemLabel="Recebidas"/>
-                                                <f:selectItem itemValue="naorecebidas"  itemLabel="Não Recebidas"/>
+                                            <p:selectOneMenu value="#{relatorioMovimentoBean.situacao}" style="width: 100px" title="LIBERA FILTRO SITUAÇÃO - RELATÓRIO MOVIMENTOS (ARRECADAÇÃO) - CONSULTA">
+                                                <f:selectItem itemValue="todas"         itemLabel="Todas" itemDisabled="#{controleAcessoBean.verificarPermissao('relatorio_movimentos_filtrar_por', 4)}"/>
+                                                <f:selectItem itemValue="recebidas"     itemLabel="Recebidas" itemDisabled="#{controleAcessoBean.verificarPermissao('relatorio_movimentos_filtrar_por', 4)}"/>
+                                                <f:selectItem itemValue="naorecebidas"  itemLabel="Não Recebidas" />
                                                 <f:selectItem itemValue="atrasadas"     itemLabel="Atrasadas"/>
-                                                <f:selectItem itemValue="atrasadas_quitadas"     itemLabel="Atrasadas Quitadas"/>
+                                                <f:selectItem itemValue="atrasadas_quitadas"     itemLabel="Atrasadas Quitadas" itemDisabled="#{controleAcessoBean.verificarPermissao('relatorio_movimentos_filtrar_por', 4)}"/>
                                             </p:selectOneMenu>
                                         </h:panelGrid>
                                     </p:column>                                    

@@ -45,13 +45,23 @@ public class JuridicaDao extends DB {
         }
         String textQuery = "";
 
-        desc = AnaliseString.normalizeLower(desc).replace("'", "");
-        desc = (como.equals("I") ? desc + "%" : "%" + desc + "%");
+        if (por.equals("codigo")) {
+
+        } else {
+            desc = AnaliseString.normalizeLower(desc).replace("'", "");
+            desc = (como.equals("I") ? desc + "%" : "%" + desc + "%");
+        }
 
         String field = "";
 
+        if (por.equals("codigo")) {
+            field = "p.id";
+        }
         if (por.equals("nome")) {
             field = "p.ds_nome";
+        }
+        if (por.equals("contabilidade")) {
+            field = "pc.ds_nome";
         }
         if (por.equals("fantasia")) {
             field = "j.ds_fantasia";
@@ -71,9 +81,16 @@ public class JuridicaDao extends DB {
             textQuery = " SELECT j.* ";
         }
         textQuery = textQuery + ""
-                + "       FROM pes_juridica j "
-                + " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa "
-                + "       WHERE LOWER(TRANSLATE(" + field + ")) LIKE ('" + desc + "')";
+                + "       FROM pes_juridica j                                   "
+                + " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa               "
+                + " LEFT JOIN pes_juridica cont ON cont.id = j.id_contabilidade "
+                + " LEFT JOIN pes_pessoa pc ON pc.id = cont.id_pessoa           ";
+        if (por.equals("codigo")) {
+            textQuery = textQuery + " WHERE " + field + " = " + desc + "";
+        } else {
+            textQuery = textQuery + " WHERE LOWER(TRANSLATE(" + field + ")) LIKE ('" + desc + "')";
+
+        }
 
         if (isAtivas) {
             textQuery += " AND j.id IN (SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL) ";

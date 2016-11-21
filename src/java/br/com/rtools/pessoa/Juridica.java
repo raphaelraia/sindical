@@ -50,7 +50,9 @@ public class Juridica implements Serializable {
     private boolean cobrancaEscritorio;
     @Column(name = "ds_foto", length = 1000)
     private String foto;    
-
+    @Transient
+    private Boolean selected;
+    
     public Juridica() {
         this.id = -1;
         this.pessoa = new Pessoa();
@@ -67,6 +69,7 @@ public class Juridica implements Serializable {
         this.emailEscritorio = false;
         this.cobrancaEscritorio = true;
         this.foto = "";
+        this.selected = false;
     }
 
     public Juridica(int id, Pessoa pessoa, String fantasia, Cnae cnae, Juridica contabilidade, String inscricaoEstadual, String inscricaoMunicipal, String contato, String responsavel, Porte porte, String abertura, String fechamento, boolean emailEscritorio, boolean cobrancaEscritorio, String foto) {
@@ -85,6 +88,7 @@ public class Juridica implements Serializable {
         this.emailEscritorio = emailEscritorio;
         this.cobrancaEscritorio = cobrancaEscritorio;
         this.foto = foto;
+        this.selected = false;
     }
 
     public int getId() {
@@ -319,5 +323,13 @@ public class Juridica implements Serializable {
 
     public void setFoto(String foto) {
         this.foto = foto;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

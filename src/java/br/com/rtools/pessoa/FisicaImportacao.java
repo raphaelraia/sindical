@@ -143,8 +143,11 @@ public class FisicaImportacao implements Serializable {
     @OneToOne(fetch = FetchType.EAGER)
     private Profissao profissaoObjeto;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "dt_homologacao", length = 10)
+    @Column(name = "dt_homologacao")
     private Date dtHomologacao;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_admissao")
+    private Date dtAdmissao;
     @JoinColumn(name = "id_naturalidade", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.EAGER)
     private Cidade naturalidadeObjeto;
@@ -157,6 +160,10 @@ public class FisicaImportacao implements Serializable {
     private Parentesco parentescoObjecto;
     @Column(name = "ds_codigo_titular", length = 25)
     private String codigo_titular;
+    @Column(name = "ds_codigo_dependente", length = 25)
+    private String codigo_dependente;
+    @Column(name = "is_dependente", columnDefinition = "boolean default false", nullable = false)
+    private Boolean dependente;
     @Transient
     private String nascimento;
     @Transient
@@ -167,6 +174,8 @@ public class FisicaImportacao implements Serializable {
     private String aposentadoria;
     @Transient
     private String criacao;
+    @Transient
+    private String empresa_admissao;
 
     public FisicaImportacao() {
         this.id = null;
@@ -233,15 +242,19 @@ public class FisicaImportacao implements Serializable {
         this.aposentadoria = "";
         this.criacao = "";
         this.profissaoObjeto = null;
+        this.dtAdmissao = null;
         this.dtHomologacao = null;
         this.naturalidadeObjeto = null;
         this.codigo = null;
         this.parentesco = "";
         this.parentescoObjecto = null;
         this.codigo_titular = null;
+        this.codigo_dependente = null;
+        this.dependente = false;
+        this.empresa_admissao = "";
     }
 
-    public FisicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade, String naturalidade, String orgao_emissao_rg, String uf_emissao_rg, String estado_civil, String pai, String mae, String nit, String pis, Date dtAposentadoria, String titulo_eleitor, String titulo_secao, String titulo_zona, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String matricula, String categoria, String profissao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String empresa_documento, Date dtFiliacao, Endereco endereco, Fisica fisica, Profissao profissaoObjeto, Date dtHomologacao, Cidade naturalidadeObjeto, String codigo, String parentesco, Parentesco parentescoObjecto, String codigo_titular) {
+    public FisicaImportacao(Integer id, String nome, String documento, String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String site, String observacao, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade, String naturalidade, String orgao_emissao_rg, String uf_emissao_rg, String estado_civil, String pai, String mae, String nit, String pis, Date dtAposentadoria, String titulo_eleitor, String titulo_secao, String titulo_zona, String foto, Date dtImportacao, Date dtInativacao, Date dtCriacao, String matricula, String categoria, String profissao, String logradouro, String descricao_endereco, String numero, String complemento, String bairro, String cidade, String uf, String logradouro_extraido, String descricao_endereco_extraida, String numero_extraido, String complemento_extraido, String bairro_extraido, String cidade_extraida, String uf_extraido, String cep, String endereco_original, String empresa_documento, Date dtFiliacao, Endereco endereco, Fisica fisica, Profissao profissaoObjeto, Date dtHomologacao, Date dtAdmissao, Cidade naturalidadeObjeto, String codigo, String parentesco, Parentesco parentescoObjecto, String codigo_titular, String codigo_dependente, Boolean dependente) {
         this.id = id;
         this.nome = nome;
         this.documento = documento;
@@ -301,11 +314,14 @@ public class FisicaImportacao implements Serializable {
         this.fisica = fisica;
         this.profissaoObjeto = profissaoObjeto;
         this.dtHomologacao = dtHomologacao;
+        this.dtAdmissao = dtAdmissao;
         this.cidade = cidade;
         this.codigo = codigo;
         this.parentesco = parentesco;
         this.parentescoObjecto = parentescoObjecto;
         this.codigo_titular = codigo_titular;
+        this.codigo_dependente = codigo_dependente;
+        this.dependente = dependente;
     }
 
     public Integer getId() {
@@ -868,7 +884,7 @@ public class FisicaImportacao implements Serializable {
 
     public void reviseEstadoCivil() {
         if (estado_civil.isEmpty()) {
-            estado_civil = "Indefinido(a)";
+            estado_civil = "Indefinido";
         } else {
             estado_civil = (AnaliseString.removerAcentos(estado_civil)).toUpperCase();
             if (estado_civil.contains("AMASIAD")) {
@@ -888,7 +904,7 @@ public class FisicaImportacao implements Serializable {
             } else if (estado_civil.contains("VIUV")) {
                 estado_civil = "Viuvo(a)";
             } else {
-                estado_civil = "Indefinido(a)";
+                estado_civil = "Indefinido";
             }
         }
     }
@@ -1080,6 +1096,38 @@ public class FisicaImportacao implements Serializable {
 
     public void setCodigo_titular(String codigo_titular) {
         this.codigo_titular = codigo_titular;
+    }
+
+    public String getCodigo_dependente() {
+        return codigo_dependente;
+    }
+
+    public void setCodigo_dependente(String codigo_dependente) {
+        this.codigo_dependente = codigo_dependente;
+    }
+
+    public Boolean getDependente() {
+        return dependente;
+    }
+
+    public void setDependente(Boolean dependente) {
+        this.dependente = dependente;
+    }
+
+    public String getEmpresa_admissao() {
+        return empresa_admissao;
+    }
+
+    public void setEmpresa_admissao(String empresa_admissao) {
+        this.empresa_admissao = empresa_admissao;
+    }
+
+    public Date getDtAdmissao() {
+        return dtAdmissao;
+    }
+
+    public void setDtAdmissao(Date dtAdmissao) {
+        this.dtAdmissao = dtAdmissao;
     }
 
 }

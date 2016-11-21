@@ -51,7 +51,8 @@
                                 <h:panelGrid columns="5" styleClass="5">
                                     <p:selectOneMenu value="#{importacao.type}" disabled="#{importacao.run}">
                                         <p:ajax event="change" update="@this" />
-                                        <f:selectItem itemValue="fisica" itemLabel="Física"/>
+                                        <f:selectItem itemValue="fisica" itemLabel="Física / Titular"/>
+                                        <f:selectItem itemValue="dependentes" itemLabel="Física - Dependentes"/>
                                         <f:selectItem itemValue="juridica" itemLabel="Jurídica"/>
                                         <f:selectItem itemValue="contabilidade" itemLabel="Contabilidade"/>
                                     </p:selectOneMenu>
