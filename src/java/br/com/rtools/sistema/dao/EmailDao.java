@@ -13,6 +13,10 @@ import javax.persistence.TemporalType;
 public class EmailDao extends DB {
 
     public List<EmailPessoa> findEmail(int idRotina, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, String orderBy) {
+        return findEmail(idRotina, null, dateStart, dateFinish, filterBy, descricaoPesquisa, orderBy);
+    }
+
+    public List<EmailPessoa> findEmail(int idRotina, Integer usuario_id, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, String orderBy) {
         List listQuery = new ArrayList();
         boolean isDate = false;
         boolean isDateFinish = false;
@@ -47,8 +51,11 @@ public class EmailDao extends DB {
                 }
 
             }
-            Usuario u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-            String queryString = " SELECT EP FROM EmailPessoa AS EP WHERE EP.email.rascunho = false AND EP.email.usuario.id = " + u.getId() + " ";
+            Usuario u = new Usuario();
+            if (usuario_id == null) {
+                u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+            }
+            String queryString = " SELECT EP FROM EmailPessoa AS EP WHERE EP.email.rascunho = false AND EP.email.usuario.id = " + usuario_id + " ";
             if (!listQuery.isEmpty()) {
                 queryString += "  ";
                 for (Object o : listQuery) {
@@ -67,7 +74,7 @@ public class EmailDao extends DB {
                     query.setParameter("dateFinish", dateFinish, TemporalType.DATE);
                 }
             }
-            query.setMaxResults(2000);
+            query.setMaxResults(500);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

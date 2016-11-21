@@ -50,6 +50,17 @@
                                             </h:column>
                                             <h:column rendered="#{emailBean.filter}">
                                                 <h:panelGrid rendered="#{!emailBean.filterNewMessage}" columns="2" styleClass="margin-top-max">
+                                                    <p:selectBooleanButton value="#{emailBean.verTodosUsuarios}" onLabel="Mostrar Usuários:" offLabel="Mostrar Usuários:" style="width: 150px" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
+                                                        <p:ajax event="change" update="@this, :form_email:" listener="#{emailBean.listEmailPessoas.clear()}" />
+                                                    </p:selectBooleanButton>
+                                                    <h:column rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
+                                                        <h:panelGrid columns="6" cellpadding="5">
+                                                            <p:selectOneMenu value="#{emailBean.idUsuario}" disabled="#{!emailBean.verTodosUsuarios}">
+                                                                <p:ajax event="change" update="@this, :form_email:"/>
+                                                                <f:selectItems value="#{emailBean.listUsuarios}" />
+                                                            </p:selectOneMenu>                                                            
+                                                        </h:panelGrid>
+                                                    </h:column>
                                                     <p:selectBooleanButton value="#{emailBean.filterByRotina}" onLabel="Desabilita Rotina:" offLabel="Habilita Rotina:" style="width: 150px">
                                                         <p:ajax event="change" update="@this, :form_email:" listener="#{emailBean.listEmailPessoas.clear()}" />
                                                     </p:selectBooleanButton>
