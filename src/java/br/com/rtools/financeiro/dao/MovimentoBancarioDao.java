@@ -26,6 +26,7 @@ public class MovimentoBancarioDao extends DB {
             list_where.add("f.id_plano5 = " + id_plano5);
             list_where.add("b.dt_baixa >= CURRENT_DATE - 30");
             list_where.add("m.is_ativo = TRUE");
+            list_where.add("b.dt_baixa > (SELECT MIN(dt_data) FROM fin_conta_saldo WHERE id_plano5 = " + id_plano5 + ")");
 
             if (!es.equals("todos")) {
                 list_where.add("m.ds_es = '" + es + "'");

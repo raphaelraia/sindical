@@ -99,7 +99,8 @@ public class MovimentoCaixaBean implements Serializable {
     public final void loadListaSaldo() {
         listaSaldo.clear();
 
-        String dataSelecionada = new DataHoje().decrementarDias(1, listaData.get(indexData).getLabel());
+        //String dataSelecionada = new DataHoje().decrementarDias(1, listaData.get(indexData).getLabel());
+        String dataSelecionada =  listaData.get(indexData).getLabel();
         contaSaldo = new MovimentoBancarioDao().pesquisaContaSaldoData(dataSelecionada, 1);
 
         List<Object> result = new MovimentoCaixaDao().listaSaldo(listaData.get(indexData).getLabel());

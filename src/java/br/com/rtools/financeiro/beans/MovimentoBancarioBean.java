@@ -270,7 +270,9 @@ public class MovimentoBancarioBean implements Serializable {
 
             Float valor_saldo_anterior, valor_saldo;
             if (comeca_conta_saldo && !temFiltro()) {
-                contaSaldo = mdao.pesquisaContaSaldoData(b.getBaixa(), plano.getId());
+                DataHoje dh = new DataHoje();
+                
+                contaSaldo = mdao.pesquisaContaSaldoData(dh.decrementarDias(1, b.getBaixa()), plano.getId());
                 valor_saldo_anterior = contaSaldo.getSaldo();
                 valor_saldo = fp.getValor();
             } else {

@@ -20,11 +20,15 @@ public class MovimentoCaixaDao extends DB {
 
     public List<Date> listaDatas() {
         Query qry = getEntityManager().createNativeQuery(
-                "SELECT dt_data \n "
-                + "FROM fin_conta_saldo \n "
-                + "WHERE dt_data >= CURRENT_DATE - 365 \n"
-                + "GROUP BY dt_data \n "
-                + "ORDER BY dt_data"
+                "SELECT CURRENT_DATE AS dt_data  \n" +
+                " WHERE (SELECT COUNT(*) FROM fin_conta_saldo WHERE id_plano5 = 1 AND dt_data >= CURRENT_DATE - 365) = 0 \n" +
+                " UNION \n" +
+                "SELECT dt_data \n" +
+                "  FROM fin_conta_saldo \n" +
+                " WHERE dt_data >= CURRENT_DATE - 365 \n" +
+                "   AND id_plano5 = 1 \n" +
+                " GROUP BY dt_data  \n" +
+                " ORDER BY 1"
         );
 
         try {

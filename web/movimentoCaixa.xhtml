@@ -44,7 +44,7 @@
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid columns="1">
                                     <p:column>
-                                        <h:outputLabel value="Datas" /><br />
+                                        <h:outputLabel value="Data do Saldo" /><br />
                                         <p:selectOneMenu value="#{movimentoCaixaBean.indexData}">
                                             <p:ajax event="change" listener="#{movimentoCaixaBean.loadListaSaldo()}" update="@form"/>
                                             <f:selectItems value="#{movimentoCaixaBean.listaData}"/>
