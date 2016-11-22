@@ -133,7 +133,7 @@
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Mesclar" disabled="#{controleAcessoBean.botaoSalvar or 2 > pessoaJuridicaMesclarBean.listPessoaJuridica.size()}" onclick="PF('dlg_save').show()" type="button"  />
-                                        <p:commandButton value="Forçar Exclusão" onclick="PF('dlg_force_remove').show()" type="button" disabled="#{pessoaJuridicaMesclarBean.listPessoaJuridica.size() > 1 or true}" title="EM DESENVOLVIMENTO"/>
+                                        <p:commandButton value="Forçar Exclusão" onclick="PF('dlg_force_remove').show()" type="button" disabled="#{pessoaJuridicaMesclarBean.listPessoaJuridica.size() > 1}" title="EM DESENVOLVIMENTO"/>
                                     </h:panelGrid>
                                 </f:facet>
                             </p:panel>

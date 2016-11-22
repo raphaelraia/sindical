@@ -84,7 +84,7 @@
                                     </h:panelGrid>
                                 </f:facet>
                         </p:panel>
-                        <p:panel header="Grupo"  rendered="#{rotinaBean.rotina.id != -1}">
+                        <p:panel header="Rotinas / Ações: Vínculadas à #{rotinaBean.rotina.rotina}"  rendered="#{rotinaBean.rotina.id != -1}">
                             <h:panelGrid columns="1" columnClasses="verticalAlignTop verticalAlignTop" id="i_rotina_grupo">
                                 <h:column>
                                     <h:panelGrid columns="3" >
@@ -96,10 +96,10 @@
                                     </h:panelGrid>
                                 </h:column>
                                 <h:column>
-                                    <h:panelGroup layout="block" id="tbl_grupo">
+                                    <h:panelGroup layout="block" id="tbl_grupo" styleClass="margin-top-max">
                                         <p:dataTable value="#{rotinaBean.listRotinaGrupo}" var="rotinaGrupo" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
-                                            <p:column headerText="Grupo">
-                                                #{rotinaGrupo.grupo.rotina}
+                                            <p:column headerText="Vínculadas">
+                                                #{rotinaGrupo.rotina.rotina}
                                             </p:column>
                                             <p:column width="30">
                                                 <p:commandButton icon="ui-icon-close" action="#{rotinaBean.remove(rotinaGrupo)}" update=":formRotinasNovo:i_rotina_grupo" disabled="#{controleAcessoBean.botaoExcluir}"/>

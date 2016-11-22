@@ -101,7 +101,7 @@
                                     </p:inputMask>
                                 </h:panelGrid>
                                 <f:facet name="footer">
-                                    <h:panelGrid columns="4" styleClass="margin-top"> 
+                                    <h:panelGrid columns="5" styleClass="margin-top">                                         
                                         <p:commandButton value="Filtrar" action="#{cartaoSocialBean.loadList}" actionListener="#{cartaoSocialBean.setPrinted(false)}" update=":form_cartao_social:" disabled="#{cartaoSocialBean.disabledImpressaoExterna}"/>
                                         <h:outputLabel value="Ordenar por" styleClass="margin-left-max"/>
                                         <p:selectOneMenu value="#{cartaoSocialBean.indexOrdem}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
@@ -121,7 +121,7 @@
                             <div class="clear"></div>
                             <p:panel styleClass="margin-top-max" >
                                 <f:facet name="header">
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="2" style="width: 100%">
                                         <p:splitButton value="Imprimir"  icon="ui-icon-print" action="#{cartaoSocialBean.print}" disabled="#{empty cartaoSocialBean.listaCarteirinha}" title="Imprimir selecionados" ajax="false">
                                             <p:menuitem value="Imprimir 2º Via" ajax="false" rendered="false"/>
                                             <p:menuitem value="Etiqueta" ajax="false" action="#{cartaoSocialBean.imprimirEtiqueta}" disabled="#{empty cartaoSocialBean.listaCarteirinha}"/>
@@ -129,6 +129,7 @@
                                             <p:menuitem value="Histórico de Impressões (Selecionados)" oncomplete="PF('i_dlg').show()" update="i_panel_dlgx" action="#{cartaoSocialBean.historicoCarteirinha}"  global="false"/>
                                             <p:menuitem value="Imprimir Test" ajax="false" action="#{cartaoSocialBean.printTest}"  rendered="false"/>
                                         </p:splitButton>
+                                        <p:commandButton title="CARTÃO SOCIAL - LIBERA REIMPRESSÃO (Consulta)"  icon="ui-icon-help" ajax="false" styleClass="no-border" disabled="true" style="float: right"/>
                                     </h:panelGrid>
                                 </f:facet>
                                 <h:panelGroup id="i_panel_grid" style="width: 100%">
@@ -147,15 +148,15 @@
 
 
 
-                                        <p:column style="width: 25px!important" styleClass="text-center">  
-                                            <h:outputText value="#{index+1}" title="#{!cartaoSocialBean.liberaReimpressao ? '' : '? CARTÃO SOCIAL - LIBERA REIMPRESSÃO (Consulta)'}" />  
+                                        <p:column style="width: 25px!important" styleClass="text-center">
+                                            <h:outputText value="#{index+1}" />
                                         </p:column>
 
                                         <p:column style="width:20px">  
                                             <p:rowToggler />  
                                         </p:column>  
 
-                                        <p:column selectionMode="multiple" width="25" styleClass="text-center"  />  
+                                        <p:column selectionMode="multiple" width="25" styleClass="text-center" />
 
                                         <p:column headerText="Matrícula" style="text-align: center; width: 80px" sortBy="#{linha[10]}">  
                                             <h:outputText value="#{linha[10]}" />  
@@ -193,7 +194,7 @@
                                             </p:panelGrid>
                                         </p:rowExpansion>
 
-                                        <f:facet name="footer">
+                                        <f:facet name="footer">                                            
                                             <p:commandButton value="Limpar tudo" action="#{genericaSessao.removeSession('cartaoSocialBean')}" ajax="false">
                                                 <p:ajax event="click" update=":form_cartao_social:"  />
                                             </p:commandButton>

@@ -1,8 +1,10 @@
 package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.ContribuintesInativos;
+import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.Dao;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
@@ -45,5 +47,15 @@ public class ContribuintesInativosDao extends DB {
         } catch (Exception e) {
         }
         return result;
+    }
+
+    public List<ContribuintesInativos> findByJuridica(Integer juridica_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CI FROM ContribuintesInativos CI WHERE CI.dtAtivacao IS NULL AND CI.juridica.id = :juridica_id");
+            query.setParameter("juridica_id", juridica_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }

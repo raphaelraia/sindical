@@ -26,6 +26,7 @@ public class RotinaBean implements Serializable {
     private String descricaoPesquisa;
     private List<Rotina> listRotina;
     private List<RotinaGrupo> listRotinaGrupo;
+    private List<RotinaGrupo> listShowRotinas;
     private Boolean acao;
     private List<SelectItem> listRotinas;
     private Integer rotina_id;
@@ -38,6 +39,7 @@ public class RotinaBean implements Serializable {
         listRotina = new ArrayList<>();
         listRotinas = new ArrayList<>();
         listRotinaGrupo = new ArrayList<>();
+        listShowRotinas = new ArrayList<>();
         acao = false;
         // find();        
     }
@@ -88,13 +90,13 @@ public class RotinaBean implements Serializable {
 
     public void loadRotinaGrupo() {
         listRotinaGrupo = new ArrayList();
-        listRotinaGrupo = new RotinaGrupoDao().find(rotina.getId());
+        listRotinaGrupo = new RotinaGrupoDao().findByGrupo(rotina.getId());
     }
 
     public void add() {
         RotinaGrupo rotinaGrupo = new RotinaGrupo();
-        rotinaGrupo.setGrupo((Rotina) new Dao().find(new Rotina(), rotina_id));
-        rotinaGrupo.setRotina(rotina);
+        rotinaGrupo.setGrupo(rotina);
+        rotinaGrupo.setRotina((Rotina) new Dao().find(new Rotina(), rotina_id));
         if (new Dao().save(rotinaGrupo, true)) {
             GenericaMensagem.info("Sucesso", "Registro removido");
             listRotinas.clear();
@@ -136,7 +138,7 @@ public class RotinaBean implements Serializable {
                 GenericaMensagem.warn("Erro", "Ao remover registro!");
             }
         }
-        rotina = new Rotina();        
+        rotina = new Rotina();
     }
 
     public String edit(Rotina r) {
@@ -153,9 +155,9 @@ public class RotinaBean implements Serializable {
         } else {
             return "rotina";
         }
-        loadRotinaGrupo();
-        listRotinas.clear();
+        listRotinas = new ArrayList();
         getListRotinas();
+        loadRotinaGrupo();
         return null;
     }
 
@@ -223,7 +225,7 @@ public class RotinaBean implements Serializable {
         if (listRotinas.isEmpty()) {
             List<Rotina> list = new RotinaDao().findNotInByTabela("seg_rotina_grupo", "id_grupo", "id_rotina", "" + rotina.getId(), true);
             for (int i = 0; i < list.size(); i++) {
-                if(i == 0) {
+                if (i == 0) {
                     rotina_id = list.get(i).getId();
                 }
                 listRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
@@ -242,6 +244,24 @@ public class RotinaBean implements Serializable {
 
     public void setRotina_id(Integer rotina_id) {
         this.rotina_id = rotina_id;
+    }
+
+    public void loadShowRotinas() {
+        listShowRotinas = new ArrayList();
+        Rotina r = new Rotina().get();
+        listShowRotinas.add(new RotinaGrupo(null, r, r));
+        List<RotinaGrupo> list = new RotinaGrupoDao().findByGrupo(r.getId());
+        if (!list.isEmpty()) {
+            listShowRotinas.addAll(list);
+        }
+    }
+
+    public List<RotinaGrupo> getListShowRotinas() {
+        return listShowRotinas;
+    }
+
+    public void setListShowRotinas(List<RotinaGrupo> listShowRotinas) {
+        this.listShowRotinas = listShowRotinas;
     }
 
 }

@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "fin_conta_banco")
 @NamedQueries({
-    @NamedQuery(name = "ContaBanco.pesquisaID", query = "SELECT CB FROM ContaBanco CB WHERE CB.id=:pid"),    
+    @NamedQuery(name = "ContaBanco.pesquisaID", query = "SELECT CB FROM ContaBanco CB WHERE CB.id=:pid"),
     @NamedQuery(name = "ContaBanco.findAll", query = "SELECT CB FROM ContaBanco CB ORDER BY CB.banco.banco")
 })
 public class ContaBanco implements java.io.Serializable {
@@ -106,5 +106,20 @@ public class ContaBanco implements java.io.Serializable {
 
     public void setFilial(Filial filial) {
         this.filial = filial;
+    }
+
+    public String getUChequeString() {
+        if (uCheque == 0) {
+            return "";
+        } else {
+            return Integer.toString(uCheque);
+        }
+    }
+
+    public void setUChequeString(String uChequeString) {
+        if (uChequeString.equals("")) {
+            uChequeString = "0";
+        }
+        this.uCheque = Integer.parseInt(uChequeString);
     }
 }

@@ -1,11 +1,13 @@
 package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
+import br.com.rtools.arrecadacao.ContribuintesInativos;
 import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.FolhaEmpresa;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.Rais;
 import br.com.rtools.arrecadacao.RepisMovimento;
+import br.com.rtools.arrecadacao.dao.ContribuintesInativosDao;
 import br.com.rtools.arrecadacao.dao.EmpregadosDao;
 import br.com.rtools.arrecadacao.dao.FolhaEmpresaDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
@@ -50,6 +52,8 @@ import br.com.rtools.homologacao.dao.SenhaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.EnvioEmailsDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.pessoa.dao.JuridicaImportacaoDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -375,8 +379,6 @@ public class PessoaJuridicaMesclarBean implements Serializable {
             novoLog.save("ATUALIZAR PESSOA EMPRESA: " + listTmktHistorico.get(i).toString());
         }
         List<EnvioEmails> listEnvioEmails = new EnvioEmailsDao().pesquisaTodosPorPessoa(remover.getPessoa().getId());
-        if (!listEnvioEmails.isEmpty()) {
-        }
         Usuario u = Usuario.getUsuario();
         EmailPrioridade ep = (EmailPrioridade) dao.find(new EmailPrioridade(), 1);
         Rotina r = new Rotina().get();
@@ -583,26 +585,6 @@ public class PessoaJuridicaMesclarBean implements Serializable {
         novoLog.startList();
         Dao dao = new Dao();
         dao.openTransaction();
-        List<SocioCarteirinha> scsRemover = new SocioCarteirinhaDao().findByPessoa(remover.getPessoa().getId());
-        if (!scsRemover.isEmpty()) {
-            for (int i = 0; i < scsRemover.size(); i++) {
-                List<HistoricoCarteirinha> listHistoricoCarteirinha = new SocioCarteirinhaDao().listaHistoricoCarteirinha(scsRemover.get(i).getPessoa().getId());
-                for (int j = 0; j < listHistoricoCarteirinha.size(); j++) {
-                    if (!dao.delete(listHistoricoCarteirinha.get(j))) {
-                        dao.rollback();
-                        GenericaMensagem.warn("Erro", "AO REMOVER HISTÓRICO DA CARTEIRINHA!" + dao.EXCEPCION);
-                        return;
-                    }
-                    novoLog.save("MESCLAR CADASTRO HISTÓRICO CARTEIRINHA: " + listHistoricoCarteirinha.get(i).toString());
-                }
-                if (!dao.delete(scsRemover.get(i))) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER SÓCIO CARTEIRINHA!" + dao.EXCEPCION);
-                    return;
-                }
-                novoLog.save("REMOVER CADASTRO SÓCIO CARTEIRINHA: " + scsRemover.get(i).toString());
-            }
-        }
         List<PessoaEndereco> pesRemover = new PessoaEnderecoDao().pesquisaEndPorPessoa(remover.getPessoa().getId());
         if (!pesRemover.isEmpty()) {
             for (int i = 0; i < pesRemover.size(); i++) {
@@ -668,7 +650,7 @@ public class PessoaJuridicaMesclarBean implements Serializable {
             if (movimentoInativo != null) {
                 if (!dao.delete(movimentoInativo)) {
                     dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO EXCLUIR MOVIMENTOS INÁTIVOS!");
+                    GenericaMensagem.warn("Erro", "AO DELETAR MOVIMENTOS INÁTIVOS!");
                     return;
                 }
             }
@@ -691,7 +673,7 @@ public class PessoaJuridicaMesclarBean implements Serializable {
             }
             if (!dao.delete(listLote.get(i))) {
                 dao.rollback();
-                GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA MOVIMENTO!");
+                GenericaMensagem.warn("Erro", "AO DELETAR PESSOA MOVIMENTO!");
                 return;
             }
         }
@@ -737,19 +719,28 @@ public class PessoaJuridicaMesclarBean implements Serializable {
         if (!servicoPessoaLog.isEmpty()) {
             novoLog.save("REMOVER SERVIÇO PESSOA : " + servicoPessoaLog);
         }
-        List<MatriculaSocios> msRemover = new MatriculaSociosDao().findAllByTitular(remover.getPessoa().getId());
-        for (int i = 0; i < msRemover.size(); i++) {
-            if (!dao.delete(msRemover.get(i))) {
-                dao.rollback();
-                GenericaMensagem.warn("Erro", "AO REMOVER MATRÍCULA SÓCIO! " + dao.EXCEPCION);
-                return;
-            }
-        }
         List<EmailPessoa> listEmailPessoa = new EmailPessoaDao().findByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listEmailPessoa.size(); i++) {
             if (!dao.delete(listEmailPessoa.get(i))) {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "AO REMOVER EMAIL PESSOA!");
+                return;
+            }
+        }
+        List<JuridicaImportacao> listJuridicaImportacao = new JuridicaImportacaoDao().findByContabilidade(remover.getId());
+        for (int i = 0; i < listJuridicaImportacao.size(); i++) {
+            listJuridicaImportacao.get(i).setContabilidade(null);
+            if (!dao.update(listJuridicaImportacao.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR CONTABILIDADE!");
+                return;
+            }
+        }
+        JuridicaImportacao juridicaImportacao = new JuridicaImportacaoDao().findByJuridica(remover.getId());
+        if (juridicaImportacao != null) {
+            if (!dao.delete(juridicaImportacao)) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER JURÍDICA IMPORTAÇÃO! " + dao.EXCEPCION);
                 return;
             }
         }
@@ -813,14 +804,90 @@ public class PessoaJuridicaMesclarBean implements Serializable {
             }
             novoLog.save("DELETAR OPOSIÇÃO: " + listTmktHistorico.get(i).toString());
         }
+        List<EnvioEmails> listEnvioEmails = new EnvioEmailsDao().pesquisaTodosPorPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listEnvioEmails.size(); i++) {
+            if (!dao.delete(listEnvioEmails.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ENVIO DE E-MAILS! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("DELETAR ENVIO DE E-MAILS: " + listEnvioEmails.get(i).toString());
+        }
+        List<Rais> listRais = new RaisDao().findByEmpresa(remover.getPessoa().getId());
+        if (listRais != null) {
+            for (int i = 0; i < listRais.size(); i++) {
+                if (!dao.delete(listRais.get(i))) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "AO ATUALIZAR RAIS! " + dao.EXCEPCION);
+                    return;
+                }
+                novoLog.save("DELETAR RAIS: " + listRais.get(i).toString());
+            }
+        }
+        List<Empregados> listEmpregadosRemover = new EmpregadosDao().findByJuridica(remover.getPessoa().getId());
+        for (int i = 0; i < listEmpregadosRemover.size(); i++) {
+            if (!dao.delete(listEmpregadosRemover.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR EMPREGADOS! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("DELETAR FATURAMENTO FOLHA EMPRESA: " + listEmpregadosRemover.get(i).toString());
+        }
+        List<Documento> listDocumentos = new DigitalizacaoDao().listaDocumento(remover.getPessoa().getId());
+        for (int i = 0; i < listDocumentos.size(); i++) {
+            if (!dao.delete(listDocumentos.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR DOCUMENTOS! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("DELETAR DOCUMENTOS: " + listDocumentos.get(i).toString());
+        }
+        List<SisAutorizacoes> listSisAutorizacoes = new SisAutorizacoesDao().findByPessoa(remover.getPessoa().getId(), true);
+        for (int i = 0; i < listSisAutorizacoes.size(); i++) {
+            if (!dao.delete(listSisAutorizacoes.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR AUTORIZAÇÕES DA PESSOA! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("DELETAR AUTORIZAÇÕES: " + listSisAutorizacoes.get(i).toString());
+        }
         List<Links> listLinks = new LinksDao().findAllByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listLinks.size(); i++) {
             if (!dao.delete(listLinks.get(i))) {
                 dao.rollback();
-                GenericaMensagem.warn("Erro", "AO REMOVER LINKS! " + dao.EXCEPCION);
+                GenericaMensagem.warn("Erro", "AO DELETAR LINKS! " + dao.EXCEPCION);
                 return;
             }
             novoLog.save("DELETAR LINKS: " + listLinks.get(i).toString());
+        }
+        List<Juridica> listEmpresasDaContabilidade = new JuridicaDao().findByContabilidade(remover.getId());
+        for (int i = 0; i < listEmpresasDaContabilidade.size(); i++) {
+            listEmpresasDaContabilidade.get(i).setContabilidade(null);
+            listEmpresasDaContabilidade.get(i).setCobrancaEscritorio(false);
+            if (!dao.update(listEmpresasDaContabilidade.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR EMPRESA VÍNCULADA!");
+                return;
+            }
+            novoLog.save("DELETAR EMPRESA VÍNCULADA: " + listEmpresasDaContabilidade.get(i).toString());
+        }
+        List<ContribuintesInativos> listContribuintesInativos = new ContribuintesInativosDao().findByJuridica(remover.getId());
+        for (int i = 0; i < listContribuintesInativos.size(); i++) {
+            if (!dao.delete(listContribuintesInativos.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR CONTRIBUINTE INATIVO!");
+                return;
+            }
+            novoLog.save("DELETAR CONTRIBUINTE INÁTIVO: " + listContribuintesInativos.get(i).toString());
+        }
+        List<RepisMovimento> listRepisMovimento = new RepisMovimentoDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listRepisMovimento.size(); i++) {
+            if (!dao.delete(listRepisMovimento.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO DELETAR REPIS MOVIMENTO!");
+                return;
+            }
+            novoLog.save("DELETAR REPIS MOVIMENTO: " + listRepisMovimento.get(i).toString());
         }
         if (!dao.delete(remover)) {
             dao.rollback();
@@ -837,10 +904,10 @@ public class PessoaJuridicaMesclarBean implements Serializable {
         listPessoaJuridica.clear();
         dao.commit();
         novoLog.saveList();
-        FisicaBean fisicaBean = new FisicaBean();
-        fisicaBean.setDescPesquisa(remover.getPessoa().getNome());
-        fisicaBean.acaoPesquisaParcial();
-        GenericaSessao.put("fisicaBean", fisicaBean);
+        JuridicaBean juridicaBean = new JuridicaBean();
+        juridicaBean.setDescPesquisa(remover.getPessoa().getNome());
+        juridicaBean.acaoPesquisaParcial();
+        GenericaSessao.put("juridicaBean", juridicaBean);
         GenericaMensagem.info("SUCESSO", "REGISTRO REMOVIDO");
     }
 

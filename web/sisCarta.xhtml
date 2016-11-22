@@ -70,7 +70,7 @@
                             <p:commandButton icon="ui-icon-link" title="Editar" action="#{sisCartaBean.edit(sisCarta)}" update=":form_carta:" />
                         </p:column>
                         <p:column width="30" styleClass="text-center">
-                            <p:commandButton icon="ui-icon-print" title="Imprimir" action="#{sisCartaBean.print(sisCarta)}" ajax="false" update="id_messages_growl" />
+                            <p:commandButton icon="ui-icon-print" title="Imprimir" action="#{sisCartaBean.print(sisCarta)}" ajax="false" />
                         </p:column>
                         <p:column headerText="Titulo">#{sisCarta.titulo}</p:column>
                         <p:column headerText="Data do Cadastro" width="100" styleClass="text-center">#{sisCarta.dtCadastroString}</p:column>
