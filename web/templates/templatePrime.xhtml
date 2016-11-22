@@ -72,6 +72,7 @@
                         <p:menuitem value="Resolução" onclick="PF('dlg_resolucao').show()"/>
                         <p:menuitem value="Meus Logs" actionListener="#{pesquisaLogBean.listenerBlockUsuario}" action="#{chamadaPaginaBean.pesquisa('meusLogs')}" />
                         <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
+                        <p:menuitem value="Rotinas Vínculadas" action="#{rotinaBean.loadShowRotinas}" onclick="PF('dlg_show_rotinas').show()" update=":header:form_show_rotinas:i_list_show_rotinas" />
                         <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
                         <p:separator />
                         <p:menuitem value="Sair" action="#{usuarioBean.sairSistema}" icon="ui-icon-extlink"/>
@@ -108,6 +109,29 @@
                 </h:panelGrid>
             </h:form>
         </p:dialog>
+        <h:form id="form_show_rotinas">
+            <p:dialog widgetVar="dlg_show_rotinas" header="Rotinas vínculadas a está página" resizable="false" modal="true" width="600">
+                <h:panelGroup layout="block" id="i_list_show_rotinas">
+                    <p:dataTable var="grupoRotina" value="#{rotinaBean.listShowRotinas}" emptyMessage="Nenhum registro encontrado" rows="10" paginator="true" rowIndexVar="index" styleClass="margin-top-max"> 
+                        <p:column headerText="Rotina">
+                            <p:outputLabel value="#{grupoRotina.rotina.rotina}" styleClass="#{grupoRotina.id == null ? 'bold font-color-red' : ''}"/>
+                        </p:column>
+                        <p:column headerText="I" styleClass="text-center" width="25">
+                            <p:selectBooleanCheckbox value="#{grupoRotina.rotina.inclusao}" disabled="true" />
+                        </p:column>
+                        <p:column headerText="E" styleClass="text-center" width="25">
+                            <p:selectBooleanCheckbox value="#{grupoRotina.rotina.exclusao}" disabled="true" />
+                        </p:column>
+                        <p:column headerText="A" styleClass="text-center" width="25">
+                            <p:selectBooleanCheckbox value="#{grupoRotina.rotina.alteracao}" disabled="true" />
+                        </p:column>
+                        <p:column headerText="C" styleClass="text-center" width="25">
+                            <p:selectBooleanCheckbox value="#{grupoRotina.rotina.consulta}" disabled="true" />
+                        </p:column>
+                    </p:dataTable>                    
+                </h:panelGroup>
+            </p:dialog>
+        </h:form>
         <h:form id="form_report_bug">
             <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
                 <p:messages id="i_message" showDetail="true" showSummary="true" closable="true" />

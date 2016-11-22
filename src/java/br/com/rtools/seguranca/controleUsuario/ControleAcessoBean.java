@@ -6,6 +6,7 @@ import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.dao.PermissaoDao;
 import br.com.rtools.seguranca.dao.PermissaoUsuarioDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
+import br.com.rtools.seguranca.dao.RotinaGrupoDao;
 import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.ContadorAcessos;
@@ -1385,6 +1386,16 @@ public class ControleAcessoBean implements Serializable {
         }
         if (r == null) {
             return false;
+        }
+        Rotina rot = new Rotina().get();
+        if (rot != null && rot.getId() != -1) {
+            RotinaGrupo rotinaGrupo = new RotinaGrupoDao().find(rot.getId(), r.getId());
+            if (rotinaGrupo == null) {
+                rotinaGrupo = new RotinaGrupo();
+                rotinaGrupo.setGrupo(rot);
+                rotinaGrupo.setRotina(r);
+                new Dao().save(rotinaGrupo, true);
+            }
         }
         return verificaPermissao(null, 0, r.getId(), idEvento);
     }

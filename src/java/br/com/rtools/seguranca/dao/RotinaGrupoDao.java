@@ -1,6 +1,7 @@
 package br.com.rtools.seguranca.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.RotinaGrupo;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -31,17 +32,25 @@ public class RotinaGrupoDao extends DB {
         }
         return new ArrayList();
     }
-    
-    public List findByGrupo(Integer rotina_grupo_id) {
+
+        public List findByGrupo(Integer rotina_grupo_id) {
         try {
             Query qry = getEntityManager().createQuery(" SELECT RG FROM RotinaGrupo AS RG WHERE RG.grupo.id = :rotina_grupo_id ORDER BY RG.rotina.rotina ASC ");
             qry.setParameter("rotina_grupo_id", rotina_grupo_id);
-            List list = qry.getResultList();
-            if (!list.isEmpty()) {
-                return list;
-            }
+            return qry.getResultList();
         } catch (Exception e) {
+            return new ArrayList();
         }
-        return new ArrayList();
+    }
+
+    public RotinaGrupo find(Integer rotina_grupo_id, Integer rotina_id) {
+        try {
+            Query qry = getEntityManager().createQuery(" SELECT RG FROM RotinaGrupo AS RG WHERE RG.grupo.id = :rotina_grupo_id AND RG.rotina.id = :rotina_id");
+            qry.setParameter("rotina_id", rotina_id);
+            qry.setParameter("rotina_grupo_id", rotina_grupo_id);
+            return (RotinaGrupo) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
