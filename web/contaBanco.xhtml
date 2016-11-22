@@ -57,6 +57,12 @@
                                             <f:selectItems value="#{contaBancoBean.listaBancoCompleta}"/>
                                         </p:selectOneMenu>
                                     </p:column>
+                                    <p:column>
+                                        <h:outputLabel value="Último Cheque Impresso" styleClass="fontePadrao" for="idUCI" /><br />
+                                        <p:inputText id="idUCI" size="15" value="#{contaBancoBean.contaBanco.UChequeString}" converter="#{thisNumber}">
+                                            <p:ajax event="change" update="@this" global="false" />
+                                        </p:inputText>
+                                    </p:column>
                                 </h:panelGrid>
                                 
                                 <h:panelGrid id="i_panel_cidade" columns="2">
