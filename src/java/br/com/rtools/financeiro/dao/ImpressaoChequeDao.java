@@ -53,7 +53,12 @@ public class ImpressaoChequeDao extends DB {
                 + " INNER JOIN fin_baixa AS b ON b.id = f.id_baixa \n"
                 + " INNER JOIN fin_movimento AS m ON m.id_baixa = b.id \n"
                 + " INNER JOIN pes_pessoa AS p ON p.id = m.id_pessoa \n"
-                + " WHERE p5.id = " + conta_id + " \n ";
+                + " WHERE p5.id = " + conta_id + " \n"
+                + "   AND ch.dt_emissao > (\n"
+                + "    SELECT CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END\n"
+                + "      FROM fin_conta_saldo \n"
+                + "     WHERE id_plano5 = 1 \n"
+                + "    )";
 
         switch (status) {
             case "emitir":
@@ -80,7 +85,7 @@ public class ImpressaoChequeDao extends DB {
                 + "       ch.dt_vencimento, \n"
                 + "       ch.dt_cancelamento, \n"
                 + "       ch.ds_cheque \n";
-        
+
         query += " ORDER BY \n"
                 + "       ch.ds_cheque";
         try {
@@ -118,7 +123,7 @@ public class ImpressaoChequeDao extends DB {
             return null;
         }
     }
-    
+
     public ImpressoraCheque pesquisaImpressoraNumero(Integer numero) {
         String queryString
                 = "SELECT ic.* \n "

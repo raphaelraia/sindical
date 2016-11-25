@@ -437,6 +437,15 @@
 
                                         <p:column>
                                             <h:panelGrid>
+                                                <h:outputText value="Valor" style="font-weight: bold"/>
+                                                <p:inputText value="#{lancamentoFinanceiroBean.valor}" size="8" style="text-align: right" converter="#{toCurrency}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:panelGrid>
                                                 <h:outputText value=" Acréscimo"/>
                                                 <p:commandButton value="#{lancamentoFinanceiroBean.acrescimo}" action="#{lancamentoFinanceiroBean.openModalAcrescimo()}" update=":form_lf:i_panel_acrescimo" oncomplete="PF('i_dlg_acrescimo').show()"/>
                                             </h:panelGrid>
@@ -446,15 +455,6 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Desconto" />
                                                 <p:inputText value="#{lancamentoFinanceiroBean.desconto}" size="7" style="text-align: right" converter="#{toCurrency}">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </h:panelGrid>
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:panelGrid>
-                                                <h:outputText value="Valor" style="font-weight: bold"/>
-                                                <p:inputText value="#{lancamentoFinanceiroBean.valor}" size="8" style="text-align: right" converter="#{toCurrency}">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
                                             </h:panelGrid>
