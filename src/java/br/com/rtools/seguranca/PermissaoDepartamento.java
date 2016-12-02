@@ -1,5 +1,7 @@
 package br.com.rtools.seguranca;
 
+import br.com.rtools.seguranca.dao.PermissaoDao;
+import br.com.rtools.seguranca.dao.PermissaoDepartamentoDao;
 import javax.persistence.*;
 
 @Entity
@@ -66,4 +68,34 @@ public class PermissaoDepartamento implements java.io.Serializable {
     public void setPermissao(Permissao permissao) {
         this.permissao = permissao;
     }
+
+    // OPERAÇÕES
+    public Boolean getInclusao() {
+        if (this.id != -1) {
+            return new PermissaoDepartamentoDao().findBy(this.departamento.getId(), this.nivel.getId(), this.permissao.getModulo().getId(), this.permissao.getRotina().getId(), 1) != null;
+        }
+        return false;
+    }
+
+    public Boolean getExclusao() {
+        if (this.id != -1) {
+            return new PermissaoDepartamentoDao().findBy(this.departamento.getId(), this.nivel.getId(), this.permissao.getModulo().getId(), this.permissao.getRotina().getId(), 2) != null;
+        }
+        return false;
+    }
+
+    public Boolean getAlteracao() {
+        if (this.id != -1) {
+            return new PermissaoDepartamentoDao().findBy(this.departamento.getId(), this.nivel.getId(), this.permissao.getModulo().getId(), this.permissao.getRotina().getId(), 3) != null;
+        }
+        return false;
+    }
+
+    public Boolean getConsulta() {
+        if (this.id != -1) {
+            return new PermissaoDepartamentoDao().findBy(this.departamento.getId(), this.nivel.getId(), this.permissao.getModulo().getId(), this.permissao.getRotina().getId(), 4) != null;
+        }
+        return false;
+    }
+
 }

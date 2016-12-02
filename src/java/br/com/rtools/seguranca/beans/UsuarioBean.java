@@ -7,6 +7,7 @@ import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.*;
+import br.com.rtools.seguranca.dao.PermissaoDepartamentoDao;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.ProcessoAutomatico;
@@ -18,9 +19,11 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -67,6 +70,7 @@ public class UsuarioBean implements Serializable {
     private List<SelectItem> listUsuariosImport;
     private Integer idUsuarioImport;
     private String dataExpiraUsuarioAcesso;
+    private List<PermissaoDepartamento> listPermissoesAdicionadas;
 
     @PostConstruct
     public void init() {
@@ -102,6 +106,7 @@ public class UsuarioBean implements Serializable {
         idModulo = 0;
         idNivel = 0;
         idRotina = 0;
+        listPermissoesAdicionadas = new ArrayList();
     }
 
     @PreDestroy
@@ -376,6 +381,29 @@ public class UsuarioBean implements Serializable {
             }
 
         }
+        String ip = "";
+        String hostName = "";
+        try {
+
+            InetAddress ia = InetAddress.getLocalHost();
+            ip = ia.getHostAddress();
+            hostName = ia.getHostName();
+//                    if (!macFilial.getNomeDispositivo().isEmpty() && !hostName.equals(macFilial.getNomeDispositivo())) {
+//                        usuario = new Usuario();
+//                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
+//                        return null;
+//                    }
+        } catch (Exception e) {
+
+        }
+        UsuarioHistoricoAcesso usuarioHistoricoAcesso = new UsuarioHistoricoAcesso();
+        usuarioHistoricoAcesso.setUsuario(usuario);
+        usuarioHistoricoAcesso.setIp("");
+        usuarioHistoricoAcesso.setEs("S");
+        if (GenericaSessao.exists("acessoFilial")) {
+            usuarioHistoricoAcesso.setMacFilial((MacFilial) GenericaSessao.getObject("acessoFilial"));
+        }
+        new Dao().save(usuarioHistoricoAcesso, true);
         // Inserir cookie
         FacesContext context = FacesContext.getCurrentInstance();
         if (context != null) {
@@ -946,4 +974,25 @@ public class UsuarioBean implements Serializable {
     public void setDataExpiraUsuarioAcesso(String dataExpiraUsuarioAcesso) {
         this.dataExpiraUsuarioAcesso = dataExpiraUsuarioAcesso;
     }
+
+    public void loadPermissoesAdicionadas(Integer departamento_id, Integer nivel_id) {
+        listPermissoesAdicionadas = new ArrayList();
+        List<PermissaoDepartamento> list = new PermissaoDepartamentoDao().listaPermissaoDepartamentoAdicionada(departamento_id, nivel_id, null, "");
+        Integer mem_rotina_id = null;
+        for (int i = 0; i < list.size(); i++) {
+            if (!Objects.equals(mem_rotina_id, list.get(i).getPermissao().getRotina().getId())) {
+                mem_rotina_id = list.get(i).getPermissao().getRotina().getId();
+                listPermissoesAdicionadas.add(list.get(i));
+            }
+        }
+    }
+
+    public List<PermissaoDepartamento> getListPermissoesAdicionadas() {
+        return listPermissoesAdicionadas;
+    }
+
+    public void setListPermissoesAdicionadas(List<PermissaoDepartamento> listPermissoesAdicionadas) {
+        this.listPermissoesAdicionadas = listPermissoesAdicionadas;
+    }
+
 }

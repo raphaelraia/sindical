@@ -574,6 +574,9 @@ public class RelatorioMovimentoBean implements Serializable {
             listRelatorioOrdem.add(new SelectItem(-4, "Referência"));
             idRelatorioOrdem = -1;
             for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getPrincipal()) {
+                    idRelatorioOrdem = list.get(i).getId();
+                }
                 listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
             }
         }

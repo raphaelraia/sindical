@@ -46,7 +46,9 @@ public class RelatorioSociosDao extends DB {
      * @param biometria
      * @param matricula_inicial
      * @param matricula_final
+     * @param beneficio
      * @param idade_inicial
+     * @param frequencia
      * @param idade_final
      * @param carencia_dias
      * @param contem_servicos
@@ -102,6 +104,8 @@ public class RelatorioSociosDao extends DB {
             String biometria,
             String suspencao,
             String oposicao,
+            String beneficio,
+            String frequencia,
             /**
              * OUTROS
              */
@@ -261,7 +265,7 @@ public class RelatorioSociosDao extends DB {
                     + " INNER JOIN pes_juridica J ON J.id = PE.id_juridica          \n"
                     + " INNER JOIN pes_pessoa   P ON P.id = J.id_pessoa             \n";
             queryString += "";
-            if (demissao.getDtStart() != null && !demissao.getStart().isEmpty()) {
+            if ((demissao.getDtStart() != null && !demissao.getStart().isEmpty()) || demissao.getType().equals("com") || demissao.getType().equals("sem")) {
                 switch (demissao.getType()) {
                     case "igual":
                         queryString += " WHERE pe.dt_demissao = '" + demissao.getStart() + "' \n";
@@ -276,6 +280,12 @@ public class RelatorioSociosDao extends DB {
                         if (!demissao.getStart().isEmpty()) {
                             queryString += " WHERE pe.dt_demissao BETWEEN  '" + demissao.getStart() + "' AND '" + demissao.getFinish() + "'\n";
                         }
+                        break;
+                    case "com":
+                        queryString += " WHERE pe.dt_demissao IS NOT NULL \n";
+                        break;
+                    case "sem":
+                        queryString += " WHERE pe.dt_demissao IS NULL \n";
                         break;
                 }
                 queryString += " ) AS pempresa ON pempresa.id_fisica = p.id_fisica \n ";
@@ -476,6 +486,96 @@ public class RelatorioSociosDao extends DB {
             }
         }
 
+        if (!beneficio.isEmpty()) {
+            String subQuery = "";
+            switch (beneficio) {
+                case "academia":
+                case "clube":
+                case "escola":
+                case "hidroginastica":
+                case "danca_salao":
+                    Integer departamento_id = 0;
+                    switch (beneficio) {
+                        case "academia":
+                            departamento_id = 11;
+                            break;
+                        case "clube":
+                            departamento_id = 12;
+                            break;
+                        case "escola":
+                            departamento_id = 13;
+                            break;
+                        case "hidroginastica":
+                            departamento_id = 16;
+                            break;
+                        case "danca_salao":
+                            departamento_id = 17;
+                            break;
+                        default:
+                            break;
+                    }
+                    subQuery = " so.codsocio " + (frequencia.equals("nunca_utilizou") ? " NOT IN " : " IN ") + " (SELECT id_pessoa FROM soc_catraca_frequencia WHERE id_departamento = " + departamento_id + " ";
+                    switch (frequencia) {
+                        case "ontem":
+                            subQuery += " AND dt_acesso = (current_date - 1) ";
+                            break;
+                        case "hoje":
+                            subQuery += " AND dt_acesso = current_date ";
+                            break;
+                        case "mes_atual":
+                            subQuery += " AND extract(month FROM dt_acesso) = extract(month FROM current_date) ";
+                            break;
+                        case "mes_passado":
+                            subQuery += " AND extract(month FROM dt_acesso) = extract(month FROM (current_date - INTERVAL '1 month')) ";
+                            break;
+                        case "ano_atual":
+                            subQuery += " AND extract(year FROM dt_acesso) = extract(year FROM current_date) ";
+                            break;
+                        case "ano_passado":
+                            subQuery += " AND extract(year FROM dt_acesso) = extract(year FROM (current_date - INTERVAL '1 year')) ";
+                            break;
+                        default:
+                            break;
+                    }
+                    subQuery += ")";
+                    listWhere.add(subQuery);
+                    break;
+                case "caravana":
+                    subQuery = " so.codsocio " + (frequencia.equals("nunca_utilizou") ? " NOT IN " : " IN ") + " ("
+                            + " SELECT CR.id_pessoa FROM car_reservas CR"
+                            + " INNER JOIN car_venda CV ON CV.id = CR.id_caravana_venda"
+                            + " INNER JOIN car_caravana CAR ON CAR.id = CV.id_caravana ";
+                    switch (frequencia) {
+                        case "ontem":
+                            subQuery += " AND CAR.dt_saida = (current_date - 1) ";
+                            break;
+                        case "hoje":
+                            subQuery += " AND CAR.dt_saida = current_date ";
+                            break;
+                        case "mes_atual":
+                            subQuery += " AND extract(month FROM CAR.dt_saida) = extract(month FROM current_date) ";
+                            break;
+                        case "mes_passado":
+                            subQuery += " AND extract(month FROM CAR.dt_saida) = extract(month FROM (current_date - INTERVAL '1 month')) ";
+                            break;
+                        case "ano_atual":
+                            subQuery += " AND extract(year FROM CAR.dt_saida) = extract(year FROM current_date) ";
+                            break;
+                        case "ano_passado":
+                            subQuery += " AND extract(year FROM CAR.dt_saida) = extract(year FROM (current_date - INTERVAL '1 year')) ";
+                            break;
+                        default:
+                            break;
+                    }
+                    subQuery += "AND CV.dt_cancelamento IS NULL ";
+                    subQuery += ")";
+                    listWhere.add(subQuery);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         if (estado_civil != null && !estado_civil.isEmpty()) {
             String ec[] = estado_civil.split(",");
             String ecString = "";
@@ -515,7 +615,7 @@ public class RelatorioSociosDao extends DB {
         if (!listDateFilters.isEmpty()) {
             DateFilters cadastro = DateFilters.getDateFilters(listDateFilters, "cadastro");
             if (cadastro != null) {
-                if (cadastro.getDtStart() != null && !cadastro.getStart().isEmpty()) {
+                if ((cadastro.getDtStart() != null && !cadastro.getStart().isEmpty()) || cadastro.getType().equals("com") || cadastro.getType().equals("sem")) {
                     switch (cadastro.getType()) {
                         case "igual":
                             listWhere.add(" p.cadastro = '" + cadastro.getStart() + "'");
@@ -531,6 +631,12 @@ public class RelatorioSociosDao extends DB {
                                 listWhere.add(" p.cadastro BETWEEN '" + cadastro.getStart() + "' AND '" + cadastro.getFinish() + "'");
                             }
                             break;
+                        case "com":
+                            listWhere.add(" p.cadastro IS NOT NULL ");
+                            break;
+                        case "null":
+                            listWhere.add(" p.cadastro IS NULL ");
+                            break;
                         default:
                             break;
                     }
@@ -538,7 +644,7 @@ public class RelatorioSociosDao extends DB {
             }
             DateFilters recadastro = DateFilters.getDateFilters(listDateFilters, "recadastro");
             if (recadastro != null) {
-                if (recadastro.getDtStart() != null && !recadastro.getStart().isEmpty()) {
+                if ((recadastro.getDtStart() != null && !recadastro.getStart().isEmpty()) || recadastro.getType().equals("com") || recadastro.getType().equals("sem")) {
                     switch (recadastro.getType()) {
                         case "igual":
                             listWhere.add(" p.recadastro = '" + recadastro.getStart() + "'");
@@ -554,6 +660,12 @@ public class RelatorioSociosDao extends DB {
                                 listWhere.add(" p.recadastro BETWEEN '" + recadastro.getStart() + "' AND '" + recadastro.getFinish() + "'");
                             }
                             break;
+                        case "com":
+                            listWhere.add(" p.recadastro IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" p.recadastro IS NULL");
+                            break;
                         default:
                             break;
                     }
@@ -561,7 +673,7 @@ public class RelatorioSociosDao extends DB {
             }
             DateFilters atualizacao = DateFilters.getDateFilters(listDateFilters, "atualizacao");
             if (atualizacao != null) {
-                if (atualizacao.getDtStart() != null && !atualizacao.getStart().isEmpty()) {
+                if ((atualizacao.getDtStart() != null && !atualizacao.getStart().isEmpty()) || atualizacao.getType().equals("com") || atualizacao.getType().equals("sem")) {
                     switch (atualizacao.getType()) {
                         case "igual":
                             listWhere.add(" p.dt_atualizacao = '" + atualizacao.getStart() + "'");
@@ -577,6 +689,12 @@ public class RelatorioSociosDao extends DB {
                                 listWhere.add(" p.dt_atualizacao BETWEEN '" + atualizacao.getStart() + "' AND '" + atualizacao.getFinish() + "'");
                             }
                             break;
+                        case "com":
+                            listWhere.add(" p.dt_atualizacao IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" p.dt_atualizacao IS NULL");
+                            break;
                         default:
                             break;
                     }
@@ -584,7 +702,7 @@ public class RelatorioSociosDao extends DB {
             }
             DateFilters filiacao = DateFilters.getDateFilters(listDateFilters, "filiacao");
             if (filiacao != null) {
-                if (filiacao.getDtStart() != null && !filiacao.getStart().isEmpty()) {
+                if ((filiacao.getDtStart() != null && !filiacao.getStart().isEmpty()) || filiacao.getType().equals("com") || filiacao.getType().equals("sem")) {
                     switch (filiacao.getType()) {
                         case "igual":
                             listWhere.add(" so.filiacao = '" + filiacao.getStart() + "'");
@@ -600,6 +718,12 @@ public class RelatorioSociosDao extends DB {
                                 listWhere.add(" so.filiacao BETWEEN '" + filiacao.getStart() + "' AND '" + filiacao.getFinish() + "'");
                             }
                             break;
+                        case "com":
+                            listWhere.add(" so.filiacao IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" so.filiacao IS NULL");
+                            break;
                         default:
                             break;
                     }
@@ -607,7 +731,7 @@ public class RelatorioSociosDao extends DB {
             }
             DateFilters aposentadoria = DateFilters.getDateFilters(listDateFilters, "aposentadoria");
             if (aposentadoria != null) {
-                if (aposentadoria.getDtStart() != null && !aposentadoria.getStart().isEmpty()) {
+                if ((aposentadoria.getDtStart() != null && !aposentadoria.getStart().isEmpty()) || aposentadoria.getType().equals("com") || aposentadoria.getType().equals("sem")) {
                     switch (aposentadoria.getType()) {
                         case "igual":
                             listWhere.add(" p.dt_aposentadoria = '" + aposentadoria.getStart() + "'");
@@ -623,6 +747,12 @@ public class RelatorioSociosDao extends DB {
                                 listWhere.add(" p.dt_aposentadoria BETWEEN '" + aposentadoria.getStart() + "' AND '" + aposentadoria.getFinish() + "'");
                             }
                             break;
+                        case "com":
+                            listWhere.add(" p.dt_aposentadoria IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" p.dt_aposentadoria IS NULL");
+                            break;
                         default:
                             break;
                     }
@@ -630,7 +760,7 @@ public class RelatorioSociosDao extends DB {
             }
             DateFilters admissao = DateFilters.getDateFilters(listDateFilters, "admissao");
             if (admissao != null) {
-                if (admissao.getDtStart() != null && !admissao.getStart().isEmpty()) {
+                if ((admissao.getDtStart() != null && !admissao.getStart().isEmpty() || admissao.getType().equals("com") || admissao.getType().equals("sem"))) {
                     switch (admissao.getType()) {
                         case "igual":
                             listWhere.add(" p.admissao = '" + admissao.getStart() + "'");
@@ -645,6 +775,12 @@ public class RelatorioSociosDao extends DB {
                             if (!admissao.getFinish().isEmpty()) {
                                 listWhere.add(" p.admissao BETWEEN '" + admissao.getStart() + "' AND '" + admissao.getFinish() + "'");
                             }
+                            break;
+                        case "com":
+                            listWhere.add(" p.admissao IS NOT NULL ");
+                            break;
+                        case "sem":
+                            listWhere.add(" p.admissao IS NULL ");
                             break;
                         default:
                             break;
@@ -772,7 +908,8 @@ public class RelatorioSociosDao extends DB {
             ordem = " ORDER BY " + ordem;
         }
         try {
-            Query query = getEntityManager().createNativeQuery(queryString + ordem);
+            queryString = queryString + ordem;
+            Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

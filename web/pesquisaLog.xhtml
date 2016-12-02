@@ -161,7 +161,7 @@
                                 <p:rowExpansion styleClass="bg-yellow-ligth">
                                     <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
                                     <p:outputLabel value="De: #{log.conteudoOriginal}" /><br /><br />
-                                    <h:column rendered="#{!log.conteudoAlterado.equals('')}">
+                                    <h:column rendered="#{not empty log.conteudoAlterado}">
                                         <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
                                         <p:outputLabel value="Para: #{log.conteudoAlterado}"/>
                                     </h:column>

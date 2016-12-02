@@ -162,4 +162,15 @@ public class CompromissoUsuarioDao extends DB {
         return list;
     }
 
+    public CompromissoUsuario find(Integer compromisso_id, Integer usuario_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CU FROM CompromissoUsuario AS CU WHERE CU.compromisso.id = :compromisso_id AND CU.usuario.id = :usuario_id");
+            query.setParameter("compromisso_id", compromisso_id);
+            query.setParameter("usuario_id", usuario_id);
+            return (CompromissoUsuario) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

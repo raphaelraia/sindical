@@ -100,10 +100,18 @@
                                 </p:column>
 
                                 <p:rowExpansion>
-                                    <h:panelGrid columns="2" style="height: 40px" styleClass="sbb">
+                                    <h:panelGrid columns="3" style="height: 40px" styleClass="sbb">
                                         <p:column>
                                             <p:outputLabel value="Codigo Cedente" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha.contaCobranca.codCedente}" />
+                                        </p:column>
+                                        <p:column>
+                                            <p:outputLabel value="Código Movimento" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.id_movimento}" />
+                                        </p:column>
+                                        <p:column>
+                                            <p:outputLabel value="Código Boleto" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.id_boleto}" />
                                         </p:column>
                                     </h:panelGrid>
                                 </p:rowExpansion>

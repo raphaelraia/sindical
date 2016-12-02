@@ -39,7 +39,7 @@ public class BaixaBoletoBean {
         return "baixaBoleto";
     }
 
-    public void loadListaBoleto(){
+    public void loadListaBoleto() {
         DataObject dt = null;
         MovimentoDao db = new MovimentoDao();
         String pesquisado;
@@ -47,10 +47,11 @@ public class BaixaBoletoBean {
         getListBoletos().clear();
 
         List<Movimento> listaQuery;
-        if (caixaBanco.equals("banco"))
+        if (caixaBanco.equals("banco")) {
             listaQuery = db.movimentosAberto(getPessoa().getId(), true);
-        else
+        } else {
             listaQuery = db.movimentosAberto(getPessoa().getId(), false);
+        }
 
         for (int i = 0; i < listaQuery.size(); i++) {
             if (listaQuery.get(i).getDocumento().equals(numBoleto)) {
@@ -67,10 +68,10 @@ public class BaixaBoletoBean {
                     Moeda.converteR$(Float.toString(listaQuery.get(i).getCorrecao())), // correcao
                     Moeda.converteR$(Float.toString(listaQuery.get(i).getDesconto())), // desconto
                     Moeda.converteR$(somarValorRecebido(Float.toString(listaQuery.get(i).getValor()),
-                                    Float.toString(listaQuery.get(i).getMulta()),
-                                    Float.toString(listaQuery.get(i).getJuros()),
-                                    Float.toString(listaQuery.get(i).getCorrecao()),
-                    Float.toString(listaQuery.get(i).getDesconto()))), // valor pago
+                            Float.toString(listaQuery.get(i).getMulta()),
+                            Float.toString(listaQuery.get(i).getJuros()),
+                            Float.toString(listaQuery.get(i).getCorrecao()),
+                            Float.toString(listaQuery.get(i).getDesconto()))), // valor pago
                     false,
                     null);
             getListBoletos().add(dt);
@@ -89,21 +90,21 @@ public class BaixaBoletoBean {
         while (i < select.size()) {
             if (select.get(i).getServicos().getId() == 1) {
                 servicoCobranca.add(
-                    new SelectItem(
-                            i,
-                            select.get(i).getServicos().getDescricao() + " - "
-                            + select.get(i).getContaCobranca().getSicasSindical(),//SICAS NO CASO DE SINDICAL
-                            Integer.toString(select.get(i).getId())
-                    )
+                        new SelectItem(
+                                i,
+                                select.get(i).getServicos().getDescricao() + " - "
+                                + select.get(i).getContaCobranca().getSicasSindical(),//SICAS NO CASO DE SINDICAL
+                                Integer.toString(select.get(i).getId())
+                        )
                 );
             } else {
                 servicoCobranca.add(
-                    new SelectItem(
-                            i,
-                            select.get(i).getServicos().getDescricao() + " - "
-                            + select.get(i).getContaCobranca().getCodCedente(),//CODCEDENTE NO CASO DE OUTRAS
-                            Integer.toString(select.get(i).getId())
-                    )
+                        new SelectItem(
+                                i,
+                                select.get(i).getServicos().getDescricao() + " - "
+                                + select.get(i).getContaCobranca().getCodCedente(),//CODCEDENTE NO CASO DE OUTRAS
+                                Integer.toString(select.get(i).getId())
+                        )
                 );
             }
             i++;
@@ -121,7 +122,7 @@ public class BaixaBoletoBean {
         Movimento mov;
         List<Movimento> lista = new ArrayList();
 
-        if (dob == null){
+        if (dob == null) {
             Integer id_conta_banco = null;
             MovimentoDao db = new MovimentoDao();
             for (DataObject listBoleto : getListBoletos()) {
@@ -137,29 +138,31 @@ public class BaixaBoletoBean {
                         GenericaMensagem.warn("Atençao", "Nenhum valor não pode estar zerado!");
                         return null;
                     }
-                    
-                    if (caixaBanco.equals("banco")){
+
+                    if (caixaBanco.equals("banco")) {
                         Boleto b = db.pesquisaBoletos(mov.getNrCtrBoleto());
-                        if (id_conta_banco == null){
+                        if (b == null) {
+                            GenericaMensagem.warn("Erro", "BOLETO NÃO ENCONTRADO!");
+                            return null;
+                        }
+                        if (id_conta_banco == null) {
                             id_conta_banco = b.getContaCobranca().getContaBanco().getId();
-                        }else{
-                            if (id_conta_banco != b.getContaCobranca().getContaBanco().getId()){
-                                GenericaMensagem.error("Atençao", "Boletos de Contas diferentes não podem ser Baixados!");
-                                return null;
-                            }
+                        } else if (id_conta_banco != b.getContaCobranca().getContaBanco().getId()) {
+                            GenericaMensagem.error("Atençao", "Boletos de Contas diferentes não podem ser Baixados!");
+                            return null;
                         }
                     }
                     lista.add(mov);
                 }
             }
-        }else{
+        } else {
             mov = (Movimento) dob.getArgumento1();
-            mov.setValorBaixa(Float.parseFloat(Moeda.substituiVirgula( dob.getArgumento7().toString() )));
+            mov.setValorBaixa(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento7().toString())));
 
-            mov.setMulta(Float.parseFloat(Moeda.substituiVirgula( dob.getArgumento3().toString() )));
-            mov.setJuros(Float.parseFloat(Moeda.substituiVirgula( dob.getArgumento4().toString() )));
-            mov.setCorrecao(Float.parseFloat(Moeda.substituiVirgula( dob.getArgumento5().toString() )));
-            mov.setDesconto(Float.parseFloat(Moeda.substituiVirgula( dob.getArgumento6().toString() )));
+            mov.setMulta(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento3().toString())));
+            mov.setJuros(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento4().toString())));
+            mov.setCorrecao(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento5().toString())));
+            mov.setDesconto(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento6().toString())));
 
             if (mov.getValorBaixa() <= 0) {
                 GenericaMensagem.warn("Atençao", "Nenhum valor não pode estar zerado!");
@@ -240,7 +243,6 @@ public class BaixaBoletoBean {
 //        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
 //        return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
 //    }
-
     public void atualizaValoresGrid(DataObject dob) {
         converteDesconto(dob);
         dob.setArgumento7(
@@ -249,7 +251,7 @@ public class BaixaBoletoBean {
                         Moeda.converteR$(dob.getArgumento3().toString()),
                         Moeda.converteR$(dob.getArgumento4().toString()),
                         Moeda.converteR$(dob.getArgumento5().toString()),
-                Moeda.converteR$(dob.getArgumento6().toString())
+                        Moeda.converteR$(dob.getArgumento6().toString())
                 )
         );
 // aqui descomentar
@@ -286,43 +288,43 @@ public class BaixaBoletoBean {
     }
 
     public void converteValor(DataObject dob) {
-        dob.setArgumento2(Moeda.converteR$( dob.getArgumento2().toString()) );
+        dob.setArgumento2(Moeda.converteR$(dob.getArgumento2().toString()));
     }
 
     public void converteMulta(DataObject dob) {
-        dob.setArgumento3(Moeda.converteR$( dob.getArgumento3().toString()) );
+        dob.setArgumento3(Moeda.converteR$(dob.getArgumento3().toString()));
     }
 
     public void converteJuros(DataObject dob) {
-        dob.setArgumento4(Moeda.converteR$( dob.getArgumento4().toString()) );
+        dob.setArgumento4(Moeda.converteR$(dob.getArgumento4().toString()));
     }
 
     public void converteCorrecao(DataObject dob) {
-        dob.setArgumento5(Moeda.converteR$( dob.getArgumento5().toString()));
+        dob.setArgumento5(Moeda.converteR$(dob.getArgumento5().toString()));
     }
 
     public void converteDesconto(DataObject dob) {
-        if (Float.parseFloat(Moeda.substituiVirgula(Moeda.converteR$( dob.getArgumento6().toString()))) > Float.parseFloat(Moeda.substituiVirgula( dob.getArgumento7().toString() ))) {
+        if (Float.parseFloat(Moeda.substituiVirgula(Moeda.converteR$(dob.getArgumento6().toString()))) > Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento7().toString()))) {
             dob.setArgumento6(Moeda.converteR$("0.0"));
         } else {
-            dob.setArgumento6(Moeda.converteR$( dob.getArgumento6().toString() ));
+            dob.setArgumento6(Moeda.converteR$(dob.getArgumento6().toString()));
         }
     }
 
     public void converteDescontoFora(int index, String soma) {
-        try{
+        try {
             if (Float.parseFloat(Moeda.substituiVirgula(Moeda.converteR$((String) getListBoletos().get(index).getArgumento6()))) > Float.parseFloat(Moeda.substituiVirgula(soma))) {
                 getListBoletos().get(index).setArgumento6(Moeda.converteR$("0.0"));
             } else {
                 getListBoletos().get(index).setArgumento6(Moeda.converteR$((String) getListBoletos().get(index).getArgumento6()));
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
     }
 
     public void converteValorPago(DataObject dob) {
-        dob.setArgumento7(Moeda.converteR$( dob.getArgumento7().toString() ));
+        dob.setArgumento7(Moeda.converteR$(dob.getArgumento7().toString()));
     }
 
     public int getIdServicos() {

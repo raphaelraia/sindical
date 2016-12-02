@@ -2396,7 +2396,7 @@ public class ImprimirBoleto {
             String representacao = "", codigo_barras = "";
 
             Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-
+            List listImpressao = new ArrayList();
             for (Integer i = 0; i < result.size(); i++) {
                 List linha = (List) result.get(i);
 
@@ -2501,11 +2501,9 @@ public class ImprimirBoleto {
                     );
 
                     if (Integer.valueOf(linha.get(1).toString()) > 0) {
-
                         String insert_impressao
                                 = "INSERT INTO fin_impressao (dt_impressao, dt_vencimento, ds_hora, id_movimento, id_usuario) \n "
                                 + "VALUES (CURRENT_DATE, '" + DataHoje.converteData((Date) linha.get(7)) + "', '" + DataHoje.hora() + "', " + Integer.valueOf(linha.get(1).toString()) + ", " + usuario.getId() + ")";
-
                         dao.openTransaction();
                         if (!dao.executeQuery(insert_impressao)) {
                             dao.rollback();
@@ -2513,6 +2511,8 @@ public class ImprimirBoleto {
                             return null;
                         }
                         dao.commit();
+                        // SE FICAR LENTO EU BRUNO IREI SUGERIR USAR A LISTA ABAIXO
+                        // listImpressao.add(insert_impressao);
 //                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
 //
 //                        Impressao impressao = new Impressao();
@@ -2554,6 +2554,22 @@ public class ImprimirBoleto {
             lista.clear();
              */
             if (!jasperPrintList.isEmpty()) {
+                // SE FICAR LENTO EU BRUNO IREI SUGERIR USAR A LISTA ABAIXO
+                if (!listImpressao.isEmpty()) {
+//                    try {
+//                        dao.openTransaction();
+//                        for (int i = 0; i < listImpressao.size(); i++) {
+//                            if (!dao.executeQuery(listImpressao.get(i).toString())) {
+//                                dao.rollback();
+//                                GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
+//                                return null;
+//                            }
+//                        }
+//                        dao.commit();
+//                    } catch (Exception e) {
+//
+//                    }
+                }
                 JRPdfExporter exporter = new JRPdfExporter();
                 ByteArrayOutputStream retorno = new ByteArrayOutputStream();
 

@@ -40,17 +40,17 @@ public class SocioCarteirinha implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_validade_carteirinha")
     private Date dtValidadeCarteirinha;
-    @Column(name = "is_ativo", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_ativo", columnDefinition = "boolean default true")
     private boolean ativo;
 
     public SocioCarteirinha() {
         this.id = -1;
-        this.setEmissao(DataHoje.data());
+        this.dtEmissao = null;
         this.pessoa = new Pessoa();
         this.modeloCarteirinha = new ModeloCarteirinha();
         this.cartao = 0;
         this.via = 0;
-        this.setValidadeCarteirinha("");
+        this.dtValidadeCarteirinha = null;
         this.ativo = true;
     }
 

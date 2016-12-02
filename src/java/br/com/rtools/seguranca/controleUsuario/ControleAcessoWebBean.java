@@ -296,7 +296,11 @@ public class ControleAcessoWebBean implements Serializable {
                 return null;
             }
             juridicaReceita.setPessoa(pessoax);
-            dao.update(juridicaReceita);
+            if (!dao.update(juridicaReceita)) {
+                GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
+                dao.rollback();
+                return null;
+            }
         }
 
         Juridica juridica = new Juridica();
@@ -323,6 +327,7 @@ public class ControleAcessoWebBean implements Serializable {
 
         if (jro.getLista_cnae().isEmpty()) {
             GenericaMensagem.warn("Erro", "Erro ao pesquisar CNAE");
+            dao.rollback();
             return null;
         }
 
@@ -341,6 +346,7 @@ public class ControleAcessoWebBean implements Serializable {
                 } else {
                     GenericaMensagem.warn("Atenção", "Empresa não pertence a esta entidade!");
                 }
+                dao.rollback();
                 return null;
             }
         } else {

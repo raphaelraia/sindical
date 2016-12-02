@@ -1069,7 +1069,7 @@ public class RecepcaoBean implements Serializable {
             }
 
             if (numeroProtocolo.equals("")) {
-                ag = db.pesquisaAgendamento(idCasoStatus, macFilial.getFilial().getId(), dataInicialA, dataFinalA, 0, fisica.getId(), juridica.getId(), true, false);
+                ag = db.pesquisaAgendamento(idCasoStatus, macFilial.getFilial().getId(), dataInicialA, dataFinalA, 0, fisica.getId(), juridica.getId(), false, false);
             } else {
                 ag = new ArrayList();
             }

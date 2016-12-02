@@ -144,11 +144,14 @@
                                         <p:menuitem value="Fechamento Baile"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoBaile')}" ajax="false"/>
                                         <p:menuitem value="Cobrança Externa"     action="#{chamadaPaginaBean.pagina('relatorioCobrancaExterna')}" ajax="false"/>
                                         <p:menuitem value="Desconto em Folha"    action="#{chamadaPaginaBean.pagina('relatorioDescontoFolha')}" ajax="false"/>                                        
-                                        <p:menuitem value="Boletos Baixados (banco)"     action="#{chamadaPaginaBean.pagina('relatorioBoletosBaixados')}" ajax="false"/>
+                                        <p:submenu label="Boletos">
+                                            <p:menuitem value="Baixados (banco)"     action="#{chamadaPaginaBean.pagina('relatorioBoletosBaixados')}" ajax="false"/>
+                                            <p:menuitem value="Resumo"          action="#{chamadaPaginaBean.pagina('relatorioResumoImpressaoBoletos')}" />
+                                        </p:submenu>                                            
                                         <p:menuitem value="Movtos Não Gerados"  action="#{chamadaPaginaBean.pagina('relatorioMovimentosNaoGerados')}" title="Movimentos Não Gerados"/>
                                     </p:submenu>
                                     
-                                    <p:menuitem value="At. Sócio Demissionado" action="#{chamadaPaginaBean.pagina('atualizaSocioDemissionado')}" title="Atualiza Sócio Demissionado"/>
+                                    <p:menuitem value="Sócios Demissionados" action="#{chamadaPaginaBean.pagina('atualizaSocioDemissionado')}" title="Sócios Demissionados "/>
                                 </p:submenu>                            
                             </p:menubar> 
                             <p:panel styleClass="margin-top-max">

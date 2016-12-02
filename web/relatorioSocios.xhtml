@@ -67,10 +67,10 @@
                             <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max" style="width: 100%!important">
                                 <h:column>
                                     <h:panelGroup layout="block" style="width: 225px; float: left" id="i_panel_avancado">
-                                        <p:accordionPanel prependId="false">
+                                        <p:accordionPanel prependId="false" activeIndex="-1">
                                             <p:tab title="Sócio">
                                                 <h:panelGrid>
-                                                    <c:forEach items="#{relatorioSociosBean.filtersSocio}" var="filterSocio" varStatus="loop" id="i_foreach_1">                                            
+                                                    <c:forEach items="#{relatorioSociosBean.filtersSocio}" var="filterSocio" varStatus="loop" id="i_foreach_1">
                                                         <p:selectBooleanButton value="#{filterSocio.active}" onLabel="#{filterSocio.value}" offLabel="#{filterSocio.value}" style="width: 180px; text-align: left" disabled="#{filterSocio.disabled}">
                                                             <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_p_r" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersSocio[loop.index])}" />
                                                         </p:selectBooleanButton>
@@ -407,6 +407,28 @@
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('frequencia')}">
+                                                <p:panel header="Frequentou atividades">
+                                                    <h:panelGrid columns="5" cellspacing="5">
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoBeneficio}">
+                                                            <f:selectItem itemValue="academia" itemLabel="ACADEMIA" />
+                                                            <f:selectItem itemValue="hidroginastica" itemLabel="HIDROGINÁSTICA" />
+                                                            <f:selectItem itemValue="danca_salao" itemLabel="DANÇA DE SALÃO" />
+                                                            <f:selectItem itemValue="clube" itemLabel="CLUBE" />
+                                                        </p:selectOneMenu>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoFrequencia}">
+                                                            <f:selectItem itemValue="ontem" itemLabel="Ontem" />
+                                                            <f:selectItem itemValue="hoje" itemLabel="Hoje" />
+                                                            <f:selectItem itemValue="mes_atual" itemLabel="Mês atual" />
+                                                            <f:selectItem itemValue="mes_passado" itemLabel="Mês passado" />
+                                                            <f:selectItem itemValue="ano_atual" itemLabel="Ano atual" />
+                                                            <f:selectItem itemValue="ano_passado" itemLabel="Ano passado" />
+                                                            <f:selectItem itemValue="nunca_utilizou" itemLabel="Nunca utilizou" />
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('frequencia')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
                                         </h:panelGrid>
                                         <!-- EMPRESAS -->
                                         <h:panelGrid style="width: 100%!important">
@@ -473,7 +495,7 @@
                                                                 <br />
                                                                 <p:outputLabel value="ate" style="text-align: center"/>
                                                             </h:column>
-                                                            
+
                                                             <h:column>
                                                                 <h:outputLabel value="Validade Final" style="font-weight: bold"/><br />
                                                                 <p:inputMask value="#{relatorioSociosBean.refValidadeDependenteFinal}" mask="99/9999" style="text-align: center; width: 115px" />
@@ -564,8 +586,10 @@
                                                                 <f:selectItem itemValue="apartir" itemLabel="A partir" />
                                                                 <f:selectItem itemValue="ate" itemLabel="Até" />
                                                                 <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                                <f:selectItem itemValue="com" itemLabel="Com data" />
+                                                                <f:selectItem itemValue="sem" itemLabel="Sem data" />
                                                             </p:selectOneMenu>
-                                                            <p:inputMask mask="99/99/9999" value="#{relatorioSociosBean.startDate}" converter="#{isDateString}" rendered="#{relatorioSociosBean.typeDate ne 'todos'}" size="10" styleClass="text-center">
+                                                            <p:inputMask mask="99/99/9999" value="#{relatorioSociosBean.startDate}" converter="#{isDateString}" rendered="#{relatorioSociosBean.typeDate ne 'todos' and relatorioSociosBean.typeDate ne 'com' and relatorioSociosBean.typeDate ne 'sem'}" size="10" styleClass="text-center">
                                                                 <p:ajax event="change" global="false" />
                                                             </p:inputMask>
                                                             <p:outputLabel value="até" rendered="#{relatorioCupomBean.tipoDataEmissao eq 'faixa'}" styleClass="margin-left-max"/>
@@ -586,10 +610,12 @@
                                                                     <f:selectItem itemValue="apartir" itemLabel="A partir" />
                                                                     <f:selectItem itemValue="ate" itemLabel="Até" />
                                                                     <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                                    <f:selectItem itemValue="com" itemLabel="Com data" />
+                                                                    <f:selectItem itemValue="sem" itemLabel="Sem data" />
                                                                 </p:selectOneMenu>                                                                
                                                             </p:column>
                                                             <p:column headerText="Inicial" styleClass="text-center">
-                                                                <p:inputMask mask="99/99/9999" value="#{dateFilters.start}" converter="#{isDateString}" rendered="#{dateFilters.type ne 'todos'}" size="10" styleClass="text-center">
+                                                                <p:inputMask mask="99/99/9999" value="#{dateFilters.start}" converter="#{isDateString}" rendered="#{dateFilters.type ne 'todos' and dateFilters.type ne 'sem' and dateFilters.type ne 'com'}" size="10" styleClass="text-center">
                                                                     <p:ajax event="change" global="false" />
                                                                 </p:inputMask>                                                                
                                                             </p:column>

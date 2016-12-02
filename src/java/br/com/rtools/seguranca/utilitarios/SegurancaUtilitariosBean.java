@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
@@ -97,6 +98,10 @@ public class SegurancaUtilitariosBean implements Serializable {
             }
         }
         return registro;
+    }
+
+    public Rotina getRotina() {
+        return new Rotina().get();
     }
 
     public MacFilial getMacFilial() {

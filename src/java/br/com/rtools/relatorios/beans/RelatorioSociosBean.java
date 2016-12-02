@@ -154,10 +154,12 @@ public class RelatorioSociosBean implements Serializable {
     private String idadeFinal;
     private String diaInicial;
     private String diaFinal;
-    
+
     private Boolean chkValidadeDependente;
     private String refValidadeDependenteInicial;
     private String refValidadeDependenteFinal;
+    private String tipoFrequencia;
+    private String tipoBeneficio;
 
     public RelatorioSociosBean() {
         idRelatorio = null;
@@ -199,11 +201,13 @@ public class RelatorioSociosBean implements Serializable {
         idadeFinal = "500";
         diaInicial = "1";
         diaFinal = "31";
-        
+
         chkValidadeDependente = true;
         refValidadeDependenteInicial = "";
         refValidadeDependenteFinal = "";
-        
+        tipoFrequencia = "";
+        tipoBeneficio = "";
+
         loadRelatorios();
         loadRelatoriosOrdem();
         loadFilters();
@@ -280,6 +284,7 @@ public class RelatorioSociosBean implements Serializable {
         filtersSocio.add(new Filters("telefone", "Telefone", false));
         filtersSocio.add(new Filters("votante", "Votante", false));
         filtersSocio.add(new Filters("validade_dependente", "Val. Dependente", false));
+        filtersSocio.add(new Filters("frequencia", "Frequentou atividades", false));
 
         // EMPRESA
         filtersEmpresa = new ArrayList<>();
@@ -457,6 +462,14 @@ public class RelatorioSociosBean implements Serializable {
                 selectedEstadoCivil = new ArrayList<>();
                 if (filter.getActive()) {
                     loadEstadoCivil();
+                }
+                break;
+            case "frequencia":
+                tipoBeneficio = "";
+                tipoFrequencia = "";
+                if (filter.getActive()) {
+                    tipoBeneficio = "academia";
+                    tipoFrequencia = "hoje";
                 }
                 break;
             /**
@@ -769,11 +782,11 @@ public class RelatorioSociosBean implements Serializable {
         }
         Boolean chk_validade_dependente = null;
         String refVD_inicial = null, refVD_final = null;
-        
-        if (getShow("validade_dependente")){
+
+        if (getShow("validade_dependente")) {
             chk_validade_dependente = chkValidadeDependente;
-            if (!chk_validade_dependente){
-                if (refValidadeDependenteInicial == null && refValidadeDependenteFinal == null){
+            if (!chk_validade_dependente) {
+                if (refValidadeDependenteInicial == null && refValidadeDependenteFinal == null) {
                     GenericaMensagem.warn("Validação", "DIGITE UMA REFERÊNCIA VÁLIDA!");
                     return new ArrayList();
                 }
@@ -781,7 +794,6 @@ public class RelatorioSociosBean implements Serializable {
                 refVD_final = refValidadeDependenteFinal;
             }
         }
-        
         RelatorioDao db = new RelatorioDao();
         Relatorios relatorios = db.pesquisaRelatorios(idRelatorio);
         relatorioSociosDao.setRelatorios(relatorios);
@@ -824,6 +836,8 @@ public class RelatorioSociosBean implements Serializable {
                 tipoBiometria,
                 tipoSuspencao,
                 tipoOposicao,
+                tipoBeneficio,
+                tipoFrequencia,
                 /**
                  * OUTROS
                  */
@@ -1864,7 +1878,7 @@ public class RelatorioSociosBean implements Serializable {
             List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
             for (int i = 0; i < list.size(); i++) {
                 listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
-                if (list.get(i).getPrincipal()){
+                if (list.get(i).getPrincipal()) {
                     idRelatorioOrdem = list.get(i).getId();
                 }
             }
@@ -3206,5 +3220,21 @@ public class RelatorioSociosBean implements Serializable {
 
     public void setRefValidadeDependenteFinal(String refValidadeDependenteFinal) {
         this.refValidadeDependenteFinal = refValidadeDependenteFinal;
+    }
+
+    public String getTipoFrequencia() {
+        return tipoFrequencia;
+    }
+
+    public void setTipoFrequencia(String tipoFrequencia) {
+        this.tipoFrequencia = tipoFrequencia;
+    }
+
+    public String getTipoBeneficio() {
+        return tipoBeneficio;
+    }
+
+    public void setTipoBeneficio(String tipoBeneficio) {
+        this.tipoBeneficio = tipoBeneficio;
     }
 }

@@ -9,9 +9,10 @@ import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.UsuarioHistoricoAcesso;
+import br.com.rtools.seguranca.dao.UsuarioHistoricoAcessoDao;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
-import br.com.rtools.utilitarios.Correios;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
@@ -22,6 +23,7 @@ import br.com.rtools.utilitarios.Implantacao;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -59,6 +61,9 @@ public class ControleUsuarioBean implements Serializable {
     private List<String> images = new ArrayList<>();
     private boolean habilitaLog = false;
     private Boolean export = null;
+    private String historicoAcesso = "";
+    private String ip = "";
+    private String dispositivo = "";
 
     public ControleUsuarioBean() {
         // new Correios().main();
@@ -70,7 +75,7 @@ public class ControleUsuarioBean implements Serializable {
         csb.init();
         ConfiguracaoSocial cs = csb.getConfiguracaoSocial();
         if (cs.getInativaDemissionado() && DataHoje.maiorData(DataHoje.dataHoje(), cs.getDataInativacaoDemissionado()) && cs.getGrupoCategoriaInativaDemissionado() != null) {
-            if (db.demissionaSocios(cs.getGrupoCategoriaInativaDemissionado().getId(), cs.getDiasInativaDemissionado())){
+            if (db.demissionaSocios(cs.getGrupoCategoriaInativaDemissionado().getId(), cs.getDiasInativaDemissionado())) {
                 Dao di = new Dao();
                 cs = (ConfiguracaoSocial) di.find(cs);
                 di.openTransaction();
@@ -155,6 +160,7 @@ public class ControleUsuarioBean implements Serializable {
             return pagina;
         }
         usuario = db.ValidaUsuario(usuario.getLogin(), usuario.getSenha());
+        String hostName = "";
         if (usuario != null) {
             filial = retornaStringFilial(macFilial, usuario);
             if (usuario.getId() != 1) {
@@ -166,13 +172,11 @@ public class ControleUsuarioBean implements Serializable {
                     }
                 }
                 try {
-//                    InetAddress ia = InetAddress.getLocalHost();
-//                    String hostName = ia.getHostName();
-//                    if (!macFilial.getNomeDispositivo().isEmpty() && !hostName.equals(macFilial.getNomeDispositivo())) {
-//                        usuario = new Usuario();
-//                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
-//                        return null;
-//                    }
+                    if (!macFilial.getNomeDispositivo().isEmpty() && !dispositivo.equals(macFilial.getNomeDispositivo())) {
+                        usuario = new Usuario();
+                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
+                        return null;
+                    }
                 } catch (Exception e) {
 
                 }
@@ -229,7 +233,23 @@ public class ControleUsuarioBean implements Serializable {
             login = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa().getNome() + " - "
                     + ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa().getTipoDocumento().getDescricao() + ": "
                     + ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa().getDocumento();
-            //log.novo("Usuário logou", "Usuário:" + user + "/sen: " + senh);
+            historicoAcesso = "";
+            historicoAcesso = "ÚLTIMO ACESSO EM ";
+            UsuarioHistoricoAcesso ua = new UsuarioHistoricoAcessoDao().find(usuario.getId());
+            if (ua != null) {
+                historicoAcesso += ua.getData();
+                historicoAcesso += " ÁS " + ua.getHora() + " - ";
+                historicoAcesso += " IP: " + ua.getIp();
+            }
+            UsuarioHistoricoAcesso usuarioHistoricoAcesso = new UsuarioHistoricoAcesso();
+            usuarioHistoricoAcesso.setUsuario(usuario);
+            usuarioHistoricoAcesso.setIp(ip);
+            usuarioHistoricoAcesso.setDispositivo(dispositivo);
+            usuarioHistoricoAcesso.setEs("E");
+            if (GenericaSessao.exists("acessoFilial")) {
+                usuarioHistoricoAcesso.setMacFilial((MacFilial) GenericaSessao.getObject("acessoFilial"));
+            }
+            new Dao().save(usuarioHistoricoAcesso, true);
             usuario = new Usuario();
             msgErro = "";
             atualizaDemissionaSocios();
@@ -436,6 +456,26 @@ public class ControleUsuarioBean implements Serializable {
                 filialDep = "Filial sem Registro";
             }
         }
+        try {
+            String ipAddress = request.getHeader("X-FORWARDED-FOR");
+            if (ipAddress == null) {
+                ipAddress = request.getRemoteAddr();
+                if (ipAddress != null && !ipAddress.isEmpty()) {
+                    GenericaSessao.put("ip", ipAddress);
+                    try {
+                        InetAddress addr = InetAddress.getByName(ipAddress);  // DOMAIN NAME from IP
+                        dispositivo = addr.getHostName();
+                        GenericaSessao.put("dispositivo", dispositivo);
+                    } catch (Exception e) {
+
+                    }
+                    ip = ipAddress;
+                }
+            }
+        } catch (Exception e) {
+
+        }
+
         return filialDep;
     }
 
@@ -585,6 +625,30 @@ public class ControleUsuarioBean implements Serializable {
             }
         }
         return filialCoockie;
+    }
+
+    public String getHistoricoAcesso() {
+        return historicoAcesso;
+    }
+
+    public void setHistoricoAcesso(String historicoAcesso) {
+        this.historicoAcesso = historicoAcesso;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getDispositivo() {
+        return dispositivo;
+    }
+
+    public void setDispositivo(String dispositivo) {
+        this.dispositivo = dispositivo;
     }
 
 }

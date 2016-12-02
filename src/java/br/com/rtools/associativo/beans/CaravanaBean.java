@@ -4,6 +4,7 @@ import br.com.rtools.associativo.dao.EventoServicoValorDao;
 import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.*;
+import br.com.rtools.associativo.dao.CaravanaDao;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
@@ -75,6 +76,7 @@ public class CaravanaBean implements Serializable {
         loadListaServicos();
         loadListaGrupoEvento();
         loadListaDescricaoEvento();
+        loadListCaravanas();
     }
 
     @PreDestroy
@@ -116,6 +118,11 @@ public class CaravanaBean implements Serializable {
             }
             listaDescricaoEvento.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
+    }
+
+    public void loadListCaravanas() {
+        listaCaravana = new ArrayList();
+        listaCaravana = (List<Caravana>) new CaravanaDao().findAll("all_desc");
     }
 
     public Boolean validaSalvar() {
@@ -190,6 +197,7 @@ public class CaravanaBean implements Serializable {
             } else {
                 GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
                 dao.commit();
+                loadListCaravanas();
             }
         } else {
             if (caravana.getEvt() == null) {
@@ -215,6 +223,7 @@ public class CaravanaBean implements Serializable {
             } else {
                 GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
                 dao.commit();
+                loadListCaravanas();
             }
         }
     }
@@ -304,6 +313,7 @@ public class CaravanaBean implements Serializable {
                 dao.rollback();
             } else {
                 dao.commit();
+                loadListCaravanas();
                 caravana = new Caravana();
                 GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
             }
@@ -457,9 +467,6 @@ public class CaravanaBean implements Serializable {
     }
 
     public List<Caravana> getListaCaravana() {
-        if (listaCaravana.isEmpty()) {
-            listaCaravana = (List<Caravana>) new Dao().list(new Caravana());
-        }
         return listaCaravana;
     }
 

@@ -66,12 +66,13 @@ public class ServicoRotinaDao extends DB {
     public boolean existeServicoRotina(int idServico, int idRotina) {
         try {
             Query query = getEntityManager().createQuery(" SELECT SR FROM ServicoRotina AS SR WHERE SR.servicos.id = :servicos AND SR.rotina.id = :rotina ");
-            query.setParameter(":servicos", idServico);
-            query.setParameter(":rotina ", idRotina);
+            query.setParameter("servicos", idServico);
+            query.setParameter("rotina", idRotina);
             if (!query.getResultList().isEmpty()) {
                 return true;
             }
         } catch (Exception e) {
+            return false;
         }
         return false;
     }

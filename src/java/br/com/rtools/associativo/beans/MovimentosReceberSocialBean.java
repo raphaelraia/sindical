@@ -1285,34 +1285,35 @@ public class MovimentosReceberSocialBean implements Serializable {
 //            PF.update("formMovimentosReceber");            
 //            return null;
 //        }
+        Boolean error = false;
         if (!listaMovimento.isEmpty()) {
             for (int i = 0; i < listaMovimento.size(); i++) {
                 Movimento movimento = new Movimento();
                 if ((Boolean) listaMovimento.get(i).getArgumento0()) {
                     movimento = (Movimento) listaMovimento.get(i).getArgumento1();
                     if (((PessoaComplemento) listaMovimento.get(i).getArgumento31()).getBloqueiaObsAviso()) {
-                        GenericaMensagem.error("Mensagem", "Beneficiário (BLOQUEADO): " + ((PessoaComplemento) listaMovimento.get(i).getArgumento31()).getObsAviso());
-                        PF.closeDialog("dlg_caixa_banco");
-                        PF.update("formMovimentosReceber");
-                        return null;
+                        GenericaMensagem.error("Mensagem", "Beneficiário (BLOQUEADO): " + ((PessoaComplemento) listaMovimento.get(i).getArgumento31()).getPessoa().getNome() + " - " + ((PessoaComplemento) listaMovimento.get(i).getArgumento31()).getObsAviso());
+                        error = true;
                     }
                     if (((PessoaComplemento) listaMovimento.get(i).getArgumento32()).getBloqueiaObsAviso()) {
-                        GenericaMensagem.error("Mensagem", "Titular (BLOQUEADO): " + ((PessoaComplemento) listaMovimento.get(i).getArgumento32()).getObsAviso());
-                        PF.closeDialog("dlg_caixa_banco");
-                        PF.update("formMovimentosReceber");
-                        return null;
+                        GenericaMensagem.error("Mensagem", "Titular (BLOQUEADO): " + ((PessoaComplemento) listaMovimento.get(i).getArgumento32()).getPessoa().getNome() + " - " + ((PessoaComplemento) listaMovimento.get(i).getArgumento32()).getObsAviso());
+                        error = true;
                     }
-                    movimento.setMulta(Moeda.converteUS$(listaMovimento.get(i).getArgumento19().toString()));
-                    movimento.setJuros(Moeda.converteUS$(listaMovimento.get(i).getArgumento20().toString()));
-                    movimento.setCorrecao(Moeda.converteUS$(listaMovimento.get(i).getArgumento21().toString()));
-                    movimento.setDesconto(Moeda.converteUS$(listaMovimento.get(i).getArgumento8().toString()));
-
-                    movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
-
-                    movimento.setValorBaixa(Moeda.converteUS$(listaMovimento.get(i).getArgumento9().toString()));
-
-                    lista.add(movimento);
+                    if (!error) {
+                        movimento.setMulta(Moeda.converteUS$(listaMovimento.get(i).getArgumento19().toString()));
+                        movimento.setJuros(Moeda.converteUS$(listaMovimento.get(i).getArgumento20().toString()));
+                        movimento.setCorrecao(Moeda.converteUS$(listaMovimento.get(i).getArgumento21().toString()));
+                        movimento.setDesconto(Moeda.converteUS$(listaMovimento.get(i).getArgumento8().toString()));
+                        movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
+                        movimento.setValorBaixa(Moeda.converteUS$(listaMovimento.get(i).getArgumento9().toString()));
+                        lista.add(movimento);
+                    }
                 }
+            }
+            if (error) {
+                PF.closeDialog("dlg_caixa_banco");
+                PF.update("formMovimentosReceber");
+                return null;
             }
             if (!lista.isEmpty()) {
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);

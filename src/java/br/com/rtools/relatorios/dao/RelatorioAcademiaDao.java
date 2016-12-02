@@ -1,5 +1,6 @@
 package br.com.rtools.relatorios.dao;
 
+import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
@@ -45,9 +46,10 @@ public class RelatorioAcademiaDao extends DB {
      * @param tipoValor
      * @param valorInicial
      * @param valorFinal
+     * @param empresa
      * @return
      */
-    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order, String tipoValor, String valorInicial, String valorFinal) {
+    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order, String tipoValor, String valorInicial, String valorFinal, Juridica empresa) {
         List listWhere = new ArrayList();
         String queryString = "";
         if (relatorios.getId().equals(31)) {
@@ -85,10 +87,10 @@ public class RelatorioAcademiaDao extends DB {
                     + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id         = A.id_servico_pessoa\n"
                     + " INNER JOIN pes_fisica_vw        AS PA  ON PA.codigo     = SP.id_pessoa       \n"
                     + " INNER JOIN pes_pessoa           AS PR  ON PR.id         = SP.id_cobranca     \n"
-                    + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa       \n"
                     + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor \n"
                     + " INNER JOIN fin_servicos         AS S   ON S.id          = ASV.id_servico     \n"
                     + " INNER JOIN sis_periodo          AS P   ON P.id          = ASV.id_periodo     \n"
+                    + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa       \n"
                     + "  LEFT JOIN                                                                   \n"
                     + "  (SELECT SP.id_pessoa, id_servico                                            \n"
                     + "      FROM fin_servico_pessoa    AS SP                                        \n"
@@ -162,7 +164,9 @@ public class RelatorioAcademiaDao extends DB {
                 }
             }
         }
-
+        if (empresa.getId() != -1) {
+            listWhere.add("PA.id_juridica = " + empresa.getId());
+        }
         if (!valorInicial.isEmpty() || !valorFinal.isEmpty()) {
             String subquery = "";
             subquery += " ( ";

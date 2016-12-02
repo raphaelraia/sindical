@@ -87,6 +87,10 @@ public class ChamadaPaginaBean implements Serializable {
         return metodoGenerico(1, pagina);
     }
 
+    public static synchronized String pesquisaStatic(String pagina) {
+        return new ChamadaPaginaBean().metodoGenerico(1, pagina);
+    }
+
     public synchronized String pesquisa(String pagina, String bean) throws IOException {
         GenericaSessao.remove(pagina + "Bean");
         GenericaSessao.remove(bean);
@@ -103,6 +107,19 @@ public class ChamadaPaginaBean implements Serializable {
      */
     public synchronized String pesquisa(String pagina, String sessionName, String sessionValue) {
         GenericaSessao.put(sessionName, sessionValue);
+        return metodoGenerico(1, pagina);
+    }
+
+    public synchronized String pesquisa(String pagina, String sessionName, String sessionValue, String bean) {
+        GenericaSessao.remove(bean);
+        GenericaSessao.put(sessionName, sessionValue);
+        return metodoGenerico(1, pagina);
+    }
+
+    public synchronized String pesquisa(String pagina, String sessionName, String sessionValue, String sessionName2, String sessionValue2) {
+        GenericaSessao.remove(sessionName + "Bean");
+        GenericaSessao.put(sessionName, sessionValue);
+        GenericaSessao.put(sessionName2, sessionValue2);
         return metodoGenerico(1, pagina);
     }
 

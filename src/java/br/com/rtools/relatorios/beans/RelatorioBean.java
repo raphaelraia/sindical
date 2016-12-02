@@ -35,11 +35,13 @@ public class RelatorioBean implements Serializable {
     private List<Relatorios> listRelatorio;
     private List<RelatorioOrdem> listRelatorioOrdem;
     private Integer rotina_id;
+    private Integer rotina_pesquisa_id;
     private List<RelatorioParametros> listaRelatorioParametro;
     private List<RelatorioGrupo> listaRelatorioGrupo;
     private List<RelatorioJoin> listaRelatorioJoin;
-    
+
     private String textQuery;
+    private String description;
 
     @PostConstruct
     public void init() {
@@ -49,6 +51,7 @@ public class RelatorioBean implements Serializable {
         listRelatorio = new ArrayList<>();
         listRelatorioOrdem = new ArrayList<>();
         rotina_id = 0;
+        rotina_pesquisa_id = null;
         relatorioParametros = new RelatorioParametros();
         relatorioGrupo = new RelatorioGrupo();
         relatorioJoin = new RelatorioJoin();
@@ -56,6 +59,9 @@ public class RelatorioBean implements Serializable {
         listaRelatorioGrupo = new ArrayList();
         listaRelatorioJoin = new ArrayList();
         textQuery = "";
+        description = "";
+        loadListRotinas();
+        listRelatorio = new Dao().list(new Relatorios(), true);
     }
 
     @PreDestroy
@@ -63,210 +69,223 @@ public class RelatorioBean implements Serializable {
         clear();
         GenericaSessao.remove("rotinaBean");
     }
-    
-    public void verQuery(){
+
+    public void verQuery() {
         loadListaRelatorioParametro();
         textQuery = "";
-        if (listaRelatorioParametro.isEmpty()){
+        if (listaRelatorioParametro.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Nenhuma Query para ser Visualizada!");
             PF.update("form_relatorio");
             return;
         }
-        
+
         loadListaRelatorioJoin();
         loadListaRelatorioGrupo();
-        
+
         textQuery = "SELECT \n ";
-        
-        if (!listaRelatorioParametro.isEmpty()){
+
+        if (!listaRelatorioParametro.isEmpty()) {
             String s = "";
-            for(RelatorioParametros rp : listaRelatorioParametro){
-                if (s.isEmpty())
-                    s = rp.getParametro()+" AS "+rp.getApelido();
-                else
-                    s += ", "+" \n "+rp.getParametro()+" AS "+rp.getApelido();
+            for (RelatorioParametros rp : listaRelatorioParametro) {
+                if (s.isEmpty()) {
+                    s = rp.getParametro() + " AS " + rp.getApelido();
+                } else {
+                    s += ", " + " \n " + rp.getParametro() + " AS " + rp.getApelido();
+                }
             }
             textQuery += s;
         }
         textQuery += " \n ";
-        if (!listaRelatorioJoin.isEmpty()){
+        if (!listaRelatorioJoin.isEmpty()) {
             String j = "";
-            for(RelatorioJoin rj : listaRelatorioJoin){
-                j += " "+ rj.getJoin()+" \n ";
+            for (RelatorioJoin rj : listaRelatorioJoin) {
+                j += " " + rj.getJoin() + " \n ";
             }
             textQuery += j;
         }
-        
+
         textQuery += " FROM movimentos_vw AS m \n";
-        
-        if (!listaRelatorioGrupo.isEmpty()){
+
+        if (!listaRelatorioGrupo.isEmpty()) {
             String g = "";
-            for(RelatorioGrupo rg : listaRelatorioGrupo){
-                if (g.isEmpty())
+            for (RelatorioGrupo rg : listaRelatorioGrupo) {
+                if (g.isEmpty()) {
                     g = rg.getGrupo();
-                else
-                    g += ", "+ " \n "+rg.getGrupo();
+                } else {
+                    g += ", " + " \n " + rg.getGrupo();
+                }
             }
             textQuery += " GROUP BY \n ";
             textQuery += g;
         }
-        
+
         textQuery += " \n ";
-        
+
         List<RelatorioOrdem> list = new RelatorioOrdemDao().findAllByRelatorio(relatorio.getId());
-        if (list.size() == 1){
+        if (list.size() == 1) {
             textQuery += " ORDER BY \n ";
             textQuery += list.get(0).getQuery();
         }
-        
+
         PF.openDialog("dlg_ver_query");
         PF.update("form_relatorio:panel_ver_query");
     }
 
     public void adicionarRelatorioJoin() {
-        if (relatorioJoin.getJoin().isEmpty()){
+        if (relatorioJoin.getJoin().isEmpty()) {
             GenericaMensagem.warn("Atenção", "Join não pode ser vazio!");
             return;
         }
-        
+
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         relatorioJoin.setRelatorio(relatorio);
-        
-        if (!dao.save(relatorioJoin)){
+
+        if (!dao.save(relatorioJoin)) {
             GenericaMensagem.error("Erro", "Não foi possível salvar Join!");
             return;
         }
-        
+
         dao.commit();
-        
+
         relatorioJoin = new RelatorioJoin();
         loadListaRelatorioJoin();
         GenericaMensagem.info("Sucesso", "Join Adicionado!");
     }
-    
+
     public void adicionarRelatorioGrupo() {
-        if (relatorioGrupo.getGrupo().isEmpty()){
+        if (relatorioGrupo.getGrupo().isEmpty()) {
             GenericaMensagem.warn("Atenção", "Grupo não pode ser vazio!");
             return;
         }
-        
+
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         relatorioGrupo.setRelatorio(relatorio);
-        
-        if (!dao.save(relatorioGrupo)){
+
+        if (!dao.save(relatorioGrupo)) {
             GenericaMensagem.error("Erro", "Não foi possível salvar Grupo!");
             return;
         }
-        
+
         dao.commit();
-        
+
         relatorioGrupo = new RelatorioGrupo();
         loadListaRelatorioGrupo();
         GenericaMensagem.info("Sucesso", "Grupo Adicionado!");
     }
-    
+
     public void adicionarRelatorioParametro() {
-        if (relatorioParametros.getApelido().isEmpty()){
+        if (relatorioParametros.getApelido().isEmpty()) {
             GenericaMensagem.warn("Atenção", "Apelido do Campo não pode ser vazio!");
             return;
         }
-        
+
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         relatorioParametros.setRelatorio(relatorio);
-        
-        if (!dao.save(relatorioParametros)){
+
+        if (!dao.save(relatorioParametros)) {
             GenericaMensagem.error("Erro", "Não foi possível salvar Campo!");
             return;
         }
-        
+
         dao.commit();
-        
+
         relatorioParametros = new RelatorioParametros();
         loadListaRelatorioParametro();
         GenericaMensagem.info("Sucesso", "Campo Adicionado!");
     }
-    
+
     public void excluirRelatorioJoin(RelatorioJoin rj) {
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
         rj = (RelatorioJoin) dao.find(rj);
-        
-        if (!dao.delete(rj)){
+
+        if (!dao.delete(rj)) {
             GenericaMensagem.error("Erro", "Não foi possível excluir Join!");
             return;
         }
-        
+
         dao.commit();
         loadListaRelatorioJoin();
         GenericaMensagem.info("Sucesso", "Join Excluído!");
     }
-    
+
     public void excluirRelatorioGrupo(RelatorioGrupo rg) {
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
         rg = (RelatorioGrupo) dao.find(rg);
-        
-        if (!dao.delete(rg)){
+
+        if (!dao.delete(rg)) {
             GenericaMensagem.error("Erro", "Não foi possível excluir Campo!");
             return;
         }
-        
+
         dao.commit();
         loadListaRelatorioGrupo();
         GenericaMensagem.info("Sucesso", "Grupo Excluído!");
     }
-    
+
     public void excluirRelatorioParametro(RelatorioParametros rp) {
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
         rp = (RelatorioParametros) dao.find(rp);
-        
-        if (!dao.delete(rp)){
+
+        if (!dao.delete(rp)) {
             GenericaMensagem.error("Erro", "Não foi possível excluir Campo!");
             return;
         }
-        
+
         dao.commit();
         loadListaRelatorioParametro();
         GenericaMensagem.info("Sucesso", "Campo Excluído!");
     }
-    
-    public void loadListaRelatorioJoin(){
+
+    public void loadListaRelatorioJoin() {
         getListaRelatorioJoin().clear();
-        
+
         RelatorioDao dao = new RelatorioDao();
-        
+
         setListaRelatorioJoin(dao.listaRelatorioJoin(relatorio.getId()));
     }
-    
-    public void loadListaRelatorioGrupo(){
+
+    public void loadListRotinas() {
+        listRotina = new ArrayList();
+        List<Rotina> list = new Dao().list(new Rotina(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                rotina_id = list.get(i).getId();
+            }
+            listRotina.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+        }
+    }
+
+    public void loadListaRelatorioGrupo() {
         getListaRelatorioGrupo().clear();
-        
+
         RelatorioDao dao = new RelatorioDao();
-        
+
         setListaRelatorioGrupo(dao.listaRelatorioGrupo(relatorio.getId()));
     }
-    
-    public void loadListaRelatorioParametro(){
+
+    public void loadListaRelatorioParametro() {
         listaRelatorioParametro.clear();
-        
+
         RelatorioDao dao = new RelatorioDao();
-        
+
         listaRelatorioParametro = dao.listaRelatorioParametro(relatorio.getId());
     }
-    
+
     public void addRelatorioOrdem() {
         if (relatorioOrdem.getNome().isEmpty() || relatorioOrdem.getQuery().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar descrição e query!");
@@ -283,13 +302,11 @@ public class RelatorioBean implements Serializable {
             } else {
                 message = "Ao inserir registro!";
             }
+        } else if (dao.update(relatorioOrdem, true)) {
+            sucess = true;
+            message = "Registro atualizado";
         } else {
-            if (dao.update(relatorioOrdem, true)) {
-                sucess = true;
-                message = "Registro atualizado";
-            } else {
-                message = "Ao atualizar registro!";
-            }
+            message = "Ao atualizar registro!";
         }
         if (!defaultRelatorioOrdem(relatorioOrdem)) {
             sucess = false;
@@ -421,8 +438,7 @@ public class RelatorioBean implements Serializable {
     public String edit(Relatorios r) {
         this.relatorio = r;
         GenericaSessao.put("linkClicado", true);
-        listRotina.clear();
-        getListRotina();
+        loadListRotinas();
         listRelatorioOrdem.clear();
         relatorioOrdem = new RelatorioOrdem();
         rotina_id = relatorio.getRotina().getId();
@@ -441,15 +457,6 @@ public class RelatorioBean implements Serializable {
     }
 
     public List<SelectItem> getListRotina() {
-        if (listRotina.isEmpty()) {
-            List<Rotina> list = new Dao().list(new Rotina(), true);
-            for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    rotina_id = list.get(i).getId();
-                }
-                listRotina.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
-            }
-        }
         return listRotina;
     }
 
@@ -466,14 +473,23 @@ public class RelatorioBean implements Serializable {
     }
 
     public List<Relatorios> getListRelatorio() {
-        if (listRelatorio.isEmpty()) {
-            listRelatorio = new Dao().list(new Relatorios(), true);
-        }
         return listRelatorio;
     }
 
     public void setListRelatorio(List<Relatorios> listRelatorio) {
         this.listRelatorio = listRelatorio;
+    }
+
+    public void loadList() {
+        find();
+    }
+
+    public void find() {
+        listRelatorio = new ArrayList();
+        if (rotina_pesquisa_id == null && description.isEmpty()) {
+            return;
+        }
+        listRelatorio = new RelatorioDao().find(rotina_pesquisa_id, description);
     }
 
     public RelatorioOrdem getRelatorioOrdem() {
@@ -600,5 +616,21 @@ public class RelatorioBean implements Serializable {
 
     public void setTextQuery(String textQuery) {
         this.textQuery = textQuery;
+    }
+
+    public Integer getRotina_pesquisa_id() {
+        return rotina_pesquisa_id;
+    }
+
+    public void setRotina_pesquisa_id(Integer rotina_pesquisa_id) {
+        this.rotina_pesquisa_id = rotina_pesquisa_id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
