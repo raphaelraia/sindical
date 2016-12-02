@@ -266,8 +266,7 @@ public class CaixaFederalSindical extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
             Integer sequencial_lote = 1;
@@ -307,8 +306,7 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito Filler 200 207 9(008) Preencher com zeros C003 
             CONTEUDO_REMESSA += "                                 "; // 23.1 CNAB Filler 208 240 X(033) Preencher com espaços G004
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
             Float valor_total_lote = (float) 0;
@@ -373,8 +371,7 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Uso Exclusivo CAIXA Filler 230 239 9(010) Preencher com zeros -
                 CONTEUDO_REMESSA += " "; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Q -------------------------------------------------------
@@ -447,8 +444,7 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - cod_sindical.length()) + cod_sindical; // 24.3Q Código Sindical Código sindical da Entidade Sindical 217 221 5 - Num  C106
                 CONTEUDO_REMESSA += "                   "; // 25.3Q  CNAB Uso Exclusivo FEBRABAN/ CNAB Uso Exclusivo FEBRABAN/CNAB  222 240 19 Alfa Brancos G004 *G006 
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 
                 CONTEUDO_REMESSA = "";
                 
@@ -478,8 +474,7 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
                 CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
 
-                buff_writer.write(CONTEUDO_REMESSA);
-                buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
 
                 sequencial_registro_lote++;
@@ -512,8 +507,8 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
 
-            buff_writer.write(CONTEUDO_REMESSA);
-            buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+            
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------

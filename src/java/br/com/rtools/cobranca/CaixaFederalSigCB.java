@@ -798,7 +798,35 @@ public class CaixaFederalSigCB extends Cobranca {
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             
                 CONTEUDO_REMESSA = "";
+                // tipo 3 - segmento Y-53 ----------------------------------------------------
+                // ---------------------------------------------------------------------------
+                CONTEUDO_REMESSA += "104"; // 01.3Y Controle Banco Código do Banco na Compensação 1 3 3 - Num  G001 
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Y Lote Lote de Serviço 4 7 4 - Num  *G002 
+                CONTEUDO_REMESSA += "3"; // 03.3Y Registro Tipo de Registro 8 8 1 - Num ‘3’ *G003 
 
+                sequencial_registro_lote++;
+                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Y Serviço Nº do Registro Nº Sequencial do Registro no Lote 9 13 5 - Num  *G038 
+                CONTEUDO_REMESSA += "Y"; // 05.3Y Segmento Cód. Segmento do Registro Detalhe 14 14 1 - Alfa ‘Y’ *G039 
+                CONTEUDO_REMESSA += " "; // 06.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 15 15 1 - Alfa Brancos G004 
+                CONTEUDO_REMESSA += "01"; // 07.3Y Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 
+                CONTEUDO_REMESSA += "53"; // 08.3Y Cod. Reg. Opcional Identificação Registro Opcional 18 19 2 - Num '53' *G067 
+                /*
+                '01' = Aceita qualquer valor ‘02’= Entre o mínimo e o máximo ‘03’= Não aceita pagamento com o valor divergente
+                 */
+                CONTEUDO_REMESSA += "02"; // 09.3Y Tipo de Pagamento Identificação de Tipo de Pagamento Identificação de Tipo de Pagamento 20 21 2 - Num  C078
+                CONTEUDO_REMESSA += "01"; // 10.3Y Quantidade de Pagamentos Possíveis Quantidade de Pagamentos Possíveis 22 23 2  Num  C079 
+                /*
+                  ‘1’ = % (percentual) ‘2’ = valor 
+                 */
+                CONTEUDO_REMESSA += "2"; // 11.3Y  Alteração Nominal do Título Tipo de Valor  Tipo de Valor Informado 24 24 1  Num  C080
+                CONTEUDO_REMESSA += "000000090000000"; // 12.3Y Valor Máximo/Percentual Valor Máximo 25 39 13 2 Num  C081 
+                CONTEUDO_REMESSA += "2"; // 14.3Y Tipo de Valor Tipo de Valor Informado 40 40 1  Num  C08
+                CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
+                CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
+
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+                CONTEUDO_REMESSA = "";
+                
                 sequencial_registro_lote++;
 
                 valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
