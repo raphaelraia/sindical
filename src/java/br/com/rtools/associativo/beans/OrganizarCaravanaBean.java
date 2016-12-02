@@ -2,9 +2,12 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Caravana;
 import br.com.rtools.associativo.CaravanaReservas;
+import br.com.rtools.associativo.beans.VendasCaravanaBean.ListaReservas;
 import br.com.rtools.associativo.dao.CaravanaReservasDao;
 import br.com.rtools.associativo.dao.PoltronasDao;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -14,10 +17,13 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -77,8 +83,7 @@ public class OrganizarCaravanaBean implements Serializable {
     public void unlock() {
         if (bloqueioRotina != null) {
             if (bloqueioRotina.getId() != -1) {
-                Dao dao = new Dao();
-                boolean s = dao.delete(bloqueioRotina, true);
+                boolean s = new Dao().delete(bloqueioRotina, true);
                 if (s) {
                     bloqueioRotina = null;
                 }
@@ -203,6 +208,267 @@ public class OrganizarCaravanaBean implements Serializable {
             this.listPoltrona = listPoltrona;
         }
 
+    }
+
+    public void print() {
+        List<FichaReservas> listFichaReservas = new ArrayList();
+        for (Reservas r : listReservas) {
+            FichaReservas fichaReservas = new FichaReservas();
+            fichaReservas.setLocal(caravana.getEvento().getDescricaoEvento().getDescricao());
+            fichaReservas.setPeriodo("De " + caravana.getDataSaida() + " à " + caravana.getDataRetorno());
+            fichaReservas.setEntrada(caravana.getHoraSaida());
+            fichaReservas.setSaida(caravana.getHoraRetorno());
+            fichaReservas.setResponsavel_nome(r.getCaravanaReservas().getVenda().getResponsavel().getNome());
+            fichaReservas.setResponsavel_documento(r.getCaravanaReservas().getVenda().getResponsavel().getDocumento());
+            fichaReservas.setDias(DataHoje.calculoDosDias(caravana.getDtSaida(), caravana.getDtRetorno()));
+            fichaReservas.setCategoria(r.getCaravanaReservas().getVenda().getResponsavel().getSocios().getMatriculaSocios().getCategoria().getCategoria());
+            fichaReservas.setQuantidade_poltronas(caravana.getQuantidadePoltronas());
+            Fisica passageiro = r.getCaravanaReservas().getPessoa().getFisica();
+            fichaReservas.setPassageiro_nome(r.getCaravanaReservas().getPessoa().getNome());
+            String documento = r.getCaravanaReservas().getPessoa().getDocumento();
+            if (documento.isEmpty()) {
+                documento = passageiro.getRg();
+            }
+            fichaReservas.setPoltrona(r.getCaravanaReservas().getPoltrona());
+            fichaReservas.setPassageiro_documento(documento);
+            fichaReservas.setSexo(passageiro.getSexo());
+            fichaReservas.setNascimento(passageiro.getNascimento());
+            fichaReservas.setIdade(passageiro.getIdade());
+            fichaReservas.setObservacao(r.getCaravanaReservas().getVenda().getObservacao());
+            listFichaReservas.add(fichaReservas);
+        }
+        List<Integer> select = new ArrayList();
+        Reservas reserva = listReservas.get(0);
+        select = new PoltronasDao().listaPoltronasUsadas(reserva.getCaravanaReservas().getVenda().getEvento().getId());
+        String poltronas_disponiveis = "";
+        if (!listReservas.isEmpty()) {
+            boolean adc = true;
+            String pol = "";
+            String pol2 = "";
+            int j = 0;
+            for (int i = 1; i <= reserva.getCaravanaReservas().getVenda().getCaravana().getQuantidadePoltronas(); i++) {
+                for (Integer select1 : select) {
+                    if (i == select1) {
+                        adc = false;
+                        break;
+                    }
+                }
+                if (adc) {
+                    pol = "000" + i;
+                    if (i < 10) {
+                        pol2 = "0" + i;
+                    } else {
+                        pol2 = "" + i;
+                    }
+                    if (j == 0) {
+                        poltronas_disponiveis += " | " + pol2 + " ";
+                    } else {
+                        poltronas_disponiveis += "| " + pol2 + " ";
+                    }
+                    j++;
+                    if (j == 14) {
+                        j = 0;
+                        poltronas_disponiveis += "\n";
+                    }
+                }
+                adc = true;
+            }
+            if (!poltronas_disponiveis.isEmpty()) {
+                poltronas_disponiveis += "|";
+            }
+        }
+        Jasper.IS_HEADER = true;
+        Jasper.IS_HEADER_PARAMS = true;
+        Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
+        Map map = new HashMap();
+        map.put("poltronas_disponiveis", poltronas_disponiveis);
+        Jasper.printReports("CARAVANA_RESERVAS.jasper", "Ficha de reservas", listFichaReservas, map);
+    }
+
+    public class FichaReservas {
+
+        private Object local;
+        private Object periodo;
+        private Object entrada;
+        private Object saida;
+        private Object dias;
+        private Object quantidade_poltronas;
+        private Object responsavel_nome;
+        private Object responsavel_documento;
+        private Object passageiro_nome;
+        private Object passageiro_documento;
+        private Object categoria;
+        private Object sexo;
+        private Object idade;
+        private Object nascimento;
+        private Object poltrona;
+        private Object observacao;
+
+        public FichaReservas() {
+            this.local = null;
+            this.periodo = null;
+            this.entrada = null;
+            this.saida = null;
+            this.dias = null;
+            this.quantidade_poltronas = null;
+            this.responsavel_nome = null;
+            this.responsavel_documento = null;
+            this.passageiro_nome = null;
+            this.passageiro_documento = null;
+            this.categoria = null;
+            this.sexo = null;
+            this.idade = null;
+            this.nascimento = null;
+            this.poltrona = null;
+            this.observacao = null;
+        }
+
+        public FichaReservas(Object local, Object periodo, Object entrada, Object saida, Object dias, Object quantidade_poltronas, Object responsavel_nome, Object responsavel_documento, Object passageiro_nome, Object passageiro_documento, Object categoria, Object sexo, Object idade, Object nascimento, Object poltrona, Object observacao) {
+            this.local = local;
+            this.periodo = periodo;
+            this.entrada = entrada;
+            this.saida = saida;
+            this.dias = dias;
+            this.quantidade_poltronas = quantidade_poltronas;
+            this.responsavel_nome = responsavel_nome;
+            this.responsavel_documento = responsavel_documento;
+            this.passageiro_nome = passageiro_nome;
+            this.passageiro_documento = passageiro_documento;
+            this.categoria = categoria;
+            this.sexo = sexo;
+            this.idade = idade;
+            this.nascimento = nascimento;
+            this.poltrona = poltrona;
+            this.observacao = observacao;
+        }
+
+        public Object getLocal() {
+            return local;
+        }
+
+        public void setLocal(Object local) {
+            this.local = local;
+        }
+
+        public Object getPeriodo() {
+            return periodo;
+        }
+
+        public void setPeriodo(Object periodo) {
+            this.periodo = periodo;
+        }
+
+        public Object getEntrada() {
+            return entrada;
+        }
+
+        public void setEntrada(Object entrada) {
+            this.entrada = entrada;
+        }
+
+        public Object getSaida() {
+            return saida;
+        }
+
+        public void setSaida(Object saida) {
+            this.saida = saida;
+        }
+
+        public Object getDias() {
+            return dias;
+        }
+
+        public void setDias(Object dias) {
+            this.dias = dias;
+        }
+
+        public Object getQuantidade_poltronas() {
+            return quantidade_poltronas;
+        }
+
+        public void setQuantidade_poltronas(Object quantidade_poltronas) {
+            this.quantidade_poltronas = quantidade_poltronas;
+        }
+
+        public Object getResponsavel_nome() {
+            return responsavel_nome;
+        }
+
+        public void setResponsavel_nome(Object responsavel_nome) {
+            this.responsavel_nome = responsavel_nome;
+        }
+
+        public Object getResponsavel_documento() {
+            return responsavel_documento;
+        }
+
+        public void setResponsavel_documento(Object responsavel_documento) {
+            this.responsavel_documento = responsavel_documento;
+        }
+
+        public Object getPassageiro_nome() {
+            return passageiro_nome;
+        }
+
+        public void setPassageiro_nome(Object passageiro_nome) {
+            this.passageiro_nome = passageiro_nome;
+        }
+
+        public Object getPassageiro_documento() {
+            return passageiro_documento;
+        }
+
+        public void setPassageiro_documento(Object passageiro_documento) {
+            this.passageiro_documento = passageiro_documento;
+        }
+
+        public Object getCategoria() {
+            return categoria;
+        }
+
+        public void setCategoria(Object categoria) {
+            this.categoria = categoria;
+        }
+
+        public Object getSexo() {
+            return sexo;
+        }
+
+        public void setSexo(Object sexo) {
+            this.sexo = sexo;
+        }
+
+        public Object getIdade() {
+            return idade;
+        }
+
+        public void setIdade(Object idade) {
+            this.idade = idade;
+        }
+
+        public Object getNascimento() {
+            return nascimento;
+        }
+
+        public void setNascimento(Object nascimento) {
+            this.nascimento = nascimento;
+        }
+
+        public Object getPoltrona() {
+            return poltrona;
+        }
+
+        public void setPoltrona(Object poltrona) {
+            this.poltrona = poltrona;
+        }
+
+        public Object getObservacao() {
+            return observacao;
+        }
+
+        public void setObservacao(Object observacao) {
+            this.observacao = observacao;
+        }
     }
 
 }

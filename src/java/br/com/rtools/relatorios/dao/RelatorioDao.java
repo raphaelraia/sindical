@@ -162,4 +162,32 @@ public class RelatorioDao extends DB {
         }
         return lista;
     }
+
+    public List<Relatorios> find(Integer rotina_id, String description) {
+        try {
+            String queryString = " -- RelatorioDao().find()                   \n\n"
+                    + "     SELECT R.*                                          \n"
+                    + "       FROM sis_relatorios AS R                          \n";
+            List listWhere = new ArrayList();
+            if (rotina_id != null) {
+                listWhere.add("R.id_rotina = " + rotina_id);
+            }
+            if (!description.isEmpty()) {
+                listWhere.add("func_translate(UPPER(R.ds_nome)) LIKE func_translate(UPPER('%" + description + "%'))");
+            }
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + "\n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + "\n";
+
+                }
+            }
+            queryString += " ORDER BY R.ds_nome ASC ";
+            Query query = getEntityManager().createNativeQuery(queryString, Relatorios.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 }

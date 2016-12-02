@@ -169,12 +169,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private String alterType;
     private List<SisAutorizacoes> listSisAutorizacoes;
     private ConfiguracaoSocial configuracaoSocial;
+    private List<String> listSugestion;
+    private String selectedSugestion;
 
     public FisicaBean() {
         sisAutorizacoes = new SisAutorizacoes();
         configuracaoSocial = ConfiguracaoSocial.get();
         listSisAutorizacoes = new ArrayList();
         alterType = "";
+        listSugestion = new ArrayList();
+        selectedSugestion = new String();
     }
 
     public void loadListaOposicao() {
@@ -1052,6 +1056,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
 
             if (pessoaEmpresa.getId() == -1) {
+                List listax = new JuridicaDao().listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
+                for (int i = 0; i < listax.size(); i++) {
+                    if (((List) listax.get(0)).get(11) != null) {
+                        if (pessoaEmpresa.getDtDemissao() == null) {
+                            // CONTRIBUINTE INATIVO
+                            mensagemAviso = "Empresa Inativa não pode ser vinculada! Somente com data de demissão";
+                            visibleMsgAviso = true;
+                            renderJuridicaPesquisa = true;
+                            pessoaEmpresa = new PessoaEmpresa();
+                            return;
+                        }
+                    }
+                }
                 dao.save(pessoaEmpresa, true);
             } else {
                 dao.update(pessoaEmpresa, true);
@@ -1099,6 +1116,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             di.openTransaction();
 
             if (pessoaEmpresa.getId() == -1) {
+                List listax = new JuridicaDao().listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
+                for (int i = 0; i < listax.size(); i++) {
+                    if (((List) listax.get(0)).get(11) != null) {
+                        if (pessoaEmpresa.getDtDemissao() == null) {
+                            // CONTRIBUINTE INATIVO
+                            mensagemAviso = "Empresa Inativa não pode ser vinculada! Somente com data de demissão";
+                            GenericaMensagem.error("Validação", "Empresa Inativa não pode ser vinculada! Somente com data de demissão.");
+                            visibleMsgAviso = true;
+                            renderJuridicaPesquisa = true;
+                            return;
+                        }
+                    }
+                }
                 if (!di.save(pessoaEmpresa)) {
                     di.rollback();
                     GenericaMensagem.error("ERRO", "Não foi possível adicionar Empresa!");
@@ -1596,8 +1626,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 for (int i = 0; i < listax.size(); i++) {
                     if (((List) listax.get(0)).get(11) != null) {
                         // CONTRIBUINTE INATIVO
-                        mensagemAviso = "Empresa Inativa não pode ser vinculada!";
+                        mensagemAviso = "Empresa Inativa não pode ser vinculada! Somente com data de demissão";
                         visibleMsgAviso = true;
+                        pessoaEmpresa.setJuridica(j);
+                        renderJuridicaPesquisa = true;
                     } else {
                         pessoaEmpresa.setJuridica(j);
                         renderJuridicaPesquisa = true;
@@ -2100,8 +2132,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             List<Vector> result = db.listaHistoricoServicoPessoa(fisica.getPessoa().getId(), id_categoria, chkSomenteDestaPessoa);
             somaValoresHistorico = "0,00";
             for (Vector linha : result) {
-                listaServicoPessoa.add(new DataObject(linha, null));
-                somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), ((Double) linha.get(8)).floatValue()));
+                try {
+                    listaServicoPessoa.add(new DataObject(linha, null));
+                    float f = 0;
+                    try {
+                        f = ((Double) linha.get(8)).floatValue();
+                    } catch (Exception e) {
+
+                    }
+                    somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), f));
+                } catch (Exception e) {
+                    listaServicoPessoa = new ArrayList();
+                    break;
+                }
             }
         }
         return listaServicoPessoa;
@@ -2816,7 +2859,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     return;
                 }
             }
-            Cancelamento cancelamento = new CancelamentoDao().findByAgendamento(idIndexFisica);
+            Cancelamento cancelamento = new CancelamentoDao().findByAgendamento(listAgendamento.get(i).getId());
             if (cancelamento != null && cancelamento.getId() != -1) {
                 if (!dao.delete(cancelamento)) {
                     GenericaMensagem.warn("Erro", "AO AGENDAMENTO CANCELADO!");
@@ -3097,6 +3140,70 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setConfiguracaoSocial(ConfiguracaoSocial configuracaoSocial) {
         this.configuracaoSocial = configuracaoSocial;
+    }
+
+    public List<String> findSuggestions(String name) {
+        if (name.isEmpty()) {
+            listSugestion = new ArrayList();
+            return new ArrayList();
+        }
+        List<Fisica> list = new ArrayList();
+        name = name.trim();
+        FisicaDao db = new FisicaDao();
+        String como = "P";
+        if (name.length() <= 3) {
+            como = "I";
+        }
+        String in = fisica.getPessoa().getId() + "";
+        db.setNot_in(in);
+        db.setLimit(100);
+        db.setIgnore(true);
+        list = db.pesquisaPessoa(name, "nome", como);
+        if (list.isEmpty()) {
+            if (ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(name))) {
+                db.setLimit(1);
+                db.setIgnore(true);
+                list = db.pesquisaPessoa(como, "cpf", "");
+            } else if (DataHoje.isDataValida(como)) {
+                db.setIgnore(true);
+                db.setLimit(100);
+                list = db.pesquisaPessoa(como, "nascimento", "");
+            }
+            if (list.isEmpty()) {
+                db.setIgnore(true);
+                db.setLimit(2);
+                list = db.pesquisaPessoa(como, "rg", "");
+            }
+        }
+        listSugestion = new ArrayList();
+        for (int i = 0; i < list.size(); i++) {
+            listSugestion.add(list.get(i).getPessoa().getNome());
+        }
+        return listSugestion;
+    }
+
+    public void selectSuggestions(String tcase) {
+        if (tcase.equals("pai")) {
+            fisica.setPai(selectedSugestion);
+        } else if (tcase.equals("mae")) {
+            fisica.setMae(selectedSugestion);
+        }
+    }
+
+    public List<String> getListSugestion() {
+        return listSugestion;
+    }
+
+    public void setListSugestion(List<String> listSugestion) {
+        this.listSugestion = listSugestion;
+    }
+
+    public String getSelectedSugestion() {
+        return selectedSugestion;
+    }
+
+    public void setSelectedSugestion(String selectedSugestion) {
+        this.selectedSugestion = selectedSugestion;
     }
 
 }

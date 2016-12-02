@@ -121,12 +121,13 @@
                                     </h:column>
                                 </h:panelGrid>
                                 <f:facet name="footer">
-                                    <h:panelGrid columns="5">
+                                    <h:panelGrid columns="6">
                                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show();" />
                                         <p:commandButton value="Novo" action="#{usuarioBean.clear()}" update=":form_u:"/>
                                         <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show();" />
                                         <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaUsuario')}"/>
                                         <p:commandButton value="Lembrete de Senha" onclick="PF('dlg_password_mail').show()" type="button" icon="ui-icon-mail-closed" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" disabled="#{usuarioBean.usuario.id == -1}"/>
+                                        <p:commandButton value="Histórico de acessos" onclick="PF('dlg_history_access').show()"  actionListener="#{usuarioBean.usuario.loadListUsuarioHistoricoAcesso}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id != -1}" update=":form_u:i_all_history"/>
                                     </h:panelGrid>                                    
                                 </f:facet>
                             </p:panel>
@@ -153,6 +154,9 @@
                                         </h:panelGrid>                                                    
                                         <h:panelGrid id="tbl">
                                             <p:dataTable value="#{usuarioBean.listaPermissaoUsuario}" var="permissaoUsuario" scrollable="true" scrollHeight="250" emptyMessage="Nenhum registro encontrado!">
+                                                <p:column width="25" styleClass="texr-center">
+                                                    <p:commandButton icon="ui-icon-newwin" action="#{usuarioBean.loadPermissoesAdicionadas(permissaoUsuario.departamento.id, permissaoUsuario.nivel.id)}" onclick="PF('dlg_all_permissions').show()" update=":form_u:i_all_permissions" title="Permissões disponiveis" />
+                                                </p:column>
                                                 <p:column headerText="Departamento">
                                                     <p:outputLabel value="#{permissaoUsuario.departamento.descricao}" />
                                                 </p:column>
@@ -181,15 +185,15 @@
                                             <p:outputLabel value="Evento" id="idFiltroEvento" />
                                             <p:outputLabel value="Expira em?"  />
                                             <h:column></h:column>
-                                            <p:selectOneMenu value="#{usuarioBean.idModulo}" id="idModulo">
+                                            <p:selectOneMenu value="#{usuarioBean.idModulo}" id="idModulo" autoWidth="false">
                                                 <p:ajax event="change" listener="#{usuarioBean.limparListaUsuarioAcesso}" update="idRenderTabela tblUsuarioAcesso" />
                                                 <f:selectItems value="#{usuarioBean.listaModulos}" />
                                             </p:selectOneMenu>
-                                            <p:selectOneMenu value="#{usuarioBean.idRotina}" id="idRotina" filter="true">
+                                            <p:selectOneMenu value="#{usuarioBean.idRotina}" id="idRotina" filter="true" autoWidth="false">
                                                 <p:ajax event="change" listener="#{usuarioBean.limparListaUsuarioAcessox}" update="idRenderTabela tblUsuarioAcesso" />
                                                 <f:selectItems value="#{usuarioBean.listaRotinas}"/>
                                             </p:selectOneMenu>
-                                            <p:selectOneMenu value="#{usuarioBean.idEvento}" id="idEvento">
+                                            <p:selectOneMenu value="#{usuarioBean.idEvento}" id="idEvento" autoWidth="false">
                                                 <p:ajax event="change" listener="#{usuarioBean.limparListaUsuarioAcessox}" update="idRenderTabela tblUsuarioAcesso" />
                                                 <f:selectItems value="#{usuarioBean.listaEventos}"/>
                                             </p:selectOneMenu>
@@ -273,6 +277,53 @@
                                 <h:panelGrid columns="3" styleClass="margin-top-max">
                                     <p:commandButton action="#{usuarioBean.send}" value="Enviar" update="i_panel_email_test"/>
                                 </h:panelGrid>
+                            </p:dialog>                            
+                            <p:dialog widgetVar="dlg_all_permissions" modal="true" resizable="false" header="Permissões para Departamento e Nível" width="600" closeOnEscape="true" responsive="true">
+                                <p:ajax event="close" global="false" />
+                                <h:panelGroup layout="block" id="i_all_permissions">
+                                    <p:dataTable value="#{usuarioBean.listPermissoesAdicionadas}" var="permissaoDepartamento" id="tbl2" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="30">
+                                        <p:column headerText="Módulo" styleClass="text-center" filterable="true" filterBy="#{permissaoDepartamento.permissao.modulo.descricao}" filterMatchMode="global">
+                                            <p:outputLabel value="#{permissaoDepartamento.permissao.modulo.descricao}"/>
+                                        </p:column>
+                                        <p:column headerText="Rotina" filterBy="#{permissaoDepartamento.permissao.rotina.rotina}" filterMatchMode="global">
+                                            <p:outputLabel value="#{permissaoDepartamento.permissao.rotina.rotina}"/>
+                                        </p:column>
+                                        <p:column headerText="I" styleClass="text-center" width="25">
+                                            <p:selectBooleanCheckbox value="#{permissaoDepartamento.inclusao}" disabled="true" rendered="#{permissaoDepartamento.permissao.rotina.inclusao}" />
+                                        </p:column>
+                                        <p:column headerText="E" styleClass="text-center" width="25">
+                                            <p:selectBooleanCheckbox value="#{permissaoDepartamento.exclusao}" disabled="true" rendered="#{permissaoDepartamento.permissao.rotina.exclusao}" />
+                                        </p:column>
+                                        <p:column headerText="A" styleClass="text-center" width="25">
+                                            <p:selectBooleanCheckbox value="#{permissaoDepartamento.alteracao}" disabled="true" rendered="#{permissaoDepartamento.permissao.rotina.alteracao}" />
+                                        </p:column>
+                                        <p:column headerText="C" styleClass="text-center" width="25">
+                                            <p:selectBooleanCheckbox value="#{permissaoDepartamento.consulta}" disabled="true" rendered="#{permissaoDepartamento.permissao.rotina.consulta}" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                            </p:dialog>                            
+                            <p:dialog widgetVar="dlg_history_access" modal="true" resizable="false" header="Histórico de acesso" width="600" closeOnEscape="true" responsive="true">
+                                <p:ajax event="close" global="false" />
+                                <h:panelGroup layout="block" id="i_all_history">
+                                    <p:dataTable value="#{usuarioBean.usuario.listUsuarioHistoricoAcesso}" var="historicoAcesso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="30">
+                                        <p:column headerText="Data" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.data}"/>
+                                        </p:column>
+                                        <p:column headerText="Hora" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.hora}"/>
+                                        </p:column>
+                                        <p:column headerText="IP" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.ip}"/>
+                                        </p:column>
+                                        <p:column headerText="Dispositivo" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.dispositivo}"/>
+                                        </p:column>
+                                        <p:column headerText="Filial" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.macFilial.filial.filial.pessoa.nome}"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
                             </p:dialog>                            
                         </h:form>
                         <h:form id="form_import_permissao">

@@ -1,6 +1,7 @@
 package br.com.rtools.impressao;
 
 public class ParametroFichaReserva {
+
     private Object responsavel_nome;
     private Object responsavel_endereco;
     private Object empresa_nome;
@@ -40,8 +41,9 @@ public class ParametroFichaReserva {
     private Object total;
     private Object lista_parcelas;
     private Object lista_parcelas2;
+    private Object poltrona;
 
-    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object entrada, Object saida, Object periodo, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2) {
+    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object entrada, Object saida, Object periodo, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona) {
         this.responsavel_nome = responsavel_nome;
         this.responsavel_endereco = responsavel_endereco;
         this.empresa_nome = empresa_nome;
@@ -81,11 +83,8 @@ public class ParametroFichaReserva {
         this.total = total;
         this.lista_parcelas = lista_parcelas;
         this.lista_parcelas2 = lista_parcelas2;
+        this.poltrona = poltrona;
     }
-
-
-
-
 
     public Object getNome() {
         return nome;
@@ -397,5 +396,13 @@ public class ParametroFichaReserva {
 
     public void setLista_parcelas2(Object lista_parcelas2) {
         this.lista_parcelas2 = lista_parcelas2;
+    }
+
+    public Object getPoltrona() {
+        return poltrona;
+    }
+
+    public void setPoltrona(Object poltrona) {
+        this.poltrona = poltrona;
     }
 }

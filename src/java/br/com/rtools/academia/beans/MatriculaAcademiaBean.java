@@ -440,6 +440,15 @@ public class MatriculaAcademiaBean implements Serializable {
             message = "Pesquisar uma pessoa!";
             return null;
         }
+        ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+        if (cs.getObrigatorioEmail()) {
+            if (matriculaAcademia.getServicoPessoa().getPessoa().getEmail1().isEmpty()) {
+                GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO PARA O ALUNO!");
+                GenericaMensagem.warn("Sistema", "CORRIJA ESTE CADASTRO PARA REALIZAR ALTERAÇÕES!");
+                message = "E-MAIL OBRIGATÓRIO PARA O ALUNO!";
+                return null;
+            }
+        }
         if (matriculaAcademia.getServicoPessoa().getCobranca().getId() == -1) {
             message = "Pesquisar um responsável!";
             return null;
@@ -494,7 +503,6 @@ public class MatriculaAcademiaBean implements Serializable {
                 // validadeCarteirinha = dh.incrementarMeses(socios.getMatriculaSocios().getCategoria().getGrupoCategoria().getNrValidadeMesCartao(), DataHoje.data());
                 // modeloCarteirinha = scdb.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 122);
             } else {
-                ConfiguracaoSocial cs = ConfiguracaoSocial.get();
                 validadeCarteirinha = dh.incrementarMeses(cs.getValidadeMesesCartaoAcademia(), DataHoje.data());
             }
             ModeloCarteirinha modeloCarteirinha = scdb.pesquisaModeloCarteirinha(-1, 122);
@@ -788,14 +796,6 @@ public class MatriculaAcademiaBean implements Serializable {
         FisicaDao fisicaDB = new FisicaDao();
         aluno = fisicaDB.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
         if (aluno.getId() != -1) {
-            ConfiguracaoSocial cs = ConfiguracaoSocial.get();
-            if (cs.getObrigatorioEmail()) {
-                if (aluno.getPessoa().getEmail1().isEmpty()) {
-                    GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO PARA O ALUNO!");
-                    GenericaMensagem.warn("Sistema", "CORRIJA ESTE CADASTRO PARA REALIZAR ALTERAÇÕES!");
-                    return null;
-                }
-            }
             getResponsavel();
             if (responsavel.getId() != -1) {
                 MatriculaEscolaDao med = new MatriculaEscolaDao();
@@ -1786,14 +1786,12 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                    {
-                        if (Moeda.converteUS$(valorLiquido) > 0) {
+                     if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
-                    }
                     if (Moeda.converteUS$(valorLiquido) > 0) {
                         if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");

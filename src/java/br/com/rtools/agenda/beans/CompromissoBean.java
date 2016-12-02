@@ -35,6 +35,7 @@ public class CompromissoBean implements Serializable {
     private Compromisso compromisso;
     private CompromissoUsuario compromissoUsuario;
     private List<SelectItem> listUsuario;
+    private List<Compromissados> listCompromissados;
     private Integer idUsuario;
     private Integer idUsuarioFiltro;
     private List<SelectItem> listCompromissoCategoria;
@@ -62,7 +63,6 @@ public class CompromissoBean implements Serializable {
         loadListCompromissos();
         listCompromissoUsuario = new ArrayList();
         loadListPeriodoRepeticao();
-        loadListUsuario();
         loadListCompromissoCategoria();
         data = new Date();
         tipoHistorico = "hoje_amanha";
@@ -70,6 +70,8 @@ public class CompromissoBean implements Serializable {
         dataInicial = "";
         dataFinal = "";
         cancelados = "ativos";
+        loadListUsuario();
+        loadListSecretarias();
     }
 
     @PreDestroy
@@ -148,6 +150,16 @@ public class CompromissoBean implements Serializable {
                     idUsuario = list.get(i).getId();
                 }
                 listUsuario.add(new SelectItem(list.get(i).getUsuario().getId(), list.get(i).getUsuario().getPessoa().getNome()));
+            }
+        }
+    }
+
+    public void loadListSecretarias() {
+        listCompromissados = new ArrayList();
+        List<Secretaria> list = new SecretariaDao().findBySecretaria(Usuario.getUsuario().getId());
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getUsuario().getAtivo()) {
+                listCompromissados.add(new Compromissados(list.get(i).getUsuario()));
             }
         }
     }
@@ -535,6 +547,54 @@ public class CompromissoBean implements Serializable {
 
     public void setIdUsuarioFiltro(Integer idUsuarioFiltro) {
         this.idUsuarioFiltro = idUsuarioFiltro;
+    }
+
+    public List<Compromissados> getListCompromissados() {
+        return listCompromissados;
+    }
+
+    public void setListCompromissados(List<Compromissados> listCompromissados) {
+        this.listCompromissados = listCompromissados;
+    }
+
+    public class Compromissados {
+
+        private Usuario usuario;
+
+        public Compromissados() {
+            usuario = new Usuario();
+        }
+
+        public Compromissados(Usuario usuario) {
+            this.usuario = usuario;
+        }
+
+        public Usuario getUsuario() {
+            return usuario;
+        }
+
+        public void setUsuario(Usuario usuario) {
+            this.usuario = usuario;
+        }
+
+        public Boolean getExist() {
+            return new CompromissoUsuarioDao().find(compromisso.getId(), usuario.getId()) != null;
+        }
+
+        public void setExist(Boolean exist) {
+            CompromissoUsuario cu = new CompromissoUsuarioDao().find(compromisso.getId(), usuario.getId());
+            if (cu == null) {
+                cu = new CompromissoUsuario();
+                cu.setCompromisso(compromisso);
+                cu.setUsuario(usuario);
+                new Dao().save(cu, true);
+                GenericaMensagem.info("SUCESSO", "USUÁRIO ADICIONADO");
+            } else {
+                new Dao().delete(cu, true);
+                GenericaMensagem.info("SUCESSO", "USUÁRIO REMOVIDO");
+            }
+        }
+
     }
 
 }

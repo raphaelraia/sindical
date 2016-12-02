@@ -270,7 +270,8 @@ public class VendasCaravanaBean implements Serializable {
                             valor[5],
                             total,
                             financeiroString,
-                            listaParcelas
+                            listaParcelas,
+                            lr.poltrona
                     )
             );
         }
@@ -392,6 +393,15 @@ public class VendasCaravanaBean implements Serializable {
             }
             GenericaMensagem.info("Sucesso", "RESERVA CANCELADA COM SUCESSO!");
             dao.commit();
+            new NovoLog().update("",
+                    "VENDA CANCELADA Nº" + vendas.getId()
+                    + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
+                    + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
+                    + " - QUARTO: " + vendas.getQuarto()
+                    + " - DATA VENDA: " + vendas.getEmissao()
+            );
             GenericaSessao.remove("vendasCaravanaBean");
         } else {
             if (!dao.delete(vendas)) {
@@ -401,6 +411,15 @@ public class VendasCaravanaBean implements Serializable {
             }
             GenericaMensagem.info("Sucesso", "Reserva cancelada com sucesso!");
             dao.commit();
+            new NovoLog().delete(
+                    "VENDA Nº" + vendas.getId()
+                    + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
+                    + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
+                    + " - QUARTO: " + vendas.getQuarto()
+                    + " - DATA VENDA: " + vendas.getEmissao()
+            );
             GenericaSessao.remove("vendasCaravanaBean");
         }
     }
@@ -643,6 +662,7 @@ public class VendasCaravanaBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
         Usuario usuario = Usuario.getUsuario();
+        NovoLog novoLog = new NovoLog();
         if (vendas.getId() == null) {
             vendas.setOperador(usuario);
             vendas.setCaravana(caravana);
@@ -651,10 +671,37 @@ public class VendasCaravanaBean implements Serializable {
                 dao.rollback();
                 return;
             }
+            novoLog.save(
+                    "VENDA Nº" + vendas.getId()
+                    + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
+                    + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
+                    + " - QUARTO: " + vendas.getQuarto()
+                    + " - DATA VENDA: " + vendas.getEmissao()
+            );
         } else if (!dao.update(vendas)) {
             dao.rollback();
             GenericaMensagem.warn("Erro", "Erro ao atualizar esta venda!");
             return;
+        } else {
+            CaravanaVenda cv = (CaravanaVenda) dao.find(vendas);
+            String beforeUpdate = "VENDA Nº" + cv.getId()
+                    + " - CARAVANA: " + cv.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                    + " - " + cv.getCaravana().getDataSaida()
+                    + " - OPERADOR: " + cv.getOperador().getPessoa().getNome()
+                    + " - RESPONSÁVEL: " + cv.getResponsavel().getNome()
+                    + " - QUARTO: " + cv.getQuarto()
+                    + " - DATA VENDA: " + cv.getEmissao();
+            novoLog.update(beforeUpdate,
+                    "VENDA Nº" + vendas.getId()
+                    + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
+                    + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
+                    + " - QUARTO: " + vendas.getQuarto()
+                    + " - DATA VENDA: " + vendas.getEmissao()
+            );
         }
 
         CaravanaReservasDao crd = new CaravanaReservasDao();
@@ -678,6 +725,15 @@ public class VendasCaravanaBean implements Serializable {
                     GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
                     return;
                 }
+                novoLog.save(
+                        "RESERVAS - VENDA Nº" + vendas.getId()
+                        + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                        + " - " + vendas.getCaravana().getDataSaida()
+                        + " - OPERADOR: " + res.getOperador().getPessoa().getNome()
+                        + " - PASSAGEIRO: " + res.getPessoa().getNome()
+                        + " - POLTRONA: " + res.getPoltrona()
+                        + " - DATA RESERVA: " + res.getReserva()
+                );
                 lr.setReservas(res);
             } else {
                 lr.getReservas().setPoltrona(lr.getPoltrona());
@@ -816,7 +872,6 @@ public class VendasCaravanaBean implements Serializable {
                 }
             }
         }
-        NovoLog novoLog = new NovoLog();
         // novoLog.save("ID: " + vendas.getId() + " - Responsável: " + vendas.getResponsavel().getNome() + " - Evento: (" + vendas.getEvento().getId() + ") - " + vendas.getEvento().getDescricaoEvento().getDescricao() + " - Quarto: " + vendas.getQuarto() + " - Serviço : (" + eventoServico.getServicos().getId() + ") " + eventoServico.getServicos().getDescricao());
         dao.commit();
         loadListMovimento();
@@ -1817,6 +1872,24 @@ public class VendasCaravanaBean implements Serializable {
 
     public void setBloqueioRotina(BloqueioRotina bloqueioRotina) {
         this.bloqueioRotina = bloqueioRotina;
+    }
+
+    public void updatePoltrona() {
+        if (caravana.getId() != null) {
+            Dao dao = new Dao();
+            dao.openTransaction();
+            for (int i = 0; i < listaReservas.size(); i++) {
+                listaReservas.get(i).getReservas().setPoltrona(listaReservas.get(i).getPoltrona());
+                if (!dao.update(listaReservas.get(i).getReservas())) {
+                    GenericaMensagem.warn("Erro", "AO ATUALIZAR POLTRONA Nº" + listaReservas.get(i).getPoltrona() + " - JÁ RESERVADA!");
+                    dao.rollback();
+                    break;
+                }
+            }
+            dao.commit();
+            GenericaMensagem.info("Sucesso", "POLTRONA(S) ATUALIZADA(S)");
+            loadListReservas();
+        }
     }
 
     public class ListaReservas {

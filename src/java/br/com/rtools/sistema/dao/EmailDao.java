@@ -35,27 +35,32 @@ public class EmailDao extends DB {
             }
             if (filterBy != null && !filterBy.isEmpty()) {
                 if (!descricaoPesquisa.isEmpty()) {
-                    if (filterBy.equals("email")) {
-                        listQuery.add(
-                                " ( UPPER(EP.pessoa.email1)    LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
-                                + " OR UPPER(EP.destinatario)  LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
-                                + " OR UPPER(EP.cc)            LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
-                                + " OR UPPER(EP.bcc)           LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
-                                + ") ");
-
-                    } else if (filterBy.equals("assunto")) {
-                        listQuery.add(" UPPER(EP.email.assunto) LIKE '%" + descricaoPesquisa.toUpperCase() + "%' ");
-                    } else if (filterBy.equals("pessoa")) {
-                        listQuery.add(" EP.pessoa IS NOT NULL AND UPPER(EP.pessoa.nome) LIKE '%" + descricaoPesquisa.toUpperCase() + "%' ");
+                    switch (filterBy) {
+                        case "email":
+                            listQuery.add(
+                                    " ( UPPER(EP.pessoa.email1)    LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
+                                    + " OR UPPER(EP.destinatario)  LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
+                                    + " OR UPPER(EP.cc)            LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
+                                    + " OR UPPER(EP.bcc)           LIKE '%" + descricaoPesquisa.toUpperCase() + "%' "
+                                    + ") ");
+                            break;
+                        case "assunto":
+                            listQuery.add(" UPPER(EP.email.assunto) LIKE '%" + descricaoPesquisa.toUpperCase() + "%' ");
+                            break;
+                        case "pessoa":
+                            listQuery.add(" EP.pessoa IS NOT NULL AND UPPER(EP.pessoa.nome) LIKE '%" + descricaoPesquisa.toUpperCase() + "%' ");
+                            break;
+                        default:
+                            break;
                     }
                 }
 
             }
             Usuario u = new Usuario();
-            if (usuario_id == null) {
-                u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+            String queryString = " SELECT EP FROM EmailPessoa AS EP WHERE EP.email.rascunho = false ";
+            if (usuario_id != null) {
+                listQuery.add(" EP.email.usuario.id = " + usuario_id + " ");
             }
-            String queryString = " SELECT EP FROM EmailPessoa AS EP WHERE EP.email.rascunho = false AND EP.email.usuario.id = " + usuario_id + " ";
             if (!listQuery.isEmpty()) {
                 queryString += "  ";
                 for (Object o : listQuery) {

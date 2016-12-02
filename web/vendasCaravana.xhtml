@@ -242,63 +242,65 @@
                                 <p:inputTextarea value="#{vendasCaravanaBean.vendas.observacao}" rows="1" maxlength="255" style="width: 100%"/>
                             </h:panelGrid>
                             <br />
-                            <p:dataTable id="i_servicos" var="listaReservas" style="width:100%;" value="#{vendasCaravanaBean.listaReservas}" rowIndexVar="it" emptyMessage="Nenhum serviço foi adicionado!">
-                                <p:column width="15">  
-                                    <p:rowToggler />  
-                                </p:column>  
-                                <p:column style="width: 30px">
-                                    <h:column>
-                                        <p:commandButton icon="ui-icon-close" title="Remover reserva" action="#{vendasCaravanaBean.removerReserva(it, listaReservas)}" update="i_servicos :form_vendas_caravana:i_valores :form_vendas_caravana:i_caravanas" disabled="#{vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null}" rendered="#{listaReservas.reservas.id == null}"/>
-                                        <p:commandButton icon="ui-icon-contact" update=":form_vendas_caravana:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(listaReservas.fisica.pessoa.id)}" title="Ver detalhes" rendered="#{listaReservas.reservas.id != null}"/>
-                                    </h:column>
-                                </p:column>
-                                <p:column headerText="Passageiro">
-                                    <p:commandButton ajax="false" icon="ui-icon-search" action="#{vendasCaravanaBean.pesquisaPassageiro(it)}" disabled="#{vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null}"  rendered="#{listaReservas.reservas.id == null}" />
-                                    <p:commandButton ajax="false" icon="ui-icon-plus" action="#{vendasCaravanaBean.cadastrarPassageiro(it)}" disabled="#{vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null}"  rendered="#{listaReservas.reservas.id == null}" title="Novo Cadastro" styleClass="margin-left"/>
-                                    <h:outputLabel value="#{listaReservas.fisica.pessoa.nome}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}" styleClass="#{listaReservas.reservas.id == null ? 'margin-left-max': ''}"/>
-                                </p:column>
+                            <h:panelGroup layout="block" id="i_servicos">
+                                <p:dataTable var="listaReservas" style="width:100%;" value="#{vendasCaravanaBean.listaReservas}" rowIndexVar="it" emptyMessage="Nenhum serviço foi adicionado!">
+                                    <p:column width="15">  
+                                        <p:rowToggler />  
+                                    </p:column>  
+                                    <p:column style="width: 30px">
+                                        <h:column>
+                                            <p:commandButton icon="ui-icon-close" title="Remover reserva" action="#{vendasCaravanaBean.removerReserva(it, listaReservas)}" update=":form_vendas_caravana:i_servicos :form_vendas_caravana:i_valores :form_vendas_caravana:i_caravanas" disabled="#{vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null}" rendered="#{listaReservas.reservas.id == null}"/>
+                                            <p:commandButton icon="ui-icon-contact" update=":form_vendas_caravana:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(listaReservas.fisica.pessoa.id)}" title="Ver detalhes" rendered="#{listaReservas.reservas.id != null}"/>
+                                        </h:column>
+                                    </p:column>
+                                    <p:column headerText="Passageiro">
+                                        <p:commandButton ajax="false" icon="ui-icon-search" action="#{vendasCaravanaBean.pesquisaPassageiro(it)}" disabled="#{vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null}"  rendered="#{listaReservas.reservas.id == null}" />
+                                        <p:commandButton ajax="false" icon="ui-icon-plus" action="#{vendasCaravanaBean.cadastrarPassageiro(it)}" disabled="#{vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null}"  rendered="#{listaReservas.reservas.id == null}" title="Novo Cadastro" styleClass="margin-left"/>
+                                        <h:outputLabel value="#{listaReservas.fisica.pessoa.nome}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}" styleClass="#{listaReservas.reservas.id == null ? 'margin-left-max': ''}"/>
+                                    </p:column>
 
-                                <p:column headerText="Poltrona" style="text-align: center; width: 60px" >
-                                    <p:selectOneMenu value="#{listaReservas.poltrona}" style="padding-right: 20px" rendered="#{listaReservas.reservas.id == null or !vendasCaravanaBean.locked}" disabled="#{((vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null and vendasCaravanaBean.locked) or listaReservas.reservas.dtCancelamento != null)}">
-                                        <p:ajax event="change" update="@this" />
-                                        <f:selectItems value="#{listaReservas.listPoltrona}" />
-                                    </p:selectOneMenu>                                    
-                                    <h:outputLabel value="#{listaReservas.reservas.poltrona}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}; margin-left: 10px; font-weight: bold; font-size: 12pt!important" rendered="#{listaReservas.reservas.id != null and vendasCaravanaBean.locked}"/>
-                                </p:column>
+                                    <p:column headerText="Poltrona" style="text-align: center; width: 60px" >
+                                        <p:selectOneMenu value="#{listaReservas.poltrona}" style="padding-right: 20px" rendered="#{listaReservas.reservas.id == null or !vendasCaravanaBean.locked}" disabled="#{((vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null and vendasCaravanaBean.locked) or listaReservas.reservas.dtCancelamento != null)}">
+                                            <p:ajax event="change" update="@this #{listaReservas.reservas.id == null ? '' : ':form_vendas_caravana:i_servicos'}" listener="#{vendasCaravanaBean.updatePoltrona}" />
+                                            <f:selectItems value="#{listaReservas.listPoltrona}" />
+                                        </p:selectOneMenu>                                    
+                                        <h:outputLabel value="#{listaReservas.reservas.poltrona}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}; margin-left: 10px; font-weight: bold; font-size: 12pt!important" rendered="#{listaReservas.reservas.id != null and vendasCaravanaBean.locked}"/>
+                                    </p:column>
 
-                                <p:column headerText="Valor (R$)" style="text-align: center; width: 100px">
-                                    <h:outputText value="#{listaReservas.valor}" style="font-weight: bold; #{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}"/>
-                                </p:column>
+                                    <p:column headerText="Valor (R$)" style="text-align: center; width: 100px">
+                                        <h:outputText value="#{listaReservas.valor}" style="font-weight: bold; #{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}"/>
+                                    </p:column>
 
-                                <p:column headerText="Desconto (R$)" style="text-align: center; width: 100px">
-                                    <h:column>
-                                        <p:inputText value="#{listaReservas.desconto}" rendered="#{listaReservas.reservas.id == null}" converter="#{toCurrency}" styleClass="text-right" size="8">
-                                            <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaValoresGrid(it)}" update="@this :form_vendas_caravana:i_valores"/>
-                                        </p:inputText>
-                                        <h:outputText value="#{listaReservas.desconto}" style="font-weight: bold; #{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}" rendered="#{listaReservas.reservas.id != null}"/>
-                                    </h:column>
-                                </p:column>
-                                <p:column headerText="Tipo">
-                                    <h:outputLabel value="#{listaReservas.reservas.eventoServico.descricao}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}"/>
-                                </p:column>
-                                <p:column width="30" styleClass="text-center">
-                                    <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Cancelar reserva" action="#{vendasCaravanaBean.editReserva(listaReservas.reservas)}" rendered="#{vendasCaravanaBean.listaReservas.size() > 1 and !vendasCaravanaBean.locked}" disabled="#{listaReservas.reservas.id == null or listaReservas.reservas.dtCancelamento ne null}" onclick="PF('dlg_cancel_reserva').show()"/>
-                                </p:column>
-                                <p:rowExpansion>
-                                    <br />
-                                    <h:column>
-                                        <h:outputLabel value="RESERVA: " styleClass="bold" />
-                                        <h:outputLabel value="#{listaReservas.reservas.reserva}" /><br /><br />                                        
-                                    </h:column>
-                                    <h:column>
-                                        <h:outputLabel value="OPERADOR: " styleClass="bold" />
-                                        <h:outputLabel value="#{listaReservas.reservas.operador.pessoa.nome}" /><br /><br />
-                                    </h:column>
-                                </p:rowExpansion>
-                                <f:facet name="footer">
-                                    <p:commandButton value="Reservas Canceladas" title="Reservas Canceladas" onclick="PF('dlg_reservas_canceladas').show()" styleClass="font-color-red" rendered="#{not empty vendasCaravanaBean.listReservasCanceladas}"/>
-                                </f:facet>                                
-                            </p:dataTable>
+                                    <p:column headerText="Desconto (R$)" style="text-align: center; width: 100px">
+                                        <h:column>
+                                            <p:inputText value="#{listaReservas.desconto}" rendered="#{listaReservas.reservas.id == null}" converter="#{toCurrency}" styleClass="text-right" size="8">
+                                                <p:ajax event="change" listener="#{vendasCaravanaBean.atualizaValoresGrid(it)}" update="@this :form_vendas_caravana:i_valores"/>
+                                            </p:inputText>
+                                            <h:outputText value="#{listaReservas.desconto}" style="font-weight: bold; #{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}" rendered="#{listaReservas.reservas.id != null}"/>
+                                        </h:column>
+                                    </p:column>
+                                    <p:column headerText="Tipo">
+                                        <h:outputLabel value="#{listaReservas.reservas.eventoServico.descricao}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}"/>
+                                    </p:column>
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Cancelar reserva" action="#{vendasCaravanaBean.editReserva(listaReservas.reservas)}" rendered="#{vendasCaravanaBean.listaReservas.size() > 1 and !vendasCaravanaBean.locked}" disabled="#{listaReservas.reservas.id == null or listaReservas.reservas.dtCancelamento ne null}" onclick="PF('dlg_cancel_reserva').show()"/>
+                                    </p:column>
+                                    <p:rowExpansion>
+                                        <br />
+                                        <h:column>
+                                            <h:outputLabel value="RESERVA: " styleClass="bold" />
+                                            <h:outputLabel value="#{listaReservas.reservas.reserva}" /><br /><br />                                        
+                                        </h:column>
+                                        <h:column>
+                                            <h:outputLabel value="OPERADOR: " styleClass="bold" />
+                                            <h:outputLabel value="#{listaReservas.reservas.operador.pessoa.nome}" /><br /><br />
+                                        </h:column>
+                                    </p:rowExpansion>
+                                    <f:facet name="footer">
+                                        <p:commandButton value="Reservas Canceladas" title="Reservas Canceladas" onclick="PF('dlg_reservas_canceladas').show()" styleClass="font-color-red" rendered="#{not empty vendasCaravanaBean.listReservasCanceladas}"/>
+                                    </f:facet>                                
+                                </p:dataTable>
+                            </h:panelGroup>
                             <p:panel id="i_valores" styleClass="fundoCinza" style="clear: both; margin-top: 10px" header="Financeiro">
                                 <h:panelGrid columns="7" cellspacing="3">
                                     <h:column>

@@ -37,7 +37,7 @@
                             <p:panel styleClass="fundoCinza margin-top-max">
                                 <h:panelGrid cellspacing="5">
                                     <h:outputLabel value="Caravana" />
-                                    <h:outputLabel value="#{organizarCaravanaBean.caravana.evento.descricaoEvento.grupoEvento.descricao} #{organizarCaravanaBean.caravana.evento.descricaoEvento.descricao}" styleClass="bold"/>
+                                    <h:outputLabel value="(#{organizarCaravanaBean.caravana.id}) #{organizarCaravanaBean.caravana.evento.descricaoEvento.grupoEvento.descricao} #{organizarCaravanaBean.caravana.evento.descricaoEvento.descricao}" styleClass="bold"/>
                                 </h:panelGrid>
                             </p:panel>
                             <h:panelGrid id="i_panel" columns="9">
@@ -98,7 +98,12 @@
                                 </h:column>
                             </h:panelGrid>
                             <br />
-                            <p:dataTable id="i_servicos" var="list" style="width:100%;" value="#{organizarCaravanaBean.listReservas}" emptyMessage="Nenhuma reserva!">
+                            <p:dataTable id="i_servicos" var="list" style="width:100%;" value="#{organizarCaravanaBean.listReservas}" emptyMessage="Nenhuma reserva!" paginator="true" rows="10">
+                                
+                                <f:facet name="header">
+                                    TOTAL DE PASSAGEIROS: #{organizarCaravanaBean.listReservas.size()}
+                                </f:facet>
+                                
                                 <p:column width="15">  
                                     <p:rowToggler />  
                                 </p:column>
@@ -136,16 +141,17 @@
                                         <h:outputLabel value="VENDA Nº#{list.caravanaReservas.venda.id} " styleClass="bold" />
                                         <h:outputLabel value="em #{list.caravanaReservas.venda.emissao}" /><br /><br />
                                     </h:column>
-                                </p:rowExpansion>                                
+                                </p:rowExpansion>
                             </p:dataTable>
                             <f:facet name="footer">
-                                <h:panelGrid columns="2">
+                                <h:panelGrid columns="3">
                                     <h:column rendered="#{organizarCaravanaBean.bloqueioRotina != null or organizarCaravanaBean.locked}">
                                         <p:commandButton value="Concluir" action="#{organizarCaravanaBean.unlock}" rendered="#{organizarCaravanaBean.locked}" update=":form_organizar_caravana:" />
                                     </h:column>
                                     <h:column>
-                                        <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisaCaravana}" />                                                                
+                                        <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaCaravana', 'caravanaBean')}" />
                                     </h:column>
+                                    <p:commandButton ajax="false" value="Lista de Reserva" action="#{organizarCaravanaBean.print}" icon="ui-icon-print" rendered="#{not empty organizarCaravanaBean.listReservas}" />
                                 </h:panelGrid>
                             </f:facet>
                         </p:panel>                                                                       

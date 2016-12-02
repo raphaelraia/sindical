@@ -529,7 +529,11 @@ public class EmailBean implements Serializable {
             } else if (verTodosUsuarios) {
                 listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);
             } else {
-                listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, orderBy);
+                if(idUsuario == null) {
+                listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, orderBy);                    
+                } else {
+                    listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);                    
+                }
             }
         }
         return listEmailPessoas;
@@ -656,7 +660,7 @@ public class EmailBean implements Serializable {
         listUsuarios = new ArrayList();
         List<Usuario> list = new UsuarioDao().findByTabela("sis_email");
         listUsuarios.add(new SelectItem(null, "-- NENHUM --"));
-        idUsuario = null;
+        idUsuario = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId();
         for (int i = 0; i < list.size(); i++) {
             listUsuarios.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome()));
         }

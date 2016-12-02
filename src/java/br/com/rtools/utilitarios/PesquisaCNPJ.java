@@ -111,7 +111,7 @@ public class PesquisaCNPJ implements Serializable {
         result.put("status", true);
         result.put("mensagem", "");
         HashMap hash_test = new LinkedHashMap();
-        HttpPost httpPost = new HttpPost("http://webservicerf.rtools.com.br:8080/webservicereceita/consulta/cnpj/client/" + GenericaSessao.getString("sessaoCliente") + "/document/" + cnpj + "/");
+        HttpPost httpPost = new HttpPost("http://webservicerf.rtools.com.br:7090/webservicereceita/consulta/cnpj/client/" + GenericaSessao.getString("sessaoCliente") + "/document/" + cnpj + "/");
         // HttpPost httpPost = new HttpPost("http://localhost:8080/webservicereceita/consulta/cnpj/");
         hash_test.put("status", false);
         hash_test.put("mensagem", "Consulta não realizada");
@@ -132,6 +132,12 @@ public class PesquisaCNPJ implements Serializable {
         } catch (IOException | ParseException e) {
             hash_test.put("status", false);
             hash_test.put("mensagem", e.getMessage());
+            return hash_test;
+        }
+
+        if (html.isEmpty()) {
+            hash_test.put("status", false);
+            hash_test.put("mensagem", "Erro na Consulta - Retorna vázio!");
             return hash_test;
         }
 

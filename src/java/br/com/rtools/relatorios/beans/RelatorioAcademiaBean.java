@@ -6,6 +6,7 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioAcademiaDao;
@@ -84,10 +85,11 @@ public class RelatorioAcademiaBean implements Serializable {
     private String tipoValor;
     private String valorInicial;
     private String valorFinal;
+    private Juridica empresa;
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[18];
+        filtro = new Boolean[20];
         filtro[0] = false; // MODALIDADE
         filtro[1] = false; // PERÍODO EMISSÃO / INATIVAÇÃO
         filtro[2] = false; // RESPONSÁVEL
@@ -106,6 +108,7 @@ public class RelatorioAcademiaBean implements Serializable {
         filtro[15] = false; // FAIXA VENCIMENTO
         filtro[16] = false; // FAIXA QUITAÇÃO
         filtro[17] = false; // FAIXA VALOR
+        filtro[18] = false; // EMPRESA ONDE TRABALHA
         listSelectItem = new ArrayList[2];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -144,6 +147,7 @@ public class RelatorioAcademiaBean implements Serializable {
         vencimentoFinal = "";
         quitacaoInicial = "";
         quitacaoFinal = "";
+        empresa = new Juridica();
     }
 
     @PreDestroy
@@ -299,7 +303,8 @@ public class RelatorioAcademiaBean implements Serializable {
                 order,
                 tv,
                 vi,
-                vf
+                vf,
+                empresa
         );
         sisProcesso.finishQuery();
         if (list.isEmpty()) {
@@ -483,6 +488,9 @@ public class RelatorioAcademiaBean implements Serializable {
             valorInicial = "";
             valorFinal = "";
         }
+        if (!filtro[18]) {
+            empresa = new Juridica();
+        }
     }
 
     public void clear(Integer tcase) {
@@ -575,6 +583,10 @@ public class RelatorioAcademiaBean implements Serializable {
                 valorFinal = "";
                 filtro[16] = false;
                 break;
+            case "empresa":
+                empresa = new Juridica();
+                filtro[18] = false;
+                break;
         }
         PF.update("form_relatorio:id_panel");
     }
@@ -664,6 +676,7 @@ public class RelatorioAcademiaBean implements Serializable {
      * <li>[14] SITUAÇÃO FINANCEIRA</li>
      * <li>[15] FAIXA VENCIMENTO</li>
      * <li>[16] FAIXA QUITAÇÃO</li>
+     * <li>[17] VALOR</li>
      * </ul>
      *
      * @return boolean
@@ -1157,6 +1170,17 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setValorFinal(String valorFinal) {
         this.valorFinal = valorFinal;
+    }
+
+    public Juridica getEmpresa() {
+        if (GenericaSessao.exists("juridicaPesquisa")) {
+            empresa = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);
+        }
+        return empresa;
+    }
+
+    public void setEmpresa(Juridica empresa) {
+        this.empresa = empresa;
     }
 
     public class ParametroAcademiaCadastral {

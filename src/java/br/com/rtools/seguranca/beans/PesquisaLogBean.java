@@ -4,6 +4,7 @@ import br.com.rtools.seguranca.Log;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.PesquisaLogDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -78,6 +79,10 @@ public class PesquisaLogBean implements Serializable {
         descPesquisa = "";
         usuario = new Usuario();
         log = new Log();
+        loadListRotinas();
+        if (GenericaSessao.exists("rotinaPesquisaLog")) {
+            meusLogs((Integer.parseInt(GenericaSessao.getString("rotinaPesquisaLog", true))));
+        }
     }
 
     @PreDestroy
@@ -89,17 +94,18 @@ public class PesquisaLogBean implements Serializable {
         GenericaSessao.remove("removeFiltro");
     }
 
-    public List<SelectItem> getListRotinas() {
-        if (listSelectItem[0].isEmpty()) {
-            PesquisaLogDao pld = new PesquisaLogDao();
-            List<Rotina> list = (List<Rotina>) pld.listRotinasLogs();
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[0].add(new SelectItem(i, list.get(i).getRotina(), "" + list.get(i).getId()));
-            }
-            if (listSelectItem[0].isEmpty()) {
-                listSelectItem[0] = new ArrayList<>();
-            }
+    public void loadListRotinas() {
+        listSelectItem[0] = new ArrayList();
+        List<Rotina> list = (List<Rotina>) new RotinaDao().findByTabela("seg_log");
+        for (int i = 0; i < list.size(); i++) {
+            listSelectItem[0].add(new SelectItem(i, list.get(i).getRotina(), "" + list.get(i).getId()));
         }
+        if (listSelectItem[0].isEmpty()) {
+            listSelectItem[0] = new ArrayList<>();
+        }
+    }
+
+    public List<SelectItem> getListRotinas() {
         return listSelectItem[0];
     }
 
@@ -138,6 +144,7 @@ public class PesquisaLogBean implements Serializable {
             filtroEvento[2] = false;
             filtroEvento[3] = false;
             filtroEvento[4] = false;
+            loadListRotinas();
         }
         if (!filtro[4]) {
             porPesquisa = "";
@@ -395,51 +402,49 @@ public class PesquisaLogBean implements Serializable {
         log = l;
     }
 
-    public void listenerBlockUsuario() {
-        GenericaSessao.remove("pesquisaLogBean");
-        PesquisaLogBean pesquisaLogBean = new PesquisaLogBean();
-        pesquisaLogBean.init();
-        HttpServletRequest paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        String pagina = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).converteURL(paginaRequerida.getRequestURI());
-        // PesquisaLogBean pesquisaLogBean = new PesquisaLogBean();
-        RotinaDao rotinaDao = new RotinaDao();
-        Rotina r = rotinaDao.pesquisaRotinaPorPagina(pagina);
-        if (r == null) {
-            r = rotinaDao.pesquisaRotinaPorAcao(pagina);
-        }
-        getListLogs().clear();
-        Integer[] integer = new Integer[]{0};
-        getListRotinas().clear();
-        getListRotinas();
-        if (getListRotinas().isEmpty()) {
-            GenericaMensagem.info("Sistema", "Nenhum Log encontrado");
-        }
-        if (r != null) {
-            for (int i = 0; i < listSelectItem[0].size(); i++) {
-                if (Integer.parseInt(listSelectItem[0].get(i).getDescription()) == r.getId()) {
-                    integer[0] = i;
-                    break;
+    public void meusLogs(Integer rotina_id) {
+        try {
+            HttpServletRequest paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            String pagina = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).converteURL(paginaRequerida.getRequestURI());
+            // PesquisaLogBean pesquisaLogBean = new PesquisaLogBean();
+            RotinaDao rotinaDao = new RotinaDao();
+            Rotina r = rotinaDao.pesquisaRotinaPorPagina(pagina);
+            if (r == null) {
+                r = rotinaDao.pesquisaRotinaPorAcao(pagina);
+            }
+            getListLogs().clear();
+            Integer[] integer = new Integer[]{0};
+            if (getListRotinas().isEmpty()) {
+                GenericaMensagem.info("Sistema", "Nenhum Log encontrado");
+            }
+            if (r != null) {
+                for (int i = 0; i < listSelectItem[0].size(); i++) {
+                    if (Integer.parseInt(listSelectItem[0].get(i).getDescription()) == rotina_id) {
+                        integer[0] = i;
+                        break;
+                    }
                 }
             }
+            if (integer[0] == 0) {
+                setBlockRotina(false);
+                GenericaMensagem.info("Sistema", "Nenhum Log encontrado para esta rotina!");
+            } else {
+                setBlockRotina(true);
+            }
+            // GenericaSessao.put("pesquisaLogBean", pesquisaLogBean);
+            filtro[1] = true;
+            filtro[2] = true;
+            setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+            setBlockUsuario(true);
+            setIndex(integer);
+            setFiltro(filtro);
+            //pesquisaLogBean.setIndex(integer);
+            getListRotinas();
+            getListLogs();
+            getFiltroEvento();
+        } catch (Exception e) {
+
         }
-        if (integer[0] == 0) {
-            pesquisaLogBean.setBlockRotina(false);
-            GenericaMensagem.info("Sistema", "Nenhum Log encontrado para esta rotina!");
-        } else {
-            pesquisaLogBean.setBlockRotina(true);
-        }
-        // GenericaSessao.put("pesquisaLogBean", pesquisaLogBean);
-        filtro[1] = true;
-        filtro[2] = true;
-        pesquisaLogBean.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
-        pesquisaLogBean.setBlockUsuario(true);
-        pesquisaLogBean.setIndex(integer);
-        pesquisaLogBean.setFiltro(filtro);
-        //pesquisaLogBean.setIndex(integer);
-        pesquisaLogBean.getListRotinas();
-        pesquisaLogBean.getListLogs();
-        pesquisaLogBean.getFiltroEvento();
-        GenericaSessao.put("pesquisaLogBean", pesquisaLogBean);
 
     }
 

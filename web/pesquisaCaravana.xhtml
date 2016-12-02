@@ -31,37 +31,41 @@
                         <h:outputText value="Pesquisa Caravana" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="formPesquisaCaravana">
-                            <p:dataTable value="#{caravanaBean.listaCaravana}" var="linha" id="tbl" emptyMessage="Nenhuma Caravana foi encontrada!">
+                            <p:dataTable value="#{caravanaBean.listaCaravana}" var="caravana" id="tbl" emptyMessage="Nenhuma Caravana foi encontrada!" rows="10" paginator="true">
+                                <p:column width="30">
+                                    <p:commandButton ajax="false" icon="ui-icon-arrowreturnthick-1-w" action="#{caravanaBean.editar(caravana)}" title="Editar registro nº#{caravana.id}"/>
+                                </p:column>
+                                
                                 <p:column headerText="Descrição">
-                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(linha)}" value="#{linha.evento.descricaoEvento.descricao}"/>
+                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(caravana)}" value="#{caravana.evento.descricaoEvento.descricao}"/>
                                 </p:column>
 
                                 <p:column headerText="Grupo" style="width: 70px; text-align: center">
-                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(linha)}" value="#{linha.evento.descricaoEvento.grupoEvento.descricao}"/>
+                                    <p:commandLink ajax="false" action="#{caravanaBean.editar(caravana)}" value="#{caravana.evento.descricaoEvento.grupoEvento.descricao}"/>
                                 </p:column>
 
-                                <p:column headerText="Data Saída" style="width: 80px; text-align: center">
-                                    <h:outputText value="#{linha.dataSaida}"/>
+                                <p:column headerText="Data Saída" width="80" styleClass="text-center">
+                                    <h:outputText value="#{caravana.dataSaida}"/>
                                 </p:column>
 
-                                <p:column headerText="Data Retorno" style="width: 90px; text-align: center">
-                                    <h:outputText value="#{linha.dataRetorno}"/>
+                                <p:column headerText="Hora Saída" width="60" styleClass="text-center">
+                                    <h:outputText value="#{caravana.horaSaida}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Data Retorno" width="80" styleClass="text-center">
+                                    <h:outputText value="#{caravana.dataRetorno}"/>
                                 </p:column>
 
-                                <p:column headerText="Data Chegada" style="width: 100px; text-align: center">
-                                    <h:outputText value="#{linha.dataChegada}"/>
+                                <p:column headerText="Hora Retorno" width="60" styleClass="text-center">
+                                    <h:outputText value="#{caravana.horaRetorno}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Data Chegada" width="80" styleClass="text-center">
+                                    <h:outputText value="#{caravana.dataChegada}"/>
                                 </p:column>
 
-                                <p:column headerText="Hora Saída" style="width: 80px; text-align: center">
-                                    <h:outputText value="#{linha.horaSaida}"/>
-                                </p:column>
-
-                                <p:column headerText="Hora Retorno" style="width: 90px; text-align: center">
-                                    <h:outputText value="#{linha.horaRetorno}"/>
-                                </p:column>
-
-                                <p:column headerText="Hora Chegada" style="width: 100px; text-align: center">
-                                    <h:outputText value="#{linha.horaChegada}"/>
+                                <p:column headerText="Hora Chegada" width="60" styleClass="text-center">
+                                    <h:outputText value="#{caravana.horaChegada}"/>
                                 </p:column>
 
                             </p:dataTable>                            

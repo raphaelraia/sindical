@@ -22,24 +22,36 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:form id="pesquisaRelatorios">
+                        <h:form id="form_relatorios">
                             <c:set scope="request" var="object" value="${relatorioBean.relatorio}"/>
                             <h:outputText value="Pesquisar relatório" styleClass="fonteHeader" />
-                            <div class="clear"></div>                            
-                            <p:dataTable value="#{relatorioBean.listRelatorio}" var="relatorios" id="tbl" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
+                            <div class="clear"></div>
+                            <p:panel>
+                                <h:panelGrid columns="5" cellspacing="5">
+                                    <p:outputLabel value="ROTINA: " />
+                                    <p:selectOneMenu value="#{relatorioBean.rotina_pesquisa_id}" filter="true" filterMatchMode="startsWith" style="width: 300px" autoWidth="false">
+                                        <p:ajax event="change" update="@form" />
+                                        <f:selectItem itemLabel="-- NENHUMA -- "/>
+                                        <f:selectItems value="#{relatorioBean.listRotina}" />
+                                    </p:selectOneMenu>                                    
+                                    <p:inputText value="#{relatorioBean.description}" size="50"/>
+                                    <p:commandButton action="#{relatorioBean.loadList}" icon="ui-icon-search" update=":form_relatorios:" title="PESQUISAR"/>
+                                </h:panelGrid>                                
+                            </p:panel>
+                            <p:dataTable value="#{relatorioBean.listRelatorio}" var="relatorios" id="tbl" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" stickyHeader="true" styleClass="margin-top-max">
                                 <p:column styleClass="text-center" width="30">
-                                    <p:commandButton action="#{relatorioBean.edit(relatorios)}" icon="ui-icon-link"/>
+                                    <p:commandButton action="#{relatorioBean.edit(relatorios)}" icon="ui-icon-pencil" title="Editar registro nº#{relatorios.id}"/>
                                 </p:column>
 
-                                <p:column headerText="Nome do relatório" filterBy="#{relatorios.nome}" filterMatchMode="global"> 
-                                    <p:commandLink action="#{relatorioBean.edit(relatorios)}" value="#{relatorios.nome}" />
+                                <p:column headerText="Nome do relatório">
+                                     <h:outputText value="#{relatorios.nome.toUpperCase()}"/>
                                 </p:column>
 
-                                <p:column headerText="Caminho do Jasper" filterBy="#{relatorios.jasper}" filterMatchMode="global">
+                                <p:column headerText="JASPER">
                                     <h:outputText value="#{relatorios.jasper}"/>
                                 </p:column>
 
-                                <p:column headerText="Descrição Rotina" filterBy="#{relatorios.rotina.rotina}" filterMatchMode="global">
+                                <p:column headerText="ROTINA">
                                     <h:outputText value="#{relatorios.rotina.rotina}"/>
                                 </p:column>
                             </p:dataTable>

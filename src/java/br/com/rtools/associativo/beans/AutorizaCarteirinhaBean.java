@@ -92,13 +92,11 @@ public class AutorizaCarteirinhaBean {
 
         SocioCarteirinha socioCarteirinha = new SocioCarteirinhaDao().pesquisaPorPessoaModelo(impressaoCartao.getPessoa().getId(), impressaoCartao.getModeloCarteirinha().getId());
         if (socioCarteirinha != null) {
-            if (socioCarteirinha.getDtEmissao() != null) {
-                socioCarteirinha.setDtEmissao(null);
-                if (!dao.update(socioCarteirinha)) {
-                    GenericaMensagem.warn("Erro", "Ao atualizar sócio carteirinha!");
-                    dao.rollback();
-                    return;
-                }
+            socioCarteirinha.setDtEmissao(null);
+            if (!dao.update(socioCarteirinha)) {
+                GenericaMensagem.warn("Erro", "Ao atualizar sócio carteirinha!");
+                dao.rollback();
+                return;
             }
         }
 

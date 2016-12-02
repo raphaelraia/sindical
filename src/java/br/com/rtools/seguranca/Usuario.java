@@ -1,8 +1,11 @@
 package br.com.rtools.seguranca;
 
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.seguranca.dao.UsuarioHistoricoAcessoDao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
@@ -31,6 +34,9 @@ public class Usuario implements Serializable {
     @Column(name = "is_autenticado", columnDefinition = "boolean default false", nullable = false)
     private Boolean autenticado;
 
+    @Transient
+    private List<UsuarioHistoricoAcesso> listUsuarioHistoricoAcesso;
+
     public Usuario() {
         this.id = -1;
         this.pessoa = new Pessoa();
@@ -39,6 +45,7 @@ public class Usuario implements Serializable {
         this.ativo = false;
         this.email = "";
         this.autenticado = false;
+        this.listUsuarioHistoricoAcesso = new ArrayList();
     }
 
     public Usuario(int id, Pessoa pessoa, String login, String senha, boolean ativo, String email, Boolean autenticado) {
@@ -49,6 +56,7 @@ public class Usuario implements Serializable {
         this.ativo = ativo;
         this.email = email;
         this.autenticado = autenticado;
+        this.listUsuarioHistoricoAcesso = new ArrayList();
     }
 
     public int getId() {
@@ -117,6 +125,19 @@ public class Usuario implements Serializable {
             return (Usuario) GenericaSessao.getObject("sessaoUsuario");
         }
         return null;
+    }
+
+    public void loadListUsuarioHistoricoAcesso() {
+        listUsuarioHistoricoAcesso = new ArrayList();
+        listUsuarioHistoricoAcesso = new UsuarioHistoricoAcessoDao().list(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId());
+    }
+
+    public List<UsuarioHistoricoAcesso> getListUsuarioHistoricoAcesso() {
+        return listUsuarioHistoricoAcesso;
+    }
+
+    public void setListUsuarioHistoricoAcesso(List<UsuarioHistoricoAcesso> listUsuarioHistoricoAcesso) {
+        this.listUsuarioHistoricoAcesso = listUsuarioHistoricoAcesso;
     }
 
 }

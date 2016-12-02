@@ -73,6 +73,9 @@
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[17]}" onLabel="Valor" offLabel="Valor" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" rendered="#{relatorioAcademiaBean.rotina.id != 393}">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
                                             </p:selectBooleanButton>                                            
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[18]}" onLabel="Empresa Onde Trabalha" offLabel="Empresa Onde Trabalha" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                            </p:selectBooleanButton>                                            
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" styleClass="text-left">
                                             <f:facet name="header">
@@ -374,6 +377,16 @@
                                             </p:inputText>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('valor')}" title="Remover filtro"/>
                                         </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+
+                                <p:column rendered="#{relatorioAcademiaBean.filtro[18]}">
+                                    <p:panel header="Empresa Onde Trabalha" styleClass="margin-top-max">
+                                        <h:panelGrid columns="5" cellspacing="5">
+                                            <p:commandButton value="Empresa" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" ajax="false"/> 
+                                            <p:outputLabel value="#{relatorioAcademiaBean.empresa.pessoa.nome}" />
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('empresa')}" title="Remover filtro" styleClass="margin-left-max"/>
+                                        </h:panelGrid>                                            
                                     </p:panel>
                                 </p:column>
 

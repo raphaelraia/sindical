@@ -951,6 +951,14 @@ public class MatriculaEscolaBean implements Serializable {
             GenericaMensagem.warn("Atenção", "Informar nome do aluno!");
             return;
         }
+        ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+        if (cs.getObrigatorioEmail()) {
+            if (servicoPessoa.getPessoa().getEmail1().isEmpty()) {
+                GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO PARA O ALUNO!");
+                GenericaMensagem.warn("Sistema", "CORRIJA ESTE CADASTRO PARA REALIZAR ALTERAÇÕES!");
+                return;
+            }
+        }
         if (servicoPessoa.getCobranca().getId() == -1) {
             GenericaMensagem.warn("Atenção", "Informar nome do responsável!");
             return;
@@ -1363,14 +1371,6 @@ public class MatriculaEscolaBean implements Serializable {
         FisicaDao fisicaDB = new FisicaDao();
         aluno = fisicaDB.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
         if (aluno.getId() != -1) {
-            ConfiguracaoSocial cs = ConfiguracaoSocial.get();
-            if (cs.getObrigatorioEmail()) {
-                if (aluno.getPessoa().getEmail1().isEmpty()) {
-                    GenericaMensagem.warn("Validação", "E-MAIL OBRIGATÓRIO PARA O ALUNO!");
-                    GenericaMensagem.warn("Sistema", "CORRIJA ESTE CADASTRO PARA REALIZAR ALTERAÇÕES!");
-                    return null;
-                }
-            }
             getResponsavel();
             verificaSocio();
         }

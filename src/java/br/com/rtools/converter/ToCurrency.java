@@ -22,11 +22,11 @@ public class ToCurrency implements Converter {
             }
             String somenteLetras = value.replaceAll("[^a-zA-Z]", "");
             if (somenteLetras.length() > 0) {
-                return null;
+                return "0";
             }
             value = value.replace("-", "");
             if (value.isEmpty()) {
-                return null;
+                return "0";
             }
             return Moeda.converteR$(value, 2);
         }

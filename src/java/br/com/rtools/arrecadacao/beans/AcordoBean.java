@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.beans.MovimentosReceberBean;
 import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -43,21 +44,18 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class AcordoBean implements Serializable {
 
-    private List<DataObject> listaVizualizado = new ArrayList();
+    private List<GridAcordo> listaVizualizado = new ArrayList();
     private List<DataObject> listaOperado = new ArrayList();
     private Acordo acordo = new Acordo();
     private int idServicos = 0;
     private int idVencimento = 0;
     private int idVencimentoSind = 0;
     private int parcela = 1;
-    private float total = 0;
     private String valorEntrada = "0";
     private String valorEntradaSind = "0";
     private String vencimento = DataHoje.data();
     private int frequencia = 30;
     private int frequenciaSind = 30;
-    private String totalSindical = "0";
-    private String totalOutras = "0";
     private List<int[]> quantidade = new ArrayList();
     List<Boolean> listaMarcados = new ArrayList();
     private String ultimaData = "";
@@ -98,14 +96,14 @@ public class AcordoBean implements Serializable {
             }
         }
 
-        enviarEmail();
-        PF.update("formAcordo");
+        send();
+        PF.update("form_acordo");
     }
 
     public void confirmarVerificarEmail() {
         if (pessoaEnvio.getEmail1().isEmpty() || pessoaEnvio.getEmail1().length() < 5) {
             GenericaMensagem.warn("Atenção", "Digite um email válido!");
-            PF.openDialog("formAcordo:i_panel_enviar_email");
+            PF.openDialog("form_acordo:i_panel_enviar_email");
             return;
         }
 
@@ -116,17 +114,17 @@ public class AcordoBean implements Serializable {
             if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
                 emailAntigo = jur.getContabilidade().getPessoa().getEmail1();
                 PF.openDialog("dlg_atualizar_email");
-                PF.update("formAcordo:panel_atualizar_email");
+                PF.update("form_acordo:panel_atualizar_email");
                 return;
             }
         } else if (!jur.getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
             emailAntigo = jur.getPessoa().getEmail1();
             PF.openDialog("dlg_atualizar_email");
-            PF.update("formAcordo:panel_atualizar_email");
+            PF.update("form_acordo:panel_atualizar_email");
             return;
         }
-        enviarEmail();
-        PF.update("formAcordo");
+        send();
+        PF.update("form_acordo");
     }
 
     public void verificaEmail() {
@@ -137,7 +135,7 @@ public class AcordoBean implements Serializable {
             if (jur.getContabilidade() == null) {
                 GenericaMensagem.warn("Atenção", "Empresa sem contabilidade vinculada!");
                 pessoaEnvio = new Pessoa();
-                PF.openDialog("formAcordo");
+                PF.openDialog("form_acordo");
                 return;
             }
 
@@ -157,7 +155,7 @@ public class AcordoBean implements Serializable {
         }
     }
 
-    public String enviarEmail() {
+    public String send() {
         List<Movimento> listaImp = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -262,92 +260,57 @@ public class AcordoBean implements Serializable {
     public void refreshForm() {
     }
 
-    public List<DataObject> getListaVizualizado() {
+    public List<GridAcordo> getListaVizualizado() {
         if (listaVizualizado.isEmpty() && !listaMovs.isEmpty() && pessoa.getId() != -1) {
+            String historicoString = "";
             historico.setHistorico("Acordo correspondente a: ");
-            List<DataObject> aux = new ArrayList();
-            aux.add(null);
-            aux.add(null);
-            aux.add(null);
-            aux.add(null);
-            float soma_sind = 0,
-                    soma_assis = 0,
-                    soma_conf = 0,
-                    soma_neg = 0;
-
-            String h_sind = "",
-                    h_assis = "",
-                    h_conf = "",
-                    h_neg = "";
-
+            Integer rotina_id = 4;
+            ServicoRotinaDao srd = new ServicoRotinaDao();
+            String breakLine = "\n";
             for (int i = 0; i < listaMovs.size(); i++) {
-                if (listaMovs.get(i).getServicos().getId() == 1) {
-                    // SINDICAL
-                    soma_sind = Moeda.somaValores(soma_sind, listaMovs.get(i).getValorBaixa());
-                    String h_sind_boleto = "Sindical - " + listaMovs.get(i).getReferencia();
-                    if (h_sind.isEmpty()) {
-                        h_sind += "Sindical - " + listaMovs.get(i).getReferencia();
-                    } else {
-                        h_sind += ", " + listaMovs.get(i).getReferencia();
+                boolean next = true;
+                if (srd.existeServicoRotina(listaMovs.get(i).getServicos().getId(), rotina_id)) {
+                    if (listaMovs.get(i).getServicos().getId() == 1) {
+                        valorEntradaSind += Moeda.converteR$Float(listaMovs.get(i).getValorBaixa());
                     }
-
-                    if (aux.get(0) != null) {
-                        aux.add(new DataObject(listaMovs.get(i).getServicos(), listaMovs.get(i).getValorBaixa(), listaMovs.get(i).getReferencia(), h_sind_boleto, null, null));
-                    } else {
-                        aux.set(0, new DataObject(listaMovs.get(i).getServicos(), listaMovs.get(i).getValorBaixa(), listaMovs.get(i).getReferencia(), h_sind_boleto, null, null));
+                    for (int x = 0; x < listaVizualizado.size(); x++) {
+                        if (listaVizualizado.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
+                            listaVizualizado.get(x).setValorBaixa(+listaVizualizado.get(x).getValorBaixa() + listaMovs.get(i).getValorBaixa());
+                            if (listaVizualizado.get(x).getHistorico().isEmpty()) {
+                                listaVizualizado.get(x).setHistorico((listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
+                            } else {
+                                listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                            }
+                            next = false;
+                        }
                     }
-
-                    valorEntradaSind = Moeda.converteR$Float(listaMovs.get(i).getValorBaixa());
-                } else if (listaMovs.get(i).getServicos().getId() == 2) {
-                    // ASSISTENCIAL
-                    soma_assis = Moeda.somaValores(soma_assis, listaMovs.get(i).getValorBaixa());
-                    if (h_assis.isEmpty()) {
-                        h_assis += "Assistencial - " + listaMovs.get(i).getReferencia();
-                    } else {
-                        h_assis += ", " + listaMovs.get(i).getReferencia();
+                    if (next) {
+                        listaVizualizado.add(new GridAcordo(listaMovs.get(i).getServicos(), listaMovs.get(i).getValorBaixa(), listaMovs.get(i).getReferencia(), (listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + " - " + listaMovs.get(i).getReferencia()));
                     }
-
-                    aux.set(1, new DataObject(listaMovs.get(i).getServicos(), soma_assis, null, h_assis, null, null));
-
-                } else if (listaMovs.get(i).getServicos().getId() == 3) {
-                    // CONFEDERATIVA
-                    soma_conf = Moeda.somaValores(soma_conf, listaMovs.get(i).getValorBaixa());
-                    if (h_conf.isEmpty()) {
-                        h_conf += "Confederativa - " + listaMovs.get(i).getReferencia();
-                    } else {
-                        h_conf += ", " + listaMovs.get(i).getReferencia();
-                    }
-
-                    aux.set(2, new DataObject(listaMovs.get(i).getServicos(), soma_conf, null, h_conf, null, null));
-
-                } else if (listaMovs.get(i).getServicos().getId() == 4) {
-                    // NEGOCIAL
-                    soma_neg = Moeda.somaValores(soma_neg, listaMovs.get(i).getValorBaixa());
-                    if (h_neg.isEmpty()) {
-                        h_neg += "Negocial - " + listaMovs.get(i).getReferencia();
-                    } else {
-                        h_neg += ", " + listaMovs.get(i).getReferencia();
-                    }
-
-                    aux.set(3, new DataObject(listaMovs.get(i).getServicos(), soma_neg, null, h_neg, null, null));
                 }
             }
-
-            historico.setHistorico(historico.getHistorico() + h_sind + " " + h_assis + " " + h_conf + " " + h_neg);
-            totalSindical = Moeda.converteR$Float(soma_sind);
-            float soma_total = Moeda.somaValores(Moeda.somaValores(soma_assis, soma_conf), soma_neg);
-            totalOutras = Moeda.converteR$Float(soma_total);
-            total = Moeda.somaValores(soma_sind, soma_total);
-            for (int i = 0; i < aux.size(); i++) {
-                if (aux.get(i) != null) {
-                    listaVizualizado.add(new DataObject(aux.get(i).getArgumento0(), Moeda.converteR$Float((Float) aux.get(i).getArgumento1()), aux.get(i).getArgumento2(), (String) aux.get(i).getArgumento3(), null, null));
-                }
+            for (int x = 0; x < listaVizualizado.size(); x++) {
+                historicoString += listaVizualizado.get(x).getHistorico();
+                // listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getServicos().getDescricao() + ": " + listaVizualizado.get(x).getHistorico() + "; ");
             }
+            historico.setHistorico(historico.getHistorico() + historicoString);
         }
         return listaVizualizado;
     }
 
+    public void setListaVizualizado(List<GridAcordo> listaVizualizado) {
+        this.listaVizualizado = listaVizualizado;
+    }
+
     public synchronized void efetuarAcordo() {
+        Float totalAcordo = new Float(0);
+        for (int i = 0; i < listaOperado.size(); i++) {
+            totalAcordo += ((Movimento) listaOperado.get(i).getArgumento2()).getValor();
+        }
+        if (totalAcordo != Moeda.converteUS$(getTotal())) {
+            GenericaMensagem.warn("Atenção", "VALOR TOTAL NÃO CONFERE COM OS VALORES DAS PARCELAS!");
+            return;
+        }
         if (listaOperado.isEmpty()) {
             GenericaMensagem.error("Atenção", "Acordo não foi gerado!");
             return;
@@ -605,13 +568,13 @@ public class AcordoBean implements Serializable {
             String ultimoVencimentoSind = getListaVencimento().get(idVencimentoSind).getLabel();
             float valorTotalOutras = 0;
             float valorSwap = Moeda.substituiVirgulaFloat(valorEntrada);
-            float valorTotal = Moeda.converteFloatR$Float(Moeda.substituiVirgulaFloat(totalOutras));
+            float valorTotal = Moeda.converteFloatR$Float(Moeda.substituiVirgulaFloat(getTotalOutras()));
             float[] vetorEntrada = new float[listaVizualizado.size()];
             float pdE = Moeda.divisaoValores(valorSwap, valorTotal);
             float valorParcela = 0;
             for (int i = 0; i < listaVizualizado.size(); i++) {
-                if (((Servicos) listaVizualizado.get(i).getArgumento0()).getId() != 1) {
-                    vetorEntrada[i] = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1());
+                if (listaVizualizado.get(i).getServicos().getId() != 1) {
+                    vetorEntrada[i] = Moeda.substituiVirgulaFloat(listaVizualizado.get(i).getValorBaixaString());
                     if (listaVizualizado.size() > 1) {
                         vetorEntrada[i] = Moeda.converteFloatR$Float(Moeda.multiplicarValores(vetorEntrada[i], pdE));
                     } else {
@@ -621,23 +584,32 @@ public class AcordoBean implements Serializable {
                     vetorEntrada[i] = 0;
                 }
             }
-
+            String ultimoVencimentoTemp = null;
+            Boolean validDate = true;
             for (int i = 0; i < listaVizualizado.size(); i++) {
-                servico = (Servicos) listaVizualizado.get(i).getArgumento0();
+                servico = listaVizualizado.get(i).getServicos();
                 contaCobranca = ctaCobraDB.pesquisaServicoCobranca(servico.getId(), tipoServico.getId());
                 if (contaCobranca != null) {
                     if (servico.getId() != 1) {
                         ultimoVencimento = getListaVencimento().get(idVencimento).getLabel();
                         j = 0;
                         if (parcela > 1) {
-                            valorTotalOutras = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1());
+                            valorTotalOutras = Moeda.substituiVirgulaFloat(listaVizualizado.get(i).getValorBaixaString());
                             valorTotalOutras = Moeda.subtracaoValores(valorTotalOutras, vetorEntrada[i]);
                             valorSwap = vetorEntrada[i];
                             valorParcela = Moeda.converteFloatR$Float(Moeda.divisaoValores(valorTotalOutras, parcela - 1));
                         } else {
-                            valorSwap = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1());
+                            valorSwap = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getValorBaixaString());
                         }
                         while (j < parcela) {
+//                            if (ultimoVencimentoTemp != null) {
+//                                ultimoVencimento = ultimoVencimentoTemp;
+//                                Integer ano = Integer.parseInt(DataHoje.livre(DataHoje.converte(ultimoVencimento), "YYYY"));
+//                                if (!DataHoje.isBisexto(ano)) {
+//                                    ultimoVencimento = DataHoje.alterDay(28, ultimoVencimento);
+//                                    ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
+//                                }
+//                            }
                             if (j != 0) {
                                 if ((Moeda.subtracaoValores(valorTotalOutras, valorParcela) != 0) && ((j + 1) == parcela)) {
                                     valorParcela = valorTotalOutras;
@@ -670,14 +642,37 @@ public class AcordoBean implements Serializable {
                                     0,
                                     0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
 
-                            listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getArgumento3(), null, null));
-
+                            listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getHistorico(), null, null));
+//                            if (ultimoVencimentoTemp != null) {
+//                                String dia = getListaVencimento().get(idVencimento).getLabel().substring(0, 2);
+//                                ultimoVencimento = DataHoje.alterDay(Integer.parseInt(dia), ultimoVencimento);
+//                                ultimoVencimentoTemp = null;
+//                            }
                             if (j == 0) {
                                 ultimoVencimento = acordo.getData();
                             }
 
                             if (frequencia == 30) {
-                                ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
+                                // String uv = ultimoVencimento;
+                                try {
+                                    if (!DataHoje.isDataValida(ultimoVencimento) && validDate) {
+                                        ultimoVencimento = data.incrementarMeses(1, DataHoje.alterDay(28, ultimoVencimento));
+                                        if (ultimoVencimento.substring(3, 5).equals("03")) {
+                                            String dia = getListaVencimento().get(idVencimento).getLabel().substring(0, 2);
+                                            ultimoVencimento = DataHoje.alterDay(Integer.parseInt(dia), acordo.getData());
+                                        }
+                                        validDate = false;
+                                    } else if (!validDate) {
+                                        ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
+                                        validDate = true;
+                                    } else {
+                                        ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
+                                    }
+                                } catch (Exception e) {
+
+                                }
+//                                if (ultimoVencimento == null) {
+//                                    ultimoVencimentoTemp = uv;
                                 if (ultimoVencimento.substring(3, 5).equals("02")) {
                                     ultimoVencimento = acordo.getData().substring(0, 2) + ultimoVencimento.substring(2);
                                 }
@@ -696,8 +691,8 @@ public class AcordoBean implements Serializable {
                                 null,
                                 tipoServico,
                                 null,
-                                Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1()),
-                                (String) listaVizualizado.get(i).getArgumento2(),
+                                Moeda.substituiVirgulaFloat(listaVizualizado.get(i).getValorBaixaString()),
+                                (String) listaVizualizado.get(i).getReferencia(),
                                 //referencia(ultimoVencimentoSind), 
                                 ultimoVencimentoSind,
                                 1,
@@ -712,7 +707,7 @@ public class AcordoBean implements Serializable {
                                 0,
                                 0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
 
-                        listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getArgumento3(), null, null));
+                        listaOperado.add(new DataObject(false, ++k, mov, listaVizualizado.get(i).getReferencia(), null, null));
 
                         if (parcela > 1) {
                             if (frequenciaSind == 30) {
@@ -819,11 +814,7 @@ public class AcordoBean implements Serializable {
     }
 
     public String getTotal() {
-        return Moeda.converteR$Float(total);
-    }
-
-    public void setTotal(String total) {
-        this.total = Moeda.substituiVirgulaFloat(total);
+        return Moeda.converteR$Float(Moeda.converteUS$(getTotalSindical()) + Moeda.converteUS$(getTotalOutras()));
     }
 
     public void limparEntrada() {
@@ -832,7 +823,7 @@ public class AcordoBean implements Serializable {
 
     public String getValorEntrada() {
         float valorTmp = Moeda.substituiVirgulaFloat(valorEntrada);
-        float totalOutra = Moeda.substituiVirgulaFloat(totalOutras);
+        float totalOutra = Moeda.substituiVirgulaFloat(getTotalOutras());
         if (valorEntrada.equals("0") || valorEntrada.equals("0,00")) {
             float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
             if (parcela > 1) {
@@ -853,7 +844,15 @@ public class AcordoBean implements Serializable {
     }
 
     public void setValorEntrada(String valorEntrada) {
-        this.valorEntrada = Moeda.substituiVirgula(valorEntrada);
+        if (valorEntrada.isEmpty()) {
+            return;
+        }
+        try {
+            Moeda.converteR$(valorEntrada);
+        } catch (Exception e) {
+            return;
+        }
+        this.valorEntrada = valorEntrada;
     }
 
     public String getVencimento() {
@@ -884,9 +883,9 @@ public class AcordoBean implements Serializable {
         for (int i = 0; i < quantidade.size(); i++) {
             if (quantidade.get(i)[0] == 1) { // 1 ref. id sindical
                 for (int j = 0; j < listaVizualizado.size(); j++) {
-                    if (((Servicos) listaVizualizado.get(j).getArgumento0()).getId() == 1) {
-                        if (Moeda.substituiVirgulaFloat(valorEntradaSind) != (Float) listaVizualizado.get(j).getArgumento1()) {
-                            valorEntradaSind = (String) getListaVizualizado().get(j).getArgumento1();
+                    if (listaVizualizado.get(j).getServicos().getId() == 1) {
+                        if (Moeda.substituiVirgulaFloat(valorEntradaSind) != (Float) listaVizualizado.get(j).getValorBaixa()) {
+                            valorEntradaSind = getListaVizualizado().get(j).getValorBaixaString();
                         }
                     }
                 }
@@ -901,19 +900,23 @@ public class AcordoBean implements Serializable {
     }
 
     public String getTotalSindical() {
-        return Moeda.converteR$(totalSindical);
-    }
-
-    public void setTotalSindical(String totalSindical) {
-        this.totalSindical = Moeda.substituiVirgula(totalSindical);
+        Float v = new Float(0);
+        for (int i = 0; i < listaVizualizado.size(); i++) {
+            if (listaVizualizado.get(i).getServicos().getId() == 1) {
+                v += listaVizualizado.get(i).getValorBaixa();
+            }
+        }
+        return Moeda.converteR$Float(v);
     }
 
     public String getTotalOutras() {
-        return Moeda.converteR$(totalOutras);
-    }
-
-    public void setTotalOutras(String totalOutras) {
-        this.totalOutras = Moeda.substituiVirgula(totalOutras);
+        Float v = new Float(0);
+        for (int i = 0; i < listaVizualizado.size(); i++) {
+            if (listaVizualizado.get(i).getServicos().getId() != 1) {
+                v += listaVizualizado.get(i).getValorBaixa();
+            }
+        }
+        return Moeda.converteR$Float(v);
     }
 
     public synchronized void ordernarPorServico() {
@@ -1070,10 +1073,6 @@ public class AcordoBean implements Serializable {
         this.pessoa = pessoa;
     }
 
-    public void setListaVizualizado(List<DataObject> listaVizualizado) {
-        this.listaVizualizado = listaVizualizado;
-    }
-
     public String getEmailPara() {
         return emailPara;
     }
@@ -1112,5 +1111,67 @@ public class AcordoBean implements Serializable {
 
     public void setEmailAntigo(String emailAntigo) {
         this.emailAntigo = emailAntigo;
+    }
+
+    public class GridAcordo {
+
+        private Servicos servicos;
+        private float valorBaixa;
+        private String referencia;
+        private String historico;
+
+        public GridAcordo() {
+            this.servicos = null;
+            this.valorBaixa = 0;
+            this.referencia = "";
+            this.historico = "";
+        }
+
+        public GridAcordo(Servicos servicos, float valorBaixa, String referencia, String historico) {
+            this.servicos = servicos;
+            this.valorBaixa = valorBaixa;
+            this.referencia = referencia;
+            this.historico = historico;
+        }
+
+        public Servicos getServicos() {
+            return servicos;
+        }
+
+        public void setServicos(Servicos servicos) {
+            this.servicos = servicos;
+        }
+
+        public float getValorBaixa() {
+            return valorBaixa;
+        }
+
+        public void setValorBaixa(float valorBaixa) {
+            this.valorBaixa = valorBaixa;
+        }
+
+        public String getValorBaixaString() {
+            return Moeda.converteR$Float(valorBaixa);
+        }
+
+        public void setValorBaixaString(String valorBaixaString) {
+            this.valorBaixa = Moeda.converteUS$(valorBaixaString);
+        }
+
+        public String getReferencia() {
+            return referencia;
+        }
+
+        public void setReferencia(String referencia) {
+            this.referencia = referencia;
+        }
+
+        public String getHistorico() {
+            return historico;
+        }
+
+        public void setHistorico(String historico) {
+            this.historico = historico;
+        }
     }
 }

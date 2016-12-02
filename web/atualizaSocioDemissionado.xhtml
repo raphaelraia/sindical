@@ -14,9 +14,9 @@
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -46,35 +46,40 @@
                             </p:panel>
                             <p:messages closable="true" showDetail="true" />
                             <p:dataTable value="#{atualizaSocioDemissionadoBean.listaSocioDemissionado}" var="linha_socio" paginator="true" rows="20" emptyMessage="Nenhum Registro Encontrado" selection="#{atualizaSocioDemissionadoBean.listaSocioDemissionadoSelecionado}" rowKey="#{linha_socio.pessoaEmpresa.id}">
+
                                 <p:column selectionMode="multiple" style="width:16px; text-align:center"/>
-                                
+
                                 <p:column headerText="Nome">
                                     <p:outputLabel value="#{linha_socio.pessoaEmpresa.fisica.pessoa.nome}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Empresa">
                                     <p:outputLabel value="#{linha_socio.pessoaEmpresa.juridica.pessoa.nome}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="CNPJ" style="text-align: center; width: 120px">
                                     <p:outputLabel value="#{linha_socio.pessoaEmpresa.juridica.pessoa.documento}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Admissão" style="text-align: center; width: 80px">
                                     <p:outputLabel value="#{linha_socio.pessoaEmpresa.admissao}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Demissão" style="text-align: center; width: 80px">
                                     <p:outputLabel value="#{linha_socio.pessoaEmpresa.demissao}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Contactado" style="text-align: center; width: 90px">
                                     <p:outputLabel value="#{linha_socio.dataLancamentoString}" />
                                 </p:column>
+
+                                <p:column styleClass="text-center" width="30">
+                                    <p:commandButton icon="ui-icon-contact" update=":formAtualizaSocioDemissionado:i_pessoa_fisica_card" action="#{pessoaCardBean.cardFisica(linha_socio.pessoaEmpresa.fisica.pessoa.id)}" oncomplete="PF('dlg_pessoa_fisica_card').show()" title="Ver detalhes" />
+                                </p:column>
                             </p:dataTable>
-                            
+
                             <p:commandButton icon="ui-icon-check" value="Salvar" oncomplete="PF('dlg_salvar').show()" />
-                            
+
                             <p:dialog widgetVar="dlg_salvar" header="Salvar Registros" resizable="false" width="400" modal="true">
                                 <h:panelGrid id="panel_salvar" style="width: 100%">
                                     <p:outputLabel value="Deseja realmente salvar estes Registros?" style="font-size: 11pt!important"/>
@@ -85,6 +90,12 @@
                                 <p:commandButton value="Salvar" type="submit" action="#{atualizaSocioDemissionadoBean.salvar()}" update="@form" onclick="PF('dlg_salvar').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
                                 <p:commandButton value="Cancelar" type="button" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
+                            <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_pessoa_fisica_card">
+                                    <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>                               
                         </h:form>
                     </p:panel>
                 </f:view>
