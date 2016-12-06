@@ -1,0 +1,59 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Histórico de Acessos</title>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <p:outputLabel value="Histórico de Acessos" styleClass="fonteHeader" />
+                <div style="clear: both;"></div>
+                <h:form id="form_usuario_historico_acesso">                     
+                    <h:outputScript name="tradutor_primefaces.js" library="js" />
+                    <p:growl id="growl" showDetail="true"/> 
+                    <div class="clear"></div>
+                    <p:dataTable value="#{usuarioHistoricoAcessoBean.listUsuarioHistoricoAcesso}" var="historicoAcesso" paginator="true" rows="20" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                        <p:column width="15">
+                            <p:rowToggler />
+                        </p:column>                          
+                        <p:column width="30" styleClass="text-center">
+                            <p:commandButton icon="ui-icon-person" title="Online" rendered="#{historicoAcesso.dtLogout eq null and historicoAcesso.dtExpired eq null}" />
+                        </p:column>
+                        <p:column headerText="Usuário" styleClass="text-center">
+                            <p:outputLabel value="#{historicoAcesso.usuario.pessoa.nome}"/>
+                        </p:column>
+                        <p:column headerText="Login" styleClass="text-center">
+                            <p:outputLabel value="#{historicoAcesso.login} às #{historicoAcesso.loginHora}"/>
+                        </p:column>
+                        <p:column headerText="Logout" styleClass="text-center">
+                            <p:outputLabel value="#{historicoAcesso.logout} às #{historicoAcesso.logoutHora}" rendered="#{historicoAcesso.dtLogout ne null}"/>
+                        </p:column>                            
+                        <p:column headerText="Expirou" styleClass="text-center">
+                            <p:outputLabel value="#{historicoAcesso.expired} às #{historicoAcesso.expiredHora}" rendered="#{historicoAcesso.dtExpired ne null}"/>
+                        </p:column>                            
+                        <p:column headerText="IP" styleClass="text-center">
+                            <p:outputLabel value="#{historicoAcesso.ip}"/>
+                        </p:column>
+                        <p:column headerText="Dispositivo" styleClass="text-center">
+                            <p:outputLabel value="#{historicoAcesso.dispositivo}"/>
+                        </p:column>
+                        <p:rowExpansion>
+                            <p:outputLabel value="Filial: #{historicoAcesso.macFilial.filial.filial.pessoa.nome}"/> <br /><br />
+                            <p:outputLabel value="Session ID: #{historicoAcesso.sessionId}" />
+                        </p:rowExpansion>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+        </f:view>
+        <f:subview id="footer">
+            <ui:include src="templates/templateFooter.xhtml"/>
+        </f:subview>
+    </h:body>
+</ui:composition>

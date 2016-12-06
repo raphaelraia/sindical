@@ -19,7 +19,6 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -381,29 +380,13 @@ public class UsuarioBean implements Serializable {
             }
 
         }
-        String ip = "";
-        String hostName = "";
-        try {
+        if (GenericaSessao.exists("usuario_historico_acesso")) {
+            UsuarioHistoricoAcesso usuarioHistoricoAcesso = (UsuarioHistoricoAcesso) GenericaSessao.getObject("usuario_historico_acesso");
+            usuarioHistoricoAcesso.setDtLogout(new Date());
+            if (new Dao().update(usuarioHistoricoAcesso, true)) {
 
-            InetAddress ia = InetAddress.getLocalHost();
-            ip = ia.getHostAddress();
-            hostName = ia.getHostName();
-//                    if (!macFilial.getNomeDispositivo().isEmpty() && !hostName.equals(macFilial.getNomeDispositivo())) {
-//                        usuario = new Usuario();
-//                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
-//                        return null;
-//                    }
-        } catch (Exception e) {
-
+            }
         }
-        UsuarioHistoricoAcesso usuarioHistoricoAcesso = new UsuarioHistoricoAcesso();
-        usuarioHistoricoAcesso.setUsuario(usuario);
-        usuarioHistoricoAcesso.setIp("");
-        usuarioHistoricoAcesso.setEs("S");
-        if (GenericaSessao.exists("acessoFilial")) {
-            usuarioHistoricoAcesso.setMacFilial((MacFilial) GenericaSessao.getObject("acessoFilial"));
-        }
-        new Dao().save(usuarioHistoricoAcesso, true);
         // Inserir cookie
         FacesContext context = FacesContext.getCurrentInstance();
         if (context != null) {
@@ -993,6 +976,15 @@ public class UsuarioBean implements Serializable {
 
     public void setListPermissoesAdicionadas(List<PermissaoDepartamento> listPermissoesAdicionadas) {
         this.listPermissoesAdicionadas = listPermissoesAdicionadas;
+    }
+
+    public void forceLogout(UsuarioHistoricoAcesso ua) {
+        if (GenericaSessao.exists("usuario_historico_acesso")) {
+            ua.setDtLogout(new Date());
+            if (new Dao().update(ua, true)) {
+                usuario.loadListUsuarioHistoricoAcesso();
+            }
+        }
     }
 
 }

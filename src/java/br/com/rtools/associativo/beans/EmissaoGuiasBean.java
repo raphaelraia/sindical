@@ -317,6 +317,9 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void atualizarHistorico() {
+        if (!GenericaSessao.exists("sessaoUsuario")) {
+            return;
+        }
         Dao di = new Dao();
         MovimentoDao db = new MovimentoDao();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");

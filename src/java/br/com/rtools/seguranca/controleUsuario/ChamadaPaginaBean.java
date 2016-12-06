@@ -4,6 +4,7 @@ import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.UsuarioHistoricoAcesso;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
 import br.com.rtools.seguranca.dao.MacFilialDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
@@ -28,6 +29,7 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @SuppressWarnings("serial")
 @ManagedBean
@@ -319,6 +321,9 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public String metodoGenerico(int tipo, String pagina) {
+        if (!forceCloseSession()) {
+            return "sessaoExpirou";
+        }
         paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         urlAtual = converteURL(paginaRequerida.getRequestURI());
         GenericaSessao.put("urlRetorno", urlAtual);
@@ -2676,4 +2681,29 @@ public class ChamadaPaginaBean implements Serializable {
             }
         }
     }
+
+    public boolean forceCloseSession() {
+        try {
+            if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario") != null) {
+                if (GenericaSessao.exists("usuario_historico_acesso")) {
+                    UsuarioHistoricoAcesso ua = (UsuarioHistoricoAcesso) new Dao().find((UsuarioHistoricoAcesso) GenericaSessao.getObject("usuario_historico_acesso"));
+                    if (ua == null) {
+                        return true;
+                    }
+                    if (ua.getDtLogout() != null || ua.getDtExpired() != null) {
+                        FacesContext conext = FacesContext.getCurrentInstance();
+                        //Verifica a sessao e a grava na variavel
+                        HttpSession session = (HttpSession) conext.getExternalContext().getSession(false);
+                        //Fecha/Destroi sessao
+                        session.invalidate();
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return true;
+    }
+
 }

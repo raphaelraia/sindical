@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.faces.bean.ManagedBean;
@@ -135,6 +136,7 @@ public class ControleUsuarioBean implements Serializable {
     }
 
     public String validacao() throws Exception {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         if (!block()) {
             GenericaMensagem.warn("Sistema. Entre em contato com nosso suporte técnico. (16) 3964-6117", "Entre em contato com nosso suporte técnico.");
             return null;
@@ -235,21 +237,31 @@ public class ControleUsuarioBean implements Serializable {
                     + ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa().getDocumento();
             historicoAcesso = "";
             historicoAcesso = "ÚLTIMO ACESSO EM ";
-            UsuarioHistoricoAcesso ua = new UsuarioHistoricoAcessoDao().find(usuario.getId());
+            UsuarioHistoricoAcessoDao uhad = new UsuarioHistoricoAcessoDao();
+            UsuarioHistoricoAcesso ua = uhad.lastLogin(usuario.getId());
+            Dao dao = new Dao();
             if (ua != null) {
-                historicoAcesso += ua.getData();
-                historicoAcesso += " ÁS " + ua.getHora() + " - ";
+                historicoAcesso += ua.getLogin();
+                historicoAcesso += " ÁS " + ua.getLoginHora() + " - ";
                 historicoAcesso += " IP: " + ua.getIp();
+            }
+            List<UsuarioHistoricoAcesso> listUha = uhad.listOpenedSession(usuario.getId());
+            for (int i = 0; i < listUha.size(); i++) {
+                listUha.get(i).setDtExpired(new Date());
+                dao.update(listUha.get(i), true);
             }
             UsuarioHistoricoAcesso usuarioHistoricoAcesso = new UsuarioHistoricoAcesso();
             usuarioHistoricoAcesso.setUsuario(usuario);
             usuarioHistoricoAcesso.setIp(ip);
             usuarioHistoricoAcesso.setDispositivo(dispositivo);
-            usuarioHistoricoAcesso.setEs("E");
+            usuarioHistoricoAcesso.setSessionId(request.getSession().getId());
             if (GenericaSessao.exists("acessoFilial")) {
                 usuarioHistoricoAcesso.setMacFilial((MacFilial) GenericaSessao.getObject("acessoFilial"));
             }
-            new Dao().save(usuarioHistoricoAcesso, true);
+            if (dao.save(usuarioHistoricoAcesso, true)) {
+                GenericaSessao.put("usuario_historico_acesso", usuarioHistoricoAcesso);
+
+            }
             usuario = new Usuario();
             msgErro = "";
             atualizaDemissionaSocios();
@@ -458,6 +470,7 @@ public class ControleUsuarioBean implements Serializable {
         }
         try {
             String ipAddress = request.getHeader("X-FORWARDED-FOR");
+            GenericaSessao.put("session_id", request.getSession().getId());
             if (ipAddress == null) {
                 ipAddress = request.getRemoteAddr();
                 if (ipAddress != null && !ipAddress.isEmpty()) {
