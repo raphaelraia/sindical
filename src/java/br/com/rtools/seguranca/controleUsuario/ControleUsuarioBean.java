@@ -162,7 +162,6 @@ public class ControleUsuarioBean implements Serializable {
             return pagina;
         }
         usuario = db.ValidaUsuario(usuario.getLogin(), usuario.getSenha());
-        String hostName = "";
         if (usuario != null) {
             filial = retornaStringFilial(macFilial, usuario);
             if (usuario.getId() != 1) {
@@ -173,15 +172,15 @@ public class ControleUsuarioBean implements Serializable {
                         return null;
                     }
                 }
-                try {
-                    if (!macFilial.getNomeDispositivo().isEmpty() && !dispositivo.equals(macFilial.getNomeDispositivo())) {
-                        usuario = new Usuario();
-                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
-                        return null;
-                    }
-                } catch (Exception e) {
-
-                }
+//                try {
+//                    if (!macFilial.getNomeDispositivo().isEmpty() && !dispositivo.equals(macFilial.getNomeDispositivo())) {
+//                        usuario = new Usuario();
+//                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
+//                        return null;
+//                    }
+//                } catch (Exception e) {
+//
+//                }
             }
             AtalhoDao dba = new AtalhoDao();
             if (dba.listaAcessosUsuario(usuario.getId()).isEmpty()) {
@@ -469,20 +468,27 @@ public class ControleUsuarioBean implements Serializable {
             }
         }
         try {
-            String ipAddress = request.getHeader("X-FORWARDED-FOR");
-            GenericaSessao.put("session_id", request.getSession().getId());
-            if (ipAddress == null) {
-                ipAddress = request.getRemoteAddr();
-                if (ipAddress != null && !ipAddress.isEmpty()) {
-                    GenericaSessao.put("ip", ipAddress);
-                    try {
-                        InetAddress addr = InetAddress.getByName(ipAddress);  // DOMAIN NAME from IP
-                        dispositivo = addr.getHostName();
-                        GenericaSessao.put("dispositivo", dispositivo);
-                    } catch (Exception e) {
+            if (!GenericaSessao.exists("ip")) {
+                // String ipAddress = request.getHeader("X-FORWARDED-FOR");
+                String ipAddress = null;
+                GenericaSessao.put("session_id", request.getSession().getId());
+                if (ipAddress == null) {
+                    //ipAddress = request.getRemoteAddr();
+                    ipAddress = "localhost";
+                    if (ipAddress != null && !ipAddress.isEmpty()) {
+                        GenericaSessao.put("ip", ipAddress);
+                        if (!GenericaSessao.exists("dispositivo")) {
+                            try {
+                                // InetAddress addr = InetAddress.getByName(ipAddress);  // DOMAIN NAME from IP
+                                // dispositivo = addr.getHostName();
+                                dispositivo = "nenhum";
+                                GenericaSessao.put("dispositivo", dispositivo);
+                            } catch (Exception e) {
 
+                            }
+                        }
+                        ip = ipAddress;
                     }
-                    ip = ipAddress;
                 }
             }
         } catch (Exception e) {

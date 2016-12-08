@@ -68,7 +68,7 @@ public class BaileDao extends DB {
         return null;
     }
 
-    public List<EventoServicoValor> listaServicoValorPorEvento(int idEvento) {
+    public List<EventoServicoValor> listaServicoValorPorEvento(Integer idEvento) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT esv.* \n "

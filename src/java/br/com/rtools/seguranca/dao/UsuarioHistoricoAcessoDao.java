@@ -47,6 +47,7 @@ public class UsuarioHistoricoAcessoDao extends DB {
                     + "       FROM seg_usuario_historico_acesso AS UHA          \n"
                     + "      WHERE id_usuario = " + usuario_id + "              \n"
                     + "        AND dt_logout IS NULL                            \n"
+                    + "        AND dt_expired IS NULL                           \n"
                     + "     ORDER BY dt_login DESC                              \n";
             Query query = getEntityManager().createNativeQuery(queryString, UsuarioHistoricoAcesso.class);
             return query.getResultList();
