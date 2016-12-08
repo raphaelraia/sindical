@@ -127,7 +127,7 @@
                                         <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show();" />
                                         <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaUsuario')}"/>
                                         <p:commandButton value="Lembrete de Senha" onclick="PF('dlg_password_mail').show()" type="button" icon="ui-icon-mail-closed" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" disabled="#{usuarioBean.usuario.id == -1}"/>
-                                        <p:commandButton value="Histórico de acessos" onclick="PF('dlg_history_access').show()"  actionListener="#{usuarioBean.usuario.loadListUsuarioHistoricoAcesso}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id != -1}" update=":form_u:i_all_history"/>
+                                        <p:commandButton value="Histórico de acessos" onclick="PF('dlg_history_access').show()"  actionListener="#{usuarioBean.usuario.loadListUsuarioHistoricoAcesso}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id != -1 and usuarioBean.usuario.id != -1}" update=":form_u:i_all_history"/>
                                     </h:panelGrid>                                    
                                 </f:facet>
                             </p:panel>
@@ -303,15 +303,21 @@
                                     </p:dataTable>
                                 </h:panelGroup>
                             </p:dialog>                            
-                            <p:dialog widgetVar="dlg_history_access" modal="true" resizable="false" header="Histórico de acesso" width="600" closeOnEscape="true" responsive="true">
+                            <p:dialog widgetVar="dlg_history_access" modal="true" resizable="false" header="Histórico de acesso" width="800" closeOnEscape="true" responsive="true">
                                 <p:ajax event="close" global="false" />
                                 <h:panelGroup layout="block" id="i_all_history">
                                     <p:dataTable value="#{usuarioBean.usuario.listUsuarioHistoricoAcesso}" var="historicoAcesso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="30">
-                                        <p:column headerText="Data" styleClass="text-center">
-                                            <p:outputLabel value="#{historicoAcesso.data}"/>
+                                        <p:column headerText="Login" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.login}"/>
                                         </p:column>
                                         <p:column headerText="Hora" styleClass="text-center">
-                                            <p:outputLabel value="#{historicoAcesso.hora}"/>
+                                            <p:outputLabel value="#{historicoAcesso.loginHora}"/>
+                                        </p:column>
+                                        <p:column headerText="Logout" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.logout}"/>
+                                        </p:column>
+                                        <p:column headerText="Hora" styleClass="text-center">
+                                            <p:outputLabel value="#{historicoAcesso.logoutHora}"/>
                                         </p:column>
                                         <p:column headerText="IP" styleClass="text-center">
                                             <p:outputLabel value="#{historicoAcesso.ip}"/>
@@ -321,6 +327,9 @@
                                         </p:column>
                                         <p:column headerText="Filial" styleClass="text-center">
                                             <p:outputLabel value="#{historicoAcesso.macFilial.filial.filial.pessoa.nome}"/>
+                                        </p:column>
+                                        <p:column styleClass="text-center" width="30" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
+                                            <p:commandButton action="#{usuarioBean.forceLogout(historicoAcesso)}" icon="ui-icon-circle-close" rendered="#{(historicoAcesso.dtLogout == null and historicoAcesso.dtExpired == null)}" update=":form_u:i_all_history" title="Desconectar usuário"/>
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGroup>

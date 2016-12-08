@@ -8,7 +8,7 @@ import javax.persistence.Query;
 
 public class UsuarioHistoricoAcessoDao extends DB {
 
-    public UsuarioHistoricoAcesso find(Integer usuario_id) {
+    public UsuarioHistoricoAcesso lastLogin(Integer usuario_id) {
         try {
             String queryString = " "
                     + "     SELECT UHA.*                                        \n"
@@ -17,7 +17,6 @@ public class UsuarioHistoricoAcessoDao extends DB {
                     + "            SELECT (max(id))                             \n"
                     + "              FROM seg_usuario_historico_acesso          \n"
                     + "             WHERE id_usuario = " + usuario_id + "       \n"
-                    + "               AND ds_es = 'E'                           \n"
                     + "      ) ";
             Query query = getEntityManager().createNativeQuery(queryString, UsuarioHistoricoAcesso.class);
             return (UsuarioHistoricoAcesso) query.getSingleResult();
@@ -32,9 +31,39 @@ public class UsuarioHistoricoAcessoDao extends DB {
                     + "     SELECT UHA.*                                        \n"
                     + "       FROM seg_usuario_historico_acesso AS UHA          \n"
                     + "      WHERE id_usuario = " + usuario_id + "              \n"
-                    + "        AND ds_es = 'E'                                  \n"
-                    + "     ORDER BY dt_data DESC, ds_es DESC                   \n";
+                    + "     ORDER BY dt_login DESC                              \n";
             Query query = getEntityManager().createNativeQuery(queryString, UsuarioHistoricoAcesso.class);
+            query.setMaxResults(100);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<UsuarioHistoricoAcesso> listOpenedSession(Integer usuario_id) {
+        try {
+            String queryString = " "
+                    + "     SELECT UHA.*                                        \n"
+                    + "       FROM seg_usuario_historico_acesso AS UHA          \n"
+                    + "      WHERE id_usuario = " + usuario_id + "              \n"
+                    + "        AND dt_logout IS NULL                            \n"
+                    + "        AND dt_expired IS NULL                           \n"
+                    + "     ORDER BY dt_login DESC                              \n";
+            Query query = getEntityManager().createNativeQuery(queryString, UsuarioHistoricoAcesso.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<UsuarioHistoricoAcesso> findResume() {
+        try {
+            String queryString = " "
+                    + "     SELECT UHA.*                                        \n"
+                    + "       FROM seg_usuario_historico_acesso AS UHA          \n"
+                    + "     ORDER BY dt_login DESC                              \n";
+            Query query = getEntityManager().createNativeQuery(queryString, UsuarioHistoricoAcesso.class);
+            query.setMaxResults(500);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

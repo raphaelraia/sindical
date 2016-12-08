@@ -8,8 +8,8 @@ import javax.persistence.Query;
 
 public class EventoBandaDao extends DB {
 
-    public List<EventoBanda> pesquisaBandasDoEvento(int idEvento) {
-        List<EventoBanda> lista = new ArrayList<>();
+    public List<EventoBanda> pesquisaBandasDoEvento(Integer idEvento) {
+        List<EventoBanda> lista = new ArrayList();
         try {
             Query qry = getEntityManager().createQuery(
                     "select ev "

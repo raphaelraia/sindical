@@ -46,13 +46,15 @@ public class CompromissoUsuarioBean implements Serializable {
         compromissoUsuario = new CompromissoUsuario();
         compromisso = new Compromisso();
         eventModel = new DefaultScheduleModel();
-        loadListCompromissoUsuario();
         tipoHistorico = "hoje_amanha";
         tipoData = "";
         dataInicial = "";
         dataFinal = "";
         cancelados = "ativos";
-        idUsuarioFiltro = Usuario.getUsuario().getId();
+        if (GenericaSessao.exists("sessaoUsuario")) {
+            loadListCompromissoUsuario();
+            idUsuarioFiltro = Usuario.getUsuario().getId();
+        }
     }
 
     @PreDestroy

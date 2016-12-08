@@ -2355,6 +2355,12 @@
             <redirect/>
         </navigation-case>             
         
+        <navigation-case>
+            <from-outcome>usuarioHistoricoAcesso</from-outcome>
+            <to-view-id>/usuarioHistoricoAcesso.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

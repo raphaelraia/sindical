@@ -355,7 +355,7 @@ public class BaileBean implements Serializable {
         evento.setDescricaoEvento(((DescricaoEvento) dao.find(new DescricaoEvento(), Integer.parseInt(listaComboDescricaoEvento.get(idDescricaoEvento).getDescription()))));
         dao.openTransaction();
 
-        if (evento.getId() == -1) {
+        if (evento.getId() == null) {
             if (!DataHoje.maiorData(eventoBaile.getDataString(), DataHoje.converteData(DataHoje.dataHoje()))) {
                 msgConfirma = "Data do evento deve ser superior a data de hoje!";
                 GenericaMensagem.warn("Erro", msgConfirma);
@@ -473,7 +473,7 @@ public class BaileBean implements Serializable {
     }
 
     public String excluir() {
-        if (evento.getId() == -1) {
+        if (evento.getId() == null) {
             msgConfirma = "Pesquise um Baile para ser excluído!";
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
@@ -553,7 +553,7 @@ public class BaileBean implements Serializable {
     }
 
     public void adicionarServico() {
-        if (evento.getId() == -1) {
+        if (evento.getId() == null) {
             msgConfirma = "Salve este Baile antes de Adicionar Serviços!";
             GenericaMensagem.warn("Erro", msgConfirma);
             return;

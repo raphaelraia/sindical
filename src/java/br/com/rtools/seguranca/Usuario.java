@@ -129,7 +129,9 @@ public class Usuario implements Serializable {
 
     public void loadListUsuarioHistoricoAcesso() {
         listUsuarioHistoricoAcesso = new ArrayList();
-        listUsuarioHistoricoAcesso = new UsuarioHistoricoAcessoDao().list(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId());
+        if(id != -1) {
+            listUsuarioHistoricoAcesso = new UsuarioHistoricoAcessoDao().list(id);
+        }
     }
 
     public List<UsuarioHistoricoAcesso> getListUsuarioHistoricoAcesso() {

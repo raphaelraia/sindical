@@ -65,7 +65,7 @@
                                         <p:menuitem value="Filial Departamento"     action="#{chamadaPaginaBean.pagina('filialDepartamento')}" />
                                         <p:menuitem value="Filial Rotina"           action="#{chamadaPaginaBean.pagina('filialRotina')}" />
                                         <p:menuitem value="Permissão Catraca"       action="#{chamadaPaginaBean.pagina('permissaoCatraca')}" />
-                                        <p:menuitem value="Cadastro Depto"          action="#{chamadaPaginaBean.paginaSimples('Departamento', 'Departamento')}" />                                        
+                                        <p:menuitem value="Cadastro Depto"          action="#{chamadaPaginaBean.paginaSimples('Departamento', 'Departamento')}" />
                                     </p:submenu>  
                                     <p:submenu label="Departamentos">  
                                         <p:menuitem value="Manutenção"  action="#{chamadaPaginaBean.pagina('configuracaoDepartamento')}"/>
@@ -87,11 +87,14 @@
                                         <p:menuitem value="Importação"          action="#{chamadaPaginaBean.pagina('importacao')}" />
                                         <p:menuitem value="Canvas"              action="#{chamadaPaginaBean.pagina('canvas')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                     </p:submenu>
-                                    <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"> 
-                                        <p:menuitem value="Ordem Serviço"    />
-                                        <p:menuitem value="Prioridade" />                                            
+                                    <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
+                                        <p:menuitem value="Ordem Serviço" />
+                                        <p:menuitem value="Prioridade" />
                                         <p:menuitem value="Status" />                                            
                                     </p:submenu>
+                                    <p:submenu label="Relatório">
+                                        <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('usuarioHistoricoAcesso')}" />
+                                    </p:submenu>                                    
                                     <p:menuitem value="Sair do Sistema" action="#{usuarioBean.sairSistema}" /> 
                                 </p:submenu>
                                 <p:submenu label="Departamentos" icon="ui-icon-document" style="margin-right: 15px">
@@ -121,7 +124,7 @@
                                 <p:submenu label="Ferramentas" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:submenu label="Pessoa" icon="ui-icon-contact">
                                         <p:menuitem value="Física"                action="#{chamadaPaginaBean.pessoaFisica}"/>
-                                        <p:menuitem value="Juridica"              action="#{chamadaPaginaBean.pessoaJuridica}"/>                                        
+                                        <p:menuitem value="Juridica"              action="#{chamadaPaginaBean.pessoaJuridica}"/>
                                         <p:menuitem value="Tipo Documento"        action="#{chamadaPaginaBean.tipoDocumento}"/>
                                         <p:menuitem value="Cnae"                  action="#{chamadaPaginaBean.pagina('cnae')}"/>
                                         <p:menuitem value="Profissão"             action="#{chamadaPaginaBean.pagina('profissao')}"/>
@@ -141,7 +144,7 @@
                                         <p:menuitem value="Descrição"     action="#{chamadaPaginaBean.paginaSimples('DescricaoEndereco', 'Descrição Endereço')}"/>
                                         <p:menuitem value="Tipo Endereço" action="#{chamadaPaginaBean.paginaSimples('TipoEndereco', 'Tipo Endereço')}"/>
                                     </p:submenu>
-                                    <p:submenu label="Agenda" icon="ui-icon-document">  
+                                    <p:submenu label="Agenda" icon="ui-icon-document">
                                         <p:menuitem value="Agenda Telefônica"        action="#{chamadaPaginaBean.pagina('agendaTelefone')}" actionListener="#{agendaTelefoneBean.putType('agendaTelefone')}" title="Cadastro"/>
                                         <p:menuitem value="Grupo Agenda"             action="#{chamadaPaginaBean.grupoAgenda}" />
                                         <p:menuitem value="Grupo Usuário"            action="#{chamadaPaginaBean.pagina('agendaGrupoUsuario')}" />
@@ -151,7 +154,7 @@
                                         <p:menuitem value="Categoria de Compromisso" action="#{chamadaPaginaBean.paginaSimples('CompromissoCategoria', 'Categoria de Compromisso')}"/>
                                     </p:submenu>
                                     <p:menuitem icon="ui-icon ui-icon-mail-closed" value="Email" action="#{chamadaPaginaBean.pagina('email')}" />
-                                    <p:submenu label="Relatórios" icon="ui-icon-document">  
+                                    <p:submenu label="Relatórios" icon="ui-icon-document">
                                         <p:menuitem value="Manutenção" action="#{chamadaPaginaBean.relatorio}"/>
                                         <p:menuitem value="Etiquetas" action="#{chamadaPaginaBean.pagina('etiquetas', 'sisEtiquetas')}"/>
                                         <p:menuitem value="Cartas"                   action="#{chamadaPaginaBean.pagina('sisCarta')}" />
