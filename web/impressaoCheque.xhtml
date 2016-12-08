@@ -103,7 +103,7 @@
                                 </p:column>
 
                                 <p:column style="width: 40px; text-align: center">
-                                    <p:commandButton icon="ui-icon-print" title="IMPRIMIR ESTE CHEQUE" action="#{impressaoChequeBean.validaImpressao(linha)}" update=":formImpressaoCheque:panel_imprimir_cheque" oncomplete="PF('dlg_imprimir_cheque').show()" disabled="#{not empty linha.cancelamento or not empty linha.impressao or index ne 0}"/>
+                                    <p:commandButton icon="ui-icon-print" title="IMPRIMIR ESTE CHEQUE" action="#{impressaoChequeBean.validaImpressao(linha)}" update=":formImpressaoCheque:panel_imprimir_cheque" oncomplete="PF('dlg_imprimir_cheque').show()" disabled="#{not empty linha.cancelamento or index ne 0 and impressaoChequeBean.statusCheque eq 'emitir' and controleAcessoBean.verificarPermissao('reimprimir_cheque', 1)}"/>
                                 </p:column>
 
                                 <p:column style="width: 40px; text-align: center" rendered="#{empty linha.cancelamento}">

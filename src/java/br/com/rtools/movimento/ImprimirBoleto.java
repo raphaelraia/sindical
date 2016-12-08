@@ -116,8 +116,8 @@ public class ImprimirBoleto {
             }
             try {
                 CloseableHttpClient httpclient = HttpClients.createDefault();
-                //HttpPost httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_contribuinte");
-                HttpPost httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_contribuinte");
+                HttpPost httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_contribuinte");
+                //HttpPost httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_contribuinte");
                 List<NameValuePair> params = new ArrayList(2);
                 params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
                 httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
@@ -131,8 +131,8 @@ public class ImprimirBoleto {
                     httppost.abort();
 
                     httpclient = HttpClients.createDefault();
-                    //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/salvar_contribuinte");
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/salvar_contribuinte");
+                    httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/salvar_contribuinte");
+                    //httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/salvar_contribuinte");
                     params = new ArrayList(2);
                     params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
                     params.add(new BasicNameValuePair("documento", lista.get(i).getPessoa().getDocumento()));
@@ -164,8 +164,8 @@ public class ImprimirBoleto {
 
                 httpclient = HttpClients.createDefault();
                 // PESQUISAR BOLETO
-                //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_boleto");
-                httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_boleto");
+                httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_boleto");
+                //httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_boleto");
 
                 params = new ArrayList(2);
                 params.add(new BasicNameValuePair("nosso_numero", "" + bol.getNrBoleto()));
@@ -181,11 +181,11 @@ public class ImprimirBoleto {
                 httpclient = HttpClients.createDefault();
 
                 if (entity == null) {
-                    //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/criar_boleto");
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/criar_boleto");
+                    httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/criar_boleto");
+                    //httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/criar_boleto");
                 } else {
-                    //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/alterar_boleto");
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/alterar_boleto");
+                    httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/alterar_boleto");
+                    //httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/alterar_boleto");
                 }
 
                 params = new ArrayList(2);
@@ -223,8 +223,8 @@ public class ImprimirBoleto {
 
                 httpclient = HttpClients.createDefault();
 
-                //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/imprimir_boleto");
-                httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/imprimir_boleto");
+                httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/imprimir_boleto");
+                //httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/imprimir_boleto");
 
                 params = new ArrayList(2);
                 params.add(new BasicNameValuePair("nosso_numero", "" + bol.getNrBoleto()));
