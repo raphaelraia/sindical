@@ -111,17 +111,17 @@ public class ImpressaoChequeBean implements Serializable {
         }
         dao.commit();
 
-        while(ic.getMensagemErro().equals("imprimindo")){
+        while (ic.getMensagemErro().equals("imprimindo")) {
             ic = (ImpressoraCheque) dao.rebind(ic);
         }
 
         if (ic.getMensagemErro().isEmpty()) {
             ChequePag cp = (ChequePag) dao.find(new ChequePag(), imprimirCheque.getLinhaCheque().getCheque_id());
             cp = (ChequePag) dao.rebind(cp);
-            
+
             cp.setDtImpressao(DataHoje.dataHoje());
             cp.setOperadorImpressao(Usuario.getUsuario());
-            
+
             dao.openTransaction();
             if (!dao.update(cp)) {
                 GenericaMensagem.error("Atenção", "Erro ao atualizar Cheque!");
@@ -129,7 +129,7 @@ public class ImpressaoChequeBean implements Serializable {
                 return;
             }
             dao.commit();
-            
+
             loadListaCheques();
 
             GenericaMensagem.info("Sucesso", "Dados enviados para impressora!");

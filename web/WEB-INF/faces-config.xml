@@ -2361,6 +2361,12 @@
             <redirect/>
         </navigation-case>             
         
+        <navigation-case>
+            <from-outcome>remessa</from-outcome>
+            <to-view-id>/remessa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

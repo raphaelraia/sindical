@@ -5,10 +5,11 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
-import br.com.rtools.financeiro.dao.RemessaBancoDao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
@@ -115,7 +117,7 @@ public class BancoDoBrasil extends Cobranca {
             return Integer.toString(soma % 11);
         } else {
             return "X";
-        } 
+        }
     }
 
     @Override
@@ -217,11 +219,19 @@ public class BancoDoBrasil extends Cobranca {
 
             dao.openTransaction();
 
-            Remessa remessa = new Remessa(-1, nome_arquivo, DataHoje.dataHoje(), DataHoje.horaMinuto());
+            Remessa remessa = new Remessa(-1, nome_arquivo, DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
             if (!dao.save(remessa)) {
                 dao.rollback();
                 return null;
             }
+
+            List<String> list_log = new ArrayList();
+            list_log.add("** Nova Remessa **");
+            list_log.add("ID: " + remessa.getId());
+            list_log.add("NOME: " + remessa.getNomeArquivo());
+            list_log.add("EMISSÃO: " + remessa.getDtEmissaoString());
+            list_log.add("HORA EMISSÃO: " + remessa.getHoraEmissao() + "\n");
+            list_log.add("** Movimentos **");
 
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
             File fileA = new File(patch + "/downloads");
@@ -322,7 +332,7 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7); // NÚMERO DO CONVÊNIO (criar campo no banco pra isso) // 032 a 038 9(007) Número do Convênio de Cobrança do Cedente
                 CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 039 a 063 X(025) Código de Controle da Empresa 
                 //CONTEUDO_REMESSA += (boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7) + "0000000000").substring(0, 17 - ("" + (Integer.valueOf(mov.getDocumento()))).length()) + ("" + (Integer.valueOf(mov.getDocumento()))); // 064 a 080 9(017) Nosso-Número 
-                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 -  mov.getDocumento().length()) + mov.getDocumento(); // 064 a 080 9(017) Nosso-Número 
+                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - mov.getDocumento().length()) + mov.getDocumento(); // 064 a 080 9(017) Nosso-Número 
                 CONTEUDO_REMESSA += "00"; // 081 a 082 9(002) Número da Prestação: “00” (Zeros)
                 CONTEUDO_REMESSA += "00"; // 083 a 084 9(002) Grupo de Valor: “00” (Zeros)
                 CONTEUDO_REMESSA += "   "; // 085 a 087 X(003) Complemento do Registro: “Brancos”
@@ -409,6 +419,10 @@ public class BancoDoBrasil extends Cobranca {
                     dao.rollback();
                     return null;
                 }
+
+                list_log.add("ID: " + mov.getId());
+                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("-----------------------");
             }
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -424,6 +438,13 @@ public class BancoDoBrasil extends Cobranca {
             buff_writer.close();
 
             dao.commit();
+
+            String log_string = "";
+            log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
+            NovoLog log = new NovoLog();
+            log.save(
+                    log_string
+            );
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 

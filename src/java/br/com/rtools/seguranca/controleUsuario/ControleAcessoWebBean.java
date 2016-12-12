@@ -94,15 +94,51 @@ public class ControleAcessoWebBean implements Serializable {
 
     private PesquisaCNPJ pesquisaCNPJ = new PesquisaCNPJ();
 
-    private String tipoDocumentoAcesso = "cnpj";
+    private List<SelectItem> listaDocumentoAcesso = new ArrayList();
+    private Integer indexDocumentoAcesso = 0;
+
+    public ControleAcessoWebBean() {
+        loadListaDocumentoAcesso();
+    }
+
+    public final void loadListaDocumentoAcesso() {
+        listaDocumentoAcesso.clear();
+        indexDocumentoAcesso = 0;
+
+        Registro r = getRegistro();
+
+        if (r.isAcessoWebDocumento()) {
+            Dao dao = new Dao();
+            List<TipoDocumento> l = new ArrayList();//new Dao().list(new TipoDocumento());
+            l.add((TipoDocumento) dao.find(new TipoDocumento(), 2));
+            l.add((TipoDocumento) dao.find(new TipoDocumento(), 1));
+            l.add((TipoDocumento) dao.find(new TipoDocumento(), 3));
+
+            for (TipoDocumento tp : l) {
+                if (r.isAcessoWebDocumentoCPF() && tp.getId() == 1) {
+                    listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), tp.getDescricao(), Integer.toString(tp.getId())));
+                }
+                if (r.isAcessoWebDocumentoCNPJ() && tp.getId() == 2) {
+                    listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), tp.getDescricao(), Integer.toString(tp.getId())));
+                }
+                if (r.isAcessoWebDocumentoCEI() && tp.getId() == 3) {
+                    listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), tp.getDescricao(), Integer.toString(tp.getId())));
+                }
+            }
+            
+            if(listaDocumentoAcesso.isEmpty()){
+                listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), "INVÁLIDO", "99"));
+            }
+        }
+    }
 
     public String maskDocumento() {
-        switch (tipoDocumentoAcesso) {
-            case "cnpj":
-                return "99.999.999/9999-99";
-            case "cpf":
+        switch (Integer.valueOf(listaDocumentoAcesso.get(indexDocumentoAcesso).getDescription())) {
+            case 1:
                 return "999.999.999-99";
-            case "cei":
+            case 2:
+                return "99.999.999/9999-99";
+            case 3:
                 return "99.999.99999/99";
         }
         return "";
@@ -707,18 +743,22 @@ public class ControleAcessoWebBean implements Serializable {
 
         String documentox = AnaliseString.extrairNumeros(documento);
 
-        if (tipoDocumentoAcesso.equals("cnpj")) {
+        if (Integer.valueOf(listaDocumentoAcesso.get(indexDocumentoAcesso).getDescription()) == 2) {
             if (!ValidaDocumentos.isValidoCNPJ(documentox)) {
                 GenericaMensagem.warn("Erro", "CNPJ Inválido!");
                 PF.update("formLogin");
                 return null;
             }
-        } else if (tipoDocumentoAcesso.equals("cpf")) {
+        } else if (Integer.valueOf(listaDocumentoAcesso.get(indexDocumentoAcesso).getDescription()) == 1) {
             if (!ValidaDocumentos.isValidoCPF(documentox)) {
                 GenericaMensagem.warn("Erro", "CPF Inválido!");
                 PF.update("formLogin");
                 return null;
             }
+        } else if (Integer.valueOf(listaDocumentoAcesso.get(indexDocumentoAcesso).getDescription()) == 99) {
+                GenericaMensagem.warn("Erro", "Lista Inválida!");
+                PF.update("formLogin");
+                return null;
         } else {
             // CEI
         }
@@ -738,7 +778,7 @@ public class ControleAcessoWebBean implements Serializable {
         // SE TER CADASTRO NO SISTEMA
         if (!listDocumento.isEmpty()) {
             juridica = listDocumento.get(0);
-        } else if (tipoDocumentoAcesso.equals("cnpj")) {
+        } else if (Integer.valueOf(listaDocumentoAcesso.get(indexDocumentoAcesso).getDescription()) == 2) {
             // SE NÃO TER CADASTRO NO SISTEMA
             JuridicaReceita jr = pesquisaNaReceitaWeb(confirma_pesquisa_receita, documento);
             if (jr == null) {
@@ -1375,12 +1415,20 @@ public class ControleAcessoWebBean implements Serializable {
         this.pesquisaCNPJ = pesquisaCNPJ;
     }
 
-    public String getTipoDocumentoAcesso() {
-        return tipoDocumentoAcesso;
+    public List<SelectItem> getListaDocumentoAcesso() {
+        return listaDocumentoAcesso;
     }
 
-    public void setTipoDocumentoAcesso(String tipoDocumentoAcesso) {
-        this.tipoDocumentoAcesso = tipoDocumentoAcesso;
+    public void setListaDocumentoAcesso(List<SelectItem> listaDocumentoAcesso) {
+        this.listaDocumentoAcesso = listaDocumentoAcesso;
+    }
+
+    public Integer getIndexDocumentoAcesso() {
+        return indexDocumentoAcesso;
+    }
+
+    public void setIndexDocumentoAcesso(Integer indexDocumentoAcesso) {
+        this.indexDocumentoAcesso = indexDocumentoAcesso;
     }
 
 }

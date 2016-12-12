@@ -5,9 +5,11 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -170,7 +172,7 @@ public class CaixaFederalSigCB extends Cobranca {
         Dao dao = new Dao();
         dao.openTransaction();
 
-        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto());
+        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
             return null;
@@ -184,6 +186,14 @@ public class CaixaFederalSigCB extends Cobranca {
             dao.rollback();
             return null;
         }
+        
+        List<String> list_log = new ArrayList();
+        list_log.add("** Nova Remessa **");
+        list_log.add("ID: " + remessa.getId());
+        list_log.add("NOME: " + remessa.getNomeArquivo());
+        list_log.add("EMISSÃO: " + remessa.getDtEmissaoString());
+        list_log.add("HORA EMISSÃO: " + remessa.getHoraEmissao() + "\n");
+        list_log.add("** Movimentos **");
 
         try {
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
@@ -259,7 +269,7 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
             CONTEUDO_REMESSA = "";
 
             Integer sequencial_lote = 1;
@@ -293,7 +303,7 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
             CONTEUDO_REMESSA = "";
 
             Float valor_total_lote = (float) 0;
@@ -359,7 +369,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Q -------------------------------------------------------
@@ -422,7 +432,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Y-53 ----------------------------------------------------
@@ -454,7 +464,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
                 CONTEUDO_REMESSA = "";
 
                 sequencial_registro_lote++;
@@ -467,6 +477,10 @@ public class CaixaFederalSigCB extends Cobranca {
                     dao.rollback();
                     return null;
                 }
+
+                list_log.add("ID: " + mov.getId());
+                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("-----------------------");
             }
 
             // rodapé(footer) do lote ----------------------------------------------------
@@ -492,7 +506,7 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------
@@ -513,6 +527,13 @@ public class CaixaFederalSigCB extends Cobranca {
             buff_writer.close();
 
             dao.commit();
+
+            String log_string = "";
+            log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
+            NovoLog log = new NovoLog();
+            log.save(
+                    log_string
+            );
             //dao.rollback();
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -537,11 +558,19 @@ public class CaixaFederalSigCB extends Cobranca {
         Dao dao = new Dao();
         dao.openTransaction();
 
-        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto());
+        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
             return null;
         }
+
+        List<String> list_log = new ArrayList();
+        list_log.add("** Nova Remessa **");
+        list_log.add("ID: " + remessa.getId());
+        list_log.add("NOME: " + remessa.getNomeArquivo());
+        list_log.add("EMISSÃO: " + remessa.getDtEmissaoString());
+        list_log.add("HORA EMISSÃO: " + remessa.getHoraEmissao() + "\n");
+        list_log.add("** Movimentos **");
 
         String nome_arquivo = "E" + DataHoje.data().substring(0, 2) + "00000".substring(0, 5 - ("" + remessa.getId()).length()) + ("" + remessa.getId()) + ".REM";
 
@@ -554,7 +583,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
         try {
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
-            
+
             FacesContext context = FacesContext.getCurrentInstance();
             String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/");
             String destino = caminho + "/" + remessa.getId();
@@ -667,7 +696,7 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
             CONTEUDO_REMESSA = "";
 
             Float valor_total_lote = (float) 0;
@@ -734,7 +763,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Q -------------------------------------------------------
@@ -796,7 +825,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
                 CONTEUDO_REMESSA = "";
                 // tipo 3 - segmento Y-53 ----------------------------------------------------
                 // ---------------------------------------------------------------------------
@@ -826,7 +855,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
-                
+
                 sequencial_registro_lote++;
 
                 valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
@@ -837,6 +866,10 @@ public class CaixaFederalSigCB extends Cobranca {
                     dao.rollback();
                     return null;
                 }
+
+                list_log.add("ID: " + mov.getId());
+                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("-----------------------");
             }
 
             // rodapé(footer) do lote ----------------------------------------------------
@@ -860,7 +893,7 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------
@@ -884,6 +917,13 @@ public class CaixaFederalSigCB extends Cobranca {
             buff_writer.close();
 
             dao.commit();
+
+            String log_string = "";
+            log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
+            NovoLog log = new NovoLog();
+            log.save(
+                    log_string
+            );
             //dao.rollback();
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------

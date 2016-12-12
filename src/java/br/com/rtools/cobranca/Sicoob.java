@@ -1,10 +1,30 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.Remessa;
+import br.com.rtools.financeiro.RemessaBanco;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.utilitarios.AnaliseString;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 
 public class Sicoob extends Cobranca {
 
@@ -223,6 +243,378 @@ public class Sicoob extends Cobranca {
 
     @Override
     public File gerarRemessa() {
-        return null;
+        PessoaEnderecoDao ped = new PessoaEnderecoDao();
+        MovimentoDao dbmov = new MovimentoDao();
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
+        if (!dao.save(remessa)) {
+            dao.rollback();
+            return null;
+        }
+
+        List<String> list_log = new ArrayList();
+        list_log.add("** Nova Remessa **");
+        list_log.add("ID: " + remessa.getId());
+        list_log.add("NOME: " + remessa.getNomeArquivo());
+        list_log.add("EMISSÃO: " + remessa.getDtEmissaoString());
+        list_log.add("HORA EMISSÃO: " + remessa.getHoraEmissao() + "\n");
+        list_log.add("** Movimentos **");
+
+        String nome_arquivo = "E" + DataHoje.data().substring(0, 2) + "00000".substring(0, 5 - ("" + remessa.getId()).length()) + ("" + remessa.getId()) + ".REM";
+
+        remessa.setNomeArquivo(nome_arquivo);
+
+        if (!dao.update(remessa)) {
+            dao.rollback();
+            return null;
+        }
+
+        try {
+            String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
+
+            FacesContext context = FacesContext.getCurrentInstance();
+            String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/");
+            String destino = caminho + "/" + remessa.getId();
+
+            File flDes = new File(destino);
+            flDes.mkdirs();
+
+            destino += "/" + nome_arquivo;
+
+            FileOutputStream file_out = new FileOutputStream(destino);
+            file_out.close();
+
+            FileWriter file_writer = new FileWriter(destino);
+            BufferedWriter buff_writer = new BufferedWriter(file_writer);
+
+            String CONTEUDO_REMESSA = "";
+
+            if (listaMovimento.isEmpty()) {
+                return null;
+            }
+            // header do arquivo -----------------------------------------------
+            // -----------------------------------------------------------------
+            Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
+            String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
+
+            CONTEUDO_REMESSA += "756"; // 01.0 Código do Sicoob na Compensação: "756"
+            CONTEUDO_REMESSA += "0000"; // 02.0 Lote de Serviço: "0000"
+            CONTEUDO_REMESSA += "0"; // 03.0 Tipo de Registro: "0"
+            CONTEUDO_REMESSA += "         "; // Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "2"; // 05.0 "Tipo de Inscrição da Empresa: '1'  =  CPF '2'  =  CGC / CNPJ"
+            CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // Número de Inscrição da Empresa
+            CONTEUDO_REMESSA += "                    "; // 07.0 Código do Convênio no Sicoob: Preencher com espaços em branco
+
+            Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
+            String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
+            String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
+            String cedente = boleto_rem.getContaCobranca().getCedente();
+            String codigo_cedente = boleto_rem.getContaCobranca().getCodCedente();
+
+            CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.0 Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.0 Conta Corrente: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 11.0 Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += "0";//moduloOnze("" + Integer.valueOf(codigo_cedente)); // 12.0 Dígito Verificador da Ag/Conta: Preencher com zeros
+            CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 13.0 Nome da Empresa
+            CONTEUDO_REMESSA += AnaliseString.normalizeUpper(("SICOOB                        ").substring(0, 30)); // 14.0 Nome do Banco: SICOOB
+            CONTEUDO_REMESSA += "          "; // 15.0 Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "1"; // 16.0 Código Remessa / Retorno: "1"
+            CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 17.0 Data de Geração do Arquivo
+            CONTEUDO_REMESSA += DataHoje.hora().replace(":", ""); // 18.0 Hora de Geração do Arquivo
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + remessa.getId()).length()) + ("" + remessa.getId()); // 19.0 Número Seqüencial do Arquivo: Número seqüencial adotado e controlado pelo responsável pela geração do arquivo para ordenar a disposição dos arquivos encaminhados. Evoluir um número seqüencial a cada header de arquivo.
+            CONTEUDO_REMESSA += "081"; // 20.0 No da Versão do Layout do Arquivo: "081"
+            CONTEUDO_REMESSA += "00000"; // 21.0 Densidade de Gravação do Arquivo: "00000"
+            CONTEUDO_REMESSA += "                    "; // 22.0 Para Uso Reservado do Banco: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "                    "; // 23.0 Para Uso Reservado da Empresa: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "                             "; // 24.0 Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
+            
+            // PAREI AQUI
+            
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+            CONTEUDO_REMESSA = "";
+
+            Integer sequencial_lote = 1;
+
+            // header do lote ------------------------------------------------------------
+            // ---------------------------------------------------------------------------
+            CONTEUDO_REMESSA += "756"; // 01.1 Código do Banco na Compensação: "756"
+            CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.1 "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
+            CONTEUDO_REMESSA += "1"; // 03.1 Tipo de Registro: "1"
+            CONTEUDO_REMESSA += "R"; // 04.1 Tipo de Operação: "R"
+
+            // SE COBRANÇA REGISTRADA
+            if (true == true) {
+                CONTEUDO_REMESSA += "01"; // 05.1 Tipo de Serviço: "01"
+            } else {
+                CONTEUDO_REMESSA += "02"; // 05.1 Tipo de Serviço: "02"
+            }
+
+            CONTEUDO_REMESSA += "  "; // 06.1 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "040"; // 07.1 Nº da Versão do Layout do Lote: "040"
+            CONTEUDO_REMESSA += " "; // 08.1 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+
+            CONTEUDO_REMESSA += "2"; // 09.1 "Tipo de Inscrição da Empresa: '1'  =  CPF '2'  =  CGC / CNPJ"
+            CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_sindicato.length()) + documento_sindicato; // 10.1 Nº de Inscrição da Empresa
+            CONTEUDO_REMESSA += "                    ".substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 13.1 Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 14.1 Conta Corrente: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 15.1 Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += " ";//moduloOnze("" + Integer.valueOf(codigo_cedente)); // 16.1 Dígito Verificador da Ag/Conta: Preencher com espaços em branco
+            CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 17.1 Nome da Empresa
+            CONTEUDO_REMESSA += "                                        "; // 18.1 "Mensagem 1: Texto referente a mensagens que serão impressas em todos os boletos referentes ao mesmo lote. Estes campos não serão utilizados no arquivo retorno."
+            CONTEUDO_REMESSA += "                                        "; // 19.1 "Mensagem 2: Texto referente a mensagens que serão impressas em todos os boletos referentes ao mesmo lote. Estes campos não serão utilizados no arquivo retorno."
+            CONTEUDO_REMESSA += "00000000".substring(0, 8 - ("" + remessa.getId()).length()) + ("" + remessa.getId()); // 20.1 "Número Remessa/Retorno: Número adotado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo para identificar a seqüência de envio ou devolução do arquivo entre o Beneficiário e o Sicoob. Caso número não seja informado, retornará zeros."
+            CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 21.1 Data de Gravação Remessa/Retorno
+            CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito: "00000000"
+            CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
+            CONTEUDO_REMESSA = "";
+
+            Float valor_total_lote = (float) 0;
+
+            // body ------------------------------------------------------------
+            // -----------------------------------------------------------------
+            Integer sequencial_registro_lote = 1;
+            for (Integer i = 0; i < listaMovimento.size(); i++) {
+                Movimento mov = listaMovimento.get(i);
+                // tipo 3 - segmento P -------------------------------------------------------
+                // ---------------------------------------------------------------------------
+                CONTEUDO_REMESSA += "756"; // 01.3P Código do Banco na Compensação: "756"
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3P "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
+                CONTEUDO_REMESSA += "3"; // 03.3P Tipo de Registro: "3"
+                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3P Nº Sequencial do Registro no Lote: Número adotado para identificar a sequência de registros encaminhados no lote. Preencher com '00001' para o primeiro segmento P do lote do arquivo. Para os demais: número do segmento anterior acrescido de 1.
+                CONTEUDO_REMESSA += "P"; // 05.3P Cód. Segmento do Registro Detalhe: "P"
+                CONTEUDO_REMESSA += " "; // 06.3P Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+                CONTEUDO_REMESSA += "01"; // 07.3P "Código de Movimento Remessa: '01' = Entrada de Títulos '09' = Protestar '10' = Desistência do Protesto e Baixar Título '11' = Desistência do Protesto e manter em carteira '31' = Alterações de outros dados"
+                CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.3P Conta Corrente: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 11.3P Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += " ";// moduloOnze("" + Integer.valueOf(codigo_cedente)); // 12.3P Dígito Verificador da Ag/Conta: Preencher com espaços em branco
+                // 14 cobraça registrada // JÁ ESTA NO NÚMERO DO DOCUMENTO EM MOVIMENTO
+                //CONTEUDO_REMESSA += "14"; // 13.3P Carteira/Nosso Número Modalidade da Carteira 41 42 9(002) Ver Nota Explicativa G069 *G069
+                CONTEUDO_REMESSA += (mov.getDocumento() + "                    ").substring(0, 20); // 13.3P Nosso Número
+                CONTEUDO_REMESSA += "1"; // 14.3P Código da Carteira: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += "0"; // 15.3P Forma de Cadastr. do Título no Banco: "0"
+                CONTEUDO_REMESSA += " "; // 16.3P Tipo de Documento: Preencher com espaços em branco
+                CONTEUDO_REMESSA += "2"; // 17.3P "Identificação da Emissão do Boleto: (vide planilha ""Contracapa"" deste arquivo) '1'  =  Sicoob Emite '2'  =  Beneficiário Emite"
+                CONTEUDO_REMESSA += "2"; // 18.3P "Identificação da Distribuição do Boleto: (vide planilha ""Contracapa"" deste arquivo) '1'  =  Sicoob Distribui '2'  =  Beneficiário Distribui"
+
+                CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + mov.getId()).length()) + mov.getId(); // 19.3P Número do Documento de Cobrança: Número adotado e controlado pelo Cliente, para identificar o título de cobrança. Informação utilizada pelo Sicoob para referenciar a identificação do documento objeto de cobrança. Poderá conter número de duplicata, no caso de cobrança de duplicatas; número da apólice, no caso de cobrança de seguros, etc.
+
+                CONTEUDO_REMESSA += mov.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título
+
+                String valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
+                // NO MANUAL FALA 13 PORÉM TEM QUE SER 15, ACHO QUE POR CAUSA DAS DECIMAIS ,00 (O MANUAL NÃO EXPLICA ISSO)
+                CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor Nominal do Título
+                CONTEUDO_REMESSA += "00000"; // 22.3P Agência Encarregada da Cobrança: "00000"
+                CONTEUDO_REMESSA += " "; // 23.3P Dígito Verificador da Agência: Preencher com espaços em branco
+                CONTEUDO_REMESSA += "02";// 24.3P Espécie de Título
+
+                String aceite = boleto_rem.getContaCobranca().getAceite().equals("N") ? boleto_rem.getContaCobranca().getAceite() : "A";
+                CONTEUDO_REMESSA += aceite; // 25.3P "Identific. de Título Aceito/Não Aceito: Código adotado pela FEBRABAN para identificar se o título de cobrança foi aceito (reconhecimento da dívida pelo Pagador). 'A'  =  Aceite 'N'  =  Não Aceite"
+                CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 26.3P Data da Emissão do Título
+                CONTEUDO_REMESSA += "0"; // 27.3P "Código do Juros de Mora: '0'  =  Isento '1'  =  Valor por Dia '2'  =  Taxa Mensal"
+                CONTEUDO_REMESSA += "00000000"; // 28.3P Data do Juros de Mora: preencher com a Data de Vencimento do Título formato DDMMAAAA
+                CONTEUDO_REMESSA += "000000000000000"; // 29.3P Juros Mora
+                CONTEUDO_REMESSA += "0"; // 30.3P "Código do Desconto 1 '0'  =  Não Conceder desconto '1'  =  Valor Fixo Até a Data Informada '2'  =  Percentual Até a Data Informada"
+
+                CONTEUDO_REMESSA += "00000000"; // 31.3P Data do Desconto 1
+                CONTEUDO_REMESSA += "000000000000000"; // 32.3P Valor/Percentual a ser Concedido
+                CONTEUDO_REMESSA += "000000000000000"; // 33.3P Valor do IOF a ser Recolhido
+                CONTEUDO_REMESSA += "000000000000000"; // 34.3P Valor do Abatimento
+                CONTEUDO_REMESSA += "                         ".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 35.3P Identificação do Título na Empresa: Campo destinado para uso do Beneficiário para identificação do Título.
+                CONTEUDO_REMESSA += "3"; // 36.3P "'1' = Protestar dias corridos '2' = Protestar dias úteis '3' = Não Protestar '9' = Cancelar Instrução de Protesto 
+                // O código '9' deverá ser utilizado para cancelar um agendamento futuro de protesto e deverá estar atrelado obrigatóriamente ao código de entrada '31'."
+
+                CONTEUDO_REMESSA += "00"; // 37.3P "Informar prazo de inicio do protesto a partir do vencimento '0' - Não protestar"
+                CONTEUDO_REMESSA += "0"; // 38.3P Código para Baixa/Devolução: "0"
+                CONTEUDO_REMESSA += "   "; // 39.3P Número de Dias para Baixa/Devolução: Preencher com espaços em branco
+                CONTEUDO_REMESSA += "09"; // 40.3P "Código da Moeda: '02'  =  Dólar Americano Comercial (Venda) '09'  = Real"
+                CONTEUDO_REMESSA += "0000000000"; // 41.3P Nº do Contrato da Operação de Créd.: "0000000000"
+                CONTEUDO_REMESSA += " "; // 42.3P Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
+                CONTEUDO_REMESSA = "";
+
+                // tipo 3 - segmento Q -------------------------------------------------------
+                // ---------------------------------------------------------------------------
+                CONTEUDO_REMESSA += "104"; // 01.3Q Controle Código do Banco 1 3 9(003) Preencher '104’ G001
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Q Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
+                CONTEUDO_REMESSA += "3"; // 03.3Q Tipo de Registro 8 8 9(001) Preencher '3’ (equivale a Detalhe de Lote) *G003
+
+                sequencial_registro_lote++;
+                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q Serviço Nº Sequencial do Registro no Lote 9 13 9(005) Ver Nota Explicativa G038 *G038
+                CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe 14 14 X(001) Preencher 'Q’ *G039
+                CONTEUDO_REMESSA += " "; // 06.3Q Filler 15 15 X(001) Preencher com espaços G004
+                CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa 16 17 9(002) Ver Nota Explicativa C004 *C004
+
+                if (mov.getPessoa().getTipoDocumento().getId() == 1) { // CPF
+                    CONTEUDO_REMESSA += "1"; // 08.3Q Dados do Pagador Tipo de Inscrição do Pagador 18 18 9(001) Preencher com o tipo de inscrição do Pagador: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
+                } else if (mov.getPessoa().getTipoDocumento().getId() == 2) { // CNPJ
+                    CONTEUDO_REMESSA += "2"; // 08.3Q Dados do Pagador Tipo de Inscrição do Pagador 18 18 9(001) Preencher com o tipo de inscrição do Pagador: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
+                }
+
+                String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
+                CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição do Pagador 19 33 9(015) Preencher com o número do CNPJ ou CPF do Pagador, conforme o caso *G006
+
+                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome do Pagador 34 73 X(040) Preencher com Nome do Pagador 
+
+                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
+                if (pessoa_endereco != null) {
+                    String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
+                            end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
+                            end_numero = pessoa_endereco.getNumero(),
+                            end_bairro = pessoa_endereco.getEndereco().getBairro().getDescricao(),
+                            end_cep = pessoa_endereco.getEndereco().getCep(),
+                            end_cidade = pessoa_endereco.getEndereco().getCidade().getCidade(),
+                            end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
+
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro do Pagador 114 128 X(015) G032
+                    String cep = end_cep.replace("-", "").replace(".", "");
+                    CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
+                    CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade do Pagador 137 151 X(015) Preencher com o nome do município correspondente ao endereço do Pagador G033
+                    CONTEUDO_REMESSA += end_uf; // 16.3Q Unidade da Federação do Pagador 152 153 X(002) Preencher com o código do Estado ou Unidade da Federação correspondente ao município G036
+                } else {
+                    CONTEUDO_REMESSA += "                                        "; // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
+                    CONTEUDO_REMESSA += "               "; // 12.3Q Bairro do Pagador 114 128 X(015) G032
+                    CONTEUDO_REMESSA += "     "; // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
+                    CONTEUDO_REMESSA += "   "; // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
+                    CONTEUDO_REMESSA += "               "; // 15.3Q Cidade do Pagador 137 151 X(015) Preencher com o nome do município correspondente ao endereço do Pagador G033
+                    CONTEUDO_REMESSA += "  "; // 16.3Q Unidade da Federação do Pagador 152 153 X(002) Preencher com o código do Estado ou Unidade da Federação correspondente ao município G036
+                }
+
+                CONTEUDO_REMESSA += "0"; // 17.3Q Dados do Sacador/Avalista Tipo de Inscrição do Sacador/Avalista 154 154 9(001) Preencher obrigatoriamente caso a empresa cliente não seja o Beneficiário original do título, com: '1' (CPF - se Sacador Avalista for pessoa física); ou '2' (CNPJ - se pessoa jurídica); nos demais casos, preencher com zeros *G005
+                CONTEUDO_REMESSA += "000000000000000"; // 18.3Q Número de Inscrição do Sacador/Avalista 155 169 9(015) Preencher obrigatoriamente com o número do CNPJ ou CPF do Sacador Avalista, nos casos explicitados no conteúdo do campo 17.3Q *G006
+                CONTEUDO_REMESSA += "                                        "; // 19.3Q Nome do Sacador/Avalista 170 209 X(040) Preencher obrigatoriamente com o Nome do Sacador Avalista, nos casos explicitados no conteúdo do campo 17.3Q C060
+                CONTEUDO_REMESSA += "   "; // 20.3Q Banco Correspondente Cód. Bco. Corresp. na Compensação 210 212 9(003) Preencher com zeros; campo exclusivo para troca de arquivos entre bancos *C031
+                CONTEUDO_REMESSA += "                    "; // 21.3Q Nosso Núm. Bco. Correspondente Nosso Nº no Banco Correspondente 213 232 X(020) Preencher com espaços; campo exclusivo para troca de arquivos entre bancos *C032
+                CONTEUDO_REMESSA += "        "; // 22.3Q CNAB Filler 233 240 X(008) Preencher com espaços G004
+
+                //buff_writer.write(CONTEUDO_REMESSA);
+                //buff_writer.newLine();
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
+                CONTEUDO_REMESSA = "";
+                // tipo 3 - segmento Y-53 ----------------------------------------------------
+                // ---------------------------------------------------------------------------
+                CONTEUDO_REMESSA += "104"; // 01.3Y Controle Banco Código do Banco na Compensação 1 3 3 - Num  G001 
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Y Lote Lote de Serviço 4 7 4 - Num  *G002 
+                CONTEUDO_REMESSA += "3"; // 03.3Y Registro Tipo de Registro 8 8 1 - Num ‘3’ *G003 
+
+                sequencial_registro_lote++;
+                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Y Serviço Nº do Registro Nº Sequencial do Registro no Lote 9 13 5 - Num  *G038 
+                CONTEUDO_REMESSA += "Y"; // 05.3Y Segmento Cód. Segmento do Registro Detalhe 14 14 1 - Alfa ‘Y’ *G039 
+                CONTEUDO_REMESSA += " "; // 06.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 15 15 1 - Alfa Brancos G004 
+                CONTEUDO_REMESSA += "01"; // 07.3Y Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 
+                CONTEUDO_REMESSA += "53"; // 08.3Y Cod. Reg. Opcional Identificação Registro Opcional 18 19 2 - Num '53' *G067 
+                /*
+                '01' = Aceita qualquer valor ‘02’= Entre o mínimo e o máximo ‘03’= Não aceita pagamento com o valor divergente
+                 */
+                CONTEUDO_REMESSA += "02"; // 09.3Y Tipo de Pagamento Identificação de Tipo de Pagamento Identificação de Tipo de Pagamento 20 21 2 - Num  C078
+                CONTEUDO_REMESSA += "01"; // 10.3Y Quantidade de Pagamentos Possíveis Quantidade de Pagamentos Possíveis 22 23 2  Num  C079 
+                /*
+                  ‘1’ = % (percentual) ‘2’ = valor 
+                 */
+                CONTEUDO_REMESSA += "2"; // 11.3Y  Alteração Nominal do Título Tipo de Valor  Tipo de Valor Informado 24 24 1  Num  C080
+                CONTEUDO_REMESSA += "000000090000000"; // 12.3Y Valor Máximo/Percentual Valor Máximo 25 39 13 2 Num  C081 
+                CONTEUDO_REMESSA += "2"; // 14.3Y Tipo de Valor Tipo de Valor Informado 40 40 1  Num  C08
+                CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
+                CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
+
+                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+                CONTEUDO_REMESSA = "";
+
+                sequencial_registro_lote++;
+
+                valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
+
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
+
+                if (!dao.save(remessaBanco)) {
+                    dao.rollback();
+                    return null;
+                }
+
+                list_log.add("ID: " + mov.getId());
+                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("-----------------------");
+            }
+
+            // rodapé(footer) do lote ----------------------------------------------------
+            // ---------------------------------------------------------------------------                
+            CONTEUDO_REMESSA += "104"; // 01.5 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
+            CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
+            CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 8 8 9(001) Preencher ‘5’ (equivale a Trailer de Lote) *G003
+            CONTEUDO_REMESSA += "         "; // 04.5 CNAB Filler 9 17 X(009) Preencher com espaços G004
+            Integer quantidade_lote = (2 * listaMovimento.size()) + 2;
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Qtde de Registros Quantidade de Registros no Lote 18 23 9(006) Preencher com a Quantidade de registros no lote; trata-se da somatória dos registros de tipo 1, 3, e 5 *G057
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaMovimento.size()).length()) + ("" + listaMovimento.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança Simples 24 29 9(006) Preencher com a Quantidade total de títulos informados no lote *C070
+            String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
+            CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dos Títulos em Carteiras de Cobrança Simples 30 46 9(017) Preencher com o Valor total de títulos informados no lote *C071
+            CONTEUDO_REMESSA += "000000"; // 08.5 Totalização da Cobrança Caucionada Quantidade de Títulos em Cobranças Caucionadas 47 52 9(006) Preencher com zeros *C070
+            CONTEUDO_REMESSA += "00000000000000000"; // 09.5 Valor Total dos Títulos em Carteiras Caucionadas 53 69 9(017) Preencher com zeros *C071
+            CONTEUDO_REMESSA += "000000"; // 10.5 Totalização da Cobrança Descontada Quantidade de Títulos em Cobrança Descontada 70 75 9(006) Preencher com zeros *C070
+            CONTEUDO_REMESSA += "00000000000000000"; // 11.5 Quantidade de Títulos em Carteiras Descontadas 76 92 9(017) Preencher com zeros *C071
+            CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
+            CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
+
+            //buff_writer.write(CONTEUDO_REMESSA);
+            //buff_writer.newLine();
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
+            CONTEUDO_REMESSA = "";
+
+            // rodapé(footer) do arquivo ----------------------------------------------------
+            // ---------------------------------------------------------------------------                
+            CONTEUDO_REMESSA += "104"; // 01.9 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
+            CONTEUDO_REMESSA += "9999"; // 02.9 Lote de Serviço 4 7 9(004) Preencher ‘9999’ *G002
+            CONTEUDO_REMESSA += "9"; // 03.9 Tipo de Registro 8 8 9(001) Preencher ‘9’ (equivale a Trailer de Arquivo) *G003
+            CONTEUDO_REMESSA += "         "; // 04.9 CNAB Filler 9 17 X(009) Preencher com espaços G004
+            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+
+            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+            CONTEUDO_REMESSA += "000001"; // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+
+            Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24 29 9(006) Informar o Número do total de registros enviados no arquivo; trata-se da somatória dos registros de tipo 0, 1, 3, 5 e 9 G056
+            CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
+            CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004
+
+            buff_writer.write(CONTEUDO_REMESSA);
+            buff_writer.flush();
+            buff_writer.close();
+
+            dao.commit();
+
+            String log_string = "";
+            log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
+            NovoLog log = new NovoLog();
+            log.save(
+                    log_string
+            );
+            //dao.rollback();
+            // -----------------------------------------------------------------
+            // -----------------------------------------------------------------
+
+            return new File(destino);
+        } catch (IOException | NumberFormatException e) {
+            e.getMessage();
+            return null;
+        }        
     }
 }

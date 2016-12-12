@@ -200,9 +200,26 @@
                                                     <p:ajax event="blur" update="@this"/>
                                                 </p:inputTextarea>                                            
                                             </p:column>
+
                                             <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.acessoWebDocumento}" itemLabel="Acesso por Documento (Usado para acesso patronal / contribuinte [acesso direto CNPJ])">
-                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
+                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages panel_acesso_web_documento" />
                                             </p:selectBooleanCheckbox>
+
+                                            <h:panelGrid id="panel_acesso_web_documento">
+                                                <p:panel rendered="#{registroEmpresarialBean.registro.acessoWebDocumento}">
+                                                    <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.acessoWebDocumentoCNPJ}" itemLabel="Acesso por Documento CNPJ" style="padding-right: 20px">
+                                                        <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
+                                                    </p:selectBooleanCheckbox>
+
+                                                    <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.acessoWebDocumentoCPF}" itemLabel="Acesso por Documento CPF" style="padding-right: 20px">
+                                                        <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
+                                                    </p:selectBooleanCheckbox>
+
+                                                    <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.acessoWebDocumentoCEI}" itemLabel="Acesso por Documento CEI">
+                                                        <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
+                                                    </p:selectBooleanCheckbox>
+                                                </p:panel>
+                                            </h:panelGrid>
                                         </p:panelGrid>
                                     </p:panel>
                                 </p:tab>

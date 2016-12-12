@@ -58,16 +58,19 @@
                                     <p:menuitem value="Baixar Boleto"              action="#{chamadaPaginaBean.baixaBoleto}" />
                                     <p:menuitem value="Extrato na Tela"            action="#{chamadaPaginaBean.extratoTela}" />
                                     <p:menuitem value="Gerar Contribuição"         action="#{chamadaPaginaBean.contribuicao}" />
-                                    <p:menuitem value="Fechamento de Caixa"   action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
+                                    <p:menuitem value="Fechamento de Caixa"        action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
                                     <p:menuitem value="Impressão de Boletos"       action="#{chamadaPaginaBean.impressaoBoletos}" />
-                                    <p:menuitem value="Impressão Individual"  action="#{chamadaPaginaBean.processamentoIndividual}" />
+                                    <p:menuitem value="Impressão Individual"       action="#{chamadaPaginaBean.processamentoIndividual}" />
                                     <p:menuitem value="Retorno Banco"              action="#{chamadaPaginaBean.retornoBanco}" />
+                                    <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
                                     <p:menuitem value="Retorno Padrao"             action="#{chamadaPaginaBean.retornoPadrao}" rendered="false"/>
-                                    <p:menuitem value="Envio de Arq. Contribuinte" action="#{chamadaPaginaBean.enviarArquivosContribuinte}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contribuinte')}"/>
-                                    <p:menuitem value="Envio de Arq. Escritório"   action="#{chamadaPaginaBean.enviarArquivosContabilidade}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contabilidade')}" />
+                                    <p:submenu label="Envio de Arquivos">
+                                        <p:menuitem value="Contribuinte" action="#{chamadaPaginaBean.enviarArquivosContribuinte}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contribuinte')}"/>
+                                        <p:menuitem value="Escritório"   action="#{chamadaPaginaBean.enviarArquivosContabilidade}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contabilidade')}" />
+                                    </p:submenu>
                                     <p:menuitem value="Gerar Notificação"          action="#{chamadaPaginaBean.notificacao()}" />
                                     <p:menuitem value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing', 'tmktHistoricoBean')}"/>
-                                    <p:menuitem value="Download Documentos Web"          action="#{chamadaPaginaBean.pagina('downloadDocumentosWeb')}" />
+                                    <p:menuitem value="Download Doc. Web"          action="#{chamadaPaginaBean.pagina('downloadDocumentosWeb')}" />
                                 </p:submenu>
 
                                 <p:submenu label="Relatórios" icon="ui-icon-document" style="margin-right: 15px">

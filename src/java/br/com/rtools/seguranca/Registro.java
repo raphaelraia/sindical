@@ -119,6 +119,12 @@ public class Registro implements Serializable {
     private String raisMensagemEmail;
     @Column(name = "is_biometria", columnDefinition = "boolean default false")
     private boolean biometria;
+    @Column(name = "is_acesso_web_documento_cnpj", columnDefinition = "boolean default true")
+    private boolean acessoWebDocumentoCNPJ;
+    @Column(name = "is_acesso_web_documento_cpf", columnDefinition = "boolean default false")
+    private boolean acessoWebDocumentoCPF;
+    @Column(name = "is_acesso_web_documento_cei", columnDefinition = "boolean default false")
+    private boolean acessoWebDocumentoCEI;
 
     public Registro() {
         this.id = -1;
@@ -171,6 +177,9 @@ public class Registro implements Serializable {
         this.acessoWebDocumento = false;
         this.raisMensagemEmail = "";
         this.biometria = false;
+        this.acessoWebDocumentoCNPJ = true;
+        this.acessoWebDocumentoCPF = false;
+        this.acessoWebDocumentoCEI = false;
     }
 
     public Registro(int id,
@@ -222,8 +231,10 @@ public class Registro implements Serializable {
             boolean acessoWebDocumento,
             String raisMensagemEmail,
             boolean cadastroCnpj,
-            boolean biometria) {
-
+            boolean biometria,
+            boolean acessoWebDocumentoCNPJ,
+            boolean acessoWebDocumentoCPF,
+            boolean acessoWebDocumentoCEI) {
         this.id = id;
         this.filial = filial;
         this.tipoEmpresa = tipoEmpresa;
@@ -273,6 +284,9 @@ public class Registro implements Serializable {
         this.acessoWebDocumento = acessoWebDocumento;
         this.raisMensagemEmail = raisMensagemEmail;
         this.biometria = biometria;
+        this.acessoWebDocumentoCNPJ = acessoWebDocumentoCNPJ;
+        this.acessoWebDocumentoCPF = acessoWebDocumentoCPF;
+        this.acessoWebDocumentoCEI = acessoWebDocumentoCEI;
     }
 
     public int getId() {
@@ -697,5 +711,29 @@ public class Registro implements Serializable {
 
     public static Registro get() {
         return (Registro) new Dao().find(new Registro(), 1);
+    }
+
+    public boolean isAcessoWebDocumentoCNPJ() {
+        return acessoWebDocumentoCNPJ;
+    }
+
+    public void setAcessoWebDocumentoCNPJ(boolean acessoWebDocumentoCNPJ) {
+        this.acessoWebDocumentoCNPJ = acessoWebDocumentoCNPJ;
+    }
+
+    public boolean isAcessoWebDocumentoCPF() {
+        return acessoWebDocumentoCPF;
+    }
+
+    public void setAcessoWebDocumentoCPF(boolean acessoWebDocumentoCPF) {
+        this.acessoWebDocumentoCPF = acessoWebDocumentoCPF;
+    }
+
+    public boolean isAcessoWebDocumentoCEI() {
+        return acessoWebDocumentoCEI;
+    }
+
+    public void setAcessoWebDocumentoCEI(boolean acessoWebDocumentoCEI) {
+        this.acessoWebDocumentoCEI = acessoWebDocumentoCEI;
     }
 }

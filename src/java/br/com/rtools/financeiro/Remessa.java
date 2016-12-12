@@ -1,5 +1,7 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -19,19 +21,34 @@ public class Remessa implements Serializable {
     private Date dtEmissao;
     @Column(name = "ds_hora_emissao")
     private String horaEmissao;
+    @Column(name = "dt_envio_banco")
+    @Temporal(TemporalType.DATE)
+    private Date dtEnvioBanco;
+    @JoinColumn(name = "id_usuario_emissao", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario usuarioEmissao;
+    @JoinColumn(name = "id_usuario_envio_banco", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario usuarioEnvioBanco;
 
     public Remessa() {
         this.id = -1;
         this.nomeArquivo = "";
         this.dtEmissao = null;
         this.horaEmissao = "";
+        this.dtEnvioBanco = null;
+        this.usuarioEmissao = null;
+        this.usuarioEnvioBanco = null;
     }
 
-    public Remessa(int id, String nomeArquivo, Date dtEmissao, String horaEmissao) {
+    public Remessa(int id, String nomeArquivo, Date dtEmissao, String horaEmissao, Date dtEnvioBanco, Usuario usuarioEmissao, Usuario usuarioEnvioBanco) {
         this.id = id;
         this.nomeArquivo = nomeArquivo;
         this.dtEmissao = dtEmissao;
         this.horaEmissao = horaEmissao;
+        this.dtEnvioBanco = dtEnvioBanco;
+        this.usuarioEmissao = usuarioEmissao;
+        this.usuarioEnvioBanco = usuarioEnvioBanco;
     }
 
     public int getId() {
@@ -57,6 +74,14 @@ public class Remessa implements Serializable {
     public void setDtEmissao(Date dtEmissao) {
         this.dtEmissao = dtEmissao;
     }
+    
+    public String getDtEmissaoString() {
+        return DataHoje.converteData(dtEmissao);
+    }
+
+    public void setDtEmissaoString(String dtEmissaoString) {
+        this.dtEmissao = DataHoje.converte(dtEmissaoString);
+    }
 
     public String getHoraEmissao() {
         return horaEmissao;
@@ -64,6 +89,38 @@ public class Remessa implements Serializable {
 
     public void setHoraEmissao(String horaEmissao) {
         this.horaEmissao = horaEmissao;
+    }
+
+    public Date getDtEnvioBanco() {
+        return dtEnvioBanco;
+    }
+
+    public void setDtEnvioBanco(Date dtEnvioBanco) {
+        this.dtEnvioBanco = dtEnvioBanco;
+    }
+    
+    public String getDtEnvioBancoString() {
+        return DataHoje.converteData(dtEnvioBanco);
+    }
+
+    public void setDtEnvioBancoString(String dtEnvioBancoString) {
+        this.dtEnvioBanco = DataHoje.converte(dtEnvioBancoString);
+    }
+
+    public Usuario getUsuarioEmissao() {
+        return usuarioEmissao;
+    }
+
+    public void setUsuarioEmissao(Usuario usuarioEmissao) {
+        this.usuarioEmissao = usuarioEmissao;
+    }
+
+    public Usuario getUsuarioEnvioBanco() {
+        return usuarioEnvioBanco;
+    }
+
+    public void setUsuarioEnvioBanco(Usuario usuarioEnvioBanco) {
+        this.usuarioEnvioBanco = usuarioEnvioBanco;
     }
 
 }

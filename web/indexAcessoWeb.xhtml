@@ -74,19 +74,15 @@
 
                     <h:panelGrid style="margin-top: 30px; width: 100%" rendered="#{controleAcessoWebBean.registro.acessoWebDocumento}">
                         <h:panelGrid columns="2">
-                            
-                            
-                            <p:selectOneMenu value="#{controleAcessoWebBean.tipoDocumentoAcesso}" style="width: 50px">
+                            <p:selectOneMenu value="#{controleAcessoWebBean.indexDocumentoAcesso}" style="width: 50px">
                                 <p:ajax event="change" update="@this i_cnpj" listener="#{controleAcessoWebBean.setDocumento('')}"/>
-                                <f:selectItem itemValue="cnpj" itemLabel="CNPJ"/>
-                                <f:selectItem itemValue="cpf"  itemLabel="CPF"/>
-                                <f:selectItem itemValue="cei"  itemLabel="CEI"/>
+                                <f:selectItems value="#{controleAcessoWebBean.listaDocumentoAcesso}"/>
                             </p:selectOneMenu>
 
                             <p:inputMask id="i_cnpj" value="#{controleAcessoWebBean.documento}" placeholder="Digite o Documento" style="width: 100%; text-align: center" autocomplete="off" mask="#{controleAcessoWebBean.maskDocumento()}"/>
-                        
                         </h:panelGrid>
-                        <p:commandButton value="Entrar" style="width: 100%; margin-top: 20px" action="#{controleAcessoWebBean.validacaoDocumento(false)}" />
+                        
+                        <p:commandButton value="Entrar" style="width: 100%; margin-top: 20px" action="#{controleAcessoWebBean.validacaoDocumento(false)}" disabled="#{empty controleAcessoWebBean.listaDocumentoAcesso}"/>
                     </h:panelGrid>
                 </p:panel>
 

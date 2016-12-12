@@ -1,6 +1,5 @@
 package br.com.rtools.seguranca.dao;
 
-import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;

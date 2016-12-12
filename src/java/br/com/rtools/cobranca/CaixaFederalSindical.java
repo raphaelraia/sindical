@@ -5,11 +5,13 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
@@ -172,7 +175,7 @@ public class CaixaFederalSindical extends Cobranca {
         Dao dao = new Dao();
         dao.openTransaction();
 
-        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto());
+        Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
             return null;
@@ -186,6 +189,14 @@ public class CaixaFederalSindical extends Cobranca {
             dao.rollback();
             return null;
         }
+
+        List<String> list_log = new ArrayList();
+        list_log.add("** Nova Remessa **");
+        list_log.add("ID: " + remessa.getId());
+        list_log.add("NOME: " + remessa.getNomeArquivo());
+        list_log.add("EMISSÃO: " + remessa.getDtEmissaoString());
+        list_log.add("HORA EMISSÃO: " + remessa.getHoraEmissao() + "\n");
+        list_log.add("** Movimentos **");
 
         try {
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
@@ -437,7 +448,7 @@ public class CaixaFederalSindical extends Cobranca {
                 3-CONFEDERAÇÃO
                 4-CENTRAL SINDICAL
                 5-MTE
-                */
+                 */
                 CONTEUDO_REMESSA += "1"; // 23.3Q Dados do Beneficiár io Tipo de entidade Tipo de Entidade Sindical 216 216 1 - Num  C105
                 //String cod_sindical = boleto_rem.getContaCobranca().getCodigoSindical();
                 String cod_sindical = boleto_rem.getContaCobranca().getSicasSindical();
@@ -445,9 +456,9 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "                   "; // 25.3Q  CNAB Uso Exclusivo FEBRABAN/ CNAB Uso Exclusivo FEBRABAN/CNAB  222 240 19 Alfa Brancos G004 *G006 
 
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-                
+
                 CONTEUDO_REMESSA = "";
-                
+
                 // tipo 3 - segmento Y-53 ----------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "104"; // 01.3Y Controle Banco Código do Banco na Compensação 1 3 3 - Num  G001 
@@ -487,6 +498,10 @@ public class CaixaFederalSindical extends Cobranca {
                     dao.rollback();
                     return null;
                 }
+
+                list_log.add("ID: " + mov.getId());
+                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("-----------------------");
             }
 
             // rodapé(footer) do lote ----------------------------------------------------
@@ -508,7 +523,7 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
 
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-            
+
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------
@@ -532,6 +547,13 @@ public class CaixaFederalSindical extends Cobranca {
             buff_writer.close();
 
             dao.commit();
+
+            String log_string = "";
+            log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
+            NovoLog log = new NovoLog();
+            log.save(
+                    log_string
+            );
             //dao.rollback();
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
