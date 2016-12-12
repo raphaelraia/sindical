@@ -307,7 +307,7 @@ public class AcordoBean implements Serializable {
         for (int i = 0; i < listaOperado.size(); i++) {
             totalAcordo += ((Movimento) listaOperado.get(i).getArgumento2()).getValor();
         }
-        if (totalAcordo != Moeda.converteUS$(getTotal())) {
+        if (Moeda.converteFloatR$Float(totalAcordo) != Moeda.converteUS$(getTotal())) {
             GenericaMensagem.warn("Atenção", "VALOR TOTAL NÃO CONFERE COM OS VALORES DAS PARCELAS!");
             return;
         }

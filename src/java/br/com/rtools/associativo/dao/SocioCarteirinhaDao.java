@@ -119,17 +119,17 @@ public class SocioCarteirinhaDao extends DB {
                     + "            p.ds_nome,                                               \n" // 1 NOME
                     + "            pj.ds_documento,                                         \n" // 2 CNPJ
                     + "            pj.ds_nome,                                              \n" // 3 RAZÃO SOCIAL
-                    + "            to_char(sc.dt_emissao, 'DD/MM/YYYY') as impresso,        \n" // 4 EMISSÃO
+                    + "            to_char(sc.dt_emissao, 'DD/MM/YYYY') AS impresso,        \n" // 4 EMISSÃO
                     + "            c.ds_cidade,                                             \n" // 5 EMPRESA CIDADE
-                    + "            to_char(sc.dt_validade_carteirinha, 'DD/MM/YYYY') as validade_carteirinha, \n" // 6 VALIDADE
+                    + "            to_char(sc.dt_validade_carteirinha, 'DD/MM/YYYY') AS validade_carteirinha, \n" // 6 VALIDADE
                     + "            c.ds_uf,                                                 \n" // 7 EMPRESA UF
-                    + "            to_char(pe.dt_admissao, 'DD/MM/YYYY') as admissao,       \n" // 8 ADMISSÃO
+                    + "            to_char(pe.dt_admissao, 'DD/MM/YYYY') AS admissao,       \n" // 8 ADMISSÃO
                     + "            j.ds_fantasia,                                           \n" // 9 FANTASIA
                     + "            s.matricula,                                             \n" // 10 MATRÍCULA
                     + "            s.nr_via,                                                \n" // 11 VIA
                     + "            s.id_socio,                                              \n" // 12 
-                    + "            to_char(s.filiacao, 'DD/MM/YYYY') as filiacao,           \n" // 13 FILIAÇÃO
-                    + "            pr.ds_profissao as cargo,                                \n" // 14 PROFISSÃO
+                    + "            to_char(s.filiacao, 'DD/MM/YYYY') AS filiacao,           \n" // 13 FILIAÇÃO
+                    + "            pr.ds_profissao AS cargo,                                \n" // 14 PROFISSÃO
                     + "            p.ds_documento,                                          \n" // 15 CPF
                     + "            f.ds_rg,                                                 \n" // 16 RG
                     + "            max(m.id),                                               \n" // 17
@@ -145,12 +145,12 @@ public class SocioCarteirinhaDao extends DB {
                     + "            px.uf,                                                   \n" // 27 UF
                     + "            px.cep,                                                  \n" // 28 CEP
                     + "            px.nacionalidade,                                        \n" // 29 NASCIONALIDADE
-                    + "            to_char(px.dt_nascimento, 'DD/MM/YYYY') as nascimento,   \n" // 30 NASCIMENTO
-                    + "            px.estado_civil as estadocivil,                          \n" // 31 ESTADO CÍVIL
+                    + "            to_char(px.dt_nascimento, 'DD/MM/YYYY') AS nascimento,   \n" // 30 NASCIMENTO
+                    + "            px.estado_civil AS estadocivil,                          \n" // 31 ESTADO CÍVIL
                     + "            px.ctps as carteira,                                     \n" // 32 CARTEIRA (CTPS)
                     + "            px.ds_serie as serie,                                    \n" // 33 SÉRIE
                     + "            px.ds_orgao_emissao_rg AS orgao_expeditor,               \n" // 34 ORGÃO EMISSÃO RG
-                    + "            pe.ds_codigo as codigo_funcional,                        \n" // 35 CÓDIGO FUNCIONAL
+                    + "            pe.ds_codigo AS codigo_funcional,                        \n" // 35 CÓDIGO FUNCIONAL
                     + "            s.parentesco,                                            \n" // 36 PARENTESCO
                     + "            s.categoria,                                             \n" // 37 CATEGORIA
                     + "            pt.fantasia AS fantasia_titular,                         \n" // 38 FANTASIA EMPRESA - TITULAR
@@ -190,7 +190,7 @@ public class SocioCarteirinhaDao extends DB {
                             + "	(p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL))  \n"
                             + " )";
                     listWhere.add(subquery);
-                    listWhere.add("SC.dt_emissao IS NULL");
+                    // listWhere.add("SC.dt_emissao IS NULL");
                 } else {
                     // listWhere.add("SC.id NOT IN (SELECT id_carteirinha FROM soc_historico_carteirinha)");
                     listWhere.add("SC.dt_emissao IS NULL");
