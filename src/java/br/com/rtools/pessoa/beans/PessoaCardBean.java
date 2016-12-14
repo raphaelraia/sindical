@@ -47,22 +47,22 @@ public class PessoaCardBean implements Serializable {
     private Usuario usuario;
     private List<PermissaoUsuario> listPermissaoUsuario = new ArrayList();
 
-    public void cardPessoa(int idPessoa) {
+    public void cardPessoa(Integer pessoa_id) {
         close();
         Dao dao = new Dao();
-        pessoa = (Pessoa) dao.find(new Pessoa(), idPessoa);
+        pessoa = (Pessoa) dao.find(new Pessoa(), pessoa_id);
     }
 
-    public void cardUsuario(int idPessoa) {
+    public void cardUsuario(Integer pessoa_id) {
         close();
         FisicaDao fisicaDB = new FisicaDao();
-        fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(idPessoa);
-        if(fisica == null) {
+        fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(pessoa_id);
+        if (fisica == null) {
             JuridicaDao juridicaDB = new JuridicaDao();
-            juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(idPessoa);
+            juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(pessoa_id);
             pessoa = juridica.getPessoa();
         } else {
-            pessoa = fisica.getPessoa();            
+            pessoa = fisica.getPessoa();
         }
         usuario = new UsuarioDao().pesquisaUsuarioPorPessoa(pessoa.getId());
         if (usuario != null) {
@@ -71,20 +71,25 @@ public class PessoaCardBean implements Serializable {
         }
     }
 
-    public void cardFisica(int idPessoa) {
+    public void cardFisica(Integer pessoa_id) {
         close();
         FisicaDao fisicaDB = new FisicaDao();
-        fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(idPessoa);
+        fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(pessoa_id);
         pessoa = fisica.getPessoa();
     }
 
-    public void cardJuridica(int idPessoa) {
+    public void cardJuridica(Integer pessoa_id) {
         close();
         JuridicaDao juridicaDB = new JuridicaDao();
-        juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(idPessoa);
+        juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(pessoa_id);
         if (juridica == null) {
-            juridica = (Juridica) new Dao().find(new Juridica(), idPessoa);
+            juridica = (Juridica) new Dao().find(new Juridica(), pessoa_id);
         }
+    }
+
+    public void cardByIdJuridica(Integer juridica_id) {
+        close();
+        juridica = (Juridica) new Dao().find(new Juridica(), juridica_id);
     }
 
     public Juridica getJuridica() {

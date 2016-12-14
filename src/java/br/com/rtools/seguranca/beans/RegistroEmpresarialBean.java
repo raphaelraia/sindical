@@ -322,7 +322,7 @@ public class RegistroEmpresarialBean implements Serializable {
         mail.setEmailPessoas(emailPessoas);
         String[] string = mail.send();
         if (string[0].isEmpty()) {
-            GenericaMensagem.warn("Validação", "Erro ao enviar mensagem!" + string[0]);
+            GenericaMensagem.warn("Validação", "Erro ao enviar mensagem!" + string[0] + " " + string[1]);
         } else {
             GenericaMensagem.info("Sucesso", "Email enviado com sucesso!");
         }

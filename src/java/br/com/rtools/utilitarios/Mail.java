@@ -12,6 +12,7 @@ import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.EmailPrioridade;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -245,7 +246,14 @@ public class Mail extends MailTemplate implements Serializable {
                         String id = UUID.randomUUID().toString();
                         //msg.setHeader("X-Mailer", "Tov Are's program");
                         msg.setHeader("Content-ID", "<" + id + ">");
-                        Transport.send(msg);
+                        if (xEmail.contains("gmail") || xEmail.contains("googlemail")) {
+                            Transport transport = session.getTransport("smtps");
+                            transport.connect(xSmtp, xPorta, xEmail, xSenha);
+                            transport.sendMessage(msg, msg.getAllRecipients());
+                            transport.close();
+                        } else {
+                            Transport.send(msg);
+                        }
                         boolean updateEmail = false;
                         if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {
                             emailPessoas.get(i).setPessoa(null);
@@ -298,10 +306,12 @@ public class Mail extends MailTemplate implements Serializable {
                         strings[0] = "Enviado com Sucesso.";
                     } catch (AddressException e) {
                         strings[1] = "Email de destinatário inválido!";
+                        strings[1] += " - " + returnExceptionText(e.getMessage());
                     } catch (MessagingException e) {
-                        strings[1] = "" + e;
+                        strings[1] = "" + returnExceptionText(e.getMessage());
                     } catch (UnsupportedEncodingException ex) {
-                        strings[1] = "Erro";
+                        strings[1] = "Erro ";
+                        strings[1] += " - " + returnExceptionText(ex.getMessage());
                     }
                 }
             }
@@ -406,5 +416,22 @@ public class Mail extends MailTemplate implements Serializable {
 
     public void setConfiguracaoDepartamento(ConfiguracaoDepartamento configuracaoDepartamento) {
         this.configuracaoDepartamento = configuracaoDepartamento;
+    }
+
+    public String returnExceptionText(String e) {
+        try {
+            if (e.contains("Could not convert socket to TLS")) {
+                return "Não foi possível converter socket para TLS";
+            }
+        } catch (Exception ex) {
+
+        }
+        return e;
+    }
+
+    public String oauth() throws IOException {
+//        Oauth2 oauth2 = null;
+//        oauth2 = new Oauth2(null, null, null);
+        return null;
     }
 }

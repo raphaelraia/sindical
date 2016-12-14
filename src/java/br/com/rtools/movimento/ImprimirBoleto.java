@@ -41,6 +41,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
+import static br.com.rtools.utilitarios.Jasper.IGNORE_UUID;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -721,6 +722,10 @@ public class ImprimirBoleto {
                     dtSource);
             arquivo = JasperExportManager.exportReportToPdf(print);
             pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
+            File f = new File(pathPasta);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
 
         } catch (Exception e) {
             int x = i;
@@ -2657,9 +2662,11 @@ public class ImprimirBoleto {
     }
 
     public void baixarArquivo() {
-        SalvaArquivos sa = new SalvaArquivos(arquivo, "boleto_x.pdf", false);
+        UUID uuidX = UUID.randomUUID();
+        String uuid = "_" + uuidX.toString().replace("-", "_");
+        SalvaArquivos sa = new SalvaArquivos(arquivo, "boleto" + uuid + ".pdf", false);
         sa.salvaNaPasta(pathPasta);
-        Download download = new Download("boleto_x.pdf", pathPasta, "application/pdf", FacesContext.getCurrentInstance());
+        Download download = new Download("boleto" + uuid + ".pdf", pathPasta, "application/pdf", FacesContext.getCurrentInstance());
         download.baixar();
     }
 
