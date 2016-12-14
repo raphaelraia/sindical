@@ -139,7 +139,7 @@ public abstract class Cobranca {
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.santander)) {
             //cobranca = new Santander(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.sicoob)) {
-            //cobranca = new Sicoob(lista_movimento);
+            cobranca = new Sicoob(lista_movimento);
         }
         return cobranca;
     }

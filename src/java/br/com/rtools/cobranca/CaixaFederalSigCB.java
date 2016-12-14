@@ -522,7 +522,8 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde. de Contas Concil. Qtde de Contas p/ Conc. (Lotes) 30 35 6 - Num  *G037 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Uso Exclusivo FEBRABAN/CNAB 36 240 205 - Alfa Brancos G004 
 
-            buff_writer.write(CONTEUDO_REMESSA);
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+            
             buff_writer.flush();
             buff_writer.close();
 
@@ -912,7 +913,8 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004
 
-            buff_writer.write(CONTEUDO_REMESSA);
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+            
             buff_writer.flush();
             buff_writer.close();
 

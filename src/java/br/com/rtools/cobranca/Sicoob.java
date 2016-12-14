@@ -32,6 +32,10 @@ public class Sicoob extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
+    public Sicoob(List<Movimento> listaMovimento) {
+        super(listaMovimento);
+    }
+
     @Override
     public String moduloDez(String composicao) {
         int i = composicao.length();
@@ -305,19 +309,21 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "0"; // 03.0 Tipo de Registro: "0"
             CONTEUDO_REMESSA += "         "; // Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
             CONTEUDO_REMESSA += "2"; // 05.0 "Tipo de Inscrição da Empresa: '1'  =  CPF '2'  =  CGC / CNPJ"
-            CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // Número de Inscrição da Empresa
+            CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa
             CONTEUDO_REMESSA += "                    "; // 07.0 Código do Convênio no Sicoob: Preencher com espaços em branco
 
             Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
-            String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
+            //String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
+            String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").split("-")[0];
+            String conta_digito = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").split("-")[1];
             String cedente = boleto_rem.getContaCobranca().getCedente();
             String codigo_cedente = boleto_rem.getContaCobranca().getCodCedente();
 
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
             CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.0 Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
-            CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.0 Conta Corrente: vide planilha "Contracapa" deste arquivo
-            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 11.0 Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += "000000000000".substring(0, 12 - conta.length()) + conta; // 10.0 Conta Corrente: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(conta)); // 11.0 Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
             CONTEUDO_REMESSA += "0";//moduloOnze("" + Integer.valueOf(codigo_cedente)); // 12.0 Dígito Verificador da Ag/Conta: Preencher com zeros
             CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 13.0 Nome da Empresa
             CONTEUDO_REMESSA += AnaliseString.normalizeUpper(("SICOOB                        ").substring(0, 30)); // 14.0 Nome do Banco: SICOOB
@@ -331,9 +337,8 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "                    "; // 22.0 Para Uso Reservado do Banco: Preencher com espaços em branco
             CONTEUDO_REMESSA += "                    "; // 23.0 Para Uso Reservado da Empresa: Preencher com espaços em branco
             CONTEUDO_REMESSA += "                             "; // 24.0 Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
-            
+
             // PAREI AQUI
-            
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -359,11 +364,11 @@ public class Sicoob extends Cobranca {
 
             CONTEUDO_REMESSA += "2"; // 09.1 "Tipo de Inscrição da Empresa: '1'  =  CPF '2'  =  CGC / CNPJ"
             CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_sindicato.length()) + documento_sindicato; // 10.1 Nº de Inscrição da Empresa
-            CONTEUDO_REMESSA += "                    ".substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "                    ";//.substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco: Preencher com espaços em branco
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
             CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 13.1 Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
-            CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 14.1 Conta Corrente: vide planilha "Contracapa" deste arquivo
-            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 15.1 Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += "000000000000".substring(0, 12 - conta.length()) + conta; // 14.1 Conta Corrente: vide planilha "Contracapa" deste arquivo
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(conta)); // 15.1 Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
             CONTEUDO_REMESSA += " ";//moduloOnze("" + Integer.valueOf(codigo_cedente)); // 16.1 Dígito Verificador da Ag/Conta: Preencher com espaços em branco
             CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 17.1 Nome da Empresa
             CONTEUDO_REMESSA += "                                        "; // 18.1 "Mensagem 1: Texto referente a mensagens que serão impressas em todos os boletos referentes ao mesmo lote. Estes campos não serão utilizados no arquivo retorno."
@@ -373,8 +378,6 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito: "00000000"
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
 
-            //buff_writer.write(CONTEUDO_REMESSA);
-            //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -397,8 +400,8 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "01"; // 07.3P "Código de Movimento Remessa: '01' = Entrada de Títulos '09' = Protestar '10' = Desistência do Protesto e Baixar Título '11' = Desistência do Protesto e manter em carteira '31' = Alterações de outros dados"
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
                 CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
-                CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.3P Conta Corrente: vide planilha "Contracapa" deste arquivo
-                CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 11.3P Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += "000000000000".substring(0, 12 - conta.length()) + conta; // 10.3P Conta Corrente: vide planilha "Contracapa" deste arquivo
+                CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(conta)); // 11.3P Dígito Verificador da Conta: vide planilha "Contracapa" deste arquivo
                 CONTEUDO_REMESSA += " ";// moduloOnze("" + Integer.valueOf(codigo_cedente)); // 12.3P Dígito Verificador da Ag/Conta: Preencher com espaços em branco
                 // 14 cobraça registrada // JÁ ESTA NO NÚMERO DO DOCUMENTO EM MOVIMENTO
                 //CONTEUDO_REMESSA += "14"; // 13.3P Carteira/Nosso Número Modalidade da Carteira 41 42 9(002) Ver Nota Explicativa G069 *G069
@@ -443,34 +446,33 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Nº do Contrato da Operação de Créd.: "0000000000"
                 CONTEUDO_REMESSA += " "; // 42.3P Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
 
-                //buff_writer.write(CONTEUDO_REMESSA);
-                //buff_writer.newLine();
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
 
                 // tipo 3 - segmento Q -------------------------------------------------------
                 // ---------------------------------------------------------------------------
-                CONTEUDO_REMESSA += "104"; // 01.3Q Controle Código do Banco 1 3 9(003) Preencher '104’ G001
-                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Q Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
-                CONTEUDO_REMESSA += "3"; // 03.3Q Tipo de Registro 8 8 9(001) Preencher '3’ (equivale a Detalhe de Lote) *G003
+                CONTEUDO_REMESSA += "756"; // 01.3Q Código do Banco na Compensação: "756"
+                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Q "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
+                CONTEUDO_REMESSA += "3"; // 03.3Q Tipo de Registro: "3"
 
                 sequencial_registro_lote++;
-                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q Serviço Nº Sequencial do Registro no Lote 9 13 9(005) Ver Nota Explicativa G038 *G038
-                CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe 14 14 X(001) Preencher 'Q’ *G039
-                CONTEUDO_REMESSA += " "; // 06.3Q Filler 15 15 X(001) Preencher com espaços G004
-                CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa 16 17 9(002) Ver Nota Explicativa C004 *C004
+                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q "Nº Sequencial do Registro no Lote: Número adotado para identificar a sequência de registros encaminhados no lote. Preencher com '00001' para o primeiro segmento P do lote do arquivo. Para os demais: número do segmento anterior acrescido de 1. Ex: Se segmento anterior P = ""00001"". Então, segmento Q = ""00002"" e assim consecutivamente."
+                CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe: "Q"
+                CONTEUDO_REMESSA += " "; // 06.3Q Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+                CONTEUDO_REMESSA += "01"; // 07.3Q "Código de Movimento Remessa: '01'  =  Entrada de Títulos"
 
+                // 08.3Q "Tipo de Inscrição Pagador: '1'  =  CPF '2'  =  CGC / CNPJ"
                 if (mov.getPessoa().getTipoDocumento().getId() == 1) { // CPF
-                    CONTEUDO_REMESSA += "1"; // 08.3Q Dados do Pagador Tipo de Inscrição do Pagador 18 18 9(001) Preencher com o tipo de inscrição do Pagador: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
+                    CONTEUDO_REMESSA += "1"; // 08.3Q 
                 } else if (mov.getPessoa().getTipoDocumento().getId() == 2) { // CNPJ
-                    CONTEUDO_REMESSA += "2"; // 08.3Q Dados do Pagador Tipo de Inscrição do Pagador 18 18 9(001) Preencher com o tipo de inscrição do Pagador: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
+                    CONTEUDO_REMESSA += "2"; // 08.3Q 
                 }
 
                 String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
-                CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição do Pagador 19 33 9(015) Preencher com o número do CNPJ ou CPF do Pagador, conforme o caso *G006
+                CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição
 
-                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome do Pagador 34 73 X(040) Preencher com Nome do Pagador 
+                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome
 
                 PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
                 if (pessoa_endereco != null) {
@@ -482,59 +484,28 @@ public class Sicoob extends Cobranca {
                             end_cidade = pessoa_endereco.getEndereco().getCidade().getCidade(),
                             end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
 
-                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
-                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro do Pagador 114 128 X(015) G032
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro
                     String cep = end_cep.replace("-", "").replace(".", "");
-                    CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
-                    CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
-                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade do Pagador 137 151 X(015) Preencher com o nome do município correspondente ao endereço do Pagador G033
-                    CONTEUDO_REMESSA += end_uf; // 16.3Q Unidade da Federação do Pagador 152 153 X(002) Preencher com o código do Estado ou Unidade da Federação correspondente ao município G036
+                    CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP
+                    CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP
+                    CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade
+                    CONTEUDO_REMESSA += end_uf; // 16.3Q UF  - Unidade da Federação
                 } else {
-                    CONTEUDO_REMESSA += "                                        "; // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
-                    CONTEUDO_REMESSA += "               "; // 12.3Q Bairro do Pagador 114 128 X(015) G032
-                    CONTEUDO_REMESSA += "     "; // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
-                    CONTEUDO_REMESSA += "   "; // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
-                    CONTEUDO_REMESSA += "               "; // 15.3Q Cidade do Pagador 137 151 X(015) Preencher com o nome do município correspondente ao endereço do Pagador G033
-                    CONTEUDO_REMESSA += "  "; // 16.3Q Unidade da Federação do Pagador 152 153 X(002) Preencher com o código do Estado ou Unidade da Federação correspondente ao município G036
+                    CONTEUDO_REMESSA += "                                        "; // 11.3Q Endereço
+                    CONTEUDO_REMESSA += "               "; // 12.3Q Bairro
+                    CONTEUDO_REMESSA += "     "; // 13.3Q CEP
+                    CONTEUDO_REMESSA += "   "; // 14.3Q Sufixo CEP
+                    CONTEUDO_REMESSA += "               "; // 15.3Q Cidade
+                    CONTEUDO_REMESSA += "  "; // 16.3Q Unidade da Federação
                 }
 
-                CONTEUDO_REMESSA += "0"; // 17.3Q Dados do Sacador/Avalista Tipo de Inscrição do Sacador/Avalista 154 154 9(001) Preencher obrigatoriamente caso a empresa cliente não seja o Beneficiário original do título, com: '1' (CPF - se Sacador Avalista for pessoa física); ou '2' (CNPJ - se pessoa jurídica); nos demais casos, preencher com zeros *G005
-                CONTEUDO_REMESSA += "000000000000000"; // 18.3Q Número de Inscrição do Sacador/Avalista 155 169 9(015) Preencher obrigatoriamente com o número do CNPJ ou CPF do Sacador Avalista, nos casos explicitados no conteúdo do campo 17.3Q *G006
-                CONTEUDO_REMESSA += "                                        "; // 19.3Q Nome do Sacador/Avalista 170 209 X(040) Preencher obrigatoriamente com o Nome do Sacador Avalista, nos casos explicitados no conteúdo do campo 17.3Q C060
-                CONTEUDO_REMESSA += "   "; // 20.3Q Banco Correspondente Cód. Bco. Corresp. na Compensação 210 212 9(003) Preencher com zeros; campo exclusivo para troca de arquivos entre bancos *C031
-                CONTEUDO_REMESSA += "                    "; // 21.3Q Nosso Núm. Bco. Correspondente Nosso Nº no Banco Correspondente 213 232 X(020) Preencher com espaços; campo exclusivo para troca de arquivos entre bancos *C032
-                CONTEUDO_REMESSA += "        "; // 22.3Q CNAB Filler 233 240 X(008) Preencher com espaços G004
-
-                //buff_writer.write(CONTEUDO_REMESSA);
-                //buff_writer.newLine();
-                buff_writer.write(CONTEUDO_REMESSA + "\r\n");
-
-                CONTEUDO_REMESSA = "";
-                // tipo 3 - segmento Y-53 ----------------------------------------------------
-                // ---------------------------------------------------------------------------
-                CONTEUDO_REMESSA += "104"; // 01.3Y Controle Banco Código do Banco na Compensação 1 3 3 - Num  G001 
-                CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Y Lote Lote de Serviço 4 7 4 - Num  *G002 
-                CONTEUDO_REMESSA += "3"; // 03.3Y Registro Tipo de Registro 8 8 1 - Num ‘3’ *G003 
-
-                sequencial_registro_lote++;
-                CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Y Serviço Nº do Registro Nº Sequencial do Registro no Lote 9 13 5 - Num  *G038 
-                CONTEUDO_REMESSA += "Y"; // 05.3Y Segmento Cód. Segmento do Registro Detalhe 14 14 1 - Alfa ‘Y’ *G039 
-                CONTEUDO_REMESSA += " "; // 06.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 15 15 1 - Alfa Brancos G004 
-                CONTEUDO_REMESSA += "01"; // 07.3Y Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 
-                CONTEUDO_REMESSA += "53"; // 08.3Y Cod. Reg. Opcional Identificação Registro Opcional 18 19 2 - Num '53' *G067 
-                /*
-                '01' = Aceita qualquer valor ‘02’= Entre o mínimo e o máximo ‘03’= Não aceita pagamento com o valor divergente
-                 */
-                CONTEUDO_REMESSA += "02"; // 09.3Y Tipo de Pagamento Identificação de Tipo de Pagamento Identificação de Tipo de Pagamento 20 21 2 - Num  C078
-                CONTEUDO_REMESSA += "01"; // 10.3Y Quantidade de Pagamentos Possíveis Quantidade de Pagamentos Possíveis 22 23 2  Num  C079 
-                /*
-                  ‘1’ = % (percentual) ‘2’ = valor 
-                 */
-                CONTEUDO_REMESSA += "2"; // 11.3Y  Alteração Nominal do Título Tipo de Valor  Tipo de Valor Informado 24 24 1  Num  C080
-                CONTEUDO_REMESSA += "000000090000000"; // 12.3Y Valor Máximo/Percentual Valor Máximo 25 39 13 2 Num  C081 
-                CONTEUDO_REMESSA += "2"; // 14.3Y Tipo de Valor Tipo de Valor Informado 40 40 1  Num  C08
-                CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
-                CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
+                CONTEUDO_REMESSA += "0"; // 17.3Q "Tipo de Inscrição Sacador Avalista: '1'  =  CPF '2'  =  CGC / CNPJ"
+                CONTEUDO_REMESSA += "000000000000000"; // 18.3Q Número de Inscrição
+                CONTEUDO_REMESSA += "                                        "; // 19.3Q Nome do Sacador/Avalista
+                CONTEUDO_REMESSA += "   "; // 20.3Q "Cód. Bco. Corresp. na Compensação: Caso o Beneficiário não tenha contratado a opção de Banco Correspondente com o Sicoob, preencher com ""000""; Caso o Beneficiário tenha contratado a opção de Banco Correspondente com o Sicoob e a emissão seja a cargo do Sicoob (SEQ 17.3.P do Segmento P do Detalhe), preencher com ""001"" (Banco do Brasil) ou ""237"" (Banco Bradesco)."
+                CONTEUDO_REMESSA += "                    "; // 21.3Q "Nosso Nº no Banco Correspondente: ""1323739"" (Banco do Brasil) ou ""4498893"" (Banco Bradesco). O campo NN deve ser preenchido, somente nos casos em que o campo anterior tenha indicado o uso do Banco Correspondente. Obs.: O preenchimento deste campo será alinha à esquerda a partir da posição 213 indo até 219."
+                CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB
 
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
@@ -557,45 +528,43 @@ public class Sicoob extends Cobranca {
 
             // rodapé(footer) do lote ----------------------------------------------------
             // ---------------------------------------------------------------------------                
-            CONTEUDO_REMESSA += "104"; // 01.5 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
-            CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
-            CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 8 8 9(001) Preencher ‘5’ (equivale a Trailer de Lote) *G003
-            CONTEUDO_REMESSA += "         "; // 04.5 CNAB Filler 9 17 X(009) Preencher com espaços G004
-            Integer quantidade_lote = (2 * listaMovimento.size()) + 2;
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Qtde de Registros Quantidade de Registros no Lote 18 23 9(006) Preencher com a Quantidade de registros no lote; trata-se da somatória dos registros de tipo 1, 3, e 5 *G057
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaMovimento.size()).length()) + ("" + listaMovimento.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança Simples 24 29 9(006) Preencher com a Quantidade total de títulos informados no lote *C070
+            CONTEUDO_REMESSA += "756"; // 01.5 Código do Banco na Compensação: "756"
+            CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
+            CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro: "5"
+            CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+            Integer quantidade_lote = (3 * listaMovimento.size()) + 2;
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros no Lote
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaMovimento.size()).length()) + ("" + listaMovimento.size()); // 06.5 Quantidade de Títulos em Cobrança
             String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
-            CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dos Títulos em Carteiras de Cobrança Simples 30 46 9(017) Preencher com o Valor total de títulos informados no lote *C071
-            CONTEUDO_REMESSA += "000000"; // 08.5 Totalização da Cobrança Caucionada Quantidade de Títulos em Cobranças Caucionadas 47 52 9(006) Preencher com zeros *C070
-            CONTEUDO_REMESSA += "00000000000000000"; // 09.5 Valor Total dos Títulos em Carteiras Caucionadas 53 69 9(017) Preencher com zeros *C071
-            CONTEUDO_REMESSA += "000000"; // 10.5 Totalização da Cobrança Descontada Quantidade de Títulos em Cobrança Descontada 70 75 9(006) Preencher com zeros *C070
-            CONTEUDO_REMESSA += "00000000000000000"; // 11.5 Quantidade de Títulos em Carteiras Descontadas 76 92 9(017) Preencher com zeros *C071
-            CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
-            CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
+            CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dosTítulos em Carteiras
+            CONTEUDO_REMESSA += "000000"; // 08.5 Quantidade de Títulos em Cobrança
+            CONTEUDO_REMESSA += "00000000000000000"; // 09.5 Valor Total dosTítulos em Carteiras
+            CONTEUDO_REMESSA += "000000"; // 10.5 Quantidade de Títulos em Cobrança
+            CONTEUDO_REMESSA += "00000000000000000"; // 11.5 Quantidade de Títulos em Carteiras
+            CONTEUDO_REMESSA += "000000"; // 12.5 Quantidade de Títulos em Cobrança
+            CONTEUDO_REMESSA += "00000000000000000"; // 13.5 Valor Total dosTítulos em Carteiras
+            CONTEUDO_REMESSA += "        "; // 14.5 Número do Aviso de Lançamento: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "                                                                                                                     "; // 15.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
 
-            //buff_writer.write(CONTEUDO_REMESSA);
-            //buff_writer.newLine();
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
 
             // rodapé(footer) do arquivo ----------------------------------------------------
             // ---------------------------------------------------------------------------                
-            CONTEUDO_REMESSA += "104"; // 01.9 Controle Código do Banco 1 3 9(003) Preencher ‘104’ G001
-            CONTEUDO_REMESSA += "9999"; // 02.9 Lote de Serviço 4 7 9(004) Preencher ‘9999’ *G002
-            CONTEUDO_REMESSA += "9"; // 03.9 Tipo de Registro 8 8 9(001) Preencher ‘9’ (equivale a Trailer de Arquivo) *G003
-            CONTEUDO_REMESSA += "         "; // 04.9 CNAB Filler 9 17 X(009) Preencher com espaços G004
-            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
-
-            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
-            CONTEUDO_REMESSA += "000001"; // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+            CONTEUDO_REMESSA += "756"; // 01.9 Código do Banco na Compensação: "756"
+            CONTEUDO_REMESSA += "9999"; // 02.9 Preencher com '9999'
+            CONTEUDO_REMESSA += "9"; // 03.9 Tipo de Registro: "9"
+            CONTEUDO_REMESSA += "         "; // 04.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+            CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo
 
             Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24 29 9(006) Informar o Número do total de registros enviados no arquivo; trata-se da somatória dos registros de tipo 0, 1, 3, 5 e 9 G056
-            CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
-            CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo
+            CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes): "000000"
+            CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
 
-            buff_writer.write(CONTEUDO_REMESSA);
+            buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
             buff_writer.flush();
             buff_writer.close();
 
@@ -615,6 +584,6 @@ public class Sicoob extends Cobranca {
         } catch (IOException | NumberFormatException e) {
             e.getMessage();
             return null;
-        }        
+        }
     }
 }
