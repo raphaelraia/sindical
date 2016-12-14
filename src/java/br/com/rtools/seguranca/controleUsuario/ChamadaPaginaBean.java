@@ -2685,18 +2685,20 @@ public class ChamadaPaginaBean implements Serializable {
     public boolean forceCloseSession() {
         try {
             if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario") != null) {
-                if (GenericaSessao.exists("usuario_historico_acesso")) {
-                    UsuarioHistoricoAcesso ua = (UsuarioHistoricoAcesso) new Dao().find((UsuarioHistoricoAcesso) GenericaSessao.getObject("usuario_historico_acesso"));
-                    if (ua == null) {
-                        return true;
-                    }
-                    if (ua.getDtLogout() != null || ua.getDtExpired() != null) {
-                        FacesContext conext = FacesContext.getCurrentInstance();
-                        //Verifica a sessao e a grava na variavel
-                        HttpSession session = (HttpSession) conext.getExternalContext().getSession(false);
-                        //Fecha/Destroi sessao
-                        session.invalidate();
-                        return false;
+                if (((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() != 1) {
+                    if (GenericaSessao.exists("usuario_historico_acesso")) {
+                        UsuarioHistoricoAcesso ua = (UsuarioHistoricoAcesso) new Dao().find((UsuarioHistoricoAcesso) GenericaSessao.getObject("usuario_historico_acesso"));
+                        if (ua == null) {
+                            return true;
+                        }
+                        if (ua.getDtLogout() != null || ua.getDtExpired() != null) {
+                            FacesContext conext = FacesContext.getCurrentInstance();
+                            //Verifica a sessao e a grava na variavel
+                            HttpSession session = (HttpSession) conext.getExternalContext().getSession(false);
+                            //Fecha/Destroi sessao
+                            session.invalidate();
+                            return false;
+                        }
                     }
                 }
             }

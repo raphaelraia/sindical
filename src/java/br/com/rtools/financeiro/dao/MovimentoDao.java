@@ -1147,7 +1147,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public Object[] listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc) {
+    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc) {
         Query qry = null;
         Object[] result = null;
 
@@ -1174,26 +1174,29 @@ public class MovimentoDao extends DB {
             }
 
             String grupoCidadeConvencao = "";
-            if ((!listaConvencao.isEmpty()) && (!listaGrupoCidade.isEmpty())) {
-                grupoCidadeConvencao = " AND contr.id_grupo_cidade IN (";
-
-                for (int i = 0; i < listaGrupoCidade.size(); i++) {
-                    grupoCidadeConvencao += listaGrupoCidade.get(i);
-                    if ((i + 1) < listaGrupoCidade.size()) {
-                        grupoCidadeConvencao += ",";
-                    }
-
-                }
-                grupoCidadeConvencao += ") \n "
-                        + " AND contr.id_convencao IN (";
+            if (!listaConvencao.isEmpty()) {
+                grupoCidadeConvencao = " AND contr.id_convencao IN (";
 
                 for (int i = 0; i < listaConvencao.size(); i++) {
-                    grupoCidadeConvencao += listaConvencao.get(i);
-                    if ((i + 1) < listaConvencao.size()) {
-                        grupoCidadeConvencao += ",";
+                    if (i == 0) {
+                        grupoCidadeConvencao += listaConvencao.get(i);
+                    } else {
+                        grupoCidadeConvencao += "," + listaConvencao.get(i);
                     }
                 }
                 grupoCidadeConvencao += ") \n";
+            }
+
+            if (!listaGrupoCidade.isEmpty()) {
+                grupoCidadeConvencao += " AND contr.id_grupo_cidade IN (";
+                for (int i = 0; i < listaGrupoCidade.size(); i++) {
+                    if (i == 0) {
+                        grupoCidadeConvencao += listaGrupoCidade.get(i);
+                    } else {
+                        grupoCidadeConvencao += "," + listaGrupoCidade.get(i);
+                    }
+                }
+                grupoCidadeConvencao += ") \n ";
             }
 
             filtros += grupoCidadeConvencao;
@@ -1215,26 +1218,19 @@ public class MovimentoDao extends DB {
             if (id_esc != 0) {
                 email += " AND j_contabil.id = " + id_esc + " \n";
             }
-            String textQry = "SELECT m.ds_documento AS boleto,                                                              \n"
-                    + "              contr.ds_nome  AS razao,                                                               \n"
-                    + "              contr.ds_documento AS cnpj,                                                            \n"
-                    //+ "  30/09/2015 CASE WHEN pj.is_cobranca_escritorio = true THEN p_contabil.ds_nome ELSE '' END AS escritorio,    \n"
-                    + "    CASE WHEN ( x.idcontabilidade > 0 )  THEN p_contabil.ds_nome ELSE '' END AS escritorio,    \n"
-                    + "              s.ds_descricao  AS servico,                                                            \n"
-                    + "              t.ds_descricao  AS tipo_servico,                                                       \n"
-                    + "              m.dt_vencimento AS vencimento,                                                         \n"
-                    + "              m.ds_referencia AS referencia,                                                         \n"
-                    + "              m.id AS id,                                                                            \n"
-                    // + "  30/09/2015 -  CASE WHEN pj.is_cobranca_escritorio = true THEN p_contabil.id ELSE 0 END AS idContabilidade,     \n"
-                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN p_contabil.id ELSE 0 END AS idContabilidade,     \n"
-                    + "              contr.id_juridica AS idJuridica,                                                       \n"
-                    //+ "  30/09/2015  CASE WHEN pj.is_cobranca_escritorio = true THEN x.qtde ELSE 0 END AS qtde                        \n"
-                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN x.qtde ELSE 0 END AS qtde,                        \n"
-                    // + " p.ds_email1 email_empresa,p_contabil.ds_email1 email_contabil,pj.is_email_escritorio,length(rtrim(p.ds_email1))
-                    // ADICIONEI LOTE AQUI -- CASO FICAR PESADO TIRAR --
-                    //+ " inner join fin_lote as l on (l.id = m.id_lote)  "
-
-                    + "    bo.dt_cobranca_registrada AS data_cobranca_registrada                                    \n"
+            String textQry = "SELECT m.ds_documento AS boleto,                                                              \n" // 0 BOLETO
+                    + "              contr.ds_nome  AS razao,                                                               \n" // 1 EMPRESA NOME
+                    + "              contr.ds_documento AS cnpj,                                                            \n" // 2 EMPRESA DOCUMENTO
+                    + "    CASE WHEN ( x.idcontabilidade > 0 )  THEN p_contabil.ds_nome ELSE '' END AS escritorio,          \n" // 3 CONTABILIDADE NOME
+                    + "              s.ds_descricao  AS servico,                                                            \n" // 4 SERVIÇO (CONTRIBUIÇÃO)
+                    + "              t.ds_descricao  AS tipo_servico,                                                       \n" // 5 TIPO DE SERVIÇO
+                    + "              m.dt_vencimento AS vencimento,                                                         \n" // 6 VENCIMENTO
+                    + "              m.ds_referencia AS referencia,                                                         \n" // 7 REFERÊNCIA
+                    + "              m.id AS id,                                                                            \n" // 8 MOVIMENTO ID
+                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN p_contabil.id ELSE 0 END AS idContabilidade,            \n" // 9 CONTABILIDADE id_pessoa
+                    + "              contr.id_juridica AS idJuridica,                                                       \n" // 10 EMPRESA id_juridica
+                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN x.qtde ELSE 0 END AS qtde,                              \n" // 11 QUANTIDADE
+                    + "              bo.dt_cobranca_registrada AS data_cobranca_registrada                                  \n" // 12 COBRANÇA REGISTRADA
                     + "         FROM fin_movimento              AS m                                                    \n"
                     + " INNER JOIN arr_contribuintes_vw         AS contr      ON m.id_pessoa = contr.id_pessoa          \n"
                     + " INNER JOIN pes_pessoa                   AS p          ON p.id = contr.id_pessoa                 \n"
@@ -1286,12 +1282,10 @@ public class MovimentoDao extends DB {
                     + " ORDER BY escritorio, razao                                              \n";
 
             qry = getEntityManager().createNativeQuery(textQry);
-            List listaBoletos = qry.getResultList();
-            result = new Object[]{listaBoletos};
-        } catch (EJBQLException e) {
-            e.printStackTrace();
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
         }
-        return result;
     }
 
     public Object[] pesquisaValorFolha(Movimento movimento) {

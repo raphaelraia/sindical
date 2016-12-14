@@ -164,7 +164,7 @@
                                                                 <h:outputLabel value="#{linha.argumento1}º " styleClass="bold"/>
                                                             </p:column>
                                                             <p:column width="20" >
-                                                                <p:selectBooleanCheckbox value="#{linha.argumento0}" >
+                                                                <p:selectBooleanCheckbox value="#{linha.argumento0}" disabled="#{!acordoBean.imprimir}">
                                                                     <p:ajax event="change" update=":form_acordo:i_acordo"/>
                                                                 </p:selectBooleanCheckbox>
                                                             </p:column>
@@ -188,8 +188,8 @@
                                                     </h:column>
                                                     <h:column>
                                                         <h:panelGrid>
-                                                            <p:commandButton icon="ui-icon-circle-arrow-n" action="#{acordoBean.subirData}" update=":form_acordo:"/>
-                                                            <p:commandButton icon="ui-icon-circle-arrow-s" action="#{acordoBean.descerData}" update=":form_acordo:" styleClass="margin-top"/>                                                            
+                                                            <p:commandButton icon="ui-icon-circle-arrow-n" action="#{acordoBean.subirData}" update=":form_acordo:" disabled="#{!acordoBean.imprimir}"/>
+                                                            <p:commandButton icon="ui-icon-circle-arrow-s" action="#{acordoBean.descerData}" update=":form_acordo:" styleClass="margin-top" disabled="#{!acordoBean.imprimir}"/>                                                            
                                                         </h:panelGrid>
                                                     </h:column>
                                                 </h:panelGrid>                                            
@@ -199,10 +199,10 @@
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <p:outputLabel value="OBSERVAÇÃO" styleClass="bold"/><br />
-                                    <p:inputTextarea rows="2" value="#{acordoBean.historico.historico}" converter="#{toUpperCase}" autoResize="true" style="width: 100%" styleClass="margin-top">
+                                    <p:inputTextarea rows="2" value="#{acordoBean.historico.historico}" converter="#{toUpperCase}" autoResize="true" style="width: 100%" styleClass="margin-top" disabled="#{!acordoBean.imprimir}">
                                         <p:ajax event="blur" update="@this" global="false"/>
                                     </p:inputTextarea>
-                                    <p:commandButton value="Gerar Acordo" action="#{acordoBean.adicionarParcela}" update=":form_acordo:" styleClass="margin-top-max font-color-blue"/>
+                                    <p:commandButton value="Gerar Acordo" action="#{acordoBean.adicionarParcela}" update=":form_acordo:" styleClass="margin-top-max font-color-blue" disabled="#{!acordoBean.imprimir}"/>
                                     <h:panelGrid columns="6" styleClass="margin-top-max" rendered="#{not empty acordoBean.listaOperado}">
                                         <h:column>
                                             <h:panelGrid columns="2">

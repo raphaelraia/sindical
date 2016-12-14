@@ -1,6 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.CnaeConvencao;
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
@@ -25,6 +26,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.beans.SisCartaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -38,10 +40,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 @ManagedBean
@@ -51,15 +53,14 @@ public class ImpressaoBoletosBean implements Serializable {
     private String escritorio = "null";
     private List<String> listaData = new ArrayList();
     private List<String> listaDataSelecionada = new ArrayList();
-    private List<Linha> listaMovGrid = new ArrayList();
-    private List<Linha> listaMovGridSelecionada = new ArrayList();
+    private List<ObjectImpressaoBoleto> listObjectImpressaoBoleto = new ArrayList();
+    private List<ObjectImpressaoBoleto> selected = new ArrayList();
     List<Movimento> listaAux = new ArrayList();
     private Juridica contabilidade = new Juridica();
-    private int boletosSel;
     private int idCombo = 0;
-    private int quantidade = 0;
-    private int fInicio = 0;
-    private int fFim = 0;
+    private Integer quantidade = 0;
+    private Integer inicio = 0;
+    private Integer fim = 0;
     int idData = -2;
     private long totalBoletos = 0;
     private long totalEmpresas = 0;
@@ -76,23 +77,24 @@ public class ImpressaoBoletosBean implements Serializable {
     private String regraEscritorios = "all";
     private String cbEmail = "todos";
     private boolean chkTodosVencimentos = false;
+    // private List<Linha> listaMovGrid = new ArrayList();
+    // private List<Linha> listaMovGridSelecionada = new ArrayList();
+    // private int boletosSel;
 
     public void registrarBoletos() {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
-
-        if (!listaMovGridSelecionada.isEmpty()) {
-            for (Linha listaMovGridSelecionada1 : listaMovGridSelecionada) {
-                Movimento mov = db.pesquisaCodigo((Integer) listaMovGridSelecionada1.getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-                lista.add(mov);
-                listaValores.add(mov.getValor());
-                listaVencimentos.add(mov.getVencimento());
+        Dao dao = new Dao();
+        if (!selected.isEmpty()) {
+            for (ObjectImpressaoBoleto oib : selected) {
+                Movimento m = (Movimento) dao.find(new Movimento(), (Integer) oib.getMovimento_id());
+                lista.add(m);
+                listaValores.add(m.getValor());
+                listaVencimentos.add(m.getVencimento());
             }
-
             ImprimirBoleto imp = new ImprimirBoleto();
-            //List<Movimento> listax = imp.registrarMovimentos(lista, listaValores, listaVencimentos);
             HashMap hash = imp.registrarMovimentos(lista, listaValores, listaVencimentos);
 
             if (((ArrayList) hash.get("lista")).isEmpty() || ((ArrayList) hash.get("lista")).size() != listaValores.size()) {
@@ -100,8 +102,7 @@ public class ImpressaoBoletosBean implements Serializable {
             } else {
                 GenericaMensagem.info("Sucesso", "Boletos Registrados!");
             }
-
-            carregarGrid();
+            loadList();
         } else {
             GenericaMensagem.warn("Atenção", "Selecione ao menos um Boleto para registrar!");
         }
@@ -109,6 +110,7 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public String removerContabilidade() {
         contabilidade = new Juridica();
+        loadList();
         return "impressaoBoletos";
     }
 
@@ -136,173 +138,72 @@ public class ImpressaoBoletosBean implements Serializable {
         }
     }
 
-    public int getQuantidade() {
-        if (!(getListaMovGrid().isEmpty())) {
-            if (((quantidade <= listaMovGrid.size()) && (fInicio <= listaMovGrid.size()) && (fFim <= listaMovGrid.size()))
-                    && ((fInicio != 0) && (fFim != 0))) {
-                quantidade = (fFim - fInicio) + 1;
-            }
-        }
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 
-    public int getfInicio() {
-        return fInicio;
+    public String getQuantidadeString() {
+        return Integer.toString(quantidade);
     }
 
-    public void setfInicio(int fInicio) {
-        this.fInicio = fInicio;
-    }
-
-    public int getfFim() {
-        return fFim;
-    }
-
-    public void setfFim(int fFim) {
-        this.fFim = fFim;
-    }
-
-    public int getBoletosSel() {
-        return boletosSel;
-    }
-
-    public void setBoletosSel(int boletosSel) {
-        this.boletosSel = boletosSel;
-    }
-
-    public List<Linha> getListaMovGrid() {
-        return listaMovGrid;
-    }
-
-    public synchronized void carregarGrid() {
-        int x = 0;
-        try {
-            listaMovGrid.clear();
-            listaMovGridSelecionada.clear();
-            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
-            MovimentoDao movDB = new MovimentoDao();
-            List<Linha> listaSwap = new ArrayList();
-            ServicoContaCobranca contaCobranca;
-            Linha linha = new Linha();
-
-            List<Integer> listG = new ArrayList();
-            List<Integer> listC = new ArrayList();
-            Object[] result = new Object[]{new ArrayList(), new Integer(0)};
-
-            totalBoletos = 0;
-            totalEmpresas = 0;
-            totalEscritorios = 0;
-
-            try {
-                contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
-            } catch (Exception e) {
-                contaCobranca = new ServicoContaCobranca();
-            }
-
-            if ((!listaGrupoSelecionada.isEmpty()) && (!listaConvencaoSelecionada.isEmpty())) {
-                for (int i = 0; i < listaGrupoSelecionada.size(); i++) {
-                    listG.add(listaGrupoSelecionada.get(i).getId());
-                }
-
-                for (int i = 0; i < listaConvencaoSelecionada.size(); i++) {
-                    listC.add(listaConvencaoSelecionada.get(i).getId());
-                }
-            }
-
-            if (!(listaDataSelecionada.isEmpty())) {
-                List ids = new ArrayList();
-
-                for (int i = 0; i < listaDataSelecionada.size(); i++) {
-                    ids.add(listaDataSelecionada.get(i));
-                }
-                Vector vetorAux = new Vector();
-
-                if (this.regraEscritorios.equals("all")) {
-                    this.quantidadeEmpresas = 0;
-                } else if (this.quantidadeEmpresas == 0) {
-                    this.quantidadeEmpresas = 1;
-                }
-
-                int id_esc = 0;
-
-                if (contabilidade.getId() != -1) {
-                    id_esc = contabilidade.getId();
-                }
-
-                result = movDB.listaImpressaoGeral(
-                        contaCobranca.getServicos().getId(),
-                        contaCobranca.getTipoServico().getId(),
-                        contaCobranca.getContaCobranca().getId(),
-                        escritorio,
-                        ids,
-                        listC,
-                        listG,
-                        this.todasContas,
-                        cbEmail,
-                        id_esc);
-
-                Vector v = (Vector) result[0];
-
-                Integer auxEsc = 0;
-                Integer auxEmpresa = 0;
-                Integer ate = 0, apartir = 0;
-                for (x = 0; x < v.size(); x++) {
-                    vetorAux = (Vector) v.get(x);
-                    if (this.regraEscritorios.equals("ate")) {
-                        if (((Long) vetorAux.get(11)) <= this.quantidadeEmpresas) {
-                            linha = addGrid(vetorAux, ate);
-                            if (!auxEsc.equals(((Integer) vetorAux.get(9)))) {
-                                totalEscritorios++;
-                            }
-                            auxEsc = ((Integer) vetorAux.get(9));
-                            if (!auxEmpresa.equals(((Integer) vetorAux.get(10)))) {
-                                totalEmpresas++;
-                            }
-                            auxEmpresa = ((Integer) vetorAux.get(10));
-                            totalBoletos++;
-                            listaSwap.add(linha);
-                            ate++;
-                        }
-                    } else if (this.regraEscritorios.equals("apartir")) {
-                        if (((Long) vetorAux.get(11)) >= this.quantidadeEmpresas) {
-                            linha = addGrid(vetorAux, apartir);
-                            if (!auxEsc.equals(((Integer) vetorAux.get(9)))) {
-                                totalEscritorios++;
-                            }
-                            auxEsc = ((Integer) vetorAux.get(9));
-                            if (!auxEmpresa.equals(((Integer) vetorAux.get(10)))) {
-                                totalEmpresas++;
-                            }
-                            auxEmpresa = ((Integer) vetorAux.get(10));
-                            totalBoletos++;
-                            listaSwap.add(linha);
-                            apartir++;
-                        }
-                    } else {
-                        linha = addGrid((Vector) v.get(x), x);
-                        if (!auxEsc.equals(((Integer) vetorAux.get(9)))) {
-                            totalEscritorios++;
-                        }
-                        auxEsc = ((Integer) vetorAux.get(9));
-                        if (!auxEmpresa.equals(((Integer) vetorAux.get(10)))) {
-                            totalEmpresas++;
-                        }
-                        auxEmpresa = ((Integer) vetorAux.get(10));
-                        totalBoletos++;
-                        listaSwap.add(linha);
-                    }
-                }
-            }
-            listaMovGrid = listaSwap;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+    public void setQuantidadeString(String quantidadeString) {
+        this.quantidade = Integer.parseInt(quantidadeString);
+        if (this.quantidade > listObjectImpressaoBoleto.size()) {
+            this.quantidade = listObjectImpressaoBoleto.size();
         }
     }
 
+    public Integer getInicio() {
+        return inicio;
+    }
+
+    public void setInicio(Integer inicio) {
+        this.inicio = inicio;
+    }
+
+    public Integer getFim() {
+        return fim;
+    }
+
+    public void setFim(Integer fim) {
+        this.fim = fim;
+    }
+
+    public String getInicioString() {
+        return Integer.toString(inicio);
+    }
+
+    public void setInicioString(String inicioString) {
+        this.inicio = Integer.parseInt(inicioString);
+    }
+
+    public String getFimString() {
+        return Integer.toString(fim);
+    }
+
+    public void setFimString(String fimString) {
+        this.fim = Integer.parseInt(fimString);
+    }
+
+//    public int getBoletosSel() {
+//        return boletosSel;
+//    }
+//
+//    public void setBoletosSel(int boletosSel) {
+//        this.boletosSel = boletosSel;
+//    }
+//    public List<Linha> getListaMovGrid() {
+//        return listaMovGrid;
+//    }
+//
+//    public void setListaMovGrid(List<Linha> listaMovGrid) {
+//        this.listaMovGrid = listaMovGrid;
+//    }
+//    
     public Linha addGrid(Vector vetorAux, int i) {
         List lista = new ArrayList();
         Linha linha = new Linha();
@@ -328,20 +229,226 @@ public class ImpressaoBoletosBean implements Serializable {
         return linha;
     }
 
-    public void setListaMovGrid(List<Linha> listaMovGrid) {
-        this.listaMovGrid = listaMovGrid;
+    public void loadList() {
+        if (listaDataSelecionada.isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR AO MENOS UMA DATA DE VENCIMENTO!");
+            return;
+        }
+        try {
+            selected = new ArrayList();
+            listObjectImpressaoBoleto = new ArrayList();
+            //listaMovGrid.clear();
+            //listaMovGridSelecionada.clear();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+            MovimentoDao movDB = new MovimentoDao();
+            //List<Linha> listaSwap = new ArrayList();
+            List<ObjectImpressaoBoleto> sublistOIB = new ArrayList();
+            ServicoContaCobranca contaCobranca;
+            // Linha linha = new Linha();
+
+            List<Integer> listG = new ArrayList();
+            List<Integer> listC = new ArrayList();
+            //Object[] result = new Object[]{new ArrayList(), new Integer(0)};
+
+            totalBoletos = 0;
+            totalEmpresas = 0;
+            totalEscritorios = 0;
+
+            try {
+                contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
+            } catch (Exception e) {
+                contaCobranca = new ServicoContaCobranca();
+            }
+
+            if (!listaConvencaoSelecionada.isEmpty()) {
+                for (int i = 0; i < listaConvencaoSelecionada.size(); i++) {
+                    listC.add(listaConvencaoSelecionada.get(i).getId());
+                }
+            }
+            if (!listaGrupoSelecionada.isEmpty()) {
+                for (int i = 0; i < listaGrupoSelecionada.size(); i++) {
+                    listG.add(listaGrupoSelecionada.get(i).getId());
+                }
+            }
+
+            if (!(listaDataSelecionada.isEmpty())) {
+                List ids = new ArrayList();
+
+                for (int i = 0; i < listaDataSelecionada.size(); i++) {
+                    ids.add(listaDataSelecionada.get(i));
+                }
+                //Vector vetorAux = new Vector();
+
+                if (this.regraEscritorios.equals("all")) {
+                    this.quantidadeEmpresas = 0;
+                } else if (this.quantidadeEmpresas == 0) {
+                    this.quantidadeEmpresas = 1;
+                }
+
+                int id_esc = 0;
+
+                if (contabilidade.getId() != -1) {
+                    id_esc = contabilidade.getId();
+                }
+
+//                result = movDB.listaImpressaoGeral(
+//                        contaCobranca.getServicos().getId(),
+//                        contaCobranca.getTipoServico().getId(),
+//                        contaCobranca.getContaCobranca().getId(),
+//                        escritorio,
+//                        ids,
+//                        listC,
+//                        listG,
+//                        this.todasContas,
+//                        cbEmail,
+//                        id_esc);
+                List list = movDB.listaImpressaoGeral(
+                        contaCobranca.getServicos().getId(),
+                        contaCobranca.getTipoServico().getId(),
+                        contaCobranca.getContaCobranca().getId(),
+                        escritorio,
+                        ids,
+                        listC,
+                        listG,
+                        this.todasContas,
+                        cbEmail,
+                        id_esc);
+
+                //Vector v = (Vector) list;
+                Integer auxEsc = 0;
+                Integer auxEmpresa = 0;
+                //Integer ate = 0, apartir = 0;
+//                for (x = 0; x < v.size(); x++) {
+//                    vetorAux = (Vector) v.get(x);
+//                    if (this.regraEscritorios.equals("ate")) {
+//                        if (((Long) vetorAux.get(11)) <= this.quantidadeEmpresas) {
+//                            linha = addGrid(vetorAux, ate);
+//                            if (!auxEsc.equals(((Integer) vetorAux.get(9)))) {
+//                                totalEscritorios++;
+//                            }
+//                            auxEsc = ((Integer) vetorAux.get(9));
+//                            if (!auxEmpresa.equals(((Integer) vetorAux.get(10)))) {
+//                                totalEmpresas++;
+//                            }
+//                            auxEmpresa = ((Integer) vetorAux.get(10));
+//                            totalBoletos++;
+//                            listaSwap.add(linha);
+//                            ate++;
+//                        }
+//                    } else if (this.regraEscritorios.equals("apartir")) {
+//                        if (((Long) vetorAux.get(11)) >= this.quantidadeEmpresas) {
+//                            linha = addGrid(vetorAux, apartir);
+//                            if (!auxEsc.equals(((Integer) vetorAux.get(9)))) {
+//                                totalEscritorios++;
+//                            }
+//                            auxEsc = ((Integer) vetorAux.get(9));
+//                            if (!auxEmpresa.equals(((Integer) vetorAux.get(10)))) {
+//                                totalEmpresas++;
+//                            }
+//                            auxEmpresa = ((Integer) vetorAux.get(10));
+//                            totalBoletos++;
+//                            listaSwap.add(linha);
+//                            apartir++;
+//                        }
+//                    } else {
+//                        linha = addGrid((Vector) v.get(x), x);
+//                        if (!auxEsc.equals(((Integer) vetorAux.get(9)))) {
+//                            totalEscritorios++;
+//                        }
+//                        auxEsc = ((Integer) vetorAux.get(9));
+//                        if (!auxEmpresa.equals(((Integer) vetorAux.get(10)))) {
+//                            totalEmpresas++;
+//                        }
+//                        auxEmpresa = ((Integer) vetorAux.get(10));
+//                        totalBoletos++;
+//                        listaSwap.add(linha);
+//                    }
+//                }
+                List<ObjectImpressaoBoleto> listOIB = new ArrayList();
+                for (int i = 0; i < list.size(); i++) {
+                    List o = (List) list.get(i);
+                    ObjectImpressaoBoleto oib = new ObjectImpressaoBoleto(
+                            (i + 1),
+                            o.get(0),
+                            o.get(1),
+                            o.get(2),
+                            o.get(3),
+                            o.get(4),
+                            o.get(5),
+                            DataHoje.converteData((Date) o.get(6)),
+                            o.get(7),
+                            o.get(8),
+                            o.get(9),
+                            o.get(10),
+                            o.get(11),
+                            o.get(12)
+                    );
+                    listObjectImpressaoBoleto.add(oib);
+                    if (this.regraEscritorios.equals("ate")) {
+                        if (((Long) oib.getQuantidade_empresas()) <= this.quantidadeEmpresas) {
+                            if (!auxEsc.equals(((Integer) oib.getContabilidade_id()))) {
+                                totalEscritorios++;
+                            }
+                            auxEsc = (Integer) oib.getContabilidade_id();
+                            if (!auxEmpresa.equals(((Integer) oib.getEmpresa_id()))) {
+                                totalEmpresas++;
+                            }
+                            auxEmpresa = ((Integer) oib.getEmpresa_id());
+                            totalBoletos++;
+                            //listaSwap.add(linha);
+                            //ate++;
+                        }
+                    } else if (this.regraEscritorios.equals("apartir")) {
+                        if (((Long) o.get(11)) >= this.quantidadeEmpresas) {
+                            //listObjectImpressaoBoleto.add(oib);
+                            if (!auxEsc.equals(((Integer) oib.getContabilidade_id()))) {
+                                totalEscritorios++;
+                            }
+                            auxEsc = ((Integer) oib.getContabilidade_id());
+                            if (!auxEmpresa.equals(((Integer) oib.getEmpresa_id()))) {
+                                totalEmpresas++;
+                            }
+                            auxEmpresa = ((Integer) oib.getEmpresa_id());
+                            totalBoletos++;
+                            //listaSwap.add(linha);
+                            //apartir++;
+                        }
+                    } else {
+                        //linha = addGrid((Vector) v.get(x), x);
+                        if (!auxEsc.equals(((Integer) oib.getContabilidade_id()))) {
+                            totalEscritorios++;
+                        }
+                        auxEsc = ((Integer) oib.getContabilidade_id());
+                        if (!auxEmpresa.equals(((Integer) oib.getEmpresa_id()))) {
+                            totalEmpresas++;
+                        }
+                        auxEmpresa = ((Integer) oib.getEmpresa_id());
+                        totalBoletos++;
+                        //listaSwap.add(linha);
+                        // sublistOIB.add(oib);
+                    }
+                }
+            }
+            // listaMovGrid = listaSwap;
+            // listObjectImpressaoBoleto = sublistOIB;
+            if (!(getListObjectImpressaoBoleto().isEmpty())) {
+                if (((quantidade <= getListObjectImpressaoBoleto().size()) && (inicio <= getListObjectImpressaoBoleto().size()) && (fim <= getListObjectImpressaoBoleto().size()))
+                        && ((inicio != 0) && (fim != 0))) {
+                    quantidade = (fim - inicio) + 1;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    public void filtrar() {
-        carregarGrid();
-    }
-
-    public synchronized void refreshForm() {
-    }
-
+//    public synchronized void refreshForm() {
+//    }
     public void alterarTodasDatas() {
-        listaMovGrid.clear();
-        listaMovGridSelecionada.clear();
+        // listaMovGrid.clear();
+        // listaMovGridSelecionada.clear();
+        listObjectImpressaoBoleto = new ArrayList();
+        selected = new ArrayList();
         if (this.todasContas.equals("true")) {
             idData = -2;
         } else {
@@ -350,11 +457,7 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public boolean getDesabilitaComboQuantidadeEmpresas() {
-        if (regraEscritorios.equals("all")) {
-            return true;
-        } else {
-            return false;
-        }
+        return regraEscritorios.equals("all");
     }
 
     public synchronized List<String> getListaData() {
@@ -400,99 +503,110 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public void limparSelecao() {
-        listaMovGridSelecionada.clear();
+        // listaMovGridSelecionada.clear();
+        selected = new ArrayList();
         quantidade = 0;
-        fInicio = 0;
-        fFim = 0;
+        inicio = 0;
+        fim = 0;
 
     }
 
     public void limparTotais() {
-        listaMovGrid.clear();
-        listaMovGridSelecionada.clear();
+//        listaMovGrid.clear();
+//        listaMovGridSelecionada.clear();
         totalBoletos = 0;
         totalEmpresas = 0;
         totalEscritorios = 0;
+        selected = new ArrayList();
+        listObjectImpressaoBoleto = new ArrayList();
     }
 
     public synchronized void controleMovimentos() {
         int i = 0;
-        listaMovGridSelecionada.clear();
-        if ((quantidade != 0) && fInicio == 0 && fFim == 0) {//CASO 1 SOMENTE POR QUANTIDADE
-            if (quantidade > listaMovGrid.size()) {
-                quantidade = listaMovGrid.size();
+        // listaMovGridSelecionada.clear();
+        selected = new ArrayList();
+        if ((quantidade != 0) && inicio == 0 && fim == 0) {//CASO 1 SOMENTE POR QUANTIDADE
+            if (quantidade > listObjectImpressaoBoleto.size()) {
+                quantidade = listObjectImpressaoBoleto.size();
             }
             while (i < quantidade) {
                 //listaMovGrid.get(i).setValor(new Boolean(true));
-                listaMovGridSelecionada.add(listaMovGrid.get(i));
+                // listaMovGridSelecionada.add(listaMovGrid.get(i));
+                selected.add(listObjectImpressaoBoleto.get(i));
                 i++;
             }
-        } else if (quantidade == 0 && fInicio != 0 && fFim == 0) {//CASO 2 SOMENTE POR INICIO
-            if (fInicio <= listaMovGrid.size()) {
-                i = fInicio - 1;
-                while (i < listaMovGrid.size()) {
+        } else if (quantidade == 0 && inicio != 0 && fim == 0) {//CASO 2 SOMENTE POR INICIO
+            if (inicio <= listObjectImpressaoBoleto.size()) {
+                i = inicio - 1;
+                while (i < listObjectImpressaoBoleto.size()) {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
-                    listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    //listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    selected.add(listObjectImpressaoBoleto.get(i));
                     i++;
                 }
             }
-        } else if (quantidade != 0 && fInicio != 0 && fFim == 0) {//CASO 3 SOMENTE POR INICIO E QUANTIDADE
-            if ((quantidade <= listaMovGrid.size()) && (fInicio <= listaMovGrid.size())) {
+        } else if (quantidade != 0 && inicio != 0 && fim == 0) {//CASO 3 SOMENTE POR INICIO E QUANTIDADE
+            if ((quantidade <= listObjectImpressaoBoleto.size()) && (inicio <= listObjectImpressaoBoleto.size())) {
                 int o = 0;
-                i = fInicio - 1;
-                while ((o < quantidade) && (i < listaMovGrid.size())) {
+                i = inicio - 1;
+                while ((o < quantidade) && (i < listObjectImpressaoBoleto.size())) {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
-                    listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    //listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    selected.add(listObjectImpressaoBoleto.get(i));
                     i++;
                     o++;
                 }
             }
-        } else if (quantidade == 0 && fInicio != 0 && fFim != 0) {//CASO 4 SOMENTE POR INICIO E FIM
-            if ((fInicio <= listaMovGrid.size()) && (fFim <= listaMovGrid.size())) {
-                i = fInicio - 1;
-                while (i < fFim) {
+        } else if (quantidade == 0 && inicio != 0 && fim != 0) {//CASO 4 SOMENTE POR INICIO E FIM
+            if ((inicio <= listObjectImpressaoBoleto.size()) && (fim <= listObjectImpressaoBoleto.size())) {
+                i = inicio - 1;
+                while (i < fim) {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
-                    listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    //listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    selected.add(listObjectImpressaoBoleto.get(i));
                     i++;
                 }
             }
-        } else if (quantidade == 0 && fInicio == 0 && fFim != 0) {//CASO 5 SOMENTE POR FIM
-            if (fFim <= listaMovGrid.size()) {
-                while (i < fFim) {
+        } else if (quantidade == 0 && inicio == 0 && fim != 0) {//CASO 5 SOMENTE POR FIM
+            if (fim <= listObjectImpressaoBoleto.size()) {
+                while (i < fim) {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
-                    listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    //listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    selected.add(listObjectImpressaoBoleto.get(i));
                     i++;
                 }
             }
-        } else if (quantidade != 0 && fInicio == 0 && fFim != 0) {//CASO 6 SOMENTE POR FIM E QUANTIDADE
-            if ((quantidade <= listaMovGrid.size()) && (fFim <= listaMovGrid.size())) {
-                if ((quantidade - fFim) < 0) {
-                    i = fFim - quantidade;
+        } else if (quantidade != 0 && inicio == 0 && fim != 0) {//CASO 6 SOMENTE POR FIM E QUANTIDADE
+            if ((quantidade <= listObjectImpressaoBoleto.size()) && (fim <= listObjectImpressaoBoleto.size())) {
+                if ((quantidade - fim) < 0) {
+                    i = fim - quantidade;
                 } else {
-                    i = quantidade - fFim;
+                    i = quantidade - fim;
                 }
                 quantidade = 0;
-                while (i < fFim) {
+                while (i < fim) {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
-                    listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    //listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    selected.add(listObjectImpressaoBoleto.get(i));
                     i++;
                 }
             }
-        } else if (quantidade != 0 && fInicio != 0 && fFim != 0) {//CASO 7 POR QUANTIDADE INICIO E FIM
-            if ((quantidade <= listaMovGrid.size()) && (fInicio <= listaMovGrid.size()) && (fFim <= listaMovGrid.size())) {
-                i = fInicio - 1;
+        } else if (quantidade != 0 && inicio != 0 && fim != 0) {//CASO 7 POR QUANTIDADE INICIO E FIM
+            if ((quantidade <= listObjectImpressaoBoleto.size()) && (inicio <= listObjectImpressaoBoleto.size()) && (fim <= listObjectImpressaoBoleto.size())) {
+                i = inicio - 1;
                 if (quantidade > 1) {
-                    quantidade = (fFim - fInicio) + 1;
+                    quantidade = (fim - inicio) + 1;
                 }
                 quantidade = 0;
-                while (i < fFim) {
+                while (i < fim) {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
-                    listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    //listaMovGridSelecionada.add(listaMovGrid.get(i));
+                    selected.add(listObjectImpressaoBoleto.get(i));
                     i++;
                 }
             }
@@ -520,53 +634,49 @@ public class ImpressaoBoletosBean implements Serializable {
         return servicoCobranca;
     }
 
-    public String criarArquivoBanco() {
-        List movs = new ArrayList();
-        MovimentoDao db = new MovimentoDao();
-        try {
-            ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
-            Movimento mov = new Movimento();
-            if (todasContas.equals("true")) {
-                msgImpressao = "Selecione específicas para gerar o Arquivo!";
-                return "impressaoBoletos";
-            }
-
-            for (int o = 0; o < listaMovGrid.size(); o++) {
-                if ((Boolean) listaMovGrid.get(o).getValor()) {
-                    mov = db.pesquisaCodigo(
-                            (Integer) listaMovGrid.get(o).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-                    movs.add(mov);
-                }
-            }
-            if (!movs.isEmpty()) {
-                if (arquivoBanco.criarArquivoTXT(movs)) {
-                    msgImpressao = "Arquivo gerado com sucesso!";
-                } else {
-                    msgImpressao = "Erro ao processar arquivos!";
-                }
-            } else {
-                msgImpressao = "Lista vazia!";
-            }
-        } catch (Exception e) {
-            System.out.println("Não foi possivel criar arquivo de envio! " + e);
-        }
-        return "impressaoBoletos";
-    }
-
-    public String baixarArquivosGerados() {
-        ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
-        arquivoBanco.baixarArquivosGerados();
-
-        return null;
-    }
-
-    public void limparIn() {
-        ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
-        arquivoBanco.limparDiretorio("");
-    }
-
+//    public String criarArquivoBanco() {
+//        List movs = new ArrayList();
+//        MovimentoDao db = new MovimentoDao();
+//        try {
+//            ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
+//            Movimento mov = new Movimento();
+//            if (todasContas.equals("true")) {
+//                msgImpressao = "Selecione específicas para gerar o Arquivo!";
+//                return "impressaoBoletos";
+//            }
+//
+//            for (int o = 0; o < listObjectImpressaoBoleto.size(); o++) {
+//                if ((Boolean) listaMovGrid.get(o).getValor()) {
+//                    mov = db.pesquisaCodigo(
+//                            (Integer) listaMovGrid.get(o).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
+//                    movs.add(mov);
+//                }
+//            }
+//            if (!movs.isEmpty()) {
+//                if (arquivoBanco.criarArquivoTXT(movs)) {
+//                    msgImpressao = "Arquivo gerado com sucesso!";
+//                } else {
+//                    msgImpressao = "Erro ao processar arquivos!";
+//                }
+//            } else {
+//                msgImpressao = "Lista vazia!";
+//            }
+//        } catch (Exception e) {
+//            System.out.println("Não foi possivel criar arquivo de envio! " + e);
+//        }
+//        return "impressaoBoletos";
+//    }
+//    public String baixarArquivosGerados() {
+//        ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
+//        arquivoBanco.baixarArquivosGerados();
+//
+//        return null;
+//    }
+//    public void limparIn() {
+//        ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
+//        arquivoBanco.limparDiretorio("");
+//    }
     public String imprimirBoleto() {
-        MovimentoDao db = new MovimentoDao();
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -575,19 +685,17 @@ public class ImpressaoBoletosBean implements Serializable {
         Dao dao = new Dao();
 
         dao.openTransaction();
-        for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
-            Movimento mov = db.pesquisaCodigo(
-                    (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor()
-            );
-            lista.add(mov);
-            listaValores.add(mov.getValor());
-            listaVencimentos.add(mov.getVencimento());
+        for (int i = 0; i < selected.size(); i++) {
+            Movimento m = (Movimento) dao.find(new Movimento(), (Integer) selected.get(i).getMovimento_id());
+            lista.add(m);
+            listaValores.add(m.getValor());
+            listaVencimentos.add(m.getVencimento());
 
             Impressao impressao = new Impressao();
 
             impressao.setUsuario(su.getSessaoUsuario());
-            impressao.setDtVencimento(mov.getDtVencimento());
-            impressao.setMovimento(mov);
+            impressao.setDtVencimento(m.getDtVencimento());
+            impressao.setMovimento(m);
 
             if (!dao.save(impressao)) {
                 dao.rollback();
@@ -599,18 +707,17 @@ public class ImpressaoBoletosBean implements Serializable {
 
         ImprimirBoleto imp = new ImprimirBoleto();
         imp.imprimirBoleto(lista, listaValores, listaVencimentos, imprimeVerso);
-        //imp.visualizar(null);
         imp.baixarArquivo();
         return null;
     }
-
-    public String getPainelMenssagem() {
-        if (movimentosSemMensagem == null) {
-            return "";
-        } else {
-            return "boletoSemMensagem";
-        }
-    }
+//
+//    public String getPainelMenssagem() {
+//        if (movimentosSemMensagem == null) {
+//            return "";
+//        } else {
+//            return "boletoSemMensagem";
+//        }
+//    }
 
     public String etiquetaEmpresa() {
         String cnaes = "";
@@ -645,11 +752,11 @@ public class ImpressaoBoletosBean implements Serializable {
             cnaes = "";
         }
 
-        for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
-            if (idsJuridica.length() > 0 && i != listaMovGridSelecionada.size()) {
+        for (int i = 0; i < selected.size(); i++) {
+            if (idsJuridica.length() > 0 && i != selected.size()) {
                 idsJuridica = idsJuridica + ",";
             }
-            idsJuridica = idsJuridica + ((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
+            idsJuridica = idsJuridica + ((Integer) selected.get(i).getEmpresa_id());
         }
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
@@ -732,24 +839,23 @@ public class ImpressaoBoletosBean implements Serializable {
         } else {
             cnaes = "";
         }
-
-        int idContabil1 = 0, idContabil2 = 0;
+        Integer idContabil1 = 0, idContabil2 = 0;
         boolean um = true;
-        for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
+        for (int i = 0; i < selected.size(); i++) {
             if (um) {
-                if (idsJuridica.length() > 0 && i != listaMovGridSelecionada.size()) {
+                if (idsJuridica.length() > 0 && i != selected.size()) {
                     idsJuridica = idsJuridica + ",";
                 }
-                idsJuridica = idsJuridica + ((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
+                idsJuridica = idsJuridica + ((Integer) selected.get(i).getEmpresa_id());
                 um = false;
             } else {
-                idContabil1 = ((Integer) listaMovGridSelecionada.get(i - 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-                idContabil2 = ((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-                if (idContabil1 != idContabil2) {
-                    if (idsJuridica.length() > 0 && i != listaMovGridSelecionada.size()) {
+                idContabil1 = ((Integer) selected.get(i - 1).getContabilidade_id());
+                idContabil2 = ((Integer) selected.get(i).getContabilidade_id());
+                if (!Objects.equals(idContabil1, idContabil2)) {
+                    if (idsJuridica.length() > 0 && i != selected.size()) {
                         idsJuridica = idsJuridica + ",";
                     }
-                    idsJuridica = idsJuridica + ((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
+                    idsJuridica = idsJuridica + ((Integer) selected.get(i).getEmpresa_id());
                 }
             }
         }
@@ -810,11 +916,9 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public void enviarEmail() {
-        Movimento movimento = new Movimento();
-        Juridica juridica = new Juridica();
 
         JuridicaDao dbj = new JuridicaDao();
-        MovimentoDao dbM = new MovimentoDao();
+        // MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
         List<Float> listaValores = new ArrayList();
@@ -822,16 +926,16 @@ public class ImpressaoBoletosBean implements Serializable {
 
         boolean enviar = false;
         int id_contabil = 0, id_empresa = 0, id_compara = 0;
-
-        for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
+        Dao dao = new Dao();
+        for (int i = 0; i < selected.size(); i++) {
             try {
 
-                id_contabil = (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
-                id_empresa = (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+                id_empresa = (Integer) selected.get(i).getEmpresa_id();
+                id_contabil = (Integer) selected.get(i).getContabilidade_id();
 
                 /* ENVIO PARA CONTABILIDADE */
-                movimento = dbM.pesquisaCodigo((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-                juridica = (Juridica) new Dao().find(new Juridica(), id_empresa);
+                Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) selected.get(i).getMovimento_id());
+                Juridica juridica = (Juridica) dao.find(new Juridica(), id_empresa);
 
                 if (id_contabil != 0 && juridica.isEmailEscritorio()) {
                     movadd.add(movimento);
@@ -841,7 +945,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     juridica = dbj.pesquisaJuridicaPorPessoa(id_contabil);
 
                     try {
-                        id_compara = (Integer) listaMovGridSelecionada.get(i + 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+                        id_compara = (Integer) selected.get(i + 1).getEmpresa_id();
                         if (id_contabil != id_compara) {
                             enviar = true;
                         }
@@ -855,7 +959,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     listaVencimentos.add(movimento.getVencimento());
 
                     try {
-                        id_compara = (Integer) listaMovGridSelecionada.get(i + 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+                        id_compara = (Integer) selected.get(i + 1).getEmpresa_id();
                         if (id_empresa != id_compara) {
                             enviar = true;
                         }
@@ -915,7 +1019,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     new Email(
                             -1,
                             DataHoje.dataHoje(),
-                            DataHoje.livre(new Date(), "HH:mm"),
+                            DataHoje.horaMinuto(),
                             (Usuario) GenericaSessao.getObject("sessaoUsuario"),
                             (Rotina) di.find(new Rotina(), 90),
                             null,
@@ -1070,11 +1174,41 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public Juridica getContabilidade() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa") != null) {
-            contabilidade = (Juridica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa");
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("juridicaPesquisa");
+        if (GenericaSessao.exists("juridicaPesquisa")) {
+            listObjectImpressaoBoleto = new ArrayList();
+            selected = new ArrayList();
+            inicio = 0;
+            fim = 0;
+            quantidade = 0;
+            contabilidade = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);
+            loadList();
         }
         return contabilidade;
+    }
+
+    public void printComunicado() {
+        if (selected.isEmpty()) {
+            GenericaMensagem.warn("Validação", "NENHUM REGISTRO SELECIONADO!");
+            return;
+        }
+        String comunicado = ConfiguracaoArrecadacao.get().getComunicado();
+        if (comunicado.isEmpty()) {
+            comunicado = "teste";
+            GenericaMensagem.warn("Validação", "NÃO HÁ COMUNICADO!");
+            // return;
+        }
+        Dao dao = new Dao();
+        List<Pessoa> listPessoas = new ArrayList();
+        for (int i = 0; i < selected.size(); i++) {
+            if (((Integer) selected.get(i).getContabilidade_id()) != 0) {
+                listPessoas.add((Pessoa) dao.find(new Pessoa(), ((Integer) selected.get(i).getContabilidade_id())));
+            } else {
+                listPessoas.add(((Juridica) dao.find(new Juridica(), ((Integer) selected.get(i).getEmpresa_id()))).getPessoa());
+            }
+        }
+
+        SisCartaBean.printList("COMUNICADO", comunicado, listPessoas);
+
     }
 
     public void setContabilidade(Juridica contabilidade) {
@@ -1105,11 +1239,191 @@ public class ImpressaoBoletosBean implements Serializable {
         this.listaDataSelecionada = listaDataSelecionada;
     }
 
-    public List<Linha> getListaMovGridSelecionada() {
-        return listaMovGridSelecionada;
+//    public List<Linha> getListaMovGridSelecionada() {
+//        return listaMovGridSelecionada;
+//    }
+//
+//    public void setListaMovGridSelecionada(List<Linha> listaMovGridSelecionada) {
+//        this.listaMovGridSelecionada = listaMovGridSelecionada;
+//    }
+    public List<ObjectImpressaoBoleto> getListObjectImpressaoBoleto() {
+        return listObjectImpressaoBoleto;
     }
 
-    public void setListaMovGridSelecionada(List<Linha> listaMovGridSelecionada) {
-        this.listaMovGridSelecionada = listaMovGridSelecionada;
+    public void setListObjectImpressaoBoleto(List<ObjectImpressaoBoleto> listObjectImpressaoBoleto) {
+        this.listObjectImpressaoBoleto = listObjectImpressaoBoleto;
+    }
+
+    public List<ObjectImpressaoBoleto> getSelected() {
+        return selected;
+    }
+
+    public void setSelected(List<ObjectImpressaoBoleto> selected) {
+        this.selected = selected;
+    }
+
+    public class ObjectImpressaoBoleto {
+
+        private Integer indice;
+        private Object boleto;
+        private Object empresa_nome;
+        private Object empresa_documento;
+        private Object contabilidade_nome;
+        private Object contribuicao;
+        private Object tipo;
+        private Object vencimento;
+        private Object referencia;
+        private Object movimento_id;
+        private Object contabilidade_id;
+        private Object empresa_id;
+        private Object quantidade_empresas;
+        private Object cobranca_registrada;
+
+        public ObjectImpressaoBoleto() {
+            this.indice = null;
+            this.boleto = null;
+            this.empresa_nome = null;
+            this.empresa_documento = null;
+            this.contabilidade_nome = null;
+            this.contribuicao = null;
+            this.tipo = null;
+            this.vencimento = null;
+            this.referencia = null;
+            this.movimento_id = null;
+            this.contabilidade_id = null;
+            this.empresa_id = null;
+            this.quantidade_empresas = null;
+            this.cobranca_registrada = null;
+        }
+
+        public ObjectImpressaoBoleto(Integer indice, Object boleto, Object empresa_nome, Object empresa_documento, Object contabilidade_nome, Object contribuicao, Object tipo, Object vencimento, Object referencia, Object movimento_id, Object contabilidade_id, Object empresa_id, Object quantidade_empresas, Object cobranca_registrada) {
+            this.indice = indice;
+            this.boleto = boleto;
+            this.empresa_nome = empresa_nome;
+            this.empresa_documento = empresa_documento;
+            this.contabilidade_nome = contabilidade_nome;
+            this.contribuicao = contribuicao;
+            this.tipo = tipo;
+            this.vencimento = vencimento;
+            this.referencia = referencia;
+            this.movimento_id = movimento_id;
+            this.contabilidade_id = contabilidade_id;
+            this.empresa_id = empresa_id;
+            this.quantidade_empresas = quantidade_empresas;
+            this.cobranca_registrada = cobranca_registrada;
+        }
+
+        public Object getBoleto() {
+            return boleto;
+        }
+
+        public void setBoleto(Object boleto) {
+            this.boleto = boleto;
+        }
+
+        public Object getEmpresa_nome() {
+            return empresa_nome;
+        }
+
+        public void setEmpresa_nome(Object empresa_nome) {
+            this.empresa_nome = empresa_nome;
+        }
+
+        public Object getEmpresa_documento() {
+            return empresa_documento;
+        }
+
+        public void setEmpresa_documento(Object empresa_documento) {
+            this.empresa_documento = empresa_documento;
+        }
+
+        public Object getContabilidade_nome() {
+            return contabilidade_nome;
+        }
+
+        public void setContabilidade_nome(Object contabilidade_nome) {
+            this.contabilidade_nome = contabilidade_nome;
+        }
+
+        public Object getContribuicao() {
+            return contribuicao;
+        }
+
+        public void setContribuicao(Object contribuicao) {
+            this.contribuicao = contribuicao;
+        }
+
+        public Object getTipo() {
+            return tipo;
+        }
+
+        public void setTipo(Object tipo) {
+            this.tipo = tipo;
+        }
+
+        public Object getVencimento() {
+            return vencimento;
+        }
+
+        public void setVencimento(Object vencimento) {
+            this.vencimento = vencimento;
+        }
+
+        public Object getReferencia() {
+            return referencia;
+        }
+
+        public void setReferencia(Object referencia) {
+            this.referencia = referencia;
+        }
+
+        public Object getMovimento_id() {
+            return movimento_id;
+        }
+
+        public void setMovimento_id(Object movimento_id) {
+            this.movimento_id = movimento_id;
+        }
+
+        public Object getContabilidade_id() {
+            return contabilidade_id;
+        }
+
+        public void setContabilidade_id(Object contabilidade_id) {
+            this.contabilidade_id = contabilidade_id;
+        }
+
+        public Object getEmpresa_id() {
+            return empresa_id;
+        }
+
+        public void setEmpresa_id(Object empresa_id) {
+            this.empresa_id = empresa_id;
+        }
+
+        public Object getQuantidade_empresas() {
+            return quantidade_empresas;
+        }
+
+        public void setQuantidade_empresas(Object quantidade_empresas) {
+            this.quantidade_empresas = quantidade_empresas;
+        }
+
+        public Object getCobranca_registrada() {
+            return cobranca_registrada;
+        }
+
+        public void setCobranca_registrada(Object cobranca_registrada) {
+            this.cobranca_registrada = cobranca_registrada;
+        }
+
+        public Integer getIndice() {
+            return indice;
+        }
+
+        public void setIndice(Integer indice) {
+            this.indice = indice;
+        }
+
     }
 }

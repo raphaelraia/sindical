@@ -451,50 +451,53 @@ public class ControleUsuarioBean implements Serializable {
     }
 
     public String getFilialDep() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        //  filialDep = request.getRequestURL().toString();
-        // filialDep = requestFilial.getQueryString();
-        filialDep = request.getParameter("filial");
-        if (filialDep == null) {
-            filialDep = getFilialCoockie();
-        }
-        if (filialDep != null) {
-            MacFilialDao macFilialDao = new MacFilialDao();
-            macFilial = macFilialDao.pesquisaMac(filialDep);
-            if (macFilial != null) {
-                filialDep = macFilial.getFilial().getFilial().getPessoa().getNome();
-            } else {
-                filialDep = "Filial sem Registro";
+        if (!FacesContext.getCurrentInstance().isPostback()) {
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            //  filialDep = request.getRequestURL().toString();
+            // filialDep = requestFilial.getQueryString();
+            filialDep = null;
+            macFilial = null;
+            filialDep = request.getParameter("filial");
+            if (filialDep == null) {
+                filialDep = getFilialCoockie();
             }
-        }
-        try {
-            if (!GenericaSessao.exists("ip")) {
-                // String ipAddress = request.getHeader("X-FORWARDED-FOR");
-                String ipAddress = null;
-                GenericaSessao.put("session_id", request.getSession().getId());
-                if (ipAddress == null) {
-                    //ipAddress = request.getRemoteAddr();
-                    ipAddress = "localhost";
-                    if (ipAddress != null && !ipAddress.isEmpty()) {
-                        GenericaSessao.put("ip", ipAddress);
-                        if (!GenericaSessao.exists("dispositivo")) {
-                            try {
-                                // InetAddress addr = InetAddress.getByName(ipAddress);  // DOMAIN NAME from IP
-                                // dispositivo = addr.getHostName();
-                                dispositivo = "nenhum";
-                                GenericaSessao.put("dispositivo", dispositivo);
-                            } catch (Exception e) {
-
-                            }
-                        }
-                        ip = ipAddress;
-                    }
+            if (filialDep != null) {
+                MacFilialDao macFilialDao = new MacFilialDao();
+                macFilial = macFilialDao.pesquisaMac(filialDep);
+                if (macFilial != null) {
+                    filialDep = macFilial.getFilial().getFilial().getPessoa().getNome();
+                } else {
+                    filialDep = "Filial sem Registro";
                 }
             }
-        } catch (Exception e) {
+            try {
+                if (!GenericaSessao.exists("ip")) {
+                    // String ipAddress = request.getHeader("X-FORWARDED-FOR");
+                    String ipAddress = null;
+                    GenericaSessao.put("session_id", request.getSession().getId());
+                    if (ipAddress == null) {
+                        //ipAddress = request.getRemoteAddr();
+                        ipAddress = "localhost";
+                        if (ipAddress != null && !ipAddress.isEmpty()) {
+                            GenericaSessao.put("ip", ipAddress);
+                            if (!GenericaSessao.exists("dispositivo")) {
+                                try {
+                                    // InetAddress addr = InetAddress.getByName(ipAddress);  // DOMAIN NAME from IP
+                                    // dispositivo = addr.getHostName();
+                                    dispositivo = "nenhum";
+                                    GenericaSessao.put("dispositivo", dispositivo);
+                                } catch (Exception e) {
 
+                                }
+                            }
+                            ip = ipAddress;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+
+            }
         }
-
         return filialDep;
     }
 

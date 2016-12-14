@@ -167,6 +167,9 @@ public class GeracaoDebitosCartaoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Selecione pelo menos um item da lista!");
             return null;
         }
+        if (registro.getServicos() == null) {
+            GenericaMensagem.warn("Erro", "INFORMAR SERVIÇO DO CARTÃO SOCIAL (ID) NO REGISTRO EMPRESARIAL");
+        }
         Dao dao = new Dao();
         Servicos serv = (Servicos) registro.getServicos();
 
@@ -330,7 +333,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     }
 
     public List<Socios> getListaSocios() {
-        if (listaSocios.isEmpty()) {
+        if (listaSocios.isEmpty() && fisica.getPessoa().getId() != -1 && registro.getServicos() != null) {
             SociosDao sociosDB = new SociosDao();
             Socios s = sociosDB.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
             if (s != null) {

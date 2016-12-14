@@ -34,6 +34,8 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean uploadCertificado;
     @Column(name = "is_visualiza_certificado_recusado", columnDefinition = "boolean default false", nullable = false)
     private Boolean visualizaCertificadoRecusado;
+    @Column(name = "ds_comunicado", length = 8000)
+    private String comunicado;
 
     public ConfiguracaoArrecadacao() {
         this.id = null;
@@ -43,9 +45,10 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.bloqueiaOposição = false;
         this.uploadCertificado = false;
         this.visualizaCertificadoRecusado = false;
+        this.comunicado = "";
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
@@ -53,6 +56,7 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.bloqueiaOposição = bloqueiaOposição;
         this.uploadCertificado = uploadCertificado;
         this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
+        this.comunicado = comunicado;
     }
 
     public Integer getId() {
@@ -118,6 +122,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
             ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
         }
         return ca;
+    }
+
+    public String getComunicado() {
+        return comunicado;
+    }
+
+    public void setComunicado(String comunicado) {
+        this.comunicado = comunicado;
     }
 
 }

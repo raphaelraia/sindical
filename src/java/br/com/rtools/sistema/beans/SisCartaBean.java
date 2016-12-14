@@ -64,11 +64,11 @@ public class SisCartaBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar código SQL!");
             return;
         }
-        
+
         Dao dao = new Dao();
-        
+
         sisCarta.setTipo((SisCartaTipo) dao.find(new SisCartaTipo(), 1));
-        
+
         if (sisCarta.getId() == null) {
             if (dao.save(sisCarta, true)) {
                 GenericaMensagem.info("Sucesso", "Registro inserido");
@@ -177,7 +177,7 @@ public class SisCartaBean implements Serializable {
         Map map = new HashMap();
         sisCarta.setTexto(sisCarta.getTexto().replace("<br>", "<br />"));
         try {
-           // sisCarta.setTexto(sisCarta.getTexto().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));
+            // sisCarta.setTexto(sisCarta.getTexto().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));
         } catch (Exception e) {
 
         }
@@ -205,6 +205,14 @@ public class SisCartaBean implements Serializable {
      * @param tipo_endereco_id
      */
     public static void printList(List<Pessoa> listPessoas, Integer tipo_endereco_id) {
+        printList("", "", listPessoas, tipo_endereco_id);
+    }
+
+    public static void printList(String titulo, String texto, List<Pessoa> listPessoas) {
+        printList(titulo, texto, listPessoas, 2);
+    }
+
+    public static void printList(String titulo, String texto, List<Pessoa> listPessoas, Integer tipo_endereco_id) {
         String in_pessoas = "";
         for (int i = 0; i < listPessoas.size(); i++) {
             if (i == 0) {
@@ -213,7 +221,7 @@ public class SisCartaBean implements Serializable {
                 in_pessoas += "," + listPessoas.get(i).getId();
             }
         }
-        printIn(in_pessoas, tipo_endereco_id);
+        printIn(titulo, texto, in_pessoas, tipo_endereco_id);
     }
 
     /**
@@ -244,45 +252,61 @@ public class SisCartaBean implements Serializable {
                 in_pessoas += "," + in_pessoa_id.get(i);
             }
         }
-        printIn(in_pessoas, tipo_endereco_id);
+        printIn("", "", in_pessoas, tipo_endereco_id);
     }
 
     public static void printIn(String in_pessoas) {
-        printIn(in_pessoas, 2);
+        printIn("", "", in_pessoas, 2);
     }
 
-    public static void printIn(String in_pessoas, Integer tipo_endereco_id) {
-        List list = new SisCartaDao().findEnderecosByInPessoa(in_pessoas, tipo_endereco_id);
-        List<Carta> c = new ArrayList<>();
-        Carta carta;
-        for (Object list1 : list) {
-            List o = (List) list1;
-            carta = new Carta(
-                    "Carta/ Secret.", // titulo
-                    "Texto", // Texto
-                    "Assinatura", // Assinatura
-                    "Rodapé", // Rodapé
-                    "Logo", // Logo
-                    o.get(5), // Remetente Nome
-                    o.get(6), // Remetente Endereço
-                    o.get(7), // Remetente Complemento
-                    o.get(7), // Destinatário Nome
-                    o.get(7), // Destinatário Endereço
-                    o.get(7) // Destinatário Complemento
-            );
-            c.add(carta);
+    public static void printIn(String titulo, String texto, String in_pessoas) {
+        printIn(titulo, texto, in_pessoas, 2);
+    }
+
+    public static void printIn(String titulo, String texto, String in_pessoas, Integer tipo_endereco_id) {
+        try {
+
+            JasperReport jasperCarta = (JasperReport) Jasper.load("CARTA.jasper");
+            JasperReport jasperVerso = (JasperReport) Jasper.load("CARTA_VERSO.jasper");
+            List list = new SisCartaDao().findEnderecosByInPessoa(in_pessoas, tipo_endereco_id);
+            PessoaEndereco pe = Registro.get().getFilial().getPessoa().getPessoaEndereco();
+            SisCartaDao sisCartaDao = new SisCartaDao();
+            String logo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+            List<PessoaEndereco> listPessoaEndereco = sisCartaDao.findEnderecosByInPessoa(in_pessoas, tipo_endereco_id);
+            Jasper jasper = new Jasper();
+            jasper.start();
+
+            // Jasper jasper = new Jasper();
+            for (int i = 0; i < listPessoaEndereco.size(); i++) {
+                try {
+                    List<Carta> c = new ArrayList<>();
+                    Carta carta = new Carta(
+                            (titulo.isEmpty() ? "Carta/ Secret." : titulo), // titulo
+                            (texto.isEmpty() ? "Texto" : texto), // Texto
+                            "Assinatura", // Assinatura
+                            "Rodapé", // Rodapé
+                            logo, // Logo
+                            pe.getPessoa().getNome(), // Remetente Nome
+                            pe.getEnderecoCompletoString(), // Remetente Endereço
+                            pe.getComplemento(), // Remetente Complemento
+                            listPessoaEndereco.get(i).getPessoa().getNome(), // Destinatário Nome
+                            listPessoaEndereco.get(i).getEnderecoCompletoString(), // Destinatário Endereço
+                            listPessoaEndereco.get(i).getComplemento() // Destinatário Complemento
+                    );
+                    c.add(carta);
+                    jasper.add(jasperCarta, c);
+                    jasper.add(jasperVerso, c);
+                } catch (Exception e2) {
+                    e2.getMessage();
+                }
+
+            }
+            Jasper.PART_NAME = "";
+            jasper.finish("comunicado");
+        } catch (Exception e) {
+
         }
 
-        if (c.isEmpty()) {
-            GenericaMensagem.info("Sistema", "Nenhum registro encontrado!");
-            return;
-        }
-
-        Jasper.printReports(
-                "/Relatorios/ETIQUETAS.jasper",
-                "etiquetas",
-                (Collection) c
-        );
     }
 
     public static void print(List<Carta> listEtiquetas) {
