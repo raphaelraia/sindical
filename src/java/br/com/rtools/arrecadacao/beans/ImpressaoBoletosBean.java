@@ -312,7 +312,10 @@ public class ImpressaoBoletosBean implements Serializable {
                         listG,
                         this.todasContas,
                         cbEmail,
-                        id_esc);
+                        id_esc,
+                        regraEscritorios,
+                        quantidadeEmpresas
+                );
 
                 //Vector v = (Vector) list;
                 Integer auxEsc = 0;
@@ -395,6 +398,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             }
                             auxEmpresa = ((Integer) oib.getEmpresa_id());
                             totalBoletos++;
+                            // listObjectImpressaoBoleto.add(oib);
                             //listaSwap.add(linha);
                             //ate++;
                         }
@@ -410,6 +414,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             }
                             auxEmpresa = ((Integer) oib.getEmpresa_id());
                             totalBoletos++;
+                            //listObjectImpressaoBoleto.add(oib);
                             //listaSwap.add(linha);
                             //apartir++;
                         }
@@ -424,6 +429,7 @@ public class ImpressaoBoletosBean implements Serializable {
                         }
                         auxEmpresa = ((Integer) oib.getEmpresa_id());
                         totalBoletos++;
+                        //listObjectImpressaoBoleto.add(oib);
                         //listaSwap.add(linha);
                         // sublistOIB.add(oib);
                     }
@@ -449,6 +455,8 @@ public class ImpressaoBoletosBean implements Serializable {
         // listaMovGridSelecionada.clear();
         listObjectImpressaoBoleto = new ArrayList();
         selected = new ArrayList();
+        listaData = new ArrayList();
+        listaDataSelecionada = new ArrayList();
         if (this.todasContas.equals("true")) {
             idData = -2;
         } else {
@@ -461,42 +469,45 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public synchronized List<String> getListaData() {
-        try {
-            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
-            ServicoContaCobranca contaCobranca;
+        if (listaData.isEmpty()) {
+
             try {
-                contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
-            } catch (Exception e) {
-                contaCobranca = new ServicoContaCobranca();
-            }
-            MovimentoDao db = new MovimentoDao();
-            List lista = new ArrayList();
-            int i = 0;
-            if (this.todasContas.equals("false")) {
-                if (contaCobranca.getId() != idData) {
+                ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+                ServicoContaCobranca contaCobranca;
+                try {
+                    contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
+                } catch (Exception e) {
+                    contaCobranca = new ServicoContaCobranca();
+                }
+                MovimentoDao db = new MovimentoDao();
+                List lista = new ArrayList();
+                int i = 0;
+                if (this.todasContas.equals("false")) {
+                    if (contaCobranca.getId() != idData) {
+                        listaData = new ArrayList();
+                        idData = contaCobranca.getId();
+                        lista = db.datasMovimento(
+                                contaCobranca.getServicos().getId(),
+                                contaCobranca.getTipoServico().getId(),
+                                contaCobranca.getContaCobranca().getId());
+                    }
+
+                } else if (idData == -2) {
+                    idData = -1;
                     listaData.clear();
-                    idData = contaCobranca.getId();
-                    lista = db.datasMovimento(
-                            contaCobranca.getServicos().getId(),
-                            contaCobranca.getTipoServico().getId(),
-                            contaCobranca.getContaCobranca().getId());
+                    lista = db.datasMovimento();
                 }
 
-            } else if (idData == -2) {
-                idData = -1;
-                listaData.clear();
-                lista = db.datasMovimento();
+                if (lista == null) {
+                    lista = new ArrayList();
+                }
+                while (i < lista.size()) {
+                    listaData.add(DataHoje.converteData((Date) lista.get(i)));
+                    i++;
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-
-            if (lista == null) {
-                lista = new ArrayList();
-            }
-            while (i < lista.size()) {
-                listaData.add(DataHoje.converteData((Date) lista.get(i)));
-                i++;
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
         return listaData;
 

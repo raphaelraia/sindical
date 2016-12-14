@@ -45,6 +45,7 @@ import javax.faces.model.SelectItem;
 public class AcordoBean implements Serializable {
 
     private List<GridAcordo> listaVizualizado = new ArrayList();
+    private List<GridAcordo> listTotalizacao = new ArrayList();
     private List<DataObject> listaOperado = new ArrayList();
     private Acordo acordo = new Acordo();
     private int idServicos = 0;
@@ -269,29 +270,44 @@ public class AcordoBean implements Serializable {
             String breakLine = "\n";
             for (int i = 0; i < listaMovs.size(); i++) {
                 boolean next = true;
+                boolean next2 = true;
                 if (srd.existeServicoRotina(listaMovs.get(i).getServicos().getId(), rotina_id)) {
                     if (listaMovs.get(i).getServicos().getId() == 1) {
                         valorEntradaSind += Moeda.converteR$Float(listaMovs.get(i).getValorBaixa());
-                    }
-                    for (int x = 0; x < listaVizualizado.size(); x++) {
-                        if (listaVizualizado.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
-                            listaVizualizado.get(x).setValorBaixa(+listaVizualizado.get(x).getValorBaixa() + listaMovs.get(i).getValorBaixa());
-                            if (listaVizualizado.get(x).getHistorico().isEmpty()) {
-                                listaVizualizado.get(x).setHistorico((listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
-                            } else {
-                                listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                    } else {
+                        for (int x = 0; x < listaVizualizado.size(); x++) {
+                            if (listaVizualizado.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
+                                listaVizualizado.get(x).setValorBaixa(+listaVizualizado.get(x).getValorBaixa() + listaMovs.get(i).getValorBaixa());
+                                if (listaVizualizado.get(x).getHistorico().isEmpty()) {
+                                    listaVizualizado.get(x).setHistorico((listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
+                                } else {
+                                    listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                                }
+                                next = false;
                             }
-                            next = false;
+                        }
+                    }
+                    for (int x = 0; x < listTotalizacao.size(); x++) {
+                        if (listTotalizacao.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
+                            listTotalizacao.get(x).setValorBaixa(+listTotalizacao.get(x).getValorBaixa() + listaMovs.get(i).getValorBaixa());
+                            if (listTotalizacao.get(x).getHistorico().isEmpty()) {
+                                listTotalizacao.get(x).setHistorico((listTotalizacao.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
+                            } else {
+                                listTotalizacao.get(x).setHistorico(listTotalizacao.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                            }
+                            next2 = false;
                         }
                     }
                     if (next) {
                         listaVizualizado.add(new GridAcordo(listaMovs.get(i).getServicos(), listaMovs.get(i).getValorBaixa(), listaMovs.get(i).getReferencia(), (listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + " - " + listaMovs.get(i).getReferencia()));
                     }
+                    if (next2) {
+                        listTotalizacao.add(new GridAcordo(listaMovs.get(i).getServicos(), listaMovs.get(i).getValorBaixa(), listaMovs.get(i).getReferencia(), (listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + " - " + listaMovs.get(i).getReferencia()));
+                    }
                 }
             }
-            for (int x = 0; x < listaVizualizado.size(); x++) {
-                historicoString += listaVizualizado.get(x).getHistorico();
-                // listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getServicos().getDescricao() + ": " + listaVizualizado.get(x).getHistorico() + "; ");
+            for (int x = 0; x < listTotalizacao.size(); x++) {
+                historicoString += listTotalizacao.get(x).getHistorico();
             }
             historico.setHistorico(historico.getHistorico() + historicoString);
         }
@@ -563,7 +579,7 @@ public class AcordoBean implements Serializable {
             int j = 0, k = 0;
             Servicos servico = null;
             ContaCobranca contaCobranca = null;
-            listaOperado.clear();
+            listaOperado = new ArrayList();
             String ultimoVencimento = getListaVencimento().get(idVencimento).getLabel();
             String ultimoVencimentoSind = getListaVencimento().get(idVencimentoSind).getLabel();
             float valorTotalOutras = 0;
@@ -1111,6 +1127,14 @@ public class AcordoBean implements Serializable {
 
     public void setEmailAntigo(String emailAntigo) {
         this.emailAntigo = emailAntigo;
+    }
+
+    public List<GridAcordo> getListTotalizacao() {
+        return listTotalizacao;
+    }
+
+    public void setListTotalizacao(List<GridAcordo> listTotalizacao) {
+        this.listTotalizacao = listTotalizacao;
     }
 
     public class GridAcordo {

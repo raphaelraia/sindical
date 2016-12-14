@@ -1147,10 +1147,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc) {
-        Query qry = null;
-        Object[] result = null;
-
+    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc, String type, Integer qtde) {
         try {
 
             String datas = " ( ", filtros = "";
@@ -1216,8 +1213,15 @@ public class MovimentoDao extends DB {
             }
 
             if (id_esc != 0) {
-                email += " AND j_contabil.id = " + id_esc + " \n";
+                filtros += " AND j_contabil.id = " + id_esc + " \n";
             }
+
+            if (type.equals("ate")) {
+                filtros += " AND x.qtde <= " + qtde + "\n";
+            } else if (type.equals("apartir")) {
+                filtros += " AND x.qtde >= " + qtde + "\n";
+            }
+
             String textQry = "SELECT m.ds_documento AS boleto,                                                              \n" // 0 BOLETO
                     + "              contr.ds_nome  AS razao,                                                               \n" // 1 EMPRESA NOME
                     + "              contr.ds_documento AS cnpj,                                                            \n" // 2 EMPRESA DOCUMENTO
@@ -1281,8 +1285,8 @@ public class MovimentoDao extends DB {
                     + "      AND m.dt_Vencimento IN " + datas + "                               \n"
                     + " ORDER BY escritorio, razao                                              \n";
 
-            qry = getEntityManager().createNativeQuery(textQry);
-            return qry.getResultList();
+            Query query = getEntityManager().createNativeQuery(textQry);
+            return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
         }

@@ -1,5 +1,8 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.Convencao;
+import br.com.rtools.arrecadacao.GrupoCidade;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -46,6 +49,8 @@ public class PessoaCardBean implements Serializable {
     private String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
     private Usuario usuario;
     private List<PermissaoUsuario> listPermissaoUsuario = new ArrayList();
+    private Convencao convencao = new Convencao();
+    private GrupoCidade grupoCidade = new GrupoCidade();
 
     public void cardPessoa(Integer pessoa_id) {
         close();
@@ -85,11 +90,27 @@ public class PessoaCardBean implements Serializable {
         if (juridica == null) {
             juridica = (Juridica) new Dao().find(new Juridica(), pessoa_id);
         }
+        loadJuridicaDetais();
     }
 
     public void cardByIdJuridica(Integer juridica_id) {
         close();
         juridica = (Juridica) new Dao().find(new Juridica(), juridica_id);
+        loadJuridicaDetais();
+    }
+
+    public void loadJuridicaDetais() {
+        convencao = new Convencao();
+        grupoCidade = new GrupoCidade();
+        if (juridica == null && juridica.getId() == -1) {
+            return;
+        }
+        convencao = juridica.getCnaeConvencao().getConvencao();
+        ConvencaoCidadeDao ccd = new ConvencaoCidadeDao();
+        PessoaEndereco pe = juridica.getPessoa().getPessoaEndereco();
+        if (convencao.getId() != -1 && pe != null && pe.getId() != -1) {
+            grupoCidade = ccd.pesquisaGrupoCidadeJuridica(convencao.getId(), pe.getEndereco().getCidade().getId());
+        }
     }
 
     public Juridica getJuridica() {
@@ -345,6 +366,22 @@ public class PessoaCardBean implements Serializable {
 
     public void setListPermissaoUsuario(List<PermissaoUsuario> listPermissaoUsuario) {
         this.listPermissaoUsuario = listPermissaoUsuario;
+    }
+
+    public Convencao getConvencao() {
+        return convencao;
+    }
+
+    public void setConvencao(Convencao convencao) {
+        this.convencao = convencao;
+    }
+
+    public GrupoCidade getGrupoCidade() {
+        return grupoCidade;
+    }
+
+    public void setGrupoCidade(GrupoCidade grupoCidade) {
+        this.grupoCidade = grupoCidade;
     }
 
 }
