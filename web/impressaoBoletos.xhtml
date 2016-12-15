@@ -30,7 +30,7 @@
                             <h:outputText value="Impressão de Boletos" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="6">
                                     <h:column>
                                         <h:outputText value="Qtde de Empresas" style="font-weight: bold;"/>
                                         <h:panelGrid columns="2">
@@ -70,19 +70,34 @@
                                     </h:column>
 
                                     <h:column>
-                                        <h:outputText value="Contribuições" style="font-weight: bold; margin-left: 15px"/>
-                                        <h:panelGrid columns="2">
+                                        <h:panelGrid columns="1">
+                                            <h:outputText value="Contribuições" style="font-weight: bold;"/>
+                                            <h:column>
+                                                <!-- <p:selectOneRadio id="idSelTodasAsContas" value="# {impressaoBoletosBean.todasContas}" style="margin-left: 15px">
+                                                    <p:ajax event="change" listener="# {impressaoBoletosBean.alterarTodasDatas}" update="cbContribuicao i_panel tbl_vencimento"  />
+                                                    <f:selectItem itemValue="true" itemLabel="Todos"/>
+                                                    <f:selectItem itemValue="false" itemLabel="Específico"/>
+                                                </p:selectOneRadio> -->
 
-                                            <p:selectOneRadio id="idSelTodasAsContas" value="#{impressaoBoletosBean.todasContas}" style="margin-left: 15px">
-                                                <p:ajax event="change" listener="#{impressaoBoletosBean.alterarTodasDatas}" update="cbContribuicao i_panel tbl_vencimento"  />
-                                                <f:selectItem itemValue="true" itemLabel="Todos"/>
-                                                <f:selectItem itemValue="false" itemLabel="Específico"/>
-                                            </p:selectOneRadio>
+                                                <p:selectOneMenu id="cbContribuicao" value="#{impressaoBoletosBean.idCombo}" style="width: 340px" disabled="#{impressaoBoletosBean.desabilitarContas}" >
+                                                    <p:ajax event="change" listener="#{impressaoBoletosBean.alterarTodasDatas()}" update="i_panel tbl_vencimento" />
+                                                    <f:selectItems value="#{impressaoBoletosBean.listaServicoCobranca}" />
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:column>
 
-                                            <p:selectOneMenu id="cbContribuicao" value="#{impressaoBoletosBean.idCombo}" style="margin-left: 15px;  width: 340px" disabled="#{impressaoBoletosBean.desabilitarContas}" >
-                                                <p:ajax event="change" listener="#{impressaoBoletosBean.alterarTodasDatas()}" update="i_panel tbl_vencimento" />
-                                                <f:selectItems value="#{impressaoBoletosBean.listaServicoCobranca}" />
-                                            </p:selectOneMenu>
+                                    <h:column>
+                                        <h:panelGrid columns="1">
+                                            <h:column></h:column>
+                                            <h:column>
+                                                <p:selectOneMenu value="#{impressaoBoletosBean.registrado}" styleClass="margin-top-max" >
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItem itemValue="todos" itemLabel="Todos"/>
+                                                    <f:selectItem itemValue="registrado" itemLabel="Registrado"/>
+                                                    <f:selectItem itemValue="sem_registro" itemLabel="Sem registro"/>
+                                                </p:selectOneMenu>
+                                            </h:column>
                                         </h:panelGrid>
                                     </h:column>
                                 </h:panelGrid>
@@ -120,7 +135,7 @@
                                             </p:dataTable>                                                
                                         </h:column>
                                         <h:column>
-                                            <p:commandButton action="#{impressaoBoletosBean.loadList}" value="Filtrar Vencimento" update=":form_impressao_boletos:tbl_vencimento" onstart="PF('i_dlg_modal').show()" oncomplete="PF('i_dlg_modal').hide()" styleClass="margin-top-max" style="width: 100%; color: red"/>
+                                            <p:commandButton action="#{impressaoBoletosBean.loadList}" value="Filtrar Vencimento" update=":form_impressao_boletos:tbl_vencimento" onstart="PF('i_dlg_modal').show()" oncomplete="PF('i_dlg_modal').hide()" styleClass="margin-top-max" style="width: 100%!important; color: red"/>
                                         </h:column>
                                         <h:column>
                                             <p:dataTable value="#{impressaoBoletosBean.listaData}" var="linha" rowKey="#{linha}" selection="#{impressaoBoletosBean.listaDataSelecionada}" emptyMessage="Nenhuma vencimento foi encontrado!" styleClass="margin-top-max">
@@ -147,8 +162,8 @@
                                             </p:panel>
                                         </h:column>
                                         <h:column>
-                                            <p:dataTable value="#{impressaoBoletosBean.listObjectImpressaoBoleto}" selection="#{impressaoBoletosBean.selected}" id="tbl_vencimento" var="boleto" rowKey="#{boleto.indice}" paginator="true" rows="10"  emptyMessage="Nenhum boleto foi encontrado!" styleClass="margin-top-max">
-                                                <p:column selectionMode="multiple" width="20" styleClass="text-center"/>
+                                            <p:dataTable value="#{impressaoBoletosBean.listObjectImpressaoBoleto}" selection="#{impressaoBoletosBean.selected}" id="tbl_vencimento" var="boleto" rowKey="#{boleto.indice}" paginator="true" rows="10"  emptyMessage="Nenhum boleto foi encontrado!" styleClass="margin-top-max" disabledSelection="#{(impressaoBoletosBean.servicoContaCobranca.contaCobranca.cobrancaRegistrada and  boleto.cobranca_registrada eq null)}">
+                                                <p:column selectionMode="multiple" width="20" styleClass="text-center" />
                                                 <p:ajax event="rowSelect" update="i_panel_mais"/>
                                                 <p:ajax event="rowSelectCheckbox" update="i_panel_mais"/>
                                                 <p:ajax event="rowUnselect" update="i_panel_mais"/>
@@ -184,7 +199,7 @@
                                                 </p:column>
 
                                                 <p:column headerText="Reg." style="width: 30px; text-align: center">
-                                                    <h:outputText value="N" style="font-weight: bold; font-size: 8pt!important" />
+                                                    <h:outputText value="#{boleto.cobranca_registrada eq null ? 'N' : 'R'}" style="font-weight: bold; font-size: 8pt!important" />
                                                 </p:column>
 
                                                 <p:column width="15">
@@ -193,11 +208,15 @@
 
                                                 <p:rowExpansion>
                                                     <h:panelGrid styleClass="sbb">
+                                                        <h:column>BOLETO Nº: #{boleto.boleto}</h:column>
                                                         <h:column>MOVIMENTO ID: #{boleto.movimento_id}</h:column>
                                                         <h:column>JURIDICA ID: #{boleto.empresa_id}</h:column>
                                                         <h:column rendered="#{boleto.contabilidade_id ne 0}">CONTABILIDADE ID: #{boleto.contabilidade_id}</h:column>
                                                         <h:column>
-                                                            <p:commandButton icon="ui-icon-contact" update=":form_impressao_boletos:i_pessoa_juridica_card" action="#{pessoaCardBean.cardByIdJuridica(boleto.empresa_id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" />
+                                                            <h:panelGrid columns="2">
+                                                                <p:commandButton icon="ui-icon-contact" update=":form_impressao_boletos:i_pessoa_juridica_card" action="#{pessoaCardBean.cardByIdJuridica(boleto.empresa_id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" />
+                                                                <p:commandButton value="Histórico de Impressão" update=":form_impressao_boletos:i_historico_impressao" action="#{impressaoBoletosBean.loadHistorico(boleto.movimento_id)}" oncomplete="PF('dlg_historico_impressao').show()" title="Ver detalhes" />
+                                                            </h:panelGrid>                                                                
                                                         </h:column>
                                                     </h:panelGrid>
                                                 </p:rowExpansion>
@@ -306,6 +325,27 @@
                                     <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletosBean.registrarBoletos}" style="font-weight: bold" update="@form" onclick="PF('dlg_registrar_boleto').hide()" />
                                     <p:commandButton value="Cancelar" icon="ui-icon-close" onclick="PF('dlg_registrar_boleto').hide()"/>
                                 </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog modal="true" widgetVar="dlg_historico_impressao" header="Histórico de impressão" draggable="false" width="600">
+                                <h:panelGroup layout="block" id="i_historico_impressao">
+                                    <p:dataTable value="#{impressaoBoletosBean.listHistoricoImpressao}" var="impressao" rows="10" paginator="true">
+                                        <p:column headerText="Data" width="80" styleClass="text-center">
+                                            #{impressao.impressao} 
+                                        </p:column>
+                                        <p:column headerText="Hora" width="60" styleClass="text-center">
+                                            #{impressao.hora}
+                                        </p:column>
+                                        <p:column headerText="Operador">
+                                            #{impressao.usuario.pessoa.nome}
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer" >
+                                    <h:panelGrid columns="1">
+                                        <p:commandButton value="Sair" onclick="PF('dlg_registrar_boleto').hide()" />
+                                    </h:panelGrid>                                    
+                                </f:facet>                                
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="600" header="Detalhes">
