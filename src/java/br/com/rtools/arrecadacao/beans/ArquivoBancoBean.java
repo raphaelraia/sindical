@@ -324,12 +324,12 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public String criarDataArquivo() {
-        List movi = new MovimentoDao().pesquisaTodos();
-        try {
-            criarArquivoTXT(movi);
-        } catch (Exception e) {
-            System.out.println("Nao foi possivel criar arquivo de envio!");
-        }
+//        List movi = new MovimentoDao().pesquisaTodos();
+//        try {
+//            criarArquivoTXT(movi);
+//        } catch (Exception e) {
+//            System.out.println("Nao foi possivel criar arquivo de envio!");
+//        }
         return "arquivoBanco";
     }
 

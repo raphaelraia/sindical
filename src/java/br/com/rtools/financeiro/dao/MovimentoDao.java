@@ -11,7 +11,6 @@ import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Impressao;
-import br.com.rtools.financeiro.ImpressaoWeb;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
@@ -34,6 +33,8 @@ import oracle.toplink.essentials.exceptions.EJBQLException;
  * @author Claudemir Rtools
  */
 public class MovimentoDao extends DB {
+
+    private Integer limit = null;
 
     public List<Movimento> findByEvt(Integer evt_id) {
         Lote l = new LoteDao().pesquisaLotePorEvt(evt_id);
@@ -61,8 +62,6 @@ public class MovimentoDao extends DB {
             return new ArrayList();
         }
     }
-
-    private Integer limit = null;
 
     public Movimento pesquisaCodigo(int id) {
         Movimento result = null;
@@ -149,16 +148,6 @@ public class MovimentoDao extends DB {
         return result;
     }
 
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select p from Movimento p ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-
-            return null;
-        }
-    }
-
     public List pesquisaPartidas(int idLote) {
         try {
             Query qry = getEntityManager().createQuery("SELECT M FROM Movimento M WHERE M.lote.id = :pid AND M.baixa <> -1");
@@ -197,16 +186,6 @@ public class MovimentoDao extends DB {
         return result;
     }
 
-    public List pesquisaLote() {
-        try {
-            Query qry = getEntityManager().createQuery("select l from Lote ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-
-            return null;
-        }
-    }
-
     public Historico pesquisaHistorico(int id) {
         Historico result = null;
         try {
@@ -218,46 +197,6 @@ public class MovimentoDao extends DB {
         } catch (Exception e) {
         }
         return result;
-    }
-
-    public boolean delete(Movimento movimento) {
-        try {
-            getEntityManager().remove(movimento);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean delete(ImpressaoWeb impressaoWeb) {
-        try {
-            getEntityManager().remove(impressaoWeb);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean delete(MensagemCobranca mensagemCobranca) {
-        try {
-            getEntityManager().remove(mensagemCobranca);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public String deleteHistorico(Historico historico) {
-        try {
-            getEntityManager().remove(historico);
-            getEntityManager().flush();
-            return "ok";
-        } catch (Exception e) {
-            return e.getMessage();
-        }
     }
 
     public boolean verificaMovimentoArrecadacao(int idPessoa, String referencia, int idServico, int idTipoServico) {
@@ -1147,10 +1086,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc) {
-        Query qry = null;
-        Object[] result = null;
-
+    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc, String type, Integer qtde, String registrado) {
         try {
 
             String datas = " ( ", filtros = "";
@@ -1216,8 +1152,21 @@ public class MovimentoDao extends DB {
             }
 
             if (id_esc != 0) {
-                email += " AND j_contabil.id = " + id_esc + " \n";
+                filtros += " AND j_contabil.id = " + id_esc + " \n";
             }
+
+            if (type.equals("ate")) {
+                filtros += " AND x.qtde <= " + qtde + "\n";
+            } else if (type.equals("apartir")) {
+                filtros += " AND x.qtde >= " + qtde + "\n";
+            }
+
+            if (registrado.equals("registrado")) {
+                filtros += " AND bo.dt_cobranca_registrada IS NOT NULL \n";
+            } else if (registrado.equals("sem_registro")) {
+                filtros += " AND bo.dt_cobranca_registrada IS NULL \n";
+            }
+
             String textQry = "SELECT m.ds_documento AS boleto,                                                              \n" // 0 BOLETO
                     + "              contr.ds_nome  AS razao,                                                               \n" // 1 EMPRESA NOME
                     + "              contr.ds_documento AS cnpj,                                                            \n" // 2 EMPRESA DOCUMENTO
@@ -1281,8 +1230,8 @@ public class MovimentoDao extends DB {
                     + "      AND m.dt_Vencimento IN " + datas + "                               \n"
                     + " ORDER BY escritorio, razao                                              \n";
 
-            qry = getEntityManager().createNativeQuery(textQry);
-            return qry.getResultList();
+            Query query = getEntityManager().createNativeQuery(textQry);
+            return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
         }

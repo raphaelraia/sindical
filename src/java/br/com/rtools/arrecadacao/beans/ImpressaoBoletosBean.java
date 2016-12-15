@@ -8,6 +8,7 @@ import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
+import br.com.rtools.financeiro.dao.ImpressaoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.impressao.Etiquetas;
@@ -71,15 +72,18 @@ public class ImpressaoBoletosBean implements Serializable {
     private List<Convencao> listaConvencaoSelecionada = new ArrayList();
     private List<GrupoCidade> listaGrupoCidade = new ArrayList();
     private List<GrupoCidade> listaGrupoSelecionada = new ArrayList();
-    private String todasContas = "true";
+    private String todasContas = "false";
     private String movimentosSemMensagem = null;
     private int quantidadeEmpresas = 0;
     private String regraEscritorios = "all";
     private String cbEmail = "todos";
     private boolean chkTodosVencimentos = false;
+    private List<Impressao> listHistoricoImpressao = new ArrayList();
+    private String registrado = "todos";
     // private List<Linha> listaMovGrid = new ArrayList();
     // private List<Linha> listaMovGridSelecionada = new ArrayList();
     // private int boletosSel;
+    private ServicoContaCobranca servicoContaCobranca = new ServicoContaCobranca();
 
     public void registrarBoletos() {
         MovimentoDao db = new MovimentoDao();
@@ -255,9 +259,9 @@ public class ImpressaoBoletosBean implements Serializable {
             totalEscritorios = 0;
 
             try {
-                contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
+                servicoContaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
             } catch (Exception e) {
-                contaCobranca = new ServicoContaCobranca();
+                servicoContaCobranca = new ServicoContaCobranca();
             }
 
             if (!listaConvencaoSelecionada.isEmpty()) {
@@ -303,16 +307,20 @@ public class ImpressaoBoletosBean implements Serializable {
 //                        cbEmail,
 //                        id_esc);
                 List list = movDB.listaImpressaoGeral(
-                        contaCobranca.getServicos().getId(),
-                        contaCobranca.getTipoServico().getId(),
-                        contaCobranca.getContaCobranca().getId(),
+                        servicoContaCobranca.getServicos().getId(),
+                        servicoContaCobranca.getTipoServico().getId(),
+                        servicoContaCobranca.getContaCobranca().getId(),
                         escritorio,
                         ids,
                         listC,
                         listG,
                         this.todasContas,
                         cbEmail,
-                        id_esc);
+                        id_esc,
+                        regraEscritorios,
+                        quantidadeEmpresas,
+                        registrado
+                );
 
                 //Vector v = (Vector) list;
                 Integer auxEsc = 0;
@@ -395,6 +403,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             }
                             auxEmpresa = ((Integer) oib.getEmpresa_id());
                             totalBoletos++;
+                            // listObjectImpressaoBoleto.add(oib);
                             //listaSwap.add(linha);
                             //ate++;
                         }
@@ -410,6 +419,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             }
                             auxEmpresa = ((Integer) oib.getEmpresa_id());
                             totalBoletos++;
+                            //listObjectImpressaoBoleto.add(oib);
                             //listaSwap.add(linha);
                             //apartir++;
                         }
@@ -424,6 +434,7 @@ public class ImpressaoBoletosBean implements Serializable {
                         }
                         auxEmpresa = ((Integer) oib.getEmpresa_id());
                         totalBoletos++;
+                        //listObjectImpressaoBoleto.add(oib);
                         //listaSwap.add(linha);
                         // sublistOIB.add(oib);
                     }
@@ -449,6 +460,15 @@ public class ImpressaoBoletosBean implements Serializable {
         // listaMovGridSelecionada.clear();
         listObjectImpressaoBoleto = new ArrayList();
         selected = new ArrayList();
+        listaData = new ArrayList();
+        listaDataSelecionada = new ArrayList();
+        try {
+            servicoContaCobranca = (ServicoContaCobranca) new Dao().find(new ServicoContaCobranca(), Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
+            if (servicoContaCobranca == null) {
+                servicoContaCobranca = new ServicoContaCobranca();
+            }
+        } catch (Exception e) {
+        }
         if (this.todasContas.equals("true")) {
             idData = -2;
         } else {
@@ -461,42 +481,45 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public synchronized List<String> getListaData() {
-        try {
-            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
-            ServicoContaCobranca contaCobranca;
+        if (listaData.isEmpty()) {
+
             try {
-                contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
-            } catch (Exception e) {
-                contaCobranca = new ServicoContaCobranca();
-            }
-            MovimentoDao db = new MovimentoDao();
-            List lista = new ArrayList();
-            int i = 0;
-            if (this.todasContas.equals("false")) {
-                if (contaCobranca.getId() != idData) {
+                ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+                ServicoContaCobranca contaCobranca;
+                try {
+                    contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
+                } catch (Exception e) {
+                    contaCobranca = new ServicoContaCobranca();
+                }
+                MovimentoDao db = new MovimentoDao();
+                List lista = new ArrayList();
+                int i = 0;
+                if (this.todasContas.equals("false")) {
+                    if (contaCobranca.getId() != idData) {
+                        listaData = new ArrayList();
+                        idData = contaCobranca.getId();
+                        lista = db.datasMovimento(
+                                contaCobranca.getServicos().getId(),
+                                contaCobranca.getTipoServico().getId(),
+                                contaCobranca.getContaCobranca().getId());
+                    }
+
+                } else if (idData == -2) {
+                    idData = -1;
                     listaData.clear();
-                    idData = contaCobranca.getId();
-                    lista = db.datasMovimento(
-                            contaCobranca.getServicos().getId(),
-                            contaCobranca.getTipoServico().getId(),
-                            contaCobranca.getContaCobranca().getId());
+                    lista = db.datasMovimento();
                 }
 
-            } else if (idData == -2) {
-                idData = -1;
-                listaData.clear();
-                lista = db.datasMovimento();
+                if (lista == null) {
+                    lista = new ArrayList();
+                }
+                while (i < lista.size()) {
+                    listaData.add(DataHoje.converteData((Date) lista.get(i)));
+                    i++;
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-
-            if (lista == null) {
-                lista = new ArrayList();
-            }
-            while (i < lista.size()) {
-                listaData.add(DataHoje.converteData((Date) lista.get(i)));
-                i++;
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
         return listaData;
 
@@ -532,7 +555,13 @@ public class ImpressaoBoletosBean implements Serializable {
             while (i < quantidade) {
                 //listaMovGrid.get(i).setValor(new Boolean(true));
                 // listaMovGridSelecionada.add(listaMovGrid.get(i));
-                selected.add(listObjectImpressaoBoleto.get(i));
+                if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                    if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
+                } else {
+                    selected.add(listObjectImpressaoBoleto.get(i));
+                }
                 i++;
             }
         } else if (quantidade == 0 && inicio != 0 && fim == 0) {//CASO 2 SOMENTE POR INICIO
@@ -542,7 +571,13 @@ public class ImpressaoBoletosBean implements Serializable {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
-                    selected.add(listObjectImpressaoBoleto.get(i));
+                    if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
                     i++;
                 }
             }
@@ -553,7 +588,13 @@ public class ImpressaoBoletosBean implements Serializable {
                 while ((o < quantidade) && (i < listObjectImpressaoBoleto.size())) {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
-                    selected.add(listObjectImpressaoBoleto.get(i));
+                    if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
                     i++;
                     o++;
                 }
@@ -565,7 +606,13 @@ public class ImpressaoBoletosBean implements Serializable {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
-                    selected.add(listObjectImpressaoBoleto.get(i));
+                    if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
                     i++;
                 }
             }
@@ -575,7 +622,13 @@ public class ImpressaoBoletosBean implements Serializable {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
-                    selected.add(listObjectImpressaoBoleto.get(i));
+                    if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
                     i++;
                 }
             }
@@ -591,7 +644,13 @@ public class ImpressaoBoletosBean implements Serializable {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
-                    selected.add(listObjectImpressaoBoleto.get(i));
+                    if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
                     i++;
                 }
             }
@@ -606,7 +665,13 @@ public class ImpressaoBoletosBean implements Serializable {
                     quantidade++;
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
-                    selected.add(listObjectImpressaoBoleto.get(i));
+                    if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
+                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
+                        selected.add(listObjectImpressaoBoleto.get(i));
+                    }
                     i++;
                 }
             }
@@ -677,6 +742,10 @@ public class ImpressaoBoletosBean implements Serializable {
 //        arquivoBanco.limparDiretorio("");
 //    }
     public String imprimirBoleto() {
+        if (selected.isEmpty()) {
+            GenericaMensagem.warn("Validação", "NENHUM BOLETO SELECIONADO!");
+            return null;
+        }
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -1260,6 +1329,36 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public void setSelected(List<ObjectImpressaoBoleto> selected) {
         this.selected = selected;
+    }
+
+    public List<Impressao> getListHistoricoImpressao() {
+        return listHistoricoImpressao;
+    }
+
+    public void setListHistoricoImpressao(List<Impressao> listHistoricoImpressao) {
+        this.listHistoricoImpressao = listHistoricoImpressao;
+    }
+
+    public void loadHistorico(Integer movimento_id) {
+        listHistoricoImpressao = new ArrayList();
+        ImpressaoDao impressaoDao = new ImpressaoDao();
+        listHistoricoImpressao = impressaoDao.findByMovimento(movimento_id);
+    }
+
+    public String getRegistrado() {
+        return registrado;
+    }
+
+    public void setRegistrado(String registrado) {
+        this.registrado = registrado;
+    }
+
+    public ServicoContaCobranca getServicoContaCobranca() {
+        return servicoContaCobranca;
+    }
+
+    public void setServicoContaCobranca(ServicoContaCobranca servicoContaCobranca) {
+        this.servicoContaCobranca = servicoContaCobranca;
     }
 
     public class ObjectImpressaoBoleto {
