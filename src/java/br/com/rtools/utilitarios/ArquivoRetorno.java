@@ -6,6 +6,7 @@ import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -15,7 +16,9 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -53,6 +56,25 @@ public abstract class ArquivoRetorno {
     public abstract String darBaixaSicobSocial(String caminho, Usuario usuario);
 
     public abstract String darBaixaSigCBSocial(String caminho, Usuario usuario);
+
+    public static final String tipo(String arquivo) {
+        File file = new File(arquivo);
+        try {
+            BufferedReader buffReader;
+            try (FileReader reader = new FileReader(file)) {
+                buffReader = new BufferedReader(reader);
+                String linha = buffReader.readLine();
+                buffReader.close();
+                String test = linha.substring(399);
+                return "400";
+            } catch (Exception x) {
+                return "240";
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return "";
+    }
 
     protected ArquivoRetorno(ContaCobranca contaCobranca) {
         this.contaCobranca = contaCobranca;
@@ -375,25 +397,38 @@ public abstract class ArquivoRetorno {
                         //return " Documento não Existe no Sistema! "+ listaParametros.get(u).getCnpj();
                     }
                 }
-                movimento = db.pesquisaMovPorNumDocumentoList(listaParametros.get(u).getNossoNumero(),
-                        DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())),
-                        this.getContaCobranca().getId());
-                if (!movimento.isEmpty()) {
-                    if (movimento.size() == 1) {
-                        movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
-                        movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
-                        GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), 0, null, "", 0);
+                movimento = db.pesquisaMovPorNumDocumentoListBaixadoArr(listaParametros.get(u).getNossoNumero(), this.getContaCobranca().getId());
 
-                        lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
+                if (movimento.isEmpty()) {
+                    movimento = db.pesquisaMovPorNumDocumentoList(listaParametros.get(u).getNossoNumero(),
+                            DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())),
+                            this.getContaCobranca().getId());
+                    if (!movimento.isEmpty()) {
+                        if (movimento.size() == 1) {
+                            movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
+                            movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
+
+                            GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), 0, null, "", 0);
+
+                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
+                        }
+                    } else {
+                        String xt = "Boleto não Encontrado - " + listaParametros.get(u).getNossoNumero()
+                                + " - Data de Vencimento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())
+                                + " - Data de Pagamento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento())
+                                + " - Valor Pago: " + Moeda.converteR$Float(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
+                        lista_detalhe.add(new ObjectDetalheRetorno(null, 7, xt));
                     }
+                } else {
+                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 2, "Boleto Já Baixado"));
                 }
                 movimento = new ArrayList();
             }
         }
 
         GenericaSessao.put("detalhes_retorno_banco", lista_detalhe);
-        
+
         // TERMINAR O CASO DE PENDENTES OU NÃO --------------------------------
         if (listFls != null) {
             if (moverArquivo) {

@@ -77,6 +77,10 @@ public class ImpressaoBoletoSocialBean {
         GenericaSessao.put("uploadFilesBean", uploadFilesBean);
     }
 
+    public void registrarBoletos(){
+        
+    }
+    
     public void upload(FileUploadEvent event) {
         ConfiguracaoUpload cu = new ConfiguracaoUpload();
         cu.setArquivo(event.getFile().getFileName());

@@ -199,11 +199,19 @@
                                 <p:commandButton ajax="false" value="Imprimir" action="#{impressaoBoletoSocialBean.imprimir2()}" onclick="this.form.target = '_blank'"/>
                                 <p:selectBooleanCheckbox value="#{impressaoBoletoSocialBean.imprimeVerso}" style="margin-left: 30px" itemLabel="Imprimir Verso"/>
                                 <p:commandButton ajax="false" value="Etiquetas" action="#{impressaoBoletoSocialBean.etiqueta()}" style="margin-left: 30px" onclick="this.form.target = '_blank'"/>
-                                <p:commandButton ajax="false" value="Etiquetas para Contabilidade" action="#{impressaoBoletoSocialBean.etiquetaParaContabilidade()}" style="margin-left: 30px" onclick="this.form.target = '_blank'" rendered="#{impressaoBoletoSocialBean.tipo.equals('juridica')}"/>
+                                <p:commandButton ajax="false" value="Etiquetas para Contabilidade" action="#{impressaoBoletoSocialBean.etiquetaParaContabilidade()}" style="margin-left: 30px" onclick="this.form.target = '_blank'" rendered="#{impressaoBoletoSocialBean.tipo eq 'juridica'}"/>
                                 <p:commandButton value="Alterar imagem do Boleto" onclick="PF('dlg_imagem').show()" style="float: right; margin-left: 20px" />
+                                <p:commandButton value="Registrar Boletos" onclick="PF('dlg_registrar_boletos').show()" style="float: right; margin-left: 20px" rendered="false"/>
                             </h:panelGrid>
 
-
+                            <p:dialog id="dlg_registrar_boletos" widgetVar="dlg_registrar_boletos" header="Registrar Boletos Selecionados" resizable="false" modal="true">
+                                <h:panelGrid columns="1">
+                                    <p:outputLabel value="Deseja realmente Registrar estes Boletos?" style="font-size: 12pt!important"/>
+                                </h:panelGrid>
+                                <br />
+                                <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletoSocialBean.registrarBoletos()}" onclick="PF('dlg_registrar_boletos').hide()" style="font-weight: bold"/>
+                                <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_registrar_boletos').hide()"/>
+                            </p:dialog>
                         </h:form>
 
                         <h:form id="formUploadImagem" enctype="multipart/form-data" acceptcharset="UTF-8">

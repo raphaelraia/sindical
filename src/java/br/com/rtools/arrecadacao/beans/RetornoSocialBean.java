@@ -7,7 +7,8 @@ import br.com.rtools.retornos.CaixaFederal;
 import br.com.rtools.retornos.Itau;
 import br.com.rtools.retornos.Real;
 import br.com.rtools.retornos.Santander;
-import br.com.rtools.retornos.Sicoob;
+import br.com.rtools.retornos.Sicoob240;
+import br.com.rtools.retornos.Sicoob400;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.ArquivoRetorno;
@@ -34,42 +35,41 @@ import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import org.primefaces.event.FileUploadEvent;
 
-
 @ManagedBean
 @SessionScoped
 public class RetornoSocialBean {
+
     private int indexConta;
     private List<SelectItem> listaContas;
     private ContaCobranca contaCobranca;
     private List<String> listaArquivosPendentes;
     private List<Object[]> listaLogs;
-    
-    
+
     @PostConstruct
-    public void init(){
+    public void init() {
         indexConta = 0;
         listaContas = new ArrayList();
         contaCobranca = new ContaCobranca();
         listaArquivosPendentes = new ArrayList();
         listaLogs = new ArrayList();
-        
+
         loadListaContas();
         loadListaArquivosBaixar();
-        
+
     }
-    
+
     @PreDestroy
-    public void destroy(){
+    public void destroy() {
         GenericaSessao.remove("retornoSocialBean");
         GenericaSessao.remove("logsRetornoSocial");
     }
-    
-    public void enviarArquivoBaixar(){
+
+    public void enviarArquivoBaixar() {
         try {
             Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
             String caminhoCompleto = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/retorno/social");
-            caminhoCompleto = caminhoCompleto+"/"+contaCobranca.getCodCedente();
-            
+            caminhoCompleto = caminhoCompleto + "/" + contaCobranca.getCodCedente();
+
             String result = "";
             ArquivoRetorno arquivoRetorno;
 
@@ -123,7 +123,11 @@ public class RetornoSocialBean {
                     }
                 } else if (ArquivoRetorno.SICOOB == contaCobranca.getContaBanco().getBanco().getId()) {
                     if (ArquivoRetorno.SICOB == contaCobranca.getLayout().getId()) {
-                        arquivoRetorno = new Sicoob(contaCobranca);
+                        if (ArquivoRetorno.tipo(caminhoCompleto).equals("400")) {
+                            arquivoRetorno = new Sicoob400(contaCobranca);
+                        } else {
+                            arquivoRetorno = new Sicoob240(contaCobranca);
+                        }
                         result = arquivoRetorno.darBaixaSicobSocial(caminhoCompleto, usuario);
                     } else if (ArquivoRetorno.SINDICAL == contaCobranca.getLayout().getId()) {
                         result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
@@ -131,19 +135,18 @@ public class RetornoSocialBean {
                         result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
                     }
                 }
-            } 
+            }
             List<Object[]> listal = (List<Object[]>) GenericaSessao.getObject("logsRetornoSocial");
-            
-            
+
             GenericaMensagem.info("Sucesso", "Arquivos Baixados");
-            
-            for (Object[] obj : listal){
+
+            for (Object[] obj : listal) {
                 Object[] list_object = new Object[4];
                 list_object[0] = obj[0];
                 list_object[1] = obj[1];
                 list_object[2] = obj[2];
 
-                switch((int)obj[0]){
+                switch ((int) obj[0]) {
                     case 6:
                         GenericaMensagem.warn("Atenção", obj[2].toString());
                         list_object[3] = DataHoje.hora();
@@ -155,29 +158,29 @@ public class RetornoSocialBean {
                         listaLogs.add(list_object);
                         break;
                     case 8:
-                        if ( !obj[1].toString().isEmpty() ){
-                            list_object[3] = DataHoje.hora();                            
+                        if (!obj[1].toString().isEmpty()) {
+                            list_object[3] = DataHoje.hora();
                             GenericaMensagem.error("Boleto não encontrado", obj[1].toString());
                             listaLogs.add(list_object);
                         }
                         break;
                 }
             }
-            
+
             loadListaArquivosBaixar();
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     public void fileUpload(FileUploadEvent event) {
         String cod = "";
         if (contaCobranca.getLayout().getId() != 2) {
             cod = contaCobranca.getCodCedente();
-        } else{
+        } else {
             return;
         }
-        
+
         Diretorio.criar("Arquivos/retorno/social/" + cod + "/");
         Diretorio.criar("Arquivos/retorno/social/" + cod + "/pendentes/");
 
@@ -202,18 +205,18 @@ public class RetornoSocialBean {
             in.close();
             out.flush();
             out.close();
-            
+
             if (!verificaArquivos(fl, contaCobranca)) {
-                GenericaMensagem.error("Erro "+ fl.getName(), "Arquivo não pode ser enviado, verifique se o ARQUIVO e a CONTA estão corretos!");
+                GenericaMensagem.error("Erro " + fl.getName(), "Arquivo não pode ser enviado, verifique se o ARQUIVO e a CONTA estão corretos!");
                 fl.delete();
             }
-            
+
             loadListaArquivosBaixar();
         } catch (IOException e) {
             System.out.println(e);
         }
     }
-    
+
     public boolean verificaArquivos(File filex, ContaCobranca scc) {
         try {
             BufferedReader buffReader;
@@ -271,9 +274,15 @@ public class RetornoSocialBean {
                 }
             } else if (ArquivoRetorno.SICOOB == scc.getContaBanco().getBanco().getId()) {
                 if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                    int codc = Integer.valueOf(linha.substring(31, 40));
-                    int compara = Integer.valueOf(scc.getCodCedente());
-                    return codc == compara;
+                    if (ArquivoRetorno.tipo(filex.getAbsolutePath()).equals("400")) {
+                        int codc = Integer.valueOf(linha.substring(31, 40));
+                        int compara = Integer.valueOf(scc.getCodCedente());
+                        return codc == compara;
+                    } else {
+                        int codc = Integer.valueOf(linha.substring(59, 71));
+                        int compara = Integer.valueOf(scc.getContaBanco().getConta().replace(".", "").replace("-", ""));
+                        return codc == compara;
+                    }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
                     return false;
                 } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
@@ -283,12 +292,12 @@ public class RetornoSocialBean {
         } catch (IOException | NumberFormatException e) {
         }
         return false;
-    }    
+    }
 
-    public void loadListaArquivosBaixar(){
+    public void loadListaArquivosBaixar() {
         listaArquivosPendentes.clear();
         String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/retorno/social");
-        caminho = caminho+"/"+contaCobranca.getCodCedente()+"/pendentes";
+        caminho = caminho + "/" + contaCobranca.getCodCedente() + "/pendentes";
         try {
             File filex = new File(caminho);
             File listFile[] = filex.listFiles();
@@ -299,10 +308,10 @@ public class RetornoSocialBean {
         } catch (Exception e) {
         }
     }
-    
-    public void loadListaContas(){
+
+    public void loadListaContas() {
         listaContas.clear();
-        
+
         ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
         List<ContaCobranca> result = servDB.listaContaCobrancaAtivoAssociativo();
         if (result.isEmpty()) {
@@ -328,18 +337,17 @@ public class RetornoSocialBean {
             contaCobranca = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.parseInt(((SelectItem) listaContas.get(indexConta)).getDescription()));
         }
     }
-    
+
     public void atualizaContaCobranca() {
         if (!listaContas.isEmpty()) {
             contaCobranca = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.parseInt(((SelectItem) listaContas.get(indexConta)).getDescription()));
         }
         loadListaArquivosBaixar();
     }
-    
 
     public void limparArquivosEnviados() {
         String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/retorno/social");
-        caminho = caminho+"/"+contaCobranca.getCodCedente()+"/pendentes";
+        caminho = caminho + "/" + contaCobranca.getCodCedente() + "/pendentes";
         try {
             File filex = new File(caminho);
             File listFile[] = filex.listFiles();
@@ -353,7 +361,7 @@ public class RetornoSocialBean {
             GenericaMensagem.error("Erro", "Não foi possível excluir arquivos, tente novamente!");
         }
     }
-    
+
     public int getIndexConta() {
         return indexConta;
     }
@@ -393,5 +401,5 @@ public class RetornoSocialBean {
     public void setListaLogs(List<Object[]> listaLogs) {
         this.listaLogs = listaLogs;
     }
-    
+
 }

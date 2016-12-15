@@ -1,12 +1,9 @@
 package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
-import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
-import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaRetorno;
-import br.com.rtools.utilitarios.Moeda;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class Sicoob extends ArquivoRetorno {
+public class Sicoob240 extends ArquivoRetorno {
     private String linha = "", 
                    pasta = "", 
                    cnpj = "", 
@@ -28,7 +25,7 @@ public class Sicoob extends ArquivoRetorno {
                    dataPagamento = "",
                    dataCredito = "";
     
-    public Sicoob(ContaCobranca contaCobranca) {
+    public Sicoob240(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
 
@@ -36,12 +33,10 @@ public class Sicoob extends ArquivoRetorno {
     public List<GenericaRetorno> sicob(boolean baixar, String host) {
         host = host + "/pendentes/";
         pasta = host;
-
+        
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
-        
-        SicoobDao dao = new SicoobDao(); // TEMPORÁRIO
         if (listFile != null) {
             int qntRetornos = listFile.length;
             for (int u = 0; u < qntRetornos; u++) {
@@ -56,51 +51,27 @@ public class Sicoob extends ArquivoRetorno {
                     buffReader.close();
                     int i = 0;
                     while (i < lista.size()) {
-                        // HEADER
                         if (i < 1) {
-                            codigoCedente = ((String) lista.get(i)).substring(31, 40);
-                            i++;
-                            continue;
+                            cnpj = ((String) lista.get(i)).substring(18, 32);
+                            // NO CASO DO SICOOB O código cedente é o número da conta
+                            codigoCedente = ((String) lista.get(i)).substring(59, 71);
                         }
-                        
-                        if ( (i + 1) != lista.size()){
-                            cnpj = ((String) lista.get(i)).substring(3, 17);
-
-                            nossoNumero = ((String) lista.get(i)).substring(62, 73).trim();
-                            //valorTaxa = ((String) lista.get(i)).substring(95, 100); // taxa de desconto
-                            valorTaxa = ((String) lista.get(i)).substring(181, 188); // valor da tarifa
-
-                            dataVencimento = ((String) lista.get(i)).substring(146, 150)+"20"+((String) lista.get(i)).substring(150, 152);
-                            try {
-                                int con = Integer.parseInt(dataVencimento);
-                                if (con == 0) {
-                                    dataVencimento = "11111111";
-                                }
-                            } catch (Exception e) {}
-
-
-                            // valorPago = ((String) lista.get(i)).substring(152, 165); // (Valor Titulo) -- CHAMADO 1061
-                            valorPago = ((String) lista.get(i)).substring(253, 266); // (valor recebido parcial)
-                            dataPagamento = ((String) lista.get(i)).substring(110, 114)+"20"+((String) lista.get(i)).substring(114, 116);
-
-                            // TEMPORARIO ----------
-                            List<Object> boletox = dao.xsicoob(nossoNumero);
-                            if (!boletox.isEmpty()){
-                                float valor_pago = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)), 100);
-                                List linhaX = ((List) boletox.get(0));
-                                
-                                if ( ( ((Double)linhaX.get(1)).floatValue() - 0.05) < valor_pago && (((Double)linhaX.get(1)).floatValue() + 0.05) > valor_pago){
-                                    
-                                }else{
-                                    // UPDATE
-                                    String data_pagamento = DataHoje.colocarBarras(dataPagamento);
-                                    dao.xupdate(data_pagamento, nossoNumero);
-                                    i++;
-                                    continue;
-                                }
+                        if (((String) lista.get(i)).substring(13, 14).equals("T")) {
+                            nossoNumero = ((String) lista.get(i)).substring(37, 46).trim();
+                            valorTaxa = ((String) lista.get(i)).substring(198, 213);
+                            dataVencimento = ((String) lista.get(i)).substring(73, 81);
+                        }
+                        try {
+                            int con = Integer.parseInt(dataVencimento);
+                            if (con == 0) {
+                                dataVencimento = "11111111";
                             }
-                            // -------------
-                            
+                        } catch (Exception e) {}
+                        i++;
+                        if (i < lista.size() && ((String) lista.get(i)).substring(13, 14).equals("U")) {
+                            valorPago = ((String) lista.get(i)).substring(77, 92);
+                            dataPagamento = ((String) lista.get(i)).substring(137, 145);
+
                             listaRetorno.add(new GenericaRetorno(
                                     cnpj, //1 ENTIDADE
                                     codigoCedente, //2 NESTE CASO SICAS
@@ -119,11 +90,11 @@ public class Sicoob extends ArquivoRetorno {
                                     "", //15 DATA CREDITO
                                     "") // 16 SEQUENCIAL DO ARQUIVO
                             );
+                            i++;
                         }
-                        i++;
                     }
                 } catch (Exception e) {
-                    
+
                 }
             }
         }

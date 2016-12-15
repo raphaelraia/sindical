@@ -1284,68 +1284,108 @@ public final class ArquivoBancoBean implements Serializable {
                 // CAIXA FEDERAL ------------------------------------------------------------------------------
                 switch (scc.getContaBanco().getBanco().getId()) {
                     case ArquivoRetorno.CAIXA_FEDERAL:
-                        if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                            arquivoRetorno = new CaixaFederal(scc);
-                            result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                            arquivoRetorno = new CaixaFederal(scc);
-                            result = arquivoRetorno.darBaixaSindical(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
-                            arquivoRetorno = new CaixaFederal(scc);
-                            result = arquivoRetorno.darBaixaSigCB(caminhoCompleto, usuario);
+                        switch (scc.getLayout().getId()) {
+                            case ArquivoRetorno.SICOB:
+                                arquivoRetorno = new CaixaFederal(scc);
+                                result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SINDICAL:
+                                arquivoRetorno = new CaixaFederal(scc);
+                                result = arquivoRetorno.darBaixaSindical(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SIGCB:
+                                arquivoRetorno = new CaixaFederal(scc);
+                                result = arquivoRetorno.darBaixaSigCB(caminhoCompleto, usuario);
+                                break;
+                            default:
+                                break;
                         }
                         // BANCO DO BRASIL ------------------------------------------------------------------------------
                         break;
                     case ArquivoRetorno.BANCO_BRASIL:
-                        if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                            arquivoRetorno = new BancoBrasil(scc);
-                            result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
-                        } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                        switch (scc.getLayout().getId()) {
+                            case ArquivoRetorno.SICOB:
+                                arquivoRetorno = new BancoBrasil(scc);
+                                result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SINDICAL:
+                                result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
+                                break;
+                            case ArquivoRetorno.SIGCB:
+                                result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                                break;
+                            default:
+                                break;
                         }
                         // REAL ------------------------------------------------------------------------------
                         break;
                     case ArquivoRetorno.REAL:
-                        if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                            arquivoRetorno = new Real(scc);
-                            result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
-                        } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                        switch (scc.getLayout().getId()) {
+                            case ArquivoRetorno.SICOB:
+                                arquivoRetorno = new Real(scc);
+                                result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SINDICAL:
+                                result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
+                                break;
+                            case ArquivoRetorno.SIGCB:
+                                result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                                break;
+                            default:
+                                break;
                         }
                         // ITAU --------------------------------------------------------------------------------
                         break;
                     case ArquivoRetorno.ITAU:
-                        if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                            arquivoRetorno = new Itau(scc);
-                            result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
-                        } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                        switch (scc.getLayout().getId()) {
+                            case ArquivoRetorno.SICOB:
+                                arquivoRetorno = new Itau(scc);
+                                result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SINDICAL:
+                                result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
+                                break;
+                            case ArquivoRetorno.SIGCB:
+                                result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                                break;
+                            default:
+                                break;
                         }
                         break;
                     case ArquivoRetorno.SANTANDER:
-                        if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                            arquivoRetorno = new Santander(scc);
-                            result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
-                        } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                        switch (scc.getLayout().getId()) {
+                            case ArquivoRetorno.SICOB:
+                                arquivoRetorno = new Santander(scc);
+                                result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SINDICAL:
+                                result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
+                                break;
+                            case ArquivoRetorno.SIGCB:
+                                result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                                break;
+                            default:
+                                break;
                         }
                         break;
                     case ArquivoRetorno.SICOOB:
-                        if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                            arquivoRetorno = new Sicoob(scc);
-                            result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
-                        } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
-                        } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
-                            result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                        switch (scc.getLayout().getId()) {
+                            case ArquivoRetorno.SICOB:
+                                if (ArquivoRetorno.tipo(caminhoCompleto).equals("400")) {
+                                    arquivoRetorno = new Sicoob400(scc);
+                                } else {
+                                    arquivoRetorno = new Sicoob240(scc);
+                                }
+                                result = arquivoRetorno.darBaixaSicob(caminhoCompleto, usuario);
+                                break;
+                            case ArquivoRetorno.SINDICAL:
+                                result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
+                                break;
+                            case ArquivoRetorno.SIGCB:
+                                result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
+                                break;
+                            default:
+                                break;
                         }
                         break;
                     default:
@@ -1357,7 +1397,7 @@ public final class ArquivoBancoBean implements Serializable {
             loadListaArquivosBaixar();
             loadListaDocumentos();
         } catch (Exception e) {
-
+            e.getMessage();
         }
     }
 
@@ -1550,9 +1590,15 @@ public final class ArquivoBancoBean implements Serializable {
                 // BANCOOB SICOOB ------------------------------------------------------------------------------
             } else if (ArquivoRetorno.SICOOB == scc.getContaBanco().getBanco().getId()) {
                 if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                    int codc = Integer.valueOf(linha.substring(31, 40));
-                    int compara = Integer.valueOf(scc.getCodCedente());
-                    return codc == compara;
+                    if (ArquivoRetorno.tipo(filex.getAbsolutePath()).equals("400")) {
+                        int codc = Integer.valueOf(linha.substring(31, 40));
+                        int compara = Integer.valueOf(scc.getCodCedente());
+                        return codc == compara;
+                    } else {
+                        int codc = Integer.valueOf(linha.substring(59, 71));
+                        int compara = Integer.valueOf(scc.getContaBanco().getConta().replace(".", "").replace("-", ""));
+                        return codc == compara;
+                    }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
                     return false;
                 } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
@@ -1638,14 +1684,25 @@ public final class ArquivoBancoBean implements Serializable {
         List lista_detalhes = new ArrayList();
 
         for (ObjectDetalheRetorno dr : listaDetalheRetornoBanco) {
-            lista_detalhes.add(
-                    new DetalheRetornoArr(
-                            dr.getMovimento().getPessoa().getDocumento(),
-                            dr.getMovimento().getPessoa().getNome(),
-                            dr.getMovimento().getDocumento(),
-                            dr.getMovimento().getBaixa().getDtImportacao()
-                    )
-            );
+            if (dr.getMovimento() != null) {
+                lista_detalhes.add(
+                        new DetalheRetornoArr(
+                                dr.getMovimento().getPessoa().getDocumento(),
+                                dr.getMovimento().getPessoa().getNome(),
+                                dr.getMovimento().getDocumento(),
+                                dr.getMovimento().getBaixa().getDtImportacao()
+                        )
+                );
+            } else {
+                lista_detalhes.add(
+                        new DetalheRetornoArr(
+                                "",
+                                dr.getDetalhe(),
+                                "",
+                                null
+                        )
+                );
+            }
         }
         Jasper.printReports("DETALHE_RETORNO_ARR.jasper", "Detalhe do Retorno", lista_detalhes);
     }
