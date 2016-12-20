@@ -89,6 +89,8 @@ public final class ArquivoBancoBean implements Serializable {
     private List<String> listaArquivosPendentes = new ArrayList();
     private List<ObjectDetalheRetorno> listaDetalheRetornoBanco = new ArrayList();
 
+    private String tipo = "";
+    
     public ArquivoBancoBean() {
         this.getListaServicos();
         this.loadListaArquivosBaixar();
@@ -198,6 +200,7 @@ public final class ArquivoBancoBean implements Serializable {
 
     public void fileUpload(FileUploadEvent event) {
         String cod;
+        tipo = "";
         if (contaCobranca.getLayout().getId() == 2) {
             cod = contaCobranca.getSicasSindical();
         } else {
@@ -1371,7 +1374,7 @@ public final class ArquivoBancoBean implements Serializable {
                     case ArquivoRetorno.SICOOB:
                         switch (scc.getLayout().getId()) {
                             case ArquivoRetorno.SICOB:
-                                if (ArquivoRetorno.tipo(caminhoCompleto).equals("400")) {
+                                if (tipo.equals("400")) {
                                     arquivoRetorno = new Sicoob400(scc);
                                 } else {
                                     arquivoRetorno = new Sicoob240(scc);
@@ -1593,10 +1596,12 @@ public final class ArquivoBancoBean implements Serializable {
                     if (ArquivoRetorno.tipo(filex.getAbsolutePath()).equals("400")) {
                         int codc = Integer.valueOf(linha.substring(31, 40));
                         int compara = Integer.valueOf(scc.getCodCedente());
+                        tipo = "400";
                         return codc == compara;
                     } else {
                         int codc = Integer.valueOf(linha.substring(59, 71));
                         int compara = Integer.valueOf(scc.getContaBanco().getConta().replace(".", "").replace("-", ""));
+                        tipo = "250";
                         return codc == compara;
                     }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
