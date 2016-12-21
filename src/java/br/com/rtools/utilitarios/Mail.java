@@ -378,6 +378,10 @@ public class Mail extends MailTemplate implements Serializable {
         this.files = files;
     }
 
+    public void addFile(File f) {
+        files.add(f);
+    }
+
     public String getHtml() {
         return html;
     }
@@ -422,6 +426,8 @@ public class Mail extends MailTemplate implements Serializable {
         try {
             if (e.contains("Could not convert socket to TLS")) {
                 return "Não foi possível converter socket para TLS";
+            } else if (e.contains("Could not connect to SMTP host")) {
+                return "Não foi possível converter socket para SMTP";
             }
         } catch (Exception ex) {
 

@@ -25,6 +25,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mail;
+import br.com.rtools.utilitarios.Mask;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class ProtocoloAgendamento implements Serializable {
                         pessoaEndereco.getNumero(),
                         pessoaEndereco.getComplemento(),
                         pessoaEndereco.getEndereco().getBairro().getDescricao(),
-                        pessoaEndereco.getEndereco().getCep(),
+                        Mask.cep(pessoaEndereco.getEndereco().getCep()),
                         pessoaEndereco.getEndereco().getCidade().getCidade(),
                         pessoaEndereco.getEndereco().getCidade().getUf(),
                         a.getFilial().getFilial().getPessoa().getTelefone1(),

@@ -668,6 +668,9 @@
                                         <p:commandLink action="#{relatorioSociosBean.print}" title="Imprimir Relatório" ajax="false">
                                             <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório"/>
                                         </p:commandLink>                                 
+                                        <p:commandLink action="#{relatorioSociosBean.export}" title="Exportar" ajax="false">
+                                            <p:commandButton icon="ui-icon-send" value="Exportar para reunião" title="Enviar para reunião"/>
+                                        </p:commandLink>                                 
                                     </h:panelGrid>                                    
                                 </h:column>
                                 <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar Arquivo (ZIP)" />

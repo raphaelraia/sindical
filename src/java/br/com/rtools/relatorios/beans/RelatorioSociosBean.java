@@ -24,6 +24,7 @@ import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.relatorios.dao.RelatorioSociosDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Mes;
 import br.com.rtools.utilitarios.Dao;
@@ -590,10 +591,32 @@ public class RelatorioSociosBean implements Serializable {
     }
 
     public void print() {
+        print(false);
+    }
+
+    public String export() {
+        return print(true);
+    }
+
+    public String print(Boolean export) {
         List<ParametroSocios> list = loadListParametroSocios();
         if (list.isEmpty()) {
             GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
-            return;
+            return null;
+        }
+        if (export) {
+            String in_pessoas = "";
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    in_pessoas += list.get(i).getCodsocio();
+                } else {
+                    in_pessoas += "," + list.get(i).getCodsocio();
+                }
+            }
+            GenericaSessao.put("inPessoas", in_pessoas);
+            GenericaSessao.remove("reuniaoBean");
+            ChamadaPaginaBean.link();
+            return "reuniao";
         }
         Collection collection = new ArrayList();
         collection.addAll(list);
@@ -612,6 +635,7 @@ public class RelatorioSociosBean implements Serializable {
         Map map = new HashMap();
         map.put("groups", selectedGroups);
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) collection, map);
+        return null;
     }
 
     public void download() {
