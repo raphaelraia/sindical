@@ -123,7 +123,7 @@ public class ImprimirBoleto {
 //            } else {
 //                // NÃO GEROU OS BOLETOS
 //            }
-            dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
+            //dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
             // temporário
             hash.put("boleto", boleto);
             hash.put("mensagem", "");
