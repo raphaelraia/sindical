@@ -5,9 +5,13 @@ import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.homologacao.dao.CancelarHorarioDao;
 import br.com.rtools.homologacao.dao.HorariosDao;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.sistema.Semana;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
@@ -61,6 +65,7 @@ public class CancelarHorarioBean implements Serializable {
     private String tipoCancelamento;
     private Boolean habilitaSemana;
     private Boolean habilitaHorarios;
+    private Boolean liberaAcessaFilial;
 
     @PostConstruct
     public void init() {
@@ -90,6 +95,8 @@ public class CancelarHorarioBean implements Serializable {
         tipoCancelamento = "Dia";
         habilitaSemana = false;
         habilitaHorarios = false;
+        liberaAcessaFilial = false;
+        loadLiberaAcessaFilial();
         new Tabbed().setTitle("1");
     }
 
@@ -108,6 +115,12 @@ public class CancelarHorarioBean implements Serializable {
             calculaQuantidadeDisponivel();
         } else {
 
+        }
+    }
+
+    public void loadLiberaAcessaFilial() {
+        if (new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
+            liberaAcessaFilial = true;
         }
     }
 
@@ -416,22 +429,51 @@ public class CancelarHorarioBean implements Serializable {
 
     public List<SelectItem> getListaFiliais() {
         if (listaFiliais.isEmpty()) {
-            getFilial();
-            Dao dao = new Dao();
-            List<Filial> select = new ArrayList<>();
-            if (filial.getId() != -1) {
-                select.add((Filial) dao.find(new Filial(), filial.getId()));
-            } else {
-                select = (List<Filial>) dao.list(new Filial(), true);
-            }
-            for (int i = 0; i < select.size(); i++) {
-                listaFiliais.add(
-                        new SelectItem(
-                                i,
-                                select.get(i).getFilial().getPessoa().getDocumento() + " / " + select.get(i).getFilial().getPessoa().getNome(),
-                                Integer.toString(select.get(i).getId())));
+            Filial f = MacFilial.getAcessoFilial().getFilial();
+            if (f.getId() != -1) {
+                if (liberaAcessaFilial || Usuario.getUsuario().getId() == 1) {
+                    liberaAcessaFilial = true;
+                    // ROTINA MATRÍCULA ESCOLA
+                    List<FilialRotina> list = new FilialRotinaDao().findByRotina(new Rotina().get().getId());
+                    // ID DA FILIAL
+                    if (!list.isEmpty()) {
+                        for (int i = 0; i < list.size(); i++) {
+                            if (i == 0) {
+                                idFilial = i;
+                            }
+                            if (Objects.equals(f.getId(), list.get(i).getFilial().getId())) {
+                                idFilial = i;
+                            }
+                            listaFiliais.add(new SelectItem(i, list.get(i).getFilial().getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getFilial().getPessoa().getNome(), "" + list.get(i).getFilial().getId()));
+                        }
+                    } else {
+                        idFilial = 0;
+                        listaFiliais.add(new SelectItem(0, f.getFilial().getPessoa().getNome(), "" + f.getId()));
+                    }
+                } else {
+                    idFilial = 0;
+                    listaFiliais.add(new SelectItem(0, f.getFilial().getPessoa().getNome() + " / " + f.getFilial().getPessoa().getNome(), "" + f.getId()));
+                }
             }
         }
+
+//        if (listaFiliais.isEmpty()) {
+//            getFilial();
+//            Dao dao = new Dao();
+//            List<Filial> select = new ArrayList<>();
+//            if (filial.getId() != -1) {
+//                select.add((Filial) dao.find(new Filial(), filial.getId()));
+//            } else {
+//                select = (List<Filial>) dao.list(new Filial(), true);
+//            }
+//            for (int i = 0; i < select.size(); i++) {
+//                listaFiliais.add(
+//                        new SelectItem(
+//                                i,
+//                                select.get(i).getFilial().getPessoa().getDocumento() + " / " + select.get(i).getFilial().getPessoa().getNome(),
+//                                Integer.toString(select.get(i).getId())));
+//            }
+//        }
         return listaFiliais;
     }
 
@@ -883,4 +925,13 @@ public class CancelarHorarioBean implements Serializable {
     public void setNrQuantidadeCancelarB(Integer nrQuantidadeCancelarB) {
         this.nrQuantidadeCancelarB = nrQuantidadeCancelarB;
     }
+
+    public Boolean getLiberaAcessaFilial() {
+        return liberaAcessaFilial;
+    }
+
+    public void setLiberaAcessaFilial(Boolean liberaAcessaFilial) {
+        this.liberaAcessaFilial = liberaAcessaFilial;
+    }
+
 }

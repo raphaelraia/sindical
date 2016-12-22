@@ -1,9 +1,6 @@
 package br.com.rtools.financeiro.dao;
 
-import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.financeiro.Correcao;
-import br.com.rtools.financeiro.DescontoServicoEmpresa;
-import br.com.rtools.financeiro.DescontoServicoEmpresaGrupo;
 import br.com.rtools.financeiro.IndiceMensal;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;

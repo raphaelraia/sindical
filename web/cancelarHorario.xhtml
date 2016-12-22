@@ -25,7 +25,7 @@
                                 <p:outputLabel value="Filiais: " styleClass="fontePadrao"/>
                             </p:column>
                             <p:column>
-                                <p:selectOneMenu id="iFilial" value="#{cancelarHorarioBean.idFilial}">
+                                <p:selectOneMenu id="iFilial" value="#{cancelarHorarioBean.idFilial}" title="ADM. ACRESCENTAR FILIAL ROTINA E PERMISSÃO LIBERA ACESSO FILIAL" disabled="#{!cancelarHorarioBean.liberaAcessaFilial}">
                                     <p:ajax event="change" update="iFilial id_panel_cancelamento :form_cancelar_horario:i_panel_grid_horarios :form_cancelar_horario_novo:id_panel_cancelamento"/>
                                     <f:selectItems value="#{cancelarHorarioBean.listaFiliais}" actionListener="#{cancelarHorarioBean.listHorarios.clear()}"/>
                                 </p:selectOneMenu>

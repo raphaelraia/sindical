@@ -651,7 +651,7 @@ public class Jasper implements Serializable {
                             } else {
                                 fo.getParameters().putAll(parameters);
                             }
-                            if(fo.getJasperReport() == null) {
+                            if (fo.getJasperReport() == null) {
                                 System.out.println("Erro > Jasper não encontrado (null)");
                                 GenericaMensagem.info("Erro", "Jasper não encontrado (null)");
                             }
@@ -774,6 +774,8 @@ public class Jasper implements Serializable {
                     f.delete();
                 }
             }
+        } else {
+            FILE_NAME_GENERATED = dirPath + "/" + downloadName;
         }
         dbe = null;
 
@@ -800,6 +802,20 @@ public class Jasper implements Serializable {
         IGNORE_UUID = false;
         QUERY_STRING = "";
         IS_QUERY_STRING = false;
+    }
+
+    public static void deleteFile() {
+        try {
+            File f = new File(FILE_NAME_GENERATED);
+            if (f.exists()) {
+                f.delete();
+            }
+        } catch (Exception e) {
+
+        }
+        Jasper.IS_REMOVE_FILE = true;
+        Jasper.IS_DOWNLOAD = true;
+        FILE_NAME_GENERATED = "";
     }
 
     public String classAnnotationValue(Class classType, Class annotationType, String attributeName) {

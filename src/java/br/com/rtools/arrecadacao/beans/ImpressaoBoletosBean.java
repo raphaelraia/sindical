@@ -11,6 +11,7 @@ import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.dao.ImpressaoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
+import br.com.rtools.impressao.Carta;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
@@ -1278,6 +1279,82 @@ public class ImpressaoBoletosBean implements Serializable {
 
         SisCartaBean.printList("COMUNICADO", comunicado, listPessoas);
 
+    }
+
+    public void sendComunicado() {
+        if (selected.isEmpty()) {
+            GenericaMensagem.warn("Validação", "NENHUM REGISTRO SELECIONADO!");
+            return;
+        }
+        String comunicado = ConfiguracaoArrecadacao.get().getComunicado();
+        if (comunicado.isEmpty()) {
+            comunicado = "teste";
+            GenericaMensagem.warn("Validação", "NÃO HÁ COMUNICADO!");
+            // return;
+        }
+        Dao dao = new Dao();
+        int[] pid = new int[selected.size()];
+        for (int i = 0; i < selected.size(); i++) {
+            if (((Integer) selected.get(i).getContabilidade_id()) != 0) {
+                pid[i] = (int) selected.get(i).getContabilidade_id();
+            } else {
+                pid[i] = (int) ((Juridica) dao.find(new Juridica(), ((Integer) selected.get(i).getEmpresa_id()))).getPessoa().getId();
+            }
+        }
+        List<Pessoa> listPessoas = (List<Pessoa>) dao.find("Pessoa", pid);
+        List<Carta> c = new ArrayList<>();
+        try {
+            Carta carta = new Carta(
+                    "COMUNICADO", // titulo
+                    comunicado, // Texto
+                    "Assinatura", // Assinatura
+                    "Rodapé" // Rodapé
+
+            );
+            c.add(carta);
+        } catch (Exception e2) {
+            e2.getMessage();
+        }
+        Jasper.IS_HEADER = true;
+        Jasper.PART_NAME = "";
+        Jasper.IS_DOWNLOAD = false;
+        Jasper.printReports("/Relatorios/CARTA.jasper", "comunicado", c);        
+        File fileComunicado = new File(Jasper.FILE_NAME_GENERATED);
+        Dao di = new Dao();
+        Mail mail = new Mail();
+        mail.addFile(fileComunicado);        
+        mail.setEmail(
+                new Email(
+                        -1,
+                        DataHoje.dataHoje(),
+                        DataHoje.livre(new Date(), "HH:mm"),
+                        (Usuario) GenericaSessao.getObject("sessaoUsuario"),
+                        new Rotina().get(),
+                        null,
+                        "COMUNICADO",
+                        "Segue comunicado em anexo",
+                        false,
+                        false
+                )
+        );
+        List<EmailPessoa> emailPessoas = new ArrayList<>();
+        EmailPessoa emailPessoa = new EmailPessoa();
+        for (Pessoa p : listPessoas) {
+            emailPessoa.setDestinatario(p.getEmail1());
+            emailPessoa.setPessoa(p);
+            emailPessoa.setRecebimento(null);
+            emailPessoas.add(emailPessoa);
+            mail.setEmailPessoas(emailPessoas);
+            emailPessoa = new EmailPessoa();
+        }
+        String[] retorno = mail.send("personalizado");
+
+        if (!retorno[1].isEmpty()) {
+            GenericaMensagem.warn("Falha", "Email(s) " + retorno[1]);
+        } else {
+            GenericaMensagem.info("Sucesso", "Email(s) " + retorno[0]);
+        }
+        Jasper.deleteFile();
     }
 
     public void setContabilidade(Juridica contabilidade) {

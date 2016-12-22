@@ -2367,6 +2367,20 @@
             <redirect/>
         </navigation-case>             
         
+        
+        <navigation-case>
+            <from-outcome>reuniao</from-outcome>
+            <to-view-id>/reuniao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
+        
+        <navigation-case>
+            <from-outcome>pesquisaReuniao</from-outcome>
+            <to-view-id>/pesquisaReuniao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>             
+        
     </navigation-rule>
     
     <lifecycle>

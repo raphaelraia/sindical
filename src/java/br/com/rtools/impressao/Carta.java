@@ -28,6 +28,14 @@ public class Carta {
         this.destinatario_complemento = null;
     }
 
+    public Carta(Object titulo, Object texto, Object assinatura, Object rodape) {
+        this.titulo = titulo;
+        this.texto = texto;
+        this.assinatura = assinatura;
+        this.rodape = rodape;
+
+    }
+
     public Carta(Object titulo, Object texto, Object assinatura, Object rodape, Object remetente_logo, Object remetente_nome, Object remetente_endereco, Object remetente_complemento, Object destinatario_nome, Object destinatario_endereco, Object destinatario_complemento) {
         this.titulo = titulo;
         this.texto = texto;

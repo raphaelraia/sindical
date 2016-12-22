@@ -119,9 +119,9 @@ public class SisCartaBean implements Serializable {
                     List<Carta> c = new ArrayList<>();
                     Carta carta = new Carta(
                             sisCarta.getTitulo(), // titulo
-                            "Texto", // Texto
-                            "Assinatura", // Assinatura
-                            "Rodapé", // Rodapé
+                            "", // Texto
+                            "", // Assinatura
+                            "", // Rodapé
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"), // Logo
                             pe.getPessoa().getNome(), // Remetente Nome
                             pe.getEnderecoCompletoString(), // Remetente Endereço

@@ -1,0 +1,47 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Reunião</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="form_pesquisa_reuniao">
+                    <p:outputLabel value="Pesquisa Reunião" styleClass="fonteHeader"/>
+                    <c:set scope="request" var="object" value="${reuniaoBean.reuniao}"/>
+
+                    <div class="clear"></div>
+                    <p:dataTable value="#{reuniaoBean.listReuniao}" var="reuniao" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado!">
+                        <p:column width="30" styleClass="text-center">
+                            <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{reuniaoBean.edit(reuniao)}" ajax="false"/>
+                        </p:column>
+                        <p:column headerText="Cadastro" styleClass="text-center" width="80" >
+                            #{reuniao.criacao}
+                        </p:column>
+                        <p:column headerText="Data" styleClass="text-center" width="80" >
+                            #{reuniao.reuniao}
+                        </p:column>
+                        <p:column headerText="Horário" styleClass="text-center" width="80" >
+                            #{reuniao.horario}
+                        </p:column>
+                        <p:column headerText="Titulo" styleClass="text-center">
+                            #{reuniao.titulo}
+                        </p:column>
+                        <p:column headerText="Operador" styleClass="text-center">
+                            #{reuniao.operador.pessoa.nome}
+                        </p:column>
+                    </p:dataTable>                     
+                </h:form>                    
+            </p:panel>                    
+        </f:view>
+    </h:body>
+</ui:composition>
