@@ -42,6 +42,7 @@
                 <f:view>
                     <f:metadata>  
                         <f:event type="preRenderView" listener="#{processoAutomaticoBean.find_progress('atualizar_juridica')}" />
+                        <f:event type="preRenderView" listener="#{processoAutomaticoBean.find_progress('registrar_boleto')}" />
                         <!-- 
                         também funciona para este caso
                         <f:viewAction action="# {processoAutomaticoBean.find_progress('atualizar_juridica')}" /> 

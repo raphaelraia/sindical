@@ -125,7 +125,9 @@ public class Registro implements Serializable {
     private boolean acessoWebDocumentoCPF;
     @Column(name = "is_acesso_web_documento_cei", columnDefinition = "boolean default false")
     private boolean acessoWebDocumentoCEI;
-
+    @Column(name = "ds_chave_cliente", length = 100)
+    private String chaveCliente;
+    
     public Registro() {
         this.id = -1;
         this.filial = new Juridica();
@@ -735,5 +737,13 @@ public class Registro implements Serializable {
 
     public void setAcessoWebDocumentoCEI(boolean acessoWebDocumentoCEI) {
         this.acessoWebDocumentoCEI = acessoWebDocumentoCEI;
+    }
+
+    public String getChaveCliente() {
+        return chaveCliente;
+    }
+
+    public void setChaveCliente(String chaveCliente) {
+        this.chaveCliente = chaveCliente;
     }
 }

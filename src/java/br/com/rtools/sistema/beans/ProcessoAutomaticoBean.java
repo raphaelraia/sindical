@@ -10,19 +10,12 @@ import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.ProcessoAutomaticoLog;
 import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *

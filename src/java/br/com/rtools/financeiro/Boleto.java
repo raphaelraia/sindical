@@ -35,6 +35,9 @@ public class Boleto implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_cobranca_registrada")
     private Date dtCobrancaRegistrada;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_registro_baixa")
+    private Date dtRegistroBaixa;
     
     public Boleto() {
         this.id = -1;
@@ -47,9 +50,10 @@ public class Boleto implements java.io.Serializable {
         this.dtVencimentoOriginal = null;
         this.mensagem = "";
         this.dtCobrancaRegistrada = null;
+        this.dtRegistroBaixa = null;
     }
 
-    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada) {
+    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.nrBoleto = nrBoleto;
@@ -60,6 +64,7 @@ public class Boleto implements java.io.Serializable {
         this.dtVencimentoOriginal = DataHoje.converte(vencimentoOriginal);
         this.mensagem = mensagem;
         this.dtCobrancaRegistrada = dtCobrancaRegistrada;
+        this.dtRegistroBaixa = dtRegistroBaixa;
     }
 
     public int getId() {
@@ -156,5 +161,21 @@ public class Boleto implements java.io.Serializable {
 
     public void setDtCobrancaRegistrada(Date dtCobrancaRegistrada) {
         this.dtCobrancaRegistrada = dtCobrancaRegistrada;
+    }
+    
+    public String getDtCobrancaRegistradaString() {
+        return DataHoje.converteData(dtCobrancaRegistrada);
+    }
+
+    public Date getDtRegistroBaixa() {
+        return dtRegistroBaixa;
+    }
+
+    public void setDtRegistroBaixa(Date dtRegistroBaixa) {
+        this.dtRegistroBaixa = dtRegistroBaixa;
+    }
+
+    public String getDtRegistroBaixaString() {
+        return DataHoje.converteData(dtRegistroBaixa);
     }
 }

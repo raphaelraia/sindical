@@ -436,7 +436,14 @@ public class MovimentoDao extends DB {
 
         if (id_pessoa != -1) {
             if (movimentoDaEmpresa) {
-                qry_pessoa = " and m.id_pessoa in (select id_pessoa from arr_contribuintes_vw where id_contabilidade = " + id_pessoa + " and dt_inativacao is null order by ds_nome) \n ";
+                qry_pessoa = " and m.id_pessoa in ( \n "
+                        + "select c.id_pessoa \n "
+                        + "  from arr_contribuintes_vw c \n "
+                        + " inner join pes_juridica jc on jc.id = c.id_contabilidade \n "
+                        + " inner join pes_pessoa p on p.id = jc.id_pessoa \n "
+                        + " where p.id = " + id_pessoa + " \n "
+                        + "   and c.dt_inativacao is null \n "
+                        + " order by c.ds_nome) \n ";
                 ordem = "nome, ";
             } else {
                 qry_pessoa = " and m.id_pessoa = " + id_pessoa + " \n ";
@@ -2655,5 +2662,29 @@ public class MovimentoDao extends DB {
             return new ArrayList();
         }
         return new ArrayList();
+    }
+
+    public void insertMovimentoBoleto(Integer id_conta_cobranca, String boleto) {
+        String text
+                = "INSERT INTO fin_movimento_boleto (id_movimento, id_boleto) \n"
+                + "( \n"
+                + "SELECT m.id, b.id \n"
+                + "  FROM fin_boleto as b \n"
+                + " INNER JOIN fin_movimento AS m ON m.nr_ctr_boleto = b.nr_ctr_boleto \n"
+                + "  LEFT JOIN fin_movimento_boleto AS mb ON mb.id_boleto = b.id AND mb.id_movimento = m.id \n"
+                + " WHERE m.is_ativo = true \n"
+                + "   AND mb.id IS NULL \n"
+                + "   AND m.id_baixa IS NULL \n"
+                + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n"
+                + "   AND m.ds_documento = '" + boleto + "' \n"
+                + " GROUP BY m.id, b.id \n"
+                + ");";
+        try {
+            Query qry = getEntityManager().createNativeQuery(text);
+            qry.executeUpdate();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
     }
 }

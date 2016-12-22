@@ -14,10 +14,14 @@ import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
+import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.beans.UploadFilesBean;
+import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
+import br.com.rtools.thread.RegistrarBoletoThread;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -77,10 +81,37 @@ public class ImpressaoBoletoSocialBean {
         GenericaSessao.put("uploadFilesBean", uploadFilesBean);
     }
 
-    public void registrarBoletos(){
-        
+    public void registrarBoletos() {
+        ProcessoAutomatico pa = new ProcessoAutomaticoDao().pesquisarProcesso("registrar_boleto", Usuario.getUsuario().getId());
+
+        if (pa.getId() != -1) {
+            GenericaMensagem.info("Atenção", "Processo já iniciado, aguarde o término!");
+            return;
+        }
+
+        if (!listaPessoaSemEndereco.isEmpty()) {
+            GenericaMensagem.fatal("Atenção", "Existem pessoas sem endereço, favor cadastra-las!");
+            return;
+        }
+
+        List<Boleto> lista = new ArrayList();
+        MovimentoDao db = new MovimentoDao();
+        for (int i = 0; i < listaGrid.size(); i++) {
+            if ((Boolean) listaGrid.get(i).getArgumento1()) {
+                lista.add(db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)));
+            }
+        }
+
+        if (lista.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Nenhum Boleto selecionado!");
+            return;
+        }
+
+        new RegistrarBoletoThread(lista, "soc_boletos_vw").runDebug();
+
+        GenericaMensagem.info("Sucesso", "Registro de Boletos concluído!");
     }
-    
+
     public void upload(FileUploadEvent event) {
         ConfiguracaoUpload cu = new ConfiguracaoUpload();
         cu.setArquivo(event.getFile().getFileName());

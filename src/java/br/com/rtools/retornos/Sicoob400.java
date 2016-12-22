@@ -14,23 +14,24 @@ import java.util.List;
 import java.util.Vector;
 
 public class Sicoob400 extends ArquivoRetorno {
-    private String linha = "", 
-                   pasta = "", 
-                   cnpj = "", 
-                   codigoCedente = "", 
-                   nossoNumero = "", 
-                   dataVencimento = "", 
-                   valorTaxa = "",
-                   valorPago = "",
-                   valorCredito = "",
-                   valorRepasse = "",
-                   dataPagamento = "",
-                   dataCredito = "";
-    
+
+    private String linha = "",
+            pasta = "",
+            cnpj = "",
+            codigoCedente = "",
+            nossoNumero = "",
+            dataVencimento = "",
+            valorTaxa = "",
+            valorPago = "",
+            valorCredito = "",
+            valorRepasse = "",
+            dataPagamento = "",
+            dataCredito = "";
+
     public Sicoob400(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
-    
+
     @Override
     public List<GenericaRetorno> sicob(boolean baixar, String host) {
         host = host + "/pendentes/";
@@ -39,7 +40,7 @@ public class Sicoob400 extends ArquivoRetorno {
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
-        
+
         SicoobDao dao = new SicoobDao(); // TEMPORÁRIO
         if (listFile != null) {
             int qntRetornos = listFile.length;
@@ -61,36 +62,41 @@ public class Sicoob400 extends ArquivoRetorno {
                             i++;
                             continue;
                         }
-                        
-                        if ( (i + 1) != lista.size()){
+
+                        if ((i + 1) != lista.size()) {
                             cnpj = ((String) lista.get(i)).substring(3, 17);
 
-                            nossoNumero = ((String) lista.get(i)).substring(62, 73).trim();
+                            if ((((String) lista.get(i)).substring(82, 84)).equals("OU")) {
+                                nossoNumero = ((String) lista.get(i)).substring(62, 73).trim();
+                            } else {
+                                nossoNumero = ((String) lista.get(i)).substring(62, 74).trim();
+                            }
+                            
                             //valorTaxa = ((String) lista.get(i)).substring(95, 100); // taxa de desconto
                             valorTaxa = ((String) lista.get(i)).substring(181, 188); // valor da tarifa
 
-                            dataVencimento = ((String) lista.get(i)).substring(146, 150)+"20"+((String) lista.get(i)).substring(150, 152);
+                            dataVencimento = ((String) lista.get(i)).substring(146, 150) + "20" + ((String) lista.get(i)).substring(150, 152);
                             try {
                                 int con = Integer.parseInt(dataVencimento);
                                 if (con == 0) {
                                     dataVencimento = "11111111";
                                 }
-                            } catch (Exception e) {}
-
+                            } catch (Exception e) {
+                            }
 
                             // valorPago = ((String) lista.get(i)).substring(152, 165); // (Valor Titulo) -- CHAMADO 1061
                             valorPago = ((String) lista.get(i)).substring(253, 266); // (valor recebido parcial)
-                            dataPagamento = ((String) lista.get(i)).substring(110, 114)+"20"+((String) lista.get(i)).substring(114, 116);
+                            dataPagamento = ((String) lista.get(i)).substring(110, 114) + "20" + ((String) lista.get(i)).substring(114, 116);
 
                             // TEMPORARIO ----------
                             List<Object> boletox = dao.xsicoob(nossoNumero);
-                            if (!boletox.isEmpty()){
+                            if (!boletox.isEmpty()) {
                                 float valor_pago = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)), 100);
                                 List linhaX = ((List) boletox.get(0));
-                                
-                                if ( ( ((Double)linhaX.get(1)).floatValue() - 0.05) < valor_pago && (((Double)linhaX.get(1)).floatValue() + 0.05) > valor_pago){
-                                    
-                                }else{
+
+                                if ((((Double) linhaX.get(1)).floatValue() - 0.05) < valor_pago && (((Double) linhaX.get(1)).floatValue() + 0.05) > valor_pago) {
+
+                                } else {
                                     // UPDATE
                                     String data_pagamento = DataHoje.colocarBarras(dataPagamento);
                                     dao.xupdate(data_pagamento, nossoNumero);
@@ -99,7 +105,7 @@ public class Sicoob400 extends ArquivoRetorno {
                                 }
                             }
                             // -------------
-                            
+
                             listaRetorno.add(new GenericaRetorno(
                                     cnpj, //1 ENTIDADE
                                     codigoCedente, //2 NESTE CASO SICAS
@@ -122,7 +128,7 @@ public class Sicoob400 extends ArquivoRetorno {
                         i++;
                     }
                 } catch (Exception e) {
-                    
+
                 }
             }
         }
@@ -150,7 +156,7 @@ public class Sicoob400 extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSigCBSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
@@ -162,7 +168,7 @@ public class Sicoob400 extends ArquivoRetorno {
         String mensagem = super.baixarArquivo(this.sicob(true, caminho), caminho, usuario);
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSicobSocial(String caminho, Usuario usuario) {
         String mensagem = super.baixarArquivoSocial(this.sicob(true, caminho), caminho, usuario);
