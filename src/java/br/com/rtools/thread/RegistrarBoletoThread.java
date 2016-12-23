@@ -136,9 +136,9 @@ public class RegistrarBoletoThread extends ThreadLocal<Object> {
         FinanceiroDao db = new FinanceiroDao();
 
         List<Vector> lista_socio = new ArrayList();
-        
+
         Pessoa pessoa = dbs.responsavelBoleto(boleto.getNrCtrBoleto());
-        
+
         if (lista_socio.isEmpty()) {
             if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {
                 lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
@@ -148,7 +148,7 @@ public class RegistrarBoletoThread extends ThreadLocal<Object> {
         }
         // SOMA VALOR DAS ATRASADAS
         float valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;
-        
+
         for (Vector listax : lista_socio) {
             // SE vencimento_movimento FOR MENOR QUE vencimento_boleto_original
             if (DataHoje.menorData(DataHoje.converteData((Date) listax.get(38)), "01/" + DataHoje.converteData((Date) listax.get(40)).substring(3))) {
@@ -165,7 +165,7 @@ public class RegistrarBoletoThread extends ThreadLocal<Object> {
         if (hash.get("boleto") != null) {
             return "";
         } else {
-            return "Erro ao Registrar";
+            return "Erro ao Registrar [" + hash.get("mensagem") + "]";
         }
     }
 

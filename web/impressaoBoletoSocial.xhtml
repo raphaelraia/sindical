@@ -58,15 +58,15 @@
                         <h:form id="formImpressaoBoletoSocial">
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:outputLabel value="Opção Marcar" style="font-size: 12pt!important"/><br />
-                                <h:panelGrid columns="11">
+                                <h:panelGrid columns="12">
                                     <p:column>
                                         <h:outputLabel value="De" /><br />
-                                        <p:inputText size="5" value="#{impressaoBoletoSocialBean.de}"/>
+                                        <p:inputText size="4" value="#{impressaoBoletoSocialBean.de}"/>
                                     </p:column>
 
                                     <p:column>
                                         <h:outputLabel value="Até" /><br />
-                                        <p:inputText size="5" value="#{impressaoBoletoSocialBean.ate}"/>
+                                        <p:inputText size="4" value="#{impressaoBoletoSocialBean.ate}"/>
                                     </p:column>
 
                                     <p:column>
@@ -118,7 +118,17 @@
                                         <h:outputLabel value="Data Proc." /><br />
                                         <p:inputMask value="#{impressaoBoletoSocialBean.strData}" mask="99/99/9999" size="8" style="background: #ffc8c8; font-weight: bold"/>
                                     </p:column>
-
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="Boleto Registrado" /><br />
+                                        <p:selectOneMenu value="#{impressaoBoletoSocialBean.boletoRegistrado}">
+                                            <p:ajax event="change" update="i_documento formImpressaoBoletoSocial" listener="#{impressaoBoletoSocialBean.loadLista()}"/>
+                                            <f:selectItem itemValue="todos" itemLabel="Todos Boletos" />
+                                            <f:selectItem itemValue="registrados" itemLabel="Registrados" />
+                                            <f:selectItem itemValue="nao_registrados" itemLabel="Não Registrados" />
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                    
                                     <p:column>
                                         <br />
                                         <p:commandButton value="Filtrar" action="#{impressaoBoletoSocialBean.loadLista()}" update="formImpressaoBoletoSocial"/>

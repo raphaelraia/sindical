@@ -74,6 +74,8 @@ public class ImpressaoBoletoSocialBean {
     private boolean atualizaListaPessoaSemEndereco = true;
     private Integer qntPessoasSelecionadas = 0;
     private String valorTotal = "0,00";
+    
+    private String boletoRegistrado = "todos";
 
     @PostConstruct
     public void init() {
@@ -185,7 +187,7 @@ public class ImpressaoBoletoSocialBean {
 
         if (!strResponsavel.isEmpty() || !strLote.isEmpty() || !strData.isEmpty() || !strDocumento.isEmpty()) {
             FinanceiroDao dao = new FinanceiroDao();
-            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, tipo, strDocumento);
+            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, tipo, strDocumento, boletoRegistrado);
 
             int contador = 1;
             for (int i = 0; i < lista_agrupado.size(); i++) {
@@ -625,5 +627,13 @@ public class ImpressaoBoletoSocialBean {
 
     public void setStrDocumento(String strDocumento) {
         this.strDocumento = strDocumento;
+    }
+
+    public String getBoletoRegistrado() {
+        return boletoRegistrado;
+    }
+
+    public void setBoletoRegistrado(String boletoRegistrado) {
+        this.boletoRegistrado = boletoRegistrado;
     }
 }
