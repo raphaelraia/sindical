@@ -91,9 +91,18 @@ public class ImprimirBoleto {
     private String pathPasta = "";
     private byte[] arquivo = new byte[0];
 
+    public void voltarBoleto(Boleto boleto, String nr_ctr) {
+        boleto.setDtRegistroBaixa(null);
+        boleto.setAtivo(true);
+        boleto.setNrCtrBoleto(nr_ctr);
+        new Dao().update(boleto, true);
+    }
+
     public HashMap registrarMovimentosAss(Boleto boleto, Float valor, String vencimento) {
         MovimentoDao dbm = new MovimentoDao();
         MovimentosReceberSocialDao db_social = new MovimentosReceberSocialDao();
+
+        Dao dao = new Dao();
 
         HashMap hash = new LinkedHashMap();
 
@@ -114,60 +123,58 @@ public class ImprimirBoleto {
         }
 
         if (boleto.getDtCobrancaRegistrada() != null) {
+            int id_boleto = dbm.inserirBoletoNativo(boleto.getContaCobranca().getId());
 
-            hash.put("boleto", boleto);
-            hash.put("mensagem", "");
-            return hash;
-//            
-//            int id_boleto = dbm.inserirBoletoNativo(boleto.getContaCobranca().getId());
-//
-//            dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
-//
-//            Dao dao = new Dao();
-//            dao.openTransaction();
-//
-//            boleto.setDtRegistroBaixa(DataHoje.dataHoje());
-//            boleto.setAtivo(false);
-//            boleto.setNrCtrBoleto("");
-//            dao.update(boleto);
-//
-//            if (id_boleto != -1) {
-//                Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
-//                //bol.setContaCobranca(cc);
-//                for(int i = 0; i < lista_movimento.size(); i ++){
-//                    
-//                }
-//                
-//                bol_novo.setNrCtrBoleto(String.valueOf(lista.get(i).getId()));
-//
-//                lista.get(i).setDocumento(bol_novo.getBoletoComposto());
-//                lista.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
-//
-//                if (!dao.update(lista.get(i))) {
-//                    dao.rollback();
-//                    hash.put("lista", new ArrayList());
-//                    hash.put("mensagem", "Erro ao Atualizar Movimento ID " + lista.get(i).getId());
-//                    return hash;
-//                }
-//
-//                if (!dao.update(bol_novo)) {
-//                    dao.rollback();
-//
-//                    hash.put("lista", new ArrayList());
-//                    hash.put("mensagem", "Erro ao Atualizar Boleto ID " + bol_novo.getId());
-//                    return hash;
-//                }
-//
-//                dao.commit();
-//
-//                bol = bol_novo;
-//            } else {
-//                dao.rollback();
-//
-//                hash.put("lista", new ArrayList());
-//                hash.put("mensagem", "Erro ao Gerar Novo Boleto");
-//                return hash;
-//            }
+            dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
+
+            String nr_ctr = boleto.getNrCtrBoleto();
+
+            boleto.setDtRegistroBaixa(DataHoje.dataHoje());
+            boleto.setAtivo(false);
+            boleto.setNrCtrBoleto("");
+            dao.update(boleto, true);
+
+            dao.openTransaction();
+            if (id_boleto != -1) {
+
+                Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
+
+                bol_novo.setNrCtrBoleto(nr_ctr);
+                bol_novo.setVencimento(boleto.getVencimento());
+                bol_novo.setVencimentoOriginal(boleto.getVencimentoOriginal());
+
+                for (int i = 0; i < lista_movimento.size(); i++) {
+                    lista_movimento.get(i).setDocumento(bol_novo.getBoletoComposto());
+                    lista_movimento.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
+                    
+                    if (!dao.update(lista_movimento.get(i))) {
+                        dao.rollback();
+                        hash.put("lista", new ArrayList());
+                        hash.put("mensagem", "Erro ao Atualizar Movimento ID " + lista_movimento.get(i).getId());
+
+                        voltarBoleto(boleto, nr_ctr);
+                        return hash;
+                    }
+                }
+
+                if (!dao.update(bol_novo)) {
+                    dao.rollback();
+                    hash.put("lista", new ArrayList());
+                    hash.put("mensagem", "Erro ao Atualizar Boleto ID " + bol_novo.getId());
+                    voltarBoleto(boleto, nr_ctr);
+                    return hash;
+                }
+
+                dao.commit();
+                boleto = bol_novo;
+            } else {
+                dao.rollback();
+
+                hash.put("lista", new ArrayList());
+                hash.put("mensagem", "Erro ao Gerar Novo Boleto");
+                voltarBoleto(boleto, nr_ctr);
+                return hash;
+            }
         }
 
         try {
@@ -2624,6 +2631,12 @@ public class ImprimirBoleto {
                 HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
 
                 if (hash.get("boleto") != null) {
+                    for(int i = 0 ; i < lista_socio.size(); i++) {
+                        if(lista_socio.get(i).get(20).toString().equals(boleto.getBoletoComposto())) {
+                            lista_socio.get(i).set(20, boleto.getBoletoComposto());
+                            break;
+                        }
+                    }
                     boleto = (Boleto) hash.get("boleto");
                 } else {
                     return new byte[0];
