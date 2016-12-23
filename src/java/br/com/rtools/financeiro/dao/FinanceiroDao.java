@@ -667,7 +667,7 @@ public class FinanceiroDao extends DB {
         }
     }
 
-    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String tipo, String documento) {
+    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String tipo, String documento, String boletoRegistrado) {
 
         String text_qry = "", where = "", inner_join = "";
 
@@ -679,18 +679,8 @@ public class FinanceiroDao extends DB {
 
         where = " WHERE b.ativo = true \n ";
 
-//        // IF temporário... excluir
-//        if (tipo.equals("fisica")){
-//            where += " AND b.codigo IN (SELECT id FROM xextrato) ";
-//        }
         // DOCUMENTO --
         if (!documento.isEmpty()) {
-//            if (tipo.equals("fisica")){
-//                inner_join = " INNER JOIN pes_pessoa p ON p.id = f.id_pessoa ";
-//            }else if (tipo.equals("juridica")){
-//                inner_join = " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa ";
-//            }
-
             inner_join += " INNER JOIN pes_pessoa p ON p.id = b.codigo \n ";
             where += " AND p.ds_documento = '" + documento + "' \n ";
         }
@@ -712,6 +702,18 @@ public class FinanceiroDao extends DB {
             where += " AND b.processamento = '" + data + "' \n ";
         }
 
+        // COBRANÇA REGISTRADA
+        switch(boletoRegistrado){
+            case "registrados":
+                where += " AND b.data_cobranca_registrada IS NOT NULL \n ";
+                break;
+            case "nao_registrados":
+                where += " AND b.data_cobranca_registrada IS NULL \n ";
+                break;
+            default:
+                break;
+        }
+        
         text_qry
                 = " SELECT b.nr_ctr_boleto, \n "
                 + "      b.id_lote_boleto, \n "
@@ -721,7 +723,9 @@ public class FinanceiroDao extends DB {
                 + "      to_char(b.processamento,'dd/MM/yyyy') as processamento, \n "
                 + "      sum(b.valor) as valor, \n "
                 + "      b.endereco_responsavel, \n "
-                + "      b.codigo \n "
+                + "      b.codigo, \n "
+                + "      b.data_cobranca_registrada, \n "
+                + "      b.data_registro_baixa \n "
                 + "   FROM soc_boletos_vw b " + inner_join + where
                 + "  GROUP BY \n "
                 + "      b.nr_ctr_boleto, \n "
@@ -731,7 +735,9 @@ public class FinanceiroDao extends DB {
                 + "      b.vencimento, \n "
                 + "      b.processamento, \n "
                 + "      b.endereco_responsavel, \n "
-                + "      b.codigo \n "
+                + "      b.codigo, \n "
+                + "      b.data_cobranca_registrada, \n "
+                + "      b.data_registro_baixa \n "
                 + "  ORDER BY \n "
                 + "      b.responsavel, \n "
                 + "      b.vencimento desc";

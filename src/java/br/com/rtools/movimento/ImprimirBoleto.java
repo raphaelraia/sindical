@@ -114,34 +114,30 @@ public class ImprimirBoleto {
         }
 
         if (boleto.getDtCobrancaRegistrada() != null) {
-//            FunctionsDao f = new FunctionsDao();
-//            List<Movimento> l_aux = new ArrayList();
-//            l_aux.add(lista.get(i));
-//
-//            if (f.gerarBoletoSocial(l_aux, bol.getVencimento())) {
-//                // GEROU OS BOLETOS
-//            } else {
-//                // NÃO GEROU OS BOLETOS
-//            }
-            //dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
-            // temporário
+
             hash.put("boleto", boleto);
             hash.put("mensagem", "");
             return hash;
-            // temporário
+//            
+//            int id_boleto = dbm.inserirBoletoNativo(boleto.getContaCobranca().getId());
+//
+//            dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
 //
 //            Dao dao = new Dao();
 //            dao.openTransaction();
 //
-//            bol.setDtRegistroBaixa(DataHoje.dataHoje());
-//            bol.setAtivo(false);
-//            bol.setNrCtrBoleto("");
-//            dao.update(bol);
+//            boleto.setDtRegistroBaixa(DataHoje.dataHoje());
+//            boleto.setAtivo(false);
+//            boleto.setNrCtrBoleto("");
+//            dao.update(boleto);
 //
 //            if (id_boleto != -1) {
 //                Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
 //                //bol.setContaCobranca(cc);
-//
+//                for(int i = 0; i < lista_movimento.size(); i ++){
+//                    
+//                }
+//                
 //                bol_novo.setNrCtrBoleto(String.valueOf(lista.get(i).getId()));
 //
 //                lista.get(i).setDocumento(bol_novo.getBoletoComposto());
@@ -172,7 +168,6 @@ public class ImprimirBoleto {
 //                hash.put("mensagem", "Erro ao Gerar Novo Boleto");
 //                return hash;
 //            }
-
         }
 
         try {
@@ -343,7 +338,7 @@ public class ImprimirBoleto {
                     return hash;
                 } else {
                     hash.put("boleto", null);
-                    hash.put("mensagem", "Erro ao Registrar Boleto " + boleto.getNrBoleto() + ", contate o Administrador.");
+                    hash.put("mensagem", "Erro ao Registrar Boleto " + boleto.getNrBoleto() + "[" + jSONObject.getBoolean("status") + "], contate o Administrador.");
                     return hash;
                 }
             } else {
