@@ -19,7 +19,7 @@
                     <p:outputLabel value="Pesquisar de Turma" styleClass="fonteHeader"/>
                     <c:set scope="request" var="object" value="${turmaBean.turma}"/>
                     <div class="clear"></div>
-                    <h:panelGrid columns="2" styleClass="margin-top-max">
+                    <h:panelGrid columns="4" styleClass="margin-top-max">
                         <h:column>
                             <p:outputLabel value="Filial: "  />
                         </h:column>
@@ -28,7 +28,10 @@
                                 <p:ajax event="change" update="@this id_turmas" listener="#{turmaBean.listTurma.clear()}"/>
                                 <f:selectItems value="#{turmaBean.listFiliais}" />
                             </p:selectOneMenu>
-                        </h:column>                        
+                        </h:column>
+                        <p:selectBooleanCheckbox value="#{turmaBean.historico}" itemLabel="Histórico">
+                        <p:ajax event="change" update="@this id_turmas" listener="#{turmaBean.listTurma.clear()}"/>
+                        </p:selectBooleanCheckbox>
                     </h:panelGrid>
                     <h:panelGrid id="id_turmas" styleClass="margin-top-max">                        
                         <p:dataTable value="#{turmaBean.listTurma}" var="turma" scrollHeight="400" scrollable="true" emptyMessage="Não existem turmas cadastradas">

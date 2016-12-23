@@ -97,7 +97,7 @@ public class ControleUsuarioBean implements Serializable {
         }
         if (nomeCliente.equals("Rtools") || nomeCliente.equals("Sindical") || nomeCliente.equals("ComercioLimeira")) {
             return true;
-        }
+        } 
         ResultSet rs;
         PreparedStatement ps;
         DBExternal dBExternal = new DBExternal();
