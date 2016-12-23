@@ -56,6 +56,7 @@ public class TurmaBean implements Serializable {
     private ComponenteCurricular componenteCurricular;
     private Boolean liberaAcessaFilial;
     private Integer filial_id;
+    private Boolean historico;
 
     @PostConstruct
     public void init() {
@@ -81,6 +82,7 @@ public class TurmaBean implements Serializable {
         liberaAcessaFilial = false;
         filial_id = 0;
         loadLiberaAcessaFilial();
+        historico = false;
 
     }
 
@@ -156,8 +158,8 @@ public class TurmaBean implements Serializable {
         }
         if (turma.getHoraTermino().equals("__:__")) {
             turma.setHoraTermino("");
-        }        
-        turma.setCursos((Servicos) dao.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));        
+        }
+        turma.setCursos((Servicos) dao.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));
         NovoLog novoLog = new NovoLog();
         TurmaDao td = new TurmaDao();
         if (turma.getId() == -1) {
@@ -430,8 +432,13 @@ public class TurmaBean implements Serializable {
 
     public List<Turma> getListTurma() {
         if (listTurma.isEmpty()) {
+            String data = DataHoje.data();
+            String tipo = "ativo";
+            if (historico) {
+                tipo = "antes";
+            }
             try {
-                listTurma = new TurmaDao().findbyFilial(Integer.parseInt(getListFiliais().get(filial_id).getDescription()));                
+                listTurma = new TurmaDao().findbyFilial(Integer.parseInt(getListFiliais().get(filial_id).getDescription()), "", "", tipo, "", data);
             } catch (Exception e) {
                 listTurma = new ArrayList();
             }
@@ -625,6 +632,14 @@ public class TurmaBean implements Serializable {
 
     public void setFilial_id(Integer filial_id) {
         this.filial_id = filial_id;
+    }
+
+    public Boolean getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(Boolean historico) {
+        this.historico = historico;
     }
 
 }

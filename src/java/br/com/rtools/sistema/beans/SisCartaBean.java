@@ -4,9 +4,13 @@ import br.com.rtools.impressao.Carta;
 import br.com.rtools.impressao.ParametroContrato;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.seguranca.FilialRotina;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.sistema.SisCarta;
 import br.com.rtools.sistema.SisCartaTipo;
 import br.com.rtools.sistema.dao.SisCartaDao;
@@ -112,6 +116,10 @@ public class SisCartaBean implements Serializable {
             JasperReport jasperCarta = (JasperReport) Jasper.load("CARTA.jasper");
             JasperReport jasperVerso = (JasperReport) Jasper.load("CARTA_VERSO.jasper");
             Jasper jasper = new Jasper();
+            if (GenericaSessao.exists("acessoFilial")) {
+                pe  = MacFilial.getAcessoFilial().getFilial().getFilial().getPessoa().getPessoaEndereco();
+                jasper.FILIAL = MacFilial.getAcessoFilial().getFilial();
+            }
             jasper.start();
             // Jasper jasper = new Jasper();
             for (int i = 0; i < listPessoaEndereco.size(); i++) {

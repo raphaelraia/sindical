@@ -78,10 +78,52 @@ public class TurmaDao extends DB {
         return new ArrayList();
     }
 
-    public List findbyFilial(Integer filial_id) {
+    public List findbyFilial(Integer filial_id, String servico_descricao, String turma_descricao, String tipo, String data_inicio, String data_termino) {
+        List listWhere = new ArrayList();
         try {
-            Query query = getEntityManager().createQuery("SELECT T FROM Turma AS T WHERE T.dtTermino >= CURRENT_DATE AND T.filial.id = :filial_id ORDER BY T.cursos.descricao ASC, T.sala ASC, T.descricao ASC, T.dtInicio DESC, T.horaInicio ASC ");
-            query.setParameter("filial_id", filial_id);
+            String queryString = ""
+                    + "     SELECT T.*                                          \n"
+                    + "       FROM esc_turma AS T                               \n"
+                    + " INNER JOIN fin_servicos S ON S.id = T.id_curso          \n";
+            if (filial_id != null) {
+                listWhere.add("T.id_filial = " + filial_id);
+            }
+            if (!servico_descricao.isEmpty()) {
+                listWhere.add("func_translate(UPPER(TRIM(S.ds_descricao))) LIKE func_translate(UPPER(TRIM('%" + turma_descricao + "'%)))");
+            }
+            if (!turma_descricao.isEmpty()) {
+                listWhere.add("func_translate(UPPER(TRIM(t.ds_descricao))) LIKE func_translate(UPPER(TRIM('%" + turma_descricao + "'%)))");
+            }
+            switch (tipo) {
+                case "ativo":
+                    listWhere.add("T.dt_termino >= CURRENT_DATE");
+                    break;
+                case "igual":
+                    listWhere.add("T.dt_termino = '" + data_inicio + "'");
+                    break;
+                case "entre":
+                    listWhere.add("T.dt_termino BETWEEN '" + data_inicio + "' AND '" + data_termino + "'");
+                    break;
+                case "antes":
+                    listWhere.add("T.dt_termino < '" + data_termino + "'");
+                    break;
+                default:
+                    break;
+            }
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + "\n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + "\n";
+                }
+            }
+            queryString += " "
+                    + "   ORDER BY S.ds_descricao ASC,                          \n"
+                    + "            T.nr_sala ASC,                               \n"
+                    + "            T.ds_descricao ASC,                          \n"
+                    + "            T.dt_inicio DESC,                            \n"
+                    + "            T.tm_inicio ASC";
+            Query query = getEntityManager().createNativeQuery(queryString, Turma.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
