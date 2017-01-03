@@ -59,7 +59,7 @@
                                     <p:commandButton ajax="false" value="Processar" action="#{importacao.proccess}" update=":form_importacao:" />
                                     <p:commandButton value="Anexar documentos" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" disabled="#{importacao.run}"/>
                                     <p:commandButton value="Finalizar" type="button" onclick="PF('i_dlg_s').show();" rendered="#{!importacao.run}"/>
-                                    <p:commandButton ajax="false" value="Corrigir Endereços" action="#{importacao.corrigirEnderecos}" update=":form_importacao:" />
+                                    <p:commandButton ajax="false" value="Corrigir Endereços" action="#{importacao.corrigirEnderecos}" update=":form_importacao:" disabled="true" title="NÃO HABILITAR!!! FALAR COM BRUNO!!!"/>
                                 </h:panelGrid>
                             </p:panel>
                             <p:dialog widgetVar="i_dlg_s" header="Deseja concluir o processo de importação?" resizable="false" width="400" modal="true">
