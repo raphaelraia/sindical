@@ -55,7 +55,7 @@
                     <h:panelGrid id="i_panel_grid" style="width: 100%">
                         <p:dataTable value="#{matriculaEscolaBean.listaMatriculaEscolas}" var="listaMatriculaEscola" emptyMessage="Nenhum registro encontrado" paginator="true" rows="10">
                             <p:column width="30" styleClass="text-center">
-                                <p:commandButton icon="ui-icon-link" action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" immediate="true"/>
+                                <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" immediate="true"/>
                             </p:column>
                             <p:column headerText="Contrato" style="width: 50px" styleClass="text-center">
                                 <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.id}" immediate="true"/>

@@ -57,10 +57,12 @@ public class TurmaBean implements Serializable {
     private Boolean liberaAcessaFilial;
     private Integer filial_id;
     private Boolean historico;
+    private Boolean exportRegister;
 
     @PostConstruct
     public void init() {
         turma = new Turma();
+        exportRegister = false;
         message = "";
         idServicos = 0;
         professor = new Professor();
@@ -221,6 +223,7 @@ public class TurmaBean implements Serializable {
             message = "Turma atualizada com sucesso!";
             listTurma.clear();
         }
+        exportRegister = false;
     }
 
     public String edit(Turma t) throws ParseException {
@@ -232,11 +235,35 @@ public class TurmaBean implements Serializable {
                 break;
             }
         }
+        exportRegister = false;
         GenericaSessao.put("turmaPesquisa", turmaC);
         GenericaSessao.put("linkClicado", true);
         SimpleDateFormat formatador = new SimpleDateFormat("HH:mm");
         this.horaInicio = formatador.parse(turmaC.getHoraInicio());
         this.horaTermino = formatador.parse(turmaC.getHoraTermino());
+        if (GenericaSessao.exists("urlRetorno")) {
+            return (String) GenericaSessao.getString("urlRetorno");
+        } else {
+            return "turma";
+        }
+    }
+
+    public String export(Turma t) throws ParseException {
+        for (int i = 0; i < listServicos.size(); i++) {
+            if (Integer.parseInt(listServicos.get(i).getDescription()) == t.getCursos().getId()) {
+                idServicos = i;
+                break;
+            }
+        }
+        t.setId(-1);
+        t.setDataInicio(addYear(t.getDataInicio()));
+        t.setDataTermino(addYear(t.getDataTermino()));
+        GenericaSessao.put("turmaPesquisa", t);
+        GenericaSessao.put("linkClicado", true);
+        SimpleDateFormat formatador = new SimpleDateFormat("HH:mm");
+        exportRegister = true;
+        this.horaInicio = formatador.parse(t.getHoraInicio());
+        this.horaTermino = formatador.parse(t.getHoraTermino());
         if (GenericaSessao.exists("urlRetorno")) {
             return (String) GenericaSessao.getString("urlRetorno");
         } else {
@@ -640,6 +667,24 @@ public class TurmaBean implements Serializable {
 
     public void setHistorico(Boolean historico) {
         this.historico = historico;
+    }
+
+    public static String addYear(String dataString) {
+        String diaString = dataString.substring(1, 2);
+        String mesString = dataString.substring(3, 5);
+        dataString = diaString + "/" + mesString + "/" + DataHoje.livre(new Date(), "YYYY");
+        if (!DataHoje.isDataValida(dataString)) {
+            return "";
+        }
+        return dataString;
+    }
+
+    public Boolean getExportRegister() {
+        return exportRegister;
+    }
+
+    public void setExportRegister(Boolean exportRegister) {
+        this.exportRegister = exportRegister;
     }
 
 }

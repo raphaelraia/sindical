@@ -63,6 +63,32 @@ public class MovimentoDao extends DB {
         }
     }
 
+    public Movimento findByNrCtrBoletoPessoa(String nr_ctr_boleto, Integer pessoa_id) {
+        return findByNrCtrBoletoAll(nr_ctr_boleto, pessoa_id, null);
+    }
+
+    public Movimento findByNrCtrBoletoTitular(String nr_ctr_boleto, Integer titular_id) {
+        return findByNrCtrBoletoAll(nr_ctr_boleto, null, titular_id);
+    }
+
+    public Movimento findByNrCtrBoletoAll(String nr_ctr_boleto, Integer pessoa_id, Integer titular_id) {
+        try {
+            Query query = null;
+            if (pessoa_id != null) {
+                query = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.nrCtrBoleto = :nr_ctr_boleto AND M.pessoa.id = :pessoa_id AND M.ativo = true");
+                query.setParameter("pessoa_id", pessoa_id);
+
+            } else if (titular_id != null) {
+                query = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.nrCtrBoleto = :nr_ctr_boleto AND M.titular.id = :titular_id  AND M.ativo = true");
+                query.setParameter("titular_id", titular_id);
+            }
+            query.setParameter("nr_ctr_boleto", nr_ctr_boleto);
+            return (Movimento) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public Movimento pesquisaCodigo(int id) {
         Movimento result = null;
         try {

@@ -146,7 +146,7 @@ public class ImprimirBoleto {
                 for (int i = 0; i < lista_movimento.size(); i++) {
                     lista_movimento.get(i).setDocumento(bol_novo.getBoletoComposto());
                     lista_movimento.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
-                    
+
                     if (!dao.update(lista_movimento.get(i))) {
                         dao.rollback();
                         hash.put("lista", new ArrayList());
@@ -363,6 +363,7 @@ public class ImprimirBoleto {
     public HashMap registrarMovimentos(List<Movimento> lista, List<Float> listaValores, List<String> listaVencimentos) {
         MovimentoDao dbm = new MovimentoDao();
         Registro reg = Registro.get();
+        Dao dao = new Dao();
 
         List<Movimento> listaAdd = new ArrayList();
 
@@ -391,19 +392,21 @@ public class ImprimirBoleto {
 
                 dbm.insertMovimentoBoleto(bol.getContaCobranca().getId(), bol.getBoletoComposto());
 
-                Dao dao = new Dao();
-                dao.openTransaction();
+                String nr_ctr = bol.getNrCtrBoleto();
 
                 bol.setDtRegistroBaixa(DataHoje.dataHoje());
                 bol.setAtivo(false);
                 bol.setNrCtrBoleto("");
-                dao.update(bol);
+                dao.update(bol, true);
 
+                dao.openTransaction();
                 if (id_boleto != -1) {
                     Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
                     //bol.setContaCobranca(cc);
 
                     bol_novo.setNrCtrBoleto(String.valueOf(lista.get(i).getId()));
+                    bol_novo.setVencimento(bol.getVencimento());
+                    bol_novo.setVencimentoOriginal(bol.getVencimentoOriginal());
 
                     lista.get(i).setDocumento(bol_novo.getBoletoComposto());
                     lista.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
@@ -412,39 +415,28 @@ public class ImprimirBoleto {
                         dao.rollback();
                         hash.put("lista", new ArrayList());
                         hash.put("mensagem", "Erro ao Atualizar Movimento ID " + lista.get(i).getId());
+                        voltarBoleto(bol, nr_ctr);
                         return hash;
                     }
 
                     if (!dao.update(bol_novo)) {
                         dao.rollback();
-
                         hash.put("lista", new ArrayList());
                         hash.put("mensagem", "Erro ao Atualizar Boleto ID " + bol_novo.getId());
+                        voltarBoleto(bol, nr_ctr);
                         return hash;
                     }
 
                     dao.commit();
-
                     bol = bol_novo;
                 } else {
                     dao.rollback();
 
                     hash.put("lista", new ArrayList());
                     hash.put("mensagem", "Erro ao Gerar Novo Boleto");
+                    voltarBoleto(bol, nr_ctr);
                     return hash;
                 }
-
-                /* SOCIAL
-                FunctionsDao f = new FunctionsDao();
-                List<Movimento> l_aux = new ArrayList();
-                l_aux.add(lista.get(i));
-                
-                if (f.gerarBoletoSocial(l_aux, bol.getVencimento())) {
-                    // GEROU OS BOLETOS
-                } else {
-                    // NÃO GEROU OS BOLETOS
-                }
-                 */
             }
 
             try {
@@ -2628,18 +2620,18 @@ public class ImprimirBoleto {
                     mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
                 }
 
-                HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
-
-                if (hash.get("boleto") != null) {
-                    for(int i = 0 ; i < lista_socio.size(); i++) {
-                        if(lista_socio.get(i).get(20).toString().equals(boleto.getBoletoComposto())) {
-                            lista_socio.get(i).set(20, boleto.getBoletoComposto());
-                            break;
-                        }
+                // 
+                HashMap hash = new HashMap();
+                if (boleto.getDtCobrancaRegistrada() == null) {
+                    hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                    if (hash.get("boleto") != null) {
+                        boleto = (Boleto) hash.get("boleto");
+                    } else {
+                        return new byte[0];
                     }
-                    boleto = (Boleto) hash.get("boleto");
-                } else {
-                    return new byte[0];
+                }
+                for (int i = 0; i < lista_socio.size(); i++) {
+                    lista_socio.get(i).set(20, boleto.getBoletoComposto());
                 }
 
                 if (cobranca == null) {
@@ -2736,6 +2728,8 @@ public class ImprimirBoleto {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
         FinanceiroDao db = new FinanceiroDao();
+        MovimentoDao movimentoDao = new MovimentoDao();
+        BoletoDao boletoDao = new BoletoDao();
 
         Dao dao = new Dao();
         //dao.openTransaction();
@@ -2769,40 +2763,55 @@ public class ImprimirBoleto {
 
             Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
             List listImpressao = new ArrayList();
+            Boolean e_fisica = tipo.equals("fisica");
+            Movimento m;
             for (Integer i = 0; i < result.size(); i++) {
                 List linha = (List) result.get(i);
-
+                String valor = "0,00";
+                if (e_fisica) {
+                    valor = Moeda.converteR$Float(Moeda.converteUS$(linha.get(14).toString()));
+                } else {
+                    m = (Movimento) movimentoDao.findByNrCtrBoletoTitular(linha.get(2).toString(), Integer.parseInt(linha.get(41).toString()));
+                    valor = m.getValorString();
+                }
                 try {
                     if (novo_boleto) {
                         valor_boleto = 0;
                         valor_total_vencimento = 0;
                         representacao = "";
                         codigo_barras = "";
-                        boleto = new BoletoDao().findByNrCtrBoleto(linha.get(2).toString());
+                        boleto = boletoDao.findByNrCtrBoleto(linha.get(2).toString());
                         novo_boleto = false;
                     }
 
                     if (linha.get(2).toString().equals(((List) result.get(i + 1)).get(2))) {
-                        valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(linha.get(14).toString()));
+                        valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(valor));
                         if ((Integer) linha.get(12) != 0) {
                             valor_total_mes = valor_boleto;
                         }
                     } else {
-                        valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(linha.get(14).toString()));
+                        valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(valor));
                         if ((Integer) linha.get(12) != 0) {
                             valor_total_mes = valor_boleto;
                         }
                         valor_total_vencimento = valor_boleto;
 
                         boleto = new BoletoDao().findByNrCtrBoleto(linha.get(2).toString());
-                        HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
 
-                        if (hash.get("boleto") != null) {
-                            boleto = (Boleto) hash.get("boleto");
-                        } else {
-                            return new byte[0];
+                        // PROVISÓRIO FALAR COM O ROGÉRIO, NÃO REGISTRAR CASO ESTEJA REGISTRADO.
+                        // HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                        // 03/01/2017 - INICIO DA ALTERAÇÃO
+                        HashMap hash = new HashMap();
+                        if (boleto.getDtCobrancaRegistrada() == null) {
+                            hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                            if (hash.get("boleto") != null) {
+                                boleto = (Boleto) hash.get("boleto");
+                            } else {
+                                return new byte[0];
+                            }
                         }
-
+                        linha.set(20, boleto.getBoletoComposto());
+                        // 03/01/2017 - FIM DA ALTERAÇÃO
                         Cobranca cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
 
                         representacao = cobranca.representacao();
@@ -2812,20 +2821,26 @@ public class ImprimirBoleto {
                     }
                 } catch (Exception e) {
                     e.getMessage();
-                    valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(linha.get(14).toString()));
+                    valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(valor));
                     if ((Integer) linha.get(12) != 0) {
                         valor_total_mes = valor_boleto;
                     }
                     valor_total_vencimento = valor_boleto;
-
+                    // PROVISÓRIO FALAR COM O ROGÉRIO, NÃO REGISTRAR CASO ESTEJA REGISTRADO.
+                    // HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                    // 03/01/2017 - INICIO DA ALTERAÇÃO
                     boleto = new BoletoDao().findByNrCtrBoleto(linha.get(2).toString());
-                    HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
-
-                    if (hash.get("boleto") != null) {
-                        boleto = (Boleto) hash.get("boleto");
-                    } else {
-                        return new byte[0];
+                    HashMap hash = new HashMap();
+                    if (boleto.getDtCobrancaRegistrada() == null) {
+                        hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                        if (hash.get("boleto") != null) {
+                            boleto = (Boleto) hash.get("boleto");
+                        } else {
+                            return new byte[0];
+                        }
                     }
+                    linha.set(20, boleto.getBoletoComposto());
+                    // 03/01/2017 - FIM DA ALTERAÇÃO
 
                     Cobranca cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
 
@@ -2834,8 +2849,6 @@ public class ImprimirBoleto {
 
                     novo_boleto = true;
                 }
-
-                Boolean e_fisica = tipo.equals("fisica");
 
                 if (DataHoje.maiorData(DataHoje.converteData((Date) linha.get(38)), "01/" + DataHoje.converteData((Date) linha.get(40)).substring(3))
                         || DataHoje.igualdadeData(DataHoje.converteData((Date) linha.get(38)), "01/" + DataHoje.converteData((Date) linha.get(40)).substring(3))) {
@@ -2853,7 +2866,8 @@ public class ImprimirBoleto {
                                     e_fisica ? (Integer) linha.get(12) : (Integer) linha.get(41), // CODIGO BENEFICIARIO
                                     e_fisica ? linha.get(13).toString() : linha.get(42).toString(), // BENEFICIARIO
                                     e_fisica ? linha.get(11).toString() : "", // SERVICO
-                                    Moeda.converteUS$(linha.get(14).toString()), // VALOR
+                                    //                                    Moeda.converteUS$(linha.get(14).toString()), // VALOR
+                                    Moeda.converteUS$(valor), // VALOR
                                     Moeda.converteR$Float(valor_total_mes),//Moeda.converteR$Float(Moeda.converteUS$(linha.get(15).toString())), // VALOR TOTAL MÊS
                                     "0,00", // VALOR ATRASADAS
                                     Moeda.converteR$Float(valor_total_vencimento), // VALOR ATÉ VENCIMENTO

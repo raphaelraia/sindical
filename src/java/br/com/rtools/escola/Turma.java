@@ -51,20 +51,20 @@ public class Turma implements Serializable {
     private String horaInicio;
     @Column(name = "tm_termino")
     private String horaTermino;
-    @Column(name = "is_segunda", columnDefinition = "Boolean default false")
-    private Boolean segunda;
-    @Column(name = "is_terca", columnDefinition = "Boolean default false")
-    private Boolean terca;
-    @Column(name = "is_quarta", columnDefinition = "Boolean default false")
-    private Boolean quarta;
-    @Column(name = "is_quinta", columnDefinition = "Boolean default false")
-    private Boolean quinta;
-    @Column(name = "is_sexta", columnDefinition = "Boolean default false")
-    private Boolean sexta;
-    @Column(name = "is_sabado", columnDefinition = "Boolean default false")
-    private Boolean sabado;
-    @Column(name = "is_domingo", columnDefinition = "Boolean default false")
-    private Boolean domingo;
+    @Column(name = "is_segunda", columnDefinition = "boolean default false")
+    private boolean segunda;
+    @Column(name = "is_terca", columnDefinition = "boolean default false")
+    private boolean terca;
+    @Column(name = "is_quarta", columnDefinition = "boolean default false")
+    private boolean quarta;
+    @Column(name = "is_quinta", columnDefinition = "boolean default false")
+    private boolean quinta;
+    @Column(name = "is_sexta", columnDefinition = "boolean default false")
+    private boolean sexta;
+    @Column(name = "is_sabado", columnDefinition = "boolean default false")
+    private boolean sabado;
+    @Column(name = "is_domingo", columnDefinition = "boolean default false")
+    private boolean domingo;
     @JoinColumn(name = "id_filial", referencedColumnName = "id")
     @ManyToOne
     private Filial filial;
@@ -80,10 +80,10 @@ public class Turma implements Serializable {
     private Integer idadeFim;
 
     @Transient
-    private Boolean selected;
+    private boolean selected;
 
     public Turma(Integer id, Servicos cursos, String dataInicio, String dataTermino, String horaInicio, String horaTermino,
-            Boolean segunda, Boolean terca, Boolean quarta, Boolean quinta, Boolean sexta, Boolean sabado, Boolean domingo, Filial filial,
+            boolean segunda, boolean terca, boolean quarta, boolean quinta, boolean sexta, boolean sabado, boolean domingo, Filial filial,
             Integer quantidade, String sala, String descricao, Integer idadeInicial, Integer idadeFim) {
         this.id = id;
         this.cursos = cursos;
@@ -177,59 +177,59 @@ public class Turma implements Serializable {
         this.horaTermino = horaTermino;
     }
 
-    public Boolean getSegunda() {
+    public boolean getSegunda() {
         return segunda;
     }
 
-    public void setSegunda(Boolean segunda) {
+    public void setSegunda(boolean segunda) {
         this.segunda = segunda;
     }
 
-    public Boolean getTerca() {
+    public boolean getTerca() {
         return terca;
     }
 
-    public void setTerca(Boolean terca) {
+    public void setTerca(boolean terca) {
         this.terca = terca;
     }
 
-    public Boolean getQuarta() {
+    public boolean getQuarta() {
         return quarta;
     }
 
-    public void setQuarta(Boolean quarta) {
+    public void setQuarta(boolean quarta) {
         this.quarta = quarta;
     }
 
-    public Boolean getQuinta() {
+    public boolean getQuinta() {
         return quinta;
     }
 
-    public void setQuinta(Boolean quinta) {
+    public void setQuinta(boolean quinta) {
         this.quinta = quinta;
     }
 
-    public Boolean getSexta() {
+    public boolean getSexta() {
         return sexta;
     }
 
-    public void setSexta(Boolean sexta) {
+    public void setSexta(boolean sexta) {
         this.sexta = sexta;
     }
 
-    public Boolean getSabado() {
+    public boolean getSabado() {
         return sabado;
     }
 
-    public void setSabado(Boolean sabado) {
+    public void setSabado(boolean sabado) {
         this.sabado = sabado;
     }
 
-    public Boolean getDomingo() {
+    public boolean getDomingo() {
         return domingo;
     }
 
-    public void setDomingo(Boolean domingo) {
+    public void setDomingo(boolean domingo) {
         this.domingo = domingo;
     }
 
@@ -319,11 +319,11 @@ public class Turma implements Serializable {
         this.idadeFim = idadeFim;
     }
 
-    public Boolean getSelected() {
+    public boolean getSelected() {
         return selected;
     }
 
-    public void setSelected(Boolean selected) {
+    public void setSelected(boolean selected) {
         this.selected = selected;
     }
 }

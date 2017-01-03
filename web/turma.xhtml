@@ -23,6 +23,7 @@
                     <c:set scope="request" var="object" value="${turmaBean.turma}"/>
                     <div class="clear"></div>
                     <p:panel id="id_panel_turma">
+                        <h:outputText value="#{genericaMensagem.getHtmlMessage('info', 'ESTA TURMA ESTA SENDO IMPORTADA, SALVAR PARA CONCLUIR')}" escape="false" rendered="#{turmaBean.exportRegister}" />
                         <h:panelGrid columns="2" columnClasses="coluna1, coluna2" cellpadding="5">
                             <h:column>
                                 <p:outputLabel value="Filial: "  />

@@ -170,7 +170,8 @@ public class ConclusaoMatriculaBean implements Serializable {
         }
         dao.commit();
         GenericaSessao.put("turmaPesquisa", t);
-        listaMatriculaEscola.clear();
+        listaMatriculaEscola = new ArrayList();
+        matriculaEscolaSelecionado = null;
         mensagem = "Matrículas atualizadas com sucesso!";
     }
 
@@ -228,7 +229,7 @@ public class ConclusaoMatriculaBean implements Serializable {
                 dataConclusao = DataHoje.converteDataParaInteger(matriculaTurmas.get(0).getTurma().getDataTermino());
                 if (dataHoje <= dataConclusao) {
                     GenericaMensagem.warn("Sistema", "Este curso ainda não foi finalizado!");
-                    PF.update("i_growl");
+                    PF.update(":form_conclusao:i_growl");
                     return listaMatriculaEscola;
                 }
                 for (MatriculaTurma mt : matriculaTurmas) {

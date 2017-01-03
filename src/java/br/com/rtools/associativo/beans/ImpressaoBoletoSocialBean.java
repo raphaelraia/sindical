@@ -177,8 +177,8 @@ public class ImpressaoBoletoSocialBean {
     }
 
     public void loadLista() {
-        listaGrid.clear();
-        listaPessoaSemEndereco.clear();
+        listaGrid = new ArrayList();
+        listaPessoaSemEndereco = new ArrayList();
 
         if (strResponsavel.length() == 1 && strLote.isEmpty() && strData.isEmpty() && strDocumento.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Muitos resultatos na pesquisa pode gerar lentidão!");

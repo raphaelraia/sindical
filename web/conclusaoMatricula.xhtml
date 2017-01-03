@@ -29,101 +29,130 @@
                                         <p:column colspan="20">Filtro: </p:column>
                                     </p:row>
                                     <p:row>
-                                        <p:column>
-                                            <p:commandButton icon="ui-icon-search" value="Pesquisar Matricula" action="#{chamadaPaginaBean.pesquisaMatriculaEscola}" />
-                                        </p:column>
-                                        <p:column>
-                                            <p:commandButton icon="ui-icon-search" value="Pesquisar Turma" action="#{chamadaPaginaBean.pesquisaTurma}" />
-                                        </p:column>
+                                        <h:panelGrid columns="2">
+                                            <p:column>
+                                                <p:commandButton icon="ui-icon-search" value="Pesquisar Matricula" action="#{chamadaPaginaBean.pesquisaMatriculaEscola}" />
+                                            </p:column>
+                                            <p:column>
+                                                <p:commandButton icon="ui-icon-search" value="Pesquisar Turma" action="#{chamadaPaginaBean.pesquisaTurma}" />
+                                            </p:column>                                            
+                                        </h:panelGrid>
                                     </p:row>
                                 </h:panelGrid>
                             </p:panel>
-                            <p:panel id="i_grid" styleClass="margin-top-max">
-                                <h:panelGrid columns="2">
-                                </h:panelGrid>
-                                <p:panel header="Aluno(s)" id="i_movimentos" styleClass="margin-top-med" footer="* Pesquisar somente turmas / matrículas que a data de conclusão seja maior que a data de hoje.">
-                                    <p:dataTable value="#{conclusaoMatriculaBean.listaMatriculaEscola}" var="lme" scrollable="true" scrollHeight="250" emptyMessage="Nenhum registro encontrado!" selection="#{conclusaoMatriculaBean.matriculaEscolaSelecionado}" rowKey="#{lme.matriculaEscola.id}">
+                            <p:panel id="i_grid" styleClass="margin-top-max" rendered="#{not empty conclusaoMatriculaBean.listaMatriculaEscola}">
+                                <f:facet name="header">
+                                    <h:panelGrid styleClass="sbb">
+                                        <h:outputLabel value="#{empty conclusaoMatriculaBean.listaMatriculaEscola ? 'ALUNO(S)' : conclusaoMatriculaBean.listaMatriculaEscola[0].curso}" styleClass="font-color-red font-size-14"/>
+                                        <h:column></h:column>
+                                        <h:outputLabel value="PERÍODO: #{empty conclusaoMatriculaBean.listaMatriculaEscola ? '' : conclusaoMatriculaBean.listaMatriculaEscola[0].periodo}" styleClass="font-size-10 bold" style="color: black"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGroup  id="i_movimentos" styleClass="margin-top-med" >
+                                    <p:dataTable value="#{conclusaoMatriculaBean.listaMatriculaEscola}" var="lme" emptyMessage="Nenhum registro encontrado!" selection="#{conclusaoMatriculaBean.matriculaEscolaSelecionado}" rowKey="#{lme.matriculaEscola.id}" paginator="true" rows="10" disabledSelection="#{lme.matriculaEscola.escStatus.descricao eq 'Concluinte' or lme.matriculaEscola.escStatus.descricao eq 'Desistente' or lme.matriculaEscola.escStatus.descricao eq 'Trancado'}" >
                                         <p:ajax event="rowSelectCheckbox" />
                                         <p:ajax event="rowSelect" />
                                         <p:ajax event="rowUnselectCheckbox" />
                                         <p:ajax event="rowUnselect" />
                                         <p:ajax event="toggleSelect" process="@this" />
                                         <p:column selectionMode="multiple" width="20" styleClass="text-center" />
+                                        <p:column style="width:15px">  
+                                            <p:rowToggler />  
+                                        </p:column>                                         
                                         <p:column styleClass="text-center" width="25">
-                                            <p:commandButton icon="ui-icon-contact" value="#{conclusaoMatriculaBean.edit(lme)}" oncomplete="PF('dlg_panel').show();" update=":form_conclusao:i_panel" title="Detalhes"/>
+                                            <p:commandButton icon="ui-icon-extlink" value="#{conclusaoMatriculaBean.edit(lme)}" oncomplete="PF('dlg_panel').show();" update=":form_conclusao:i_panel" title="Abrir para concluir" rendered="#{lme.matriculaEscola.escStatus.descricao ne 'Concluinte' and lme.matriculaEscola.escStatus.descricao ne 'Desistente' and lme.matriculaEscola.escStatus.descricao ne 'Trancado'}"/>
                                         </p:column>
-                                        <p:column headerText="Período" styleClass="text-center">
-                                            #{lme.periodo}
+                                        <p:column headerText="Aluno">
+                                            <h:outputLabel value="#{lme.matriculaEscola.servicoPessoa.pessoa.nome}" />
                                         </p:column>
-                                        <p:column headerText="Aluno" styleClass="text-center">
-                                            #{lme.matriculaEscola.aluno.nome}
+                                        <p:column headerText="Documento" width="120" styleClass="text-center">
+                                            #{lme.matriculaEscola.servicoPessoa.pessoa.documento}
                                         </p:column>
-                                        <p:column headerText="Status" styleClass="text-center">
-                                            #{lme.matriculaEscola.escStatus.descricao}
+                                        <p:column headerText="Status" styleClass="text-center" sortable="true" sortBy="#{lme.matriculaEscola.escStatus.descricao}" width="150">
+                                            <h:outputLabel value="#{lme.matriculaEscola.escStatus.descricao.toUpperCase()}" style="color: #{lme.matriculaEscola.escStatus.descricao eq 'Concluinte' ? 'green' : ((lme.matriculaEscola.escStatus.descricao eq 'Desistente' or lme.matriculaEscola.escStatus.descricao eq 'Trancado') ? 'red' : 'black')}" styleClass="bold"/>
                                         </p:column>
-                                        <p:column headerText="Curso" styleClass="text-center">
-                                            #{lme.curso}
-                                        </p:column>
-                                    </p:dataTable>
-                                </p:panel>
-                                <h:panelGrid columns="2" styleClass="margin-top-max">
-                                    <p:commandButton value="Novo" action="#{conclusaoMatriculaBean.clear}" update=":form_conclusao:" />
-                                    <p:commandButton value="Salvar selecionados" onclick="PF('dlg_salvar_todos').show();" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{conclusaoMatriculaBean.turmaPesquisa}"/>
-                                </h:panelGrid>
-                                <p:dialog widgetVar="dlg_panel" width="600" header="Matrícula" modal="true">
-                                    <p:panel styleClass="no-border" id="i_panel">
-                                        
-                                            <h:panelGrid id="i_mensagem_matricula" columns="2">
-                                                <h:column>
-                                                    <p:outputLabel value="Aluno: " />
-                                                </h:column>
-                                                <h:column>
-                                                    <p:outputLabel value="Documento nº" />
-                                                    <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.aluno.documento}" />
-                                                    <p:outputLabel value=" - " />
-                                                    <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.aluno.nome}" />
-                                                </h:column>
-                                                <h:column>
-                                                    <p:outputLabel value="Responsável: " />
-                                                </h:column>
-                                                <h:column>
-                                                    <p:outputLabel value="Documento nº" />
-                                                    <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.responsavel.documento}" />
-                                                    <p:outputLabel value=" - " />
-                                                    <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.responsavel.nome}" />
-                                                </h:column>
-                                                <h:column>
-                                                    <p:outputLabel value="Vendedor: " />
-                                                </h:column>
-                                                <h:column>
-                                                    <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.vendedor.pessoa.nome}" />
-                                                </h:column>
+                                        <p:rowExpansion>
+                                            <h:panelGrid styleClass="sbb">
+                                                <h:outputLabel value="RESPONSÁVEL: #{lme.matriculaEscola.servicoPessoa.cobranca.nome}" />
+                                                <h:outputLabel value="VENDEDOR: #{lme.matriculaEscola.vendedor.pessoa.nome}" />
+                                                <h:outputLabel value="DATA: #{lme.matriculaEscola.servicoPessoa.emissao}" />
                                             </h:panelGrid>
-                                            <p:commandButton value="Salvar" onclick="PF('dlg_panel').hide(); PF('dlg_salvar').show();" disabled="#{controleAcessoBean.botaoSalvar}" />
-                                        
-                                    </p:panel>
-                                </p:dialog>
-                                <p:dialog widgetVar="dlg_salvar" width="400" header="Deseja realmente concluir?" modal="true">
-                                    <h:panelGrid columns="2" styleClass="margin-top-max">
-                                        <p:commandButton value="Sim" oncomplete="PF('dlg_salvar').hide(); PF('dlg_mensagem').show();" update=":form_conclusao:" action="#{conclusaoMatriculaBean.save}"/>
-                                        <p:commandButton value="Não" onclick="PF('dlg_salvar').hide();"/>
-                                    </h:panelGrid>
-                                </p:dialog>
-                                <p:dialog widgetVar="dlg_salvar_todos" width="400" header="Deseja salvar todos selecionados?" modal="true">
-                                    <p:panel styleClass="no-border" footer="* Não serão salvos alunos que estiverem com status trancado e desistente; * Alunos com débitos;">
-                                        <h:panelGrid columns="2" styleClass="margin-top-max">
-                                            <p:commandButton value="Sim" oncomplete="PF('dlg_salvar_todos').hide(); PF('dlg_mensagem').show();" update=":form_conclusao:" action="#{conclusaoMatriculaBean.saveAll}"/>
-                                            <p:commandButton value="Não" onclick="PF('dlg_salvar_todos').hide();"/>
-                                        </h:panelGrid>
-                                    </p:panel>
-                                </p:dialog>
-                                <p:dialog widgetVar="dlg_mensagem" id="i_mensagem_x" width="400" header="Mensagem" modal="true" >
-                                    <h:panelGrid id="i_mensagem">
-                                        <h:outputLabel value="#{conclusaoMatriculaBean.mensagem}" />                                        
-                                    </h:panelGrid>
-                                    <p:commandButton value="Ok" oncomplete="PF('dlg_mensagem').hide();" />
-                                </p:dialog>
+                                        </p:rowExpansion>
+                                        <f:facet name="footer">
+                                            * Pesquisar somente turmas / matrículas que a data de conclusão seja maior que a data de hoje.
+                                        </f:facet>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Novo" action="#{conclusaoMatriculaBean.clear}" update=":form_conclusao:" />
+                                        <p:commandButton value="Salvar selecionados" onclick="PF('dlg_salvar_todos').show();" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{conclusaoMatriculaBean.turmaPesquisa}"/>
+                                    </h:panelGrid>                                        
+                                </f:facet>
                             </p:panel>
+                            <p:dialog widgetVar="dlg_panel" width="600" header="Matrícula" modal="true" closeOnEscape="true">
+                                <p:panel styleClass="no-border" id="i_panel">
+                                    <h:panelGrid id="i_mensagem_matricula" columns="2">
+                                        <h:column>
+                                            <p:outputLabel value="Aluno: " />
+                                        </h:column>
+                                        <h:column>
+                                            <p:outputLabel value="Documento nº" />
+                                            <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.servicoPessoa.pessoa.documento}" />
+                                            <p:outputLabel value=" - " />
+                                            <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.servicoPessoa.pessoa.nome}" />
+                                        </h:column>
+                                        <h:column>
+                                            <p:outputLabel value="Responsável: " />
+                                        </h:column>
+                                        <h:column>
+                                            <p:outputLabel value="Documento nº" />
+                                            <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.servicoPessoa.cobranca.documento}" />
+                                            <p:outputLabel value=" - " />
+                                            <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.servicoPessoa.cobranca.nome}" />
+                                        </h:column>
+                                        <h:column>
+                                            <p:outputLabel value="Vendedor: " />
+                                        </h:column>
+                                        <h:column>
+                                            <p:outputLabel value="#{conclusaoMatriculaBean.matriculaEscola.vendedor.pessoa.nome}" />
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:panel>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Salvar Conclusão" onclick="PF('dlg_panel').hide(); PF('dlg_salvar').show();" disabled="#{controleAcessoBean.botaoSalvar}" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_salvar" width="400" header="Deseja realmente concluir?" modal="true" closeOnEscape="true">
+                                <h:panelGrid columns="2" styleClass="margin-top-max">
+                                    <p:commandButton value="Sim" oncomplete="PF('dlg_salvar').hide(); PF('dlg_mensagem').show();" update=":form_conclusao:" action="#{conclusaoMatriculaBean.save}"/>
+                                    <p:commandButton value="Não" onclick="PF('dlg_salvar').hide();"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_salvar_todos" width="400" header="Deseja concluir a matrícula de todos selecionados?" modal="true" closeOnEscape="true">
+                                <h:panelGrid>
+                                    <h:outputLabel value="* Não serão salvos alunos que estiverem com status trancado e desistente; " styleClass="font-color-red bold" />
+                                    <h:outputLabel value="* Alunos com débitos;" styleClass="font-color-red bold" />                                    
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" oncomplete="PF('dlg_salvar_todos').hide(); PF('dlg_mensagem').show();" update=":form_conclusao:" action="#{conclusaoMatriculaBean.saveAll}"/>
+                                        <p:commandButton value="Não" onclick="PF('dlg_salvar_todos').hide();"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_mensagem" id="i_mensagem_x" width="400" header="Mensagem" modal="true" >
+                                <h:panelGrid id="i_mensagem">
+                                    <h:outputLabel value="#{conclusaoMatriculaBean.mensagem}" />                                        
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Ok" onclick="PF('dlg_mensagem').hide();" />
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
                         </h:form>
                     </p:panel>
                 </f:view>
