@@ -8,8 +8,12 @@ import br.com.rtools.locadoraFilme.dao.TituloDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.dao.FilialDao;
+import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
+import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Diretorio;
@@ -24,6 +28,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -66,6 +71,7 @@ public class TituloBean implements Serializable {
     private Integer faixaEtariaFinal;
     private Boolean habilitaPesquisaFilial;
     private String idTitulo;
+    private Boolean liberaAcessaFilial;
 
     @PostConstruct
     public void init() {
@@ -98,12 +104,14 @@ public class TituloBean implements Serializable {
             habilitaPesquisaFilial = true;
             GenericaSessao.remove("habilitaPesquisaFilial");
         }
+        liberaAcessaFilial = false;
+        loadLiberaAcessaFilial();
     }
 
     @PreDestroy
     public void destroy() {
+        GenericaSessao.remove("tituloBean");
         GenericaSessao.remove("tituloPesquisa");
-        clear();
     }
 
     public void clear() {
@@ -153,10 +161,8 @@ public class TituloBean implements Serializable {
             GenericaMensagem.warn("Validação", "O tempo de duração deve ser superior a 0!");
             return;
         }
-        int anoParametro = 1895;
-        int ano = Integer.parseInt(titulo.getAnoLancamentoString());
-        if (ano < anoParametro) {
-            GenericaMensagem.warn("Validação", "O Ano de lançamento deve ser igual ou superior a 1895!");
+        if (titulo.getMesAnoLancamento().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informar o ano de lançamento! Deve ser igual ou superior a 1895!");
             return;
         }
         NovoLog novoLog = new NovoLog();
@@ -176,7 +182,7 @@ public class TituloBean implements Serializable {
                         + " - Formato: " + titulo.getFormato()
                         + " - Legenda: " + titulo.getLegenda()
                         + " - Duração: " + titulo.getDuracao()
-                        + " - Ano: " + titulo.getAnoLancamento()
+                        + " - Ano: " + titulo.getMesAnoLancamento()
                         + " - Autor: " + titulo.getAutor()
                 );
                 saveImage();
@@ -198,7 +204,7 @@ public class TituloBean implements Serializable {
                     + " - Formato: " + t.getFormato()
                     + " - Legenda: " + t.getLegenda()
                     + " - Duração: " + t.getDuracao()
-                    + " - Ano: " + t.getAnoLancamento()
+                    + " - Ano: " + t.getMesAnoLancamento()
                     + " - Autor: " + t.getAutor();
             if (dao.update(titulo, true)) {
                 GenericaMensagem.info("Sucesso", "Registro atualizado");
@@ -209,7 +215,7 @@ public class TituloBean implements Serializable {
                         + " - Formato: " + titulo.getFormato()
                         + " - Legenda: " + titulo.getLegenda()
                         + " - Duração: " + titulo.getDuracao()
-                        + " - Ano: " + titulo.getAnoLancamento()
+                        + " - Ano: " + titulo.getMesAnoLancamento()
                         + " - Autor: " + titulo.getAutor()
                 );
                 saveImage();
@@ -232,7 +238,7 @@ public class TituloBean implements Serializable {
                         + " - Formato: " + titulo.getFormato()
                         + " - Legenda: " + titulo.getLegenda()
                         + " - Duração: " + titulo.getDuracao()
-                        + " - Ano: " + titulo.getAnoLancamento()
+                        + " - Ano: " + titulo.getMesAnoLancamento()
                         + " - Autor: " + titulo.getAutor()
                 );
                 deleteImage();
@@ -247,16 +253,21 @@ public class TituloBean implements Serializable {
 
     public void edit(Catalogo c) {
         catalogo = c;
-        listFilial.add(new SelectItem(c.getFilial().getFilial().getPessoa().getNome()));
         idFilial = c.getFilial().getId();
+        for(int i = 0; i < listFilial.size(); i++) {
+            if(c.getFilial().getId().equals(Integer.parseInt(listFilial.get(i).getValue().toString()))) {
+                return;
+            }
+        }
+        listFilial.add(new SelectItem(c.getFilial().getId(), c.getFilial().getFilial().getPessoa().getNome()));
     }
 
     public String edit(Titulo t) {
         String urlRetorno = (String) GenericaSessao.getString("urlRetorno");
         GenericaSessao.put("linkClicado", true);
         showImagem();
-        listFilial.clear();
-        listCatalogo.clear();
+        listFilial = new ArrayList();
+        listCatalogo = new ArrayList();
         idFilial = null;
         if (!GenericaSessao.exists("urlRetorno")) {
             titulo = t;
@@ -676,18 +687,66 @@ public class TituloBean implements Serializable {
         return fotoMemoria;
     }
 
+//    public List<SelectItem> getListFilial() {
+//        if (titulo.getId() != null) {
+//            if (listFilial.isEmpty()) {
+//                FilialDao filialDao = new FilialDao();
+//                List<Filial> list = filialDao.findNotInByTabela("loc_titulo_filial", "id_titulo", "" + titulo.getId());
+//
+//                for (int i = 0; i < list.size(); i++) {
+//                    if (i == 0) {
+//                        idFilial = list.get(i).getId();
+//                    }
+//                    listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
+//                }
+//                SelectItemSort.sort(listFilial);
+//            }
+//        }
+//        return listFilial;
+//    }
+
     public List<SelectItem> getListFilial() {
         if (titulo.getId() != null) {
             if (listFilial.isEmpty()) {
-                FilialDao filialDao = new FilialDao();
-                List<Filial> list = filialDao.findNotInByTabela("loc_titulo_filial", "id_titulo", "" + titulo.getId());
-
-                for (int i = 0; i < list.size(); i++) {
-                    if (i == 0) {
-                        idFilial = list.get(i).getId();
+                Filial f = MacFilial.getAcessoFilial().getFilial();
+                if (f.getId() != -1) {
+                    FilialDao filialDao = new FilialDao();
+                    List<Filial> listFiliasDisponiveis = filialDao.findNotInByTabela("loc_titulo_filial", "id_titulo", "" + titulo.getId());
+                    if (liberaAcessaFilial || Usuario.getUsuario().getId() == 1) {
+                        liberaAcessaFilial = true;
+                        // ROTINA MATRÍCULA ESCOLA
+                        List<FilialRotina> list = new FilialRotinaDao().findByRotina(new Rotina().get().getId());
+                        List<Filial> listFilialSemTitulo = new ArrayList();
+                        for (int i = 0; i < list.size(); i++) {
+                            for (int x = 0; x < listFiliasDisponiveis.size(); x++) {
+                                if (Objects.equals(listFiliasDisponiveis.get(x).getId(), list.get(i).getFilial().getId())) {
+                                    listFilialSemTitulo.add(list.get(i).getFilial());
+                                    break;
+                                }
+                            }
+                        }
+                        // ID DA FILIAL
+                        if (!listFilialSemTitulo.isEmpty()) {
+                            for (int i = 0; i < listFilialSemTitulo.size(); i++) {
+                                if (i == 0) {
+                                    idFilial = listFilialSemTitulo.get(i).getId();
+                                }
+                                if (Objects.equals(f.getId(), listFilialSemTitulo.get(i).getId())) {
+                                    idFilial = listFilialSemTitulo.get(i).getId();
+                                }
+                                listFilial.add(new SelectItem(listFilialSemTitulo.get(i).getId(), listFilialSemTitulo.get(i).getFilial().getPessoa().getDocumento() + " / " + listFilialSemTitulo.get(i).getFilial().getPessoa().getNome(), "" + listFilialSemTitulo.get(i).getId()));
+                            }
+                        } else {
+                            idFilial = 0;
+                            listFilial.add(new SelectItem(f.getId(), f.getFilial().getPessoa().getNome(), "" + f.getId()));
+                        }
+                    } else {
+                        idFilial = 0;
+                        listFilial.add(new SelectItem(f.getId(), f.getFilial().getPessoa().getNome() + " / " + f.getFilial().getPessoa().getNome(), "" + f.getId()));
                     }
-                    listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
                 }
+            }
+            if (!listFilial.isEmpty()) {
                 SelectItemSort.sort(listFilial);
             }
         }
@@ -843,6 +902,20 @@ public class TituloBean implements Serializable {
 
     public void setIdTitulo(String idTitulo) {
         this.idTitulo = idTitulo;
+    }
+
+    public void loadLiberaAcessaFilial() {
+        if (new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
+            liberaAcessaFilial = true;
+        }
+    }
+
+    public Boolean getLiberaAcessaFilial() {
+        return liberaAcessaFilial;
+    }
+
+    public void setLiberaAcessaFilial(Boolean liberaAcessaFilial) {
+        this.liberaAcessaFilial = liberaAcessaFilial;
     }
 
 }

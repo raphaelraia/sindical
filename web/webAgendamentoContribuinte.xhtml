@@ -320,7 +320,7 @@
 
                                 <h:column>
                                     <br />
-                                    <p:commandLink value="Imprimir Planilha" title="Imprimir Planilha de Débitos" style="margin-left: 15px;" action="#{webAgendamentoContribuinteBean.imprimirPlanilha}" rendered="#{!webAgendamentoContribuinteBean.statusEmpresa.equals('REGULAR')}" target="_blank" ajax="false"/>
+                                    <p:commandLink value="Imprimir Planilha" title="Imprimir Planilha de Débitos" style="margin-left: 15px;" action="#{webAgendamentoContribuinteBean.imprimirPlanilha}" rendered="#{!webAgendamentoContribuinteBean.statusEmpresa.equals('REGULAR')}" target="_blank" ajax="false" disabled="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webImprimirPlanilhaDebito}"/>
                                 </h:column>
                             </h:panelGrid>
 

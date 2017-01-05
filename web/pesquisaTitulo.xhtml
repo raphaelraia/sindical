@@ -52,39 +52,48 @@
                                 </h:panelGrid>
                                 <p:focus for="i_panel_pesquisa" />
                             </p:panel>
-                            <p:dataTable value="#{tituloBean.listTitulo}" var="titulo" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado!"  styleClass="margin-top-max" id="i_table">
+                            <p:dataTable value="#{tituloBean.listTitulo}" var="titulo" emptyMessage="Nenhum registro encontrado!"  styleClass="margin-top-max" id="i_table" rows="10" paginator="true" rowStyleClass="#{titulo.lancamento ? 'bg-green-ligth' : ''}">
                                 <p:column width="30">
-                                    <p:commandButton icon="ui-icon-link" action="#{tituloBean.edit(titulo)}" title="Editar registro nº#{titulo.id}"/>
+                                    <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{tituloBean.edit(titulo)}" title="Editar registro nº#{titulo.id}"/>
                                 </p:column>
-                                <p:column width="25" styleClass="text-center">
+                                <p:column width="15">  
+                                    <p:rowToggler />  
+                                </p:column>                                 
+                                <p:column width="35" styleClass="text-center">
                                     <h:outputText value="#{titulo.id}" styleClass="bold"/>
                                 </p:column>
-                                <p:column width="100" headerText="Imagem">
+                                <p:column width="50">
                                     <h:column rendered="#{titulo.foto != null}">
-                                        <p:graphicImage value="#{tituloBean.showImagem(titulo.id)}" width="100" alt="Não possui imagem"/>
+                                        <p:graphicImage value="#{tituloBean.showImagem(titulo.id)}" width="50" alt="Não possui imagem" rendered="#{not empty tituloBean.showImagem(titulo.id)}"/>
                                     </h:column>
                                 </p:column>
-                                <p:column headerText="Título">
-                                    <h:outputText value="#{titulo.descricao}"/>
+                                <p:column headerText="Título" sortBy="#{titulo.descricao}" sortable="true">
+                                    <h:outputText value="#{titulo.descricao}" styleClass="font-size-14"/>
                                 </p:column>
-                                <p:column headerText="Autor" width="250"> 
-                                    <h:outputText value="#{titulo.autor}"/>
+                                <p:column headerText="Ano" width="80" styleClass="text-center" sortBy="#{titulo.mesAnoLancamento}" sortable="true">
+                                    <h:outputText value="#{titulo.mesAnoLancamento}" styleClass="font-size-12"/>
                                 </p:column>
-                                <p:column headerText="Ano" width="30">
-                                    <h:outputText value="#{titulo.anoLancamento}"/>
-                                </p:column>
-                                <p:column headerText="Barras" width="150">
+                                <p:column headerText="Barras" width="140" styleClass="text-center">
                                     <h:outputText value="#{titulo.barras}"/>
                                 </p:column>
-                                <p:column width="80" styleClass="text-center">
-                                    <h:outputText value="#{titulo.lancamento ? 'Lançamento' : ''}"/>
+                                <p:column width="120" styleClass="text-center">
+                                    <h:outputText value="#{titulo.lancamento ? ':: LANÇAMENTO ::' : ''}" styleClass="bold font-color-red"/>
                                 </p:column>
-                                <p:column headerText="Estoque" width="80" styleClass="text-center">
-                                    <h:outputText value="#{tituloBean.getQuantidadeEstoqueFilial(titulo.id)}"/>
+                                <p:column headerText="E" width="30" styleClass="text-center" rendered="#{segurancaUtilitariosBean.macFilial.id != -1}" sortable="true" sortBy="#{titulo.quantidadeEstoqueFilial}">
+                                    <h:outputText value="#{titulo.quantidadeEstoqueFilial}" title="Estoque" styleClass="font-size-14" style="color: #{titulo.quantidadeEstoqueFilial > 0 ? '#194C7F' : 'gray'}"/>
                                 </p:column>
-                                <p:column headerText="Disponível" width="80" styleClass="text-center">
-                                    <h:outputText value="#{tituloBean.getQuantidadeDisponivel(titulo.id)}"/>
+                                <p:column headerText="D" width="30" styleClass="text-center" rendered="#{segurancaUtilitariosBean.macFilial.id != -1}"  sortBy="#{titulo.quantidadeDisponivel}" sortable="true">
+                                    <h:outputText value="#{titulo.quantidadeDisponivel}" title="Disponivel" styleClass="font-size-14" style="color: #{titulo.quantidadeDisponivel > 0 ? '#009933' : 'red'} "/>
                                 </p:column>
+                                <p:rowExpansion>
+                                    <p:panelGrid styleClass="no-border sbb" columns="1" style="border: 0" >
+                                        <h:column>Gênero: #{titulo.genero.descricao}</h:column>
+                                        <h:column>Autor: #{titulo.autor}</h:column>
+                                    </p:panelGrid>
+                                </p:rowExpansion>
+                                <f:facet name="footer">
+                                    * E (Estoque); * D (Disponivel)
+                                </f:facet>
                             </p:dataTable>
                         </h:form>
                     </p:panel>

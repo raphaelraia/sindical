@@ -260,6 +260,13 @@
                                                     <p:outputLabel value=" ( zero para meses indefinidos )" style="font-size: 8pt" title="Para habilitar este campo permita o agendamento para empresas em débito"/>
                                                 </p:column>
                                             </h:panelGrid>
+                                            <h:panelGrid cellpadding="5" columns="4" styleClass="margin-top-max">
+                                                <p:column>
+                                                    <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webImprimirPlanilhaDebito}" itemLabel="Bloqueia Planilha de débitos">
+                                                        <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </p:column>
+                                            </h:panelGrid>                                            
                                         </p:panel>
                                     </p:tab>
                                     <p:tab title="Recepção">

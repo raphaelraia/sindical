@@ -1,5 +1,8 @@
 package br.com.rtools.locadoraFilme;
 
+import br.com.rtools.locadoraFilme.dao.CatalogoDao;
+import br.com.rtools.locadoraFilme.dao.TituloDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -13,11 +16,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "loc_titulo",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"ds_descricao", "id_genero", "ano_lancamento"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"ds_descricao", "id_genero", "ds_mes_ano_lancamento"})
 )
 public class Titulo implements Serializable {
 
@@ -45,8 +49,8 @@ public class Titulo implements Serializable {
     private String barras;
     @Column(name = "nr_duracao_minutos", length = 5)
     private String duracao;
-    @Column(name = "ano_lancamento")
-    private Integer anoLancamento;
+    @Column(name = "ds_mes_ano_lancamento")
+    private String mesAnoLancamento;
     @Column(name = "ds_legenda", length = 10)
     private String legenda;
     @Column(name = "ds_formato", length = 20)
@@ -56,6 +60,15 @@ public class Titulo implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_foto")
     private Date foto;
+
+    @Transient
+    private ConfiguracaoLocadora configuracaoLocadora = null;
+
+    @Transient
+    private Integer quantidadeDisponivel;
+
+    @Transient
+    private Integer quantidadeEstoqueFilial;
 
     public Titulo() {
         this.id = null;
@@ -68,14 +81,17 @@ public class Titulo implements Serializable {
         this.genero = new Genero();
         this.barras = "";
         this.duracao = "";
-        this.anoLancamento = 0;
+        this.mesAnoLancamento = "";
         this.legenda = "";
         this.formato = "";
         this.imprimeEtiqueta = false;
         this.foto = null;
+        this.configuracaoLocadora = null;
+        this.quantidadeDisponivel = null;
+        this.quantidadeEstoqueFilial = null;
     }
 
-    public Titulo(Integer id, Date data, String descricao, String autor, String atores, Integer idadeMinima, Integer qtdePorEmbalagem, Genero genero, String barras, String duracao, Integer anoLancamento, String legenda, String formato, Boolean imprimeEtiqueta, Date foto) {
+    public Titulo(Integer id, Date data, String descricao, String autor, String atores, Integer idadeMinima, Integer qtdePorEmbalagem, Genero genero, String barras, String duracao, String mesAnoLancamento, String legenda, String formato, Boolean imprimeEtiqueta, Date foto) {
         this.id = id;
         this.data = data;
         this.descricao = descricao;
@@ -86,11 +102,14 @@ public class Titulo implements Serializable {
         this.genero = genero;
         this.barras = barras;
         this.duracao = duracao;
-        this.anoLancamento = anoLancamento;
+        this.mesAnoLancamento = mesAnoLancamento;
         this.legenda = legenda;
         this.formato = formato;
         this.imprimeEtiqueta = imprimeEtiqueta;
         this.foto = foto;
+        this.configuracaoLocadora = null;
+        this.quantidadeDisponivel = null;
+        this.quantidadeEstoqueFilial = null;
     }
 
     public Integer getId() {
@@ -161,14 +180,6 @@ public class Titulo implements Serializable {
         this.duracao = duracao;
     }
 
-    public Integer getAnoLancamento() {
-        return anoLancamento;
-    }
-
-    public void setAnoLancamento(Integer anoLancamento) {
-        this.anoLancamento = anoLancamento;
-    }
-
     public String getLegenda() {
         return legenda;
     }
@@ -199,26 +210,6 @@ public class Titulo implements Serializable {
 
     public void setDataString(String data) {
         this.data = DataHoje.converte(data);
-    }
-
-    public String getAnoLancamentoString() {
-        try {
-            if (anoLancamento == 0) {
-                return "";
-            } else {
-                return Integer.toString(anoLancamento);
-            }
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    public void setAnoLancamentoString(String anoLancamento) {
-        try {
-            this.anoLancamento = Integer.parseInt(anoLancamento);
-        } catch (Exception e) {
-            this.anoLancamento = 0;
-        }
     }
 
     public Date getFoto() {
@@ -284,38 +275,86 @@ public class Titulo implements Serializable {
     }
 
     public boolean isLancamento() {
+//        try {
+//            Integer ano = 0;
+//            if (Integer.parseInt(this.mesAnoLancamento) > 1985) {
+//                ConfiguracaoLocadora.get().getMesesLancamento();
+//                ano = Integer.parseInt(DataHoje.livre(new Date(), "YYYY")) - Integer.parseInt(this.mesAnoLancamento);
+//            }
+//            return ano <= 1;
+//        } catch (Exception e) {
+//            return false;
+//        }
         try {
-            Integer ano = 0;
-            if (this.anoLancamento > 1985) {
-                ano = Integer.parseInt(DataHoje.livre(new Date(), "YYYY")) - this.anoLancamento;
+            if (!this.mesAnoLancamento.isEmpty()) {
+                DataHoje dataHoje = new DataHoje();
+                Integer ano = 0;
+                String data_hoje = DataHoje.data();
+                String data_lancamento = "01/" + this.mesAnoLancamento;
+                String validade_lancamento = dataHoje.incrementarMeses(getConfiguracaoLocadora().getMesesLancamento(), "01/" + this.mesAnoLancamento);
+                if (DataHoje.maiorData(validade_lancamento, data_hoje)) {
+                    return true;
+                }
             }
-            return ano <= 1;
         } catch (Exception e) {
             return false;
         }
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Titulo other = (Titulo) obj;
-        return true;
+        return false;
     }
 
     @Override
     public String toString() {
-        return "Titulo{" + "id=" + id + ", data=" + data + ", descricao=" + descricao + ", autor=" + autor + ", atores=" + atores + ", idadeMinima=" + idadeMinima + ", qtdePorEmbalagem=" + qtdePorEmbalagem + ", genero=" + genero + ", barras=" + barras + ", duracao=" + duracao + ", anoLancamento=" + anoLancamento + ", legenda=" + legenda + ", formato=" + formato + ", imprimeEtiqueta=" + imprimeEtiqueta + ", foto=" + foto + '}';
+        return "Titulo{" + "id=" + id + ", data=" + data + ", descricao=" + descricao + ", autor=" + autor + ", atores=" + atores + ", idadeMinima=" + idadeMinima + ", qtdePorEmbalagem=" + qtdePorEmbalagem + ", genero=" + genero + ", barras=" + barras + ", duracao=" + duracao + ", mesAnoLancamento=" + mesAnoLancamento + ", legenda=" + legenda + ", formato=" + formato + ", imprimeEtiqueta=" + imprimeEtiqueta + ", foto=" + foto + '}';
+    }
+
+    public String getMesAnoLancamento() {
+        return mesAnoLancamento;
+    }
+
+    public void setMesAnoLancamento(String mesAnoLancamento) {
+        this.mesAnoLancamento = mesAnoLancamento;
+    }
+
+    public ConfiguracaoLocadora getConfiguracaoLocadora() {
+        if (configuracaoLocadora == null) {
+            configuracaoLocadora = ConfiguracaoLocadora.get();
+        }
+        return configuracaoLocadora;
+    }
+
+    public void setConfiguracaoLocadora(ConfiguracaoLocadora configuracaoLocadora) {
+        this.configuracaoLocadora = configuracaoLocadora;
+    }
+
+    public Integer getQuantidadeDisponivel() {
+        if (this.id != null) {
+            if (quantidadeDisponivel == null) {
+                quantidadeDisponivel = new TituloDao().locadoraQuantidadeTituloDisponivel(MacFilial.getAcessoFilial().getFilial().getId(), this.id);
+            }
+        }
+        return quantidadeDisponivel;
+    }
+
+    public void setQuantidadeDisponivel(Integer quantidadeDisponivel) {
+        this.quantidadeDisponivel = quantidadeDisponivel;
+    }
+
+    public Integer getQuantidadeEstoqueFilial() {
+        if (this.id != null) {
+            if (quantidadeEstoqueFilial == null) {
+                Catalogo c = new CatalogoDao().find(MacFilial.getAcessoFilial().getFilial().getId(), this.id);
+                if (c == null) {
+                    quantidadeEstoqueFilial = 0;
+                } else {
+                    quantidadeEstoqueFilial = c.getQuantidade();                    
+                }
+            }
+        }
+        return quantidadeEstoqueFilial;
+    }
+
+    public void setQuantidadeEstoqueFilial(Integer quantidadeEstoqueFilial) {
+        this.quantidadeEstoqueFilial = quantidadeEstoqueFilial;
     }
 
 }

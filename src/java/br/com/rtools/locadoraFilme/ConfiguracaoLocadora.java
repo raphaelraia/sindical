@@ -3,6 +3,7 @@ package br.com.rtools.locadoraFilme;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
+import javafx.beans.property.IntegerProperty;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,17 +26,21 @@ public class ConfiguracaoLocadora implements Serializable {
     private Servicos servicos;
     @Column(name = "ds_obs", nullable = false)
     private String obs;
+    @Column(name = "nr_meses_lancamento", nullable = false)
+    private Integer mesesLancamento;
 
     public ConfiguracaoLocadora() {
         this.id = -1;
         this.servicos = null;
         this.obs = "";
+        this.mesesLancamento = 0;
     }
 
-    public ConfiguracaoLocadora(Integer id, Servicos servicos, String obs) {
+    public ConfiguracaoLocadora(Integer id, Servicos servicos, String obs, Integer mesesLancamento) {
         this.id = id;
         this.servicos = servicos;
         this.obs = obs;
+        this.mesesLancamento = mesesLancamento;
     }
 
     public Integer getId() {
@@ -68,7 +73,23 @@ public class ConfiguracaoLocadora implements Serializable {
 
     @Override
     public String toString() {
-        return "ConfiguracaoLocadora{" + "id=" + id + ", servicos=" + servicos + ", obs=" + obs + '}';
+        return "ConfiguracaoLocadora{" + "id=" + id + ", servicos=" + servicos + ", obs=" + obs + ", mesesLancamento=" + mesesLancamento + '}';
+    }
+
+    public Integer getMesesLancamento() {
+        return mesesLancamento;
+    }
+
+    public void setMesesLancamento(Integer mesesLancamento) {
+        this.mesesLancamento = mesesLancamento;
+    }
+
+    public String getMesesLancamentoString() {
+        return Integer.toString(mesesLancamento);
+    }
+
+    public void setMesesLancamentoString(String mesesLancamentoString) {
+        this.mesesLancamento = Integer.parseInt(mesesLancamentoString);
     }
 
 }

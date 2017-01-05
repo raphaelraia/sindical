@@ -104,7 +104,7 @@
                                             <p:column headerText="Previsão de entrega" width="80">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
                                             <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
                                             <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
-                                            <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
+                                            <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.mesAnoLancamento}</p:column>
                                             <p:column width="80" styleClass="text-center">#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
                                             <p:column styleClass="text-center" width="30">
                                                 <p:commandButton icon="ui-icon-close" action="#{locacaoFilmeBean.remove(locadoraMovimento)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" update=":form_locacao_filmes:"/>                                            
@@ -161,7 +161,7 @@
                                         <p:column headerText="Entrega" width="80">#{locadoraMovimento.dataDevolucaoString}</p:column>
                                         <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
                                         <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
-                                        <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
+                                        <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.mesAnoLancamento}</p:column>
                                         <p:column width="80" styleClass="text-center">#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
@@ -186,7 +186,7 @@
                                     <p:column>Barras:</p:column>
                                     <p:column>#{locacaoFilmeBean.titulo.barras}</p:column>
                                     <p:column>Ano:</p:column>
-                                    <p:column>#{locacaoFilmeBean.titulo.anoLancamento}</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.mesAnoLancamento}</p:column>
                                     <p:column>Legenda:</p:column>
                                     <p:column>#{locacaoFilmeBean.titulo.legenda}</p:column>
                                     <p:column>Faixa Etária:</p:column>

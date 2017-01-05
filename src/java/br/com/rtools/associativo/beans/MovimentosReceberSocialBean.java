@@ -915,6 +915,9 @@ public class MovimentosReceberSocialBean implements Serializable {
         Map<String, String> hash = new HashMap();
         try {
             String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads");
+            if(!new File(path).exists()) {
+                new File(path).mkdirs();
+            }
             String nameFile = "encaminhamento_" + DataHoje.livre(DataHoje.dataHoje(), "yyyyMMdd-HHmmss") + ".pdf";
             File fl_original = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ENCAMINHAMENTO.jasper"));
             File fl_menor = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ENCAMINHAMENTO_MENOR.jasper"));

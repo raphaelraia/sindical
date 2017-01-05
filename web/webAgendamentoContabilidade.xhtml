@@ -331,7 +331,7 @@
 
                                 <h:column>
                                     <br />
-                                    <p:commandLink value="Imprimir Planilha" title="Imprimir Planilha de Débitos" style="margin-left: 15px;" action="#{webAgendamentoContabilidadeBean.imprimirPlanilha}" rendered="#{!webAgendamentoContabilidadeBean.statusEmpresa.equals('REGULAR')}" target="_blank" ajax="false"/>
+                                    <p:commandLink value="Imprimir Planilha" title="Imprimir Planilha de Débitos" style="margin-left: 15px;" action="#{webAgendamentoContabilidadeBean.imprimirPlanilha}" rendered="#{!webAgendamentoContabilidadeBean.statusEmpresa.equals('REGULAR')}" target="_blank" ajax="false" disabled="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webImprimirPlanilhaDebito}"/>
                                 </h:column>
                             </h:panelGrid>
 

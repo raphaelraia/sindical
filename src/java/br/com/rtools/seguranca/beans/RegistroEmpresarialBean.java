@@ -44,9 +44,11 @@ public class RegistroEmpresarialBean implements Serializable {
     private int idSisEmailProtocolo;
     private List<SelectItem> listaDataVencimento;
     private boolean habilitaCorrecao;
+    private Boolean webServiceBoletoTest;
 
     @PostConstruct
     public void init() {
+        webServiceBoletoTest = false;
         habilitaCorrecao = false;
         registro = new Registro();
         senha = "";
@@ -342,6 +344,22 @@ public class RegistroEmpresarialBean implements Serializable {
 
     public void setHabilitaCorrecao(boolean habilitaCorrecao) {
         this.habilitaCorrecao = habilitaCorrecao;
+    }
+
+    public Boolean getWebServiceBoletoTest() {
+        if (GenericaSessao.exists("webServiceBoletoTest")) {
+            webServiceBoletoTest = GenericaSessao.getBoolean("webServiceBoletoTest");
+        }
+        return webServiceBoletoTest;
+    }
+
+    public void setWebServiceBoletoTest(Boolean webServiceBoletoTest) {
+        if (webServiceBoletoTest) {
+            GenericaSessao.put("webServiceBoletoTest", true);
+        } else {
+            GenericaSessao.remove("webServiceBoletoTest");
+        }
+        this.webServiceBoletoTest = webServiceBoletoTest;
     }
 
 }

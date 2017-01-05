@@ -315,18 +315,18 @@
                                 </p:column>
 
                                 <p:column>
-                                    <p:panel>
+                                    <!-- <p:panel>
                                         <h:panelGrid>
                                             <h:outputText style="font-weight: bold" value="Meus principais Acessos" />
                                         </h:panelGrid>
                                         <br />
                                         <h:panelGrid style="text-align: left;">
-                                            <c:forEach items="#{controleUsuarioBean.listaContador}" var="contadorAcesso">
-                                                <h:commandLink value="#{contadorAcesso.rotina.rotina}" action="#{chamadaPaginaBean.chamadaGenerica(contadorAcesso)}" style="margin-bottom: 10px; font-size: 9pt" class="listaAcesso" title="Menu #{contadorAcesso.modulo.descricao}"/>
+                                            <c:forEach items="# {controleUsuarioBean.listaContador}" var="contadorAcesso">
+                                                <h:commandLink value="# {contadorAcesso.rotina.rotina}" action="# {chamadaPaginaBean.chamadaGenerica(contadorAcesso)}" style="margin-bottom: 10px; font-size: 9pt" class="listaAcesso" title="Menu # {contadorAcesso.modulo.descricao}"/>
                                                 <br />
                                             </c:forEach>
                                         </h:panelGrid>
-                                    </p:panel>
+                                    </p:panel> -->
                                 </p:column>
                             </h:panelGrid>                            
                         </p:panel>

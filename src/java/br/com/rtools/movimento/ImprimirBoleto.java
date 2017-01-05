@@ -179,13 +179,16 @@ public class ImprimirBoleto {
 
         try {
             Boolean teste = false;
+            if (GenericaSessao.exists("webServiceBoletoTest")) {
+                teste = GenericaSessao.getBoolean("webServiceBoletoTest");
+            }
 
             CloseableHttpClient httpclient = HttpClients.createDefault();
             HttpPost httppost;
             if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_contribuinte");
             } else {
-                httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_contribuinte");
+                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_contribuinte");
             }
 
             List<NameValuePair> params = new ArrayList(2);
@@ -204,7 +207,7 @@ public class ImprimirBoleto {
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                 } else {
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                 }
                 params = new ArrayList(2);
                 params.add(new BasicNameValuePair("codigo", "" + pessoa.getId()));
@@ -240,7 +243,7 @@ public class ImprimirBoleto {
             if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
             } else {
-                httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
+                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
             }
 
             params = new ArrayList(2);
@@ -260,12 +263,12 @@ public class ImprimirBoleto {
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/criar_boleto");
                 } else {
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/criar_boleto");
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/criar_boleto");
                 }
             } else if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/alterar_boleto");
             } else {
-                httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_boleto");
+                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_boleto");
             }
 
             params = new ArrayList(2);
@@ -306,7 +309,7 @@ public class ImprimirBoleto {
             if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
             } else {
-                httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
+                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
             }
 
             params = new ArrayList(2);
@@ -441,12 +444,15 @@ public class ImprimirBoleto {
 
             try {
                 Boolean teste = false;
+                if (GenericaSessao.exists("webServiceBoletoTest")) {
+                    teste = GenericaSessao.getBoolean("webServiceBoletoTest");
+                }
                 HttpPost httppost;
                 CloseableHttpClient httpclient = HttpClients.createDefault();
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_contribuinte");
                 } else {
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_contribuinte");
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_contribuinte");
                 }
 
                 List<NameValuePair> params = new ArrayList(2);
@@ -465,7 +471,7 @@ public class ImprimirBoleto {
                     if (!teste) {
                         httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                     } else {
-                        httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
+                        httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                     }
                     params = new ArrayList(2);
                     params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
@@ -502,7 +508,7 @@ public class ImprimirBoleto {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
 
                 } else {
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
                 }
 
                 params = new ArrayList(2);
@@ -522,12 +528,12 @@ public class ImprimirBoleto {
                     if (!teste) {
                         httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/criar_boleto");
                     } else {
-                        httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/criar_boleto");
+                        httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/criar_boleto");
                     }
                 } else if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/alterar_boleto");
                 } else {
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_boleto");
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_boleto");
                 }
 
                 params = new ArrayList(2);
@@ -568,7 +574,7 @@ public class ImprimirBoleto {
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
                 } else {
-                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
                 }
 
                 params = new ArrayList(2);
@@ -602,7 +608,7 @@ public class ImprimirBoleto {
                         listaAdd.add(lista.get(i));
                     } else {
                         hash.put("lista", new ArrayList());
-                        hash.put("mensagem", "Erro ao Registrar Boleto " + bol.getNrBoleto() + ", contate o Administrador.");
+                        hash.put("mensagem", "Erro ao Registrar Boleto " + bol.getNrBoleto() + " [" + jSONObject.getString("mensagem") + "], contate o Administrador.");
                         return hash;
                     }
                 } else {

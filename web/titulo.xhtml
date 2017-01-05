@@ -34,6 +34,7 @@
                             <p:panel>
                                 <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop">
                                     <h:column>
+                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('success', 'LANÇAMENTO')}" escape="false" rendered="#{tituloBean.titulo.lancamento}" />
                                         <h:panelGrid columns="2" style="width:750px">
                                             <p:outputLabel value="Código:" />
                                             <p:inputText value="#{tituloBean.idTitulo}" size="6" readonly="#{tituloBean.titulo.id eq null ? false : true}" converter="#{thisNumber}">
@@ -69,8 +70,10 @@
                                                 </p:inputText>                                                
                                                 <p:outputLabel value="minuto(s)" style="margin-left: 5px!important" />
                                             </h:column>
-                                            <p:outputLabel value="Ano de Lançamento:" />
-                                            <p:inputMask id="idAnoDeLancamento" value="#{tituloBean.titulo.anoLancamentoString}" mask="9999" size="2"/>
+                                            <p:outputLabel value="Lançamento:" />
+                                            <p:inputMask id="idAnoDeLancamento" value="#{tituloBean.titulo.mesAnoLancamento}" mask="99/9999" size="4" converter="#{isDateReference}">
+                                                <p:ajax event="change" update="@this :form_titulo:" />
+                                            </p:inputMask>
                                             <p:outputLabel value="Legenda:"  />
                                             <h:column>
                                                 <h:panelGrid columns="3">
@@ -126,33 +129,28 @@
                             </p:panel>
                             <h:panelGrid columns="4" styleClass="margin-top-max">
                                 <p:commandButton onclick="PF('dlg_save').show();" value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar"/>
-                                <p:commandButton value="Novo" action="#{tituloBean.clear}" update=":form_titulo:"/>
+                                <p:commandButton value="Novo" action="#{tituloBean.destroy}" update=":form_titulo:"/>
                                 <p:commandButton onclick="PF('dlg_delete').show();" value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir"/>
                                 <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaTitulo')}" title="Pesquisar"/>
                             </h:panelGrid>
                             <h:panelGrid styleClass="margin-top-max">
                                 <p:messages autoUpdate="true" closable="true" showDetail="true"/>
                             </h:panelGrid>                            
-                            <p:panel header="Catalogo por filial" rendered="#{tituloBean.titulo.id != null}" styleClass="margin-top-max">
+                            <p:panel header="Catalogo por filial" rendered="#{tituloBean.titulo.id != null and segurancaUtilitariosBean.macFilial.id != -1}" styleClass="margin-top-max" >
                                 <h:panelGrid columns="9">
                                     <p:outputLabel value="Filial:" />
-                                    <p:selectOneMenu  value="#{tituloBean.idFilial}" style="width: 500px">
+                                    <p:selectOneMenu  value="#{tituloBean.idFilial}" style="width: 500px" disabled="#{empty tituloBean.listFilial or !tituloBean.liberaAcessaFilial or tituloBean.catalogo.id ne null}">
                                         <p:ajax event="change" update="tbl" listener="#{tituloBean.listCatalogo.clear()}" />
                                         <f:selectItems value="#{tituloBean.listFilial}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Quantidade"  styleClass="margin-left-max"/>
                                     <p:inputText value="#{tituloBean.catalogo.quantidade}" size="2" maxlength="2"/>
-                                    <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{tituloBean.add()}" update=":form_titulo:" styleClass="margin-left-max" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <p:commandButton icon="ui-icon-disk" value="#{tituloBean.catalogo.id == null ? 'Adicionar' : 'Atualizar'}" action="#{tituloBean.add()}" update=":form_titulo:" styleClass="margin-left-max" disabled="#{controleAcessoBean.botaoSalvar or empty tituloBean.listFilial}"/>
                                 </h:panelGrid>
                             </p:panel>
                             <p:dataTable value="#{tituloBean.listCatalogo}" var="catalogo" id="tbl" rows="15" paginator="true" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado para esta filial!" rendered="#{tituloBean.titulo.id != null}">
                                 <p:column width="25">
-                                    <p:commandButton icon="ui-icon-link" action="#{tituloBean.edit(catalogo)}" update=":form_titulo:"/>
-                                </p:column>
-                                <p:column width="80" headerText="Imagem">
-                                    <h:column rendered="#{catalogo.titulo.foto != null}">
-                                        <p:graphicImage value="#{tituloBean.showImagem(catalogo.titulo.id)}" width="80" alt="Não possui imagem"/>
-                                    </h:column>
+                                    <p:commandButton icon="ui-icon-pencil" action="#{tituloBean.edit(catalogo)}" update=":form_titulo:" disabled="#{segurancaUtilitariosBean.macFilial.id == -1}"/>
                                 </p:column>
                                 <p:column headerText="Filial">
                                     <h:outputText value="#{catalogo.filial.filial.pessoa.nome}"/>
@@ -164,7 +162,7 @@
                                     <h:outputText value="#{tituloBean.getQuantidadeDisponivel(catalogo.filial.id, catalogo.titulo.id)}" style="color: #{tituloBean.getQuantidadeDisponivel(catalogo.filial.id, catalogo.titulo.id) eq 0 ? 'red' : 'black' }"/>
                                 </p:column>
                                 <p:column width="25">
-                                    <p:commandButton icon="ui-icon-close" action="#{tituloBean.remove(catalogo)}" update=":form_titulo:"  disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    <p:commandButton icon="ui-icon-close" action="#{tituloBean.remove(catalogo)}" update=":form_titulo:"  disabled="#{controleAcessoBean.botaoExcluir or segurancaUtilitariosBean.macFilial.id == -1}" />
                                 </p:column>
                             </p:dataTable>                             
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">

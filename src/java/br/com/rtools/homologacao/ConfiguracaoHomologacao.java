@@ -11,7 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 @Entity
 @Table(name = "conf_homologacao")
@@ -108,6 +107,9 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     @Column(name = "nr_inicio_dias_agendamento", columnDefinition = "integer default 0", nullable = false)
     private Integer inicioDiasAgendamento;
+    
+    @Column(name = "is_web_imprimir_planilha_debito", columnDefinition = "boolean default false")
+    private Boolean webImprimirPlanilhaDebito;    
 
 //    @Transient
 //    // @Temporal(TemporalType.DATE)
@@ -176,6 +178,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaFinal = null;
         this.webDesabilitaObs = "";
         this.inicioDiasAgendamento = 0;
+        this.webImprimirPlanilhaDebito = false;
 //        this.dtAtualiza = null;
 //        this.dtHabilitaCorrecao = null;
 //        this.agendamentoWeb = false;
@@ -187,7 +190,7 @@ public class ConfiguracaoHomologacao implements Serializable {
 //        this.mesesInadimplentesAgenda = 0;
     }
 
-    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento) {
+    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito) {
         this.id = id;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
@@ -226,6 +229,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaFinal = webDesabilitaFinal;
         this.webDesabilitaObs = webDesabilitaObs;
         this.inicioDiasAgendamento = inicioDiasAgendamento;
+        this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
     }
 
     public Integer getId() {
@@ -634,5 +638,13 @@ public class ConfiguracaoHomologacao implements Serializable {
 //    public void setMesesInadimplentesAgenda(Integer mesesInadimplentesAgenda) {
 //        this.mesesInadimplentesAgenda = mesesInadimplentesAgenda;
 //    }
+
+    public Boolean getWebImprimirPlanilhaDebito() {
+        return webImprimirPlanilhaDebito;
+    }
+
+    public void setWebImprimirPlanilhaDebito(Boolean webImprimirPlanilhaDebito) {
+        this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
+    }
 
 }

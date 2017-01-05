@@ -398,6 +398,13 @@
                                     </p:selectBooleanCheckbox>                                        
                                 </h:panelGrid>
                             </p:tab>                                
+                            <p:tab title="Web Services">
+                                <h:panelGrid columns="2">
+                                    <p:selectBooleanCheckbox value="#{registroEmpresarialBean.webServiceBoletoTest}" itemLabel="Testar web service cobrança registrada">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:selectBooleanCheckbox>                                        
+                                </h:panelGrid>
+                            </p:tab>                                
                         </p:tabView>
                     </p:panel>
                     <div style="clear: both;"></div>
