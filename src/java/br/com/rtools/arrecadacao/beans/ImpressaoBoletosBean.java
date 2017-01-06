@@ -1015,7 +1015,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     juridica = dbj.pesquisaJuridicaPorPessoa(id_contabil);
 
                     try {
-                        id_compara = (Integer) selected.get(i + 1).getEmpresa_id();
+                        id_compara = (Integer) selected.get(i + 1).getContabilidade_id();
                         if (id_contabil != id_compara) {
                             enviar = true;
                         }
