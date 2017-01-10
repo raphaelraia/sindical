@@ -84,9 +84,10 @@
                                         <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                         <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                         <p:menuitem value="Atualizar Base"          action="#{chamadaPaginaBean.pagina('atualizarBase')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and controleUsuarioBean.clienteString eq 'Rtools'}" />
-                                        <p:menuitem value="Autorização"         action="#{chamadaPaginaBean.pagina('sisAutorizacoes')}" />
-                                        <p:menuitem value="Importação"          action="#{chamadaPaginaBean.pagina('importacao')}" />
-                                        <p:menuitem value="Canvas"              action="#{chamadaPaginaBean.pagina('canvas')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        <p:menuitem value="Autorização"             action="#{chamadaPaginaBean.pagina('sisAutorizacoes')}" />
+                                        <p:menuitem value="Importação"              action="#{chamadaPaginaBean.pagina('importacao')}" />
+                                        <p:menuitem value="Canvas"                  action="#{chamadaPaginaBean.pagina('canvas')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('historicoAcessos')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                     </p:submenu>
                                     <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
                                         <p:menuitem value="Ordem Serviço" />

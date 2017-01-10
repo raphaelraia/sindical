@@ -40,7 +40,7 @@
                                 <h:panelGrid id="i_polling">
                                     <p:poll global="false" interval="1" update=":formRecepcao:i_tabview:i_progress_update" listener="#{recepcaoBean.progress()}" autoStart="#{recepcaoBean.startPooling}" delay="10" stop="#{recepcaoBean.openDialog}" ignoreAutoUpdate="true"/>
                                 </h:panelGrid>
-                                <p:tabView id="i_tabview" style="width: 1000px;" activeIndex="#{recepcaoBean.indexTab}">
+                                <p:tabView id="i_tabview" style="width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" activeIndex="#{recepcaoBean.indexTab}">
                                     <p:ajax event="tabChange" update=":formRecepcao" global="false"/>
                                     <p:tab title="Homologações">
                                         <p:panel styleClass="fundoCinza">

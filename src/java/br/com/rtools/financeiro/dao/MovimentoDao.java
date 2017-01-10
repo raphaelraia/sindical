@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -251,6 +252,11 @@ public class MovimentoDao extends DB {
 
     public List datasMovimento(int idServico, int idTipoServico, int idContaCobranca) {
         Date dataAnterior = DataHoje.converte(DataHoje.data().substring(0, 6) + Integer.toString(Integer.parseInt(DataHoje.data().substring(6, 10)) - 1));
+        return datasMovimento(idServico, idTipoServico, idContaCobranca, DataHoje.data().substring(0, 6) + Integer.toString(Integer.parseInt(DataHoje.data().substring(6, 10)) - 1));
+    }
+
+    public List datasMovimento(Integer servico_id, Integer tipo_servico_id, Integer conta_cobranca_id, String data_anterior) {
+        Date dataAnterior = DataHoje.converte(data_anterior);
         try {
             Query qry = getEntityManager().createQuery(
                     "select m.dtVencimento "
@@ -258,12 +264,42 @@ public class MovimentoDao extends DB {
                     + " where b.nrCtrBoleto = m.nrCtrBoleto "
                     + "   and m.dtVencimento > :data "
                     + "   and m.baixa is null"
-                    + "   and m.servicos.id = " + idServico
-                    + "   and m.tipoServico.id = " + idTipoServico
-                    + "   and b.contaCobranca.id = " + idContaCobranca
+                    + "   and m.servicos.id = " + servico_id
+                    + "   and m.tipoServico.id = " + tipo_servico_id
+                    + "   and b.contaCobranca.id = " + conta_cobranca_id
                     + " group by m.dtVencimento"
                     + " order by m.dtVencimento desc");
             qry.setParameter("data", dataAnterior);
+            qry.setMaxResults(20);
+            return qry.getResultList();
+        } catch (Exception e) {
+
+            return null;
+        }
+    }
+
+    public List datasMovimento(List<ServicoContaCobranca> list) {
+        String dataAnterior = DataHoje.data().substring(0, 6) + Integer.toString(Integer.parseInt(DataHoje.data().substring(6, 10)) - 1);
+        try {
+            String queryString = ""
+                    + "     SELECT M.dt_vencimento                              \n"
+                    + "       FROM fin_movimento M                              \n"
+                    + " INNER JOIN fin_boleto B ON B.nr_ctr_boleto = M.nr_ctr_boleto\n"
+                    + "       WHERE M.dt_vencimento > '" + dataAnterior + "'        \n"
+                    + "         AND M.id_baixa IS NULL                          \n"
+                    + "         AND (";
+
+            for (int i = 0; i < list.size(); i++) {
+                if (i != 0) {
+                    queryString += " OR ";
+                }
+                queryString += " ( M.id_servicos = " + list.get(i).getServicos().getId() + " AND M.id_tipo_servico = " + list.get(i).getTipoServico().getId() + " AND B.id_conta_cobranca = " + list.get(i).getContaCobranca().getId() + " )";
+            }
+            queryString += " "
+                    + ")                                \n"
+                    + " GROUP BY M.dt_vencimento        \n"
+                    + " ORDER BY M.dt_vencimento DESC  ";
+            Query qry = getEntityManager().createNativeQuery(queryString);
             qry.setMaxResults(20);
             return qry.getResultList();
         } catch (Exception e) {
@@ -1119,7 +1155,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc, String type, Integer qtde, String registrado) {
+    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc, String type, Integer qtde, String registrado, List<ServicoContaCobranca> listServicoContaCobranca) {
         try {
 
             String datas = " ( ", filtros = "";
@@ -1135,10 +1171,24 @@ public class MovimentoDao extends DB {
                 }
             }
 
-            if (todasContas.equals("false")) {
-                filtros = " AND m.id_servicos = " + idServico + "\n"
-                        + " AND bo.id_conta_Cobranca = " + idContaCobranca + "\n";
+            String inTipoServico = "";
+            if (todasContas.equals("false") || !listServicoContaCobranca.isEmpty()) {
+                /* filtros = " AND m.id_servicos = " + idServico + "\n"
+                        + " AND bo.id_conta_Cobranca = " + idContaCobranca + "\n"; */
+                String in = " AND (";
+                for (int i = 0; i < listServicoContaCobranca.size(); i++) {
+                    if (i == 0) {
+                        inTipoServico = "" + listServicoContaCobranca.get(i).getTipoServico().getId();
+                        in += " (m.id_servicos = " + listServicoContaCobranca.get(i).getServicos().getId() + " AND bo.id_conta_cobranca = " + listServicoContaCobranca.get(i).getContaCobranca().getId() + " ) \n";
+                    } else {
+                        inTipoServico += "," + listServicoContaCobranca.get(i).getTipoServico().getId();
+                        in += " OR (m.id_servicos = " + listServicoContaCobranca.get(i).getServicos().getId() + " AND bo.id_conta_cobranca = " + listServicoContaCobranca.get(i).getContaCobranca().getId() + " ) \n";
+                    }
+                }
+                in += ") \n";
+                filtros += in;
             } else {
+                inTipoServico = "1";
                 idTipoServico = 1;
             }
 
@@ -1189,11 +1239,14 @@ public class MovimentoDao extends DB {
             }
 
             if (type.equals("ate")) {
-                filtros += " AND x.qtde <= " + qtde + "\n";
+                filtros += " AND (x.qtde <= " + qtde + " OR X.qtde IS NULL) \n";
             } else if (type.equals("apartir")) {
-                filtros += " AND x.qtde >= " + qtde + "\n";
+                if (qtde == 1) {
+                    filtros += " AND (x.qtde >= " + qtde + " OR X.qtde IS NULL )\n";
+                } else {
+                    filtros += " AND x.qtde >= " + qtde + "\n";
+                }
             }
-
             if (registrado.equals("registrado")) {
                 filtros += " AND bo.dt_cobranca_registrada IS NOT NULL \n";
             } else if (registrado.equals("sem_registro")) {
@@ -1212,7 +1265,8 @@ public class MovimentoDao extends DB {
                     + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN p_contabil.id ELSE 0 END AS idContabilidade,            \n" // 9 CONTABILIDADE id_pessoa
                     + "              contr.id_juridica AS idJuridica,                                                       \n" // 10 EMPRESA id_juridica
                     + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN x.qtde ELSE 0 END AS qtde,                              \n" // 11 QUANTIDADE
-                    + "              bo.dt_cobranca_registrada AS data_cobranca_registrada                                  \n" // 12 COBRANÇA REGISTRADA
+                    + "              bo.dt_cobranca_registrada AS data_cobranca_registrada,                                 \n" // 12 DATA COBRANÇA REGISTRADA
+                    + "              cc.is_cobranca_registrada                                                              \n" // 13 COBRANÇA REGISTRADA
                     + "         FROM fin_movimento              AS m                                                    \n"
                     + " INNER JOIN arr_contribuintes_vw         AS contr      ON m.id_pessoa = contr.id_pessoa          \n"
                     + " INNER JOIN pes_pessoa                   AS p          ON p.id = contr.id_pessoa                 \n"
@@ -1220,6 +1274,7 @@ public class MovimentoDao extends DB {
                     + "  LEFT JOIN pes_juridica                 AS j_contabil ON j_contabil.id = contr.id_contabilidade \n"
                     + "  LEFT JOIN pes_pessoa                   AS p_contabil ON p_contabil.id = j_contabil.id_pessoa   \n"
                     + " INNER JOIN fin_boleto                   AS bo         ON bo.nr_ctr_boleto = m.nr_ctr_boleto     \n"
+                    + " INNER JOIN fin_conta_cobranca           AS cc	      ON cc.id = bo.id_conta_cobranca          \n"
                     + " INNER JOIN fin_servicos                 AS s          ON s.id = m.id_servicos                   \n"
                     + " INNER JOIN fin_tipo_servico             AS t          ON t.id = m.id_tipo_servico               \n"
                     + " INNER JOIN pes_pessoa_endereco          AS pce        ON pce.id_pessoa = contr.id_pessoa AND pce.id_tipo_endereco = 3 \n"
@@ -1245,7 +1300,7 @@ public class MovimentoDao extends DB {
                     + "                 AND m.is_ativo = true                                   \n"
                     + "                 AND m.id_Baixa IS NULL                                  \n"
                     + "                 AND m.ds_es = 'E'                                       \n"
-                    + "                 AND m.id_tipo_Servico = " + idTipoServico + "           \n"
+                    + "                 AND m.id_tipo_Servico IN (" + inTipoServico + ")        \n"
                     + "                 AND m.dt_Vencimento IN  " + datas + "                   \n"
                     // 30/09/2015 - ADICIONADO AS LINHAS ABAIXO
                     + "                 AND j_contabil.id > 0                                   \n"
@@ -1259,9 +1314,9 @@ public class MovimentoDao extends DB {
                     + "      AND m.is_ativo = true                                              \n"
                     + "      AND contr.id_pessoa NOT IN(SELECT bl.id_pessoa FROM fin_bloqueia_servico_pessoa AS bl WHERE bl.is_impressao = false AND bl.id_servicos = " + idServico + " AND '15/09/2013' >= bl.dt_inicio AND '15/09/2013' <= bl.dt_fim) \n"
                     + "      AND m.ds_es = 'E'                                                  \n"
-                    + "      AND m.id_tipo_Servico = " + idTipoServico + "                      \n"
+                    + "      AND m.id_tipo_Servico IN (" + inTipoServico + ")                   \n"
                     + "      AND m.dt_Vencimento IN " + datas + "                               \n"
-                    + " ORDER BY escritorio, razao                                              \n";
+                    + " ORDER BY escritorio, razao              \n";
 
             Query query = getEntityManager().createNativeQuery(textQry);
             return query.getResultList();

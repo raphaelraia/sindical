@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.impressao.Carta;
 import br.com.rtools.impressao.Etiquetas;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -41,7 +42,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
@@ -85,6 +88,60 @@ public class ImpressaoBoletosBean implements Serializable {
     // private List<Linha> listaMovGridSelecionada = new ArrayList();
     // private int boletosSel;
     private ServicoContaCobranca servicoContaCobranca = new ServicoContaCobranca();
+    private Map<String, Integer> contaCobranca = null;
+    private List selectedContaCobranca = new ArrayList();
+    private Boolean habilitarComunicado = false;
+    private String novoVencto = "";
+
+    public void alterVencimento() {
+        if (novoVencto.isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR DATA DE VENCIMENTO!");
+            return;
+        }
+        if (selected.isEmpty()) {
+            GenericaMensagem.warn("Validação", "SELECIONAR MOVIMENTOS!");
+            return;
+        }
+        if (selected.size() != listObjectImpressaoBoleto.size()) {
+            GenericaMensagem.warn("Validação", "SELECIONAR TODOS OS MOVIMENTOS DA GRID!");
+            return;
+        }
+        Dao dao = new Dao();
+        dao.openTransaction();
+        String dataAntiga = "";
+        Boolean r = false;
+        for (int i = 0; i < selected.size(); i++) {
+            if (selected.get(i).getCobranca_registrada()) {
+                r = true;
+            } else {
+                Movimento m = (Movimento) dao.find(new Movimento(), selected.get(i).getMovimento_id());
+                if (dataAntiga.isEmpty()) {
+                    dataAntiga = m.getVencimento();
+                }
+                if (!m.getVencimento().equals(novoVencto)) {
+                    m.setDtVencimento(DataHoje.converte(novoVencto));
+                    m.setDtVencimentoOriginal(DataHoje.converte(novoVencto));
+                    if (!dao.update(m)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "Ao alterar movimento!");
+                        return;
+                    }
+                }
+            }
+        }
+        if (r) {
+            GenericaMensagem.warn("Sistema", "Não é possível alterar vencimento de cobrança registrada!");
+        }
+        dao.commit();
+        selected = new ArrayList<>();
+        GenericaMensagem.info("Sucesso", "Registros atualizados com sucesso!");
+        NovoLog novoLog = new NovoLog();
+        novoLog.save("ALTERAÇÃO DE DATA DE VENCIMENTO DOS MOVIMENTOS DE :" + dataAntiga + " PARA " + novoVencto);
+        listaData = new ArrayList();
+        novoVencto = "";
+        getListaData();
+        loadList();
+    }
 
     public void registrarBoletos() {
         MovimentoDao db = new MovimentoDao();
@@ -235,6 +292,10 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public void loadList() {
+        if (selectedContaCobranca.isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR AO MENOS UMA CONTRIBUIÇÃO!");
+            return;
+        }
         if (listaDataSelecionada.isEmpty()) {
             GenericaMensagem.warn("Validação", "INFORMAR AO MENOS UMA DATA DE VENCIMENTO!");
             return;
@@ -259,11 +320,18 @@ public class ImpressaoBoletosBean implements Serializable {
             totalEmpresas = 0;
             totalEscritorios = 0;
 
-            try {
-                servicoContaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
-            } catch (Exception e) {
-                servicoContaCobranca = new ServicoContaCobranca();
+            String contribuicoes = "";
+            List<ServicoContaCobranca> servicoContaCobrancas = new ArrayList<>();
+            if (selectedContaCobranca != null) {
+                for (int i = 0; i < selectedContaCobranca.size(); i++) {
+                    servicoContaCobrancas.add(servDB.pesquisaCodigo(Integer.parseInt(selectedContaCobranca.get(i).toString())));
+                }
             }
+//            try {
+//                servicoContaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
+//            } catch (Exception e) {
+//                servicoContaCobranca = new ServicoContaCobranca();
+//            }
 
             if (!listaConvencaoSelecionada.isEmpty()) {
                 for (int i = 0; i < listaConvencaoSelecionada.size(); i++) {
@@ -320,7 +388,8 @@ public class ImpressaoBoletosBean implements Serializable {
                         id_esc,
                         regraEscritorios,
                         quantidadeEmpresas,
-                        registrado
+                        registrado,
+                        servicoContaCobrancas
                 );
 
                 //Vector v = (Vector) list;
@@ -390,7 +459,8 @@ public class ImpressaoBoletosBean implements Serializable {
                             o.get(9),
                             o.get(10),
                             o.get(11),
-                            o.get(12)
+                            o.get(12),
+                            (Boolean) o.get(13)
                     );
                     listObjectImpressaoBoleto.add(oib);
                     if (this.regraEscritorios.equals("ate")) {
@@ -496,13 +566,21 @@ public class ImpressaoBoletosBean implements Serializable {
                 List lista = new ArrayList();
                 int i = 0;
                 if (this.todasContas.equals("false")) {
+                    String contribuicoes = "";
+                    List<ServicoContaCobranca> servicoContaCobrancas = new ArrayList<>();
+                    if (selectedContaCobranca != null) {
+                        for (int x = 0; x < selectedContaCobranca.size(); x++) {
+                            servicoContaCobrancas.add((ServicoContaCobranca) new Dao().find(new ServicoContaCobranca(), Integer.parseInt(selectedContaCobranca.get(x).toString())));
+                        }
+                    }
                     if (contaCobranca.getId() != idData) {
                         listaData = new ArrayList();
                         idData = contaCobranca.getId();
-                        lista = db.datasMovimento(
-                                contaCobranca.getServicos().getId(),
-                                contaCobranca.getTipoServico().getId(),
-                                contaCobranca.getContaCobranca().getId());
+//                        lista = db.datasMovimento(
+//                                contaCobranca.getServicos().getId(),
+//                                contaCobranca.getTipoServico().getId(),
+//                                contaCobranca.getContaCobranca().getId());
+                        lista = db.datasMovimento(servicoContaCobrancas);
                     }
 
                 } else if (idData == -2) {
@@ -515,7 +593,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     lista = new ArrayList();
                 }
                 while (i < lista.size()) {
-                    listaData.add(DataHoje.converteData((Date) lista.get(i)));
+                    listaData.add(DataHoje.converteData(DataHoje.converteDateSqlToDate(lista.get(i).toString())));
                     i++;
                 }
             } catch (Exception e) {
@@ -557,7 +635,7 @@ public class ImpressaoBoletosBean implements Serializable {
                 //listaMovGrid.get(i).setValor(new Boolean(true));
                 // listaMovGridSelecionada.add(listaMovGrid.get(i));
                 if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                    if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                    if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
                 } else {
@@ -573,7 +651,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
                     if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -590,7 +668,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
                     if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -608,7 +686,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
                     if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -624,7 +702,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
                     if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -646,7 +724,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
                     if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -667,7 +745,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     //listaMovGrid.get(i).setValor(new Boolean(true));
                     //listaMovGridSelecionada.add(listaMovGrid.get(i));
                     if (servicoContaCobranca.getContaCobranca().isCobrancaRegistrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getCobranca_registrada() != null) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -1216,6 +1294,11 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public void setRegraEscritorios(String regraEscritorios) {
+        if (regraEscritorios.equals("apartir")) {
+            quantidadeEmpresas = 2;
+        } else {
+            quantidadeEmpresas = 1;
+        }
         this.regraEscritorios = regraEscritorios;
     }
 
@@ -1318,11 +1401,11 @@ public class ImpressaoBoletosBean implements Serializable {
         Jasper.IS_HEADER = true;
         Jasper.PART_NAME = "";
         Jasper.IS_DOWNLOAD = false;
-        Jasper.printReports("/Relatorios/CARTA.jasper", "comunicado", c);        
+        Jasper.printReports("/Relatorios/CARTA.jasper", "comunicado", c);
         File fileComunicado = new File(Jasper.FILE_NAME_GENERATED);
         Dao di = new Dao();
         Mail mail = new Mail();
-        mail.addFile(fileComunicado);        
+        mail.addFile(fileComunicado);
         mail.setEmail(
                 new Email(
                         -1,
@@ -1438,6 +1521,64 @@ public class ImpressaoBoletosBean implements Serializable {
         this.servicoContaCobranca = servicoContaCobranca;
     }
 
+    public Map<String, Integer> getContaCobranca() {
+        if (contaCobranca == null) {
+            selectedContaCobranca = new ArrayList();
+            contaCobranca = new LinkedHashMap<>();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+            List<ServicoContaCobranca> list = servDB.pesquisaTodosTipoUm();
+            if (list == null) {
+                list = new ArrayList();
+            }
+            contaCobranca = new LinkedHashMap<>();
+            for (int i = 0; i < list.size(); i++) {
+                if (selectedContaCobranca.isEmpty()) {
+                    String data_anterior = new DataHoje().decrementarMeses(1, DataHoje.data());
+                    List lista = new MovimentoDao().datasMovimento(list.get(i).getServicos().getId(), list.get(i).getTipoServico().getId(), list.get(i).getContaCobranca().getId(), data_anterior);
+                    if (lista != null && !lista.isEmpty()) {
+                        selectedContaCobranca.add(list.get(i).getId());
+                    }
+                }
+                contaCobranca.put(
+                        (list.get(i).getServicos().getDescricao() + " - "
+                        + list.get(i).getTipoServico().getDescricao() + " - "
+                        + list.get(i).getContaCobranca().getCodCedente() + "" + (list.get(i).getContaCobranca().isCobrancaRegistrada() ? "( REGISTRADA )" : "") + "").toUpperCase(),
+                        list.get(i).getId()
+                );
+            }
+        }
+        return contaCobranca;
+    }
+
+    public void setContaCobranca(Map<String, Integer> contaCobranca) {
+        this.contaCobranca = contaCobranca;
+    }
+
+    public List getSelectedContaCobranca() {
+        return selectedContaCobranca;
+    }
+
+    public void setSelectedContaCobranca(List selectedContaCobranca) {
+        this.selectedContaCobranca = selectedContaCobranca;
+    }
+
+    public Boolean getHabilitarComunicado() {
+        return habilitarComunicado;
+    }
+
+    public void setHabilitarComunicado(Boolean habilitarComunicado) {
+        selected = new ArrayList();
+        this.habilitarComunicado = habilitarComunicado;
+    }
+
+    public String getNovoVencto() {
+        return novoVencto;
+    }
+
+    public void setNovoVencto(String novoVencto) {
+        this.novoVencto = novoVencto;
+    }
+
     public class ObjectImpressaoBoleto {
 
         private Integer indice;
@@ -1453,7 +1594,8 @@ public class ImpressaoBoletosBean implements Serializable {
         private Object contabilidade_id;
         private Object empresa_id;
         private Object quantidade_empresas;
-        private Object cobranca_registrada;
+        private Object data_registro;
+        private Boolean cobranca_registrada;
 
         public ObjectImpressaoBoleto() {
             this.indice = null;
@@ -1469,10 +1611,11 @@ public class ImpressaoBoletosBean implements Serializable {
             this.contabilidade_id = null;
             this.empresa_id = null;
             this.quantidade_empresas = null;
+            this.data_registro = null;
             this.cobranca_registrada = null;
         }
 
-        public ObjectImpressaoBoleto(Integer indice, Object boleto, Object empresa_nome, Object empresa_documento, Object contabilidade_nome, Object contribuicao, Object tipo, Object vencimento, Object referencia, Object movimento_id, Object contabilidade_id, Object empresa_id, Object quantidade_empresas, Object cobranca_registrada) {
+        public ObjectImpressaoBoleto(Integer indice, Object boleto, Object empresa_nome, Object empresa_documento, Object contabilidade_nome, Object contribuicao, Object tipo, Object vencimento, Object referencia, Object movimento_id, Object contabilidade_id, Object empresa_id, Object quantidade_empresas, Object data_registro, Boolean cobranca_registrada) {
             this.indice = indice;
             this.boleto = boleto;
             this.empresa_nome = empresa_nome;
@@ -1486,6 +1629,7 @@ public class ImpressaoBoletosBean implements Serializable {
             this.contabilidade_id = contabilidade_id;
             this.empresa_id = empresa_id;
             this.quantidade_empresas = quantidade_empresas;
+            this.data_registro = data_registro;
             this.cobranca_registrada = cobranca_registrada;
         }
 
@@ -1585,12 +1729,12 @@ public class ImpressaoBoletosBean implements Serializable {
             this.quantidade_empresas = quantidade_empresas;
         }
 
-        public Object getCobranca_registrada() {
-            return cobranca_registrada;
+        public Object getData_registro() {
+            return data_registro;
         }
 
-        public void setCobranca_registrada(Object cobranca_registrada) {
-            this.cobranca_registrada = cobranca_registrada;
+        public void setData_registro(Object data_registro) {
+            this.data_registro = data_registro;
         }
 
         public Integer getIndice() {
@@ -1599,6 +1743,14 @@ public class ImpressaoBoletosBean implements Serializable {
 
         public void setIndice(Integer indice) {
             this.indice = indice;
+        }
+
+        public Boolean getCobranca_registrada() {
+            return cobranca_registrada;
+        }
+
+        public void setCobranca_registrada(Boolean cobranca_registrada) {
+            this.cobranca_registrada = cobranca_registrada;
         }
 
     }

@@ -52,7 +52,9 @@
                                 <p:outputLabel value="Sala: "  for="idSala"/>
                             </p:column>
                             <p:column>
-                                <p:inputText id="idSala" value="#{turmaBean.turma.sala}" size="2" maxlength="2"/>
+                                <p:inputText id="idSala" value="#{turmaBean.turma.sala}" size="2" maxlength="2">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>
                             </p:column>
                             <p:column>
                                 <p:outputLabel value="Descrição: "  for="idDDescricao"/>

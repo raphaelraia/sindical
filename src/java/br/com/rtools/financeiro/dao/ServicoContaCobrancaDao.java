@@ -66,7 +66,7 @@ public class ServicoContaCobrancaDao extends DB {
 
     public List pesquisaTodosTipoUm() {
         try {
-            Query qry = getEntityManager().createQuery("SELECT s FROM ServicoContaCobranca s WHERE s.tipoServico.id = 1 AND s.servicos.id IN (SELECT sx.servicos.id FROM ServicoRotina sx WHERE sx.rotina.id = 4)");
+            Query qry = getEntityManager().createQuery("SELECT s FROM ServicoContaCobranca s WHERE s.tipoServico.id = 1 AND s.servicos.id IN (SELECT sx.servicos.id FROM ServicoRotina sx WHERE sx.rotina.id = 4) ORDER BY s.servicos.descricao ASC");
             return (qry.getResultList());
         } catch (Exception e) {
             return null;

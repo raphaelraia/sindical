@@ -129,6 +129,8 @@ public class DataHoje {
 
     public static Date converteDateSqlToDate(String date) {
         if (date != null) {
+            date = date.replace("[", "");
+            date = date.replace("]", "");
             String dia = date.substring(8, 10);
             String mes = date.substring(5, 7);
             String ano = date.substring(0, 4);

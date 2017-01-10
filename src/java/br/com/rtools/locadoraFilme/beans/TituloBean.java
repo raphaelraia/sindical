@@ -905,7 +905,7 @@ public class TituloBean implements Serializable {
     }
 
     public void loadLiberaAcessaFilial() {
-        if (new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
+        if (!new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
             liberaAcessaFilial = true;
         }
     }

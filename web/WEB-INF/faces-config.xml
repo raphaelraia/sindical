@@ -1559,7 +1559,7 @@
             <to-view-id>/retornoSocial.jsf</to-view-id>
             <redirect/>
         </navigation-case>    
-              
+ 
         <navigation-case>
             <from-outcome>relatorioRais</from-outcome>
             <to-view-id>/relatorioRais.jsf</to-view-id>
@@ -1756,7 +1756,7 @@
             <from-outcome>relatorioTabelaPrecos</from-outcome>
             <to-view-id>/relatorioTabelaPrecos.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                      
+        </navigation-case>         
         
         <navigation-case>
             <from-outcome>relatorioFinanceiro</from-outcome>
@@ -1853,7 +1853,7 @@
             <to-view-id>/locadoraTaxa.jsf</to-view-id>
             <redirect/>
         </navigation-case>
-                
+   
         <navigation-case>
             <from-outcome>locadoraAutorizados</from-outcome>
             <to-view-id>/locadoraAutorizados.jsf</to-view-id>
@@ -1931,67 +1931,67 @@
             <from-outcome>relatorioMalaDireta</from-outcome>
             <to-view-id>/relatorioMalaDireta.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>webPessoaJuridica</from-outcome>
             <to-view-id>/webPessoaJuridica.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>frequenciaCatraca</from-outcome>
             <to-view-id>/frequenciaCatraca.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>exameMedico</from-outcome>
             <to-view-id>/exameMedico.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>validadeExameMedico</from-outcome>
             <to-view-id>/validadeExameMedico.jsf</to-view-id>
             <redirect/>
         </navigation-case>      
-                
+   
         <navigation-case>
             <from-outcome>executar_sistema</from-outcome>
             <to-view-id>/executar_sistema.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>biometria_habilitar</from-outcome>
             <to-view-id>/biometria_habilitar.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>biometria_limpar</from-outcome>
             <to-view-id>/biometria_limpar.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>biometria_lista</from-outcome>
             <to-view-id>/biometria_lista.jsf</to-view-id>
             <redirect/>
         </navigation-case>
-                         
+            
         <navigation-case>
             <from-outcome>biometria_atualizar</from-outcome>
             <to-view-id>/biometria_atualizar.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>biometria_reload</from-outcome>
             <to-view-id>/biometria_reload.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>biometria_atualiza_catraca</from-outcome>
@@ -2003,7 +2003,7 @@
             <from-outcome>biometria_captura</from-outcome>
             <to-view-id>/biometria_captura.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>    
         
         <navigation-case>
             <from-outcome>senha</from-outcome>
@@ -2310,76 +2310,74 @@
             <from-outcome>organizarCaravana</from-outcome>
             <to-view-id>/organizarCaravana.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>sisCarta</from-outcome>
             <to-view-id>/sisCarta.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>relatorioResumoImpressaoBoletos</from-outcome>
             <to-view-id>/relatorioResumoImpressaoBoletos.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>importacao</from-outcome>
             <to-view-id>/importacao.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>sisAutorizacoes</from-outcome>
             <to-view-id>/sisAutorizacoes.jsf</to-view-id>
             <redirect/>
         </navigation-case>  
-                   
+      
         <navigation-case>
             <from-outcome>impressaoCheque</from-outcome>
             <to-view-id>/impressaoCheque.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>verifica_impressora_cheque</from-outcome>
             <to-view-id>/verifica_impressora_cheque.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         
         <navigation-case>
             <from-outcome>pessoaJuridicaMesclar</from-outcome>
             <to-view-id>/pessoaJuridicaMesclar.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>usuarioHistoricoAcesso</from-outcome>
             <to-view-id>/usuarioHistoricoAcesso.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>remessa</from-outcome>
             <to-view-id>/remessa.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
-        
+        </navigation-case>        
         
         <navigation-case>
             <from-outcome>reuniao</from-outcome>
             <to-view-id>/reuniao.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
-        
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>pesquisaReuniao</from-outcome>
             <to-view-id>/pesquisaReuniao.jsf</to-view-id>
             <redirect/>
-        </navigation-case>             
+        </navigation-case>
         
     </navigation-rule>
     
