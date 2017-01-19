@@ -12,7 +12,7 @@ public class RelatorioFechamentoGuiasDao extends DB {
 
     private String order = "";
 
-    public List find(Relatorios relatorio, String inEmpresas, String inBeneficiarios, String inIdServicos, Date pagamentoInicial, Date pagamentoFinal) {
+    public List find(Relatorios relatorio, String inEmpresas, String inBeneficiarios, String inIdServicos, Date pagamentoInicial, Date pagamentoFinal, String inIdFilial) {
         List listWhere = new ArrayList();
         String queryString = " -- RelatorioFechamentoGuiasDao->find() \n"
                 + "      SELECT C.ds_nome,                      \n "
@@ -33,7 +33,8 @@ public class RelatorioFechamentoGuiasDao extends DB {
                 + "  INNER JOIN pes_pessoa      AS C  ON C.id = G.id_convenio      \n "
                 + "  INNER JOIN pes_pessoa      AS P  ON P.id = M.id_beneficiario  \n "
                 + "  INNER JOIN seg_usuario     AS U  ON U.id = B.id_usuario       \n "
-                + "  INNER JOIN pes_pessoa      AS PU ON PU.id = U.id_pessoa       \n ";
+                + "  INNER JOIN pes_pessoa      AS PU ON PU.id = U.id_pessoa       \n "
+                + "  INNER JOIN fin_lote        AS L  ON L.id = M.id_lote          \n ";
 
         if (inEmpresas != null) {
             listWhere.add(" C.id IN (" + inEmpresas + ") \n ");
@@ -48,6 +49,9 @@ public class RelatorioFechamentoGuiasDao extends DB {
         }
         if (inIdServicos != null && !inIdServicos.isEmpty()) {
             listWhere.add(" SE.id IN (" + inIdServicos + ") ");
+        }
+        if (inIdFilial != null) {
+            listWhere.add(" L.id_filial IN (" + inIdFilial + ") ");
         }
         if (!listWhere.isEmpty()) {
             queryString += " WHERE ";

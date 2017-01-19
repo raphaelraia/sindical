@@ -1,18 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package br.com.rtools.financeiro;
 
+import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.dao.MacFilialDao;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -47,6 +43,8 @@ public class ImpressoraCheque implements Serializable {
     private String mensagem;
     @Column(name = "ds_mensagem_erro")
     private String mensagemErro;
+    @Column(name = "ds_mac")
+    private String mac;
 
     public ImpressoraCheque() {
         this.id = -1;
@@ -60,9 +58,10 @@ public class ImpressoraCheque implements Serializable {
         this.data = "";
         this.mensagem = "";
         this.mensagemErro = "";
+        this.mac = "";
     }
 
-    public ImpressoraCheque(int id, Integer impressora, String apelido, Boolean ativo, String banco, String valor, String favorecido, String cidade, String data, String mensagem, String mensagemErro) {
+    public ImpressoraCheque(Integer id, Integer impressora, String apelido, Boolean ativo, String banco, String valor, String favorecido, String cidade, String data, String mensagem, String mensagemErro, String mac) {
         this.id = id;
         this.impressora = impressora;
         this.apelido = apelido;
@@ -74,6 +73,7 @@ public class ImpressoraCheque implements Serializable {
         this.data = data;
         this.mensagem = mensagem;
         this.mensagemErro = mensagemErro;
+        this.mac = mac;
     }
 
     public int getId() {
@@ -90,6 +90,18 @@ public class ImpressoraCheque implements Serializable {
 
     public void setImpressora(Integer impressora) {
         this.impressora = impressora;
+    }
+
+    public String getImpressoraString() {
+        try {
+            return Integer.toString(impressora);            
+        } catch (Exception e) {
+            return "0";
+        }
+    }
+
+    public void setImpressoraString(String impressoraString) {
+        this.impressora = Integer.parseInt(impressoraString);
     }
 
     public String getApelido() {
@@ -162,6 +174,22 @@ public class ImpressoraCheque implements Serializable {
 
     public void setMensagemErro(String mensagemErro) {
         this.mensagemErro = mensagemErro;
+    }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
+    public MacFilial getMacFilial() {
+        if (this.mac != null && !this.mac.isEmpty()) {
+            return new MacFilialDao().pesquisaMac(this.mac);
+        } else {
+            return null;
+        }
     }
 
 }

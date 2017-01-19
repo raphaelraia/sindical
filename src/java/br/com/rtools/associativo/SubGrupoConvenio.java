@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,11 +15,14 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "soc_convenio_sub_grupo")
 @NamedQueries({
-    @NamedQuery(name = "SubGrupoConvenio.pesquisaID",   query = "SELECT SGC FROM SubGrupoConvenio AS SGC WHERE SGC.id = :pid"),
-    @NamedQuery(name = "SubGrupoConvenio.findAll",      query = "SELECT SGC FROM SubGrupoConvenio AS SGC ORDER BY SGC.grupoConvenio.descricao ASC, SGC.descricao ASC "),
-    @NamedQuery(name = "SubGrupoConvenio.findName",     query = "SELECT SGC FROM SubGrupoConvenio AS SGC WHERE upper(SGC.descricao) LIKE :pdescricao ORDER BY SGC.grupoConvenio.descricao ASC, SGC.descricao ASC ")
+    @NamedQuery(name = "SubGrupoConvenio.pesquisaID", query = "SELECT SGC FROM SubGrupoConvenio AS SGC WHERE SGC.id = :pid")
+    ,
+    @NamedQuery(name = "SubGrupoConvenio.findAll", query = "SELECT SGC FROM SubGrupoConvenio AS SGC ORDER BY SGC.grupoConvenio.descricao ASC, SGC.descricao ASC ")
+    ,
+    @NamedQuery(name = "SubGrupoConvenio.findName", query = "SELECT SGC FROM SubGrupoConvenio AS SGC WHERE upper(SGC.descricao) LIKE :pdescricao ORDER BY SGC.grupoConvenio.descricao ASC, SGC.descricao ASC ")
 })
-public class SubGrupoConvenio implements java.io.Serializable {
+public class SubGrupoConvenio implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,19 +34,23 @@ public class SubGrupoConvenio implements java.io.Serializable {
     private GrupoConvenio grupoConvenio;
     @Column(name = "ds_obs_guias", length = 1000, nullable = true)
     private String observacao;
+    @Column(name = "is_principal", columnDefinition = "boolean default false")
+    private Boolean principal;
 
     public SubGrupoConvenio() {
         this.id = -1;
         this.descricao = "";
         this.grupoConvenio = new GrupoConvenio();
         this.observacao = "";
+        this.principal = false;
     }
 
-    public SubGrupoConvenio(int id, String descricao, GrupoConvenio grupoConvenio, String observacao) {
+    public SubGrupoConvenio(int id, String descricao, GrupoConvenio grupoConvenio, String observacao, Boolean principal) {
         this.id = id;
         this.descricao = descricao;
         this.grupoConvenio = grupoConvenio;
         this.observacao = observacao;
+        this.principal = principal;
     }
 
     public int getId() {
@@ -75,5 +83,13 @@ public class SubGrupoConvenio implements java.io.Serializable {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    public Boolean getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(Boolean principal) {
+        this.principal = principal;
     }
 }

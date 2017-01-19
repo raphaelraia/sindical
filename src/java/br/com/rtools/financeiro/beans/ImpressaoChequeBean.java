@@ -11,6 +11,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.dao.ImpressaoChequeDao;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -67,7 +68,7 @@ public class ImpressaoChequeBean implements Serializable {
         Dao dao = new Dao();
 
         ImpressoraCheque ic = (ImpressoraCheque) dao.find(new ImpressoraCheque(), Integer.valueOf(listaImpressora.get(indexImpressora).getDescription()));
-        ic.setAtivo(false);
+        ic.setAtivo(true);
         // SETA FALSO PARA TESTAR SE O PROJETO DESKTOP DA IMPRESSORA ESTA ATUALIZANDO PARA TRUE
         // SENDO ASSIM ESTA ATIVA
         if (!dao.update(ic, true)) {
@@ -243,13 +244,20 @@ public class ImpressaoChequeBean implements Serializable {
 
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
+                String dispostivo = "";
+                if(result.get(i).getMacFilial() != null) {
+                    dispostivo = " - " + result.get(i).getMacFilial().getDescricao();                    
+                }
                 listaImpressora.add(
                         new SelectItem(
                                 i,
-                                result.get(i).getImpressora() + " - " + result.get(i).getApelido(),
+                                result.get(i).getImpressora() + " - " + result.get(i).getApelido() + dispostivo,
                                 Integer.toString(result.get(i).getId())
                         )
                 );
+                if(MacFilial.getAcessoFilial().getMac().equals(result.get(i).getMac())) {
+                    indexImpressora = i;
+                }
             }
         } else {
             listaImpressora.add(new SelectItem(0, "NENHUMA IMPRESSORA ENCONTRADA", null));

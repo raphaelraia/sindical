@@ -7,6 +7,7 @@ import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.impressao.ParametroFechamentoGuias;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.beans.FisicaBean;
@@ -50,6 +51,8 @@ import org.primefaces.event.TabChangeEvent;
 @SessionScoped
 public class RelatorioFechamentoGuiasBean implements Serializable {
 
+
+
     private List<Filters> listFilters;
     private String tipoRelatorio;
     private String tipo;
@@ -73,6 +76,9 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
      */
     private Integer[] index;
     private List<SelectItem>[] listSelectItem;
+    
+    private List<SelectItem> listFilial;
+    private Integer idFilial;
 
     @PostConstruct
     public void init() {
@@ -101,6 +107,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
         selectedServicos = new ArrayList();
         loadListFilters();
         loadServicos();
+        loadListFilial();
         new Tabbed().init();
     }
 
@@ -108,10 +115,11 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
      * 0 - Período; 1 - Empresa; 2 - Beneficiário;
      */
     public void loadListFilters() {
-        listFilters.clear();
+        listFilters = new ArrayList();
         listFilters.add(new Filters("periodo", "Período", false));
         listFilters.add(new Filters("empresa", "Empresa", false));
         listFilters.add(new Filters("beneficiario", "Beneficiário", false));
+        listFilters.add(new Filters("filial", "Filial", false));
     }
 
     @PreDestroy
@@ -174,8 +182,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                 dtInicial = dataInicial;
                 dtFinal = dataFinal;
             }
-            List list = new RelatorioFechamentoGuiasDao().find(relatorios, idInEmpresas, idInBeneficiarios, in_id_servicos, dtInicial, dtFinal
-            );
+            List list = new RelatorioFechamentoGuiasDao().find(relatorios, idInEmpresas, idInBeneficiarios, in_id_servicos, dtInicial, dtFinal, (idFilial != null ? ("" + idFilial) : null));
             if (list.isEmpty()) {
                 GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
                 return;
@@ -308,6 +315,10 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
             case "beneficiario":
                 listFilters.get(2).setActive(false);
                 break;
+            case "filial":
+                listFilters.get(3).setActive(false);
+                idFilial = null;
+                break;
         }
         PF.update("form_relatorio:id_panel");
     }
@@ -338,6 +349,18 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
             for (Servicos list1 : list) {
                 listServicos.put(list1.getDescricao(), list1.getId());
             }
+        }
+    }
+
+    public void loadListFilial() {
+        listFilial = new ArrayList<>();
+        selectedServicos = new ArrayList<>();
+        List<Filial> list = new Dao().list(new Filial(), true);
+        for(int i = 0; i < list.size(); i++) {
+            if(i == 0) {
+                idFilial = list.get(i).getId();                
+            }
+            listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));            
         }
     }
 
@@ -585,7 +608,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
      * <li>[0] EMISSÃO</li>
      * <li>[1] EMPRESA</li>
      * <li>[2] BENEFICIÁRIO</li>
-     * <li>[3] SERVIÇOS</li>
+     * <li>[3] FILIAl</li>
      * </ul>
      *
      * @return boolean
@@ -612,6 +635,22 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
 
     public void setSelectedServicos(List selectedServicos) {
         this.selectedServicos = selectedServicos;
+    }
+    
+        public List<SelectItem> getListFilial() {
+        return listFilial;
+    }
+
+    public void setListFilial(List<SelectItem> listFilial) {
+        this.listFilial = listFilial;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
     }
 
 }

@@ -122,7 +122,13 @@ public class SubGrupoConvenioBean implements Serializable {
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         SubGrupoConvenioDao sgcdb = new SubGrupoConvenioDao();
-        subGrupoConvenio.setGrupoConvenio((GrupoConvenio) di.find(new GrupoConvenio(), Integer.parseInt(listGrupoConvenio.get(idGrupoConvenio).getDescription())));
+        GrupoConvenio gc = (GrupoConvenio) di.find(new GrupoConvenio(), Integer.parseInt(listGrupoConvenio.get(idGrupoConvenio).getDescription()));
+        List<SubGrupoConvenio> list = sgcdb.listaSubGrupoConvenioPorGrupo(gc.getId());
+        for(int i = 0; i < list.size(); i++) {
+            list.get(i).setPrincipal(false);
+            new Dao().update(list.get(i), true);
+        }
+        subGrupoConvenio.setGrupoConvenio(gc);
         if (subGrupoConvenio.getId() == -1) {
             if (sgcdb.existeSubGrupoConvenio(subGrupoConvenio)) {
                 GenericaMensagem.info("Validação", "SubGrupo já existe!");

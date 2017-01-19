@@ -1,6 +1,6 @@
 {
-    "host": "",
-    "database": "",
-    "password": "",
-    "port": ""
+    "host": "localhost",
+    "database": "ComercioSorocaba",
+    "password": "989899",
+    "port": "5434"
 }

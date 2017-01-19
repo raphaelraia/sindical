@@ -36,9 +36,9 @@
                         <h:outputText value="Configuração Financeiro" styleClass="fonteHeader" />
                         <h:form id="formConfiguracaoFinanceiro">
                             <c:set scope="request" var="object" value="${configuracaoFinanceiroBean.configuracaoFinanceiro}"/>
-                            
+
                             <div style="clear:both"></div>
-                            
+
                             <p:messages id="id_messages" showDetail="true" closable="true" />
                             <p:growl id="id_messages_growl" showDetail="true"  />
 
@@ -51,14 +51,14 @@
                                             <p:ajax event="change" update="formConfiguracaoFinanceiro" listener="#{configuracaoFinanceiroBean.alterModalTransferencia()}"/>
                                         </p:selectBooleanCheckbox>
                                     </h:column>
-                                    
+
                                     <h:column rendered="#{configuracaoFinanceiroBean.configuracaoFinanceiro.transferenciaAutomaticaCaixa}">
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoFinanceiroBean.configuracaoFinanceiro.modalTransferencia}" itemLabel="Modal de Transferência" style="margin-right: 20px">
                                             <p:ajax event="change" update="formConfiguracaoFinanceiro" />
                                         </p:selectBooleanCheckbox>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoFinanceiroBean.configuracaoFinanceiro.alterarValorFechamento}" itemLabel="Alterar valor do Fechamento" style="margin-right: 20px">
@@ -67,7 +67,7 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:panel>
                                 <p:outputLabel value="Controle de Caixa" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="2">
@@ -79,7 +79,7 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:panel header="Pessoas" styleClass="margin-top-max">
                                 <h:panelGrid columns="2">
                                     <h:outputLabel value="Carência dias" />
@@ -88,8 +88,10 @@
                                     </p:inputText>
                                 </h:panelGrid>
                             </p:panel>
-                            
-                            <p:commandButton value="Atualizar" action="#{configuracaoFinanceiroBean.update()}" update="formConfiguracaoFinanceiro" styleClass="margin-top-max"/>
+                            <h:panelGrid columns="2" styleClass="margin-top-max">
+                                <p:commandButton value="Atualizar" action="#{configuracaoFinanceiroBean.update()}" update="formConfiguracaoFinanceiro" />
+                                <p:commandButton value="Impressora Cheque" action="#{chamadaPaginaBean.pagina('configuracaoImpressoraCheque')}" ajax="false" immediate="true" icon="ui-icon-gear" title="CONFIGURAR MEUS DISPOSITIVOS"/>
+                            </h:panelGrid>
                         </h:form>
                     </p:panel>
                 </f:view>

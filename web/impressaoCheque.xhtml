@@ -53,7 +53,7 @@
                                         </p:selectOneMenu>
                                     </p:column>
 
-                                    <p:column rendered="#{impressaoChequeBean.statusCheque eq 'emitir'}">
+                                    <p:column rendered="#{impressaoChequeBean.statusCheque eq 'emitir' or (impressaoChequeBean.statusCheque eq 'emitidos')}">
                                         <h:outputLabel value="Impressora"/><br />
                                         <p:selectOneMenu value="#{impressaoChequeBean.indexImpressora}">
                                             <p:ajax event="change" update="@this" global="false"/>
@@ -65,12 +65,12 @@
 
                             <p:messages showDetail="true" closable="true" />
 
-                            <p:dataTable var="linha" id="tbl" value="#{impressaoChequeBean.listaCheques}" emptyMessage="Nenhum Cheque Encontrado." rowIndexVar="index">
-                                <p:column style="width:15px">  
+                            <p:dataTable var="linha" id="tbl" value="#{impressaoChequeBean.listaCheques}" emptyMessage="Nenhum Cheque Encontrado." rowIndexVar="index" paginator="true" rows="10">
+                                <p:column width="15">  
                                     <p:rowToggler />  
                                 </p:column>  
 
-                                <p:column headerText="Banco" style="width: 150px">
+                                <p:column headerText="Banco" width="150">
                                     <p:outputLabel value="#{linha.codigo_banco} - #{linha.banco}" />
                                 </p:column>
 

@@ -66,22 +66,39 @@ public class VerificaImpressoraCheque implements Serializable {
         try {
             WSImpressoraCheque ws = new WSImpressoraCheque();
             if (request.getParameter("numero_impressora") != null) {
-                Integer nr_impressora = Integer.parseInt(request.getParameter("numero_impressora"));
+                ImpressoraCheque ic;
+                Integer nr_impressora = null;
+                String mac = null;
+                try {
+                    nr_impressora = Integer.parseInt(request.getParameter("numero_impressora"));
+                } catch (Exception e) {
+                    mac = request.getParameter("numero_impressora");
+                }
+                if (nr_impressora != null) {
+                    ic = new ImpressaoChequeDao().pesquisaImpressoraNumero(nr_impressora);
+                } else {
+                    if (mac == null) {
+                        return;
+                    }
+                    ic = new ImpressaoChequeDao().pesquisaImpressoraMac(mac);
+                }
                 Dao dao = new Dao();
 
-                ImpressoraCheque ic = new ImpressaoChequeDao().pesquisaImpressoraNumeroAtiva(nr_impressora);
+                // ImpressoraCheque ic = new ImpressaoChequeDao().pesquisaImpressoraNumeroAtiva(mac);
                 if (ic != null) {
                     ic = (ImpressoraCheque) dao.rebind(ic);
                     ws = new WSImpressoraCheque(
                             ic.getId(),
-                            ic.getImpressora(), ic.getApelido(),
-                            ic.getAtivo(),
-                            ic.getBanco(),
-                            ic.getValor(),
-                            ic.getFavorecido(),
-                            ic.getCidade(),
-                            ic.getData(),
-                            ic.getMensagem()
+                            ic.getImpressora(),
+                            (ic.getApelido() == null ? "" : ic.getApelido()),
+                            (ic.getAtivo() == null ? false : ic.getAtivo()),
+                            (ic.getBanco() == null ? "" : ic.getBanco()),
+                            (ic.getValor() == null ? "" : ic.getValor()),
+                            (ic.getFavorecido() == null ? "" : ic.getFavorecido()),
+                            (ic.getCidade() == null ? "" : ic.getCidade()),
+                            (ic.getData() == null ? "" : ic.getData()),
+                            (ic.getMensagem() == null ? "" : ic.getMensagem()),
+                            (ic.getMac() == null ? "" : ic.getMac())
                     );
                 }
 
@@ -131,11 +148,23 @@ public class VerificaImpressoraCheque implements Serializable {
 
         try {
             if (request.getParameter("numero_impressora") != null) {
-                Integer nr_impressora = Integer.parseInt(request.getParameter("numero_impressora"));
+                ImpressoraCheque ic;
+                Integer nr_impressora = null;
+                String mac = null;
+                try {
+                    nr_impressora = Integer.parseInt(request.getParameter("numero_impressora"));
+                } catch (Exception e) {
+                    mac = request.getParameter("numero_impressora");
+                }
+                if (nr_impressora != null) {
+                    ic = new ImpressaoChequeDao().pesquisaImpressoraNumero(nr_impressora);
+                } else {
+                    if (mac == null) {
+                        return;
+                    }
+                    ic = new ImpressaoChequeDao().pesquisaImpressoraMac(mac);
+                }
                 Dao dao = new Dao();
-
-                ImpressoraCheque ic = new ImpressaoChequeDao().pesquisaImpressoraNumero(nr_impressora);
-
                 if (ic == null) {
                     externalContext.getResponseOutputWriter().write(new JSONObject("{\"ativa\":false}").toString());
                     facesContext.responseComplete();
@@ -196,12 +225,25 @@ public class VerificaImpressoraCheque implements Serializable {
 
         try {
             if (request.getParameter("numero_impressora") != null) {
-                Integer nr_impressora = Integer.parseInt(request.getParameter("numero_impressora"));
+                ImpressoraCheque ic;
+                Integer nr_impressora = null;
+                String mac = null;
+                try {
+                    nr_impressora = Integer.parseInt(request.getParameter("numero_impressora"));
+                } catch (Exception e) {
+                    mac = request.getParameter("numero_impressora");
+                }
+                if (nr_impressora != null) {
+                    ic = new ImpressaoChequeDao().pesquisaImpressoraNumero(nr_impressora);
+                } else {
+                    if (mac == null) {
+                        return;
+                    }
+                    ic = new ImpressaoChequeDao().pesquisaImpressoraMac(mac);
+                }
+
                 String mensagem = request.getParameter("mensagem");
-
                 Dao dao = new Dao();
-
-                ImpressoraCheque ic = new ImpressaoChequeDao().pesquisaImpressoraNumero(nr_impressora);
 
                 if (ic == null) {
                     externalContext.getResponseOutputWriter().write(new JSONObject("{\"status\":false}").toString());

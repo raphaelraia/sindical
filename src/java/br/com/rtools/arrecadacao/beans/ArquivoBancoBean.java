@@ -1539,7 +1539,7 @@ public final class ArquivoBancoBean implements Serializable {
                 // BANCO DO BRASIL ------------------------------------------------------------------------------
             } else if (ArquivoRetorno.BANCO_BRASIL == scc.getContaBanco().getBanco().getId()) {
                 if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                    if (linha.substring(66, 70).equals(scc.getCodCedente())) {
+                    if (linha.substring(64, 70).equals(scc.getCodCedente()) || linha.substring(65, 70).equals(scc.getCodCedente())  || linha.substring(66, 70).equals(scc.getCodCedente())) {
                         return true;
                     } else {
                         return false;

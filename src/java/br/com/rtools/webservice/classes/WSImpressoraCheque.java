@@ -24,6 +24,7 @@ public class WSImpressoraCheque {
     private String cidade;
     private String data;
     private String mensagem;
+    private String mac;
 
     public WSImpressoraCheque() {
         this.id = -1;
@@ -36,9 +37,10 @@ public class WSImpressoraCheque {
         this.cidade = "";
         this.data = "";
         this.mensagem = "";
+        this.mac = "";
     }
-    
-    public WSImpressoraCheque(int id, Integer impressora, String apelido, Boolean ativo, String banco, String valor, String favorecido, String cidade, String data, String mensagem) {
+
+    public WSImpressoraCheque(int id, Integer impressora, String apelido, Boolean ativo, String banco, String valor, String favorecido, String cidade, String data, String mensagem, String mac) {
         this.id = id;
         this.impressora = impressora;
         this.apelido = apelido;
@@ -130,4 +132,13 @@ public class WSImpressoraCheque {
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
     }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
 }

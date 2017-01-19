@@ -55,6 +55,8 @@
                     </p:dialog>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Impressão de Boleto Social" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:outputText value="#{genericaMensagem.getHtmlMessage('block', '!!! ##### REGISTRO DE BOLETO EM TESTE #### !!!')}" escape="false" rendered="#{imprimirBoleto.teste}" />
                         <h:form id="formImpressaoBoletoSocial">
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:outputLabel value="Opção Marcar" style="font-size: 12pt!important"/><br />

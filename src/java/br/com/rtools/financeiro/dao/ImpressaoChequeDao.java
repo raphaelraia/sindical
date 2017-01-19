@@ -124,11 +124,39 @@ public class ImpressaoChequeDao extends DB {
         }
     }
 
+    public ImpressoraCheque pesquisaImpressoraNumeroAtiva(String mac) {
+        String queryString
+                = "SELECT ic.* \n "
+                + "  FROM fin_impressora_cheque AS ic \n "
+                + " WHERE ic.ds_mac = '" + mac + "' \n "
+                + "   AND ic.is_ativo = TRUE \n "
+                + "   AND ic.ds_favorecido IS NOT NULL AND ic.ds_favorecido <> ''";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, ImpressoraCheque.class);
+            return (ImpressoraCheque) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public ImpressoraCheque pesquisaImpressoraNumero(Integer numero) {
         String queryString
                 = "SELECT ic.* \n "
                 + "  FROM fin_impressora_cheque AS ic \n "
                 + " WHERE ic.nr_impressora = " + numero;
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, ImpressoraCheque.class);
+            return (ImpressoraCheque) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public ImpressoraCheque pesquisaImpressoraMac(String mac) {
+        String queryString
+                = "SELECT ic.* \n "
+                + "  FROM fin_impressora_cheque AS ic \n "
+                + " WHERE ic.ds_mac LIKE '" + mac + "'";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, ImpressoraCheque.class);
             return (ImpressoraCheque) qry.getSingleResult();

@@ -2379,6 +2379,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>configuracaoImpressoraCheque</from-outcome>
+            <to-view-id>/configuracaoImpressoraCheque.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

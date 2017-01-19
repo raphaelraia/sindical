@@ -19,13 +19,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.primefaces.component.tabview.Tab;
 import org.primefaces.event.TabChangeEvent;
 
@@ -80,6 +84,14 @@ public class RegistroEmpresarialBean implements Serializable {
         }
         if (registro == null) {
             return;
+        }
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc != null) {
+            Map<String, Object> cookies = fc.getExternalContext().getRequestCookieMap();
+            Cookie cookieWebServiceBoletoTest = (Cookie) cookies.get("webServiceBoletoTest");
+            if (cookieWebServiceBoletoTest != null) {
+                webServiceBoletoTest = Boolean.parseBoolean(cookieWebServiceBoletoTest.getValue());
+            }
         }
     }
 
@@ -354,6 +366,30 @@ public class RegistroEmpresarialBean implements Serializable {
     }
 
     public void setWebServiceBoletoTest(Boolean webServiceBoletoTest) {
+        try {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            if (fc != null) {
+                Map<String, Object> cookies = fc.getExternalContext().getRequestCookieMap();
+                Cookie cookieWebServiceBoletoTest = (Cookie) cookies.get("webServiceBoletoTest");
+                if (cookieWebServiceBoletoTest != null) {
+                    Boolean wst = Boolean.parseBoolean(cookieWebServiceBoletoTest.getValue());
+                    if(!Objects.equals(wst, webServiceBoletoTest)) {
+                            cookieWebServiceBoletoTest = new Cookie("webServiceBoletoTest", Boolean.toString(webServiceBoletoTest));
+                            // Adiciona
+                            ((HttpServletResponse) fc.getExternalContext().getResponse()).addCookie(cookieWebServiceBoletoTest);                        
+                    }
+                } else {
+                    if (fc != null) {
+                        // Cria cookie
+                        cookieWebServiceBoletoTest = new Cookie("webServiceBoletoTest", Boolean.toString(webServiceBoletoTest));
+                        // Adiciona
+                        ((HttpServletResponse) fc.getExternalContext().getResponse()).addCookie(cookieWebServiceBoletoTest);
+                    }
+                }
+            }            
+        } catch (Exception e) {
+            
+        }
         if (webServiceBoletoTest) {
             GenericaSessao.put("webServiceBoletoTest", true);
         } else {

@@ -1058,8 +1058,10 @@ public class EmissaoGuiasBean implements Serializable {
                 SubGrupoConvenioDao db = new SubGrupoConvenioDao();
                 List<SubGrupoConvenio> list = (List<SubGrupoConvenio>) db.listaSubGrupoConvenioPorGrupo(Integer.parseInt(listSelectItem[0].get(index[0]).getDescription()));
                 for (int i = 0; i < list.size(); i++) {
-                    listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())
-                    ));
+                    if (list.get(i).getPrincipal()) {
+                        index[1] = i;
+                    }
+                    listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
                 }
                 if (listSelectItem[1].isEmpty()) {
                     listSelectItem[1] = new ArrayList();

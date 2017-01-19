@@ -56,6 +56,7 @@
                                 <p:commandLink value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing', 'tmktHistoricoBean')}" immediate="true" styleClass="font-size-14 font-color-blue" actionListener="#{genericaSessao.putObject('pessoaPesquisa', movimentosReceberSocialBean.pessoa)}" />
                             </h:panelGrid>
                             <div class="clear"></div>
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('block', '!!! ##### REGISTRO DE BOLETO EM TESTE #### !!!')}" escape="false" rendered="#{imprimirBoleto.teste}" />
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso}" />
                             <h:panelGrid columns="3" style="float: right">
                                 <p:column>
@@ -533,7 +534,7 @@
                                 <p:ajax event="close" listener="#{movimentosReceberSocialBean.setVisibleAnexar(false)}"/>  
 
                                 <h:panelGrid id="panel_anexar_boletos">
-                                    <p:messages autoUpdate="false" closable="true" showDetail="true" />
+                                    <p:messages autoUpdate="true" closable="true" showDetail="true" />
 
                                     <p:outputLabel value="BOLETOS DISPONÍVEIS" style="font-size: 13pt!important; font-weight: bold"/>
 
@@ -546,7 +547,7 @@
                                             <p:commandLink value="* VER MOVIMENTOS *" oncomplete="PF('dlg_movimentos_do_boleto').show()" action="#{movimentosReceberSocialBean.loadListaMovimentoDoBoleto(linha_boleto_anexo)}" update="formMovimentosReceber:tbl_movimentos_do_boleto" style="font-weight: bold"/>
                                         </p:column>  
 
-                                        <p:column headerText="Número"  style="text-align: right; width: 60px;">
+                                        <p:column headerText="Número" width="80" styleClass="text-center">
                                             <h:outputText value="#{linha_boleto_anexo.listaQuery[2]}" />
                                         </p:column>
 
@@ -559,7 +560,7 @@
                                             <p:outputLabel value="#{movimentosReceberSocialBean.converteData(linha_boleto_anexo.listaQuery[4])}" rendered="#{movimentosReceberSocialBean.cab.verificarPermissao('alterarVencimentoBoletoSocial', 3)}" style="font-size: 11pt!important"/>
                                         </p:column>
 
-                                        <p:column headerText="Vencimento Original" style="width: 100px; text-align: center">
+                                        <p:column headerText="Vencto Original" width="80" styleClass="text-center">
                                             <p:outputLabel value="#{movimentosReceberSocialBean.converteData(linha_boleto_anexo.listaQuery[5])}" />
                                         </p:column>
 
@@ -567,8 +568,8 @@
                                             <p:commandLink value="#{(linha_boleto_anexo.listaQuery[6] eq '' or linha_boleto_anexo.listaQuery[6] eq null) ? 'ADICIONAR MENSAGEM' : linha_boleto_anexo.listaQuery[6]}" action="#{movimentosReceberSocialBean.selecionaMensagemBoleto(linha_boleto_anexo.boleto.id)}" oncomplete="PF('dlg_mensagem_boleto').show()" update=":formMovimentosReceber:panelAlterarMensagem"/>
                                         </p:column>
 
-                                        <p:column style="text-align: center; width: 40px">
-                                            <p:commandButton icon="ui-icon-print" ajax="false" onclick="this.form.target = '_blank'" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0])}" style="font-weight: bold" title="IMPRIMIR BOLETO"/>
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-print" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0])}" style="font-weight: bold" title="IMPRIMIR BOLETO"/>
                                         </p:column>
                                     </p:dataTable>
 

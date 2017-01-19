@@ -41,7 +41,6 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
-import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +56,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 import javax.activation.MimetypesFileTypeMap;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
@@ -86,6 +88,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.primefaces.json.JSONObject;
 
+@ManagedBean
+@ViewScoped
 public class ImprimirBoleto {
 
     private String pathPasta = "";
@@ -178,10 +182,7 @@ public class ImprimirBoleto {
         }
 
         try {
-            Boolean teste = false;
-            if (GenericaSessao.exists("webServiceBoletoTest")) {
-                teste = GenericaSessao.getBoolean("webServiceBoletoTest");
-            }
+            Boolean teste = getTeste();
 
             CloseableHttpClient httpclient = HttpClients.createDefault();
             HttpPost httppost;
@@ -309,7 +310,7 @@ public class ImprimirBoleto {
             if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
             } else {
-                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto");
+                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/imprimir_boleto_test");
             }
 
             params = new ArrayList(2);
@@ -443,10 +444,7 @@ public class ImprimirBoleto {
             }
 
             try {
-                Boolean teste = false;
-                if (GenericaSessao.exists("webServiceBoletoTest")) {
-                    teste = GenericaSessao.getBoolean("webServiceBoletoTest");
-                }
+                Boolean teste = getTeste();
                 HttpPost httppost;
                 CloseableHttpClient httpclient = HttpClients.createDefault();
                 if (!teste) {
@@ -2633,6 +2631,15 @@ public class ImprimirBoleto {
                     if (hash.get("boleto") != null) {
                         boleto = (Boleto) hash.get("boleto");
                     } else {
+                        if(hash.get("boleto") == null) {
+                            if(hash.get("mensagem") != null) {
+                                if(!hash.get("mensagem").toString().isEmpty()) {
+                                    if(hash.get("mensagem").toString().contains("Erro")) {
+                                        GenericaMensagem.warn(hash.get("mensagem").toString(), "");
+                                    }
+                                }
+                            }
+                        }
                         return new byte[0];
                     }
                 }
@@ -3098,5 +3105,26 @@ public class ImprimirBoleto {
 
     public void setPathPasta(String pathPasta) {
         this.pathPasta = pathPasta;
+    }
+
+    public Boolean getTeste() {
+        Boolean teste = false;
+        if (!GenericaSessao.exists("webServiceBoletoTest")) {
+            try {
+                FacesContext fc = FacesContext.getCurrentInstance();
+                if (fc != null) {
+                    Map<String, Object> cookies = fc.getExternalContext().getRequestCookieMap();
+                    Cookie cookieWebServiceBoletoTest = (Cookie) cookies.get("webServiceBoletoTest");
+                    if (cookieWebServiceBoletoTest != null) {
+                        teste = Boolean.parseBoolean(cookieWebServiceBoletoTest.getValue());
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+        } else {
+            teste = GenericaSessao.getBoolean("webServiceBoletoTest");
+        }
+        return teste;
     }
 }

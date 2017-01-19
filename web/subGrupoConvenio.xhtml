@@ -22,7 +22,7 @@
                     <c:set scope="request" var="object" value="${subGrupoConvenioBean.subGrupoConvenio}"/>  
                     <p:panel>
                         <p:panelGrid id="id_panel_grid_novo" columns="1" styleClass="margin-top sbb">
-                            <h:panelGrid columns="6">
+                            <h:panelGrid columns="10">
                                 <p:outputLabel value="Grupo: " for="idSGrupo"/>
                                 <h:selectOneMenu id="idSGrupo" value="#{subGrupoConvenioBean.idGrupoConvenio}">
                                     <p:ajax event="change" update="@this" />
@@ -31,6 +31,8 @@
                                 </h:selectOneMenu>
                                 <p:outputLabel value="Descrição: " for="idSubgrupo"/>
                                 <p:inputText id="idSubgrupo" value="#{subGrupoConvenioBean.subGrupoConvenio.descricao}" size="50" maxlength="50" placeholder="Descrição"/>
+                                <h:column></h:column>
+                                <p:selectBooleanCheckbox value="#{subGrupoConvenioBean.subGrupoConvenio.principal}" itemLabel="Principal" />
                                 <h:column>
                                     <p:commandButton value="Salvar" action="#{subGrupoConvenioBean.add()}" update="growl id_subgrupos :form_subgrupo_convenio:id_subgrupos_filtro" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                     <p:commandButton value="Novo" action="#{subGrupoConvenioBean.novo()}" update="id_panel_grid_novo"  styleClass="margin-left-max"/>                        
