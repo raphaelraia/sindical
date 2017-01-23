@@ -1711,6 +1711,11 @@ public class MovimentosReceberSocialBean implements Serializable {
                 if (pcr == null) {
                     pcr = new PessoaComplemento();
                 }
+                String importacao = null;
+                try {
+                    importacao = ((Date) lista.get(i).get(27)).toString();
+                } catch (Exception e) {
+                }
                 listaMovimento.add(new DataObject(
                         chk, // ARG 0
                         (Movimento) new Dao().find(new Movimento(), lista.get(i).get(14)), // ARG 1 Movimento
@@ -1745,7 +1750,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                         lista.get(i).get(25), // ARG 30 NOME TITULAR
                         pcb, // ARG 31 PESSOA COMPLEMENTO BENEFICIÁRIO
                         pcr, // ARG 32 PESSOA COMPLEMENTO TITULAR
-                        null,
+                        DataHoje.converteData(DataHoje.converteDateSqlToDate(importacao)),  // ARG 33 DATA IMPORTAÇÃO
                         null
                 )
                 );

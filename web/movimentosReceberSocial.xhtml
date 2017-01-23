@@ -367,7 +367,7 @@
                                 </p:column>
 
                                 <p:rowExpansion>
-                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop">
+                                    <h:panelGrid columns="5" styleClass="sbb" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop" style="height: 40px; width: 600px!important">
                                         <p:column>
                                             <p:outputLabel value="Responsável" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha.argumento13}"/><br /><br />
@@ -383,10 +383,10 @@
                                             <p:outputLabel value="Beneficiário" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha.argumento14}"/><br /><br />
                                             <p:outputLabel value="Aviso: #{linha.argumento31.obsAviso}" rendered="#{linha.argumento31.bloqueiaObsAviso}" styleClass="font-color-red"/>
-                                        </p:column>
+                                        </p:column>                                       
                                     </h:panelGrid>
 
-                                    <h:panelGrid styleClass="margin-top-max sbb" columns="4">
+                                    <h:panelGrid styleClass="margin-top-max sbb" columns="3" style="width: 600px!important">
                                         <p:column>
                                             <p:outputLabel value="Rotina" styleClass="bold"/><br />
                                             <p:outputLabel value="#{linha.argumento1.lote.rotina.rotina}" />                                            
@@ -394,6 +394,10 @@
                                         <p:column>
                                             <p:outputLabel value="Boleto" styleClass="bold"/><br />
                                             <p:outputLabel value="#{linha.argumento17}" />
+                                        </p:column>                                             
+                                        <p:column>
+                                            <p:outputLabel value="Importação" styleClass="bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento33}"/>
                                         </p:column>
                                     </h:panelGrid>
 
@@ -440,9 +444,9 @@
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente EXCLUIR esse acordo?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <p:messages id="i_msg_acordo" closable="true" showDetail="true"/>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{movimentosReceberSocialBean.excluirAcordo()}" title="Excluir acordo selecionado" update="i_msg_acordo"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar exclusão de Acordos" onclick="PF('dlg_excluir_acordo').hide()" global="false"/>

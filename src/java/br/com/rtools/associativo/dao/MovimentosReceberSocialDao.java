@@ -86,7 +86,8 @@ public class MovimentosReceberSocialDao extends DB {
                     + "           m.id_baixa                AS lote_baixa,                          \n" // 23 - LOTE BAIXA -> ID
                     + "           l.ds_documento            AS documento,                           \n" // 24 - MOVIMENTO -> DOCUMENTO
                     + "           t.ds_nome                 AS titular,                             \n" // 25 - TITULAR -> NOME
-                    + "           b.id AS id_beneficiario                                           \n" // 26 - BENEFECIÁRIO -> ID
+                    + "           b.id                      AS id_beneficiario,                     \n" // 26 - BENEFECIÁRIO -> ID
+                    + "           bx.dt_importacao          AS data_importacao                      \n" // 27 - DATA IMPORTAÇÃO
                     + "      FROM fin_movimento     AS m                                            \n"
                     + "INNER JOIN fin_lote          AS l  ON l.id = m.id_lote           \n"
                     + "INNER JOIN pes_pessoa        AS p  ON p.id = m.id_pessoa         \n"

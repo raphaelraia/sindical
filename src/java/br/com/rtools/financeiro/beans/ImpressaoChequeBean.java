@@ -112,30 +112,53 @@ public class ImpressaoChequeBean implements Serializable {
         }
         dao.commit();
 
+        // IMPORTANTE: EVITAR UTILIZAR WHILE SEM COLOCAR SLEEP, POIS O SISTEMA CAI,
+        // DEVIDO A QUANTIDADE DE REQUISIÇÕES AO BANCO
+        int i = 0;
         while (ic.getMensagemErro().equals("imprimindo")) {
-            ic = (ImpressoraCheque) dao.rebind(ic);
-        }
-
-        if (ic.getMensagemErro().isEmpty()) {
-            ChequePag cp = (ChequePag) dao.find(new ChequePag(), imprimirCheque.getLinhaCheque().getCheque_id());
-            cp = (ChequePag) dao.rebind(cp);
-
-            cp.setDtImpressao(DataHoje.dataHoje());
-            cp.setOperadorImpressao(Usuario.getUsuario());
-
-            dao.openTransaction();
-            if (!dao.update(cp)) {
-                GenericaMensagem.error("Atenção", "Erro ao atualizar Cheque!");
-                dao.rollback();
-                return;
+            if (i == 15) {
+                break;
             }
-            dao.commit();
+            ic = (ImpressoraCheque) dao.rebind(ic);
+            try {
+                Thread.sleep(3000);
+            } catch (Exception e) {
 
-            loadListaCheques();
+            }
+            i++;
+        }
+        if (i != 15) {
+            if (ic.getMensagemErro().isEmpty()) {
+                ChequePag cp = (ChequePag) dao.find(new ChequePag(), imprimirCheque.getLinhaCheque().getCheque_id());
+                cp = (ChequePag) dao.rebind(cp);
 
-            GenericaMensagem.info("Sucesso", "Dados enviados para impressora!");
+                cp.setDtImpressao(DataHoje.dataHoje());
+                cp.setOperadorImpressao(Usuario.getUsuario());
+
+                dao.openTransaction();
+                if (!dao.update(cp)) {
+                    GenericaMensagem.error("Atenção", "Erro ao atualizar Cheque!");
+                    dao.rollback();
+                    return;
+                }
+                dao.commit();
+
+                loadListaCheques();
+
+                GenericaMensagem.info("Sucesso", "Dados enviados para impressora!");
+            } else {
+                GenericaMensagem.error("Erro ao imprimir cheque", ic.getMensagemErro());
+            }
         } else {
-            GenericaMensagem.error("Erro ao imprimir cheque", ic.getMensagemErro());
+            GenericaMensagem.error("ERRO", "IMPRESSORA DESCONECTADA! TENTE NOVAMENTE.");
+            ic.setBanco("");
+            ic.setCidade("");
+            ic.setData("");
+            ic.setFavorecido("");
+            ic.setMensagem("");
+            ic.setValor("");
+            ic.setMensagemErro("");
+            dao.update(ic, true);
         }
 
     }
@@ -245,8 +268,8 @@ public class ImpressaoChequeBean implements Serializable {
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 String dispostivo = "";
-                if(result.get(i).getMacFilial() != null) {
-                    dispostivo = " - " + result.get(i).getMacFilial().getDescricao();                    
+                if (result.get(i).getMacFilial() != null) {
+                    dispostivo = " - " + result.get(i).getMacFilial().getDescricao();
                 }
                 listaImpressora.add(
                         new SelectItem(
@@ -255,7 +278,7 @@ public class ImpressaoChequeBean implements Serializable {
                                 Integer.toString(result.get(i).getId())
                         )
                 );
-                if(MacFilial.getAcessoFilial().getMac().equals(result.get(i).getMac())) {
+                if (MacFilial.getAcessoFilial().getMac().equals(result.get(i).getMac())) {
                     indexImpressora = i;
                 }
             }
