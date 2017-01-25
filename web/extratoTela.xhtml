@@ -204,7 +204,7 @@
                                 </h:panelGrid>
                             </p:panel>
                             <p:messages id="i_msg" closable="true" showDetail="true"/>
-                            <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="500" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
+                            <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="10" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
@@ -311,6 +311,14 @@
                                         <p:column>
                                             <p:outputLabel value="Acordo" style="font-weight: bold" rendered="#{not empty movimentos.argumento27}" /><br />
                                             <p:commandLink value="#{movimentos.argumento27[0].acordo.id} (Visualizar)" rendered="#{not empty movimentos.argumento27}"  action="#{extratoTelaBean.setListMovimentosAcordo(movimentos.argumento27)}" onclick="PF('dlg_acordos').show()" update=":formExtratoTelaOpcoes:i_m_a" styleClass="bold font-color-blue" title="Visualizar esta lista"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{extratoTelaBean.porPesquisa == 'recebidas'}">
+                                                <h:commandLink target="#{baixaGeralBean.targetImprimeRecibo(movimentos.argumento1)}" action="#{baixaGeralBean.recibo2Via(movimentos.argumento1)}" rendered="#{movimentos.argumento28 eq 'CAIXA'}" title="Imprimir este Recibo">
+                                                    <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo" value="2ª Via de Recibo"/>
+                                                </h:commandLink>
+                                            </p:column>                                
+
                                         </p:column>
                                     </h:panelGrid>
                                     <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">                                        
@@ -488,7 +496,7 @@
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente gerar Arquivo Remessa desses arquivos?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandLink action="#{extratoTelaBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK">
                                         <p:commandButton icon="ui-icon-print" value="Gerar Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>

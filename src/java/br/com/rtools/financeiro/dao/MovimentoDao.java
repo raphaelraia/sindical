@@ -573,28 +573,29 @@ public class MovimentoDao extends DB {
         } else {
             ordem += "ba.dt_importacao desc";
         }
-        textQuery = "select m.id            as id, \n "
-                + "       p.ds_documento  as documento, \n "
-                + "       p.ds_nome       as nome, \n "
-                + "       m.ds_documento  as boleto, \n "
-                + "       s.ds_descricao  as contribuicao, \n "
-                + "       m.ds_referencia as referencia, \n "
-                + "       m.dt_vencimento as vencimento, \n "
+        textQuery = "select m.id            as id, \n " // 0
+                + "       p.ds_documento  as documento, \n " // 1
+                + "       p.ds_nome       as nome, \n " //2 
+                + "       m.ds_documento  as boleto, \n "// 3
+                + "       s.ds_descricao  as contribuicao, \n " //4
+                + "       m.ds_referencia as referencia, \n "//5
+                + "       m.dt_vencimento as vencimento, \n "//6
                 + "       ba.dt_importacao as importacao, \n "
                 + "       m.nr_valor      as valor, \n "
                 + "       m.nr_taxa       as taxa, \n "
-                + "       pu.ds_nome      as nomeUsuario, \n "
-                + "       t.ds_descricao  as tipo, \n "
+                + "       pu.ds_nome      as nomeUsuario, \n "//10
+                + "       t.ds_descricao  as tipo, \n "//11
                 + "       ba.dt_baixa     as quitacao, \n "
                 + "       m.nr_multa      as multa, \n "
                 + "       m.nr_juros      as juros, \n "
-                + "       m.nr_correcao   as correcao, \n "
-                + "       m.nr_desconto   as desconto, \n "
-                + "       cc.nr_repasse   as repasse, \n "
+                + "       m.nr_correcao   as correcao, \n "//15
+                + "       m.nr_desconto   as desconto, \n "//16
+                + "       cc.nr_repasse   as repasse, \n "//17
                 + "       case when l.id = null              then 0 else l.id end   as id_baixa, \n "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, \n "
                 + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, \n "
-                + "       m.nr_valor_baixa as valor_baixa \n "
+                + "       m.nr_valor_baixa as valor_baixa,\n "
+                + "       UPPER(P5.ds_conta) AS conta                           \n "//22
                 + "  from fin_movimento m \n "
                 + "  left join fin_baixa ba on (m.id_baixa = ba.id) \n "
                 + "  left join fin_lote l on (m.id_lote = l.id) \n "
@@ -602,10 +603,12 @@ public class MovimentoDao extends DB {
                 + "  left join pes_pessoa pu    on (pu.id = u.id_pessoa) \n "
                 + "  left join fin_boleto b     on (b.nr_ctr_boleto = cast(m.id as text)) \n "
                 + "  left join fin_conta_cobranca cc on (cc.id = b.id_conta_cobranca) \n "
-                + "  left join pes_filial f on (f.id = l.id_filial) \n "
-                + "  left join pes_juridica pj on (pj.id = f.id_filial) \n "
-                + "  left join pes_pessoa pf on (pf.id = pj.id_pessoa) \n "
-                + "  left join pes_pessoa pb on (pb.id = m.id_beneficiario), \n "
+                + "  left join pes_filial f on (f.id = l.id_filial)             \n "
+                + "  left join pes_juridica pj on (pj.id = f.id_filial)         \n "
+                + "  left join pes_pessoa pf on (pf.id = pj.id_pessoa)          \n "
+                + "  left join pes_pessoa pb on (pb.id = m.id_beneficiario)     \n "
+                + "  left join fin_forma_pagamento FP ON FP.id_baixa = BA.id    \n "
+                + "  left join fin_plano5 P5 ON P5.id = FP.id_plano5,           \n "
                 + "       pes_pessoa p, \n "
                 + "       fin_servicos s, \n "
                 + "       fin_tipo_servico t \n "

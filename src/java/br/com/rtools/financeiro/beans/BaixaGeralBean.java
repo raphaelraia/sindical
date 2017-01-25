@@ -105,6 +105,7 @@ public class BaixaGeralBean implements Serializable {
 
     private Date dataConciliacao = null;
     private ControleAcessoBean cab = new ControleAcessoBean();
+    private String dataEmissaoRecibo;
 
     @PostConstruct
     public void init() {
@@ -118,8 +119,9 @@ public class BaixaGeralBean implements Serializable {
 
         retornaCaixa();
         loadListaTodosBancos();
-        
+
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
+        dataEmissaoRecibo = "";
     }
 
     public final void loadListaTodosBancos() {
@@ -387,15 +389,15 @@ public class BaixaGeralBean implements Serializable {
                         dataConciliacao = null;
                         return;
                     }
-                    
+
                     pl = (Plano5) new Dao().find(new Plano5(), 1);
                     pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                     dt_conciliacao = dataConciliacao;
-                }    
-            } 
-            
+                }
+            }
+
             listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), null, pl_conciliacao, dt_conciliacao));
-            
+
             numero = "";
             dataConciliacao = null;
         } else {
@@ -646,6 +648,9 @@ public class BaixaGeralBean implements Serializable {
     public void imprimirRecibo() {
         if (!listaMovimentos.isEmpty()) {
             Map map = new HashMap();
+            if (!dataEmissaoRecibo.isEmpty()) {
+                map.put("data_emissao", dataEmissaoRecibo);
+            }
             if (!getObs().isEmpty()) {
                 map.put("obs", obs);
             } else {
@@ -660,6 +665,7 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public void setQuitacao(String quitacao) {
+        this.dataEmissaoRecibo = quitacao;
         this.quitacao = quitacao;
     }
 
@@ -751,7 +757,7 @@ public class BaixaGeralBean implements Serializable {
             // TRUE = não tem permissão
             if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
                 desHabilitaQuitacao = true;
-            }else{
+            } else {
                 desHabilitaQuitacao = false;
             }
         }
@@ -1189,5 +1195,58 @@ public class BaixaGeralBean implements Serializable {
 
     public void setDataConciliacaoString(String dataConciliacaoString) {
         this.dataConciliacao = DataHoje.converte(dataConciliacaoString);
+    }
+
+    public String getDataEmissaoRecibo() {
+        return dataEmissaoRecibo;
+    }
+
+    public void setDataEmissaoRecibo(String dataEmissaoRecibo) {
+        this.dataEmissaoRecibo = dataEmissaoRecibo;
+    }
+
+    public String targetImprimeRecibo(Integer movimento_id) {
+        if (validaImprimeRecibo((Movimento) new Dao().find(new Movimento(), movimento_id))) {
+            return "_blank";
+        }
+        return "";
+    }
+
+    public String targetImprimeRecibo(Movimento mov) {
+        if (validaImprimeRecibo(mov)) {
+            return "_blank";
+        }
+        return "";
+    }
+
+    public Boolean validaImprimeRecibo(Movimento mov) {
+        if (Usuario.getUsuario().getId() != 1) {
+            if (mov.getBaixa() != null && !mov.getBaixa().getImportacao().isEmpty()) {
+                GenericaMensagem.fatal("ATENÇÃO", "RECIBO COM DATA DE IMPORTAÇÃO NÃO PODE SER REIMPRESSO!");
+                return false;
+            }
+            if (mov.getBaixa().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("reimpressao_recibo_outro_operador", 4)) {
+                GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA REIMPRIMIR ESTE RECIBO! (BAIXADO POR: " + mov.getBaixa().getUsuario().getPessoa().getNome() + ")");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public String recibo2Via(Integer movimento_id) {
+        return recibo2Via((Movimento) new Dao().find(new Movimento(), movimento_id));
+    }
+
+    public String recibo2Via(Movimento mov) {
+        ImprimirRecibo ir = new ImprimirRecibo();
+        if (validaImprimeRecibo(mov)) {
+            Map map = new HashMap();
+            map.put("2_via", true);
+            if (!dataEmissaoRecibo.isEmpty()) {
+                map.put("data_emissao", dataEmissaoRecibo);
+            }
+            ir.recibo(mov.getId(), map);
+        }
+        return null;
     }
 }

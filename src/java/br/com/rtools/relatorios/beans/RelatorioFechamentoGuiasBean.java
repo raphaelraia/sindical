@@ -51,8 +51,6 @@ import org.primefaces.event.TabChangeEvent;
 @SessionScoped
 public class RelatorioFechamentoGuiasBean implements Serializable {
 
-
-
     private List<Filters> listFilters;
     private String tipoRelatorio;
     private String tipo;
@@ -76,7 +74,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
      */
     private Integer[] index;
     private List<SelectItem>[] listSelectItem;
-    
+
     private List<SelectItem> listFilial;
     private Integer idFilial;
 
@@ -112,7 +110,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     }
 
     /**
-     * 0 - Período; 1 - Empresa; 2 - Beneficiário;
+     * 0 - Período; 1 - Empresa; 2 - Beneficiário; 3 - Filiais
      */
     public void loadListFilters() {
         listFilters = new ArrayList();
@@ -182,7 +180,15 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                 dtInicial = dataInicial;
                 dtFinal = dataFinal;
             }
-            List list = new RelatorioFechamentoGuiasDao().find(relatorios, idInEmpresas, idInBeneficiarios, in_id_servicos, dtInicial, dtFinal, (idFilial != null ? ("" + idFilial) : null));
+            String inFilialId = "";
+            if (listFilters.get(3).getActive()) {
+                if (idFilial == null) {
+                    inFilialId = "";
+                } else {
+                    inFilialId = "" + idFilial;
+                }
+            }
+            List list = new RelatorioFechamentoGuiasDao().find(relatorios, idInEmpresas, idInBeneficiarios, in_id_servicos, dtInicial, dtFinal, inFilialId);
             if (list.isEmpty()) {
                 GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
                 return;
@@ -356,11 +362,11 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
         listFilial = new ArrayList<>();
         selectedServicos = new ArrayList<>();
         List<Filial> list = new Dao().list(new Filial(), true);
-        for(int i = 0; i < list.size(); i++) {
-            if(i == 0) {
-                idFilial = list.get(i).getId();                
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idFilial = list.get(i).getId();
             }
-            listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));            
+            listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
         }
     }
 
@@ -636,8 +642,8 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     public void setSelectedServicos(List selectedServicos) {
         this.selectedServicos = selectedServicos;
     }
-    
-        public List<SelectItem> getListFilial() {
+
+    public List<SelectItem> getListFilial() {
         return listFilial;
     }
 

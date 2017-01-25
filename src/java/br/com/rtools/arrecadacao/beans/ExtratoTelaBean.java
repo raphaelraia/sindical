@@ -322,7 +322,7 @@ public class ExtratoTelaBean implements Serializable {
                     Moeda.converteR$Float(valor_baixa), // ARG 25 valor_baixa
                     classTbl, // ARG 26 null
                     listMovimentoAcordo, // ARG 27 MOVIMENTOS ACORDO
-                    null // ARG 28 null
+                    linha_list.get(22) // ARG 28 null
             )
             );
 

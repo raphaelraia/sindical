@@ -50,7 +50,7 @@ public class RelatorioFechamentoGuiasDao extends DB {
         if (inIdServicos != null && !inIdServicos.isEmpty()) {
             listWhere.add(" SE.id IN (" + inIdServicos + ") ");
         }
-        if (inIdFilial != null) {
+        if (inIdFilial != null && !inIdFilial.isEmpty()) {
             listWhere.add(" L.id_filial IN (" + inIdFilial + ") ");
         }
         if (!listWhere.isEmpty()) {

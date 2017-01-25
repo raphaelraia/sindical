@@ -862,6 +862,8 @@ public class RelatorioSociosBean implements Serializable {
                 tipoOposicao,
                 tipoBeneficio,
                 tipoFrequencia,
+                isDescontoSocialNenhum(),
+                isDescontoSocialPadrao(),
                 /**
                  * OUTROS
                  */
@@ -1557,6 +1559,7 @@ public class RelatorioSociosBean implements Serializable {
         listDescontoSocial = new LinkedHashMap<>();
         selectedDescontoSocial = new ArrayList<>();
         List<DescontoSocial> list = new Dao().list(new DescontoSocial(), true);
+        listDescontoSocial.put("-- NENHUM --", -1);
         for (int i = 0; i < list.size(); i++) {
             listDescontoSocial.put(list.get(i).getDescricao(), list.get(i).getId());
         }
@@ -1699,19 +1702,47 @@ public class RelatorioSociosBean implements Serializable {
     }
 
     public String inIdDescontoSocial() {
-        String ids = null;
+        String ids = "";
         if (selectedDescontoSocial != null) {
             for (int i = 0; i < selectedDescontoSocial.size(); i++) {
                 if (selectedDescontoSocial.get(i) != null) {
-                    if (ids == null) {
-                        ids = "" + selectedDescontoSocial.get(i);
-                    } else {
-                        ids += "," + selectedDescontoSocial.get(i);
+                    if (Integer.parseInt(selectedDescontoSocial.get(i).toString()) != -1 && Integer.parseInt(selectedDescontoSocial.get(i).toString()) != 1) {
+                        if (ids.isEmpty()) {
+                            ids = "" + selectedDescontoSocial.get(i);
+                        } else {
+                            ids += "," + selectedDescontoSocial.get(i);
+                        }
                     }
                 }
             }
         }
         return ids;
+    }
+
+    public Boolean isDescontoSocialNenhum() {
+        if (selectedDescontoSocial != null) {
+            for (int i = 0; i < selectedDescontoSocial.size(); i++) {
+                if (selectedDescontoSocial.get(i) != null) {
+                    if (Integer.parseInt(selectedDescontoSocial.get(i).toString()) == -1) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean isDescontoSocialPadrao() {
+        if (selectedDescontoSocial != null) {
+            for (int i = 0; i < selectedDescontoSocial.size(); i++) {
+                if (selectedDescontoSocial.get(i) != null) {
+                    if (Integer.parseInt(selectedDescontoSocial.get(i).toString()) == 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public Map<String, Integer> getListGrupoFinanceiro() {

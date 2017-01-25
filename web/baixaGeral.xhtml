@@ -50,9 +50,10 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Baixa Geral" styleClass="fonteHeader" />
+                        <div class="clear"></div>
                         <h:form id="formBaixaGeral">
-                            <h:panelGrid style="clear: both" columns="2" columnClasses="column01, column02">
-                                <p:panel styleClass="fundoCinza" style="height: 200px; ">
+                            <h:panelGrid  columns="2" columnClasses="column01, column02">
+                                <p:panel styleClass="fundoCinza">
                                     <h:panelGrid id="panel01" columns="1" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}" style="width: 100%" columnClasses="column01_panel01">
                                         <p:column>
                                             <h:outputLabel value="Caixa" style="font-size: 12pt!important;"/><br />
@@ -80,7 +81,7 @@
                                         <p:column>
                                             <h:outputLabel value="DT. Quitação" /><br />
                                             <p:inputMask value="#{baixaGeralBean.quitacao}" disabled="#{baixaGeralBean.desHabilitaQuitacao}" mask="99/99/9999" style="margin-right: 10px; opacity: 80; font-weight: bold; text-align: center; width: 80px" title="ALTERAR DATA DE QUITAÇÃO EM CAIXA (Alteração)">
-                                                <p:ajax event="change" listener="#{baixaGeralBean.alteraVencimento}" />
+                                                <p:ajax event="change" listener="#{baixaGeralBean.alteraVencimento}" update="i_dt_emissao"/>
                                             </p:inputMask>
                                         </p:column>
 
@@ -136,6 +137,14 @@
                                             <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 or  baixaGeralBean.tipoPagamento.id == 13 or  baixaGeralBean.tipoPagamento.id == 15}"/>
                                         </p:column>
                                     </h:panelGrid>
+                                    <h:panelGroup id="i_dt_emissao">
+                                        <h:panelGrid columns="4" rendered="#{!baixaGeralBean.desHabilitaQuitacao}" styleClass="margin-top-max">
+                                            <p:outputLabel value="DATA EMISSÃO DO RECIBO" />
+                                            <p:inputMask value="#{baixaGeralBean.dataEmissaoRecibo}" mask="99/99/9999" size="10" converter="#{isDateString}" styleClass="text-center">
+                                                 <p:ajax event="change" update="@this" global="false" />
+                                            </p:inputMask>
+                                        </h:panelGrid>                                        
+                                    </h:panelGroup>
                                 </p:panel>
 
                                 <h:panelGrid>
@@ -148,7 +157,7 @@
                                 </h:panelGrid>
                             </h:panelGrid>
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
-
+                            
                             <p:dataTable var="linha" id="tbl" value="#{baixaGeralBean.listaValores}" rowIndexVar="index" emptyMessage="Nenhum valor adicionado.">
                                 <p:column headerText="Excluir" style="text-align: center; width: 50px">
                                     <p:commandButton icon="ui-icon-trash" action="#{baixaGeralBean.remover(index)}" update=":formBaixaGeral:" />

@@ -48,6 +48,8 @@ public class RelatorioSociosDao extends DB {
      * @param matricula_final
      * @param beneficio
      * @param idade_inicial
+     * @param descontoSocialNenhum
+     * @param descontoSocialPadrao
      * @param frequencia
      * @param idade_final
      * @param carencia_dias
@@ -106,6 +108,8 @@ public class RelatorioSociosDao extends DB {
             String oposicao,
             String beneficio,
             String frequencia,
+            Boolean descontoSocialNenhum,
+            Boolean descontoSocialPadrao,
             /**
              * OUTROS
              */
@@ -399,8 +403,23 @@ public class RelatorioSociosDao extends DB {
             listWhere.add("p.e_id_cidade IN(" + in_cidade_empresa + ")");
         }
         // DESCONTO SOCIAL  ----------
+
         if (in_desconto_social != null && !in_desconto_social.isEmpty()) {
-            listWhere.add("so.id_desconto IN ( " + in_desconto_social + " )");
+            listWhere.add("so.id_desconto IN ( " + in_desconto_social + " ) ");
+        }
+
+        // DESCONTO NENHUM
+        if (descontoSocialNenhum && descontoSocialPadrao) {
+            listWhere.add("((so.nr_desconto = 0) OR (so.nr_desconto > 0 AND so.id_desconto = 1))");
+        } else {
+            if (descontoSocialNenhum) {
+                listWhere.add("so.nr_desconto = 0 ");
+            }
+
+            // DESCONTO PADRÃO
+            if (descontoSocialPadrao) {
+                listWhere.add("so.nr_desconto > 0 AND so.id_desconto = 1");
+            }
         }
 
         /**

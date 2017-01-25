@@ -227,6 +227,8 @@ public class VendasCaravanaBean implements Serializable {
         for (int i = 0; i < listaParcelas.size(); i++) {
             financeiroString += (i + 1) + " | " + listaParcelas.get(i).getVencimento() + " | " + listaParcelas.get(i).getValor() + "\n";
         }
+        
+        String cidade = Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade();
 
         for (ListaReservas lr : listaReservas) {
             Fisica f = (Fisica) lr.getFisica();
@@ -243,7 +245,7 @@ public class VendasCaravanaBean implements Serializable {
                             dh.calcularIdade(f.getNascimento()),
                             f.getNascimento(),
                             vendas.getObservacao(),
-                            caravana.getHoraSaida(),
+                            cidade.toUpperCase() + " ÀS " + caravana.getHoraSaida(),
                             caravana.getHoraRetorno(),
                             "De " + caravana.getDataSaida() + " à " + caravana.getDataRetorno(),
                             DataHoje.calculoDosDias(caravana.getDtSaida(), caravana.getDtRetorno()),
@@ -1229,6 +1231,7 @@ public class VendasCaravanaBean implements Serializable {
                 Dao dao = new Dao();
                 r = (Registro) dao.find(new Registro(), 1);
                 if (r.getId() != -1) {
+                    dao.openTransaction();
                     pc.setNrDiaVencimento(r.getFinDiaVencimentoCobranca());
                     pc.setCobrancaBancaria(true);
                     pc.setPessoa(p);

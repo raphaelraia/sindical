@@ -58,7 +58,7 @@
                             <div class="clear"></div>
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('block', '!!! ##### REGISTRO DE BOLETO EM TESTE #### !!!')}" escape="false" rendered="#{imprimirBoleto.teste}" />
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso}" />
-                            <h:panelGrid columns="3" style="float: right">
+                            <h:panelGrid columns="4" style="float: right">
                                 <p:column>
                                     <p:outputLabel value="Pesquisa por Boleto" style="font-size: 10pt!important; font-weight: bold"/>
                                 </p:column>
@@ -74,6 +74,14 @@
                                             <p:ajax event="blur" update="@this i_message_num_boleto" global="false"/>
                                         </p:inputText>
                                         <p:commandButton icon="ui-icon-search" action="#{movimentosReceberSocialBean.pesquisaBoleto()}" update=":formMovimentosReceber" title="Pesquisar pelo número do Boleto"/>                                        
+                                    </h:panelGrid>
+                                </p:column>
+                                <p:column>
+                                    <h:panelGrid columns="4" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
+                                        <p:outputLabel value="Data emissão recibo" />
+                                        <p:inputMask value="#{movimentosReceberSocialBean.dataEmissaoRecibo}" mask="99/99/9999" size="10" converter="#{isDateString}" styleClass="text-center">
+                                             <p:ajax event="change" update="@this" global="false" />
+                                        </p:inputMask>
                                     </h:panelGrid>
                                 </p:column>
                             </h:panelGrid>
@@ -573,7 +581,7 @@
                                         </p:column>
 
                                         <p:column width="30">
-                                            <p:commandButton icon="ui-icon-print" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0])}" style="font-weight: bold" title="IMPRIMIR BOLETO"/>
+                                            <p:commandButton icon="ui-icon-print" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0])}" style="font-weight: bold" title="IMPRIMIR BOLETO" onclick="this.form.target = '_blank'"/>
                                         </p:column>
                                     </p:dataTable>
 
