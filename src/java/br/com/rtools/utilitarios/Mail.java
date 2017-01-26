@@ -6,6 +6,7 @@ import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.EmailMarketing;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailArquivo;
 import br.com.rtools.sistema.ConfiguracaoDepartamento;
@@ -116,12 +117,16 @@ public class Mail extends MailTemplate implements Serializable {
                 String xAssinatura = "";
                 if (configuracaoDepartamento != null) {
                     xEmail = configuracaoDepartamento.getEmail();
-                    xSenha = configuracaoDepartamento.getSenha();
+                    if (!registro.isSisEmailMarketing()) {
+                        xSenha = configuracaoDepartamento.getSenha();
+                    }
                     xEmailResposta = configuracaoDepartamento.getEmailResposta();
-                    xPorta = configuracaoDepartamento.getPorta();
-                    xSisEmailProtocoloId = configuracaoDepartamento.getSisEmailProtocolo().getId();
-                    xSmtp = configuracaoDepartamento.getSmtp();
-                    xAutenticado = configuracaoDepartamento.getAutenticado();
+                    if (!registro.isSisEmailMarketing()) {
+                        xPorta = configuracaoDepartamento.getPorta();
+                        xSisEmailProtocoloId = configuracaoDepartamento.getSisEmailProtocolo().getId();
+                        xSmtp = configuracaoDepartamento.getSmtp();
+                        xAutenticado = configuracaoDepartamento.getAutenticado();
+                    }
                     xEmailSindicato = configuracaoDepartamento.getEmail();
                     xNome = configuracaoDepartamento.getFilial().getFilial().getPessoa().getNome() + " <br />Depto " + configuracaoDepartamento.getDepartamento().getDescricao();
                     xAssinatura = configuracaoDepartamento.getAssinatura();
@@ -131,7 +136,11 @@ public class Mail extends MailTemplate implements Serializable {
                     try {
                         Session session;
                         if (registro.isSisEmailMarketing()) {
-                            session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME(), EmailMarketing.getPORT(), EmailMarketing.getLOGIN(), EmailMarketing.getPASSWORD(), EmailMarketing.isAUTH(), EmailMarketing.getPROTOCOL());
+                            if (ControleUsuarioBean.getCliente().equals("ComercioRP")) {
+                                session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME_COMERCIORP(), EmailMarketing.getPORT_COMERCIORP(), EmailMarketing.getLOGIN_COMERCIORP(), EmailMarketing.getPASSWORD_COMERCIORP(), EmailMarketing.isAUTH_COMERCIORP(), EmailMarketing.getPROTOCOL_COMERCIORP());
+                            } else {
+                                session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME(), EmailMarketing.getPORT(), EmailMarketing.getLOGIN(), EmailMarketing.getPASSWORD(), EmailMarketing.isAUTH(), EmailMarketing.getPROTOCOL());
+                            }
                         } else {
                             session = EnviarEmail.configureSession(xSmtp, xPorta, xEmail, xSenha, xAutenticado, xSisEmailProtocoloId);
                         }

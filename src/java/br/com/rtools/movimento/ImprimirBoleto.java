@@ -349,7 +349,7 @@ public class ImprimirBoleto {
                     return hash;
                 } else {
                     hash.put("boleto", null);
-                    hash.put("mensagem", "Erro ao Registrar Boleto " + boleto.getNrBoleto() + "[" + jSONObject.getBoolean("status") + "], contate o Administrador.");
+                    hash.put("mensagem", "Erro ao Registrar Boleto " + boleto.getNrBoleto() + "[" + jSONObject.getString("mensagem") + "], contate o Administrador.");
                     return hash;
                 }
             } else {
