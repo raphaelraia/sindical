@@ -15,6 +15,7 @@ import br.com.rtools.cobranca.beans.TmktHistoricoBean;
 import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -22,13 +23,18 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
+import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -58,6 +64,8 @@ public class PessoaBean implements Serializable {
     private String tipoDeclaracaoPessoa;
     private String situacaoFuncionario;
     private List<PessoaEmpresa> listFuncionarios;
+    private List<SelectItem> listAnoDeclaracaoAnualDebitos;
+    private String anoDeclaracaoAnualDebitos;
 
     @PostConstruct
     public void init() {
@@ -197,6 +205,15 @@ public class PessoaBean implements Serializable {
                 break;
             case "funcionarios":
                 loadListFuncionarios();
+                break;
+            case "declaracao_anual_debitos":                
+                listAnoDeclaracaoAnualDebitos = new ArrayList();
+                anoDeclaracaoAnualDebitos = "";
+                List<String> list = new PessoaDao().listAnoDeclaracaoAnualDebitos(pessoa.getId());
+                for(int i = 0; i < list.size(); i++) {
+                    anoDeclaracaoAnualDebitos = list.get(i);
+                    listAnoDeclaracaoAnualDebitos.add(new SelectItem(list.get(i), list.get(i), list.get(i)));
+                }
                 break;
         }
     }
@@ -383,6 +400,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("oposicoes", "Oposições", "CONSULTA OPOSIÇÃO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_oposicao_pessoa_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("sorteios", "Sorteios", "CONSULTA SORTEIOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_sorteios", 4)));
             listSelectDetalhes.add(new SelectItem("suspencao", "Suspenção", "SUSPENÇÃO", cab.verificarPermissao("consulta_suspencao", 4)));
+            listSelectDetalhes.add(new SelectItem("declaracao_anual_debitos", "Dec. Anual de Débitos ", "DECLARAÇÃO ANUAL DE DÉBICOS", cab.verificarPermissao("declaracao_anual_debitos", 4)));
         }
         // PESSOA JURÍDICA
         if (tipoPessoa.equals("pessoaJuridica")) {
@@ -501,4 +519,41 @@ public class PessoaBean implements Serializable {
     public void setListFuncionarios(List<PessoaEmpresa> listFuncionarios) {
         this.listFuncionarios = listFuncionarios;
     }
+
+    public List<SelectItem> getListAnoDeclaracaoAnualDebitos() {
+        return listAnoDeclaracaoAnualDebitos;
+    }
+
+    public void setListAnoDeclaracaoAnualDebitos(List<SelectItem> listAnoDeclaracaoAnualDebitos) {
+        this.listAnoDeclaracaoAnualDebitos = listAnoDeclaracaoAnualDebitos;
+    }
+
+    public String getAnoDeclaracaoAnualDebitos() {
+        return anoDeclaracaoAnualDebitos;
+    }
+
+    public void setAnoDeclaracaoAnualDebitos(String anoDeclaracaoAnualDebitos) {
+        this.anoDeclaracaoAnualDebitos = anoDeclaracaoAnualDebitos;
+    }
+
+    public void printDeclaracaoAnualDebitos() {
+        if (anoDeclaracaoAnualDebitos == null || anoDeclaracaoAnualDebitos.isEmpty()) {
+            return;
+        }
+        if (new PessoaDao().existDeclaracaoAnualDebitos(anoDeclaracaoAnualDebitos, pessoa.getId())) {
+            GenericaMensagem.warn("MENSAGEM", "CONSTAM DÉBITOS PARA ESTE ANO!");
+            return;
+        }
+        Map map = new HashMap();
+        map.put("titulo", "DECLARAÇÃO ANUAL DE SITUAÇÃO DE DÉBITOS");
+        map.put("pessoa_nome", pessoa.getNome());
+        map.put("pessoa_documento", pessoa.getDocumento());
+        map.put("ano", anoDeclaracaoAnualDebitos);
+        Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
+        Jasper.IS_HEADER = true;
+        Jasper.printReports("/Relatorios/DECLARACAO_ANUAL_DEBITOS.jasper", "Declaração anual de débitos", new ArrayList(), map);
+        Jasper.IS_HEADER = false;
+        Jasper.FILIAL = null;
+    }
+
 }

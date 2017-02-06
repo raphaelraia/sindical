@@ -110,6 +110,8 @@ public class ImpressaoBoletoSocialBean {
         }
 
         new RegistrarBoletoThread(lista, "soc_boletos_vw").runDebug();
+        
+        // loadLista();
 
         GenericaMensagem.info("Sucesso", "Registro de Boletos concluído!");
     }
@@ -199,19 +201,19 @@ public class ImpressaoBoletoSocialBean {
                 }
                 if (qntFolhas == 0) {
                     // TODAS
-                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), null));
+                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), false));
                     contador++;
                 } else if (qntFolhas == 1 && lista_socio.size() <= 21) { // 21 quantidade de linhas que cabe em um boleto sem que estore
                     // APENAS COM 1 PÁGINA    
-                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), null));
+                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), false));
                     contador++;
                 } else if (qntFolhas == 2 && (lista_socio.size() >= 22 && lista_socio.size() <= 121)) {
                     // DE 2 A 5 PAGINAS    
-                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), null));
+                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), false));
                     contador++;
                 } else if (qntFolhas == 3 && lista_socio.size() > 122) {
                     // ACIMA DE 5 PAGINAS    
-                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), null));
+                    listaGrid.add(new DataObject(contador, true, lista_agrupado.get(i), Moeda.converteR$(lista_agrupado.get(i).get(6).toString()), calculoDePaginas(lista_socio.size()), false));
                     contador++;
                 }
 

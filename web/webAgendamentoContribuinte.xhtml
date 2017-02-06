@@ -446,24 +446,27 @@
                     </h:panelGrid>
                 </p:dialog>
 
-                <p:dialog widgetVar="dlg_profissao" header="Pesquisar Profissão" resizable="false" modal="true" width="455">
-                    <h:panelGrid id="i_panel_profissao">
-
+                <p:dialog widgetVar="dlg_profissao" header="PESQUISAR PROFISSÃO" resizable="false" modal="true" width="600" closeOnEscape="true">
+                    <h:panelGroup id="i_panel_profissao" layout="block">
                         <h:panelGrid columns="4">
                             <h:column>
-                                <h:outputLabel value="Profissão" /><br />
-                                <p:inputText size="20" value="#{webAgendamentoContribuinteBean.descricaoProfissao}" onkeypress="return event.keyCode !== 13;">
-                                    <p:ajax event="blur" update="@this" global="false"/>
-                                </p:inputText>
+                                <h:panelGrid>
+                                    <h:outputLabel value="Profissão" />
+                                    <p:inputText size="20" value="#{webAgendamentoContribuinteBean.descricaoProfissao}" onkeypress="return event.keyCode !== 13;">
+                                        <p:ajax event="blur" update="@this" global="false"/>
+                                    </p:inputText>                                    
+                                </h:panelGrid>
                             </h:column>
 
 
                             <h:column>
-                                <h:outputLabel value="Por"/><br />
+                                <h:panelGrid>
+                                <h:outputLabel value="Por"/>
                                 <p:selectOneMenu value="#{webAgendamentoContribuinteBean.combo}" style="width: 100px">
                                     <f:selectItem itemValue="cbo" itemLabel="Cbo"/>
                                     <f:selectItem itemValue="profissao"  itemLabel="Profissão"/>
                                 </p:selectOneMenu>
+                                </h:panelGrid>
                             </h:column>
 
                             <h:column>
@@ -477,18 +480,17 @@
                             </h:column>
                         </h:panelGrid>       
 
-                        <h:panelGrid columns="1">
-                            <p:dataTable id="tbl_profissao" var="linha" value="#{webAgendamentoContribuinteBean.listaProfissao}" emptyMessage="Nenhuma profissão pesquisada!">
-                                <p:column headerText="CBO" width="100">
-                                    <p:commandLink value="#{linha.cbo}" action="#{webAgendamentoContribuinteBean.editar(linha)}" oncomplete="PF('dlg_profissao').hide()" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
-                                </p:column>
-
+                        <h:panelGroup layout="block" id="tbl_profissao">
+                            <p:dataTable var="profissao" value="#{webAgendamentoContribuinteBean.listaProfissao}" emptyMessage="Nenhuma profissão pesquisada!" paginator="true" rows="10">                                
                                 <p:column headerText="Profissão">
-                                    <p:commandLink  value="#{linha.profissao}" action="#{webAgendamentoContribuinteBean.editar(linha)}" oncomplete="PF('dlg_profissao').hide()" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
+                                    <p:commandLink  value="#{profissao.profissao}" action="#{webAgendamentoContribuinteBean.editar(profissao)}" oncomplete="PF('dlg_profissao').hide()" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
+                                </p:column>
+                                <p:column headerText="CBO" width="80">
+                                    <h:outputLabel value="#{profissao.cbo}" />
                                 </p:column>
                             </p:dataTable>
-                        </h:panelGrid>
-                    </h:panelGrid>
+                        </h:panelGroup>
+                    </h:panelGroup>
                 </p:dialog>
 
                 <p:dialog widgetVar="dlg_local" header="Local da Homologação" resizable="false" modal="true" width="800" visible="#{webAgendamentoContribuinteBean.showFilial}">

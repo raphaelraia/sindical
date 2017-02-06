@@ -858,6 +858,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
                 PessoaEmpresa pe = db.pesquisaPessoaEmpresaPertencente(documento);
 
+                /*
+                SOLICITAÇÃO CONFORME CHAMADO #1813 
                 if (pe != null && pe.getJuridica().getId() != juridica.getId()) {
                     //msgConfirma = "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome();
                     GenericaMensagem.warn("Atenção", "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome());
@@ -865,7 +867,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                     enderecoFisica = new PessoaEndereco();
                     return;
                 }
-
+                */
                 List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(fisica.getPessoa().getDocumento());
                 if (!listFisica.isEmpty()) {
                     for (int i = 0; i < listFisica.size(); i++) {

@@ -8,7 +8,17 @@ import javax.persistence.Query;
 
 public class HistoricoDao extends DB {
 
-    public List<Historico> findByMovimento(Integer movimento_id) {
+    public Historico findByMovimento(Integer movimento_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT H FROM Historico AS H WHERE H.movimento.id = :movimento_id ORDER BY H.id DESC");
+            query.setParameter("movimento_id", movimento_id);
+            return (Historico) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<Historico> findAllByMovimento(Integer movimento_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT H FROM Historico AS H WHERE H.movimento.id = :movimento_id ORDER BY H.id DESC");
             query.setParameter("movimento_id", movimento_id);

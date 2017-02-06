@@ -356,4 +356,48 @@ public class PessoaDao extends DB {
             return false;
         }
     }
+
+    public List<String> listAnoDeclaracaoAnualDebitos(Integer pessoa_id) {
+        try {
+            String queryString = ""
+                    + "   SELECT CAST(EXTRACT('YEAR' FROM dt_vencimento) AS VARCHAR)                     \n"
+                    + "     FROM fin_movimento                                                           \n"
+                    + "    WHERE id_pessoa = " + pessoa_id + "                                           \n"
+                    + "      AND is_ativo = true                                                         \n"
+                    + "      AND id_baixa IS NOT NULL                                                    \n"
+                    + "      AND EXTRACT('YEAR' FROM dt_vencimento) <> EXTRACT('YEAR' FROM current_date) \n"
+                    + " GROUP BY CAST(EXTRACT('YEAR' FROM dt_vencimento) AS VARCHAR)                     \n"
+                    + " ORDER BY CAST(EXTRACT('YEAR' FROM dt_vencimento) AS VARCHAR) DESC                \n";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            List<String> listString = new ArrayList();
+            for (int i = 0; i < list.size(); i++) {
+                List o = (List) list.get(i);
+                listString.add(o.get(0).toString());
+            }
+            return listString;
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
+
+    public Boolean existDeclaracaoAnualDebitos(String ano, Integer pessoa_id) {
+        try {
+            String queryString = ""
+                    + "    SELECT count(*)                                          \n"
+                    + "      FROM fin_movimento                                     \n"
+                    + "     WHERE is_ativo = true                                   \n"
+                    + "       AND extract(year FROM dt_vencimento) = '" + ano + "'  \n"
+                    + "       AND id_baixa IS NULL                                  \n"
+                    + "       AND id_pessoa = " + pessoa_id + "                     \n";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            List o = (List) list.get(0);
+            if (Integer.parseInt(o.get(0).toString()) > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+        }
+        return false;
+    }
 }

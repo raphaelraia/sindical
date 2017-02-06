@@ -16,9 +16,9 @@
                 background: #ECF3FE;
             }
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -35,170 +35,186 @@
                         <h:outputText value="Impressão Individual" styleClass="fonteHeader" />
                         <h:form id="formImpressaoIndividual">
                             <c:set scope="request" var="object" value="${processamentoIndividualBean.processamento}"/>
-                            <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid id="i_panel_empresa" columns="2">
+                            <div class="clear"></div>
+                            <p:panel>
+                                <f:facet name="header">
+                                    <h:panelGrid id="i_panel_empresa" columns="2">
+                                        <h:column>
+                                            <p:commandButton value="Adicionar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" rendered="#{processamentoIndividualBean.juridica.id == -1}"/>
+                                            <h:outputLabel value="#{processamentoIndividualBean.juridica.pessoa.nome}" style="margin-right: 10px; font-weight: bold"/>
+                                            <p:commandButton icon="ui-icon-trash" action="#{processamentoIndividualBean.removerEmpresa()}" title="Remover empresa pesquisada" rendered="#{processamentoIndividualBean.juridica.id != -1}" update="i_panel_empresa" style="margin-right: 20px;"/>
+                                            <h:outputLabel value="#{processamentoIndividualBean.statusContribuinte}" style="color: red"/>
+                                        </h:column>
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                                <p:messages id="i_msg" showDetail="true" closable="true" />                                      
+                                <h:panelGrid id="i_panel_dados" columns="6" style="margin-top: 10px; width: 100%">
                                     <h:column>
-                                        <p:commandButton value="Adicionar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" rendered="#{processamentoIndividualBean.juridica.id == -1}"/>
-                                        <h:outputLabel value="#{processamentoIndividualBean.juridica.pessoa.nome}" style="margin-right: 10px; font-weight: bold"/>
-                                        <p:commandButton icon="ui-icon-trash" action="#{processamentoIndividualBean.removerEmpresa()}" title="Remover empresa pesquisada" rendered="#{processamentoIndividualBean.juridica.id != -1}" update="i_panel_empresa" style="margin-right: 20px;"/>
-                                        <h:outputLabel value="#{processamentoIndividualBean.statusContribuinte}" style="color: red"/>
+                                        <h:outputLabel value="Referência"/><br />
+                                        <p:inputMask disabled="#{processamentoIndividualBean.marcarReferencia}" size="5" value="#{processamentoIndividualBean.strReferencia}" mask="99/9999" styleClass="text-center bold">
+                                            <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" global="false"/>
+                                        </p:inputMask>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:outputLabel value="Contribuição" /><br />
+                                        <p:selectOneMenu value="#{processamentoIndividualBean.idServicos}">
+                                            <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" />
+                                            <f:selectItems value="#{processamentoIndividualBean.listaServico}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:outputLabel value="Tipo" /><br />
+                                        <p:selectOneMenu value="#{processamentoIndividualBean.idTipoServico}">
+                                            <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" />
+                                            <f:selectItems value="#{processamentoIndividualBean.listaTipoServico}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:outputLabel value="Vencimento" /><br />
+                                        <p:inputMask size="8" mask="99/99/9999" disabled="#{processamentoIndividualBean.marcarVencimento}"  value="#{processamentoIndividualBean.vencimento}" converter="#{isDateString}" styleClass="bold text-center">
+                                            <p:ajax event="change" listener="#{processamentoIndividualBean.atualizaRef}" update="i_panel_dados" global="false"/>
+                                        </p:inputMask>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Adicionar Guia" title="Adicionar Guia" action="#{processamentoIndividualBean.adicionarMovimento}" update="i_panel_dados tbEmpresas i_msg i_panel_b" />
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandLink value="Cadastrar Mensagem" action="#{processamentoIndividualBean.chamarMensagem}" update="i_panel_dados" style="float: right"/>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
-                            <h:panelGrid id="i_panel_dados" columns="6" style="margin-top: 10px; width: 100%">
-                                <h:column>
-                                    <h:outputLabel value="Referência"/><br />
-                                    <p:inputMask disabled="#{processamentoIndividualBean.marcarReferencia}" size="5" value="#{processamentoIndividualBean.strReferencia}" mask="99/9999" styleClass="text-center bold">
-                                        <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" global="false"/>
-                                    </p:inputMask>
-                                </h:column>
-
-                                <h:column>
-                                    <h:outputLabel value="Contribuição" /><br />
-                                    <p:selectOneMenu value="#{processamentoIndividualBean.idServicos}">
-                                        <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" />
-                                        <f:selectItems value="#{processamentoIndividualBean.listaServico}" />
-                                    </p:selectOneMenu>
-                                </h:column>
-
-                                <h:column>
-                                    <h:outputLabel value="Tipo" /><br />
-                                    <p:selectOneMenu value="#{processamentoIndividualBean.idTipoServico}">
-                                        <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" />
-                                        <f:selectItems value="#{processamentoIndividualBean.listaTipoServico}" />
-                                    </p:selectOneMenu>
-                                </h:column>
-
-                                <h:column>
-                                    <h:outputLabel value="Vencimento" /><br />
-                                    <p:inputMask size="8" mask="99/99/9999" disabled="#{processamentoIndividualBean.marcarVencimento}"  value="#{processamentoIndividualBean.vencimento}" style="font-weight: bold">
-                                        <p:ajax event="change" listener="#{processamentoIndividualBean.atualizaRef}" update="i_panel_dados" global="false"/>
-                                    </p:inputMask>
-                                </h:column>
-
-                                <h:column>
-                                    <br />
-                                    <p:commandButton value="Adicionar Guia" title="Adicionar Guia" action="#{processamentoIndividualBean.adicionarMovimento}" update="i_panel_dados tbEmpresas i_msg i_panel_b" />
-                                </h:column>
-                                
-                                <h:column>
-                                    <br />
-                                    <p:commandLink value="Cadastrar Mensagem" action="#{processamentoIndividualBean.chamarMensagem}" update="i_panel_dados" style="float: right"/>
-                                </h:column>
-                            </h:panelGrid>
-                            
-                            <p:messages id="i_msg" showDetail="true" closable="true" />  
-                            
-                            <p:dataTable var="linha" id="tbEmpresas" value="#{processamentoIndividualBean.listaMovimentos}" rowIndexVar="index" emptyMessage="Nenhuma guia foi adicionada!" style="margin-top: 10px;">
+                            <p:dataTable var="linha" id="tbEmpresas" value="#{processamentoIndividualBean.listaMovimentos}" rowIndexVar="index" emptyMessage="Nenhuma guia foi adicionada!" styleClass="margin-top-max">
                                 <p:column width="15">  
                                     <p:rowToggler />  
                                 </p:column>  
-                                
-                                <p:column style="text-align: center;" width="30">
+
+                                <p:column style="text-align: center;" width="25">
                                     <p:commandButton icon="ui-icon-circle-close" action="#{processamentoIndividualBean.btnExcluirMov(index)}" update="tbEmpresas :formImpressaoIndividual:i_panel_b"/>
                                 </p:column>
 
                                 <p:column headerText="Razão Social" width="280">
-                                    <p:commandLink value="#{linha.argumento1.pessoa.documento} - #{linha.argumento1.pessoa.nome}" action="#{processamentoIndividualBean.editarJuridica(linha)}" 
-                                                   title="Clique para ir ao cadastro desta empresa"/>
-                                    <p:commandButton icon="ui-icon-mail-closed" action="#{processamentoIndividualBean.verificaEmail(linha.argumento1.pessoa)}" 
-                                                     title="#{linha.argumento1.pessoa.email1}" style="margin-left: 15px; width: 20px" oncomplete="PF('i_dlg_email').show()" update=":formImpressaoIndividual:i_email_para"/>
+                                    <p:commandLink value="#{linha.argumento1.pessoa.documento} - #{linha.argumento1.pessoa.nome}" action="#{processamentoIndividualBean.editarJuridica(linha)}" title="Clique para ir ao cadastro desta empresa"/>
+                                    <p:commandLink action="#{processamentoIndividualBean.verificaEmail(linha.argumento1.pessoa)}" title="#{linha.argumento1.pessoa.email1}" oncomplete="PF('i_dlg_email').show()" update=":formImpressaoIndividual:i_email_para" style="clear: left; float: left; margin-right: 5px">
+                                        <span class="ui-icon ui-icon-mail-closed"></span>
+                                    </p:commandLink>
                                 </p:column>
 
-                                <p:column style="text-align: center" headerText="Contribuição" width="80">
-                                    <p:outputLabel value="#{linha.argumento1.servicos.descricao}"/>
+                                <p:column headerText="Contribuição" width="80" styleClass="text-center">
+                                    <p:outputLabel value="#{linha.argumento1.servicos.descricao.toUpperCase()}"/>
                                 </p:column>
 
-                                <p:column style="text-align: center" headerText="Tipo" width="80">
-                                    <p:outputLabel value="#{linha.argumento1.tipoServico.descricao}"/>
+                                <p:column headerText="Tipo" width="80" styleClass="text-center">
+                                    <p:outputLabel value="#{linha.argumento1.tipoServico.descricao.toUpperCase()}"/>
                                 </p:column>
 
-                                <p:column style="text-align: center" headerText="Vencimento" width="80">
-                                    <p:outputLabel value="#{linha.argumento1.vencimento}"/>
+                                <p:column headerText="Vencto" width="60" styleClass="text-center">
+                                    <p:outputLabel value="#{linha.argumento1.vencimento}" styleClass="bold font-color-red"/>
                                 </p:column>
 
-                                <p:column style="text-align: center" headerText="Ref." width="60">
-                                    <p:outputLabel value="#{linha.argumento1.referencia}"/>
+                                <p:column headerText="Ref." width="50" styleClass="text-center">
+                                    <p:outputLabel value="#{linha.argumento1.referencia}" styleClass="bold font-color-blue"/>
                                 </p:column>
-                                
-                                <p:column style="text-align: right" headerText="Valor" width="70">
+
+                                <p:column headerText="Valor" width="70" styleClass="text-center">
                                     <p:commandLink value="#{linha.argumento3}" action="#{processamentoIndividualBean.carregarFolha(linha)}" style="font-size: 10pt!important; font-weight: bold; color: #0066cc"
                                                    oncomplete="PF('i_dlg_valor').show()" update=":formImpressaoIndividual:i_dlg_valor_folha"/>
                                 </p:column>
-                                
-                                <p:rowExpansion>
-                                    <h:panelGrid columns="5" styleClass="sbb">
-                                        <p:column>
-                                            <p:outputLabel value="#{linha.argumento2.pessoa.nome}" title="#{linha.argumento2.pessoa.email1}"/>
-                                            <p:commandButton icon="ui-icon-mail-closed" action="#{processamentoIndividualBean.verificaEmail(linha.argumento2.pessoa)}" 
-                                                             title="#{linha.argumento2.pessoa.email1}" style="margin-left: 15px; width: 20px" oncomplete="PF('i_dlg_email').show()" update=":formImpressaoIndividual:i_email_para"/>
-                                        </p:column>
-                                        
-                                        <p:column>
-                                            <h:outputLabel value="Multa" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{linha.argumento5}" />
-                                        </p:column>
-                                            
-                                        <p:column>
-                                            <h:outputLabel value="Juros" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{linha.argumento4}"/>
-                                        </p:column>
-                                        
-                                        <p:column>
-                                            <h:outputLabel value="Correção" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{linha.argumento6}"/>
-                                        </p:column>
-                                    </h:panelGrid>
-                                </p:rowExpansion>
-                                
+                                <p:column width="25" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-comment" action="#{processamentoIndividualBean.openHistorico(index)}" onclick="PF('dlg_message_historico').show()" update=":formImpressaoIndividual:id_message_historico" title="MENSAGEM BOLETO"/>
+                                </p:column>
 
                                 <p:column style="text-align: right" headerText="Valor Calculado" width="70">
                                     <p:outputLabel value="#{linha.argumento7}"/>
                                 </p:column>
-                                
+
                                 <p:column style="text-align: center" width="25">
                                     <f:facet name="header">
-                                        <h:selectBooleanCheckbox value="#{processamentoIndividualBean.marcarTodos}">
+                                        <p:selectBooleanCheckbox value="#{processamentoIndividualBean.marcarTodos}">
                                             <p:ajax event="change" listener="#{processamentoIndividualBean.marcarTodosLista}" update="tbEmpresas" />
-                                        </h:selectBooleanCheckbox>
+                                        </p:selectBooleanCheckbox>
                                     </f:facet>
-                                    <h:selectBooleanCheckbox value="#{linha.argumento0}">
+                                    <p:selectBooleanCheckbox value="#{linha.argumento0}">
                                         <p:ajax event="change" listener="#{processamentoIndividualBean.refreshGrid}" update="tbEmpresas" />
-                                    </h:selectBooleanCheckbox>
+                                    </p:selectBooleanCheckbox>
                                 </p:column>
+
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="5" styleClass="sbb">
+                                        <p:column>
+                                            <h:panelGrid>
+                                                <p:outputLabel value="#{linha.argumento2.pessoa.nome}" title="#{linha.argumento2.pessoa.email1}"/>
+                                                <p:commandLink action="#{processamentoIndividualBean.verificaEmail(linha.argumento2.pessoa)}" 
+                                                               title="#{linha.argumento2.pessoa.email1}" oncomplete="PF('i_dlg_email').show()" update=":formImpressaoIndividual:i_email_para">
+                                                    <span class="ui-icon ui-icon-mail-closed"></span>
+                                                </p:commandLink>                                                
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:panelGrid>
+                                                <h:outputLabel value="MULTA" styleClass="bold"/>
+                                                <p:outputLabel value="#{linha.argumento5}" styleClass="font-size-14 bold"/>
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:panelGrid>
+                                                <h:outputLabel value="JUROS" styleClass="bold"/>
+                                                <p:outputLabel value="#{linha.argumento4}" styleClass="font-size-14 bold"/>
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:panelGrid>
+                                                <h:outputLabel value="CORREÇÃO" styleClass="bold"/>
+                                                <p:outputLabel value="#{linha.argumento6}" styleClass="font-size-14 bold"/>
+                                            </h:panelGrid>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
+
                             </p:dataTable>
 
-                            <p:panel id="i_panel_b" styleClass="fundoCinza" style="margin-top: 15px;">
-                                <h:panelGrid rendered="#{processamentoIndividualBean.listaMovimentos.size() > 0}" columns="4" style=" width: 100%">
-                                    <p:column>
-                                        <br />
+                            <p:panel id="i_panel_b" styleClass="fundoCinza margin-top-max">
+                                <h:panelGroup rendered="#{processamentoIndividualBean.listaMovimentos.size() > 0}" layout="block">
+                                    <h:panelGrid columns="3" cellspacing="5">
                                         <p:commandButton value="Gerar Guias" update="i_panel_b i_msg" disabled="#{controleAcessoBean.botaoSalvar}" action="#{processamentoIndividualBean.gerarBoleto}" />
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:panelGrid columns="2">
-                                        <h:outputLabel value=" Enviar email para " rendered="#{processamentoIndividualBean.processou}"/><br />
-                                        <p:selectOneMenu rendered="#{processamentoIndividualBean.processou}" value="#{processamentoIndividualBean.tipoEnvio}" style="padding-right: 20px;">
-                                            <f:selectItem itemValue="empresa"       itemLabel="Empresa"/>
-                                            <f:selectItem itemValue="contabilidade" itemLabel="Contabilidade"/>
-                                        </p:selectOneMenu>
-                                        <p:commandButton value="Enviar" action="#{processamentoIndividualBean.enviarEmail}" rendered="#{processamentoIndividualBean.processou}" update="i_msg"/>
-                                        </h:panelGrid>
-                                    </p:column>
-
-                                    <p:column>
-                                        <br />
                                         <p:commandButton ajax="false" value="Limpar Todos" action="#{processamentoIndividualBean.limparTodos}" rendered="#{processamentoIndividualBean.processou}"/>
-                                    </p:column>
-                                    
-                                    <p:column>
-                                        <p:selectBooleanCheckbox value="#{processamentoIndividualBean.imprimeVerso}" rendered="#{processamentoIndividualBean.processou}" itemLabel="Imprimir Verso" style="float: right"/><br />
-                                        <h:commandLink value="Clique aqui para visualizar Boletos" action="#{processamentoIndividualBean.imprimirBoleto}" rendered="#{processamentoIndividualBean.processou}" style="float: right; font-size: 12pt!important" target="_blank"/>
-                                    </p:column>
-                                </h:panelGrid>
+                                        <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(106)}" />
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">                                    
+                                    <h:panelGrid rendered="#{processamentoIndividualBean.listaMovimentos.size() > 0}" columns="4" style=" width: 100%">
+                                        <p:column>
+                                            <h:panelGrid columns="3">
+                                                <h:outputLabel value=" Enviar email para " rendered="#{processamentoIndividualBean.processou}"/>
+                                                <p:selectOneMenu rendered="#{processamentoIndividualBean.processou}" value="#{processamentoIndividualBean.tipoEnvio}">
+                                                    <f:selectItem itemValue="empresa"       itemLabel="Empresa"/>
+                                                    <f:selectItem itemValue="contabilidade" itemLabel="Contabilidade"/>
+                                                </p:selectOneMenu>
+                                                <p:commandButton value="Enviar" action="#{processamentoIndividualBean.enviarEmail}" rendered="#{processamentoIndividualBean.processou}" update="i_msg"/>
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:panelGrid columns="3"  style="float: right">
+                                                <h:commandLink action="#{processamentoIndividualBean.imprimirBoleto}" rendered="#{processamentoIndividualBean.processou}" style="font-size: 12pt!important" target="_blank">
+                                                    <p:commandButton value="VISUALIZAR BOLETO" icon="ui-icon-print"></p:commandButton>
+                                                </h:commandLink>
+                                                <p:selectBooleanCheckbox value="#{processamentoIndividualBean.imprimeVerso}" rendered="#{processamentoIndividualBean.processou}" itemLabel="Imprimir Verso"/>
+                                            </h:panelGrid>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:panel>                              
-                            
+
                             <p:dialog widgetVar="i_dlg_email" header="Envio de Email para" resizable="false" modal="true">
                                 <h:panelGrid id="i_email_para" style="width: 100%" columns="1">
                                     <p:column>
@@ -206,19 +222,19 @@
                                         <p:inputText value="#{processamentoIndividualBean.pessoaEnvio.email1}" />
                                     </p:column>
                                 </h:panelGrid>
-                                    
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton value="Concluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{processamentoIndividualBean.salvarEmail()}" update="formImpressaoIndividual:" onclick="PF('i_dlg_email').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                     <p:commandButton value="Voltar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_email').hide()" style="float: left" icon="ui-icon-close"/>       
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog id="i_dlg_valor_folha" widgetVar="i_dlg_valor" header="Valor do Boleto" resizable="false" modal="true">
                                 <p:tabView id="i_tab_view">
                                     <p:tab title="Valor Simples">
                                         <h:panelGrid id="i_panel_valor" style="width: 100%" columns="1">
                                             <h:outputText value="Digite um valor para o Boleto" style="font-weight: bold"/><br />
-                                            
+
                                             <h:panelGrid columns="3">
                                                 <p:inputText size="10" value="#{processamentoIndividualBean.valorBoleto}" style="text-align: right">
                                                     <p:ajax event="blur" update="@this" global="false"/>
@@ -229,7 +245,7 @@
                                             </h:panelGrid>
                                         </h:panelGrid>
                                     </p:tab>
-                                    
+
                                     <p:tab title="Valor por Desconto Empregado">
                                         <h:panelGrid id="i_panel_valor_folha" style="width: 100%" columns="1">
                                             <p:commandLink style="margin-left: 20px;" disabled="#{not processamentoIndividualBean.mostrarPainel}" id="i_cadastro_m" value="#{processamentoIndividualBean.labelLink}" action="#{chamadaPaginaBean.descontoEmpregado}" />
@@ -241,10 +257,10 @@
                                             </h:panelGrid>
 
                                             <h:panelGrid>
-                                                    <h:outputText id="lbEdit2"  value="#{processamentoIndividualBean.labelFolha2}" />
-                                                    <p:inputText disabled="#{processamentoIndividualBean.mostrarPainel}" dir="RTL" id="qfun" size="10" value="#{processamentoIndividualBean.qtdFuncionario}" >
-                                                        <p:ajax event="change" update="qfun"/>
-                                                    </p:inputText>
+                                                <h:outputText id="lbEdit2"  value="#{processamentoIndividualBean.labelFolha2}" />
+                                                <p:inputText disabled="#{processamentoIndividualBean.mostrarPainel}" dir="RTL" id="qfun" size="10" value="#{processamentoIndividualBean.qtdFuncionario}" >
+                                                    <p:ajax event="change" update="qfun"/>
+                                                </p:inputText>
                                             </h:panelGrid>
 
                                             <h:panelGrid columns="2">
@@ -255,7 +271,29 @@
                                     </p:tab>
                                 </p:tabView>
                             </p:dialog>
-                            <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(106)}"/>
+                            <p:dialog widgetVar="dlg_message_historico" header="Mensagem" resizable="false" modal="true" closeOnEscape="true" visible="#{processamentoIndividualBean.historico != null}" width="600" position="top">
+                                <p:ajax event="close" listener="#{processamentoIndividualBean.closeHistorico}" update=":formImpressaoIndividual:" />
+                                <h:panelGroup layout="block" id="id_message_historico">
+                                    <p:messages showDetail="true" closable="true" autoUpdate="true"/>  
+                                    <h:panelGrid rendered="#{processamentoIndividualBean.historico != null}">
+                                        <p:outputLabel value="MENSAGEM CONTRIBUINTE" />
+                                        <p:inputTextarea maxlength="2000" value="#{processamentoIndividualBean.historico.historico}" cols="80" addLine="true" rows="5">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                        <h:column><br /></h:column>
+                                        <p:outputLabel value="MENSAGEM BOLETO" />
+                                        <p:inputTextarea maxlength="2000" value="#{processamentoIndividualBean.historico.complemento}" cols="80" addLine="true" rows="5">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Salvar" type="submit" styleClass="ui-confirmdialog-yes" action="#{processamentoIndividualBean.saveHistorico}" icon="ui-icon-check" update=":formImpressaoIndividual:"/>  
+                                        <p:commandButton value="Voltar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_message_historico').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                            </p:dialog>
                         </h:form>
                     </p:panel>
                 </f:view>

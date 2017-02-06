@@ -38,9 +38,10 @@ public class GerarMovimento extends DB {
         NovoLog log = new NovoLog();
         Integer sizeBoleto = 0;
         List list = new ArrayList();
-        try {
+//      VERIFICAÇÃO
+        try { 
             textQry = "select '" + DataHoje.data() + "' as dt_emissao, 'R' as ds_pag_rec, 0 as nr_valor, '" + DataHoje.data() + "' as dt_lancamento, 1 as id_filial, cv.id_pessoa, 2 as id_tipo_documento, 4 as id_rotina, false as is_avencer_contabil " + "   from arr_contribuintes_vw cv "
-                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = 3 and '04/11/2014' >= sp.dt_inicio and '04/11/2014' <= sp.dt_fim   "
+                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = " + id_servico +  " AND '" + vencimento + "' >= sp.dt_inicio AND '" + vencimento + "' <= sp.dt_fim   "
                     + "  where cv.dt_inativacao is null and cv.id_grupo_cidade = " + id_grupo_cidade + " and cv.id_convencao = " + id_convencao + " and cv.id_pessoa not in "
                     + "       (select id_pessoa from fin_movimento where ds_referencia='" + referencia + "' and id_servicos = " + id_servico + " and id_tipo_servico = " + id_tipo_servico + " and is_ativo = true) "
                     + " and (sp.is_geracao = true or sp.is_geracao is null) ";
@@ -53,7 +54,9 @@ public class GerarMovimento extends DB {
                 message[1] = "Não existem registros a serem processados!";
                 return message;
             }
-            /* INSERÇÃO DE LOTE ***/
+//
+//
+//         INSERÇÃO DO LOTE
             textQry = "INSERT INTO fin_lote (dt_emissao, ds_pag_rec, nr_valor, dt_lancamento, id_filial, id_pessoa, id_tipo_documento, id_rotina, is_avencer_contabil) \n"
                     + " (  SELECT '" + DataHoje.data() + "' AS dt_emissao,      \n"
                     + "           'R' AS ds_pag_rec,                            \n"
@@ -66,9 +69,9 @@ public class GerarMovimento extends DB {
                     + "           false AS is_avencer_contabil                  \n"
                     + "      FROM arr_contribuintes_vw AS cv                    \n"
                     + " LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = cv.id_pessoa          \n"
-                    + "       AND sp.id_servicos = 3                            \n"
-                    + "       AND '04/11/2014' >= sp.dt_inicio                  \n"
-                    + "       AND '04/11/2014' <= sp.dt_fim                     \n"
+                    + "        AND sp.id_servicos = " + id_servico + "          \n"
+                    + "        AND '" + vencimento + "' >= sp.dt_inicio         \n"
+                    + "        AND '" + vencimento + "' <= sp.dt_fim            \n"
                     + "     WHERE cv.dt_inativacao IS NULL                      \n"
                     + "       AND cv.id_grupo_cidade = " + id_grupo_cidade + "  \n"
                     + "       AND cv.id_convencao = " + id_convencao + "        \n"
@@ -87,10 +90,9 @@ public class GerarMovimento extends DB {
                 return message;
             }
             log.save("Geracao geral: FIN_LOTE - Data: " + DataHoje.data() + " id_grupo_cidade: " + id_grupo_cidade + " id_convencao: " + id_convencao + " id_servico: " + id_servico + " referencia: " + referencia);
-            /* ---------------- ***/
- /* ---------------- ***/
-
- /* INSERÇÃO DE MOVIMENTO */
+//
+//
+//         INSERÇÃO DO MOVIMENTO
             textQry = "INSERT INTO fin_movimento (ds_referencia, ds_es, ds_documento, nr_valor, dt_vencimento_original, dt_vencimento, nr_ctr_boleto, id_pessoa, id_tipo_documento, id_tipo_servico, id_titular, id_servicos, id_beneficiario, id_lote, is_ativo, is_obrigacao,nr_multa,nr_desconto,nr_taxa,nr_quantidade, "
                     + "nr_valor_baixa, nr_repasse_automatico, nr_correcao, nr_desconto_ate_vencimento, nr_juros, id_plano5) \n"
                     + "(    SELECT '" + referencia + "' AS ds_referencia,           \n"
@@ -157,72 +159,10 @@ public class GerarMovimento extends DB {
                 sizeBoleto = list.size();
             }
             log.save("Geracao geral: FIN_MOVIMENTO - Data: " + DataHoje.data());
-            /* ------------------------ ***/
- /* ------------------------ ***/
+//
+//
+//         INSERÇÃO DO BOLETO       
             Integer count = 0;
-            /* INSERÇÃO DE BOLETO */
-//            for (int i = 0; i < 500; i++) {
-//                queryString = ""
-//                        + "     SELECT m.id                                             \n"
-//                        + "       FROM fin_movimento AS m                               \n"
-//                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                \n"
-//                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
-//                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
-//                        + "      WHERE l.id_rotina = 4                                                      \n"
-//                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
-//                        + "        AND m.id_servicos > 0                                                    \n"
-//                        + "        AND m.id_servicos IS NOT NULL                                            \n"
-//                        + "        AND m.is_ativo = true                                                    \n"
-//                        + "      LIMIT 50";
-//                qry = getEntityManager().createNativeQuery(queryString);
-//                List listResult = qry.getResultList();
-//
-//                Integer size = listResult.size();
-//                count += size;
-//                if (size == 0) {
-//                    break;
-//                }
-
-//                textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
-//                        + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
-//                        + "            true AS is_ativo,                                                    \n"
-//                        + "            scc.id_conta_cobranca                                                \n"
-//                        + "       FROM fin_movimento AS m                                                   \n"
-//                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
-//                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
-//                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
-//                        + "      WHERE l.id_rotina = 4                                                      \n"
-//                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
-//                        + "        AND m.id_servicos > 0                                                    \n"
-//                        + "        AND m.id_servicos IS NOT NULL                                            \n"
-//                        + "        AND m.is_ativo = true                                                    \n"
-//                        //+ "      LIMIT " + size + "                                                                  \n"
-//                        + ");";
-//                qry = getEntityManager().createNativeQuery(textQry);
-//                if (qry.executeUpdate() <= 0) {
-//                    getEntityManager().getTransaction().rollback();
-//                    message[0] = 1;
-//                    message[1] = "Erro ao gravar boleto!";
-//                    return message;
-//                }
-//                /* ---------------------- ***/
-//                /* ---------------------- ***/
-//
-//                /* ATUALIZAÇÃO DE MOVIMENTO */
-//                textQry = "  UPDATE fin_movimento                                                                    \n"
-//                        + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
-//                        + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
-//                        + "     AND (fin_movimento.nr_ctr_boleto IS NULL OR length(fin_movimento.nr_ctr_boleto) = 0) \n";
-//                qry = getEntityManager().createNativeQuery(textQry);
-//                if (qry.executeUpdate() <= 0) {
-//                    getEntityManager().getTransaction().rollback();
-//                    message[0] = 1;
-//                    message[1] = "Erro ao atualizar movimentos!";
-//                    return message;
-//                }
-//                GenericaMensagem.info("Gerados...", sizeBoleto + " registros");
-//                PF.update("form_contribuicao_poll");
-//            }
             textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
                     + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
                     + "            true AS is_ativo,                                                    \n"
@@ -244,10 +184,9 @@ public class GerarMovimento extends DB {
                 message[1] = "Erro ao gravar boleto!";
                 return message;
             }
-            /* ---------------------- ***/
- /* ---------------------- ***/
-
- /* ATUALIZAÇÃO DE MOVIMENTO */
+//
+//
+//          ATUALIZAÇÃO DE MOVIMENTO
             textQry = "  UPDATE fin_movimento                                                                    \n"
                     + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
                     + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
@@ -262,10 +201,9 @@ public class GerarMovimento extends DB {
 
             log.save("Geracao geral: FIN_BOLETO - Data: " + DataHoje.data());
             log.save("Geracao geral: atualiza FIN_MOVIMENTO - Data: " + DataHoje.data());
-            /* ---------------------- ***/
- /* ---------------------- ***/
-
- /* INSERÇÃO DE MENSAGEM COBRANÇA */
+//
+//
+//         INSERÇÃO DE MENSAGEM COBRANÇA 
             textQry = "INSERT INTO fin_mensagem_cobranca (id_mensagem_convencao,id_movimento)           \n"
                     + "     (SELECT mc.id, m.id FROM fin_movimento AS m                                 \n"
                     + "  INNER JOIN arr_contribuintes_vw AS c ON c.id_pessoa = m.id_pessoa              \n"

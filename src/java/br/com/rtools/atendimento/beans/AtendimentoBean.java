@@ -261,7 +261,7 @@ public class AtendimentoBean implements Serializable {
 
         return "Sem Senha";
     }
-    
+
     public void imprimirSenhaExterna(AteMovimento atendimento) throws JRException {
         imprimirSenha(atendimento);
     }
@@ -786,13 +786,19 @@ public class AtendimentoBean implements Serializable {
                 listaUsuarios.add(new SelectItem(0, "Nenhum Usuário Encontrado", "0"));
                 return listaUsuarios;
             }
-
+            int x = 0;
             for (int i = 0; i < result.size(); i++) {
-                listaUsuarios.add(new SelectItem(
-                        i,
-                        result.get(i).getUsuario().getPessoa().getNome(),
-                        Integer.toString(result.get(i).getId()))
-                );
+                if (result.get(i).getUsuario().getAtivo()) {
+                    listaUsuarios.add(new SelectItem(
+                            x,
+                            result.get(i).getUsuario().getPessoa().getNome(),
+                            Integer.toString(result.get(i).getId()))
+                    );
+                    x++;
+                }
+            }
+            if (listaUsuarios.isEmpty()) {
+                listaUsuarios.add(new SelectItem(0, "Nenhum Usuário Encontrado", "0"));
             }
         }
         return listaUsuarios;

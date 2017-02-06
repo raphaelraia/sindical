@@ -690,6 +690,20 @@
                                     </p:dataTable>
                                 </p:panel>
                             </h:panelGroup>
+                            
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'declaracao_anual_debitos'}">
+                                <p:messages autoUpdate="true" closable="true" showDetail="true" />
+                                <p:panel header="Declaração Anual de Débitos">
+                                    <p:selectOneMenu value="#{pessoaBean.anoDeclaracaoAnualDebitos}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{pessoaBean.listAnoDeclaracaoAnualDebitos}" />
+                                    </p:selectOneMenu>
+
+                                    <f:facet name="footer">
+                                        <p:commandButton value="IMPRIMIR" icon="ui-icon-print" action="#{pessoaBean.printDeclaracaoAnualDebitos}" ajax="false" />
+                                    </f:facet>
+                                </p:panel>
+                            </h:panelGroup>
 
                             <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
                                 <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  

@@ -44,6 +44,7 @@ import br.com.rtools.utilitarios.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,7 +91,7 @@ import org.primefaces.json.JSONObject;
 
 @ManagedBean
 @ViewScoped
-public class ImprimirBoleto {
+public class ImprimirBoleto implements Serializable {
 
     private String pathPasta = "";
     private byte[] arquivo = new byte[0];
@@ -943,22 +944,23 @@ public class ImprimirBoleto {
                 }
 
                 ConvencaoCidadeDao dbCon = new ConvencaoCidadeDao();
-                if (lista.get(i).getTipoServico().getId() != 4) {
+                historico = movDB.pesquisaHistorico(lista.get(i).getId());
+                if (historico != null) {
+                    if (historico.getHistorico().isEmpty() && historico.getComplemento().isEmpty()) {
+                        new Dao().delete(historico, true);
+                        historico = null;
+                    }
+                }
+
+                if (historico == null) {
+                    // mensagemErroMovimento += "Sem histórico para Acordo id_movimento " + lista.get(i).getId();
+                    // GenericaMensagem.error("Erro", mensagemErroMovimento);
                     mensagemCobranca = movDB.pesquisaMensagemCobranca(lista.get(i).getId());
                     mensagem = mensagemCobranca.getMensagemConvencao().getMensagemContribuinte();//mensagem
                     swap[25] = mensagemCobranca.getMensagemConvencao().getMensagemCompensacao();
                 } else {
-                    historico = movDB.pesquisaHistorico(lista.get(i).getId());
-
-                    if (historico == null) {
-                        mensagemErroMovimento += "Sem histórico para Acordo id_movimento " + lista.get(i).getId();
-                        GenericaMensagem.error("Erro", mensagemErroMovimento);
-                        //continue;
-                    } else {
-                        mensagem = historico.getHistorico();
-                    }
-
-                    swap[25] = movDB.pesquisaDescMensagem(lista.get(i).getTipoServico().getId(), lista.get(i).getServicos().getId(), conv.getId(), dbCon.pesquisaGrupoCidadeJuridica(conv.getId(), id_cidade_endereco).getId());
+                    mensagem = historico.getHistorico();
+                    swap[25] = historico.getComplemento(); // movDB.pesquisaDescMensagem(lista.get(i).getTipoServico().getId(), lista.get(i).getServicos().getId(), conv.getId(), dbCon.pesquisaGrupoCidadeJuridica(conv.getId(), id_cidade_endereco).getId());
                 }
 
                 mensagemErroMovimento += " " + swap[0] + "\n "
@@ -2619,9 +2621,9 @@ public class ImprimirBoleto {
                     valor_boleto = Moeda.somaValores(valor_total, valor_total_atrasadas);
                 }
 
-                String mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas";
+                String mensagemAtrasadas = "Mens.Atrasadas (Corrigir na Próxima Fatura)";
                 if (!list_at.isEmpty()) {
-                    mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
+                    mensagemAtrasadas = "Mens.Atrasadas (Corrigir na Próxima Fatura) de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
                 }
 
                 // 
@@ -2631,10 +2633,10 @@ public class ImprimirBoleto {
                     if (hash.get("boleto") != null) {
                         boleto = (Boleto) hash.get("boleto");
                     } else {
-                        if(hash.get("boleto") == null) {
-                            if(hash.get("mensagem") != null) {
-                                if(!hash.get("mensagem").toString().isEmpty()) {
-                                    if(hash.get("mensagem").toString().contains("Erro")) {
+                        if (hash.get("boleto") == null) {
+                            if (hash.get("mensagem") != null) {
+                                if (!hash.get("mensagem").toString().isEmpty()) {
+                                    if (hash.get("mensagem").toString().contains("Erro")) {
                                         GenericaMensagem.warn(hash.get("mensagem").toString(), "");
                                     }
                                 }

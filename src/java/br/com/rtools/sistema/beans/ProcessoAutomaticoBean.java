@@ -61,7 +61,7 @@ public class ProcessoAutomaticoBean implements Serializable {
                 }
             }            
         } catch (Exception e) {
-            
+            e.getMessage();
         }
     }
 

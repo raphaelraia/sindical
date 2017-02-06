@@ -28,12 +28,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
 
 @ManagedBean
 @SessionScoped
 public class ExtratoTelaBean implements Serializable {
 
+    
     private int idContribuicao = 0;
     private int idTipoServico = 0;
     private int idTipoServicoAlterar = 0;
@@ -93,8 +93,11 @@ public class ExtratoTelaBean implements Serializable {
     private String motivoEstorno = "";
     private Movimento movimentoAlterar = new Movimento();
     private List<Movimento> listMovimentosAcordo = new ArrayList();
+    private Historico historicoMovimento;
+    private Integer index;
 
     public ExtratoTelaBean() {
+        GenericaSessao.remove("tipoPesquisaPessoaJuridica");
         ControleAcessoBean controx = new ControleAcessoBean();
         controx.setModulo((Modulo) new Dao().find(new Modulo(), 3));
 
@@ -292,7 +295,7 @@ public class ExtratoTelaBean implements Serializable {
             if (linha_list.get(11).toString().toUpperCase().equals("ACORDO")) {
                 listMovimentoAcordo = movimentosDao.pesquisaAcordoPorMovimento(((Integer) linha_list.get(0)));
             }
-
+            Movimento m = (Movimento) new Dao().find(new Movimento(), ((Integer) linha_list.get(0)));
             listaMovimentos.add(new DataObject(
                     false,
                     ((Integer) linha_list.get(0)), //ARG 1 id
@@ -322,7 +325,8 @@ public class ExtratoTelaBean implements Serializable {
                     Moeda.converteR$Float(valor_baixa), // ARG 25 valor_baixa
                     classTbl, // ARG 26 null
                     listMovimentoAcordo, // ARG 27 MOVIMENTOS ACORDO
-                    linha_list.get(22) // ARG 28 null
+                    linha_list.get(22), // ARG 28 null
+                    m //  ARG 29 MOVIMENTO
             )
             );
 
@@ -1840,5 +1844,62 @@ public class ExtratoTelaBean implements Serializable {
     public void setListMovimentosAcordo(List<Movimento> listMovimentosAcordo) {
         this.listMovimentosAcordo = listMovimentosAcordo;
     }
+
+    public void openHistorico(int index) {
+        historicoMovimento = new Historico();
+        this.index = index;
+        historicoMovimento = ((Movimento) listaMovimentos.get(index).getArgumento29()).getHistorico();
+        if (historicoMovimento == null) {
+            historicoMovimento = new Historico();
+        }
+    }
+
+    public void saveHistorico() {
+        if (historicoMovimento.getHistorico().length() < 10 || historicoMovimento.getHistorico().trim().isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR MENSAGEM DO CONTRIBUINTE! DEVE TER NO MÍNIMO 10 CARACTERES");
+            return;
+        }
+        if (historicoMovimento.getComplemento().length() < 10 || historicoMovimento.getComplemento().trim().isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR MENSAGEM DO BOLETO! DEVE TER NO MÍNIMO 10 CARACTERES");
+            return;
+
+        }
+        if (historicoMovimento.getId() != -1) {
+            new Dao().update(historicoMovimento, true);
+            GenericaMensagem.info("Validação", "MENSAGEM ATUALIZADA COM SUCESSO");
+        } else {
+            GenericaMensagem.info("Validação", "MENSAGEM INSERIDA COM SUCESSO");
+        }
+        ((Movimento) listaMovimentos.get(index).getArgumento29()).setHistorico(historicoMovimento);
+        this.index = null;
+        historicoMovimento = null;
+    }
+
+    public void closeHistorico() {
+        if (historicoMovimento != null) {
+            if (historicoMovimento.getId() == -1 && historicoMovimento.getHistorico().isEmpty() && historicoMovimento.getComplemento().isEmpty()) {
+                ((Movimento) listaMovimentos.get(index).getArgumento29()).setHistorico(null);
+            }
+        }
+        this.index = null;
+        historicoMovimento = null;
+    }
+    
+    public Historico getHistoricoMovimento() {
+        return historicoMovimento;
+    }
+
+    public void setHistoricoMovimento(Historico historicoMovimento) {
+        this.historicoMovimento = historicoMovimento;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
 
 }
