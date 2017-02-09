@@ -1306,8 +1306,8 @@ public class GerarMovimento extends DB {
                 }
 
                 valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValorBaixa());
-            }
-
+            }            
+            
             if (valor_forma_pagamento == valor_movimento) {
                 dao.commit();
                 return true;

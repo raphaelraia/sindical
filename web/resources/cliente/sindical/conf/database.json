@@ -1,5 +1,5 @@
 {
-    "host": "sindical.rtools.com.br",
+    "host": "192.168.1.100",
     "database": "ComercioRP",
     "password": "r#@tools"
 }

@@ -18,7 +18,7 @@ public class VendaBaileDao extends DB {
                     = " SELECT EV.*                                             \n"
                     + "   FROM eve_evento_baile AS EV                           \n "
                     + (!todos ? "  WHERE EV.dt_data >= CURRENT_DATE             \n " : " \n ")
-                    + "  ORDER BY EV.dt_data DESC";
+                    + (todos ? "  ORDER BY EV.dt_data DESC " : " ORDER BY EV.dt_data ASC ");
 
             Query qry = getEntityManager().createNativeQuery(textqry, EventoBaile.class);
             return qry.getResultList();

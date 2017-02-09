@@ -42,7 +42,7 @@
                                         <p:outputLabel value="Filtrar por" />
                                         <h:column>
                                             <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{controleAcessoBean.getListaExtratoTela(false)}">
-                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <p:ajax event="change" update="@this :formExtratoTelaOpcoes:i_reativar_bol" global="false"/>
                                                 <f:selectItem itemValue="todos"             itemLabel="Todas"/>
                                                 <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
                                                 <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
@@ -203,14 +203,14 @@
 
                                 </h:panelGrid>
                             </p:panel>
-                            <p:messages id="i_msg" closable="true" showDetail="true"/>
+                            <p:messages id="i_msg" closable="true" showDetail="true" autoUpdate="true"/>
                             <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="10" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%" rowIndexVar="index">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
 
                                 <p:column style="width:15px; text-align: center">
-                                    <p:selectBooleanCheckbox value="#{movimentos.argumento0}" disabled="#{extratoTelaBean.porPesquisa eq 'excluidos'}">
+                                    <p:selectBooleanCheckbox value="#{movimentos.argumento0}" disabled="#{(extratoTelaBean.porPesquisa eq 'excluidos' and segurancaUtilitariosBean.sessaoUsuario.id != 1)}">
                                         <p:ajax event="change" update="@this" global="false"/>
                                     </p:selectBooleanCheckbox>
                                 </p:column>
@@ -459,6 +459,14 @@
 
                         <h:form id="formExtratoTelaOpcoes">
                             <p:panel styleClass="fundoCinza" header="Opções do Boleto">
+                                <h:panelGroup id="i_reativar_bol">
+                                    <h:panelGrid columns="12" rendered="#{extratoTelaBean.porPesquisa eq 'excluidos'}">
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Reativar" title="Reativar movimentos selecionados" onclick="PF('i_dlg_reativar').show()" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </h:panelGroup>                                 
                                 <h:panelGrid columns="9">
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{extratoTelaBean.imprimirVerso}" itemLabel="Imprimir Verso" />
@@ -622,6 +630,19 @@
                                     <p:commandButton icon="ui-icon-circle-close" value="Fechar" title="Fechar" onclick="PF('dlg_acordos').hide()" global="false"/>                                    
                                 </f:facet>
                             </p:dialog>
+                            <p:dialog widgetVar="i_dlg_reativar" header="Deseja reativar estes Movimentos" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente REATIVAR esse movimento?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Digite um motivo para reativação" style="font-size: 10pt!important; font-weight: bold"/>
+                                    <p:inputTextarea value="#{extratoTelaBean.motivoReativacao}" style="width: 100%"/>
+                                </h:panelGrid>
+
+                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{extratoTelaBean.reativarMovimentos()}" update=":formExtratoTelaOpcoes: :formExtratoTela:" onclick="PF('i_dlg_reativar').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_reativar').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>                            
                         </h:form>
 
                     </p:panel>

@@ -254,8 +254,8 @@ public class TituloBean implements Serializable {
     public void edit(Catalogo c) {
         catalogo = c;
         idFilial = c.getFilial().getId();
-        for(int i = 0; i < listFilial.size(); i++) {
-            if(c.getFilial().getId().equals(Integer.parseInt(listFilial.get(i).getValue().toString()))) {
+        for (int i = 0; i < listFilial.size(); i++) {
+            if (c.getFilial().getId().equals(Integer.parseInt(listFilial.get(i).getValue().toString()))) {
                 return;
             }
         }
@@ -302,7 +302,11 @@ public class TituloBean implements Serializable {
             return;
         }
         Dao dao = new Dao();
-        catalogo.setFilial((Filial) dao.find(new Filial(), idFilial));
+        if (idFilial == 0) {
+            catalogo.setFilial((Filial) dao.find(new Filial(), MacFilial.getAcessoFilial().getFilial().getId()));
+        } else {
+            catalogo.setFilial((Filial) dao.find(new Filial(), idFilial));
+        }
         catalogo.setTitulo(titulo);
         NovoLog novoLog = new NovoLog();
         if (catalogo.getId() == null) {
@@ -704,7 +708,6 @@ public class TituloBean implements Serializable {
 //        }
 //        return listFilial;
 //    }
-
     public List<SelectItem> getListFilial() {
         if (titulo.getId() != null) {
             if (listFilial.isEmpty()) {

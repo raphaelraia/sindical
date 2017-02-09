@@ -22,9 +22,12 @@ import org.primefaces.model.TreeNode;
 @SessionScoped
 public class reciboGeradoBean implements Serializable {
 
+
     private TreeNode root;
     private TreeNode selectedRoot;
     private List<DataObject> listaArquivo = new ArrayList<>();
+    private String caixaNome = "";
+    private String caixaData = "";
 
     public reciboGeradoBean() {
         root = new DefaultTreeNode("root", null);
@@ -72,9 +75,11 @@ public class reciboGeradoBean implements Serializable {
 
             String[] split = selectedRoot.getParent().getData().toString().split("-");
             String cx = split[0].trim();
+            caixaNome = split[1].trim();
             //String cx = selectedRoot.getParent().getData().toString().sreplaceFirst("-", "");
             String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/" + "Arquivos/recibo/" + cx + "/");
             String path_recibo = cx + "/" + selectedRoot.getData().toString();
+            caixaData = selectedRoot.getData().toString().replace("-", "/");
 
             File file_data = new File(caminho + "/" + selectedRoot.getData().toString() + "/");
             File lista_datas[] = file_data.listFiles();
@@ -82,7 +87,10 @@ public class reciboGeradoBean implements Serializable {
             for (File lista_data : lista_datas) {
                 listaArquivo.add(new DataObject(lista_data, path_recibo));
             }
+            
         } else {
+            caixaNome = "";
+            caixaData = "";
             listaArquivo.clear();
         }
     }
@@ -112,6 +120,23 @@ public class reciboGeradoBean implements Serializable {
 
     public void setSelectedRoot(TreeNode selectedRoot) {
         this.selectedRoot = selectedRoot;
+    }
+    
+    
+    public String getCaixaNome() {
+        return caixaNome;
+    }
+
+    public void setCaixaNome(String caixaNome) {
+        this.caixaNome = caixaNome;
+    }
+
+    public String getCaixaData() {
+        return caixaData;
+    }
+
+    public void setCaixaData(String caixaData) {
+        this.caixaData = caixaData;
     }
 
 }

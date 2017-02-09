@@ -211,7 +211,9 @@ public class PessoaBean implements Serializable {
                 anoDeclaracaoAnualDebitos = "";
                 List<String> list = new PessoaDao().listAnoDeclaracaoAnualDebitos(pessoa.getId());
                 for(int i = 0; i < list.size(); i++) {
-                    anoDeclaracaoAnualDebitos = list.get(i);
+                    if(i == 0) {
+                        anoDeclaracaoAnualDebitos = list.get(i);                        
+                    }
                     listAnoDeclaracaoAnualDebitos.add(new SelectItem(list.get(i), list.get(i), list.get(i)));
                 }
                 break;

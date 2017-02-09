@@ -4,6 +4,7 @@ import br.com.rtools.academia.beans.MatriculaAcademiaBean;
 import br.com.rtools.arrecadacao.beans.BaixaBoletoBean;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
+import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Caixa;
@@ -580,6 +581,36 @@ public class BaixaGeralBean implements Serializable {
             mensagem = "Erro ao baixar!";
             return null;
         } else {
+            Dao dao = new Dao();
+            Boolean erro_baixa = false;
+            for (int i = 0; i < listaMovimentos.size(); i++) {
+                if (listaMovimentos.get(i).getId() == -1) {
+                    mensagem = "Erro ao baixar (MOVIMENTO)!";
+                    erro_baixa = true;
+                    break;
+                }
+                if (listaMovimentos.get(i).getBaixa() == null || listaMovimentos.get(i).getBaixa().getId() == -1) {
+                    mensagem = "Erro ao baixar (BAIXA)!";
+                    erro_baixa = true;
+                    break;
+                } else {
+                    Baixa b = (Baixa) dao.find(new Baixa(), listaMovimentos.get(i).getBaixa().getId());
+                    if (b == null) {
+                        erro_baixa = true;
+                        mensagem = "Erro ao baixar (BAIXA IS NULL)!";
+                        break;
+
+                    }
+                }
+            }
+            if (erro_baixa) {
+                for (int i = 0; i < listaMovimentos.size(); i++) {
+                    if (listaMovimentos.get(i).getBaixa() != null || listaMovimentos.get(i).getBaixa().getId() == -1) {
+                        listaMovimentos.get(i).setBaixa(null);
+                    }
+                }
+                 return mensagem;
+            }
             listaValores.clear();
             total = "0.0";
             String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
@@ -647,6 +678,18 @@ public class BaixaGeralBean implements Serializable {
 
     public void imprimirRecibo() {
         if (!listaMovimentos.isEmpty()) {
+            for (int i = 0; i < listaMovimentos.size(); i++) {
+                try {
+                    Movimento m = (Movimento) new Dao().find(listaMovimentos.get(i));
+                    if (m == null) {
+                        mensagem = "Não é possivel salvar baixa sem um caixa/operador definido!";
+                        return;
+                    }
+                } catch (Exception e) {
+                    mensagem = e.getMessage();
+                    return;
+                }
+            }
             Map map = new HashMap();
             if (!dataEmissaoRecibo.isEmpty()) {
                 map.put("data_emissao", dataEmissaoRecibo);

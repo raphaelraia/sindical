@@ -267,10 +267,11 @@ public class ServicosDao extends DB {
     public List pesquisaTodosPeloContaCobranca(int idRotina) {
         try {
             Query qry = getEntityManager().createQuery(
-                    "SELECT SR.servicos "
-                    + "  FROM ServicoRotina AS SR"
-                    + " WHERE SR.rotina.id = :r"
-                    + "   AND SR.servicos.id IN(SELECT S.servicos.id FROM ServicoContaCobranca AS S)");
+                    "     SELECT SR.servicos                                    \n"
+                    + "     FROM ServicoRotina AS SR                            \n"
+                    + "    WHERE SR.rotina.id = :r                              \n"
+                    + "      AND SR.servicos.id IN(SELECT S.servicos.id FROM ServicoContaCobranca AS S) \n"
+                    + " ORDER BY SR.servicos.descricao ");
             qry.setParameter("r", idRotina);
             return (qry.getResultList());
         } catch (Exception e) {

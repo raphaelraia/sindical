@@ -1159,6 +1159,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
     
     public String estornarBaixa() {
+        GenericaSessao.remove("estorno_movimento_sucesso");
         if (listaMovimento.isEmpty()) {
             msgConfirma = "Não existem boletos para serem estornados!";
             GenericaMensagem.warn("Erro", msgConfirma);
@@ -1245,6 +1246,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                     + " - Número da Baixa: " + id_baixa_estornada
             );
             GenericaMensagem.info("Sucesso", msgConfirma);
+            GenericaSessao.put("baixa_sucesso", true);
         }
         listaMovimento.clear();
         chkSeleciona = true;

@@ -12,7 +12,7 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
-            
+
             .column01{
                 width: 380px; 
             }
@@ -20,9 +20,9 @@
                 width: 100%; 
             }
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -37,44 +37,39 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Recibo Gerado" styleClass="fonteHeader" />
                         <h:form id="formReciboGerado">
-                            <h:panelGrid columns="2" style="clear: both; width: 100%;" columnClasses="column01, column02">
-                                
-                                <p:panel style="height: 500px" styleClass="fundoCinza">
-                                    <h:outputLabel value="Lista Caixas" style="font-size: 12pt!important; font-weight: bold"/>
-                                    <p:tree value="#{reciboGeradoBean.root}" var="cx" style="margin-top: 30px" animate="true" selectionMode="single"  
-                                        selection="#{reciboGeradoBean.selectedRoot}">
-                                        <p:ajax event="select" update=":formReciboGerado:i_panel_recibo" listener="#{reciboGeradoBean.selected}" />  
+                            <div class="clear"></div>
+                            <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop" style="width: 100%!important">
+                                <h:column>
+                                    <p:panel style="width: 300px" header="CAIXAS">
+                                        <div style="height: 300px; overflow-x: hidden; overflow-y: scroll">
+                                            <p:tree value="#{reciboGeradoBean.root}" var="cx" style="margin-top: 15px" animate="true" selectionMode="single" selection="#{reciboGeradoBean.selectedRoot}">
+                                                <p:ajax event="select" update=":formReciboGerado:i_panel_recibo" listener="#{reciboGeradoBean.selected}" />  
+                                                <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">  
+                                                    <h:outputLabel value="#{cx}"/>  
+                                                </p:treeNode>  
+                                            </p:tree>
+                                        </div>
+                                    </p:panel>                                    
+                                </h:column>                            
+                                <h:column>
+                                    <p:panel id="i_panel_recibo" style="width: 800px">
+                                        <f:facet name="header">
+                                            MEUS RECIBOS - #{reciboGeradoBean.caixaNome} - #{reciboGeradoBean.caixaData}
+                                        </f:facet>
+                                        <p:dataGrid value="#{reciboGeradoBean.listaArquivo}" var="arquivo" columns="4" emptyMessage="Nenhum Arquivo Encontrado." paginator="true" layout="grid" rows="8">
+                                            <p:panel header="#{arquivo.argumento0.name}" style="text-align:center; width: 150px; overflow: hidden">
+                                                <h:panelGrid>  
+                                                    <p:graphicImage value="/Imagens/img_recibo.png" width="100"></p:graphicImage>
+                                                    <h:commandLink value="Visualizar Recibo" title="Visualizar Recibo" action="#{reciboGeradoBean.view(arquivo)}" target="_BLANK"/>  
+                                                </h:panelGrid>  
+                                            </p:panel>  
+                                        </p:dataGrid>
+                                    </p:panel>
+                                </h:column>
 
-                                        <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">  
-                                            <h:outputLabel value="#{cx}"/>  
-                                        </p:treeNode>  
-                                    </p:tree>
-                                </p:panel>
-                            
-                                <p:panel id="i_panel_recibo" style="height: 500px">
-                                    <p:column style="float: left; width: 200px">
-                                        <h:outputLabel value="Meus Recibos" style="font-size: 12pt!important; font-weight: bold; vertical-align: top"/>
-                                        <h:panelGrid style="margin-top: 30px; clear: both">
-                                                
-                                            <p:dataGrid value="#{reciboGeradoBean.listaArquivo}" var="arquivo" columns="4" emptyMessage="Nenhum Arquivo Encontrado." paginator="true" layout="grid" rows="8">
-                                                <p:panel header="#{arquivo.argumento0.name}" style="text-align:center">  
-                                                    <h:panelGrid columns="1" style="width:100%; text-align: center">  
-                                                        <p:graphicImage value="/Imagens/img_recibo.png" width="100">
-                                                            
-                                                        </p:graphicImage>
-                                                            
-                                                        <h:commandLink value="Visualizar Recibo" title="Visualizar Recibo" action="#{reciboGeradoBean.view(arquivo)}" target="_BLANK"/>  
-                                                    </h:panelGrid>  
-                                                </p:panel>  
-                                            </p:dataGrid>
-                                            
-                                        </h:panelGrid>
-                                    </p:column>
-                                </p:panel>
-                                
                             </h:panelGrid>
-                            
-                            
+
+
                         </h:form>
                     </p:panel>
                 </f:view>

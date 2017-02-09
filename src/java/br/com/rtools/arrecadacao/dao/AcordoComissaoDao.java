@@ -159,7 +159,7 @@ public class AcordoComissaoDao extends DB {
             if (in_usuarios != null && !in_usuarios.isEmpty()) {
                 textQuery += " AND AC.id_usuario IN (" + in_usuarios + " )" + " \n";
             }
-            if (relatorioOrdem == null) {
+            if (relatorioOrdem == null) { 
                 textQuery += " ORDER BY P.ds_nome";
             } else {
                 textQuery += " ORDER BY " + relatorioOrdem.getQuery();

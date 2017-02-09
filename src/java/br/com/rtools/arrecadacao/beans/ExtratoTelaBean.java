@@ -3,6 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.dao.AcordoDao;
+import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.RemessaBancoDao;
@@ -33,7 +34,6 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class ExtratoTelaBean implements Serializable {
 
-    
     private int idContribuicao = 0;
     private int idTipoServico = 0;
     private int idTipoServicoAlterar = 0;
@@ -95,11 +95,13 @@ public class ExtratoTelaBean implements Serializable {
     private List<Movimento> listMovimentosAcordo = new ArrayList();
     private Historico historicoMovimento;
     private Integer index;
+    private String motivoReativacao;
 
     public ExtratoTelaBean() {
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
         ControleAcessoBean controx = new ControleAcessoBean();
         controx.setModulo((Modulo) new Dao().find(new Modulo(), 3));
+        motivoReativacao = "";
 
         if (controx.getListaExtratoTela(false)) {
             porPesquisa = "todos";
@@ -1884,7 +1886,7 @@ public class ExtratoTelaBean implements Serializable {
         this.index = null;
         historicoMovimento = null;
     }
-    
+
     public Historico getHistoricoMovimento() {
         return historicoMovimento;
     }
@@ -1901,5 +1903,95 @@ public class ExtratoTelaBean implements Serializable {
         this.index = index;
     }
 
+    public String getMotivoReativacao() {
+        return motivoReativacao;
+    }
+
+    public void setMotivoReativacao(String motivoReativacao) {
+        this.motivoReativacao = motivoReativacao;
+    }
+
+    public void reativarMovimentos() {
+        if (motivoReativacao.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Digite um motivo para reativação!");
+            return;
+        } else if (motivoReativacao.length() < 6) {
+            GenericaMensagem.warn("Atenção", "Motivo de válido para reativação! Com mais de 6 caracteres.");
+            return;
+        }
+
+        List<Movimento> listam = new ArrayList();
+
+        if (baixado()) {
+            GenericaMensagem.warn("Atenção", "Boletos BAIXADOS não podem ser reativados!");
+            return;
+        }
+
+        if (fechadosCaixa()) {
+            GenericaMensagem.warn("Atenção", "Boletos COM CAIXA FECHADO não podem ser reativados!");
+            return;
+        }
+
+        if (acordados()) {
+            GenericaMensagem.warn("Atenção", "Boletos do tipo ACORDO não podem ser reativados!");
+            return;
+        }
+
+        for (DataObject dh : listaMovimentos) {
+            if ((Boolean) dh.getArgumento0()) {
+                listam.add(((Movimento) dh.getArgumento29()));
+            }
+        }
+
+        if (listam.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Nenhum boletos foi selecionado!");
+            return;
+        }
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        if (!GerarMovimento.reativarArrayMovimento(listam, motivoReativacao, dao).isEmpty()) {
+            GenericaMensagem.error("Atenção", "Ocorreu um erro em uma dos movimentos a serem reativados, verifique o log!");
+            dao.rollback();
+            return;
+        } else {
+            GenericaMensagem.info("Sucesso", "Boletos foram reativados!");
+        }
+
+        listaMovimentos.clear();
+        dao.commit();
+        motivoReativacao = "";
+        loadListBeta();
+    }
+
+    public boolean baixado() {
+        for (int i = 0; i < listaMovimentos.size(); i++) {
+            if (((Boolean) listaMovimentos.get(i).getArgumento0()) && ((Movimento) (listaMovimentos.get(i).getArgumento29())).getBaixa() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean fechadosCaixa() {
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
+        for (int i = 0; i < listaMovimentos.size(); i++) {
+            if (((Boolean) listaMovimentos.get(i).getArgumento0())
+                    && (((Movimento) (listaMovimentos.get(i).getArgumento29())).getBaixa() != null) && (((Movimento) (listaMovimentos.get(i).getArgumento29())).getBaixa().getFechamentoCaixa() != null)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean acordados() {
+        for (int i = 0; i < listaMovimentos.size(); i++) {
+            if ((Boolean) listaMovimentos.get(i).getArgumento0() && String.valueOf(listaMovimentos.get(i).getArgumento14()).equals("Acordo")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
