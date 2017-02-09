@@ -200,46 +200,49 @@ public class ImprimirBoleto {
 
             // SE FOR IGUAL A NULL CADASTRAR CONTRIBUINTE
             if (entity == null) {
-                System.out.println("Cadastrar Contribuinte!");
-                httpclient.close();
-                httppost.abort();
-
-                httpclient = HttpClients.createDefault();
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                 } else {
                     httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                 }
-                params = new ArrayList(2);
-                params.add(new BasicNameValuePair("codigo", "" + pessoa.getId()));
-                params.add(new BasicNameValuePair("documento", pessoa.getDocumento()));
-                params.add(new BasicNameValuePair("nome", pessoa.getNome()));
-                params.add(new BasicNameValuePair("endereco", pessoa.getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + pessoa.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao()));
-                params.add(new BasicNameValuePair("bairro", pessoa.getPessoaEndereco().getEndereco().getBairro().getDescricao()));
-                params.add(new BasicNameValuePair("cidade", pessoa.getPessoaEndereco().getEndereco().getCidade().getCidade()));
-                params.add(new BasicNameValuePair("uf", pessoa.getPessoaEndereco().getEndereco().getCidade().getUf()));
-                params.add(new BasicNameValuePair("cep", pessoa.getPessoaEndereco().getEndereco().getCep()));
+            } else if (!teste) {
+                httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/alterar_contribuinte");
+            } else {
+                httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_contribuinte");
+            }
+            
+            params = new ArrayList(2);
+            params.add(new BasicNameValuePair("codigo", "" + pessoa.getId()));
+            params.add(new BasicNameValuePair("documento", pessoa.getDocumento()));
+            params.add(new BasicNameValuePair("nome", pessoa.getNome()));
+            params.add(new BasicNameValuePair("endereco", pessoa.getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + pessoa.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao()));
+            params.add(new BasicNameValuePair("bairro", pessoa.getPessoaEndereco().getEndereco().getBairro().getDescricao()));
+            params.add(new BasicNameValuePair("cidade", pessoa.getPessoaEndereco().getEndereco().getCidade().getCidade()));
+            params.add(new BasicNameValuePair("uf", pessoa.getPessoaEndereco().getEndereco().getCidade().getUf()));
+            params.add(new BasicNameValuePair("cep", pessoa.getPessoaEndereco().getEndereco().getCep()));
 
-                httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-                response = httpclient.execute(httppost);
-                entity = response.getEntity();
+            httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            response = httpclient.execute(httppost);
+            entity = response.getEntity();
 
-                if (entity != null) {
-                    String msg = EntityUtils.toString(entity);
-                    JSONObject jSONObject = new JSONObject(msg);
-                    boolean result = jSONObject.getBoolean("status");
+            if (entity != null) {
+                String msg = EntityUtils.toString(entity);
+                JSONObject jSONObject = new JSONObject(msg);
+                boolean result = jSONObject.getBoolean("status");
 
-                    if (!result) {
-                        String mens = jSONObject.getString("mensagem");
+                if (!result) {
+                    String mens = jSONObject.getString("mensagem");
 
-                        hash.put("boleto", null);
-                        hash.put("mensagem", mens);
-                        return hash;
-                    }
+                    hash.put("boleto", null);
+                    hash.put("mensagem", mens);
+                    return hash;
                 }
             }
 
+            httpclient.close();
+            httppost.abort();
             httpclient = HttpClients.createDefault();
+            
             // PESQUISAR BOLETO
             if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
@@ -461,46 +464,49 @@ public class ImprimirBoleto {
 
                 // SE FOR IGUAL A NULL CADASTRAR CONTRIBUINTE
                 if (entity == null) {
-                    System.out.println("Cadastrar Contribuinte!");
-                    httpclient.close();
-                    httppost.abort();
-
-                    httpclient = HttpClients.createDefault();
                     if (!teste) {
                         httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                     } else {
                         httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/salvar_contribuinte");
                     }
-                    params = new ArrayList(2);
-                    params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
-                    params.add(new BasicNameValuePair("documento", lista.get(i).getPessoa().getDocumento()));
-                    params.add(new BasicNameValuePair("nome", lista.get(i).getPessoa().getNome()));
-                    params.add(new BasicNameValuePair("endereco", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao()));
-                    params.add(new BasicNameValuePair("bairro", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao()));
-                    params.add(new BasicNameValuePair("cidade", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade()));
-                    params.add(new BasicNameValuePair("uf", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf()));
-                    params.add(new BasicNameValuePair("cep", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCep()));
+                } else if (!teste) {
+                    httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/alterar_contribuinte");
+                } else {
+                    httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_contribuinte");
+                }
 
-                    httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-                    response = httpclient.execute(httppost);
-                    entity = response.getEntity();
+                params = new ArrayList(2);
+                params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
+                params.add(new BasicNameValuePair("documento", lista.get(i).getPessoa().getDocumento()));
+                params.add(new BasicNameValuePair("nome", lista.get(i).getPessoa().getNome()));
+                params.add(new BasicNameValuePair("endereco", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao()));
+                params.add(new BasicNameValuePair("bairro", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao()));
+                params.add(new BasicNameValuePair("cidade", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade()));
+                params.add(new BasicNameValuePair("uf", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf()));
+                params.add(new BasicNameValuePair("cep", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCep()));
 
-                    if (entity != null) {
-                        String msg = EntityUtils.toString(entity);
-                        JSONObject jSONObject = new JSONObject(msg);
-                        boolean result = jSONObject.getBoolean("status");
+                httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+                response = httpclient.execute(httppost);
+                entity = response.getEntity();
 
-                        if (!result) {
-                            String mens = jSONObject.getString("mensagem");
+                if (entity != null) {
+                    String msg = EntityUtils.toString(entity);
+                    JSONObject jSONObject = new JSONObject(msg);
+                    boolean result = jSONObject.getBoolean("status");
 
-                            hash.put("lista", new ArrayList());
-                            hash.put("mensagem", mens);
-                            return hash;
-                        }
+                    if (!result) {
+                        String mens = jSONObject.getString("mensagem");
+
+                        hash.put("boleto", null);
+                        hash.put("mensagem", mens);
+                        return hash;
                     }
                 }
 
+                httpclient.close();
+                httppost.abort();
                 httpclient = HttpClients.createDefault();
+                
                 // PESQUISAR BOLETO
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
@@ -2631,10 +2637,10 @@ public class ImprimirBoleto {
                     if (hash.get("boleto") != null) {
                         boleto = (Boleto) hash.get("boleto");
                     } else {
-                        if(hash.get("boleto") == null) {
-                            if(hash.get("mensagem") != null) {
-                                if(!hash.get("mensagem").toString().isEmpty()) {
-                                    if(hash.get("mensagem").toString().contains("Erro")) {
+                        if (hash.get("boleto") == null) {
+                            if (hash.get("mensagem") != null) {
+                                if (!hash.get("mensagem").toString().isEmpty()) {
+                                    if (hash.get("mensagem").toString().contains("Erro")) {
                                         GenericaMensagem.warn(hash.get("mensagem").toString(), "");
                                     }
                                 }

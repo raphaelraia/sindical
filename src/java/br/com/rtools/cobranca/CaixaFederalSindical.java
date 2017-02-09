@@ -78,7 +78,7 @@ public class CaixaFederalSindical extends Cobranca {
     @Override
     public String representacao() {
         String codigoBarras = codigoBarras();
-        int i = 0;
+        
         String repNumerica = codigoBarras.substring(0, 4);
         repNumerica += "97";
         repNumerica += codigoBarras.substring(21, 44);
@@ -214,7 +214,7 @@ public class CaixaFederalSindical extends Cobranca {
             String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/");
             String destino = caminho + "/" + remessa.getId();
 
-            File flDes = new File(destino); // 0 DIA, 1 MES, 2 ANO
+            File flDes = new File(destino);
             flDes.mkdir();
 
             destino += "/" + nome_arquivo;
@@ -361,7 +361,6 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "0"; // 23.3P DV Dígito Verificador da Agência 106 106 X(001) Preencher '0’ *C014
                 CONTEUDO_REMESSA += "99";//CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getEspecieDoc(); // 24.3P Espécie de Título Espécie do Título 107 108 9(002) Ver Nota Explicativa C015 *C015
 
-                //String aceite = boleto_rem.getContaCobranca().getAceite().equals("N") ? boleto_rem.getContaCobranca().getAceite() : "A";
                 String aceite = "A";
                 CONTEUDO_REMESSA += aceite; // 25.3P Aceite Identific. de Título Aceito/Não Aceito 109 109 X(001) Indica se o título de cobrança possui aceite do pagador; preencher com ‘A’ (Aceite) ou ‘N’ (Não Aceite) C016
                 CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 26.3P Data Emissão do Título Data da Emissão do Título 110 117 9(008) Preencher com a data de emissão do título, no formato DDMMAAAA (Dia, Mês e Ano) G071            
@@ -450,7 +449,7 @@ public class CaixaFederalSindical extends Cobranca {
                 5-MTE
                  */
                 CONTEUDO_REMESSA += "1"; // 23.3Q Dados do Beneficiár io Tipo de entidade Tipo de Entidade Sindical 216 216 1 - Num  C105
-                //String cod_sindical = boleto_rem.getContaCobranca().getCodigoSindical();
+
                 String cod_sindical = boleto_rem.getContaCobranca().getSicasSindical();
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - cod_sindical.length()) + cod_sindical; // 24.3Q Código Sindical Código sindical da Entidade Sindical 217 221 5 - Num  C106
                 CONTEUDO_REMESSA += "                   "; // 25.3Q  CNAB Uso Exclusivo FEBRABAN/ CNAB Uso Exclusivo FEBRABAN/CNAB  222 240 19 Alfa Brancos G004 *G006 
@@ -532,9 +531,7 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += "9999"; // 02.9 Lote de Serviço 4 7 9(004) Preencher ‘9999’ *G002
             CONTEUDO_REMESSA += "9"; // 03.9 Tipo de Registro 8 8 9(001) Preencher ‘9’ (equivale a Trailer de Arquivo) *G003
             CONTEUDO_REMESSA += "         "; // 04.9 CNAB Filler 9 17 X(009) Preencher com espaços G004
-            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
 
-            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
             CONTEUDO_REMESSA += "000001"; // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
 
             Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
@@ -554,7 +551,6 @@ public class CaixaFederalSindical extends Cobranca {
             log.save(
                     log_string
             );
-            //dao.rollback();
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
