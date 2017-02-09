@@ -136,7 +136,7 @@ public class Mail extends MailTemplate implements Serializable {
                     try {
                         Session session;
                         if (registro.isSisEmailMarketing()) {
-                            if (ControleUsuarioBean.getCliente().equals("ComercioRP")) {
+                            if (ControleUsuarioBean.getCliente().equals("Sindical") || ControleUsuarioBean.getCliente().equals("ComercioRP")) {
                                 session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME_COMERCIORP(), EmailMarketing.getPORT_COMERCIORP(), EmailMarketing.getLOGIN_COMERCIORP(), EmailMarketing.getPASSWORD_COMERCIORP(), EmailMarketing.isAUTH_COMERCIORP(), EmailMarketing.getPROTOCOL_COMERCIORP());
                             } else {
                                 session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME(), EmailMarketing.getPORT(), EmailMarketing.getLOGIN(), EmailMarketing.getPASSWORD(), EmailMarketing.isAUTH(), EmailMarketing.getPROTOCOL());

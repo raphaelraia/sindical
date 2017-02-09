@@ -2,6 +2,7 @@ package br.com.rtools.seguranca.beans;
 
 import br.com.rtools.agenda.CompromissoCategoria;
 import br.com.rtools.agenda.GrupoAgenda;
+import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MotivoInativacao;
 import br.com.rtools.associativo.Banda;
@@ -395,6 +396,9 @@ public class SimplesBean implements Serializable {
             case "SisCartaTipo":
                 o = (SisCartaTipo) new SisCartaTipo(id, descricao);
                 break;
+            case "Convencao":
+                o = (Convencao) new Convencao(id, descricao, true);
+                break;
         }
         return o;
     }
@@ -502,6 +506,10 @@ public class SimplesBean implements Serializable {
                 break;
             case "SisCartaTipo":
                 ((SisCartaTipo) objeto).setDescricao(descricao);
+                break;
+            case "Convencao":
+                ((Convencao) objeto).setDescricao(descricao);
+                ((Convencao) objeto).setAtivo(ativo);
                 break;
         }
     }
@@ -646,6 +654,11 @@ public class SimplesBean implements Serializable {
             case "SisCartaTipo":
                 descricao = ((SisCartaTipo) obj).getDescricao();
                 id = ((SisCartaTipo) objeto).getId();
+                break;
+            case "Convencao":
+                descricao = ((Convencao) obj).getDescricao();
+                id = ((Convencao) objeto).getId();
+                ativo = ((Convencao) objeto).getAtivo();
                 break;
         }
         Dao dao = new Dao();
@@ -821,6 +834,10 @@ public class SimplesBean implements Serializable {
                 break;
             case "SisCartaTipo":
                 if (((SisCartaTipo) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+            case "Convencao":
+                if (((Convencao) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
                 }
                 break;

@@ -5,6 +5,7 @@ import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.dao.BoletoDao;
+import br.com.rtools.financeiro.dao.HistoricoDao;
 import br.com.rtools.financeiro.dao.MovimentoInativoDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
@@ -97,6 +98,9 @@ public class Movimento implements Serializable {
     @Transient
     private Boolean selected;
 
+    @Transient
+    private Historico historico;
+
     /**
      * <p>
      * <strong>Inserir Matricula Sócio</strong>
@@ -139,6 +143,7 @@ public class Movimento implements Serializable {
         this.tipoDocumento = new FTipoDocumento();
         this.matriculaSocios = null;
         this.selected = false;
+        this.historico = null;
     }
 
     /**
@@ -241,6 +246,7 @@ public class Movimento implements Serializable {
         this.tipoDocumento = tipoDocumento;
         this.setMatriculaSocios(matriculaSocios);
         this.selected = false;
+        this.historico = null;
     }
 
     public int getId() {
@@ -625,6 +631,22 @@ public class Movimento implements Serializable {
             return new BoletoDao().findByNrCtrBoleto(nrCtrBoleto);
         }
         return null;
+    }
+
+    public Historico getHistorico() {
+        if (this.id != -1) {
+            if (historico == null) {
+                historico = (Historico) new HistoricoDao().findByMovimento(this.id);
+                if (historico == null) {
+                    historico = new Historico();
+                }
+            }
+        }
+        return historico;
+    }
+
+    public void setHistorico(Historico historico) {
+        this.historico = historico;
     }
 
 }

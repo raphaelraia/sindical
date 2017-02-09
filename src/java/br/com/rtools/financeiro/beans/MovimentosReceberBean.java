@@ -76,6 +76,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         GenericaSessao.remove("movimentosReceberBean");
         GenericaSessao.remove("movimentoValorBean");
         GenericaSessao.remove("pessoaPesquisa");
+        GenericaSessao.remove("juridicaBean");
     }
 
     public String imprimirPlanilha() {

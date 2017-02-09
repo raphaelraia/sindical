@@ -12,15 +12,19 @@
         }
     </style>
     
-    <p:poll global="false" interval="3" listener="#{processoAutomaticoBean.progress()}" stop="#{processoAutomaticoBean.processoAutomaticoConcluido.id ne -1 or (processoAutomaticoBean.processoAutomaticoConcluido.id eq -1 and processoAutomaticoBean.processoAutomatico.id eq -1)}" update="panel_processo_automatico panel_processo_automatico_log"/>
+    <p:poll global="false" interval="10" listener="#{processoAutomaticoBean.progress()}" stop="#{processoAutomaticoBean.processoAutomaticoConcluido.id ne -1 or (processoAutomaticoBean.processoAutomaticoConcluido.id eq -1 and processoAutomaticoBean.processoAutomatico.id eq -1)}" update="panel_processo_automatico panel_processo_automatico_log" delay="5"/>
 
-    <h:panelGrid id="panel_processo_automatico" style="width: 100%">
-        <p:panel rendered="#{processoAutomaticoBean.processoAutomatico.id ne -1}">
-            <p:outputLabel value="Processamento em Andamento: " />
-            <p:outputLabel value="ATUALIZAÇÃO DE EMPRESAS"  style="font-weight: bold"/>
-            <p:progressBar value="#{processoAutomaticoBean.progressValue}" labelTemplate="#{processoAutomaticoBean.progressLabel}%" />
-            <p:commandButton value="Ver Detalhes" action="#{processoAutomaticoBean.verLog()}" oncomplete="PF('dlg_processo_automatico_log').show()" update="panel_processo_automatico_log" />
-            <p:commandLink value="Cancelar Processo" oncomplete="PF('dlg_cancelar_processo').show()" style="margin-left: 10px"/>
+    <h:panelGroup id="panel_processo_automatico" style="width: 100%">
+        <p:panel rendered="#{processoAutomaticoBean.processoAutomatico.id ne -1}" styleClass="margin-top-max" header="Processamento em Andamento: #{processoAutomaticoBean.processoAutomatico.processo}">
+            <h:panelGroup layout="block" styleClass="margin-top-max">
+                <p:progressBar value="#{processoAutomaticoBean.progressValue}" labelTemplate="#{processoAutomaticoBean.progressLabel}% (#{processoAutomaticoBean.processoAutomatico.nrProgresso}  de #{processoAutomaticoBean.processoAutomatico.nrProgressoFinal} registros)" />
+            </h:panelGroup>
+            <f:facet name="footer">
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Ver Detalhes" action="#{processoAutomaticoBean.verLog()}" oncomplete="PF('dlg_processo_automatico_log').show()" update="panel_processo_automatico_log" />
+                    <p:commandLink value="Cancelar Processo" oncomplete="PF('dlg_cancelar_processo').show()" style="margin-left: 10px"/>                                            
+                </h:panelGrid>                
+            </f:facet>
         </p:panel>
 
         <p:panel rendered="#{processoAutomaticoBean.processoAutomatico.id eq -1 and processoAutomaticoBean.processoAutomaticoConcluido.id ne -1}" style="text-align: center">
@@ -31,7 +35,7 @@
                 <h:column><p:commandLink value="Ver Detalhes" action="#{processoAutomaticoBean.verLog()}" oncomplete="PF('dlg_processo_automatico_log').show()" update="panel_processo_automatico_log" style="float: left"/></h:column>
             </h:panelGrid>
         </p:panel>
-    </h:panelGrid>
+    </h:panelGroup>
 
     <p:dialog widgetVar="dlg_cancelar_processo" modal="true" width="500" height="80" resizable="false" header="CANCELAR PROCESSO AUTOMÁTICO">
         <p:outputLabel value="DESEJA REALMENTE CANCELAR ESTE PROCESSO?" />

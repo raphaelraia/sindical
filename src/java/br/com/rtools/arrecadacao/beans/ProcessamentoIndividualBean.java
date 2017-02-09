@@ -12,6 +12,7 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
+import br.com.rtools.financeiro.dao.HistoricoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -62,6 +63,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
     private int processados;
     private int processando;
     private List<DataObject> listMovimentos = new ArrayList();
+    private List<ObjectProcessamentoIndividual> list = new ArrayList();
     private List listaMovAdd = new ArrayList();
     private int idTipoServico;
     private int idServicos;
@@ -87,9 +89,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
     private DataObject dataObject;
     List<Boolean> marcados = new ArrayList<>();
     private Pessoa pessoaEnvio = new Pessoa();
+    private Historico historico;
+    private Integer index = null;
 
     public ProcessamentoIndividualBean() {
-
+        GenericaSessao.remove("juridicaBean");
     }
 
     public void removerEmpresa() {
@@ -186,7 +190,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         valor_calculado, // VALOR CALCULADO
                         null,
                         null);
-
                 listMovimentos.add(dtObject);
                 i++;
             }
@@ -229,6 +232,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         movim = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
 
         if (movim != null) {
+            movim.getHistorico();
             if (movim.getBaixa() != null && movim.getBaixa().getId() != -1) {
                 GenericaMensagem.warn("Erro", "Movimento já foi baixado!");
                 return null;
@@ -274,6 +278,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                             vencimento,
                             0,
                             0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
+                    if (movim != null) {
+                        if (movim.getHistorico() != null) {
+                            movi.setHistorico(movim.getHistorico());
+                        }
+                    }
                     listaMovAdd.add(movi);
                 } else {
                     int tamList = listMovimentos.size();
@@ -461,8 +470,10 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         String beforeUpdate = "";
         Movimento movimentoBefore = new Movimento();
         MovimentoDao finDB = new MovimentoDao();
+        HistoricoDao historicoDao = new HistoricoDao();
         if (!listMovimentos.isEmpty()) {
             for (int i = 0; i < listMovimentos.size(); i++) {
+                Boolean success = true;
                 movim = finDB.pesquisaMovimentos(
                         ((Movimento) listMovimentos.get(i).getArgumento1()).getPessoa().getId(),
                         ((Movimento) listMovimentos.get(i).getArgumento1()).getReferencia(),
@@ -504,6 +515,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         GenericaMensagem.info("Sucesso", "Alterado");
                     } else {
                         GenericaMensagem.warn("Erro", "Ao alterar boletos!");
+                        success = false;
 
                     }
 
@@ -528,6 +540,18 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         GenericaMensagem.info("Sucesso", "Gerado");
                     } else {
                         GenericaMensagem.warn("Erro", "Ao gerar boletos!");
+                        success = false;
+                    }
+                }
+                if (success) {
+                    Historico h = ((Movimento) listMovimentos.get(i).getArgumento1()).getHistorico();
+                    if (h != null) {
+                        if (h.getId() == -1 && !h.getComplemento().isEmpty() && !h.getHistorico().isEmpty()) {
+                            h.setMovimento(movim);
+                            new Dao().save(h, true);
+                        } else {
+                            new Dao().update(h, true);
+                        }
                     }
                 }
                 movimentoBefore = new Movimento();
@@ -1248,4 +1272,160 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
     public void setPessoaEnvio(Pessoa pessoaEnvio) {
         this.pessoaEnvio = pessoaEnvio;
     }
+
+    public void openHistorico(int index) {
+        historico = new Historico();
+        this.index = index;
+        historico = ((Movimento) listMovimentos.get(index).getArgumento1()).getHistorico();
+        if (historico == null) {
+            historico = new Historico();
+        }
+    }
+
+    public void saveHistorico() {
+        if (historico.getHistorico().length() < 10 || historico.getHistorico().trim().isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR MENSAGEM DO CONTRIBUINTE! DEVE TER NO MÍNIMO 10 CARACTERES");
+            return;
+        }
+        if (historico.getComplemento().length() < 10 || historico.getComplemento().trim().isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR MENSAGEM DO BOLETO! DEVE TER NO MÍNIMO 10 CARACTERES");
+            return;
+
+        }
+        if (historico.getId() != -1) {
+            new Dao().update(historico, true);
+            GenericaMensagem.info("Validação", "MENSAGEM ATUALIZADA COM SUCESSO");
+        } else {
+            GenericaMensagem.info("Validação", "MENSAGEM INSERIDA COM SUCESSO");
+        }
+        ((Movimento) listMovimentos.get(index).getArgumento1()).setHistorico(historico);
+        this.index = null;
+        historico = null;
+    }
+
+    public void closeHistorico() {
+        if (historico != null) {
+            if (historico.getId() == -1 && historico.getHistorico().isEmpty() && historico.getComplemento().isEmpty()) {
+                ((Movimento) listMovimentos.get(index).getArgumento1()).setHistorico(null);
+            }
+        }
+        this.index = null;
+        historico = null;
+    }
+
+    public Historico getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(Historico historico) {
+        this.historico = historico;
+    }
+
+    public List<ObjectProcessamentoIndividual> getList() {
+        return list;
+    }
+
+    public void setList(List<ObjectProcessamentoIndividual> list) {
+        this.list = list;
+    }
+
+    public class ObjectProcessamentoIndividual {
+
+        private Boolean selected;
+        private Movimento movimento;
+        private Juridica contabilidade;
+        private String valor;
+        private String juros;
+        private String multa;
+        private String correcao;
+        private String valor_calculado;
+
+        public ObjectProcessamentoIndividual() {
+            this.selected = true;
+            this.movimento = null;
+            this.contabilidade = null;
+            this.valor = "0,00";
+            this.juros = "0,00";
+            this.multa = "0,00";
+            this.correcao = "0,00";
+            this.valor_calculado = "0,00";
+        }
+
+        public ObjectProcessamentoIndividual(Boolean selected, Movimento movimento, Juridica contabilidade, String valor, String juros, String multa, String correcao, String valor_calculado) {
+            this.selected = selected;
+            this.movimento = movimento;
+            this.contabilidade = contabilidade;
+            this.valor = valor;
+            this.juros = juros;
+            this.multa = multa;
+            this.correcao = correcao;
+            this.valor_calculado = valor_calculado;
+        }
+
+        public Boolean getSelected() {
+            return selected;
+        }
+
+        public void setSelected(Boolean selected) {
+            this.selected = selected;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public Juridica getContabilidade() {
+            return contabilidade;
+        }
+
+        public void setContabilidade(Juridica contabilidade) {
+            this.contabilidade = contabilidade;
+        }
+
+        public String getValor() {
+            return valor;
+        }
+
+        public void setValor(String valor) {
+            this.valor = valor;
+        }
+
+        public String getJuros() {
+            return juros;
+        }
+
+        public void setJuros(String juros) {
+            this.juros = juros;
+        }
+
+        public String getMulta() {
+            return multa;
+        }
+
+        public void setMulta(String multa) {
+            this.multa = multa;
+        }
+
+        public String getCorrecao() {
+            return correcao;
+        }
+
+        public void setCorrecao(String correcao) {
+            this.correcao = correcao;
+        }
+
+        public String getValor_calculado() {
+            return valor_calculado;
+        }
+
+        public void setValor_calculado(String valor_calculado) {
+            this.valor_calculado = valor_calculado;
+        }
+
+    }
+
 }

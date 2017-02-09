@@ -40,7 +40,7 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Relatório Financeiro Escola" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
-                        <h:form id="formRelatorioFinanceiroEscola">
+                        <h:form id="form_relatorio">
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid columns="2">
                                     <h:column>
@@ -84,7 +84,7 @@
                                 </h:column>
 
                                 <h:column>
-                                    <h:panelGrid id="panel_filtro" columns="2">
+                                    <h:panelGrid id="panel_filtro" columns="1">
                                         <!-- TIPO PESSOA -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(0).ativo}" style="float: left; margin: 10px ">
@@ -169,7 +169,46 @@
                                                     </p:dataTable>
                                                 </h:column>
                                             </h:panelGrid>
-                                        </h:column>                                        
+                                        </h:column>
+                                        <!-- FAIXA DE DESCONTO -->                                        
+                                        <h:column rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(3).ativo}">                                        
+                                            <h:panelGrid columns="5" styleClass="margin-top">
+                                                <p:outputLabel value="Faixa de Desconto (%): " />
+                                                <p:inputText value="#{relatorioFinanceiroEscolaBean.descontoString}" size="3" style="text-align: right" converter="#{toPercent}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
+                                                <p:outputLabel value=" até " />
+                                                <p:inputText value="#{relatorioFinanceiroEscolaBean.descontoFinalString}" size="3" style="text-align: right" converter="#{toPercent}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
+                                            </h:panelGrid>                                        
+                                        </h:column>
+                                        <!-- TURMA -->
+                                        <p:column rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(4).ativo}">
+                                            <h:panelGrid columns="3">
+                                                <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaTurma', 'turmaBean')}" icon="ui-icon-search" value="Pesquisar Turma" />
+                                                <h:column>
+                                                    <h:panelGrid columns="2">
+                                                        <p:outputLabel value="#{relatorioFinanceiroEscolaBean.turma.cursos.descricao}" />
+                                                        <p:commandButton action="#{relatorioFinanceiroEscolaBean.add('turma')}" icon="ui-icon-plus"  update=":form_relatorio:" title="Adicionar turma"/>
+                                                    </h:panelGrid>
+                                                </h:column>
+                                            </h:panelGrid>
+                                            <h:panelGrid id="i_turma_list">
+                                                <p:dataTable value="#{relatorioFinanceiroEscolaBean.listTurma}" var="turma" emptyMessage="Nenhum registro encontrado!">
+                                                    <p:column width="25">
+                                                        <p:selectBooleanCheckbox value="#{turma.selected}">
+                                                            <p:ajax event="change" update="@this"/>
+                                                        </p:selectBooleanCheckbox> 
+                                                    </p:column>
+                                                    <p:column headerText="Descrição">#{turma.descricao}</p:column>
+                                                    <p:column headerText="Turma (Serviço)">#{turma.cursos.descricao}</p:column>
+                                                    <p:column width="25">
+                                                        <p:commandButton action="#{relatorioFinanceiroEscolaBean.remove('turma', turma)}" icon="ui-icon-close" update=":form_relatorio:i_turma_list"/>
+                                                    </p:column>
+                                                </p:dataTable>                                        
+                                            </h:panelGrid>
+                                        </p:column>                                         
                                     </h:panelGrid>
                                 </h:column>
                             </h:panelGrid>             

@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.endereco.Cidade;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
@@ -16,6 +17,7 @@ import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Mask;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -177,20 +179,36 @@ public class RelatorioContabilidadesBean implements Serializable {
                         dados[6] = "";
                         dados[7] = "";
                     }
-                    listaEscritorios.add(new ParametroEscritorios(
-                            juridica.getId(), // ESCRITÓRIO - ID
-                            juridica.getPessoa().getNome(), // ESCRITÓRIO - NOME
-                            dados[0], // ESCRITÓRIO - DESCRICAO ENDERECO
-                            dados[1], // ESCRITÓRIO - LOGRADOURO
-                            dados[2], // ESCRITÓRIO - NUMERO
-                            dados[3], // ESCRITÓRIO - COMPLEMENTO
-                            dados[4], // ESCRITÓRIO - BAIRRO
-                            dados[5], // ESCRITÓRIO - CEP
-                            dados[6], // ESCRITÓRIO - CIDADE
-                            dados[7], // ESCRITÓRIO - UF
-                            juridica.getPessoa().getTelefone1(),
-                            juridica.getPessoa().getEmail1(),
-                            quantidade));
+                    if (relatorios.getJasper().contains("ETIQUETAS")) {
+                        listaEscritorios.add(
+                                new Etiquetas(
+                                        juridica.getPessoa().getNome(),
+                                        dados[1],
+                                        dados[0],
+                                        dados[2],
+                                        dados[4],
+                                        dados[6],
+                                        dados[7],
+                                        Mask.cep(dados[5]),
+                                        dados[3])
+                        );
+
+                    } else {
+                        listaEscritorios.add(new ParametroEscritorios(
+                                juridica.getId(), // ESCRITÓRIO - ID
+                                juridica.getPessoa().getNome(), // ESCRITÓRIO - NOME
+                                dados[0], // ESCRITÓRIO - DESCRICAO ENDERECO
+                                dados[1], // ESCRITÓRIO - LOGRADOURO
+                                dados[2], // ESCRITÓRIO - NUMERO
+                                dados[3], // ESCRITÓRIO - COMPLEMENTO
+                                dados[4], // ESCRITÓRIO - BAIRRO
+                                dados[5], // ESCRITÓRIO - CEP
+                                dados[6], // ESCRITÓRIO - CIDADE
+                                dados[7], // ESCRITÓRIO - UF
+                                juridica.getPessoa().getTelefone1(),
+                                juridica.getPessoa().getEmail1(),
+                                quantidade));
+                    }
                 }
                 Jasper.TYPE = "paisagem";
                 if (r.getExcel()) {
@@ -198,7 +216,7 @@ public class RelatorioContabilidadesBean implements Serializable {
                 } else {
                     Jasper.EXCEL_FIELDS = "";
                 }
-                Jasper.printReports(relatorios.getJasper(), "escritorios", listaEscritorios);
+                Jasper.printReports(relatorios.getJasper(), "escritorios_" + relatorios.getNome(), listaEscritorios);
             } catch (Exception erro) {
                 GenericaMensagem.info("Sistema", "O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
                 System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());

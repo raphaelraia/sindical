@@ -58,6 +58,7 @@
                         <div class="clear"></div>
                         <h:outputText value="#{genericaMensagem.getHtmlMessage('block', '!!! ##### REGISTRO DE BOLETO EM TESTE #### !!!')}" escape="false" rendered="#{imprimirBoleto.teste}" />
                         <h:form id="formImpressaoBoletoSocial">
+                            <p:poll id="i_reload" interval="60" update="i_reload i_datatable_boletos" delay="15" ignoreAutoUpdate="true" />
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:outputLabel value="Opção Marcar" style="font-size: 12pt!important"/><br />
                                 <h:panelGrid columns="12">
@@ -139,49 +140,52 @@
                             </p:panel>
                             <p:messages autoUpdate="false" closable="true" showDetail="true"/>
                             <p:growl autoUpdate="false" showDetail="true" />
-                            <p:dataTable var="linha" id="tbl" value="#{impressaoBoletoSocialBean.listaGrid}" rowKey="#{linha.argumento0}" emptyMessage="Nenhum Boleto Encontrado!" paginator="true" rows="10">
-                                <p:column headerText="" style="text-align: center; width: 40px">
-                                    <p:commandLink value="#{linha.argumento0}" />
-                                </p:column>
+                            <h:panelGroup id="i_datatable_boletos" layout="block">
+                                
+                                <p:dataTable var="linha" id="tbl" value="#{impressaoBoletoSocialBean.listaGrid}" rowKey="#{linha.argumento0}" emptyMessage="Nenhum Boleto Encontrado!" paginator="true" rows="10">
+                                    <p:column headerText="" style="text-align: center; width: 40px">
+                                        <p:commandLink value="#{linha.argumento0}" />
+                                    </p:column>
 
-                                <p:column headerText=""  width="15" style="text-align: center">
-                                    <p:selectBooleanCheckbox value="#{linha.argumento1}">
-                                        <p:ajax event="change" update=":formImpressaoBoletoSocial:i_panel_quantidade" listener="#{impressaoBoletoSocialBean.atualizaValores}"/>
-                                    </p:selectBooleanCheckbox>
-                                </p:column>
+                                    <p:column headerText=""  width="15" style="text-align: center">
+                                        <p:selectBooleanCheckbox value="#{linha.argumento1}">
+                                            <p:ajax event="change" update=":formImpressaoBoletoSocial:i_panel_quantidade" listener="#{impressaoBoletoSocialBean.atualizaValores}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
 
-                                <p:column headerText="Lote" style="text-align: center" width="30">
-                                    <p:commandLink value="#{linha.argumento2[1]}"/>
-                                </p:column>
+                                    <p:column headerText="Lote" style="text-align: center" width="30">
+                                        <p:commandLink value="#{linha.argumento2[1]}"/>
+                                    </p:column>
 
-                                <p:column headerText="Responsável">
-                                    <p:commandLink value="#{linha.argumento2[2]}"/>
-                                </p:column>
+                                    <p:column headerText="Responsável">
+                                        <p:commandLink value="#{linha.argumento2[2]}"/>
+                                    </p:column>
 
-                                <p:column headerText="N Boleto" style="text-align: center" width="120">
-                                    <p:commandLink value="#{linha.argumento2[3]}"/>
-                                </p:column>
+                                    <p:column headerText="N Boleto" style="text-align: center" width="120">
+                                        <p:commandLink value="#{linha.argumento2[3]}"/>
+                                    </p:column>
 
-                                <p:column headerText="Proc." style="text-align: center" width="65">
-                                    <p:commandLink value="#{linha.argumento2[5]}"/>
-                                </p:column>
+                                    <p:column headerText="Proc." style="text-align: center" width="65">
+                                        <p:commandLink value="#{linha.argumento2[5]}"/>
+                                    </p:column>
 
-                                <p:column headerText="Vencto" style="text-align: center" width="65">
-                                    <p:commandLink value="#{linha.argumento2[4]}"/>
-                                </p:column>
+                                    <p:column headerText="Vencto" style="text-align: center" width="65">
+                                        <p:commandLink value="#{linha.argumento2[4]}"/>
+                                    </p:column>
 
-                                <p:column headerText="Valor Total" width="65" >
-                                    <p:commandLink value="#{linha.argumento3}" style="float: right"/>
-                                </p:column>
+                                    <p:column headerText="Valor Total" width="65" >
+                                        <p:commandLink value="#{linha.argumento3}" style="float: right"/>
+                                    </p:column>
 
-                                <p:column headerText="Pag." style="width: 40px; text-align: center">
-                                    <p:commandLink value="#{linha.argumento4}" />
-                                </p:column>
+                                    <p:column headerText="Pag." style="width: 40px; text-align: center">
+                                        <p:commandLink value="#{linha.argumento4}" />
+                                    </p:column>
 
-                                <f:facet name="footer">
-                                    <p:outputLabel value="O total de páginas não conta o verso" style="color: red"/>
-                                </f:facet>
-                            </p:dataTable>
+                                    <f:facet name="footer">
+                                        <p:outputLabel value="O total de páginas não conta o verso" style="color: red"/>
+                                    </f:facet>
+                                </p:dataTable>
+                            </h:panelGroup>
                             <p:panel style="height: 55px">
                                 <h:panelGrid id="i_panel_quantidade" columns="3" style="float: right; clear: both; width: 400px">
                                     <h:column>
@@ -221,7 +225,7 @@
                                     <p:outputLabel value="Deseja realmente Registrar estes Boletos?" style="font-size: 12pt!important"/>
                                 </h:panelGrid>
                                 <br />
-                                <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletoSocialBean.registrarBoletos()}" onclick="PF('dlg_registrar_boletos').hide()" style="font-weight: bold"/>
+                                <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletoSocialBean.registrarBoletos()}" onclick="PF('dlg_registrar_boletos').hide()" style="font-weight: bold" update="i_datatable_boletos"/>
                                 <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_registrar_boletos').hide()"/>
                             </p:dialog>
                         </h:form>

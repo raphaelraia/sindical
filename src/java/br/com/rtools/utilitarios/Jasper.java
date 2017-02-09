@@ -330,8 +330,10 @@ public class Jasper implements Serializable {
         if (jasperListExport.isEmpty()) {
             if ((fileName.isEmpty() || jasperName.isEmpty() || listCollections.isEmpty()) && !IS_QUERY_STRING) {
                 if (listCollections.isEmpty() && jRDataSource == null) {
-                    GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
-                    return;
+                    if(parameters != null || parameters.size() > 0) {
+                    } else {
+                        GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
+                    }
                 }
             }
             jasperName = jasperName.trim();

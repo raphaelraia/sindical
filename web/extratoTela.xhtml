@@ -204,7 +204,7 @@
                                 </h:panelGrid>
                             </p:panel>
                             <p:messages id="i_msg" closable="true" showDetail="true"/>
-                            <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="10" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
+                            <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="10" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%" rowIndexVar="index">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
@@ -264,7 +264,7 @@
                                 </p:column>
 
                                 <p:column headerText="Ult. Imp" style="width: 30px; text-align: center">
-                                    <p:commandButton icon="ui-icon-print" oncomplete="PF('dlg_ultima_impressao').show()" rendered="#{extratoTelaBean.getUltimaImpressão(movimentos.argumento1)}" action="#{extratoTelaBean.verUltimaImpressão(movimentos.argumento1)}" title="Ver Lista de Impressões" update=":formExtratoTela:i_tbl_impressao" />
+                                    <p:commandButton icon="ui-icon-newwin" oncomplete="PF('dlg_ultima_impressao').show()" rendered="#{extratoTelaBean.getUltimaImpressão(movimentos.argumento1)}" action="#{extratoTelaBean.verUltimaImpressão(movimentos.argumento1)}" title="Ver Lista de Impressões" update=":formExtratoTela:i_tbl_impressao" />
                                 </p:column>
 
                                 <p:column style="text-align: center; width: 50px" headerText="" >
@@ -308,6 +308,10 @@
                                             <p:outputLabel value="#{movimentos.argumento10}"/>
                                         </p:column>
 
+                                        <p:column  styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-comment" value="MENSAGEM BOLETO" action="#{extratoTelaBean.openHistorico(index)}" onclick="PF('dlg_message_historico').show()" update=":formExtratoTela:id_message_historico" title="MENSAGEM BOLETO" rendered="#{movimentos.argumento14 ne 'Acordo'}"/>
+                                        </p:column>                                        
+
                                         <p:column>
                                             <p:outputLabel value="Acordo" style="font-weight: bold" rendered="#{not empty movimentos.argumento27}" /><br />
                                             <p:commandLink value="#{movimentos.argumento27[0].acordo.id} (Visualizar)" rendered="#{not empty movimentos.argumento27}"  action="#{extratoTelaBean.setListMovimentosAcordo(movimentos.argumento27)}" onclick="PF('dlg_acordos').show()" update=":formExtratoTelaOpcoes:i_m_a" styleClass="bold font-color-blue" title="Visualizar esta lista"/>
@@ -319,7 +323,7 @@
                                                 </h:commandLink>
                                             </p:column>                                
 
-                                        </p:column>
+                                        </p:column>                                       
                                     </h:panelGrid>
                                     <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">                                        
                                         <p:column>
@@ -426,6 +430,30 @@
                                     <p:commandButton icon="ui-icon-circle-check" value="OK" onclick="PF('dlg_ultima_impressao').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
+
+                            <p:dialog widgetVar="dlg_message_historico" header="Mensagem" resizable="false" modal="true" closeOnEscape="true" visible="#{extratoTelaBean.historicoMovimento != null}" width="600" position="top">
+                                <p:ajax event="close" listener="#{extratoTelaBean.closeHistorico}" update=":formExtratoTela:" />
+                                <h:panelGroup layout="block" id="id_message_historico">
+                                    <p:messages showDetail="true" closable="true" autoUpdate="true"/>  
+                                    <h:panelGrid rendered="#{extratoTelaBean.historicoMovimento != null}">
+                                        <p:outputLabel value="MENSAGEM CONTRIBUINTE" />
+                                        <p:inputTextarea maxlength="2000" value="#{extratoTelaBean.historicoMovimento.historico}" cols="80" addLine="true" rows="5">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                        <h:column><br /></h:column>
+                                        <p:outputLabel value="MENSAGEM BOLETO" />
+                                        <p:inputTextarea maxlength="2000" value="#{extratoTelaBean.historicoMovimento.complemento}" cols="80" addLine="true" rows="5">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Salvar" type="submit" styleClass="ui-confirmdialog-yes" action="#{extratoTelaBean.saveHistorico}" icon="ui-icon-check" update=":formExtratoTela:"/>  
+                                        <p:commandButton value="Voltar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_message_historico').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                            </p:dialog>                               
 
                         </h:form>
 

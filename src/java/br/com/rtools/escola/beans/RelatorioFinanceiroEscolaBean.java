@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.escola.beans;
 
+import br.com.rtools.escola.Turma;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
@@ -28,10 +24,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
-/**
- *
- * @author Claudemir Rtools
- */
 @ManagedBean
 @SessionScoped
 public class RelatorioFinanceiroEscolaBean implements Serializable {
@@ -57,22 +49,28 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
     private String dataVencimentoFinal = "";
     private String dataQuitacao = "";
     private String dataQuitacaoFinal = "";
-    
+    private Float desconto = new Float(0);
+    private Float descontoFinal = new Float(0);
+
     private boolean chkExcel = false;
     private boolean chkTodosServicos = false;
+
+    private Turma turma;
+    private List<Turma> listTurma;
 
     public RelatorioFinanceiroEscolaBean() {
         loadListaRelatorio();
         loadListaFiltro();
+        turma = new Turma();
+        listTurma = new ArrayList<>();
     }
 
-    
     public void marcarTodosServicos() {
         for (ListaServicos listaServico : listaServicos) {
             listaServico.setSelecionado(chkTodosServicos);
         }
     }
-    
+
     public void imprimir() {
         Relatorios relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
 
@@ -85,9 +83,9 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
             ldescricao.add("Tipo Pessoa: " + (tipoPessoa.equals("aluno") ? "ALUNO: " : "RESPONSÁVEL: ") + pessoa.getNome());
             tipo_pessoa = tipoPessoa;
             id_pessoa = pessoa.getId();
-            
+
         }
-        
+
         // DATAS
         String dtVencimento = "", dtQuitacao = "";
         String dtVencimentoFinal = "", dtQuitacaoFinal = "";
@@ -116,7 +114,7 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
                 dtQuitacaoFinal = dataQuitacaoFinal;
             }
         }
-        
+
         // SERVIÇOS
         if (listaFiltros.get(2).ativo) {
             String descricao_curso = "";
@@ -131,8 +129,8 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
                     }
                 }
             }
-            
-            if (!id_servicos.isEmpty()){
+
+            if (!id_servicos.isEmpty()) {
                 ldescricao.add("Cursos: " + descricao_curso);
             }
         }
@@ -150,10 +148,32 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
                 descricaoData += ", " + linha;
             }
         }
+        // FAIXA DE DESCONTO
+        Float desconto_inicial = null;
+        Float desconto_final = null;
+        if (listaFiltros.get(3).ativo) {
+            desconto_inicial = desconto;
+            desconto_final = descontoFinal;
+        }
+        // TURMA
+        int y = 0;
+        String in_turmas = "";
+        if (listaFiltros.get(4).ativo) {
+            for (int i = 0; i < listTurma.size(); i++) {
+                if (listTurma.get(i).getSelected()) {
+                    if (y == 0) {
+                        in_turmas += "" + listTurma.get(i).getId();
+                    } else {
+                        in_turmas += "," + listTurma.get(i).getId();
+                    }
+                    y++;
+                }
+            }
+        }
         Map params = new HashMap();
         params.put("descricao_pesquisa", descricaoData);
 
-        List<Object> result = new RelatorioFinanceiroEscolaDao().listaRelatorioFinanceiro(id_servicos, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_pessoa, id_pessoa, ordem, relatorios);
+        List<Object> result = new RelatorioFinanceiroEscolaDao().listaRelatorioFinanceiro(id_servicos, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_pessoa, id_pessoa, ordem, relatorios, desconto_inicial, desconto_final, in_turmas);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -197,6 +217,14 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
             case "servicos":
                 loadListaServicos();
                 break;
+            case "faixa_desconto":
+                desconto = new Float(0);
+                descontoFinal = new Float(0);
+                break;
+            case "turma":
+                turma = new Turma();
+                listTurma = new ArrayList<>();
+                break;
         }
     }
 
@@ -208,13 +236,15 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
             listaServicos.add(new ListaServicos(false, result1));
         }
     }
-    
+
     public final void loadListaFiltro() {
         listaFiltros.clear();
 
         listaFiltros.add(new Filtros("tipoPessoa", "Tipo de Pessoa", false));
         listaFiltros.add(new Filtros("datas", "Datas", false));
         listaFiltros.add(new Filtros("servicos", "Cursos", false));
+        listaFiltros.add(new Filtros("faixa_desconto", "Faixa de Desconto", false));
+        listaFiltros.add(new Filtros("turma", "Turma", false));
     }
 
     public final void loadListaRelatorioOrdem() {
@@ -361,7 +391,7 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
     }
 
     public Pessoa getPessoa() {
-        if (GenericaSessao.exists("fisicaPesquisa")){
+        if (GenericaSessao.exists("fisicaPesquisa")) {
             pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
         }
         return pessoa;
@@ -369,6 +399,78 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
 
     public void setPessoa(Pessoa pessoa) {
         this.pessoa = pessoa;
+    }
+
+    public Float getDesconto() {
+        return desconto;
+    }
+
+    public void setDesconto(Float desconto) {
+        this.desconto = desconto;
+    }
+
+    public Float getDescontoFinal() {
+        return descontoFinal;
+    }
+
+    public void setDescontoFinal(Float descontoFinal) {
+        this.descontoFinal = descontoFinal;
+    }
+
+    public String getDescontoString() {
+        return Float.toString(desconto);
+    }
+
+    public void setDescontoString(String descontoString) {
+        this.desconto = Float.parseFloat(descontoString);
+    }
+
+    public String getDescontoFinalString() {
+        return Float.toString(descontoFinal);
+    }
+
+    public void setDescontoFinalString(String descontoFinalString) {
+        this.descontoFinal = Float.parseFloat(descontoFinalString);
+    }
+
+    public void add(String tcase) {
+        switch (tcase) {
+            case "turma":
+                if (turma.getId() == -1) {
+                    return;
+                }
+                turma.setSelected(true);
+                listTurma.add(turma);
+                turma = new Turma();
+                break;
+        }
+    }
+
+    public void remove(String tcase, Turma turma) {
+        switch (tcase) {
+            case "turma":
+                listTurma.remove(turma);
+                break;
+        }
+    }
+
+    public Turma getTurma() {
+        if (GenericaSessao.exists("turmaPesquisa")) {
+            turma = (Turma) GenericaSessao.getObject("turmaPesquisa", true);
+        }
+        return turma;
+    }
+
+    public void setTurma(Turma turma) {
+        this.turma = turma;
+    }
+
+    public List<Turma> getListTurma() {
+        return listTurma;
+    }
+
+    public void setListTurma(List<Turma> listTurma) {
+        this.listTurma = listTurma;
     }
 
     public class Filtros {
@@ -407,8 +509,9 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
             this.ativo = ativo;
         }
     }
-    
+
     public class ListaServicos {
+
         private Boolean selecionado;
         private Servicos servico;
 
@@ -432,6 +535,6 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
         public void setServico(Servicos servico) {
             this.servico = servico;
         }
-        
+
     }
 }

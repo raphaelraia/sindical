@@ -687,8 +687,13 @@ public class FinanceiroDao extends DB {
 
         // RESPONSAVEL --
         if (!responsavel.isEmpty()) {
-            responsavel = AnaliseString.normalizeLower(responsavel);
-            where += " AND TRANSLATE(LOWER(b.responsavel)) like '%" + responsavel + "%' \n ";
+            if (responsavel.length() == 1) {
+                responsavel = AnaliseString.normalizeLower(responsavel);
+                where += " AND TRANSLATE(LOWER(b.responsavel)) like '" + responsavel + "%' \n ";
+            } else {
+                responsavel = AnaliseString.normalizeLower(responsavel);
+                where += " AND TRANSLATE(LOWER(b.responsavel)) like '%" + responsavel + "%' \n ";
+            }
         }
 
         // LOTE --
@@ -703,7 +708,7 @@ public class FinanceiroDao extends DB {
         }
 
         // COBRANÇA REGISTRADA
-        switch(boletoRegistrado){
+        switch (boletoRegistrado) {
             case "registrados":
                 where += " AND b.data_cobranca_registrada IS NOT NULL \n ";
                 break;
@@ -713,7 +718,7 @@ public class FinanceiroDao extends DB {
             default:
                 break;
         }
-        
+
         text_qry
                 = " SELECT b.nr_ctr_boleto, \n "
                 + "      b.id_lote_boleto, \n "
@@ -1117,7 +1122,7 @@ public class FinanceiroDao extends DB {
                         + "	-- se juridica passar em branco\n"
                         + "	'' AS  servico,  -- 11\n"
                         + "	0  AS id_beneficiario, -- 12\n"
-                        //+ "	'Mensalidade(s) Atrasada(s) Corrigida(s) de '||to_char(min(vencimento_movimento),'mm/yyyy')||' a '||to_char(max(vencimento_movimento),'mm/yyyy') AS nome_beneficiario, -- 13\n"
+                        //+ "	'Mensalidade(s) Atrasada(s) Corrigida(s) de '                ||to_char(min(vencimento_movimento),'mm/yyyy')||' a '||to_char(max(vencimento_movimento),'mm/yyyy') AS nome_beneficiario, -- 13\n"
                         + "	'Mensalidade(s) Atrasada(s) (Correção na Próxima Fatura) de '||to_char(min(vencimento_movimento),'mm/yyyy')||' a '||to_char(max(vencimento_movimento),'mm/yyyy') AS nome_beneficiario, -- 13\n"
                         + "	-------------------------------\n"
                         + "	sum(valor) AS valor, -- 14 -----------------------------------------------\n"

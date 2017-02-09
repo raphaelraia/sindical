@@ -73,6 +73,7 @@
                         <p:menuitem value="Meus Logs" action="#{chamadaPaginaBean.pesquisa('pesquisaLog', 'rotinaPesquisaLog', segurancaUtilitariosBean.rotina.id, 'pesquisaLogBean')}"  />
                         <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
                         <p:menuitem value="Rotinas Vínculadas" action="#{rotinaBean.loadShowRotinas}" onclick="PF('dlg_show_rotinas').show()" update=":header:form_show_rotinas:i_list_show_rotinas" />
+                        <p:menuitem value="Emails" icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(-1)}"/>
                         <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
                         <p:separator />
                         <p:menuitem value="Sair" action="#{usuarioBean.sairSistema}" icon="ui-icon-extlink"/>

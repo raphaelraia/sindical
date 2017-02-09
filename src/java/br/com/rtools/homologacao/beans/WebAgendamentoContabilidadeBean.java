@@ -185,9 +185,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         listFilial = new ArrayList();
         Dao dao = new Dao();
         PessoaEnderecoDao dbe = new PessoaEnderecoDao();
-        if(!listaEmpresas.isEmpty()) {
+        if (!listaEmpresas.isEmpty()) {
             empresa = (Juridica) dao.find(new Juridica(), Integer.parseInt(listaEmpresas.get(idSelectRadio).getDescription()));
-            enderecoEmpresa = dbe.pesquisaEndPorPessoaTipo(empresa.getPessoa().getId(), 5);            
+            enderecoEmpresa = dbe.pesquisaEndPorPessoaTipo(empresa.getPessoa().getId(), 5);
             // sindicatoFilial = new FilialCidade();
             // FILIAL DA EMPRESA
             if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
@@ -939,13 +939,15 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaPertencente(documento);
 
+            // SOLICITAÇÃO CONFORME CHAMADO #1813 
+            /*
             if (pe != null && pe.getJuridica().getId() != empresa.getId()) {
                 GenericaMensagem.warn("Atenção", "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome());
                 fisica = new Fisica();
                 enderecoFisica = new PessoaEndereco();
                 return;
             }
-
+             */
             List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(fisica.getPessoa().getDocumento());
             if (!listFisica.isEmpty()) {
                 for (int i = 0; i < listFisica.size(); i++) {

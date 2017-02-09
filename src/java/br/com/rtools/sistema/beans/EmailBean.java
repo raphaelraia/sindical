@@ -624,6 +624,9 @@ public class EmailBean implements Serializable {
      * @param crotina id da Rotina
      */
     public void showEmailRotina(int crotina) {
+        if(crotina == -1) {
+            crotina = new Rotina().get().getId();
+        }
         GenericaSessao.remove("emailBean");
         GenericaSessao.put("emailCodigoRotina", crotina);
     }
