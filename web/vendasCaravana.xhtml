@@ -27,7 +27,8 @@
                     <f:metadata>
                         <f:event type="preRenderView" listener="${vendasCaravanaBean.load()}"/>
                     </f:metadata>
-                    <h:form id="form_vendas_caravana">
+                    <h:form id="form_vendas_caravana">                        
+                        <p:poll id="i_alerta_alteracao" interval="10" update="i_alerta_alteracao :form_alerta_alteracao:" delay="5" ignoreAutoUpdate="true" listener="#{vendasCaravanaBean.abreAlerta()}" stop="#{vendasCaravanaBean.baixaEmOutroPC}"/>
                         <p:growl id="i_msg" showDetail="true" />  
                         <h:inputHidden rendered="#{empty vendasCaravanaBean.listaReservas}" />
                         <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -409,7 +410,7 @@
                                     <p:commandButton value="Desfazer" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_alter').hide()" icon="ui-icon-close"/>
                                 </h:panelGrid>
                             </f:facet>
-                        </p:dialog>                        
+                        </p:dialog>
                         <p:dialog widgetVar="dlg_cancel" header="Deseja cancelar esta venda?" resizable="false" width="400" modal="true" closeOnEscape="true">
                             <p:inputTextarea value="#{vendasCaravanaBean.vendas.motivoCancelamento}" maxlength="255" style="width: 100%"/>
                             <f:facet name="footer">
@@ -492,6 +493,17 @@
                             <h:graphicImage url="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/Mapas/mapa_onibus01.jpg" style="position: absolute; " width="250"/>
                         </h:form>
                     </p:dialog>
+                    <h:form id="form_alerta_alteracao">
+                        <p:dialog widgetVar="dlg_alerta_baixa" header="ALERTA" resizable="false" width="400" modal="true" closeOnEscape="true" visible="#{vendasCaravanaBean.baixaEmOutroPC}">
+                            <p:ajax event="close" listener="#{vendasCaravanaBean.fechaAlerta}" update=":form_vendas_caravana:" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MOVIMENTO FOI BAIXADO EM OUTRA ESTAÇÃO?')}" escape="false" />
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="OK"   type="submit" styleClass="ui-confirmdialog-yes" action="#{vendasCaravanaBean.fechaAlerta}" onclick="PF('dlg_alerta_baixa').hide()" icon="ui-icon-check" update=":form_vendas_caravana:"/>
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:dialog>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

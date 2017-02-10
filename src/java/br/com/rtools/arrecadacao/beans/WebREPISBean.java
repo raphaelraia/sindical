@@ -143,29 +143,29 @@ public class WebREPISBean implements Serializable {
         }
 
         chkTodasCertidoes = false;
-        if(renderContabil) {
-             getListComboPessoa();            
+        if (renderContabil) {
+            getListComboPessoa();
         }
-        
+
         loadListaCertidaoDisponivel();
         loadListRepisMovimentoPatronal();
     }
-    
-    public Boolean visualizaCertificadoRecusado(RepisMovimento rm){
-        if (rm.getRepisStatus().getId() == 1){
+
+    public Boolean visualizaCertificadoRecusado(RepisMovimento rm) {
+        if (rm.getRepisStatus().getId() == 1) {
             return false;
         }
-        
+
         return !(rm.getRepisStatus().getId() == 2 && !configuracaoArrecadacao.getVisualizaCertificadoRecusado());
     }
-    
-    public final void loadListRepisMovimentoPatronal(){
+
+    public final void loadListRepisMovimentoPatronal() {
         listRepisMovimentoPatronal.clear();
         listRepisMovimentoPatronalSelecionado.clear();
-        
+
         WebREPISDao wsrepisdb = new WebREPISDao();
         Patronal patro = wsrepisdb.pesquisaPatronalPorPessoa(pessoa.getId());
-        
+
         listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao(tipoPesquisa, descricao, patro.getId(), valueLenght, objectFiltro);
     }
 
@@ -1282,6 +1282,15 @@ public class WebREPISBean implements Serializable {
 
     public void setObjectFiltro(ObjectFiltro objectFiltro) {
         this.objectFiltro = objectFiltro;
+    }
+
+    public void selectAll(Boolean all) {
+        listRepisMovimentoPatronalSelecionado = new ArrayList();
+        if (all) {
+            for (int i = 0; i < listRepisMovimentoPatronal.size(); i++) {
+                listRepisMovimentoPatronalSelecionado.add(listRepisMovimentoPatronal.get(i));
+            }
+        }
     }
 
     public class ObjectFiltro {

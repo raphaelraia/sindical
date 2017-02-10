@@ -69,6 +69,14 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class VendasCaravanaBean implements Serializable {
 
+    public Boolean getBaixaEmOutroPC() {
+        return baixaEmOutroPC;
+    }
+
+    public void setBaixaEmOutroPC(Boolean baixaEmOutroPC) {
+        this.baixaEmOutroPC = baixaEmOutroPC;
+    }
+
     private Caravana caravana;
     private CaravanaVenda vendas;
     private CaravanaReservas reservas;
@@ -118,9 +126,11 @@ public class VendasCaravanaBean implements Serializable {
     private List<Integer> listPoltronasReservadas;
     private Boolean canceled;
     private BloqueioRotina bloqueioRotina;
+    private Boolean baixaEmOutroPC;
 
     @PostConstruct
     public void init() {
+        baixaEmOutroPC = false;
         caravana = new Caravana();
         vendas = new CaravanaVenda();
         eventoServicoValor = new EventoServicoValor();
@@ -227,7 +237,7 @@ public class VendasCaravanaBean implements Serializable {
         for (int i = 0; i < listaParcelas.size(); i++) {
             financeiroString += (i + 1) + " | " + listaParcelas.get(i).getVencimento() + " | " + listaParcelas.get(i).getValor() + "\n";
         }
-        
+
         String cidade = Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade();
 
         for (ListaReservas lr : listaReservas) {
@@ -519,7 +529,6 @@ public class VendasCaravanaBean implements Serializable {
         if (GenericaSessao.exists("baixa_sucesso", true)) {
             loadListMovimento();
             loadListParcelas();
-
         }
     }
 
@@ -2005,6 +2014,36 @@ public class VendasCaravanaBean implements Serializable {
             this.listPoltrona = listPoltrona;
         }
 
+    }
+
+    public void abreAlerta() {
+        if (vendas.getId() != null) {
+            if (!baixaEmOutroPC) {
+                Dao dao = new Dao();
+                for (Parcelas listaParcela : listaParcelas) {
+                    Movimento m = (Movimento) dao.find(listaParcela.getMovimento());
+                    if (listaParcela.getMovimento().getBaixa() == null) {
+                        if (m != null) {
+                            if (m.getBaixa() != null) {
+                                baixaEmOutroPC = true;
+                                return;
+                            }
+                        }
+                    } else {
+                        if (m.getBaixa() == null && listaParcela.getMovimento().getBaixa() != null) {
+                            baixaEmOutroPC = true;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void fechaAlerta() {
+        baixaEmOutroPC = false;
+        loadListMovimento();
+        loadListParcelas();
     }
 
     public class Parcelas {

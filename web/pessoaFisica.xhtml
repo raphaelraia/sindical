@@ -678,8 +678,8 @@
                                 <h:panelGrid columns="10">
                                     <p:commandButton value="Voltar" action="#{chamadaPaginaBean.back()}" icon="ui-icon-arrowreturnthick-1-w" title="Voltar" immediate="true" actionListener="#{fisicaBean.editarFisica(fisicaBean.fisica)}" rendered="#{fisicaBean.cadastrar}"/>
                                     <h:column>
-                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id == -1}"/>                                        
-                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoAlterar}" onclick="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id != -1}"/>                                        
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" oncomplete="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id == -1}" update=":form_pessoa_fisica:i_painel_salvar" />
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoAlterar}" oncomplete="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id != -1}" update=":form_pessoa_fisica:i_painel_salvar" />
                                     </h:column>
                                     <p:commandButton value="Novo" action="#{fisicaBean.novo}" rendered="#{!fisicaBean.cadastrar}"/>
                                     <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_painel_excluir').show();" rendered="#{fisicaBean.fisica.id != -1}" />
@@ -823,11 +823,23 @@
                                     </h:panelGrid>
                                 </p:dialog>
 
-                                <p:dialog id="i_painel_salvar" widgetVar="dlg_painel_salvar" modal="true" header="Deseja salvar/atualizar este registro?" width="400" resizable="false">
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton value="Sim" title="Salvar" action="#{fisicaBean.salvar}" update="i_painel_mensagem, i_panel_pessoa_fisica" oncomplete="PF('dlg_painel_salvar').hide(); PF('dlg_painel_mensagem').show();" />
-                                        <p:commandButton value="Não" title="Cancelar" oncomplete="PF('dlg_painel_salvar').hide();"/>
-                                    </h:panelGrid>
+                                <p:dialog  widgetVar="dlg_painel_salvar" modal="true" header="Deseja salvar/atualizar este registro?" width="400" resizable="false">
+                                    <f:ajax event="close" listener="#{fisicaBean.setMensagem('')}" />
+                                    <h:panelGroup id="i_painel_salvar">
+                                        <h:panelGrid>
+                                            <h:column rendered="#{fisicaBean.mensagem.contains('Documento (CPF')}">
+                                                <h:outputLink value="https://www.receita.fazenda.gov.br/Aplicacoes/SSL/ATCTA/CPF/ConsultaSituacao/ConsultaPublica.asp?cpf=#{fisicaBean.fisica.pessoa.documento}&amp;nascimento=#{fisicaBean.fisica.nascimento}" target="_blank" >
+                                                    <f:verbatim> CONSULTAR NA RECEITA </f:verbatim>
+                                                </h:outputLink>
+                                            </h:column>                                            
+                                            <h:outputText value="#{genericaMensagem.getHtmlMessage('warn', fisicaBean.mensagem)}" escape="false" rendered="#{not empty fisicaBean.mensagem}"/>
+                                        </h:panelGrid>
+                                    </h:panelGroup>
+                                    <f:facet name="footer">                                        
+                                        <h:panelGrid columns="2">
+                                            <p:commandButton value="Sim" title="Salvar" action="#{fisicaBean.salvar}" update="i_painel_mensagem, i_panel_pessoa_fisica" oncomplete="PF('dlg_painel_salvar').hide(); PF('dlg_painel_mensagem').show();" />
+                                            <p:commandButton value="Não" title="Cancelar" oncomplete="PF('dlg_painel_salvar').hide();" actionListener="#{fisicaBean.setMensagem('')}"/>
+                                        </h:panelGrid>                                    </f:facet>
                                 </p:dialog>
                                 <p:dialog id="i_painel_excluir" widgetVar="dlg_painel_excluir" modal="true" header="Deseja excluir este registro?" width="400" resizable="false">
                                     <h:panelGrid columns="2">

@@ -136,8 +136,8 @@
                                 </p:selectOneMenu>    
                             </h:column>                            
 
-                            <h:column rendered="#{webREPISBean.objectFiltro.booleanTipoCertidao}" >
-                                <p:outputLabel value="Status" style="font-weight: bold"/><br />
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanTipoCertidao}">
+                                <p:outputLabel value="Tipo de Certidão" style="font-weight: bold"/><br />
                                 <p:selectOneMenu value="#{webREPISBean.objectFiltro.indexTipoCertidao}">
                                     <p:ajax update="@this" event="change"/>
                                     <f:selectItems value="#{webREPISBean.objectFiltro.listaTipoCertidao}" />
@@ -145,8 +145,8 @@
                             </h:column>                            
 
                             <h:column rendered="#{webREPISBean.objectFiltro.booleanCidade}" >
-                                <p:outputLabel value="Status" style="font-weight: bold"/><br />
-                                <p:selectOneMenu value="#{webREPISBean.objectFiltro.indexCidade}">
+                                <p:outputLabel value="Cidade" style="font-weight: bold"/><br />
+                                <p:selectOneMenu value="#{webREPISBean.objectFiltro.indexCidade}" filter="true" filterMatchMode="contains">
                                     <p:ajax update="@this" event="change"/>
                                     <f:selectItems value="#{webREPISBean.objectFiltro.listaCidade}" />
                                 </p:selectOneMenu>                                    
@@ -214,6 +214,10 @@
                                 </p:column>
                             </h:panelGrid>
                         </p:rowExpansion>
+                        <f:facet name="footer">
+                            <p:commandButton value="Marcar todos" action="#{webREPISBean.selectAll(true)}" update="tbl :form_libera_repis:i_panel_alterar" global="false" />
+                            <p:commandButton value="Limpar seleção" action="#{webREPISBean.selectAll(false)}" update="tbl :form_libera_repis:i_panel_alterar" />
+                        </f:facet>
                     </p:dataTable>
 
                     <h:panelGrid id="i_panel_alterar" columns="3" style="width: 100%">

@@ -310,6 +310,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void salvar() {
+        mensagem = "";
         NovoLog logs = new NovoLog();
         FisicaDao db = new FisicaDao();
         Pessoa pessoa = fisica.getPessoa();
@@ -390,6 +391,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 dao.rollback();
             }
         } else {
+            Fisica f = (Fisica) dao.rebind(dao.find(new Fisica(), fisica.getId()));
+            /* 
+            if(!f.getPessoa().getNome().equals(fisica.getPessoa().getNome())) {
+                fisica.getPessoa().setNome(f.getPessoa().getNome());
+            }
+            if(!f.getPessoa().getDocumento().isEmpty() && !f.getPessoa().getDocumento().equals("0")) {
+                fisica.getPessoa().setDocumento(f.getPessoa().getDocumento());
+            }
+             */
             if (fisica.getPessoa().getEmail1().isEmpty()) {
                 if (configuracaoSocial.getObrigatorioEmail()) {
                     if (fisica.getPessoa().getSocios().getId() != -1) {
@@ -402,7 +412,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
             fisica.getPessoa().setDtAtualizacao(new Date());
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
-            Fisica f = (Fisica) dao.find(new Fisica(), fisica.getId());
             String antes = " ID - " + f.getId()
                     + " - Nome: " + f.getPessoa().getNome()
                     + " - Nascimento: " + f.getNascimento()
@@ -553,6 +562,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void excluir() {
+        mensagem = "";
         if (socios.getId() != -1) {
             mensagem = "Esse cadastro esta associado, desvincule para excluir!";
             return;
@@ -740,11 +750,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
-                mensagem = "Documento Invalido!";
+                mensagem = "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento();
                 GenericaMensagem.warn("Validação", "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento());
                 PF.update("form_pessoa_fisica:i_tabview_fisica:id_valida_documento");
                 PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
-                fisica.getPessoa().setDocumento("");
+                // fisica.getPessoa().setDocumento("");
                 return;
             }
         }
@@ -3016,7 +3026,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
             if (!sisAutorizacoes.getDadosAlterados().isEmpty() || sisAutorizacoes.getDadosAlterados().equals("0")) {
                 if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisAutorizacoes.getDadosAlterados()))) {
-                    mensagem = "Documento Inválido!";
+                    mensagem = "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento();
                     return;
                 }
             }

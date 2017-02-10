@@ -21,10 +21,12 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.FormaPagamentoDao;
 import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.lista.ListValoresBaixaGeral;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.movimento.ImprimirRecibo;
@@ -604,12 +606,13 @@ public class BaixaGeralBean implements Serializable {
                 }
             }
             if (erro_baixa) {
+                new NovoLog().save("");
                 for (int i = 0; i < listaMovimentos.size(); i++) {
                     if (listaMovimentos.get(i).getBaixa() != null || listaMovimentos.get(i).getBaixa().getId() == -1) {
                         listaMovimentos.get(i).setBaixa(null);
                     }
                 }
-                 return mensagem;
+                return mensagem;
             }
             listaValores.clear();
             total = "0.0";
@@ -678,11 +681,34 @@ public class BaixaGeralBean implements Serializable {
 
     public void imprimirRecibo() {
         if (!listaMovimentos.isEmpty()) {
+            Dao dao = new Dao();
             for (int i = 0; i < listaMovimentos.size(); i++) {
                 try {
-                    Movimento m = (Movimento) new Dao().find(listaMovimentos.get(i));
+                    Movimento m = (Movimento) dao.rebind(dao.find(listaMovimentos.get(i)));
                     if (m == null) {
                         mensagem = "Não é possivel salvar baixa sem um caixa/operador definido!";
+                        return;
+                    }
+                    if (m.getBaixa() == null) {
+                        mensagem = "MOVIMENTO NÃO BAIXADO!";
+                        if (listaMovimentos.get(i).getBaixa() != null) {
+                            mensagem = "MOVIMENTO NÃO BAIXADO! INFORMAR CÓDIGO DA BAIXA AO ADMINISTRADOR! CÓDIGO: " + listaMovimentos.get(i).getBaixa().getId();
+                            // SE O ERRO DE PERSISTIR LIBERAR O BLOCO ABAIXO
+                            /*
+                            dao.openTransaction();
+                            List<FormaPagamento> listFP = new FormaPagamentoDao().findByBaixa(listaMovimentos.get(i).getBaixa().getId());
+                            for (int z = 0; z < listFP.size(); z++) {
+                                if (!dao.delete(listFP.get(z))) {
+                                    dao.rollback();
+                                    return;
+                                }
+                            }
+                            if (!dao.delete(listaMovimentos.get(i).getBaixa())) {
+                                dao.rollback();
+                                return;
+                            }
+                             */
+                        }
                         return;
                     }
                 } catch (Exception e) {
