@@ -590,7 +590,7 @@ public class MensagemConvencaoBean {
     public List<SelectItem> getListaConvencoes() {
         List<SelectItem> convencoes = new ArrayList<SelectItem>();
         Dao dao = new Dao();
-        List<Convencao> list = (List<Convencao>) dao.list(new Convencao());
+        List<Convencao> list = (List<Convencao>) dao.list(new Convencao(), true);
         for (int i = 0; i < list.size(); i++) {
             convencoes.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
         }

@@ -793,7 +793,7 @@ public class RelatorioContribuintesBean implements Serializable {
 
     public List<Convencao> getListaConvencaos() {
         if (listaConvencaos.isEmpty()) {
-            listaConvencaos = (List<Convencao>) new Dao().list(new Convencao());
+            listaConvencaos = (List<Convencao>) new Dao().list(new Convencao(), true);
         }
         return listaConvencaos;
     }
