@@ -625,6 +625,9 @@ public class VendasCaravanaBean implements Serializable {
             GenericaMensagem.warn("Sistema", "CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR! SOLICITE A LIBERAÇÃO!");
             return;
         }
+        if (abreAlertaBoolean()) {
+            return;
+        }
         Boolean save = true;
         if (vendas.getId() != null) {
             save = false;
@@ -2017,6 +2020,10 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public void abreAlerta() {
+        abreAlertaBoolean();
+    }
+
+    public Boolean abreAlertaBoolean() {
         if (vendas.getId() != null) {
             if (!baixaEmOutroPC) {
                 Dao dao = new Dao();
@@ -2026,18 +2033,19 @@ public class VendasCaravanaBean implements Serializable {
                         if (m != null) {
                             if (m.getBaixa() != null) {
                                 baixaEmOutroPC = true;
-                                return;
+                                return true;
                             }
                         }
                     } else {
                         if (m.getBaixa() == null && listaParcela.getMovimento().getBaixa() != null) {
                             baixaEmOutroPC = true;
-                            return;
+                            return true;
                         }
                     }
                 }
             }
         }
+        return false;
     }
 
     public void fechaAlerta() {
