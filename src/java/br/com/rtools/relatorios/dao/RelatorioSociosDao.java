@@ -29,6 +29,7 @@ public class RelatorioSociosDao extends DB {
      * @param in_desconto_social
      * @param in_socios
      * @param in_alfabeto
+     * @param in_cnaes
      * @param in_empresas
      * @param minQtdeFuncionario
      * @param maxQtdeFuncionario
@@ -83,6 +84,7 @@ public class RelatorioSociosDao extends DB {
             String in_desconto_social,
             String in_socios,
             String in_alfabeto,
+            String in_cnaes,
             /**
              * EMPRESAS
              */
@@ -816,6 +818,10 @@ public class RelatorioSociosDao extends DB {
                 listWhere.add("p.e_id IN (" + in_empresas + ")");
             } else if (empresa.equals("com")) {
                 listWhere.add("p.empresa <> '' ");
+                // CNAES
+                if (!in_cnaes.isEmpty()) {
+                    listWhere.add("(J.id_cnae IS NOT NULL AND J.id_cnae IN(" + in_cnaes + "))");
+                }
             } else if (empresa.equals("sem")) {
                 listWhere.add("J.id IS NULL ");
             }

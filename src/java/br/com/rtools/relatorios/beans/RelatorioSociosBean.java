@@ -14,9 +14,11 @@ import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroSocios;
+import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
@@ -162,6 +164,9 @@ public class RelatorioSociosBean implements Serializable {
     private String tipoFrequencia;
     private String tipoBeneficio;
 
+    private Map<String, Integer> listCnaes;
+    private List selectedCnae;
+
     public RelatorioSociosBean() {
         idRelatorio = null;
         idRelatorioOrdem = null;
@@ -209,6 +214,9 @@ public class RelatorioSociosBean implements Serializable {
         tipoFrequencia = "";
         tipoBeneficio = "";
 
+        selectedCnae = new ArrayList<>();
+
+        listCnaes = null;
         loadRelatorios();
         loadRelatoriosOrdem();
         loadFilters();
@@ -249,6 +257,9 @@ public class RelatorioSociosBean implements Serializable {
             idEmpresas = null;
             minQtdeFuncionario = "0";
             maxQtdeFuncionario = "0";
+            if (!tipoEmpresas.equals("com")) {
+                selectedCnae = new ArrayList();
+            }
         } else if (tcase.equals("reload_relatorios")) {
             loadRelatorios(false);
             loadRelatoriosOrdem();
@@ -289,8 +300,8 @@ public class RelatorioSociosBean implements Serializable {
 
         // EMPRESA
         filtersEmpresa = new ArrayList<>();
-        /* 01 */ filtersEmpresa.add(new Filters("cidade_empresa", "Cidade da Empresa", false));
-        /* 00 */ filtersEmpresa.add(new Filters("empresas", "Empresas", false));
+        /* 00 */ filtersEmpresa.add(new Filters("cidade_empresa", "Cidade da Empresa", false));
+        /* 01 */ filtersEmpresa.add(new Filters("empresas", "Empresas", false));
 
         // FINANÇEIRO
         filtersFinanceiro = new ArrayList<>();
@@ -483,6 +494,11 @@ public class RelatorioSociosBean implements Serializable {
                 idEmpresas = null;
                 minQtdeFuncionario = "0";
                 maxQtdeFuncionario = "0";
+                listCnaes = new HashMap<>();
+                selectedCnae = new ArrayList();
+                if (filter.getActive()) {
+                    loadListCnaes();
+                }
                 break;
             case "cidade_empresa":
                 listCidadesEmpresa = new LinkedHashMap<>();
@@ -818,6 +834,10 @@ public class RelatorioSociosBean implements Serializable {
                 refVD_final = refValidadeDependenteFinal;
             }
         }
+        String inCnaes = "";
+        if (getShow("empresas")) {
+            inCnaes = inIdCnaes();
+        }
         RelatorioDao db = new RelatorioDao();
         Relatorios relatorios = db.pesquisaRelatorios(idRelatorio);
         relatorioSociosDao.setRelatorios(relatorios);
@@ -837,6 +857,7 @@ public class RelatorioSociosBean implements Serializable {
                 inIdDescontoSocial(),
                 inIdSocios(),
                 inIdAlfabeto(),
+                inCnaes,
                 /**
                  * EMPRESAS
                  */
@@ -2362,822 +2383,45 @@ public class RelatorioSociosBean implements Serializable {
         return false;
     }
 
-    // REMOVIDOS
-//    private List<DataObject> listaMenuRSocial = new ArrayList();
-//    private boolean booMatricula = false;
-//    private boolean booIdade = false;
-//    private boolean booGrupoCategoria = false;
-//    private boolean booSexo = false;
-//    private boolean booGrau = true;
-//    private boolean booFotos = false;
-//    private boolean booCarteirinha = false;
-//    private boolean booTipoCobranca = false;
-//    private boolean booCidadeSocio = false;
-//    private boolean booCidadeEmpresa = false;
-//    private boolean booAniversario = false;
-//    private boolean booData = false;
-//    private boolean booVotante = false;
-//    private boolean booEmail = false;
-//    private boolean booTelefone = false;
-//    private boolean booEstadoCivil = false;
-//    private boolean booEmpresa = false;
-//    private boolean booServicos = false;
-//    private Boolean situacao = false;
-//    private boolean booBiometria = false;
-//    private boolean booDescontoFolha = false;
-//    private boolean booStatusSocio = false;
-    // private List<GrupoCategoria> listGrupoCategoria = new ArrayList();
-    // private List<Categoria> listCategoria = new ArrayList();
-    // private List<Parentesco> listParentesco = new ArrayList();
-    //    private boolean chkGrupo = true;
-//    private boolean chkCategoria = true;
-//    private boolean chkGrau = false;
-//    private boolean chkTipoCobranca = false;
-//    private boolean chkCidadesSocio = false;
-//    private boolean chkCidadesEmpresa = false;
-//    private boolean chkMeses = false;
-//    private boolean chkTodos = false;
-//    private boolean chkSocios = false;
-//    private boolean chkEscola = false;
-//    private boolean chkAcademia = false;
-//    private boolean chkConvênioMedico = false;
-//    private boolean chkServicos = false;
-//    private boolean chkEmpresa = false;
-    // private List<DataObject> listaCidadesSocio = new ArrayList();
-    // private List<DataObject> listaCidadesEmpresa = new ArrayList();
-    // private List<DataObject> listaMeses = new ArrayList();
-    // private List listaServicos = new ArrayList();
-    // private String selectAccordion = "simples";        
-//    public List<DataObject> getListaMenuRSocial() {
-//        if (listaMenuRSocial.isEmpty()) {
-//            /* 00 */ listaMenuRSocial.add(new DataObject("Número da Matricula ", "Editar", true, null, null, null));
-//            /* 01 */ listaMenuRSocial.add(new DataObject("Idade ", "Editar", true, null, null, null));
-//            /* 02 */ listaMenuRSocial.add(new DataObject("Grupo / Categoria ", "Editar", true, null, null, null));
-//            /* 03 */ listaMenuRSocial.add(new DataObject("Sexo ", "Editar", true, null, null, null));
-//            /* 04 */ listaMenuRSocial.add(new DataObject("Grau ", "Remover", true, null, null, null));
-//            /* 05 */ listaMenuRSocial.add(new DataObject("Fotos ", "Editar", true, null, null, null));
-//            /* 06 */ listaMenuRSocial.add(new DataObject("Carteirinha ", "Editar", true, null, null, null));
-//            /* 07 */ listaMenuRSocial.add(new DataObject("Tipo de Cobrança ", "Editar", true, null, null, null));
-//            /* 08 */ listaMenuRSocial.add(new DataObject("Cidade do Sócio ", "Editar", true, null, null, null));
-//            /* 09 */ listaMenuRSocial.add(new DataObject("Cidade do Empresa ", "Editar", true, null, null, null));
-//            /* 10 */ listaMenuRSocial.add(new DataObject("Aniversário ", "Editar", true, null, null, null));
-//            /* 11 */ listaMenuRSocial.add(new DataObject("Datas ", "Editar", true, null, null, null));
-//            /* 12 */ listaMenuRSocial.add(new DataObject("Votante ", "Editar", true, null, null, null));
-//            /* 13 */ listaMenuRSocial.add(new DataObject("Email ", "Editar", true, null, null, null));
-//            /* 14 */ listaMenuRSocial.add(new DataObject("Telefone ", "Editar", true, null, null, null));
-//            /* 15 */ listaMenuRSocial.add(new DataObject("Estado Civil ", "Editar", true, null, null, null));
-//            /* 16 */ listaMenuRSocial.add(new DataObject("Empresas ", "Editar", true, null, null, null));
-//            /* 17 */ listaMenuRSocial.add(new DataObject("Situação ", "Editar", true, null, null, null));
-//            /* 18 */ listaMenuRSocial.add(new DataObject("Biometria ", "Editar", true, null, null, null));
-//            /* 19 */ listaMenuRSocial.add(new DataObject("Desconto Folha ", "Editar", true, null, null, null));
-//            /* 20 */ listaMenuRSocial.add(new DataObject("Serviços ", "Editar", true, null, null, null));
-//            /* 21 */ listaMenuRSocial.add(new DataObject("Desconto Social ", "Editar", true, null, null, null));
-//            /* 22 */ listaMenuRSocial.add(new DataObject("Status", "Editar", false, null, null, null));
-//        }
-//        return listaMenuRSocial;
-//    }
-//
-//    public void setListaMenuRSocial(List<DataObject> listaMenuRSocial) {
-//        this.listaMenuRSocial = listaMenuRSocial;
-//    }
-//
-//    public void listener(String tcase) {
-//        switch (tcase) {
-//            case "empresas":
-//                for (int i = 0; i < listaMenuRSocial.size(); i++) {
-//                    if (i == 22) {
-//                        if (idRelatorio == 12 || idRelatorio == 16 || idRelatorio == 40) {
-//                            statusSocio = "";
-//                            // booStatusSocio = false;
-//                            listaMenuRSocial.get(i).setArgumento2(true);
-//                        } else {
-//                            listaMenuRSocial.get(i).setArgumento2(false);
-//                        }
-//                    }
-//                }
-//                break;
-//        }
-//    }
-//    public String inIdGrupoCategoria() {
-//        String ids = "";
-//        for (int i = 0; i < listGrupoCategoria.size(); i++) {
-//            if (listGrupoCategoria.get(i).getSelected()) {
-//                if (ids.isEmpty()) {
-//                    ids = "" + listGrupoCategoria.get(i).getId();
-//                } else {
-//                    ids += ", " + listGrupoCategoria.get(i).getId();
-//                }
-//            }
-//        }
-//        return ids;
-//    }
-//
-//    public String inIdCategoria() {
-//        String ids = "";
-//        for (Categoria listCategoria1 : listCategoria) {
-//            if (listCategoria1.getSelected()) {
-//                if (ids.isEmpty()) {
-//                    ids = "" + listCategoria1.getId();
-//                } else {
-//                    ids += ", " + listCategoria1.getId();
-//                }
-//            }
-//        }
-//        return ids;
-//    }
-//
-//    public String inIdParentesco() {
-//        String ids = null;
-//        for (Parentesco listParentesco1 : listParentesco) {
-//            if (listParentesco1.getSelected()) {
-//                ids = "" + listParentesco1.getId();
-//            }
-//        }
-//        return ids;
-//    }
-//    public boolean validaFiltro() {
-//        return !(!booMatricula
-//                && !booIdade
-//                && !booGrupoCategoria
-//                && !booSexo
-//                && !booGrau
-//                && !booFotos
-//                && !booCarteirinha
-//                && !booTipoCobranca
-//                && !booCidadeSocio
-//                && !booCidadeEmpresa
-//                && !booAniversario
-//                && !booData
-//                && !booVotante
-//                && !booEmail
-//                && !booTelefone
-//                && !booEstadoCivil
-//                && !booEmpresa
-//                && !situacao
-//                && !booBiometria
-//                && !booDescontoFolha
-//                && !booServicos
-//                && !booDescontoSocial
-//                && !booStatusSocio);
-//    }
-//    public String getSelectAccordion() {
-//        return selectAccordion;
-//    }
-//
-//    public void setSelectAccordion(String selectAccordion) {
-//        this.selectAccordion = selectAccordion;
-//    }
-//    public boolean isBooMatricula() {
-//        return booMatricula;
-//    }
-//
-//    public void setBooMatricula(boolean booMatricula) {
-//        this.booMatricula = booMatricula;
-//    }
-//
-//    public boolean isBooIdade() {
-//        return booIdade;
-//    }
-//
-//    public void setBooIdade(boolean booIdade) {
-//        this.booIdade = booIdade;
-//    }
-//
-//    public boolean isBooGrupoCategoria() {
-//        return booGrupoCategoria;
-//    }
-//
-//    public void setBooGrupoCategoria(boolean booGrupoCategoria) {
-//        this.booGrupoCategoria = booGrupoCategoria;
-//    }
-//    public List<GrupoCategoria> getListGrupoCategoria() {
-//        if (listGrupoCategoria.isEmpty()) {
-//            List<GrupoCategoria> list = (List<GrupoCategoria>) new Dao().list(new GrupoCategoria(), true);
-//            for (GrupoCategoria gc : list) {
-//                gc.setSelected(true);
-//                listGrupoCategoria.add(gc);
-//            }
-//        }
-//        return listGrupoCategoria;
-//    }
-//
-//    public void setListGrupoCategoria(List<GrupoCategoria> listGrupoCategoria) {
-//        this.listGrupoCategoria = listGrupoCategoria;
-//    }
-//    public void marcarGrupoCatregoria() {
-//        for (int i = 0; i < listGrupoCategoria.size(); i++) {
-//            listGrupoCategoria.get(i).setSelected(chkGrupo);
-//        }
-//        listCategoria.clear();
-//    }
-//
-//    public void marcarUmGrupoCategoria() {
-//        listCategoria.clear();
-//    }
-//
-//    public void marcarCategorias() {
-//        for (int i = 0; i < listCategoria.size(); i++) {
-//            listCategoria.get(i).setSelected(chkCategoria);
-//        }
-//    }
-//
-//    public boolean isBooSexo() {
-//        return booSexo;
-//    }
-//
-//    public void setBooSexo(boolean booSexo) {
-//        this.booSexo = booSexo;
-//    }
-//
-//    public boolean isBooGrau() {
-//        return booGrau;
-//    }
-//
-//    public void setBooGrau(boolean booGrau) {
-//        this.booGrau = booGrau;
-//    }
-//
-//    public boolean isBooFotos() {
-//        return booFotos;
-//    }
-//
-//    public void setBooFotos(boolean booFotos) {
-//        this.booFotos = booFotos;
-//    }
-//
-//    public boolean isBooCarteirinha() {
-//        return booCarteirinha;
-//    }
-//
-//    public void setBooCarteirinha(boolean booCarteirinha) {
-//        this.booCarteirinha = booCarteirinha;
-//    }
-//
-//    public boolean isBooTipoCobranca() {
-//        return booTipoCobranca;
-//    }
-//
-//    public void setBooTipoCobranca(boolean booTipoCobranca) {
-//        this.booTipoCobranca = booTipoCobranca;
-//    }
-//
-//    public boolean isBooCidadeSocio() {
-//        return booCidadeSocio;
-//    }
-//
-//    public void setBooCidadeSocio(boolean booCidadeSocio) {
-//        this.booCidadeSocio = booCidadeSocio;
-//    }
-//
-//    public boolean isBooCidadeEmpresa() {
-//        return booCidadeEmpresa;
-//    }
-//
-//    public void setBooCidadeEmpresa(boolean booCidadeEmpresa) {
-//        this.booCidadeEmpresa = booCidadeEmpresa;
-//    }
-//
-//    public boolean isBooAniversario() {
-//        return booAniversario;
-//    }
-//
-//    public void setBooAniversario(boolean booAniversario) {
-//        this.booAniversario = booAniversario;
-//    }
-//
-//    public boolean isBooData() {
-//        return booData;
-//    }
-//
-//    public void setBooData(boolean booData) {
-//        this.booData = booData;
-//    }
-//    public boolean isBooVotante() {
-//        return booVotante;
-//    }
-//
-//    public void setBooVotante(boolean booVotante) {
-//        this.booVotante = booVotante;
-//    }
-//
-//    public boolean isBooEmail() {
-//        return booEmail;
-//    }
-//
-//    public void setBooEmail(boolean booEmail) {
-//        this.booEmail = booEmail;
-//    }
-//
-//    public boolean isBooTelefone() {
-//        return booTelefone;
-//    }
-//
-//    public void setBooTelefone(boolean booTelefone) {
-//        this.booTelefone = booTelefone;
-//    }
-    //
-//    public boolean isChkTodos() {
-//        return chkTodos;
-//    }
-//
-//    public void setChkTodos(boolean chkTodos) {
-//        this.chkTodos = chkTodos;
-//    }
-//
-//    public boolean isChkSocios() {
-//        return chkSocios;
-//    }
-//
-//    public void setChkSocios(boolean chkSocios) {
-//        this.chkSocios = chkSocios;
-//    }
-//
-//    public boolean isChkEscola() {
-//        return chkEscola;
-//    }
-//
-//    public void setChkEscola(boolean chkEscola) {
-//        this.chkEscola = chkEscola;
-//    }
-//
-//    public boolean isChkAcademia() {
-//        return chkAcademia;
-//    }
-//
-//    public void setChkAcademia(boolean chkAcademia) {
-//        this.chkAcademia = chkAcademia;
-//    }
-//
-//    public boolean isChkConvênioMedico() {
-//        return chkConvênioMedico;
-//    }
-//
-//    public void setChkConvênioMedico(boolean chkConvênioMedico) {
-//        this.chkConvênioMedico = chkConvênioMedico;
-//    }
-//
-//    public boolean isChkServicos() {
-//        return chkServicos;
-//    }
-//
-//    public void setChkServicos(boolean chkServicos) {
-//        this.chkServicos = chkServicos;
-//    }
-    //
-//    public boolean isChkTipoCobranca() {
-//        return chkTipoCobranca;
-//    }
-//
-//    public void setChkTipoCobranca(boolean chkTipoCobranca) {
-//        this.chkTipoCobranca = chkTipoCobranca;
-//    }
-//
-//    public boolean isChkCidadesSocio() {
-//        return chkCidadesSocio;
-//    }
-//
-//    public void setChkCidadesSocio(boolean chkCidadesSocio) {
-//        this.chkCidadesSocio = chkCidadesSocio;
-//    }
-//
-//    public boolean isChkCidadesEmpresa() {
-//        return chkCidadesEmpresa;
-//    }
-//
-//    public void setChkCidadesEmpresa(boolean chkCidadesEmpresa) {
-//        this.chkCidadesEmpresa = chkCidadesEmpresa;
-//    }
-//
-//    public boolean isChkMeses() {
-//        return chkMeses;
-//    }
-//
-//    public void setChkMeses(boolean chkMeses) {
-//        this.chkMeses = chkMeses;
-//    }
-//    public boolean isChkGrau() {
-//        return chkGrau;
-//    }
-//
-//    public void setChkGrau(boolean chkGrau) {
-//        this.chkGrau = chkGrau;
-//    }
-    //
-//    public boolean isChkGrupo() {
-//        return chkGrupo;
-//    }
-//
-//    public void setChkGrupo(boolean chkGrupo) {
-//        this.chkGrupo = chkGrupo;
-//    }
-//
-//    public boolean isChkCategoria() {
-//        return chkCategoria;
-//    }
-//
-//    public void setChkCategoria(boolean chkCategoria) {
-//        this.chkCategoria = chkCategoria;
-//    }
-//
-//    public String getMatriculaInicial() {
-//        return matriculaInicial;
-//    }
-//    public List<DataObject> getListaTipoCobranca() {
-//        if (listaTipoCobranca.isEmpty()) {
-//            FTipoDocumentoDao db = new FTipoDocumentoDao();
-//            List select = new ArrayList();
-//            select.add(new Dao().find(new FTipoDocumento(), 2));
-//            select.addAll(db.pesquisaListaTipoExtrato());
-//            for (int i = 0; i < select.size(); i++) {
-//                listaTipoCobranca.add(new DataObject(false, (FTipoDocumento) select.get(i)));
-//            }
-//        }
-//        return listaTipoCobranca;
-//    }
-//
-//    public void setListaTipoCobranca(List<DataObject> listaTipoCobranca) {
-//        this.listaTipoCobranca = listaTipoCobranca;
-//    }
-//
-//    public void marcarTipos() {
-//        for (int i = 0; i < listaTipoCobranca.size(); i++) {
-//            listaTipoCobranca.get(i).setArgumento0(chkTipoCobranca);
-//        }
-//    }
-//    public void marcarGrau() {
-//        for (int i = 0; i < listParentesco.size(); i++) {
-//            listParentesco.get(i).setSelected(chkGrau);
-//        }
-//    }
-//    public List getListaCidadesSocio() {
-//        if (listaCidadesSocio.isEmpty()) {
-//            RelatorioSociosDao db = new RelatorioSociosDao();
-//            List select = new ArrayList();
-//            select.addAll(db.listaCidadeDoSocio());
-//            for (int i = 0; i < select.size(); i++) {
-//                listaCidadesSocio.add(new DataObject(false, ((Cidade) select.get(i))));
-//            }
-//        }
-//        return listaCidadesSocio;
-//    }
-//
-//    public void setListaCidadesSocio(List listaCidadesSocio) {
-//        this.listaCidadesSocio = listaCidadesSocio;
-//    }
-//
-//    public void marcarCidadesSocio() {
-//        for (int i = 0; i < listaCidadesSocio.size(); i++) {
-//            ((DataObject) listaCidadesSocio.get(i)).setArgumento0(chkCidadesSocio);
-//        }
-//    }
-//    public List getListaCidadesEmpresa() {
-//        if (listaCidadesEmpresa.isEmpty()) {
-//            RelatorioSociosDao db = new RelatorioSociosDao();
-//            List select = new ArrayList();
-//            select.addAll(db.listaCidadeDaEmpresa());
-//            for (int i = 0; i < select.size(); i++) {
-//                listaCidadesEmpresa.add(new DataObject(false, ((Cidade) select.get(i))));
-//            }
-//        }
-//        return listaCidadesEmpresa;
-//    }
-//
-//    public void setListaCidadesEmpresa(List listaCidadesEmpresa) {
-//        this.listaCidadesEmpresa = listaCidadesEmpresa;
-//    }
-//
-//    public void marcarCidadesEmpresa() {
-//        for (int i = 0; i < listaCidadesEmpresa.size(); i++) {
-//            listaCidadesEmpresa.get(i).setArgumento0(chkCidadesEmpresa);
-//        }
-//    }
-//    public List<DataObject> getListaMeses() {
-//        if (listaMeses.isEmpty()) {
-//            listaMeses.add(new DataObject(false, "Janeiro", "01", null, null, null));
-//            listaMeses.add(new DataObject(false, "Fevereiro", "02", null, null, null));
-//            listaMeses.add(new DataObject(false, "Março", "03", null, null, null));
-//            listaMeses.add(new DataObject(false, "Abril", "04", null, null, null));
-//            listaMeses.add(new DataObject(false, "Maio", "05", null, null, null));
-//            listaMeses.add(new DataObject(false, "Junho", "06", null, null, null));
-//            listaMeses.add(new DataObject(false, "Julho", "07", null, null, null));
-//            listaMeses.add(new DataObject(false, "Agosto", "08", null, null, null));
-//            listaMeses.add(new DataObject(false, "Setembro", "09", null, null, null));
-//            listaMeses.add(new DataObject(false, "Outubro", "10", null, null, null));
-//            listaMeses.add(new DataObject(false, "Novembro", "11", null, null, null));
-//            listaMeses.add(new DataObject(false, "Dezembro", "12", null, null, null));
-//        }
-//        return listaMeses;
-//    }
-//
-//    public void setListaMeses(List listaMeses) {
-//        this.listaMeses = listaMeses;
-//    }
-//    public void marcarMeses() {
-//        for (int i = 0; i < listaMeses.size(); i++) {
-//            ((DataObject) listaMeses.get(i)).setArgumento0(chkMeses);
-//        }
-//    }
-//
-//    public List getListaServicos() {
-//        if (listaServicos.isEmpty()) {
-//            RelatorioSociosDao db = new RelatorioSociosDao();
-//            List select = new ArrayList();
-//            if (chkSocios) {
-//                select.addAll(db.listaSPSocios());
-//            }
-//            if (chkConvênioMedico) {
-//                select.addAll(db.listaSPConvenioMedico());
-//            }
-//            if (chkAcademia) {
-//                select.addAll(db.listaSPAcademia());
-//            }
-//            if (chkEscola) {
-//                select.addAll(db.listaSPEscola());
-//            }
-//            for (int i = 0; i < select.size(); i++) {
-//                listaServicos.add(new DataObject(false, (Servicos) select.get(i)));
-//            }
-//        }
-//        return listaServicos;
-//    }
-//
-//    public void setListaServicos(List listaServicos) {
-//        this.listaServicos = listaServicos;
-//    }
-//
-//    public void marcarServicos() {
-//        for (int i = 0; i < listaServicos.size(); i++) {
-//            ((DataObject) listaServicos.get(i)).setArgumento0(chkServicos);
-//        }
-//    }
-//
-//    public void marcarInscritos() {
-//        chkSocios = chkTodos;
-//        chkAcademia = chkTodos;
-//        chkConvênioMedico = chkTodos;
-//        chkEscola = chkTodos;
-//        refreshFormServicos();
-//    }
-//
-//    public void refreshForm() {
-//    }
-//    public void refreshFormServicos() {
-//        listaServicos.clear();
-//    }
-//
-//    public boolean isBooEstadoCivil() {
-//        return booEstadoCivil;
-//    }
-//
-//    public void setBooEstadoCivil(boolean booEstadoCivil) {
-//        this.booEstadoCivil = booEstadoCivil;
-//    }
-//
-//    public List<Parentesco> getListParentesco() {
-//        if (listParentesco.isEmpty()) {
-//            List<Parentesco> list = new Dao().list(new Parentesco(), true);
-//            for (Parentesco p : list) {
-//                if (p.getParentesco().equals("TITULAR")) {
-//                    p.setSelected(true);
-//                } else {
-//                    p.setSelected(false);
-//                }
-//                listParentesco.add(p);
-//            }
-//        }
-//        return listParentesco;
-//    }
-//
-//    public void setListParentesco(List<Parentesco> listParentesco) {
-//        this.listParentesco = listParentesco;
-//    }
-//    public boolean isChkEmpresa() {
-//        return chkEmpresa;
-//    }
-//
-//    public void setChkEmpresa(boolean chkEmpresa) {
-//        this.chkEmpresa = chkEmpresa;
-//    }
-//
-//    public boolean isBooEmpresa() {
-//        return booEmpresa;
-//    }
-//
-//    public void setBooEmpresa(boolean booEmpresa) {
-//        this.booEmpresa = booEmpresa;
-//    }
-//    public Boolean getSituacao() {
-//        return situacao;
-//    }
-//
-//    public void setSituacao(Boolean situacao) {
-//        this.situacao = situacao;
-//    }
-    //
-//    public boolean isBooBiometria() {
-//        return booBiometria;
-//    }
-//
-//    public void setBooBiometria(boolean booBiometria) {
-//        this.booBiometria = booBiometria;
-//    }
-    //
-//    public boolean isBooDescontoFolha() {
-//        return booDescontoFolha;
-//    }
-//
-//    public void setBooDescontoFolha(boolean booDescontoFolha) {
-//        this.booDescontoFolha = booDescontoFolha;
-//    }
-    //
-//    public boolean isBooServicos() {
-//        return booServicos;
-//    }
-//
-//    public void setBooServicos(boolean booServicos) {
-//        this.booServicos = booServicos;
-//    }    
-    //    public boolean isBooStatusSocio() {
-//        return booStatusSocio;
-//    }
-//
-//    public void setBooStatusSocio(boolean booStatusSocio) {
-//        this.booStatusSocio = booStatusSocio;
-//    }
-    //    private String dataCadastro = "";
-//    private String dataCadastroFim = "";
-//    private String dataRecadastro = "";
-//    private String dataRecadastroFim = "";
-//    private String dataDemissao = "";
-//    private String dataDemissaoFim = "";
-//    private String dataAdmissaoSocio = "";
-//    private String dataAdmissaoSocioFim = "";
-//    private String dataAdmissaoEmpresa = "";
-//    private String dataAdmissaoEmpresaFim = "";
-//    private String dataAposetandoria = "";
-//    private String dataAposetandoriaFim = "";
-//    private String dataAtualicacao = "";
-//    private String dataAtualicacaoFim = "";    
-    // private List<DataObject> listaTipoCobranca = new ArrayList();
-//    public void editarOpcao(int index) {
-//        if (listaMenuRSocial.get(index).getArgumento1().equals("Remover")) {
-//            listaMenuRSocial.get(index).setArgumento1("Editar");
-//        } else {
-//            listaMenuRSocial.get(index).setArgumento1("Remover");
-//        }
-//
-//        if (index == 0) {
-//            booMatricula = !booMatricula;
-//            if (booMatricula) {
-//                matriculaInicial = 0;
-//                matriculaFinal = 0;
-//            } else {
-//                matriculaInicial = null;
-//                matriculaFinal = null;
-//            }
-//        } else if (index == 1) {
-//            booIdade = !booIdade;
-//            if (booIdade) {
-//                idadeInicial = 0;
-//                idadeFinal = 0;
-//            } else {
-//                idadeInicial = null;
-//                idadeFinal = null;
-//            }
-//        } else if (index == 2) {
-//            booGrupoCategoria = !booGrupoCategoria;
-//            if (booGrupoCategoria) {
-//                listGrupoCategoria.clear();
-//                listCategoria.clear();
-//                getListGrupoCategoria();
-//                getListCategoria();
-//            } else {
-//                listGrupoCategoria.clear();
-//                listCategoria.clear();
-//            }
-//        } else if (index == 3) {
-//            booSexo = !booSexo;
-//            if (booSexo) {
-//                tipoSexo = "M";
-//            } else {
-//                tipoSexo = "";
-//            }
-//        } else if (index == 4) {
-//            booGrau = !booGrau;
-//            if (booGrau) {
-//                listParentesco.clear();
-//                getListParentesco();
-//            } else {
-//                listParentesco.clear();
-//            }
-//        } else if (index == 5) {
-//            booFotos = !booFotos;
-//            if (booFotos) {
-//                tipoFotos = "com";
-//            } else {
-//                tipoFotos = "";
-//            }
-//        } else if (index == 6) {
-//            booCarteirinha = !booCarteirinha;
-//            if (booCarteirinha) {
-//                tipoCarteirinha = "com";
-//            } else {
-//                tipoCarteirinha = "";
-//            }
-//        } else if (index == 7) {
-//            booTipoCobranca = !booTipoCobranca;
-//        } else if (index == 8) {
-//            booCidadeSocio = !booCidadeSocio;
-//        } else if (index == 9) {
-//            booCidadeEmpresa = !booCidadeEmpresa;
-//        } else if (index == 10) {
-//            booAniversario = !booAniversario;
-//            if (booAniversario) {
-//                listaMeses.clear();
-//                getListaMeses();
-//                diaInicial = 1;
-//                diaFinal = 31;
-//                ordemAniversario = false;
-//            } else {
-//                listaMeses.clear();
-//                diaInicial = 0;
-//                diaFinal = 0;
-//                ordemAniversario = false;
-//            }
-//        } else if (index == 11) {
-//            booData = !booData;
-//        } else if (index == 12) {
-//            booVotante = !booVotante;
-//        } else if (index == 13) {
-//            booEmail = !booEmail;
-//        } else if (index == 14) {
-//            booTelefone = !booTelefone;
-//        } else if (index == 15) {
-//            booEstadoCivil = !booEstadoCivil;
-//            if (booEstadoCivil) {
-//                tipoEstadoCivil = "Solteiro(a)";
-//            } else {
-//                tipoEstadoCivil = "";
-//            }
-//        } else if (index == 16) {
-//            booEmpresa = !booEmpresa;
-//            if (!booEmpresa) {
-//                minQtdeFuncionario = null;
-//                maxQtdeFuncionario = null;
-//                empresa = new Juridica();
-//            }
-//        } else if (index == 17) {
-//            situacao = !situacao;
-//            if (situacao) {
-//                tipoCarencia = "todos";
-//                situacaoString = "adimplente";
-//                carenciaDias = 0;
-//            } else {
-//                situacaoString = null;
-//                tipoCarencia = "todos";
-//                carenciaDias = null;
-//            }
-//        } else if (index == 18) {
-//            booBiometria = !booBiometria;
-//        } else if (index == 19) {
-//            booDescontoFolha = !booDescontoFolha;
-//        } else if (index == 20) {
-//            booServicos = !booServicos;
-//            if (booServicos) {
-//                loadGrupoFinanceiro();
-//                loadSubGrupoFinanceiro();
-//                contemServicos = false;
-//            } else {
-//                listSubGrupoFinanceiro = null;
-//                selectedSubGrupoFinanceiro = null;
-//                listSubGrupoFinanceiro = null;
-//                selectedSubGrupoFinanceiro = new ArrayList();
-//                listServicos = new LinkedHashMap<>();
-//                selectedServicos = new ArrayList<>();
-//                contemServicos = null;
-//            }
-//        } else if (index == 21) {
-//            booDescontoSocial = !booDescontoSocial;
-//            if (booDescontoSocial) {
-//                loadDescontoSocial();
-//            } else {
-//                listDescontoSocial = null;
-//                selectedDescontoSocial = null;
-//            }
-//        } else if (index == 22) {
-//            booStatusSocio = !booStatusSocio;
-//            if (booDescontoSocial) {
-//                statusSocio = "socio";
-//            }
-//        }
-//    public String getDataDemissao() {
-//        return dataDemissao;
-//    }
-//
-//    public void setDataDemissao(String dataDemissao) {
-//        this.dataDemissao = dataDemissao;
-//    }
-//    }
+    public void loadListCnaes() {
+        listCnaes = new HashMap<>();
+        List<Cnae> list = new CnaeDao().findAllByCnaeConvencao();
+        for (int i = 0; i < list.size(); i++) {
+            listCnaes.put(list.get(i).getCnae() + " - " + list.get(i).getNumero(), list.get(i).getId());
+        }
+    }
+
+    public Map<String, Integer> getListCnaes() {
+        return listCnaes;
+    }
+
+    public void setListCnaes(Map<String, Integer> listCnaes) {
+        this.listCnaes = listCnaes;
+    }
+
+    public String inIdCnaes() {
+        String ids = "";
+        if (selectedCnae != null) {
+            for (int i = 0; i < selectedCnae.size(); i++) {
+                if (ids.isEmpty()) {
+                    ids = "" + selectedCnae.get(i);
+                } else {
+                    ids += "," + selectedCnae.get(i);
+                }
+            }
+
+        }
+        return ids;
+    }
+
+    public List getSelectedCnae() {
+        return selectedCnae;
+    }
+
+    public void setSelectedCnae(List selectedCnae) {
+        this.selectedCnae = selectedCnae;
+    }
+
     public List<Juridica> getListEmpresas() {
         return listEmpresas;
     }

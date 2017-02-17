@@ -206,6 +206,31 @@
                                 </p:selectOneRadio>
                             </h:column>
                         </h:panelGrid>
+                        <h:panelGrid columns="3">
+
+                            <h:column>
+                                <h:outputLabel value="Telefone"/><br />
+                                <h:column>
+                                    <p:inputMask value="#{webAgendamentoContabilidadeBean.fisica.pessoa.telefone1}" mask="(99) 9999-9999">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
+                                </h:column>
+                            </h:column>                            
+
+                            <h:column>
+                                <h:outputLabel value="Celular"/><br />
+                                <p:inputMask value="#{webAgendamentoContabilidadeBean.fisica.pessoa.telefone3}" mask="#{mask.getTelefone(webAgendamentoContabilidadeBean.fisica.pessoa.telefone3)}" size="13">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
+                            </h:column>
+
+                            <h:column>
+                                <h:outputLabel value="Email"/><br />
+                                <p:inputText value="#{webAgendamentoContabilidadeBean.fisica.pessoa.email1}" size="30">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>
+                            </h:column>                             
+                        </h:panelGrid>
 
                         <h:panelGrid columns="4" style="margin-top: 10px">
                             <h:column>

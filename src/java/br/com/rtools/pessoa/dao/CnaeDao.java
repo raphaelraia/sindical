@@ -157,4 +157,18 @@ public class CnaeDao extends DB {
         return result;
     }
 
+    public List findAllByCnaeConvencao() {
+        try {
+            String queryString = ""
+                    + "    SELECT C.*                                           \n"
+                    + "      FROM pes_cnae AS C                                 \n"
+                    + "INNER JOIN arr_cnae_convencao AS CV ON CV.id_cnae = C.id \n"
+                    + "  ORDER BY C.ds_cnae ";
+            Query query = getEntityManager().createNativeQuery(queryString, Cnae.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }

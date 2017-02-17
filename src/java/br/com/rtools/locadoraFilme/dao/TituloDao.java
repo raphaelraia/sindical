@@ -115,6 +115,18 @@ public class TituloDao extends DB {
             return new ArrayList<>();
         }
     }
+    
+    public Titulo findBarras(String barras) {
+        try {
+            List list = find(null, "barras", "T", barras, null, 0, 0);
+            if (!list.isEmpty()) {
+                return (Titulo) list.get(0);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
 
     public Titulo findBarras(Integer filial_id, String barras) {
         try {

@@ -192,6 +192,8 @@ public class EmissaoGuiasBean implements Serializable {
         GenericaSessao.remove("produtoPesquisa");
         GenericaSessao.remove("listaMovimento");
         GenericaSessao.remove("usuarioAutenticado");
+        // REMOVER SE NÃO FOR USAR AUTORIZAÇÕES PERSONALIZADAS
+        // GenericaSessao.remove("sessaoSisAutorizacao");
     }
 
     public void autorizarDesconto() {
@@ -974,6 +976,14 @@ public class EmissaoGuiasBean implements Serializable {
             GenericaSessao.put("mensagem_recibo", observacao);
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         }
+        /*
+        REMOVER SE NÃO FOR USAR AUTORIZAÇÕES PERSONALIZADAS
+        if (GenericaSessao.exists("sessaoSisAutorizacao")) {
+            SisAutorizacoes sa = (SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao", true);
+            sa.setDtConcluido(new Date());
+            new Dao().update(sa, true);
+        }
+         */
         message = " Lançamento efetuado com Sucesso!";
         return null;
     }

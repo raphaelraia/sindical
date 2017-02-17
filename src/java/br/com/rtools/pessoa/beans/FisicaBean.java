@@ -34,12 +34,14 @@ import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
+import br.com.rtools.seguranca.Evento;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.SisAutorizacoes;
+import br.com.rtools.sistema.SisAutorizacoesTipo;
 import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
@@ -171,8 +173,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private ConfiguracaoSocial configuracaoSocial;
     private List<String> listSugestion;
     private String selectedSugestion;
+    private String solicitarAutorizacao;
 
     public FisicaBean() {
+        GenericaSessao.remove("sessaoSisAutorizacao");
+        solicitarAutorizacao = "";
         sisAutorizacoes = new SisAutorizacoes();
         configuracaoSocial = ConfiguracaoSocial.get();
         listSisAutorizacoes = new ArrayList();
@@ -391,7 +396,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 dao.rollback();
             }
         } else {
-            Fisica f = (Fisica) dao.rebind(dao.find(new Fisica(), fisica.getId()));
+            Fisica f = (Fisica) dao.find(new Fisica(), fisica.getId());
+            f = (Fisica) new Dao().rebind(f);
             /* 
             if(!f.getPessoa().getNome().equals(fisica.getPessoa().getNome())) {
                 fisica.getPessoa().setNome(f.getPessoa().getNome());
@@ -659,9 +665,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         String url = (String) GenericaSessao.getString("urlRetorno");
         fisica = (Fisica) new Dao().rebind(f);
         dao.refresh(f.getPessoa());
-
+        solicitarAutorizacao = "";
         if (!listernerValidacao(f, url)) {
-            return null;
+            if (!url.equals("pessoaFisica")) {
+                PF.update("form_pesquisa_pessoa");
+                return null;
+            }
         }
         GenericaSessao.put("fisicaPesquisa", f);
         if (!url.equals("pessoaFisica") && !url.equals("menuPrincipal") && !completo) {
@@ -2315,6 +2324,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean listernerValidacao(Fisica f, String tipoValidacao) {
+        solicitarAutorizacao = "";
         String pesquisaFisicaTipo = GenericaSessao.getString("pesquisaFisicaTipo");
         pessoaOposicao = false;
         Boolean permite = true;
@@ -2397,6 +2407,56 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 break;
         }
 
+        // DÉBITOS -- LIBERAR SE FOR UTILIZAR AUTORIZAÇÃO
+//        switch (validacao) {
+//            case "convenioMedico":
+//            case "matriculaAcademia":
+//            case "emissaoGuias":
+//            case "geracaoDebitosCartao":
+//            case "locacaoFilme":
+//            case "associarFisica":
+//                GenericaSessao.remove("sessaoSisAutorizacao");
+//                Boolean ignoreCase = false;
+//                if (validacao.equals("emissaoGuias")) {
+//                    SisAutorizacoes sa = new SisAutorizacoesDao().findAutorizado(3, Usuario.getUsuario().getId(), fisica.getPessoa().getId(), new ChamadaPaginaBean().getRotinaRetorno().getId());
+//                    if (sa != null) {
+//                        if (sa.getDtAutorizacao() == null) {
+//                            count++;
+//                            GenericaMensagem.warn("Mensagem: (" + count + ")", "SOLICITAÇÃO AGUARDANDO AUTORIZAÇÃO!");
+//                            permite = false;
+//                        } else {
+//                            if (sa.getAutorizado()) {
+//                                if (sa.getDtConcluido() == null) {
+//                                    GenericaSessao.put("sessaoSisAutorizacao", sa);
+//                                    ignoreCase = true;
+//                                } else {
+//                                    count++;
+//                                    GenericaMensagem.warn("Mensagem: (" + count + ")", "ESTÁ SOLICITAÇÃO JÁ FOI CONCLUÍDA E PROCESSADA PELO USUÁRIO!");
+//                                    permite = false;
+//                                }
+//                            } else {
+//                                count++;
+//                                GenericaMensagem.warn("Mensagem: (" + count + ")", " O GESTOR " + sa.getGestor().getPessoa().getNome() + " RECUSOU SEU PEDIDO. MOTIVO: " + sa.getMotivoRecusa());
+//                                permite = false;
+//
+//                            }
+//
+//                        }
+//                    }
+//                }
+//                if (!ignoreCase) {
+//                    FunctionsDao functionsDao = new FunctionsDao();
+//                    if (functionsDao.inadimplente(p.getId())) {
+//                        count++;
+//                        permite = false;
+//                        GenericaMensagem.warn("Mensagem: (" + count + ")", "EXISTE(m) DÉBITO(s)!");
+//                        if (validacao.equals("emissaoGuias")) {
+//                            solicitarAutorizacao = "debitos";
+//                        }
+//                    }
+//                }
+//                break;
+//        }
         // EMAIL OBRIGATÓRIO
         switch (validacao) {
             case "matriculaAcademia":
@@ -2995,60 +3055,86 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void openRequest(String alterType) {
         this.alterType = alterType;
         sisAutorizacoes = new SisAutorizacoes();
+        if (solicitarAutorizacao.equals("debitos")) {
+            sisAutorizacoes.setMotivoSolicitacao("Liberar cadastro com débitos. Motivo: ");
+        }
     }
 
     public void sendRequest() {
         SisAutorizacoesDao sad = new SisAutorizacoesDao();
+        //List<SisAutorizacoes> listAutorizacoesSecundarias = new ArrayList();
+        Dao dao = new Dao();
+        Fisica f = (Fisica) dao.find(fisica);
+
         sisAutorizacoes.setRotina(new Rotina().get());
         sisAutorizacoes.setOperador(Usuario.getUsuario());
         sisAutorizacoes.setPessoa(fisica.getPessoa());
+
         if (sisAutorizacoes.getMotivoSolicitacao().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar o motivo da solicitação!");
             return;
         }
-        if (sisAutorizacoes.getDadosAlterados().isEmpty()) {
-            GenericaMensagem.warn("Validação", "O campo de alteração não pode ser vazio!");
-            return;
-        }
-        if (sisAutorizacoes.getDadosAlterados().length() < 5) {
-            GenericaMensagem.warn("Validação", "Informar um motivo válido!");
-            return;
-        }
-        if (alterType.equals("cpf")) {
-            if (sisAutorizacoes.getDadosAlterados().equals("___.___.___-__")) {
+        if (!alterType.equals("debitos")) {
+            if (sisAutorizacoes.getDadosAlterados().isEmpty()) {
                 GenericaMensagem.warn("Validação", "O campo de alteração não pode ser vazio!");
-                sisAutorizacoes.setDadosAlterados("");
                 return;
             }
-            if (!new FisicaDao().pesquisaFisicaPorDoc(sisAutorizacoes.getDadosAlterados()).isEmpty()) {
-                GenericaMensagem.warn("Validação", "Pessoa já existente no Sistema!");
+            if (sisAutorizacoes.getDadosAlterados().length() < 5) {
+                GenericaMensagem.warn("Validação", "Informar um motivo válido!");
                 return;
             }
-            if (!sisAutorizacoes.getDadosAlterados().isEmpty() || sisAutorizacoes.getDadosAlterados().equals("0")) {
-                if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisAutorizacoes.getDadosAlterados()))) {
-                    mensagem = "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento();
+        }
+        Integer tcase = 1;
+        switch (alterType) {
+            case "cpf":
+                sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 1));
+                if (sisAutorizacoes.getDadosAlterados().equals("___.___.___-__")) {
+                    GenericaMensagem.warn("Validação", "O campo de alteração não pode ser vazio!");
+                    sisAutorizacoes.setDadosAlterados("");
                     return;
                 }
-            }
-            sisAutorizacoes.setTabela("pes_pessoa");
-            sisAutorizacoes.setColuna("ds_documento");
-            sisAutorizacoes.setCodigo(fisica.getPessoa().getId());
-            sisAutorizacoes.setDadosOriginais(fisica.getPessoa().getDocumento());
-            sisAutorizacoes.setMotivoSolicitacao("Alteração do documento: " + sisAutorizacoes.getMotivoSolicitacao());
-        } else if (alterType.equals("nome")) {
-            if (fisica.getPessoa().getNome().equals(sisAutorizacoes.getDadosAlterados().toUpperCase())) {
-                GenericaMensagem.warn("Validação", "PARA ALTERAR DEVE SE UTILIZAR OUTRO NOME!");
-                return;
-            }
-            sisAutorizacoes.setTabela("pes_pessoa");
-            sisAutorizacoes.setColuna("ds_nome");
-            sisAutorizacoes.setCodigo(fisica.getPessoa().getId());
-            sisAutorizacoes.setDadosOriginais(fisica.getPessoa().getNome());
-            sisAutorizacoes.setDadosAlterados(sisAutorizacoes.getDadosAlterados().toUpperCase());
-            sisAutorizacoes.setMotivoSolicitacao("Alteração do nome: " + sisAutorizacoes.getMotivoSolicitacao());
+                sisAutorizacoes.setEvento((Evento) dao.find(new Evento(), 3));
+                //SisAutorizacoes s2 = new SisAutorizacoes();
+                if (!new FisicaDao().pesquisaFisicaPorDoc(sisAutorizacoes.getDadosAlterados()).isEmpty()) {
+                    GenericaMensagem.warn("Validação", "Pessoa já existente no Sistema!");
+                    return;
+                }
+                if (!sisAutorizacoes.getDadosAlterados().isEmpty() || sisAutorizacoes.getDadosAlterados().equals("0")) {
+                    if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisAutorizacoes.getDadosAlterados()))) {
+                        GenericaMensagem.warn("Validação", "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento());
+                        mensagem = "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento();
+                        return;
+                    }
+                }
+                sisAutorizacoes.setTabela("pes_pessoa");
+                sisAutorizacoes.setColuna("ds_documento");
+                sisAutorizacoes.setCodigo(fisica.getPessoa().getId());
+                sisAutorizacoes.setDadosOriginais(fisica.getPessoa().getDocumento());
+                sisAutorizacoes.setMotivoSolicitacao("Alteração do documento: " + sisAutorizacoes.getMotivoSolicitacao());
+                break;
+            case "nome":
+                sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 1));
+                if (fisica.getPessoa().getNome().equals(sisAutorizacoes.getDadosAlterados().toUpperCase())) {
+                    GenericaMensagem.warn("Validação", "PARA ALTERAR DEVE SE UTILIZAR OUTRO NOME!");
+                    return;
+                }
+                sisAutorizacoes.setTabela("pes_pessoa");
+                sisAutorizacoes.setColuna("ds_nome");
+                sisAutorizacoes.setCodigo(fisica.getPessoa().getId());
+                sisAutorizacoes.setDadosOriginais(fisica.getPessoa().getNome());
+                sisAutorizacoes.setDadosAlterados(sisAutorizacoes.getDadosAlterados().toUpperCase());
+                sisAutorizacoes.setMotivoSolicitacao("Alteração do nome: " + sisAutorizacoes.getMotivoSolicitacao());
+                break;
+            // COMENTAR SE NÃO FOR USAR NA EMISSÃO DE GUIAS
+//            case "debitos":
+//                tcase = 2;
+//                sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 2));
+//                sisAutorizacoes.setRotinaDestino(new ChamadaPaginaBean().getRotinaRetorno());
+//                break;
+            default:
+                break;
         }
-        Dao dao = new Dao();
-        if (sad.exists(sisAutorizacoes)) {
+        if (sad.exists(tcase, sisAutorizacoes)) {
             GenericaMensagem.warn("Validação", "SOLICITAÇÃO JÁ REALIZADA EM ANDAMENTO!");
             return;
         }
@@ -3065,16 +3151,29 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             sisAutorizacoes.setDtAutorizacao(DataHoje.dataHoje());
             sisAutorizacoes.setHoraAutorizacao(DataHoje.horaMinuto());
             sisAutorizacoes.setAutorizado(true);
+//            for (int i = 0; i < listAutorizacoesSecundarias.size(); i++) {
+//                listAutorizacoesSecundarias.get(i).setGestor(sisAutorizacoes.getGestor());
+//                listAutorizacoesSecundarias.get(i).setDtAutorizacao(sisAutorizacoes.getDtAutorizacao());
+//                listAutorizacoesSecundarias.get(i).setHoraAutorizacao(sisAutorizacoes.getHoraAutorizacao());
+//                listAutorizacoesSecundarias.get(i).setAutorizado(sisAutorizacoes.getAutorizado());
+//            }
         }
         if (!dao.save(sisAutorizacoes)) {
             dao.rollback();
             GenericaMensagem.warn("Erro", "Ao enviar a solicitação!");
             return;
         }
+//        for (int i = 0; i < listAutorizacoesSecundarias.size(); i++) {
+//            listAutorizacoesSecundarias.get(i).setAutorizacoes(sisAutorizacoes);
+//            if (!dao.save(listAutorizacoesSecundarias.get(i))) {
+//                dao.rollback();
+//                GenericaMensagem.warn("Erro", "Ao enviar a solicitação secundária!");
+//                return;
+//            }
+//        }
         dao.commit();
         sisAutorizacoes = new SisAutorizacoes();
         if (isGestor) {
-            Fisica f = new Fisica();
             String antes = " ID: " + f.getId()
                     + " - Nome: " + f.getPessoa().getNome()
                     + " - Documento: " + f.getPessoa().getDocumento();
@@ -3087,8 +3186,17 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     + " - Documento: " + fisica.getPessoa().getDocumento());
             fisica = (Fisica) new Dao().rebind(fisica);
             fisica.setPessoa((Pessoa) dao.rebind(fisica.getPessoa()));
-            PF.update("form_pessoa_fisica");
-            GenericaMensagem.info("Sucesso", "DADOS ALTERADOS COM SUCESSO");
+            try {
+                PF.update("form_pessoa_fisica");
+            } catch (Exception e) {
+
+            }
+            solicitarAutorizacao = "";
+            if (alterType.equals("debitos")) {
+                GenericaMensagem.info("Sucesso", "SOLICITAÇÃO AUTORIZADA");
+            } else {
+                GenericaMensagem.info("Sucesso", "DADOS ALTERADOS COM SUCESSO");
+            }
         } else {
             GenericaMensagem.info("Sucesso", "SOLICITAÇÃO ENVIADA");
         }
@@ -3213,6 +3321,23 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setSelectedSugestion(String selectedSugestion) {
         this.selectedSugestion = selectedSugestion;
+    }
+
+    public Boolean getLiberaRotinaRetorno() {
+        if (GenericaSessao.exists("urlRetorno")) {
+            if (GenericaSessao.getString("urlRetorno").equals("emissaoGuias")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getSolicitarAutorizacao() {
+        return solicitarAutorizacao;
+    }
+
+    public void setSolicitarAutorizacao(String solicitarAutorizacao) {
+        this.solicitarAutorizacao = solicitarAutorizacao;
     }
 
 }

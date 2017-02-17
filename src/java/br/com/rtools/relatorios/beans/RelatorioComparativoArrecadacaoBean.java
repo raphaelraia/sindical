@@ -89,7 +89,6 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
         selectedConvencao = new ArrayList<>();
         selectedGrupoCidades = new ArrayList<>();
         selectedCnae = new ArrayList<>();
-        selectedCnae = new ArrayList<>();
         listCnaes = null;
         listConvencoes = null;
         listGrupoCidades = null;

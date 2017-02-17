@@ -28,9 +28,10 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_pesquisa_pessoa">                
-                            <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="false"/>
+                            <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="false"/>                            
                             <h:outputText value="Pesquisa Pessoas Física" styleClass="fonteHeader" />
                             <div class="clear"></div>
+                            <p:commandButton value="SOLICITAR PERMISSÃO (Ref. #{fisicaBean.solicitarAutorizacao}) PARA ROTINA #{chamadaPaginaBean.rotinaRetorno.rotina.toUpperCase()} PARA #{fisicaBean.fisica.pessoa.nome}" icon="ui-icon-pencil" update=":form_pesquisa_pessoa:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest(fisicaBean.solicitarAutorizacao)}" oncomplete="PF('dlg_solicita_autorizacao').show()" styleClass="margin-bottom font-color-red bold" title="Solicitar permissão" rendered="#{not empty fisicaBean.solicitarAutorizacao}" />
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
                                 <h:panelGrid columns="5">
                                     <p:inputMask id="id_desc_pesquisa" value="#{fisicaBean.descPesquisa}" size="50" mask="#{fisicaBean.mask}" placeholder="#{fisicaBean.porPesquisa eq 'endereco' ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}">
@@ -209,7 +210,27 @@
                                 <h:outputLabel value="Rua José Paulo, 22  (Logradouro + Descrição Endereço + , + Número +,+ Bairro, + Cidade )" /><br />
                                 <h:outputLabel value="São Paulo (Cidade)" /><br />
                                 <h:outputLabel value="SP (UF)" /><br />
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_solicita_autorizacao" modal="true" resizable="false" width="600" header="Solicitação de autorização" closeOnEscape="true">
+                                <p:ajax event="close" update=":form_pesquisa_pessoa:"/>
+                                <h:panelGroup id="i_solicita_alteracao">
+                                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                                    <h:panelGrid columns="1"  style="width: 100%">
+                                        <p:outputLabel value="Motivo da Solicitação:" />
+                                        <p:inputTextarea value="#{fisicaBean.sisAutorizacoes.motivoSolicitacao}" style="width: 100%"  rows="5" maxlength="500" placeholder="Motivo da solicitação" styleClass="margin-top-max">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Confirmar" title="Confirmar" action="#{fisicaBean.sendRequest}" oncomplete="PF('dlg_solicita_autorizacao').hide();"  update=":form_pesquisa_pessoa:"/>
+                                        <p:commandButton value="Sair" title="Sair" onclick="PF('dlg_solicita_autorizacao').hide();" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>                            
+
                         </h:form>
                     </p:panel>
 

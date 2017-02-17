@@ -58,9 +58,12 @@
                                                 <p:ajax update="@this" event="change" />                                            
                                             </p:inputText>
                                             <p:outputLabel value="Atores:"/>
-                                            <p:inputTextarea value="#{tituloBean.titulo.atores}"  maxlength="1000" cols="82" rows="5"/>
+                                            <p:inputTextarea value="#{tituloBean.titulo.atores}"  maxlength="1000" cols="82" rows="5">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputTextarea>
                                             <p:outputLabel value="Gênero:" />
                                             <p:selectOneMenu value="#{tituloBean.idGenero}" >
+                                                <p:ajax event="change" update="@this" />
                                                 <f:selectItem itemValue="" itemLabel="Selecionar" />
                                                 <f:selectItems value="#{tituloBean.listGenero}" />
                                             </p:selectOneMenu>
@@ -78,7 +81,7 @@
                                             <p:outputLabel value="Legenda:"  />
                                             <h:column>
                                                 <h:panelGrid columns="3">
-                                                    <p:selectOneMenu value="#{tituloBean.titulo.legenda}" >
+                                                    <p:selectOneMenu value="#{tituloBean.titulo.legenda}">
                                                         <f:selectItem itemLabel="DUBLADO" itemValue="DUBLADO"/>
                                                         <f:selectItem itemLabel="LEGENDADO" itemValue="LEGENDADO"/>
                                                     </p:selectOneMenu>

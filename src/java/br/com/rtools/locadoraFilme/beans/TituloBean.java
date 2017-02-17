@@ -168,6 +168,10 @@ public class TituloBean implements Serializable {
         NovoLog novoLog = new NovoLog();
         if (titulo.getId() == null) {
             TituloDao tituloDao = new TituloDao();
+            if (tituloDao.findBarras(titulo.getBarras()) != null) {
+                GenericaMensagem.warn("Validação", "Código de barras já cadastrado!");
+                return;
+            }
             if (tituloDao.exists(titulo.getDescricao())) {
                 GenericaMensagem.warn("Validação", "Titulo já existe!");
                 return;

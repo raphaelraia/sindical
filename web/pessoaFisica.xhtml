@@ -831,8 +831,8 @@
                                                 <h:outputLink value="https://www.receita.fazenda.gov.br/Aplicacoes/SSL/ATCTA/CPF/ConsultaSituacao/ConsultaPublica.asp?cpf=#{fisicaBean.fisica.pessoa.documento}&amp;nascimento=#{fisicaBean.fisica.nascimento}" target="_blank" >
                                                     <f:verbatim> CONSULTAR NA RECEITA </f:verbatim>
                                                 </h:outputLink>
+                                                <h:outputText value="#{genericaMensagem.getHtmlMessage('warn', fisicaBean.mensagem)}" escape="false" />
                                             </h:column>                                            
-                                            <h:outputText value="#{genericaMensagem.getHtmlMessage('warn', fisicaBean.mensagem)}" escape="false" rendered="#{not empty fisicaBean.mensagem}"/>
                                         </h:panelGrid>
                                     </h:panelGroup>
                                     <f:facet name="footer">                                        

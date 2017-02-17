@@ -1,10 +1,8 @@
 package br.com.rtools.sistema.dao;
 
 import br.com.rtools.principal.DB;
-import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisAutorizacoes;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -16,22 +14,76 @@ public class SisAutorizacoesDao extends DB {
     }
 
     public Boolean exists(SisAutorizacoes sa) {
+        return !find(1, null, null, null, sa).isEmpty();
+    }
+
+    public Boolean exists(Integer tcase, SisAutorizacoes sa) {
+        return !find(tcase, null, null, null, sa).isEmpty();
+    }
+
+    public SisAutorizacoes findAutorizado(Integer tcase, Integer operador_id, Integer pessoa_id, Integer rotina_destino_id) {
+        List<SisAutorizacoes> list = find(tcase, operador_id, pessoa_id, rotina_destino_id, null);
+        if (!list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
+    }
+
+    public List find(Integer tcase, Integer operador_id, Integer pessoa_id, Integer rotina_destino_id, SisAutorizacoes sa) {
         try {
-            String queryString = ""
-                    + "     SELECT SA.*                                         \n"
-                    + "       FROM sis_autorizacoes AS SA                       \n"
-                    + "      WHERE SA.id_operador = " + sa.getOperador().getId() + " \n"
-                    + "        AND SA.ds_tabela = '" + sa.getTabela() + "'      \n"
-                    + "        AND SA.ds_coluna = '" + sa.getColuna() + "'      \n"
-                    + "        AND SA.ds_dados_originais = '" + sa.getDadosOriginais() + "' \n"
-                    + "        AND SA.ds_dados_alterados = '" + sa.getDadosAlterados() + "' \n"
-                    + "        AND SA.id_pessoa = " + sa.getPessoa().getId() + "\n"
-                    + "        AND SA.is_autorizado = false                     \n"
-                    + "        AND SA.dt_autorizacao IS NULL                    \n";
-            Query query = getEntityManager().createNativeQuery(queryString);
-            return !query.getResultList().isEmpty();
+            String queryString = "";
+            if (null != tcase) {
+                switch (tcase) {
+                    case 1:
+                        queryString = ""
+                                + "     SELECT SA.*                                         \n"
+                                + "       FROM sis_autorizacoes AS SA                       \n"
+                                + "      WHERE SA.id_operador = " + sa.getOperador().getId() + " \n"
+                                + "        AND SA.ds_tabela = '" + sa.getTabela() + "'      \n"
+                                + "        AND SA.id_tipo_autorizacao = 1                   \n"
+                                + "        AND SA.ds_coluna = '" + sa.getColuna() + "'      \n"
+                                + "        AND SA.ds_dados_originais = '" + sa.getDadosOriginais() + "' \n"
+                                + "        AND SA.ds_dados_alterados = '" + sa.getDadosAlterados() + "' \n"
+                                + "        AND SA.id_pessoa = " + sa.getPessoa().getId() + "\n"
+                                + "        AND SA.is_autorizado = false                     \n"
+                                + "        AND SA.dt_autorizacao IS NULL                    \n";
+                        break;
+                    case 2:
+                        queryString = ""
+                                + "     SELECT SA.*                                         \n"
+                                + "       FROM sis_autorizacoes AS SA                       \n"
+                                + "      WHERE SA.id_operador = " + sa.getOperador().getId() + " \n"
+                                + "        AND SA.id_tipo_autorizacao = 2                   \n"
+                                + "        AND SA.ds_motivo_solicitacao  = '" + sa.getMotivoSolicitacao() + "' \n"
+                                + "        AND SA.id_rotina_destino  = " + sa.getRotinaDestino().getId() + " \n"
+                                + "        AND SA.id_pessoa = " + sa.getPessoa().getId() + "\n"
+                                + "        AND SA.is_autorizado = false                     \n"
+                                + "        AND SA.dt_autorizacao IS NULL                    \n"
+                                + "        AND SA.dt_concluido IS NULL                      \n";
+                        break;
+                    case 3:
+                        queryString = ""
+                                + "     SELECT SA.* "
+                                + "       FROM sis_autorizacoes SA"
+                                + "      WHERE SA.id IN (\n"
+                                + "     SELECT MAX(SA.id)                                       \n"
+                                + "       FROM sis_autorizacoes AS SA                           \n"
+                                + "      WHERE SA.id_operador = " + operador_id + "             \n"
+                                + "        AND SA.id_tipo_autorizacao = 2                       \n"
+                                + "        AND SA.id_rotina_destino  = " + rotina_destino_id + "\n"
+                                + "        AND SA.id_pessoa = " + pessoa_id + "                 \n"
+                                + "        AND SA.dt_autorizacao = CURRENT_DATE                 \n"
+                                + "   )"
+                                + "    ORDER BY SA.id DESC                                       \n";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            Query query = getEntityManager().createNativeQuery(queryString, SisAutorizacoes.class);
+            return query.getResultList();
         } catch (Exception e) {
-            return true;
+            return new ArrayList();
         }
     }
 
@@ -77,6 +129,7 @@ public class SisAutorizacoesDao extends DB {
                         break;
                 }
             }
+            queryString += " AND SA.id_autorizacao IS NULL                          \n";
             queryString += " ORDER BY SA.dt_solicitacao DESC ";
             query = getEntityManager().createNativeQuery(queryString, SisAutorizacoes.class);
             return query.getResultList();
@@ -94,7 +147,7 @@ public class SisAutorizacoesDao extends DB {
             return new ArrayList();
         }
     }
-    
+
     public List<SisAutorizacoes> findByPessoa(Integer pessoa_id, Boolean all) {
         try {
             Query query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes SA WHERE SA.pessoa.id = :pessoa_id ORDER BY SA.dtSolicitacao DESC");
@@ -106,6 +159,9 @@ public class SisAutorizacoesDao extends DB {
     }
 
     public Boolean execute(Dao dao, SisAutorizacoes sa) {
+        if (sa.getColuna() == null && sa.getCodigo() == null && sa.getTabela() == null) {
+            return true;
+        }
         try {
             String asColumn = "";
             try {
@@ -120,6 +176,16 @@ public class SisAutorizacoesDao extends DB {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public List<SisAutorizacoes> findByAutorizacao(Integer autorizacao_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT SA FROM SisAutorizacoes AS SA WHERE SA.autorizacoes.id = :autorizacao_id");
+            query.setParameter("autorizacao_id", autorizacao_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
         }
     }
 

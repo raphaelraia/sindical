@@ -26,6 +26,7 @@ import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.seguranca.Evento;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -37,6 +38,7 @@ import br.com.rtools.sistema.ConfiguracaoCnpj;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.SisAutorizacoes;
+import br.com.rtools.sistema.SisAutorizacoesTipo;
 import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.*;
 import java.awt.Toolkit;
@@ -48,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -3006,6 +3009,10 @@ public class JuridicaBean implements Serializable {
 
     public void sendRequest() {
         SisAutorizacoesDao sad = new SisAutorizacoesDao();
+        List<SisAutorizacoes> listAutorizacoesSecundarias = new ArrayList();
+        Dao dao = new Dao();
+        Juridica j = (Juridica) dao.find(juridica);
+        Boolean verificarPermissao = new ControleAcessoBean().verificarPermissao("autorizar", 3);
         sisAutorizacoes.setRotina(new Rotina().get());
         sisAutorizacoes.setOperador(Usuario.getUsuario());
         sisAutorizacoes.setPessoa(juridica.getPessoa());
@@ -3022,6 +3029,7 @@ public class JuridicaBean implements Serializable {
             return;
         }
         if (alterType.equals("cnpj")) {
+            sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 1));
             if (!new JuridicaDao().pesquisaJuridicaPorDoc(sisAutorizacoes.getDadosAlterados()).isEmpty()) {
                 GenericaMensagem.warn("Validação", "Empresa já existente no Sistema!");
                 return;
@@ -3035,7 +3043,33 @@ public class JuridicaBean implements Serializable {
             sisAutorizacoes.setCodigo(juridica.getPessoa().getId());
             sisAutorizacoes.setDadosOriginais(juridica.getPessoa().getDocumento());
             sisAutorizacoes.setMotivoSolicitacao("Alteração do documento: " + sisAutorizacoes.getMotivoSolicitacao());
+            sisAutorizacoes.setEvento((Evento) dao.find(new Evento(), 3));
+            SisAutorizacoes s2 = new SisAutorizacoes();
+            s2.setOperador(sisAutorizacoes.getOperador());
+            s2.setDtSolicitacao(sisAutorizacoes.getDtSolicitacao());
+            s2.setHoraSolicitacao(sisAutorizacoes.getHoraSolicitacao());
+            s2.setRotina(sisAutorizacoes.getRotina());
+            s2.setPessoa(sisAutorizacoes.getPessoa());
+            s2.setTabela(sisAutorizacoes.getTabela());
+            s2.setOperador(sisAutorizacoes.getOperador());
+            s2.setMotivoSolicitacao(sisAutorizacoes.getMotivoSolicitacao());
+            s2.setEvento(sisAutorizacoes.getEvento());
+            s2.setTabela("pes_pessoa");
+            s2.setColuna("id_tipo_documento");
+            s2.setCodigo(sisAutorizacoes.getCodigo());
+            s2.setDadosAlterados(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription());
+            s2.setSisAutorizacoesTipo(sisAutorizacoes.getSisAutorizacoesTipo());
+            listAutorizacoesSecundarias.add(s2);
+            if (verificarPermissao) {
+                for (int o = 0; o < listaTipoDocumento.size(); o++) {
+                    if (Integer.parseInt(listaTipoDocumento.get(o).getDescription()) == j.getPessoa().getTipoDocumento().getId()) {
+                        idTipoDocumento = o;
+                        break;
+                    }
+                }
+            }
         } else if (alterType.equals("nome")) {
+            sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 1));
             if (juridica.getPessoa().getNome().equals(sisAutorizacoes.getDadosAlterados().toUpperCase())) {
                 GenericaMensagem.warn("Validação", "PARA ALTERAR DEVE SE UTILIZAR OUTRO NOME!");
                 return;
@@ -3046,15 +3080,15 @@ public class JuridicaBean implements Serializable {
             sisAutorizacoes.setDadosOriginais(juridica.getPessoa().getNome());
             sisAutorizacoes.setDadosAlterados(sisAutorizacoes.getDadosAlterados().toUpperCase());
             sisAutorizacoes.setMotivoSolicitacao("Alteração do nome: " + sisAutorizacoes.getMotivoSolicitacao());
+            sisAutorizacoes.setEvento((Evento) dao.find(new Evento(), 3));
         }
-        Dao dao = new Dao();
         if (sad.exists(sisAutorizacoes)) {
             GenericaMensagem.warn("Validação", "SOLICITAÇÃO JÁ REALIZADA EM ANDAMENTO!");
             return;
         }
         dao.openTransaction();
         Boolean isGestor = false;
-        if (!new ControleAcessoBean().verificarPermissao("autorizar", 3)) {
+        if (!verificarPermissao) {
             if (!sad.execute(dao, sisAutorizacoes)) {
                 dao.rollback();
                 Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
@@ -3065,16 +3099,29 @@ public class JuridicaBean implements Serializable {
             sisAutorizacoes.setDtAutorizacao(DataHoje.dataHoje());
             sisAutorizacoes.setHoraAutorizacao(DataHoje.horaMinuto());
             sisAutorizacoes.setAutorizado(true);
+            for (int i = 0; i < listAutorizacoesSecundarias.size(); i++) {
+                listAutorizacoesSecundarias.get(i).setGestor(sisAutorizacoes.getGestor());
+                listAutorizacoesSecundarias.get(i).setDtAutorizacao(sisAutorizacoes.getDtAutorizacao());
+                listAutorizacoesSecundarias.get(i).setHoraAutorizacao(sisAutorizacoes.getHoraAutorizacao());
+                listAutorizacoesSecundarias.get(i).setAutorizado(sisAutorizacoes.getAutorizado());
+            }
         }
         if (!dao.save(sisAutorizacoes)) {
             dao.rollback();
             GenericaMensagem.warn("Erro", "Ao enviar a solicitação!");
             return;
         }
+        for (int i = 0; i < listAutorizacoesSecundarias.size(); i++) {
+            listAutorizacoesSecundarias.get(i).setAutorizacoes(sisAutorizacoes);
+            if (!dao.save(listAutorizacoesSecundarias.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "Ao enviar a solicitação secundária!");
+                return;
+            }
+        }
         dao.commit();
         sisAutorizacoes = new SisAutorizacoes();
         if (isGestor) {
-            Juridica j = new Juridica();
             String antes = " ID: " + j.getId()
                     + " - Nome: " + j.getPessoa().getNome()
                     + " - Documento: " + j.getPessoa().getDocumento();

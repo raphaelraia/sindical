@@ -195,6 +195,31 @@
                                 </p:selectOneRadio>
                             </h:column>
                         </h:panelGrid>
+                        <h:panelGrid columns="3">
+                            <h:column>
+                                <h:outputLabel value="Telefone"/><br />
+                                <h:column>
+                                    <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.pessoa.telefone1}" mask="(99) 9999-9999">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
+                                </h:column>
+                            </h:column>
+
+                            <h:column>
+                                <h:outputLabel value="Celular"/><br />
+                                <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.pessoa.telefone3}" mask="#{mask.getTelefone(webAgendamentoContribuinteBean.fisica.pessoa.telefone3)}" size="13">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
+                            </h:column>
+
+
+                            <h:column>
+                                <h:outputLabel value="Email"/><br />
+                                <p:inputText value="#{webAgendamentoContribuinteBean.fisica.pessoa.email1}" size="30">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>
+                            </h:column>                            
+                        </h:panelGrid>
 
                         <h:panelGrid columns="4" style="margin-top: 10px">
                             <h:column>
@@ -461,11 +486,11 @@
 
                             <h:column>
                                 <h:panelGrid>
-                                <h:outputLabel value="Por"/>
-                                <p:selectOneMenu value="#{webAgendamentoContribuinteBean.combo}" style="width: 100px">
-                                    <f:selectItem itemValue="cbo" itemLabel="Cbo"/>
-                                    <f:selectItem itemValue="profissao"  itemLabel="Profissão"/>
-                                </p:selectOneMenu>
+                                    <h:outputLabel value="Por"/>
+                                    <p:selectOneMenu value="#{webAgendamentoContribuinteBean.combo}" style="width: 100px">
+                                        <f:selectItem itemValue="cbo" itemLabel="Cbo"/>
+                                        <f:selectItem itemValue="profissao"  itemLabel="Profissão"/>
+                                    </p:selectOneMenu>
                                 </h:panelGrid>
                             </h:column>
 

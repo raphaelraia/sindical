@@ -1,6 +1,7 @@
 package br.com.rtools.sistema;
 
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.seguranca.Evento;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
@@ -54,6 +55,21 @@ public class SisAutorizacoes implements Serializable {
     private String coluna;
     @Column(name = "nr_codigo", nullable = false)
     private Integer codigo;
+    @JoinColumn(name = "id_evento", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Evento evento;
+    @JoinColumn(name = "id_autorizacao", referencedColumnName = "id", nullable = true)
+    @OneToOne
+    private SisAutorizacoes autorizacoes;
+    @JoinColumn(name = "id_tipo_autorizacao", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private SisAutorizacoesTipo sisAutorizacoesTipo;
+    @JoinColumn(name = "id_rotina_destino", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private Rotina rotinaDestino;
+    @Column(name = "dt_concluido", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date dtConcluido;
 
     public SisAutorizacoes() {
         this.id = null;
@@ -73,9 +89,14 @@ public class SisAutorizacoes implements Serializable {
         this.tabela = null;
         this.coluna = null;
         this.codigo = null;
+        this.evento = null;
+        this.autorizacoes = null;
+        this.sisAutorizacoesTipo = null;
+        this.rotinaDestino = null;
+        this.dtConcluido = null;
     }
 
-    public SisAutorizacoes(Integer id, Rotina rotina, Usuario operador, Usuario gestor, Pessoa pessoa, Date dtSolicitacao, String horaSolicitacao, Date dtAutorizacao, String horaAutorizacao, String dadosOriginais, String dadosAlterados, String motivoSolicitacao, String motivoRecusa, Boolean autorizado, String tabela, String coluna, Integer codigo) {
+    public SisAutorizacoes(Integer id, Rotina rotina, Usuario operador, Usuario gestor, Pessoa pessoa, Date dtSolicitacao, String horaSolicitacao, Date dtAutorizacao, String horaAutorizacao, String dadosOriginais, String dadosAlterados, String motivoSolicitacao, String motivoRecusa, Boolean autorizado, String tabela, String coluna, Integer codigo, Evento evento, SisAutorizacoes autorizacoes, SisAutorizacoesTipo sisAutorizacoesTipo, Rotina rotinaDestino, Date dtConcluido) {
         this.id = id;
         this.rotina = rotina;
         this.operador = operador;
@@ -93,6 +114,11 @@ public class SisAutorizacoes implements Serializable {
         this.tabela = tabela;
         this.coluna = coluna;
         this.codigo = codigo;
+        this.evento = evento;
+        this.autorizacoes = autorizacoes;
+        this.sisAutorizacoesTipo = sisAutorizacoesTipo;
+        this.rotinaDestino = rotinaDestino;
+        this.dtConcluido = dtConcluido;
     }
 
     public Integer getId() {
@@ -199,6 +225,14 @@ public class SisAutorizacoes implements Serializable {
         this.dadosAlterados = dadosAlterados;
     }
 
+    public void setDadosAlterados(Integer dadosAlterados) {
+        try {
+            this.dadosAlterados = Integer.toString(dadosAlterados);
+        } catch (Exception e) {
+
+        }
+    }
+
     public String getMotivoSolicitacao() {
         return motivoSolicitacao;
     }
@@ -245,6 +279,46 @@ public class SisAutorizacoes implements Serializable {
 
     public void setCodigo(Integer codigo) {
         this.codigo = codigo;
+    }
+
+    public Evento getEvento() {
+        return evento;
+    }
+
+    public void setEvento(Evento evento) {
+        this.evento = evento;
+    }
+
+    public SisAutorizacoes getAutorizacoes() {
+        return autorizacoes;
+    }
+
+    public void setAutorizacoes(SisAutorizacoes autorizacoes) {
+        this.autorizacoes = autorizacoes;
+    }
+
+    public SisAutorizacoesTipo getSisAutorizacoesTipo() {
+        return sisAutorizacoesTipo;
+    }
+
+    public void setSisAutorizacoesTipo(SisAutorizacoesTipo sisAutorizacoesTipo) {
+        this.sisAutorizacoesTipo = sisAutorizacoesTipo;
+    }
+
+    public Rotina getRotinaDestino() {
+        return rotinaDestino;
+    }
+
+    public void setRotinaDestino(Rotina rotinaDestino) {
+        this.rotinaDestino = rotinaDestino;
+    }
+
+    public Date getDtConcluido() {
+        return dtConcluido;
+    }
+
+    public void setDtConcluido(Date dtConcluido) {
+        this.dtConcluido = dtConcluido;
     }
 
 }

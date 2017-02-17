@@ -131,6 +131,11 @@
                                             <p:outputLabel value="#{sisAutorizacoes.rotina.rotina}"/>
                                         </p:column>
 
+                                        <p:column rendered="#{sisAutorizacoes.sisAutorizacoesTipo.id eq 2}">
+                                            <p:outputLabel value="Retornar para" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.rotinaDestino.rotina}"/>
+                                        </p:column>
+
                                         <p:column>
                                             <p:outputLabel value="Pessoa" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{sisAutorizacoes.pessoa.nome}"/>

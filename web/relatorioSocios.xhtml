@@ -80,7 +80,7 @@
                                             <p:tab title="Empresa">
                                                 <h:panelGrid>
                                                     <c:forEach items="#{relatorioSociosBean.filtersEmpresa}" var="filtersEmpresa" varStatus="loop" id="i_foreach_2">                                            
-                                                        <p:selectBooleanButton value="#{filtersEmpresa.active}" onLabel="#{filtersEmpresa.value}" offLabel="#{filtersEmpresa.value}" style="width: 180px; text-align: left">
+                                                        <p:selectBooleanButton value="#{filtersEmpresa.active}" onLabel="#{filtersEmpresa.value}" offLabel="#{filtersEmpresa.value}" style="width: 180px; text-align: left" disabled="#{filtersEmpresa.disabled}">
                                                             <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersEmpresa[loop.index])}" />
                                                         </p:selectBooleanButton>
                                                     </c:forEach>
@@ -438,7 +438,7 @@
                                                         <h:panelGrid  styleClass="margin-top-max">
                                                             <h:panelGrid columns="2">
                                                                 <p:selectOneRadio id="idRadioEmpresas" value="#{relatorioSociosBean.tipoEmpresas}">
-                                                                    <p:ajax event="change" update="@this i_panel_filtro2" listener="#{relatorioSociosBean.listener('empresas')}"/>
+                                                                    <p:ajax event="change" update="@this i_panel_filtro2 :form_relatorio:i_tab_empresa" listener="#{relatorioSociosBean.listener('empresas')}"/>
                                                                     <f:selectItem itemValue="com"         itemLabel="Com"/>
                                                                     <f:selectItem itemValue="sem"         itemLabel="Sem"/>
                                                                     <f:selectItem itemValue="especificas" itemLabel="Específicas"/>
@@ -460,10 +460,20 @@
                                                                 </p:inputText>
                                                             </h:panelGrid>
                                                         </h:panelGrid>
+                                                        <h:panelGroup id="i_tab_empresa" rendered="#{relatorioSociosBean.tipoEmpresas eq 'com'}">
+                                                            <p:panel header="Cnae"  style="margin-top-max">
+                                                                <h:panelGrid columns="8" cellpadding="5">
+                                                                    <p:selectCheckboxMenu label="Selecionar cnae" value="#{relatorioSociosBean.selectedCnae}" disabled="#{relatorioSociosBean.listCnaes == null}" filter="true" filterMatchMode="contains">
+                                                                        <p:ajax event="toggleSelect" update="@this" />
+                                                                        <f:selectItems value="#{relatorioSociosBean.listCnaes}" />
+                                                                    </p:selectCheckboxMenu>
+                                                                </h:panelGrid>
+                                                            </p:panel>                                                         
+                                                        </h:panelGroup>
                                                         <f:facet name="footer">
                                                             <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('empresas')}" title="Remover filtro" update="form_relatorio"/>
                                                         </f:facet>
-                                                    </p:panel>
+                                                    </p:panel>                                                                                                 
                                                 </h:panelGroup>
                                             </h:column>
                                             <h:column rendered="#{relatorioSociosBean.getShow('cidade_empresa')}">

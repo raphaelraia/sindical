@@ -58,6 +58,22 @@ public class SisAutorizacoesBean implements Serializable {
             Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
             return;
         }
+        List<SisAutorizacoes> list = sad.findByAutorizacao(sa.getId());
+        for (int i = 0; i < list.size(); i++) {
+            if (!sad.execute(dao, list.get(i))) {
+                dao.rollback();
+                Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
+                return;
+            }
+            list.get(i).setGestor(sa.getGestor());
+            list.get(i).setDtAutorizacao(sa.getDtAutorizacao());
+            list.get(i).setHoraAutorizacao(DataHoje.horaMinuto());
+            list.get(i).setAutorizado(true);
+            if (!dao.update(list.get(i))) {
+                Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
+                return;
+            }
+        }
         if (!new Dao().update(sa, true)) {
             dao.rollback();
             Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");

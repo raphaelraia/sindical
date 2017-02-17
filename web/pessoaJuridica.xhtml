@@ -711,7 +711,7 @@
                                     <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                                     <h:panelGrid style="width: 100%" >
                                         <p:outputLabel value="Alterar para:" />
-                                        <p:inputMask value="#{juridicaBean.sisAutorizacoes.dadosAlterados}" mask="#{juridicaBean.mascaraAlteracao}" style="width: 100%" >
+                                        <p:inputMask value="#{juridicaBean.sisAutorizacoes.dadosAlterados}" mask="#{juridicaBean.colocarMascara}" style="width: 100%" >
                                             <p:ajax event="change" update="@this" global="false"/>                                        
                                         </p:inputMask>
                                         <p:inputTextarea value="#{juridicaBean.sisAutorizacoes.motivoSolicitacao}" style="width: 100%"  rows="5" maxlength="500" placeholder="Motivo da solicitação" styleClass="margin-top-max">

@@ -479,8 +479,11 @@ public class RecepcaoBean implements Serializable {
             GenericaMensagem.error("Erro", "Erro ao atualizar Agendamento!");
             di.rollback();
             return;
-        } else {
-            //agendamento.setRecepcao(null);
+        }
+        if (!di.update(agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa())) {
+            GenericaMensagem.error("Erro", "Erro ao atualizar Agendamento!");
+            di.rollback();
+            return;
         }
         GenericaMensagem.info("Sucesso", "Agendamento atualizado!");
         di.commit();

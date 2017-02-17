@@ -459,6 +459,36 @@
                                                     </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
+                                            <h:panelGrid columns="5">
+                                                <h:column>
+                                                    <h:outputLabel value="Telefone"/><br />
+                                                    <h:column>
+                                                        <p:inputMask value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.telefone1}" mask="(99) 9999-9999">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
+                                                    </h:column>
+                                                </h:column>
+                                                
+                                                <h:column>
+                                                    <h:outputLabel value="Celular"/><br />
+                                                    <h:column>
+                                                        <p:inputMask value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.telefone3}" mask="#{mask.getTelefone(recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.telefone3)}" size="13">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
+                                                    </h:column>
+                                                </h:column>
+
+
+                                                <h:column>
+                                                    <h:outputLabel value="Email"/><br />
+                                                    <h:column>
+                                                        <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.email1}" size="30">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                    </h:column>
+                                                </h:column>
+
+                                            </h:panelGrid>
                                             <h:panelGrid>
                                                 <h:outputLabel value="OBSERVAÇÃO" styleClass="font-color-red bold"/>
                                                 <p:inputTextarea rows="2" value="#{recepcaoBean.agendamentoEdit.observacao}" cols="100" styleClass="bold font-color-red" maxlength="2000" placeholder="Informe uma observação..."/>

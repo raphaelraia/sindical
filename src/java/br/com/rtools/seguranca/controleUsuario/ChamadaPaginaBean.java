@@ -2708,4 +2708,11 @@ public class ChamadaPaginaBean implements Serializable {
         return true;
     }
 
+    public Rotina getRotinaRetorno() {
+        if (GenericaSessao.exists("urlRetorno")) {
+            return new RotinaDao().pesquisaRotinaPorPagina(GenericaSessao.getString("urlRetorno"));
+        }
+        return null;
+    }
+
 }

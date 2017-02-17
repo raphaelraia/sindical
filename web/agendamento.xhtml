@@ -202,40 +202,65 @@
                                     </h:panelGrid>
                                 </p:panel>                            
                             </h:panelGrid>
+                            <h:panelGroup id="i_panel_funcionario" layout="block">
+                                <h:panelGrid columns="4" style="margin-top: 20px; width: 820px">
+                                    <h:column>
+                                        <h:outputLabel value="CPF" style="color: red; font-weight: bold"/><br />
+                                        <p:inputMask value="#{agendamentoBean.documentoFisica}" mask="999.999.999-99" size="13" readonly="#{agendamentoBean.agendamento.id != -1}">
+                                            <p:ajax event="blur" listener="#{agendamentoBean.pesquisarFuncionarioCPF}" update="@this formConcluirAgendamento" />
+                                        </p:inputMask>
+                                    </h:column>
 
-                            <h:panelGrid id="i_panel_funcionario" columns="4" style="margin-top: 20px; width: 820px">
-                                <h:column>
-                                    <h:outputLabel value="CPF" style="color: red; font-weight: bold"/><br />
-                                    <p:inputMask value="#{agendamentoBean.documentoFisica}" mask="999.999.999-99" size="13" readonly="#{agendamentoBean.agendamento.id != -1}">
-                                        <p:ajax event="blur" listener="#{agendamentoBean.pesquisarFuncionarioCPF}" update="@this formConcluirAgendamento" />
-                                    </p:inputMask>
-                                </h:column>
+                                    <h:column>
+                                        <h:outputLabel value="Funcionário" style="color: red; font-weight: bold"/><br />
+                                        <p:inputText value="#{agendamentoBean.fisica.pessoa.nome}" size="60" converter="#{toUpperCase}" readonly="#{agendamentoBean.fisica.id != -1}">
+                                            <p:ajax event="change" update="@this formConcluirAgendamento" global="false" listener="#{agendamentoBean.pesquisarFuncionarioCPF}"/>
+                                        </p:inputText>
+                                    </h:column>
 
-                                <h:column>
-                                    <h:outputLabel value="Funcionário" style="color: red; font-weight: bold"/><br />
-                                    <p:inputText value="#{agendamentoBean.fisica.pessoa.nome}" size="60" converter="#{toUpperCase}" readonly="#{agendamentoBean.fisica.id != -1}">
-                                        <p:ajax event="change" update="@this formConcluirAgendamento" global="false" listener="#{agendamentoBean.pesquisarFuncionarioCPF}"/>
-                                    </p:inputText>
-                                </h:column>
+                                    <h:column>
+                                        <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.validaDataNascimento ? 'font-color-red bold' : ''}"/><br />
+                                        <p:inputMask value="#{agendamentoBean.fisica.nascimento}" size="8" mask="99/99/9999" readonly="#{agendamentoBean.fisica.id != -1 and agendamentoBean.fisica.nascimento ne '01/01/1900'}">
+                                            <p:ajax event="change" update="@this formConcluirAgendamento" listener="#{agendamentoBean.pesquisarFuncionarioCPF}"/>
+                                        </p:inputMask>
 
-                                <h:column>
-                                    <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.validaDataNascimento ? 'font-color-red bold' : ''}"/><br />
-                                    <p:inputMask value="#{agendamentoBean.fisica.nascimento}" size="8" mask="99/99/9999" readonly="#{agendamentoBean.fisica.id != -1 and agendamentoBean.fisica.nascimento ne '01/01/1900'}">
-                                        <p:ajax event="change" update="@this formConcluirAgendamento" listener="#{agendamentoBean.pesquisarFuncionarioCPF}"/>
-                                    </p:inputMask>
+                                    </h:column>
 
-                                </h:column>
+                                    <h:column>
+                                        <h:outputText value="Sexo"/><br />
+                                        <p:selectOneRadio value="#{agendamentoBean.fisica.sexo}" style="width: 200px" disabled="#{agendamentoBean.fisica.id != -1}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItem itemValue="F" itemLabel="Feminino"/>
+                                            <f:selectItem itemValue="M" itemLabel="Masculino"/>
+                                        </p:selectOneRadio>
+                                    </h:column>                                
+                                </h:panelGrid>
+                                <h:panelGrid columns="3">
+                                    <h:column>
+                                        <h:outputLabel value="Telefone"/><br />
+                                        <h:column>
+                                            <p:inputMask value="#{agendamentoBean.fisica.pessoa.telefone1}" mask="(99) 9999-9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                        </h:column>
+                                    </h:column>                                
 
-                                <h:column>
-                                    <h:outputText value="Sexo"/><br />
-                                    <p:selectOneRadio value="#{agendamentoBean.fisica.sexo}" style="width: 200px" disabled="#{agendamentoBean.fisica.id != -1}">
-                                        <p:ajax event="change" update="@this" global="false"/>
-                                        <f:selectItem itemValue="F" itemLabel="Feminino"/>
-                                        <f:selectItem itemValue="M" itemLabel="Masculino"/>
-                                    </p:selectOneRadio>
-                                </h:column>
-                            </h:panelGrid>
+                                    <h:column>
+                                        <h:outputLabel value="Celular"/><br />
+                                        <p:inputMask value="#{agendamentoBean.fisica.pessoa.telefone3}" mask="#{mask.getTelefone(agendamentoBean.fisica.pessoa.telefone3)}" size="13">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
+                                    </h:column>
 
+                                    <h:column>
+                                        <h:outputLabel value="Email"/><br />
+                                        <p:inputText value="#{agendamentoBean.fisica.pessoa.email1}" size="30">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column>
+
+                                </h:panelGrid>
+                            </h:panelGroup>
                             <h:panelGrid id="i_panel_endereco_func" columns="4" style="margin-top: 10px">
                                 <p:commandButton value="Endereço" onclick="PF('dlg_endereco').show()" global="false"/>
                                 <h:panelGrid rendered="#{agendamentoBean.fisica.id != -1}" columns="4">
