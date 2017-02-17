@@ -56,7 +56,7 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:panel>
-                            <p:dataTable value="#{configuracaoImpressoraChequeBean.listImpressoraCheque}" var="impressoraCheque" rows="10" paginator="true" styleClass="margin-top-max">
+                            <p:dataTable value="#{configuracaoImpressoraChequeBean.listImpressoraCheque}" var="impressoraCheque" rows="10" paginator="true" styleClass="margin-top-max" emptyMessage="Nenhuma Impressora Encontrada.">
                                  <p:column width="25" styleClass="text-center">
                                      <p:commandButton icon="ui-icon-pencil" title="Editar Registro nº #{impressoraCheque.id}" action="#{configuracaoImpressoraChequeBean.edit(impressoraCheque)}" update=":form_configuracao_ic:"/>
                                  </p:column>

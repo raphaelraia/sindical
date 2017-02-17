@@ -394,6 +394,14 @@ public class ImprimirBoleto implements Serializable {
                 hash.put("mensagem", "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + bol.getNrBoleto() + ")");
                 return hash;
             }
+                    
+            //13/02/2017 
+            // na lista de movimento vem o vencimento à ser alterado
+            // PEGO O MOVIMENTO ANTIGO PARA QUE O VENCIMENTO fin_movimento.dt_vencimento NÃO SEJA ALTERADO NA IMPRESSÃO QUANDO EXECUTAR update
+            // (inicialmente vindo do processamento individual) OBJETO EM QUESTÃO ( lista.get(i) )
+            // dt_vencimento NÃO PODE SER ALTERADO QUANDO IMPRIMIR DO processamento individual
+            Movimento mov_antigo = (Movimento) dao.find(lista.get(i));
+            lista.get(i).setVencimento(mov_antigo.getVencimento());
 
             if (bol.getDtCobrancaRegistrada() != null) {
                 int id_boleto = dbm.inserirBoletoNativo(bol.getContaCobranca().getId());
@@ -412,10 +420,12 @@ public class ImprimirBoleto implements Serializable {
                     Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
                     //bol.setContaCobranca(cc);
 
-                    bol_novo.setNrCtrBoleto(String.valueOf(lista.get(i).getId()));
-                    bol_novo.setVencimento(bol.getVencimento());
-                    bol_novo.setVencimentoOriginal(bol.getVencimentoOriginal());
 
+                    bol_novo.setNrCtrBoleto(String.valueOf(lista.get(i).getId()));
+                    bol_novo.setVencimento(mov_antigo.getVencimento());
+                    bol_novo.setVencimentoOriginal(mov_antigo.getVencimentoOriginal());
+
+                    
                     lista.get(i).setDocumento(bol_novo.getBoletoComposto());
                     lista.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
 

@@ -77,7 +77,7 @@ public class ImpressaoChequeBean implements Serializable {
         }
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.getMessage();
         }
