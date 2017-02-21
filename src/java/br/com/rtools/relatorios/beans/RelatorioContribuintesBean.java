@@ -1,34 +1,43 @@
 package br.com.rtools.relatorios.beans;
 
-import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
+import br.com.rtools.arrecadacao.dao.ConvencaoDao;
+import br.com.rtools.arrecadacao.dao.GrupoCidadeDao;
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.impressao.ParametroContribuintes;
 import br.com.rtools.pessoa.CentroComercial;
+import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.DataObject;
+import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Vector;
-import javax.annotation.PostConstruct;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -39,290 +48,647 @@ import javax.servlet.ServletContext;
 @SessionScoped
 public class RelatorioContribuintesBean implements Serializable {
 
-    private String radioOrdem;
-    private String radioCidades;
-    private String radioEscritorios;
-    private String radioCentroComercial;
-    private String dataCadastroInicial;
-    private String dataCadastroFinal;
+    private List<SelectItem> listRelatorio;
+    private Integer idRelatorio;
+    private List<SelectItem> listRelatorioOrdem;
+    private Integer idRelatorioOrdem;
+    private List<SelectItem> listContabilidades;
+    private Integer idContabilidade;
+    private String tipoEscritorio;
+    private String tipoEmail;
+    private String envioLogin;
+    private String tipoCentroComercial;
+    private String tipoCidade;
+    private Map<String, Integer> listCidades;
+    private List selectedCidade;
+    private List<SelectItem> listTipoServico;
+    private Integer idTipoServico;
+    private Map<String, Integer> listServicos;
+    private List selectedServicos;
+    private Map<String, Integer> listCentrosComerciais;
+    private List selectedCentroComercial;
+    private List selectedConvencao;
+    private List selectedGrupoCidades;
+    private List selectedCnae;
+    private Map<String, Integer> listConvencoes;
+    private Map<String, Integer> listGrupoCidades;
+    private Map<String, Integer> listCnaes;
+    private String ordem;
     private String comboCondicao;
-    private boolean chkConvencao;
-    private boolean chkConvencaoPesquisa;
-    private boolean chkCnaeConvencao;
-    private boolean chkGrupo;
-    private boolean carregaConvencao;
-    private boolean carregaCnaeConvencao;
-    private boolean carregaGrupo;
-    private Relatorios relatorios;
-    private String idEmails;
-    private int idCidades;
-    private int idRelatorios;
-    private int idContabilidade;
-    private int idTipoEndereco;
     private List resultConvencao;
     private List resultCnaeConvencao;
-    private List<DataObject> listaCentroComercial;
-    private List<DataObject> listaGrupo;
     private Bairro bairro;
-    private List<Convencao> listaConvencaos;
-    private Convencao[] convencaoSelecionada;
-    private List<GrupoCidade> listaGrupoCidades;
-    private GrupoCidade[] grupoCidadeSelecionada;
-    private List<CentroComercial> listaCentrosComerciais;
-    private CentroComercial[] centroComercialSelecionado;
-    private List<CnaeConvencao> listaCnaeConvencaos;
-    private CnaeConvencao[] cnaeConvencaoSelecionado;
-    List<SelectItem> listaTipoRelatorios;
-    List<SelectItem> listaTipoEndereco;
-    private String radioEmail;
-
+    private List<SelectItem> listTipoEndereco;
+    private Integer idTipoEndereco;
     private String dataValorInicial;
     private String dataValorFinal;
     private String valorInicial;
     private String valorFinal;
     private String tipoDataValor;
+    private List<Filters> filters;
+    // DATAS
+    private List<DateFilters> listDateFilters;
+    private List<SelectItem> listDates;
+    private String selectedDate;
+    private String typeDate;
+    private String startDate;
+    private String finishDate;
+    private Juridica empresa;
+    private List<Juridica> listEmpresa;
 
-    private List<SelectItem> listaServicos;
-    private Integer indexServicos;
-    private List<SelectItem> listaTipoServico;
-    private Integer indexTipoServico;
-
-    @PostConstruct
-    public void init() {
-        radioOrdem = "razao";
-        radioCidades = "todas";
-        radioEscritorios = "todos";
-        radioCentroComercial = "nenhum";
-        dataCadastroInicial = "";
-        dataCadastroFinal = "";
-        //    private String comboCondicao = "contribuintes";
+    public RelatorioContribuintesBean() {
+        GenericaSessao.remove("juridicaPesquisa");
+        GenericaSessao.remove("simplesPesquisa");
+        empresa = null;
+        listEmpresa = new ArrayList();
+        idRelatorio = null;
+        idRelatorioOrdem = null;
+        listRelatorio = new ArrayList();
+        listRelatorioOrdem = new ArrayList();
+        tipoEscritorio = "todos";
+        tipoCentroComercial = "nenhum";
+        ordem = "razao";
+        tipoCidade = "todas";
         comboCondicao = "ativos";
-        chkConvencao = true;
-        chkConvencaoPesquisa = false;
-        chkCnaeConvencao = true;
-        chkGrupo = false;
-        carregaConvencao = true;
-        carregaCnaeConvencao = true;
-        carregaGrupo = true;
-        idEmails = "t";
-        idCidades = 0;
-        idRelatorios = 0;
         idContabilidade = 0;
         idTipoEndereco = 0;
         resultConvencao = new ArrayList();
         resultCnaeConvencao = new ArrayList();
-        listaCentroComercial = new ArrayList();
-        listaGrupo = new ArrayList();
-        bairro = new Bairro();
-        listaConvencaos = new ArrayList<>();
-        convencaoSelecionada = null;
-        listaGrupoCidades = new ArrayList<>();
-        grupoCidadeSelecionada = null;
-        listaCentrosComerciais = new ArrayList<>();
-        centroComercialSelecionado = null;
-        listaCnaeConvencaos = new ArrayList<>();
-        cnaeConvencaoSelecionado = null;
-        listaTipoRelatorios = new ArrayList<>();
-        listaTipoEndereco = new ArrayList<>();
-        radioEmail = "";
-        dataValorInicial = "";
-        dataValorFinal = "";
-        valorInicial = "0";
-        valorFinal = "0";
-        tipoDataValor = "vencimento";
-        listaServicos = new ArrayList();
-        indexServicos = 0;
-        listaTipoServico = new ArrayList();
-        indexTipoServico = 0;
-        loadListaServicos();
-        loadListaTipoServico();
+        bairro = null;
+        listTipoEndereco = new ArrayList<>();
+        selectedConvencao = new ArrayList<>();
+        selectedGrupoCidades = new ArrayList<>();
+        selectedCnae = new ArrayList<>();
+        listCnaes = null;
+        listConvencoes = null;
+        listGrupoCidades = null;
+        loadListServicos();
         Jasper jasper = new Jasper();
         jasper.init();
+        loadListTipoEndereco();
+        loadFilters();
+        loadRelatorios();
+        loadRelatoriosOrdem();
     }
 
-    public final void loadListaServicos() {
-        listaServicos.clear();
+    public final void loadFilters() {
+        filters = new ArrayList<>();
+        filters.add(new Filters("escritorio", "Escritório", false));
+        filters.add(new Filters("empresa", "Empresas", false));
+        filters.add(new Filters("envio_login", "Envio de Login", false));
+        filters.add(new Filters("cidade", "Cidade", false));
+        filters.add(new Filters("centro_comercial", "Centro Comercial", false));
+        filters.add(new Filters("datas", "Datas", false));
+        filters.add(new Filters("email", "Email", false));
+        filters.add(new Filters("cnae_convencao", "Cnae/Convenção", false));
+        filters.add(new Filters("valor_pagto", "Valor de Pagto", false));
+    }
 
-        RelatorioContribuintesDao dao = new RelatorioContribuintesDao();
+    public void close(Filters filter) {
+        filter.setActive(!filter.getActive());
+        load(filter);
+    }
 
-        List<Servicos> result = dao.listaServicos();
+    public void close(String filter) {
+        Filters filters = new Filters();
+        filters.setKey(filter);
+        filters.setActive(false);
+        for (Filters f : this.filters) {
+            if (f.getKey().equals(filter)) {
+                f.setActive(false);
+            }
+        }
+        load(filters);
+    }
 
-        listaServicos.add(new SelectItem(0, "Selecionar Serviço", "0"));
+    public void load(Filters filter) {
+        switch (filter.getKey()) {
+            case "escritorio":
+                idContabilidade = null;
+                listContabilidades = new ArrayList<>();
+                if (filter.getActive()) {
+                    loadListContabilidades();
+                }
+                break;
+            case "envio_login":
+                envioLogin = "todos";
+                break;
+            case "cidade":
+                tipoCidade = "";
+                listCidades = new LinkedHashMap<>();
+                selectedCidade = new ArrayList();
+                if (filter.getActive()) {
+                    loadListCidades();
+                }
+                break;
+            case "centro_comercial":
+                listCentrosComerciais = new LinkedHashMap<>();
+                selectedCentroComercial = null;
+                if (filter.getActive()) {
+                    loadListCentroComercial();
+                }
+                break;
+            case "datas":
+                listDateFilters = new ArrayList();
+                listDates = new ArrayList();
+                selectedDate = "";
+                typeDate = "faixa";
+                startDate = "";
+                finishDate = "";
+                if (filter.getActive()) {
+                    loadDates();
+                }
+                break;
+            case "email":
+                tipoEmail = "email";
+                break;
+            case "cnae_convencao":
+                if (filter.getActive()) {
+                    loadListConvencoes();
+                    loadListCnaes();
+                    loadListGrupoCidades();
+                }
+                break;
+            case "bairro":
+                bairro = null;
+                break;
+            case "valor_pagto":
+                dataValorInicial = "";
+                dataValorFinal = "";
+                valorInicial = "0";
+                valorFinal = "0";
+                tipoDataValor = "vencimento";
+                listServicos = new LinkedHashMap<>();
+                selectedServicos = new ArrayList();
+                listTipoServico = new ArrayList();
+                idTipoServico = null;
+                if (filter.getActive()) {
+                    loadListServicos();
+                    loadListTipoServico();
+                }
+                break;
+            case "empresa":
+                empresa = null;
+                listEmpresa = new ArrayList();
+                if (filter.getActive()) {
+                }
+                break;
 
-        for (int i = 0; i < result.size(); i++) {
-            listaServicos.add(new SelectItem(i + 1, result.get(i).getDescricao(), "" + result.get(i).getId()));
         }
     }
 
-    public final void loadListaTipoServico() {
-        listaTipoServico.clear();
+    public void listener(String tcase) {
+        switch (tcase) {
+            case "tipo_escritorio":
+                listContabilidades = new ArrayList<>();
+                if (tipoEscritorio.equals("especifico")) {
+                    loadListContabilidades();
+                }
+                break;
+            case "centro_comercial":
+                switch (tipoCentroComercial) {
+                    case "com":
+                        loadListCentroComercial();
+                        idTipoEndereco = 3;
+                        break;
+                    case "nenhum":
+                        listCentrosComerciais = new LinkedHashMap<>();
+                        selectedCentroComercial = new ArrayList();
+                        break;
+                    case "sem":
+                        selectedCentroComercial = new ArrayList();
+                        loadListCentroComercial();
+                        for (Map.Entry<String, Integer> lcc : listCentrosComerciais.entrySet()) {
+                            selectedCentroComercial.add(lcc.getValue());
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "valor_pagto_1":
+                dataValorInicial = "";
+                dataValorFinal = "";
+                break;
+            case "valor_pagto_2":
+                valorInicial = "0";
+                valorFinal = "0";
+                break;
+            case "convencao":
+                loadListCnaes();
+                loadListGrupoCidades();
+                break;
+            case "relatorios":
+                if (listRelatorio.get(idRelatorio).getLabel().toUpperCase().contains("ESCRITÓRIO")) {
+                    for (int i = 0; i < filters.size(); i++) {
+                        if (filters.get(i).getKey().equals("escritorio")) {
+                            filters.get(i).setActive(true);
+                            load(filters.get(i));
+                            tipoEscritorio = "comEscritorio";
+                        }
+                    }
+                }
+                loadRelatoriosOrdem();
+                break;
 
-        RelatorioContribuintesDao dao = new RelatorioContribuintesDao();
+        }
+    }
 
-        List<TipoServico> result = dao.listaTipoServico();
+    public Boolean isFiltroSelecionado() {
+        List<Filters> list = new ArrayList();
+        list.addAll(filters);
+        for (Filters list1 : list) {
+            if (list1.getActive()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        listaTipoServico.add(new SelectItem(0, "Selecionar Tipo Serviço", "0"));
+    public void loadDates() {
+        listDates = new ArrayList();
+        listDates.add(new SelectItem("atualizacao", "Atualização"));
+        listDates.add(new SelectItem("cadastro", "Cadastro"));
+        listDates.add(new SelectItem("recadastro", "Recadastro"));
+        // RELOAD DATA
+        if (listDateFilters != null) {
+            for (int i = 0; i < listDateFilters.size(); i++) {
+                for (int x = 0; x < listDates.size(); x++) {
+                    if (listDateFilters.get(i).getTitle().equals(listDates.get(x).getValue().toString())) {
+                        listDates.get(x).setDisabled(true);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
-        for (int i = 0; i < result.size(); i++) {
-            listaTipoServico.add(new SelectItem(i + 1, result.get(i).getDescricao(), "" + result.get(i).getId()));
+    public void addFilterDate() {
+        if (selectedDate == null || selectedDate.isEmpty()) {
+            return;
+        }
+        if (typeDate.equals("igual") || typeDate.equals("apartir") || typeDate.equals("ate")) {
+            if (startDate.isEmpty()) {
+                GenericaMensagem.warn("Validação", "INFORMAR DATA INICIAL!");
+                return;
+            }
+        } else if (typeDate.equals("faixa")) {
+            if (startDate.isEmpty()) {
+                GenericaMensagem.warn("Validação", "INFORMAR DATA INICIAL!");
+                return;
+            }
+            if (finishDate.isEmpty()) {
+                GenericaMensagem.warn("Validação", "INFORMAR DATA FINAL!");
+                return;
+            }
+        }
+        listDateFilters.add(new DateFilters(true, selectedDate, typeDate, startDate, finishDate));
+        loadDates();
+        selectedDate = "";
+        typeDate = "faixa";
+        startDate = "";
+        finishDate = "";
+    }
+
+    public void removeFilterDate(DateFilters df) {
+        listDateFilters.remove(df);
+        loadDates();
+    }
+
+    public final void loadRelatorios() {
+        listRelatorio = new ArrayList();
+        RelatorioDao db = new RelatorioDao();
+        List<Relatorios> list = db.pesquisaTipoRelatorio(new Rotina().get().getId());
+        for (int i = 0; i < list.size(); i++) {
+            Boolean disabled = false;
+            if (i == 0) {
+                idRelatorio = list.get(i).getId();
+            }
+            if (list.get(i).getPrincipal()) {
+                idRelatorio = list.get(i).getId();
+            }
+            listRelatorio.add(new SelectItem(list.get(i).getId(), list.get(i).getNome(), "", disabled));
+        }
+    }
+
+    public final void loadRelatoriosOrdem() {
+        listRelatorioOrdem = (List<SelectItem>) new ArrayList();
+        idRelatorioOrdem = 0;
+        if (idRelatorio != null) {
+            RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
+            List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
+            for (int i = 0; i < list.size(); i++) {
+                listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+                if (list.get(i).getPrincipal()) {
+                    idRelatorioOrdem = list.get(i).getId();
+                }
+            }
+        }
+    }
+
+    public final void loadListCentroComercial() {
+        listCentrosComerciais = new LinkedHashMap<>();
+        selectedCentroComercial = new ArrayList();
+        List<CentroComercial> list = (List<CentroComercial>) new Dao().list(new CentroComercial(), true);
+        for (int i = 0; i < list.size(); i++) {
+            listCentrosComerciais.put(list.get(i).getJuridica().getPessoa().getNome(), list.get(i).getJuridica().getPessoa().getId());
+        }
+    }
+
+    public final void loadListServicos() {
+        listServicos = new LinkedHashMap<>();
+        selectedServicos = new ArrayList();
+        List<Servicos> list = new RelatorioContribuintesDao().listaServicos();
+        for (int i = 0; i < list.size(); i++) {
+            listServicos.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
+    public final void loadListTipoServico() {
+        listTipoServico = new ArrayList();
+        idTipoEndereco = 0;
+        List<TipoServico> list = new RelatorioContribuintesDao().listaTipoServico();
+        listTipoServico.add(new SelectItem(0, "Selecionar Tipo Serviço"));
+        for (int i = 0; i < list.size(); i++) {
+            listTipoServico.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
 
     }
 
-    public void limparDataValor() {
-        dataValorInicial = "";
-        dataValorFinal = "";
+    public final void loadListTipoEndereco() {
+        listTipoEndereco = new ArrayList();
+        List<TipoEndereco> list = (List<TipoEndereco>) new Dao().find("TipoEndereco", new int[]{2, 3, 4, 5});
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idTipoEndereco = list.get(i).getId();
+            }
+            listTipoEndereco.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
     }
 
-    public void limparValor() {
-        valorInicial = "0";
-        valorFinal = "0";
-        indexServicos = 0;
-        indexTipoServico = 0;
+    public final void loadListContabilidades() {
+        listContabilidades = new ArrayList<>();
+        List<Juridica> list = new RelatorioContribuintesDao().pesquisaContabilidades();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idContabilidade = list.get(i).getId();
+            }
+            listContabilidades.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome() + " - " + list.get(i).getPessoa().getDocumento()));
+        }
     }
 
-    public void visualizar() {
+    public final void loadListCidades() {
+        listCidades = new LinkedHashMap<>();
+        selectedCidade = new ArrayList();
+        List<Cidade> list = new RelatorioDao().pesquisaCidadesRelatorio();
+        for (int i = 0; i < list.size(); i++) {
+            listCidades.put(list.get(i).getCidade(), list.get(i).getId());
+        }
+    }
+
+    public final void loadListConvencoes() {
+        listConvencoes = new LinkedHashMap<>();
+        selectedConvencao = new ArrayList();
+        List<Convencao> list = new ConvencaoDao().listaConvencao();
+        for (int i = 0; i < list.size(); i++) {
+            listConvencoes.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
+    public final void loadListCnaes() {
+        listCnaes = new LinkedHashMap<>();
+        selectedCnae = new ArrayList();
+        String ids = inIdConvencao();
+        if (!ids.isEmpty()) {
+            List<Cnae> list = (List<Cnae>) new OposicaoDao().listaCnaesPorOposicaoJuridica(ids);
+            for (int i = 0; i < list.size(); i++) {
+                listCnaes.put(list.get(i).getCnae() + " - " + list.get(i).getNumero(), list.get(i).getId());
+            }
+        }
+    }
+
+    public final void loadListGrupoCidades() {
+        listGrupoCidades = new LinkedHashMap<>();
+        selectedGrupoCidades = new ArrayList();
+        String ids = inIdConvencao();
+        if (!ids.isEmpty()) {
+            List<GrupoCidade> list = new GrupoCidadeDao().listaGrupoCidadePorConvencao(ids);
+            for (int i = 0; i < list.size(); i++) {
+                listGrupoCidades.put(list.get(i).getDescricao(), list.get(i).getId());
+            }
+        }
+    }
+
+    public String inIdCentroComercial() {
+        String ids = null;
+        if (selectedCentroComercial != null) {
+            for (int i = 0; i < selectedCentroComercial.size(); i++) {
+                if (selectedCentroComercial.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedCentroComercial.get(i);
+                    } else {
+                        ids += "," + selectedCentroComercial.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdCidades() {
+        String ids = null;
+        if (selectedCidade != null) {
+            for (int i = 0; i < selectedCidade.size(); i++) {
+                if (selectedCidade.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedCidade.get(i);
+                    } else {
+                        ids += "," + selectedCidade.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdEmpresas() {
+        String ids = null;
+        if (listEmpresa != null && !listEmpresa.isEmpty()) {
+            for (int i = 0; i < listEmpresa.size(); i++) {
+                if (listEmpresa.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + listEmpresa.get(i).getPessoa().getId();
+                    } else {
+                        ids += "," + listEmpresa.get(i).getPessoa().getId();
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdServicos() {
+        String ids = null;
+        if (selectedServicos != null) {
+            for (int i = 0; i < selectedServicos.size(); i++) {
+                if (selectedServicos.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedServicos.get(i);
+                    } else {
+                        ids += "," + selectedServicos.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdConvencao() {
+        String ids = "";
+        if (selectedConvencao != null) {
+            for (int i = 0; i < selectedConvencao.size(); i++) {
+                if (ids.isEmpty()) {
+                    ids = "" + selectedConvencao.get(i);
+                } else {
+                    ids += "," + selectedConvencao.get(i);
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdGruposCidade() {
+        String ids = "";
+        if (selectedGrupoCidades != null) {
+            for (int i = 0; i < selectedGrupoCidades.size(); i++) {
+                if (ids.isEmpty()) {
+                    ids = "" + selectedGrupoCidades.get(i);
+                } else {
+                    ids += "," + selectedGrupoCidades.get(i);
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdCnaes() {
+        String ids = "";
+        if (selectedCnae != null) {
+            for (int i = 0; i < selectedCnae.size(); i++) {
+                if (ids.isEmpty()) {
+                    ids = "" + selectedCnae.get(i);
+                } else {
+                    ids += "," + selectedCnae.get(i);
+                }
+            }
+
+        }
+        return ids;
+    }
+
+    public void addEmpresa() {
+        if (empresa != null) {
+            listEmpresa.add(empresa);
+        }
+        empresa = null;
+    }
+
+    public void removeEmpresa(Juridica empresa) {
+        listEmpresa.remove(empresa);
+    }
+
+    public void print() {
+        if (!isFiltroSelecionado()) {
+            GenericaMensagem.warn("Validação", "SELECIONAR UM FILTRO PARA REALIZAR A PESQUISA!");
+            return;
+        }
+
         String escritorio = "";
         String centros = "",
-                enderecos = "",
+                in_enderecos = "",
                 numeros = "";
-        String bairros = "";
+        String in_bairros = "";
 
-        RelatorioDao db = new RelatorioDao();
-        RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
+        RelatorioContribuintesDao rcd = new RelatorioContribuintesDao();
+        rcd.setRelatorios((Relatorios) new Dao().find(new Relatorios(), idRelatorio));
+        rcd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
+
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         Cidade cidade;
-        Juridica contabilidade;
-        Relatorios relatorios = db.pesquisaRelatorios(Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription()));
-        TipoEndereco tipoEndereco = (TipoEndereco) new Dao().find(new TipoEndereco(), Integer.parseInt(listaTipoEndereco.get(idTipoEndereco).getDescription()));
         // CONDICAO DO RELATORIO -----------------------------------------------------------
         String condicao = comboCondicao;
 
         // ESCRITORIO DO RELATORIO -----------------------------------------------------------
-        switch (radioEscritorios) {
-            case "todos":
-                escritorio = "todos";
-                break;
-            case "semEscritorio":
-                escritorio = "semEscritorio";
-                break;
-            case "comEscritorio":
-                escritorio = "comEscritorio";
-                break;
-            case "especifico":
-                contabilidade = (Juridica) new Dao().find(new Juridica(), Integer.parseInt(getListaContabilidades().get(idContabilidade).getDescription()));
-                escritorio = Integer.toString(contabilidade.getId());
-                break;
+        if (getShow("escritorio")) {
+            switch (tipoEscritorio) {
+                case "todos":
+                    escritorio = "todos";
+                    break;
+                case "semEscritorio":
+                    escritorio = "semEscritorio";
+                    break;
+                case "comEscritorio":
+                    escritorio = "comEscritorio";
+                    break;
+                case "especifico":
+                    Juridica contabilidade = (Juridica) new Dao().find(new Juridica(), idContabilidade);
+                    escritorio = Integer.toString(contabilidade.getId());
+                    break;
+            }
         }
-
-        // CIDADE DO RELATORIO -----------------------------------------------------------
-        String cidades = "";
-        switch (radioCidades) {
+        String in_cidades = "";
+        switch (tipoCidade) {
             case "especificas":
-                cidade = (Cidade) new Dao().find(new Cidade(), Integer.parseInt(getListaCidades().get(idCidades).getDescription()));
-                cidades = Integer.toString(cidade.getId());
+                in_cidades = inIdCidades();
                 break;
             case "local":
                 cidade = dbPesEnd.pesquisaEndPorPessoaTipo(1, 2).getEndereco().getCidade();
-                cidades = Integer.toString(cidade.getId());
+                in_cidades = Integer.toString(cidade.getId());
                 break;
             case "outras":
                 cidade = dbPesEnd.pesquisaEndPorPessoaTipo(1, 2).getEndereco().getCidade();
-                cidades = Integer.toString(cidade.getId());
+                in_cidades = Integer.toString(cidade.getId());
                 break;
         }
-
-        // BAIRRO DO RELATORIO -----------------------------------------------------------
-        if (bairro.getId() != -1) {
+        if (bairro != null) {
             List<Bairro> listaBairro = new ArrayList();
             listaBairro.add((Bairro) new Dao().find(bairro));
             if (!listaBairro.isEmpty()) {
                 for (int i = 0; i < listaBairro.size(); i++) {
-                    if (bairros.length() > 0 && i != listaBairro.size()) {
-                        bairros += ",";
+                    if (in_bairros.length() > 0 && i != listaBairro.size()) {
+                        in_bairros += ",";
                     }
-                    bairros += Integer.toString(listaBairro.get(i).getId());
+                    in_bairros += Integer.toString(listaBairro.get(i).getId());
                 }
             }
         }
 
         // CENTRO COMERCIAL -----------------------------------------------------------
-        @SuppressWarnings("UseOfObsoleteCollectionType")
         List idsEnderecos;
-        if (!radioCentroComercial.equals("nenhum")) {
-            String centroComercialSelecionados = "";
-            if (centroComercialSelecionado != null && centroComercialSelecionado.length > 0) {
-                int icc = 0;
-                for (CentroComercial centroComercial : centroComercialSelecionado) {
-                    if (icc == 0) {
-                        centroComercialSelecionados = Integer.toString(centroComercial.getJuridica().getId());
-                    } else {
-                        centroComercialSelecionados += "," + Integer.toString(centroComercial.getJuridica().getId());
-                    }
-                    icc++;
-                }
-                idsEnderecos = dbContri.listaCentros(centroComercialSelecionados);
+        if (getShow("centro_comercial")) {
+            if (selectedCentroComercial == null || selectedCentroComercial.isEmpty()) {
+                GenericaMensagem.warn("Sistema", "Selecione pelo menos um centro comercial.");
+                return;
+            }
+            String in_centro_comercial = inIdCentroComercial();
+            if (in_centro_comercial != null && !in_centro_comercial.isEmpty()) {
+                idsEnderecos = rcd.listaCentros(in_centro_comercial);
                 for (int i = 0; i < idsEnderecos.size(); i++) {
-                    if (enderecos.length() > 0 && i != idsEnderecos.size()) {
-                        enderecos += ",";
+                    if (in_enderecos.length() > 0 && i != idsEnderecos.size()) {
+                        in_enderecos += ",";
                         numeros += ",";
                     }
                     //if (radioCentroComercial.equals("com")){
-                    enderecos += ((List) idsEnderecos.get(i)).get(0);
+                    in_enderecos += ((List) idsEnderecos.get(i)).get(0);
                     numeros += "'" + ((List) idsEnderecos.get(i)).get(1) + "'";
                     //} else
                     //    enderecos += idsEnderecos.get(i).get(2);
                 }
-            } else {
-                GenericaMensagem.warn("Sistema", "Selecione pelo menos um centro comercial.");
-                return;
-            }
-        }
-
-        // CONVENCAO GRUPO CIDADE -------------------------------------------------------
-        String gruposCidadesSelecionados = "";
-        if (grupoCidadeSelecionada != null) {
-            int icc = 0;
-            for (GrupoCidade grupoCidade : grupoCidadeSelecionada) {
-                if (icc == 0) {
-                    gruposCidadesSelecionados = Integer.toString(grupoCidade.getId());
-                } else {
-                    gruposCidadesSelecionados += "," + Integer.toString(grupoCidade.getId());
-                }
-                icc++;
-            }
-        }
-        // CNAES DO RELATORIO -----------------------------------------------------------
-        String cnaeConvencaoSelecionados = "";
-        if (cnaeConvencaoSelecionado != null) {
-            int icc = 0;
-            for (CnaeConvencao cnaeConvencao : cnaeConvencaoSelecionado) {
-                if (icc == 0) {
-                    cnaeConvencaoSelecionados = Integer.toString(cnaeConvencao.getCnae().getId());
-                } else {
-                    cnaeConvencaoSelecionados += "," + Integer.toString(cnaeConvencao.getCnae().getId());
-                }
-                icc++;
-            }
-        }
-
-        // CONVENÇÕES DO RELATORIO -----------------------------------------------------------
-        String convencoesSelecionadas = "";
-        if (convencaoSelecionada != null) {
-            int ic = 0;
-            for (Convencao convencao : convencaoSelecionada) {
-                if (ic == 0) {
-                    convencoesSelecionadas = Integer.toString(convencao.getId());
-                } else {
-                    convencoesSelecionadas += "," + Integer.toString(convencao.getId());
-                }
-                ic++;
             }
         }
 
         // VALORES DO RELATÓRIO
         String valor_inicial = null, valor_final = null, data_valor_inicial = null, data_valor_final = null;
-        Integer id_servicos = null, id_tipo_servico = null;
         if (Moeda.converteUS$(valorInicial) > 0 || Moeda.converteUS$(valorFinal) > 0) {
             if (Moeda.converteUS$(valorInicial) > Moeda.converteUS$(valorFinal)) {
                 GenericaMensagem.warn("Sistema", "Valor Inicial não pode ser maior que Final!");
@@ -344,33 +710,50 @@ public class RelatorioContribuintesBean implements Serializable {
 
             data_valor_inicial = dataValorInicial;
             data_valor_final = dataValorFinal;
-
-            if (Integer.valueOf(listaServicos.get(indexServicos).getDescription()) != 0) {
-                id_servicos = Integer.valueOf(listaServicos.get(indexServicos).getDescription());
-            }
-
-            if (Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription()) != 0) {
-                id_tipo_servico = Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription());
-            }
         }
 
         String inCentroComercial = "";
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
         PessoaEndereco endSindicato = dbPesEnd.pesquisaEndPorPessoaTipo(1, 3);
-        @SuppressWarnings("UseOfObsoleteCollectionType")
-        List<List> result = new ArrayList();
-        if (convencaoSelecionada != null) {
-            result = dbContri.listaRelatorioContribuintes(relatorios, idEmails, condicao, escritorio, radioCidades, cidades, radioOrdem, cnaeConvencaoSelecionados, tipoEndereco.getId(), enderecos, radioCentroComercial, inCentroComercial, numeros, gruposCidadesSelecionados, bairros, convencoesSelecionadas, dataCadastroInicial, dataCadastroFinal, radioEmail, valor_inicial, valor_final, data_valor_inicial, data_valor_final, tipoDataValor, id_servicos, id_tipo_servico);
-        }
-        if (result.isEmpty()) {
+
+        List<List> list = rcd.find(
+                condicao,
+                escritorio,
+                tipoCidade,
+                in_cidades,
+                idTipoEndereco,
+                in_enderecos,
+                tipoCentroComercial,
+                inIdCentroComercial(),
+                numeros,
+                in_bairros,
+                inIdConvencao(),
+                inIdCnaes(),
+                inIdGruposCidade(),
+                tipoEmail,
+                envioLogin,
+                valor_inicial,
+                valor_final,
+                data_valor_inicial,
+                data_valor_final,
+                tipoDataValor,
+                inIdServicos(),
+                idTipoServico,
+                inIdEmpresas(),
+                /**
+                 * DATAS
+                 */
+                listDateFilters
+        );
+        if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
         }
         FacesContext faces = FacesContext.getCurrentInstance();
-        List<ParametroContribuintes> list = new ArrayList<>();
+        List<ParametroContribuintes> c = new ArrayList<>();
         try {
-            for (int i = 0; i < result.size(); i++) {
-                list.add(new ParametroContribuintes(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+            for (int i = 0; i < list.size(); i++) {
+                c.add(new ParametroContribuintes(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
                         sindicato.getPessoa().getNome(),
                         endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
                         endSindicato.getEndereco().getLogradouro().getDescricao(),
@@ -385,56 +768,67 @@ public class RelatorioContribuintesBean implements Serializable {
                         sindicato.getPessoa().getSite(),
                         sindicato.getPessoa().getTipoDocumento().getDescricao(),
                         sindicato.getPessoa().getDocumento(),
-                        getConverteNullInt((result.get(i)).get(0)), // ID
-                        getConverteNullString((result.get(i)).get(1)), // NOME PESSOA
-                        getConverteNullString((result.get(i)).get(4)), // DESCRICAO ENDERECO
-                        getConverteNullString((result.get(i)).get(3)), // LOGRADOURO
-                        getConverteNullString((result.get(i)).get(7)), // NUMERO
-                        getConverteNullString((result.get(i)).get(8)), // COMPLEMENTO
-                        getConverteNullString((result.get(i)).get(11)), // BAIRRO
-                        getConverteNullString((result.get(i)).get(9)), // CEP
-                        getConverteNullString((result.get(i)).get(5)), // CIDADE
-                        getConverteNullString((result.get(i)).get(6)), // UF
-                        getConverteNullString((result.get(i)).get(12)), // TELEFONE
-                        getConverteNullString((result.get(i)).get(13)), // EMAIL
-                        getConverteNullString((result.get(i)).get(14)), // TIPO DOCUMENTO
-                        getConverteNullString((result.get(i)).get(2)), // DOCUMENTO
-                        getConverteNullInt((result.get(i)).get(15)), //ID CNAE
-                        getConverteNullString((result.get(i)).get(16)), // NUMERO CNAE
-                        getConverteNullString((result.get(i)).get(17)), // DESCRICAO CNAE
-                        getConverteNullInt((result.get(i)).get(18)), // ID CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(10)), // NOME CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(20)), // DESCRICAO ENDERECO CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(19)), // LOGRADOURO CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(24)), // NUMERO CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(25)), // COMPLEMENTO CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(21)), // BAIRRO CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(26)), // CEP CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(22)), // CIDADE CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(23)), // UF CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(27)), // TELEFONE CONTABILIDADE
-                        getConverteNullString((result.get(i)).get(28)) // EMAIL CONTABILIDADE
+                        getConverteNullInt((list.get(i)).get(0)), // ID
+                        getConverteNullString((list.get(i)).get(1)), // NOME PESSOA
+                        getConverteNullString((list.get(i)).get(4)), // DESCRICAO ENDERECO
+                        getConverteNullString((list.get(i)).get(3)), // LOGRADOURO
+                        getConverteNullString((list.get(i)).get(7)), // NUMERO
+                        getConverteNullString((list.get(i)).get(8)), // COMPLEMENTO
+                        getConverteNullString((list.get(i)).get(11)), // BAIRRO
+                        getConverteNullString((list.get(i)).get(9)), // CEP
+                        getConverteNullString((list.get(i)).get(5)), // CIDADE
+                        getConverteNullString((list.get(i)).get(6)), // UF
+                        getConverteNullString((list.get(i)).get(12)), // TELEFONE
+                        getConverteNullString((list.get(i)).get(13)), // EMAIL
+                        getConverteNullString((list.get(i)).get(14)), // TIPO DOCUMENTO
+                        getConverteNullString((list.get(i)).get(2)), // DOCUMENTO
+                        getConverteNullInt((list.get(i)).get(15)), //ID CNAE
+                        getConverteNullString((list.get(i)).get(16)), // NUMERO CNAE
+                        getConverteNullString((list.get(i)).get(17)), // DESCRICAO CNAE
+                        getConverteNullInt((list.get(i)).get(18)), // ID CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(10)), // NOME CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(20)), // DESCRICAO ENDERECO CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(19)), // LOGRADOURO CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(24)), // NUMERO CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(25)), // COMPLEMENTO CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(21)), // BAIRRO CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(26)), // CEP CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(22)), // CIDADE CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(23)), // UF CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(27)), // TELEFONE CONTABILIDADE
+                        getConverteNullString((list.get(i)).get(28)) // EMAIL CONTABILIDADE
                 ));
             }
-            Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) list);
-//                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaContrs);
-//                JasperPrint print = JasperFillManager.fillReport(
-//                        jasper,
-//                        null,
-//                        dtSource);
-//                byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-//
-//                String nomeDownload = "relatorio_contribuintes_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
-//                SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-//                String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
-//                sa.salvaNaPasta(pathPasta);
-//                Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
-//                download.baixar();
-//                download.remover();
+            Jasper.printReports(rcd.getRelatorios().getJasper(), rcd.getRelatorios().getNome(), (Collection) c);
         } catch (Exception erro) {
             GenericaMensagem.info("Sistema", "O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
         }
+    }
+
+    public Boolean getShow(String filtro) {
+        try {
+            for (Filters f2 : filters) {
+                if (f2.getKey().equals(filtro)) {
+                    if (f2.getActive()) {
+                        return true;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
+    public String getDateItemDescription(String title) {
+        for (int x = 0; x < listDates.size(); x++) {
+            if (title.equals(listDates.get(x).getValue().toString())) {
+                return listDates.get(x).getLabel();
+            }
+        }
+        return "";
     }
 
     public Object getConverterNull(Object object) {
@@ -457,226 +851,68 @@ public class RelatorioContribuintesBean implements Serializable {
         }
     }
 
-    public List<SelectItem> getListaCidades() {
-        List<SelectItem> cidades = new Vector<SelectItem>();
-        int i = 0;
-        RelatorioDao db = new RelatorioDao();
-        List select = db.pesquisaCidadesRelatorio();
-        while (i < select.size()) {
-            cidades.add(new SelectItem(new Integer(i),
-                    (String) ((Cidade) select.get(i)).getCidade(),
-                    Integer.toString(((Cidade) select.get(i)).getId())));
-            i++;
-        }
-        return cidades;
+    public Map<String, Integer> getListCnaes() {
+        return listCnaes;
     }
 
-    public List<SelectItem> getListaTipoRelatorios() {
-        if (listaTipoRelatorios.isEmpty()) {
-            RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(5);
-            for (int i = 0; i < list.size(); i++) {
-                listaTipoRelatorios.add(new SelectItem(new Integer(i), list.get(i).getNome(), Integer.toString(list.get(i).getId())));
-            }
-        }
-        return listaTipoRelatorios;
+    public void setListCnaes(Map<String, Integer> listCnaes) {
+        this.listCnaes = listCnaes;
     }
 
-    public List<SelectItem> getListaTipoEndereco() {
-        if (listaTipoEndereco.isEmpty()) {
-            List<TipoEndereco> list = (List<TipoEndereco>) new Dao().find("TipoEndereco", new int[]{2, 3, 4, 5});
-            for (int i = 0; i < list.size(); i++) {
-                listaTipoEndereco.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
-            }
-        }
-        return listaTipoEndereco;
+    public Map<String, Integer> getListConvencaos() {
+        return listConvencoes;
     }
 
-    public List<SelectItem> getListaContabilidades() {
-        List<SelectItem> contabilidades = new ArrayList<>();
-        int i = 0;
-        RelatorioContribuintesDao db = new RelatorioContribuintesDao();
-        List select = db.pesquisaContabilidades();
-        while (i < select.size()) {
-            contabilidades.add(new SelectItem(i,
-                    (String) ((Juridica) select.get(i)).getPessoa().getNome() + " - "
-                    + (String) ((Juridica) select.get(i)).getPessoa().getDocumento(),
-                    Integer.toString(((Juridica) select.get(i)).getId())));
-            i++;
-        }
-        return contabilidades;
+    public void setListConvencaos(Map<String, Integer> listConvencoes) {
+        this.listConvencoes = listConvencoes;
     }
 
-    public List getListaConvencoesx() {
-        if (carregaConvencao) {
-            resultConvencao = new ArrayList();
-            List list = new Dao().list(new Convencao(), true);
-            DataObject dtObject;
-            for (int i = 0; i < list.size(); i++) {
-                dtObject = new DataObject(true, ((Convencao) (list.get(i))));
-                resultConvencao.add(dtObject);
-            }
-            carregaConvencao = false;
-        }
-        return resultConvencao;
+    public Map<String, Integer> getListGrupoCidades() {
+        return listGrupoCidades;
     }
 
-    public List getListaCnaeConvencaox() {
-        if (carregaCnaeConvencao) {
-            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
-            resultCnaeConvencao = new ArrayList();
-            DataObject dtObject;
-            String ids = "";
-            for (int i = 0; i < resultConvencao.size(); i++) {
-                if ((Boolean) ((DataObject) resultConvencao.get(i)).getArgumento0() == true) {
-                    if (ids.length() > 0 && i != resultConvencao.size()) {
-                        ids += ",";
-                    }
-                    ids += String.valueOf(((Convencao) ((DataObject) resultConvencao.get(i)).getArgumento1()).getId());
-                }
-            }
-            List listCnae = db.pesquisarCnaeConvencaoPorConvencao(ids);
-            for (int x = 0; x < listCnae.size(); x++) {
-                dtObject = new DataObject(true, ((CnaeConvencao) (listCnae.get(x))));
-                resultCnaeConvencao.add(dtObject);
-            }
-            carregaCnaeConvencao = false;
-        }
-        return resultCnaeConvencao;
+    public void setListGrupoCidades(HashMap<String, Integer> listGrupoCidades) {
+        this.listGrupoCidades = listGrupoCidades;
     }
 
-    public String marcaTodos() {
-        if (chkConvencao) {
-            for (int i = 0; i < resultConvencao.size(); i++) {
-                ((DataObject) resultConvencao.get(i)).setArgumento0(true);
-            }
-        } else {
-            for (int i = 0; i < resultConvencao.size(); i++) {
-                ((DataObject) resultConvencao.get(i)).setArgumento0(false);
-            }
-        }
-
-        carregaGrupo = true;
-        carregaCnaeConvencao = true;
-        return "relatorioContribuintes";
+    public List getSelectedConvencao() {
+        return selectedConvencao;
     }
 
-    public String marcaTodosCnae() {
-        if (chkCnaeConvencao) {
-            for (int i = 0; i < resultCnaeConvencao.size(); i++) {
-                ((DataObject) resultCnaeConvencao.get(i)).setArgumento0(true);
-            }
-        } else {
-            for (int i = 0; i < resultCnaeConvencao.size(); i++) {
-                ((DataObject) resultCnaeConvencao.get(i)).setArgumento0(false);
-            }
-        }
-        return "relatorioContribuintes";
+    public void setSelectedConvencao(List selectedConvencao) {
+        this.selectedConvencao = selectedConvencao;
     }
 
-    public String marcaTodosGrupo() {
-        if (chkGrupo) {
-            for (int i = 0; i < listaGrupo.size(); i++) {
-                ((DataObject) listaGrupo.get(i)).setArgumento0(true);
-            }
-        } else {
-            for (int i = 0; i < listaGrupo.size(); i++) {
-                ((DataObject) listaGrupo.get(i)).setArgumento0(false);
-            }
-        }
-        return "relatorioContribuintes";
+    public List getSelectedGrupoCidades() {
+        return selectedGrupoCidades;
     }
 
-    public void refreshForm() {
+    public void setSelectedGrupoCidades(List selectedGrupoCidades) {
+        this.selectedGrupoCidades = selectedGrupoCidades;
     }
 
-    public String atualizaPG() {
-        return "relatorioContribuintes";
+    public List getSelectedCnae() {
+        return selectedCnae;
     }
 
-    public String atualizaPGOrdem() {
-        RelatorioDao db = new RelatorioDao();
-        Relatorios relatorios = db.pesquisaRelatorios(Integer.parseInt(getListaTipoRelatorios().get(idRelatorios).getDescription()));
-        if (relatorios.getJasper().equals("/Relatorios/CONTRIBUINTESPORESCRITORIO.jasper")) {
-            radioEscritorios = "comEscritorio";
-            radioOrdem = "escritorio";
-            radioCidades = "todas";
-        } else {
-            radioEscritorios = "todos";
-            radioOrdem = "razao";
-            radioCidades = "todas";
-        }
-        return "relatorioContribuintes";
+    public void setSelectedCnae(List selectedCnae) {
+        this.selectedCnae = selectedCnae;
     }
 
-    public String atualizaGridCnaeConv() {
-        carregaCnaeConvencao = true;
-        carregaGrupo = true;
-        return "relatorioContribuintes";
+    public String getTipoCidade() {
+        return tipoCidade;
     }
 
-    public String getRadioOrdem() {
-        return radioOrdem;
+    public void setTipoCidade(String tipoCidade) {
+        this.tipoCidade = tipoCidade;
     }
 
-    public void setRadioOrdem(String radioOrdem) {
-        this.radioOrdem = radioOrdem;
-    }
-
-    public String getRadioCidades() {
-        return radioCidades;
-    }
-
-    public void setRadioCidades(String radioCidades) {
-        this.radioCidades = radioCidades;
-    }
-
-    public int getIdCidades() {
-        return idCidades;
-    }
-
-    public void setIdCidades(int idCidades) {
-        this.idCidades = idCidades;
-    }
-
-    public boolean isChkConvencao() {
-        return chkConvencao;
-    }
-
-    public void setChkConvencao(boolean chkConvencao) {
-        this.chkConvencao = chkConvencao;
-    }
-
-    public boolean isChkCnaeConvencao() {
-        return chkCnaeConvencao;
-    }
-
-    public void setChkCnaeConvencao(boolean chkCnaeConvencao) {
-        this.chkCnaeConvencao = chkCnaeConvencao;
-    }
-
-    public int getIdRelatorios() {
-        return idRelatorios;
-    }
-
-    public void setIdRelatorios(int idRelatorios) {
-        this.idRelatorios = idRelatorios;
-    }
-
-    public int getIdContabilidade() {
+    public Integer getIdContabilidade() {
         return idContabilidade;
     }
 
-    public void setIdContabilidade(int idContabilidade) {
+    public void setIdContabilidade(Integer idContabilidade) {
         this.idContabilidade = idContabilidade;
-    }
-
-    public String getRadioEscritorios() {
-        return radioEscritorios;
-    }
-
-    public void setRadioEscritorios(String radioEscritorios) {
-        this.radioEscritorios = radioEscritorios;
     }
 
     public String getComboCondicao() {
@@ -687,102 +923,33 @@ public class RelatorioContribuintesBean implements Serializable {
         this.comboCondicao = comboCondicao;
     }
 
-    public int getIdTipoEndereco() {
+    public Integer getIdTipoEndereco() {
         return idTipoEndereco;
     }
 
-    public void setIdTipoEndereco(int idTipoEndereco) {
+    public void setIdTipoEndereco(Integer idTipoEndereco) {
         this.idTipoEndereco = idTipoEndereco;
     }
 
-    public String getIdEmails() {
-        return idEmails;
+    public String getEnvioLogin() {
+        return envioLogin;
     }
 
-    public void setIdEmails(String idEmails) {
-        this.idEmails = idEmails;
+    public void setEnvioLogin(String envioLogin) {
+        this.envioLogin = envioLogin;
     }
 
-    public String getRadioCentroComercial() {
-        return radioCentroComercial;
+    public String getTipoCentroComercial() {
+        return tipoCentroComercial;
     }
 
-    public void setRadioCentroComercial(String radioCentroComercial) {
-        this.radioCentroComercial = radioCentroComercial;
-        if (radioCentroComercial.equals("sem")) {
-            getListaCentrosComerciais();
-            centroComercialSelecionado = new CentroComercial[listaCentrosComerciais.size()];
-            for (int i = 0; i < listaCentrosComerciais.size(); i++) {
-                centroComercialSelecionado[i] = listaCentrosComerciais.get(i);
-            }
-        }
-        if (radioCentroComercial.equals("com")) {
-            idTipoEndereco = 3;
-        }
-    }
-
-    public List<DataObject> getListaCentroComercialx() {
-        if (listaCentroComercial.isEmpty() && !radioCentroComercial.equals("nenhum")) {
-            List list = (List<CentroComercial>) new Dao().list(new CentroComercial(), true);
-            for (int i = 0; i < list.size(); i++) {
-                listaCentroComercial.add(new DataObject(false, list.get(i)));
-            }
-        } else if (radioCentroComercial.equals("nenhum")) {
-            listaCentroComercial.clear();
-        }
-        return listaCentroComercial;
-    }
-
-    public void setListaCentroComercial(List<DataObject> listaCentroComercial) {
-        this.listaCentroComercial = listaCentroComercial;
-    }
-
-    public boolean isChkConvencaoPesquisa() {
-        return chkConvencaoPesquisa;
-    }
-
-    public void setChkConvencaoPesquisa(boolean chkConvencaoPesquisa) {
-        this.chkConvencaoPesquisa = chkConvencaoPesquisa;
-    }
-
-    public List<DataObject> getListaGrupox() {
-        if (carregaGrupo) {
-            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
-            listaGrupo = new ArrayList();
-            String ids = "";
-            for (int i = 0; i < resultConvencao.size(); i++) {
-                if ((Boolean) ((DataObject) resultConvencao.get(i)).getArgumento0() == true) {
-                    if (ids.length() > 0 && i != resultConvencao.size()) {
-                        ids += ",";
-                    }
-                    ids += String.valueOf(((Convencao) ((DataObject) resultConvencao.get(i)).getArgumento1()).getId());
-                }
-            }
-            List<GrupoCidade> listGrupo = db.pesquisarGrupoPorConvencao(ids);
-            for (int x = 0; x < listGrupo.size(); x++) {
-                listaGrupo.add(new DataObject(true, (listGrupo.get(x))));
-            }
-            carregaGrupo = false;
-        }
-        return listaGrupo;
-    }
-
-    public void setListaGrupo(List<DataObject> listaGrupo) {
-        this.listaGrupo = listaGrupo;
-    }
-
-    public boolean isChkGrupo() {
-        return chkGrupo;
-    }
-
-    public void setChkGrupo(boolean chkGrupo) {
-        this.chkGrupo = chkGrupo;
+    public void setTipoCentroComercial(String tipoCentroComercial) {
+        this.tipoCentroComercial = tipoCentroComercial;
     }
 
     public Bairro getBairro() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("simplesPesquisa") != null) {
-            bairro = (Bairro) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("simplesPesquisa");
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("simplesPesquisa");
+        if (GenericaSessao.exists("simplesPesquisa")) {
+            bairro = (Bairro) GenericaSessao.getObject("simplesPesquisa", true);
         }
         return bairro;
     }
@@ -791,148 +958,12 @@ public class RelatorioContribuintesBean implements Serializable {
         this.bairro = bairro;
     }
 
-    public List<Convencao> getListaConvencaos() {
-        if (listaConvencaos.isEmpty()) {
-            listaConvencaos = (List<Convencao>) new Dao().list(new Convencao(), true);
-        }
-        return listaConvencaos;
+    public String getTipoEmail() {
+        return tipoEmail;
     }
 
-    public void setListaConvencaos(List<Convencao> listaConvencaos) {
-        this.listaConvencaos = listaConvencaos;
-    }
-
-    public Convencao[] getConvencaoSelecionada() {
-        return convencaoSelecionada;
-    }
-
-    public void setConvencaoSelecionada(Convencao[] convencaoSelecionada) {
-        this.convencaoSelecionada = convencaoSelecionada;
-    }
-
-    public List<GrupoCidade> getListaGrupoCidades() {
-        listaGrupoCidades.clear();
-        int i = 0;
-        String ids = "";
-        if (convencaoSelecionada != null) {
-            for (Convencao convencao : convencaoSelecionada) {
-                if (i == 0) {
-                    ids = Integer.toString(convencao.getId());
-                } else {
-                    ids += "," + Integer.toString(convencao.getId());
-                }
-                i++;
-            }
-            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
-            listaGrupoCidades = db.pesquisarGrupoPorConvencao(ids);
-        }
-        return listaGrupoCidades;
-    }
-
-    public void setListaGrupoCidades(List<GrupoCidade> listaGrupoCidades) {
-        this.listaGrupoCidades = listaGrupoCidades;
-    }
-
-    public GrupoCidade[] getGrupoCidadeSelecionada() {
-        return grupoCidadeSelecionada;
-    }
-
-    public void setGrupoCidadeSelecionada(GrupoCidade[] grupoCidadeSelecionada) {
-        this.grupoCidadeSelecionada = grupoCidadeSelecionada;
-    }
-
-    public List<CentroComercial> getListaCentrosComerciais() {
-        if (listaCentrosComerciais.isEmpty() && !radioCentroComercial.equals("nenhum")) {
-            listaCentrosComerciais = (List<CentroComercial>) new Dao().list(new CentroComercial(), true);
-        } else if (radioCentroComercial.equals("nenhum")) {
-            listaCentrosComerciais.clear();
-        }
-        return listaCentrosComerciais;
-    }
-
-    public void setListaCentrosComerciais(List<CentroComercial> listaCentrosComerciais) {
-        this.listaCentrosComerciais = listaCentrosComerciais;
-    }
-
-    public CentroComercial[] getCentroComercialSelecionado() {
-        return centroComercialSelecionado;
-    }
-
-    public void setCentroComercialSelecionado(CentroComercial[] centroComercialSelecionado) {
-        this.centroComercialSelecionado = centroComercialSelecionado;
-    }
-
-    public List<CnaeConvencao> getListaCnaeConvencaos() {
-        listaCnaeConvencaos.clear();
-        int i = 0;
-        String ids = "";
-        if (convencaoSelecionada != null) {
-            for (Convencao convencao : convencaoSelecionada) {
-                if (i == 0) {
-                    ids = Integer.toString(convencao.getId());
-                } else {
-                    ids += "," + Integer.toString(convencao.getId());
-                }
-                i++;
-            }
-            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
-            listaCnaeConvencaos = db.pesquisarCnaeConvencaoPorConvencao(ids);
-        }
-        return listaCnaeConvencaos;
-    }
-
-    public void setListaCnaeConvencaos(List<CnaeConvencao> listaCnaeConvencaos) {
-        this.listaCnaeConvencaos = listaCnaeConvencaos;
-    }
-
-    public CnaeConvencao[] getCnaeConvencaoSelecionado() {
-        return cnaeConvencaoSelecionado;
-    }
-
-    public void setCnaeConvencaoSelecionado(CnaeConvencao[] cnaeConvencaoSelecionado) {
-        this.cnaeConvencaoSelecionado = cnaeConvencaoSelecionado;
-    }
-
-    public String getDataCadastroInicial() {
-        return dataCadastroInicial;
-    }
-
-    public void setDataCadastroInicial(String dataCadastroInicial) {
-        this.dataCadastroInicial = dataCadastroInicial;
-    }
-
-    public String getDataCadastroFinal() {
-        return dataCadastroFinal;
-    }
-
-    public void setDataCadastroFinal(String dataCadastroFinal) {
-        this.dataCadastroFinal = dataCadastroFinal;
-    }
-
-    public void limparData() {
-        this.dataCadastroInicial = "";
-        this.dataCadastroFinal = "";
-    }
-
-    public Relatorios getRelatorios() {
-        try {
-            if (relatorios.getId() != Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription())) {
-                Jasper.EXPORT_TO = false;
-            }
-            relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription()));
-        } catch (Exception e) {
-            relatorios = new Relatorios();
-            Jasper.EXPORT_TO = false;
-        }
-        return relatorios;
-    }
-
-    public String getRadioEmail() {
-        return radioEmail;
-    }
-
-    public void setRadioEmail(String radioEmail) {
-        this.radioEmail = radioEmail;
+    public void setTipoEmail(String tipoEmail) {
+        this.tipoEmail = tipoEmail;
     }
 
     public String getDataValorInicial() {
@@ -975,35 +1006,230 @@ public class RelatorioContribuintesBean implements Serializable {
         this.tipoDataValor = tipoDataValor;
     }
 
-    public List<SelectItem> getListaServicos() {
-        return listaServicos;
+    public List<SelectItem> getListTipoServico() {
+        return listTipoServico;
     }
 
-    public void setListaServicos(List<SelectItem> listaServicos) {
-        this.listaServicos = listaServicos;
+    public void setListTipoServico(List<SelectItem> listTipoServico) {
+        this.listTipoServico = listTipoServico;
     }
 
-    public Integer getIndexServicos() {
-        return indexServicos;
+    public Integer getIdTipoServico() {
+        return idTipoServico;
     }
 
-    public void setIndexServicos(Integer indexServicos) {
-        this.indexServicos = indexServicos;
+    public void setIdTipoServico(Integer idTipoServico) {
+        this.idTipoServico = idTipoServico;
     }
 
-    public List<SelectItem> getListaTipoServico() {
-        return listaTipoServico;
+    public List<Filters> getFilters() {
+        return filters;
     }
 
-    public void setListaTipoServico(List<SelectItem> listaTipoServico) {
-        this.listaTipoServico = listaTipoServico;
+    public void setFilters(List<Filters> filters) {
+        this.filters = filters;
     }
 
-    public Integer getIndexTipoServico() {
-        return indexTipoServico;
+    public String getSelectedDate() {
+        return selectedDate;
     }
 
-    public void setIndexTipoServico(Integer indexTipoServico) {
-        this.indexTipoServico = indexTipoServico;
+    public void setSelectedDate(String selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
+    public List getResultConvencao() {
+        return resultConvencao;
+    }
+
+    public void setResultConvencao(List resultConvencao) {
+        this.resultConvencao = resultConvencao;
+    }
+
+    public List getResultCnaeConvencao() {
+        return resultCnaeConvencao;
+    }
+
+    public void setResultCnaeConvencao(List resultCnaeConvencao) {
+        this.resultCnaeConvencao = resultCnaeConvencao;
+    }
+
+    public List<DateFilters> getListDateFilters() {
+        return listDateFilters;
+    }
+
+    public void setListDateFilters(List<DateFilters> listDateFilters) {
+        this.listDateFilters = listDateFilters;
+    }
+
+    public List<SelectItem> getListDates() {
+        return listDates;
+    }
+
+    public void setListDates(List<SelectItem> listDates) {
+        this.listDates = listDates;
+    }
+
+    public String getTypeDate() {
+        return typeDate;
+    }
+
+    public void setTypeDate(String typeDate) {
+        this.typeDate = typeDate;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(String finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public String getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(String ordem) {
+        this.ordem = ordem;
+    }
+
+    public Integer getIdRelatorioOrdem() {
+        return idRelatorioOrdem;
+    }
+
+    public void setIdRelatorioOrdem(Integer idRelatorioOrdem) {
+        this.idRelatorioOrdem = idRelatorioOrdem;
+    }
+
+    public Integer getIdRelatorio() {
+        return idRelatorio;
+    }
+
+    public void setIdRelatorio(Integer idRelatorio) {
+        this.idRelatorio = idRelatorio;
+    }
+
+    public List<SelectItem> getListRelatorio() {
+        return listRelatorio;
+    }
+
+    public void setListRelatorio(List<SelectItem> listRelatorio) {
+        this.listRelatorio = listRelatorio;
+    }
+
+    public List<SelectItem> getListRelatorioOrdem() {
+        return listRelatorioOrdem;
+    }
+
+    public void setListRelatorioOrdem(List<SelectItem> listRelatorioOrdem) {
+        this.listRelatorioOrdem = listRelatorioOrdem;
+    }
+
+    public List<SelectItem> getListContabilidades() {
+        return listContabilidades;
+    }
+
+    public void setListContabilidades(List<SelectItem> listContabilidades) {
+        this.listContabilidades = listContabilidades;
+    }
+
+    public String getTipoEscritorio() {
+        return tipoEscritorio;
+    }
+
+    public void setTipoEscritorio(String tipoEscritorio) {
+        this.tipoEscritorio = tipoEscritorio;
+    }
+
+    public Map<String, Integer> getListCidades() {
+        return listCidades;
+    }
+
+    public void setListCidades(Map<String, Integer> listCidades) {
+        this.listCidades = listCidades;
+    }
+
+    public List getSelectedCidade() {
+        return selectedCidade;
+    }
+
+    public void setSelectedCidade(List selectedCidade) {
+        this.selectedCidade = selectedCidade;
+    }
+
+    public Map<String, Integer> getListServicos() {
+        return listServicos;
+    }
+
+    public void setListServicos(Map<String, Integer> listServicos) {
+        this.listServicos = listServicos;
+    }
+
+    public List getSelectedServicos() {
+        return selectedServicos;
+    }
+
+    public void setSelectedServicos(List selectedServicos) {
+        this.selectedServicos = selectedServicos;
+    }
+
+    public Map<String, Integer> getListCentrosComerciais() {
+        return listCentrosComerciais;
+    }
+
+    public void setListCentrosComerciais(Map<String, Integer> listCentrosComerciais) {
+        this.listCentrosComerciais = listCentrosComerciais;
+    }
+
+    public List getSelectedCentroComercial() {
+        return selectedCentroComercial;
+    }
+
+    public void setSelectedCentroComercial(List selectedCentroComercial) {
+        this.selectedCentroComercial = selectedCentroComercial;
+    }
+
+    public List<SelectItem> getListTipoEndereco() {
+        return listTipoEndereco;
+    }
+
+    public void setListTipoEndereco(List<SelectItem> listTipoEndereco) {
+        this.listTipoEndereco = listTipoEndereco;
+    }
+
+    public Map<String, Integer> getListConvencoes() {
+        return listConvencoes;
+    }
+
+    public void setListConvencoes(Map<String, Integer> listConvencoes) {
+        this.listConvencoes = listConvencoes;
+    }
+
+    public Juridica getEmpresa() {
+        if (GenericaSessao.exists("juridicaPesquisa")) {
+            empresa = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);
+        }
+        return empresa;
+    }
+
+    public void setEmpresa(Juridica empresa) {
+        this.empresa = empresa;
+    }
+
+    public List<Juridica> getListEmpresa() {
+        return listEmpresa;
+    }
+
+    public void setListEmpresa(List<Juridica> listEmpresa) {
+        this.listEmpresa = listEmpresa;
     }
 }

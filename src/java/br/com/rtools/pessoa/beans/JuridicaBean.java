@@ -1753,8 +1753,16 @@ public class JuridicaBean implements Serializable {
         }
     }
 
-    public String getColocarMascara() {;
+    public String getColocarMascara() {
         return Mask.getMascara(getListaTipoDocumento().get(idTipoDocumento).getLabel());
+    }
+
+    public String getColocarMascara2() {
+        if (alterType.equals("nome")) {
+            return "";
+        } else {
+            return Mask.getMascara(getListaTipoDocumento().get(idTipoDocumento).getLabel());
+        }
     }
 
     public List<SelectItem> getListaTipoDocumento() {
