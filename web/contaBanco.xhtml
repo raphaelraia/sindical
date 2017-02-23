@@ -26,7 +26,10 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Conta Banco" styleClass="fonteHeader" />
-                        <h:form id="formContaBanco">  
+                        <div class="clear"></div>
+                        <h:outputText value="#{genericaMensagem.getHtmlMessage('block', 'CADASTRAR CONTA CAIXA/BANCO PARA EXIBIR OS PLANOS DE CONTA')}" escape="false" rendered="#{empty contaBancoBean.listaPlano5Conta}" />
+                        <p:commandButton value="Atalho: Conta Caixa / Banco" icon="ui-icon-extlink" action="#{chamadaPaginaBean.pagina('contaRotina')}" rendered="#{empty contaBancoBean.listaPlano5Conta}" styleClass="margin-top-max"/> 
+                        <h:form id="formContaBanco" styleClass="margin-top">  
                             <c:set scope="request" var="object" value="${contaBancoBean.contaBanco}"/>
                                 
                             <p:panel style="clear: both; border: 0px;" styleClass="fundoCinza">

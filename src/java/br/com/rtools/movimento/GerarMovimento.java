@@ -39,9 +39,9 @@ public class GerarMovimento extends DB {
         Integer sizeBoleto = 0;
         List list = new ArrayList();
 //      VERIFICAÇÃO
-        try { 
+        try {
             textQry = "select '" + DataHoje.data() + "' as dt_emissao, 'R' as ds_pag_rec, 0 as nr_valor, '" + DataHoje.data() + "' as dt_lancamento, 1 as id_filial, cv.id_pessoa, 2 as id_tipo_documento, 4 as id_rotina, false as is_avencer_contabil " + "   from arr_contribuintes_vw cv "
-                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = " + id_servico +  " AND '" + vencimento + "' >= sp.dt_inicio AND '" + vencimento + "' <= sp.dt_fim   "
+                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = " + id_servico + " AND '" + vencimento + "' >= sp.dt_inicio AND '" + vencimento + "' <= sp.dt_fim   "
                     + "  where cv.dt_inativacao is null and cv.id_grupo_cidade = " + id_grupo_cidade + " and cv.id_convencao = " + id_convencao + " and cv.id_pessoa not in "
                     + "       (select id_pessoa from fin_movimento where ds_referencia='" + referencia + "' and id_servicos = " + id_servico + " and id_tipo_servico = " + id_tipo_servico + " and is_ativo = true) "
                     + " and (sp.is_geracao = true or sp.is_geracao is null) ";
@@ -908,7 +908,6 @@ public class GerarMovimento extends DB {
                 if (!mov.isAtivo() && mov.getBaixa() == null) {
                     mov.setAtivo(true);
 
-                    MovimentoInativo movimentoInativo = movimentoInativoDao.findByMovimento(mov.getId());
 
                     Boleto bol = movDB.pesquisaBoletos(mov.getNrCtrBoleto());
 
@@ -923,8 +922,11 @@ public class GerarMovimento extends DB {
                         return "Erro ao excluir Movimento, verifique os logs!";
                     }
 
-                    if (!dao.delete(movimentoInativo)) {
-                        return "Erro ao salvar Motivo de Inativação, verifique os logs!";
+                    MovimentoInativo movimentoInativo = movimentoInativoDao.findByMovimento(mov.getId());
+                    if (movimentoInativo != null) {
+                        if (!dao.delete(movimentoInativo)) {
+                            return "Erro ao salvar Motivo de Inativação, verifique os logs!";
+                        }
                     }
 
                     String nrCtrBoleto = "";
@@ -933,9 +935,15 @@ public class GerarMovimento extends DB {
                             nrCtrBoleto = bol.getNrCtrBoleto();
                         }
                     }
-                    novoLog.setCodigo(movimentoInativo.getMovimento().getId());
-                    novoLog.setTabela("fin_movimento");
-                    novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + movimentoInativo.getMovimento().getId() + " - Documento: " + movimentoInativo.getMovimento().getDocumento() + " - Valor: " + movimentoInativo.getMovimento().getValorString() + " - Data que hávia sido inátivo: " + movimentoInativo.getData() + " - Pessoa: (" + movimentoInativo.getMovimento().getPessoa().getId() + ") - " + movimentoInativo.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: " + movimentoInativo.getHistorico());
+                    if (movimentoInativo == null) { 
+                        novoLog.setCodigo(mov.getId());
+                        novoLog.setTabela("fin_movimento");
+                        novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + mov.getId() + " - Documento: " + mov.getDocumento() + " - Valor: " + mov.getValorString() + " - Data que hávia sido inátivo: SEM HISTÓRICO - Pessoa: (" + mov.getPessoa().getId() + ") - " + mov.getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: SEM HISTÓRICO");
+                    } else {
+                        novoLog.setCodigo(movimentoInativo.getMovimento().getId());
+                        novoLog.setTabela("fin_movimento");
+                        novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + movimentoInativo.getMovimento().getId() + " - Documento: " + movimentoInativo.getMovimento().getDocumento() + " - Valor: " + movimentoInativo.getMovimento().getValorString() + " - Data que hávia sido inátivo: " + movimentoInativo.getData() + " - Pessoa: (" + movimentoInativo.getMovimento().getPessoa().getId() + ") - " + movimentoInativo.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: " + movimentoInativo.getHistorico());
+                    }
                 }
             } catch (Exception e) {
                 mensagem = e.getMessage();
@@ -1306,8 +1314,8 @@ public class GerarMovimento extends DB {
                 }
 
                 valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValorBaixa());
-            }            
-            
+            }
+
             if (valor_forma_pagamento == valor_movimento) {
                 dao.commit();
                 return true;
