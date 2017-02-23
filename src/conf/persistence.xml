@@ -174,7 +174,7 @@
         <properties>
         </properties>
     </persistence-unit>
-    <persistence-unit name="AutoEscolaSJR">
+    <persistence-unit name="MarceneirosRP">
         <provider>oracle.toplink.essentials.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
