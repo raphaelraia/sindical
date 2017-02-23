@@ -286,25 +286,22 @@
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog widgetVar="i_dlg_cartao" header="Dados do Cartão" resizable="false" width="550" modal="true">
-                                <h:panelGrid id="i_cartao" style="width: 100%">
-                                    <h:panelGrid columns="2">
-                                        <p:column>
-                                            <br />
-                                            <h:column rendered="#{baixaGeralBean.listaCartao.size() > 0}">
-                                                <p:selectOneMenu style="margin-right: 15px;" value="#{baixaGeralBean.idCartao}">
-                                                    <f:selectItems value="#{baixaGeralBean.listaCartao}"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </p:column>
-
-                                        <p:column>
-                                            <br />
-                                            <p:commandButton value="Adicionar" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral" onclick="PF('i_dlg_cartao').hide()"  icon="ui-icon-check"/>
-                                            <p:commandButton value="Cancelar" title="Cancelar Parcela" onclick="PF('i_dlg_cartao').hide()" icon="ui-icon-close"/>
-                                        </p:column>
+                            <p:dialog widgetVar="i_dlg_cartao" header="DADOS DO CARTÃO" resizable="false" width="550" modal="true" closeOnEscape="true">
+                                <h:panelGroup id="i_cartao" >
+                                    <h:panelGrid columns="2" style="width: 100%">
+                                        <h:column rendered="#{not empty baixaGeralBean.listaCartao}">
+                                            <p:selectOneMenu  value="#{baixaGeralBean.idCartao}">
+                                                <f:selectItems value="#{baixaGeralBean.listaCartao}"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
                                     </h:panelGrid>
-                                </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">                                    
+                                        <p:commandButton value="ADICIONAR" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral" onclick="PF('i_dlg_cartao').hide()"  icon="ui-icon-check"/>
+                                        <p:commandButton value="CANCELAR" title="Cancelar Parcela" onclick="PF('i_dlg_cartao').hide()" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
                             <p:dialog widgetVar="i_dlg_banco" header="Dados do Banco" resizable="false" modal="true">

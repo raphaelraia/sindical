@@ -222,10 +222,17 @@
                                             <p:ajax event="change" update="@this" global="false"/>
                                         </p:inputTextarea>
                                     </h:panelGrid>
+                                    <h:panelGrid columns="2">
+                                        <h:outputLabel value="Serviço: " />
+                                        <p:selectOneMenu value="#{fisicaBean.idServicosAutorizados}" title="SERVIÇO/ROTINA: LIBERA EMISSÃO DE SERVIÇO COM DÉBITO (CADASTRO COM DÉBITO)">
+                                            <p:ajax event="change" update="@this" global="false" />
+                                            <f:selectItems value="#{fisicaBean.listServicosAutorizados}"/>                                        
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </h:panelGroup>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="3">
-                                        <p:commandButton value="Confirmar" title="Confirmar" action="#{fisicaBean.sendRequest}" oncomplete="PF('dlg_solicita_autorizacao').hide();"  update=":form_pesquisa_pessoa:"/>
+                                        <p:commandButton value="Confirmar" title="Confirmar" action="#{fisicaBean.sendRequest}" oncomplete="PF('dlg_solicita_autorizacao').hide();"  update=":form_pesquisa_pessoa:" disabled="#{empty fisicaBean.listServicosAutorizados}"/>
                                         <p:commandButton value="Sair" title="Sair" onclick="PF('dlg_solicita_autorizacao').hide();" />                                        
                                     </h:panelGrid>
                                 </f:facet>

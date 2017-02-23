@@ -28,7 +28,11 @@
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <c:set scope="request" var="object" value="${sisAutorizacoesBean.sisAutorizacoes}"/>
                             <p:panel styleClass="fundoCinza margin-top-max">
-                                <h:panelGrid columns="10" id="i_filters" cellpadding="5">
+                                <h:panelGrid columns="12" id="i_filters" cellpadding="5">
+                                    <p:selectOneMenu value="#{sisAutorizacoesBean.idTipoAutorizacao}">
+                                        <p:ajax event="change" update="@this"  />
+                                        <f:selectItems value="#{sisAutorizacoesBean.listTipoAutorizacao}"/>
+                                    </p:selectOneMenu>                                     
                                     <p:outputLabel value="Solicitações: " />
                                     <p:selectOneMenu value="#{sisAutorizacoesBean.status}">
                                         <p:ajax event="change" update="@this"/>
@@ -99,17 +103,26 @@
                                 <p:column headerText="Motivo">
                                     #{sisAutorizacoes.motivoSolicitacao}                                            
                                 </p:column>
-                                <p:column headerText="Dados Originais">
+                                <p:column headerText="Dados Originais" rendered="#{sisAutorizacoesBean.idTipoAutorizacao eq -1 or sisAutorizacoesBean.idTipoAutorizacao eq 1}">
                                     #{sisAutorizacoes.dadosOriginais}
                                 </p:column>
-                                <p:column headerText="Dados Alterados">
+                                <p:column headerText="Dados Alterados" rendered="#{sisAutorizacoesBean.idTipoAutorizacao eq -1 or sisAutorizacoesBean.idTipoAutorizacao eq 1}">
                                     #{sisAutorizacoes.dadosAlterados}
                                 </p:column>
+                                <p:column headerText="Origem" rendered="#{sisAutorizacoesBean.idTipoAutorizacao eq 2}">
+                                    #{sisAutorizacoes.rotina.rotina}
+                                </p:column>                                
+                                <p:column headerText="Destino" rendered="#{sisAutorizacoesBean.idTipoAutorizacao eq 2}">
+                                    #{sisAutorizacoes.rotinaDestino.rotina}
+                                </p:column>                                
+                                <p:column headerText="Serviço" rendered="#{sisAutorizacoesBean.idTipoAutorizacao eq 2}">
+                                    #{sisAutorizacoes.servicos.descricao}
+                                </p:column>                                
                                 <p:column headerText="Operador">
                                     #{sisAutorizacoes.operador.pessoa.nome}
                                 </p:column>
-                                <p:column headerText="Gestor">
-                                    #{sisAutorizacoes.gestor.pessoa.nome}
+                                <p:column headerText="Tipo" width="80" rendered="#{sisAutorizacoesBean.idTipoAutorizacao ne 1 and sisAutorizacoesBean.idTipoAutorizacao ne 2}">
+                                    #{sisAutorizacoes.sisAutorizacoesTipo.descricao}
                                 </p:column>
                                 <p:column width="30">
                                     <p:commandButton icon="ui-icon-close" action="#{sisAutorizacoesBean.refused(sisAutorizacoes)}" update=":form_autorizacoes:i_refused" disabled="#{(sisAutorizacoes.dtAutorizacao != null and sisAutorizacoes.autorizado)}" title="Recusar" onclick="PF('dlg_refuded').show()"/>
@@ -136,9 +149,24 @@
                                             <p:outputLabel value="#{sisAutorizacoes.rotinaDestino.rotina}"/>
                                         </p:column>
 
+                                        <p:column rendered="#{sisAutorizacoes.servicos ne null}">
+                                            <p:outputLabel value="Serviço" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.servicos.descricao}"/>
+                                        </p:column>                                        
+
                                         <p:column>
                                             <p:outputLabel value="Pessoa" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{sisAutorizacoes.pessoa.nome}"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Gestor" style="font-weight: bold"/><br />
+                                            #{sisAutorizacoes.gestor.pessoa.nome}
+                                        </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Concluído" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{sisAutorizacoes.concluidoString}"/>
                                         </p:column>
                                     </h:panelGrid>
                                 </p:rowExpansion>

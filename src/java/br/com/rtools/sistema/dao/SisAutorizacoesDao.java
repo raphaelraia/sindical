@@ -10,7 +10,7 @@ import javax.persistence.Query;
 public class SisAutorizacoesDao extends DB {
 
     public List<SisAutorizacoes> findAll() {
-        return findAll("aberto", "", "", "");
+        return findAll(-1, "aberto", "", "", "");
     }
 
     public Boolean exists(SisAutorizacoes sa) {
@@ -87,7 +87,7 @@ public class SisAutorizacoesDao extends DB {
         }
     }
 
-    public List<SisAutorizacoes> findAll(String status, String filter, String value, String value2) {
+    public List<SisAutorizacoes> findAll(Integer tipo_autorizacao_id, String status, String filter, String value, String value2) {
         try {
             String queryString = "SELECT SA.*                                   \n"
                     + "             FROM sis_autorizacoes SA                    \n"
@@ -128,6 +128,9 @@ public class SisAutorizacoesDao extends DB {
                         queryString += " AND SA.dt_solicitacao = '" + value + "'    \n";
                         break;
                 }
+            }
+            if (tipo_autorizacao_id != -1) {
+                queryString += " AND SA.id_tipo_autorizacao = " + tipo_autorizacao_id;
             }
             queryString += " AND SA.id_autorizacao IS NULL                          \n";
             queryString += " ORDER BY SA.dt_solicitacao DESC ";

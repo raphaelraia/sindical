@@ -47,6 +47,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
+import br.com.rtools.sistema.SisAutorizacoes;
 import br.com.rtools.utilitarios.AutenticaUsuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -57,6 +58,7 @@ import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.annotation.PostConstruct;
@@ -192,8 +194,7 @@ public class EmissaoGuiasBean implements Serializable {
         GenericaSessao.remove("produtoPesquisa");
         GenericaSessao.remove("listaMovimento");
         GenericaSessao.remove("usuarioAutenticado");
-        // REMOVER SE NÃO FOR USAR AUTORIZAÇÕES PERSONALIZADAS
-        // GenericaSessao.remove("sessaoSisAutorizacao");
+        GenericaSessao.remove("sessaoSisAutorizacao");
     }
 
     public void autorizarDesconto() {
@@ -451,6 +452,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void clear() {
         GenericaSessao.remove("emissaoGuiasBean");
+        GenericaSessao.exists("sessaoSisAutorizacao");
     }
 
     public void selecionarPessoaCadastro() {
@@ -972,18 +974,17 @@ public class EmissaoGuiasBean implements Serializable {
                 return null;
             }
         } else if (!listaMovimentoAuxiliar.isEmpty()) {
+
+            if (GenericaSessao.exists("sessaoSisAutorizacao")) {
+                SisAutorizacoes sa = (SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao", true);
+                sa.setDtConcluido(new Date());
+                new Dao().update(sa, true);
+            }
+
             GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
             GenericaSessao.put("mensagem_recibo", observacao);
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         }
-        /*
-        REMOVER SE NÃO FOR USAR AUTORIZAÇÕES PERSONALIZADAS
-        if (GenericaSessao.exists("sessaoSisAutorizacao")) {
-            SisAutorizacoes sa = (SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao", true);
-            sa.setDtConcluido(new Date());
-            new Dao().update(sa, true);
-        }
-         */
         message = " Lançamento efetuado com Sucesso!";
         return null;
     }
@@ -1021,6 +1022,9 @@ public class EmissaoGuiasBean implements Serializable {
 
             SociosDao dbs = new SociosDao();
             socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
+            listenerEnabledItensPedido();
+            listSelectItem[2].clear();
+            getListServicos();
             listenerEnabledItensPedido();
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
                 GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
@@ -1087,11 +1091,23 @@ public class EmissaoGuiasBean implements Serializable {
             ConvenioServicoDao db = new ConvenioServicoDao();
 
             listSelectItem[2].add(new SelectItem(0, "-- Selecione um Serviço --", "0"));
-
+            int b = 0;
+            index[2] = 0;
+            SisAutorizacoes sa = ((SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao"));
             if (!getListGrupo().isEmpty() && !getListSubGrupo().isEmpty()) {
                 List<Servicos> list = (List<Servicos>) db.pesquisaServicosSubGrupoConvenio(Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
                 for (int i = 0; i < list.size(); i++) {
-                    listSelectItem[2].add(new SelectItem(i + 1, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
+                    if (GenericaSessao.exists("sessaoSisAutorizacao")) {
+                        if (list.get(i).getId() == sa.getServicos().getId()) {
+                            if (b == 0) {
+                                index[2] = b + 1;
+                            }
+                            listSelectItem[2].add(new SelectItem(b + 1, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
+                            b++;
+                        }
+                    } else {
+                        listSelectItem[2].add(new SelectItem(i + 1, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
+                    }
                 }
             }
         }

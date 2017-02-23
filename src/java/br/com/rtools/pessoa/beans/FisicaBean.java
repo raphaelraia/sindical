@@ -19,8 +19,11 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.financeiro.ServicoRotina;
+import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.Cancelamento;
 import br.com.rtools.homologacao.Recepcao;
@@ -174,6 +177,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private List<String> listSugestion;
     private String selectedSugestion;
     private String solicitarAutorizacao;
+    private List<SelectItem> listServicosAutorizados;
+    private Integer idServicosAutorizados;
 
     public FisicaBean() {
         GenericaSessao.remove("sessaoSisAutorizacao");
@@ -184,6 +189,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         alterType = "";
         listSugestion = new ArrayList();
         selectedSugestion = new String();
+        listServicosAutorizados = new ArrayList();
+    }
+
+    public void loadListServicosAutorizados() {
+        listServicosAutorizados = new ArrayList();
+        ServicoRotinaDao srd = new ServicoRotinaDao();
+        List<Servicos> list = srd.pesquisaTodosServicosComRotinas(451);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idServicosAutorizados = list.get(i).getId();
+            }
+            listServicosAutorizados.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "LIBERA EMISSÃO DE SERVIÇO COM DÉBITO (CADASTRO COM DÉBITO)"));
+        }
     }
 
     public void loadListaOposicao() {
@@ -2390,7 +2408,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 break;
         }
 
+        // DÉBITOS -- ORIGINAL
         // DÉBITOS
+        /*
         switch (validacao) {
             case "convenioMedico":
             case "matriculaAcademia":
@@ -2406,57 +2426,58 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
                 break;
         }
-
+         */
         // DÉBITOS -- LIBERAR SE FOR UTILIZAR AUTORIZAÇÃO
-//        switch (validacao) {
-//            case "convenioMedico":
-//            case "matriculaAcademia":
-//            case "emissaoGuias":
-//            case "geracaoDebitosCartao":
-//            case "locacaoFilme":
-//            case "associarFisica":
-//                GenericaSessao.remove("sessaoSisAutorizacao");
-//                Boolean ignoreCase = false;
-//                if (validacao.equals("emissaoGuias")) {
-//                    SisAutorizacoes sa = new SisAutorizacoesDao().findAutorizado(3, Usuario.getUsuario().getId(), fisica.getPessoa().getId(), new ChamadaPaginaBean().getRotinaRetorno().getId());
-//                    if (sa != null) {
-//                        if (sa.getDtAutorizacao() == null) {
-//                            count++;
-//                            GenericaMensagem.warn("Mensagem: (" + count + ")", "SOLICITAÇÃO AGUARDANDO AUTORIZAÇÃO!");
-//                            permite = false;
-//                        } else {
-//                            if (sa.getAutorizado()) {
-//                                if (sa.getDtConcluido() == null) {
-//                                    GenericaSessao.put("sessaoSisAutorizacao", sa);
-//                                    ignoreCase = true;
-//                                } else {
-//                                    count++;
-//                                    GenericaMensagem.warn("Mensagem: (" + count + ")", "ESTÁ SOLICITAÇÃO JÁ FOI CONCLUÍDA E PROCESSADA PELO USUÁRIO!");
-//                                    permite = false;
-//                                }
-//                            } else {
-//                                count++;
-//                                GenericaMensagem.warn("Mensagem: (" + count + ")", " O GESTOR " + sa.getGestor().getPessoa().getNome() + " RECUSOU SEU PEDIDO. MOTIVO: " + sa.getMotivoRecusa());
-//                                permite = false;
-//
-//                            }
-//
-//                        }
-//                    }
-//                }
-//                if (!ignoreCase) {
-//                    FunctionsDao functionsDao = new FunctionsDao();
-//                    if (functionsDao.inadimplente(p.getId())) {
-//                        count++;
-//                        permite = false;
-//                        GenericaMensagem.warn("Mensagem: (" + count + ")", "EXISTE(m) DÉBITO(s)!");
-//                        if (validacao.equals("emissaoGuias")) {
-//                            solicitarAutorizacao = "debitos";
-//                        }
-//                    }
-//                }
-//                break;
-//        }
+        switch (validacao) {
+            case "convenioMedico":
+            case "matriculaAcademia":
+            case "emissaoGuias":
+            case "geracaoDebitosCartao":
+            case "locacaoFilme":
+            case "associarFisica":
+                GenericaSessao.remove("sessaoSisAutorizacao");
+                Boolean ignoreCase = false;
+                if (validacao.equals("emissaoGuias")) {
+                    SisAutorizacoes sa = new SisAutorizacoesDao().findAutorizado(3, Usuario.getUsuario().getId(), fisica.getPessoa().getId(), new ChamadaPaginaBean().getRotinaRetorno().getId());
+                    if (sa != null) {
+                        if (sa.getDtAutorizacao() == null) {
+                            count++;
+                            GenericaMensagem.warn("Mensagem: (" + count + ")", "SOLICITAÇÃO AGUARDANDO AUTORIZAÇÃO!");
+                            permite = false;
+                        } else {
+                            if (sa.getAutorizado()) {
+                                if (sa.getDtConcluido() == null) {
+                                    GenericaSessao.put("sessaoSisAutorizacao", sa);
+                                    ignoreCase = true;
+                                } else {
+                                    count++;
+                                    GenericaMensagem.warn("Mensagem: (" + count + ")", "ESTÁ SOLICITAÇÃO JÁ FOI CONCLUÍDA E PROCESSADA PELO USUÁRIO NO DIA " + sa.getConcluidoString() + "!");
+                                    permite = false;
+                                }
+                            } else {
+                                count++;
+                                GenericaMensagem.warn("Mensagem: (" + count + ")", " O GESTOR " + sa.getGestor().getPessoa().getNome() + " RECUSOU SEU PEDIDO. MOTIVO: " + sa.getMotivoRecusa());
+                                permite = false;
+
+                            }
+
+                        }
+                    }
+                }
+                if (!ignoreCase) {
+                    FunctionsDao functionsDao = new FunctionsDao();
+                    if (functionsDao.inadimplente(p.getId())) {
+                        count++;
+                        permite = false;
+                        GenericaMensagem.warn("Mensagem: (" + count + ")", "EXISTE(m) DÉBITO(s)!");
+                        if (validacao.equals("emissaoGuias")) {
+                            solicitarAutorizacao = "debitos";
+                            loadListServicosAutorizados();
+                        }
+                    }
+                }
+                break;
+        }
         // EMAIL OBRIGATÓRIO
         switch (validacao) {
             case "matriculaAcademia":
@@ -3126,11 +3147,17 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 sisAutorizacoes.setMotivoSolicitacao("Alteração do nome: " + sisAutorizacoes.getMotivoSolicitacao());
                 break;
             // COMENTAR SE NÃO FOR USAR NA EMISSÃO DE GUIAS
-//            case "debitos":
-//                tcase = 2;
-//                sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 2));
-//                sisAutorizacoes.setRotinaDestino(new ChamadaPaginaBean().getRotinaRetorno());
-//                break;
+            case "debitos":
+                tcase = 2;
+                sisAutorizacoes.setSisAutorizacoesTipo((SisAutorizacoesTipo) dao.find(new SisAutorizacoesTipo(), 2));
+                sisAutorizacoes.setRotinaDestino(new ChamadaPaginaBean().getRotinaRetorno());
+                if (listServicosAutorizados.isEmpty()) {
+                    sisAutorizacoes.setMotivoSolicitacao("CADASTRAR SERVIÇO ROTINA: : " + sisAutorizacoes.getMotivoSolicitacao());
+                    GenericaMensagem.warn("SISTEMA", "CADASTRAR SERVIÇO ROTINA: LIBERA EMISSÃO DE SERVIÇO COM DÉBITO (CADASTRO COM DÉBITO)");
+                    return;
+                }
+                sisAutorizacoes.setServicos((Servicos) dao.find(new Servicos(), idServicosAutorizados));
+                break;
             default:
                 break;
         }
@@ -3338,6 +3365,22 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setSolicitarAutorizacao(String solicitarAutorizacao) {
         this.solicitarAutorizacao = solicitarAutorizacao;
+    }
+
+    public List<SelectItem> getListServicosAutorizados() {
+        return listServicosAutorizados;
+    }
+
+    public void setListServicosAutorizados(List<SelectItem> listServicosAutorizados) {
+        this.listServicosAutorizados = listServicosAutorizados;
+    }
+
+    public Integer getIdServicosAutorizados() {
+        return idServicosAutorizados;
+    }
+
+    public void setIdServicosAutorizados(Integer idServicosAutorizados) {
+        this.idServicosAutorizados = idServicosAutorizados;
     }
 
 }
