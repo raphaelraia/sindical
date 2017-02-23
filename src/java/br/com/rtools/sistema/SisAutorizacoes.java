@@ -1,5 +1,6 @@
 package br.com.rtools.sistema;
 
+import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Evento;
 import br.com.rtools.seguranca.Rotina;
@@ -39,9 +40,9 @@ public class SisAutorizacoes implements Serializable {
     private Date dtAutorizacao;
     @Column(name = "ds_hora_autorizacao", length = 5)
     private String horaAutorizacao;
-    @Column(name = "ds_dados_originais", length = 250, nullable = false)
+    @Column(name = "ds_dados_originais", length = 250, nullable = true)
     private String dadosOriginais;
-    @Column(name = "ds_dados_alterados", length = 250, nullable = false)
+    @Column(name = "ds_dados_alterados", length = 250, nullable = true)
     private String dadosAlterados;
     @Column(name = "ds_motivo_solicitacao", length = 500, nullable = false)
     private String motivoSolicitacao;
@@ -49,11 +50,11 @@ public class SisAutorizacoes implements Serializable {
     private String motivoRecusa;
     @Column(name = "is_autorizado", nullable = false, columnDefinition = "boolean default false")
     private Boolean autorizado;
-    @Column(name = "ds_tabela", length = 150, nullable = false)
+    @Column(name = "ds_tabela", length = 150, nullable = true)
     private String tabela;
-    @Column(name = "ds_coluna", length = 150, nullable = false)
+    @Column(name = "ds_coluna", length = 150, nullable = true)
     private String coluna;
-    @Column(name = "nr_codigo", nullable = false)
+    @Column(name = "nr_codigo", nullable = true)
     private Integer codigo;
     @JoinColumn(name = "id_evento", referencedColumnName = "id", nullable = true)
     @ManyToOne
@@ -64,12 +65,15 @@ public class SisAutorizacoes implements Serializable {
     @JoinColumn(name = "id_tipo_autorizacao", referencedColumnName = "id", nullable = true)
     @ManyToOne
     private SisAutorizacoesTipo sisAutorizacoesTipo;
-    @JoinColumn(name = "id_rotina_destino", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_rotina_destino", referencedColumnName = "id", nullable = true)
     @ManyToOne
     private Rotina rotinaDestino;
-    @Column(name = "dt_concluido", nullable = false)
+    @Column(name = "dt_concluido", nullable = true)
     @Temporal(TemporalType.DATE)
     private Date dtConcluido;
+    @JoinColumn(name = "id_servicos", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Servicos servicos;
 
     public SisAutorizacoes() {
         this.id = null;
@@ -94,9 +98,10 @@ public class SisAutorizacoes implements Serializable {
         this.sisAutorizacoesTipo = null;
         this.rotinaDestino = null;
         this.dtConcluido = null;
+        this.servicos = null;
     }
 
-    public SisAutorizacoes(Integer id, Rotina rotina, Usuario operador, Usuario gestor, Pessoa pessoa, Date dtSolicitacao, String horaSolicitacao, Date dtAutorizacao, String horaAutorizacao, String dadosOriginais, String dadosAlterados, String motivoSolicitacao, String motivoRecusa, Boolean autorizado, String tabela, String coluna, Integer codigo, Evento evento, SisAutorizacoes autorizacoes, SisAutorizacoesTipo sisAutorizacoesTipo, Rotina rotinaDestino, Date dtConcluido) {
+    public SisAutorizacoes(Integer id, Rotina rotina, Usuario operador, Usuario gestor, Pessoa pessoa, Date dtSolicitacao, String horaSolicitacao, Date dtAutorizacao, String horaAutorizacao, String dadosOriginais, String dadosAlterados, String motivoSolicitacao, String motivoRecusa, Boolean autorizado, String tabela, String coluna, Integer codigo, Evento evento, SisAutorizacoes autorizacoes, SisAutorizacoesTipo sisAutorizacoesTipo, Rotina rotinaDestino, Date dtConcluido, Servicos servicos) {
         this.id = id;
         this.rotina = rotina;
         this.operador = operador;
@@ -119,6 +124,7 @@ public class SisAutorizacoes implements Serializable {
         this.sisAutorizacoesTipo = sisAutorizacoesTipo;
         this.rotinaDestino = rotinaDestino;
         this.dtConcluido = dtConcluido;
+        this.servicos = servicos;
     }
 
     public Integer getId() {
@@ -319,6 +325,22 @@ public class SisAutorizacoes implements Serializable {
 
     public void setDtConcluido(Date dtConcluido) {
         this.dtConcluido = dtConcluido;
+    }
+
+    public String getConcluidoString() {
+        return DataHoje.converteData(dtConcluido);
+    }
+
+    public void setConcluidoString(String concluidoString) {
+        this.dtConcluido = DataHoje.converte(concluidoString);
+    }
+
+    public Servicos getServicos() {
+        return servicos;
+    }
+
+    public void setServicos(Servicos servicos) {
+        this.servicos = servicos;
     }
 
 }

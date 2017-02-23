@@ -298,69 +298,76 @@ public class BaixaGeralBean implements Serializable {
         }
 
         // CHEQUE
-        if (tipoPagamento.getId() == 4 || tipoPagamento.getId() == 5) {
-            if (!getEs().isEmpty() && getEs().equals("S")) {
-                if (numeroChequePag.isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
-                    return;
-                }
-
-                Plano5Dao db = new Plano5Dao();
-                if (listaBancoSaida.size() == 1 && listaBancoSaida.get(0).getDescription().isEmpty()) {
-                    GenericaMensagem.error("Erro", "Nenhum Banco saida Encontrado!");
-                    return;
-                }
-
-                Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
-
-                for (int i = 0; i < listaValores.size(); i++) {
-                    if (listaValores.get(i).getChequePag() != null) {
-                        if (listaValores.get(i).getChequePag().getPlano5().getId() == pl.getId()) {
-                            GenericaMensagem.error("Erro", "Esta CONTA já foi adicionada!");
-                            return;
-                        }
+        switch (tipoPagamento.getId()) {
+            case 4:
+            case 5:
+                if (!getEs().isEmpty() && getEs().equals("S")) {
+                    if (numeroChequePag.isEmpty()) {
+                        GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
+                        return;
                     }
-                    listaBancoSaida.get(i).setValue(i);
+
+                    Plano5Dao db = new Plano5Dao();
+                    if (listaBancoSaida.size() == 1 && listaBancoSaida.get(0).getDescription().isEmpty()) {
+                        GenericaMensagem.error("Erro", "Nenhum Banco saida Encontrado!");
+                        return;
+                    }
+
+                    Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
+
+                    for (int i = 0; i < listaValores.size(); i++) {
+                        if (listaValores.get(i).getChequePag() != null) {
+                            if (listaValores.get(i).getChequePag().getPlano5().getId() == pl.getId()) {
+                                GenericaMensagem.error("Erro", "Esta CONTA já foi adicionada!");
+                                return;
+                            }
+                        }
+                        listaBancoSaida.get(i).setValue(i);
+                    }
+
+                    ChequePag ch_p = new ChequePag();
+                    ch_p.setCheque(numeroChequePag);
+                    ch_p.setPlano5(pl);
+                    ch_p.setDtVencimentoString(vencimento);
+
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
+                } else {
+                    if (numero.isEmpty()) {
+                        GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
+                        return;
+                    }
+
+                    if (Integer.valueOf(listaTodosBancos.get(indexListaTodosBancos).getDescription()).equals(0) || chequeRec.getAgencia().isEmpty() || chequeRec.getConta().isEmpty()) {
+                        GenericaMensagem.warn("Atenção", "Agência, Conta e Banco não podem estar vazios!");
+                        return;
+                    }
+
+                    ChequeRec ch = new ChequeRec();
+                    ch.setAgencia(chequeRec.getAgencia());
+                    ch.setBanco((Banco) new Dao().find(new Banco(), Integer.valueOf(listaTodosBancos.get(indexListaTodosBancos).getDescription())));
+                    ch.setCheque(numero);
+                    ch.setConta(chequeRec.getConta());
+                    ch.setEmissao(quitacao);
+
+                    ch.setVencimento(vencimento);
+                    if (plano5.getId() == -1) {
+                        GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
+                        return;
+                    }
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null));
                 }
-
-                ChequePag ch_p = new ChequePag();
-                ch_p.setCheque(numeroChequePag);
-                ch_p.setPlano5(pl);
-                ch_p.setDtVencimentoString(vencimento);
-
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
-            } else {
-                if (numero.isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
+                numero = "";
+                numeroChequePag = "";
+                chequeRec = new ChequeRec();
+                break;
+            case 6:
+            case 7:
+                // CARTAO
+                // if (listaCartao.size() == 1 && !listaCartao.get(0).getDescription().isEmpty()) {
+                if (listaCartao.isEmpty()) {
+                    GenericaMensagem.error("SISTEMA", "NENHUM CARTÃO CADASTRADO!");
                     return;
                 }
-
-                if (Integer.valueOf(listaTodosBancos.get(indexListaTodosBancos).getDescription()).equals(0) || chequeRec.getAgencia().isEmpty() || chequeRec.getConta().isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "Agência, Conta e Banco não podem estar vazios!");
-                    return;
-                }
-
-                ChequeRec ch = new ChequeRec();
-                ch.setAgencia(chequeRec.getAgencia());
-                ch.setBanco((Banco) new Dao().find(new Banco(), Integer.valueOf(listaTodosBancos.get(indexListaTodosBancos).getDescription())));
-                ch.setCheque(numero);
-                ch.setConta(chequeRec.getConta());
-                ch.setEmissao(quitacao);
-
-                ch.setVencimento(vencimento);
-                if (plano5.getId() == -1) {
-                    GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
-                    return;
-                }
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null));
-            }
-
-            numero = "";
-            numeroChequePag = "";
-            chequeRec = new ChequeRec();
-        } else if (tipoPagamento.getId() == 6 || tipoPagamento.getId() == 7) {
-            // CARTAO
-            if (listaCartao.size() == 1 && !listaCartao.get(0).getDescription().isEmpty()) {
                 Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
                 if (!getEs().isEmpty() && getEs().equals("S")) {
                     CartaoPag cartao_pag = null;
@@ -369,46 +376,52 @@ public class BaixaGeralBean implements Serializable {
                     CartaoRec cartao_rec = new CartaoRec(-1, null, cart);
                     listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
                 }
-            }
-        } else if (tipoPagamento.getId() == 2 || tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10 || tipoPagamento.getId() == 13 || tipoPagamento.getId() == 15) {
-            Plano5Dao db = new Plano5Dao();
-            if (listaBanco.size() == 1 && listaBanco.get(0).getDescription().isEmpty()) {
-                GenericaMensagem.error("Erro", "Nenhum Banco Encontrado!");
-                return;
-            }
-
-            Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
-            Plano5 pl_conciliacao = null;
-            Date dt_conciliacao = null;
-            if (!getEs().isEmpty() && getEs().equals("E")) {
-                if (tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10) {
-                    if (dataConciliacao == null) {
-                        GenericaMensagem.error("Atenção", "Digite uma data para conciliação!");
-                        return;
-                    }
-
-                    if (DataHoje.maiorData(dataConciliacao, DataHoje.dataHoje())) {
-                        GenericaMensagem.error("Atenção", "Data de Conciliação não pode ser maior que hoje!");
-                        dataConciliacao = null;
-                        return;
-                    }
-
-                    pl = (Plano5) new Dao().find(new Plano5(), 1);
-                    pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
-                    dt_conciliacao = dataConciliacao;
+                if (!listaCartao.get(0).getDescription().isEmpty()) {
                 }
-            }
+                break;
+            case 2:
+            case 8:
+            case 9:
+            case 10:
+            case 13:
+            case 15:
+                Plano5Dao db = new Plano5Dao();
+                if (listaBanco.size() == 1 && listaBanco.get(0).getDescription().isEmpty()) {
+                    GenericaMensagem.error("Erro", "Nenhum Banco Encontrado!");
+                    return;
+                }
+                Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
+                Plano5 pl_conciliacao = null;
+                Date dt_conciliacao = null;
+                if (!getEs().isEmpty() && getEs().equals("E")) {
+                    if (tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10) {
+                        if (dataConciliacao == null) {
+                            GenericaMensagem.error("Atenção", "Digite uma data para conciliação!");
+                            return;
+                        }
 
-            listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), null, pl_conciliacao, dt_conciliacao));
+                        if (DataHoje.maiorData(dataConciliacao, DataHoje.dataHoje())) {
+                            GenericaMensagem.error("Atenção", "Data de Conciliação não pode ser maior que hoje!");
+                            dataConciliacao = null;
+                            return;
+                        }
 
-            numero = "";
-            dataConciliacao = null;
-        } else {
-            if (plano5.getId() == -1) {
-                GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
-                return;
-            }
-            listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Float(valorDigitado), null, null, null));
+                        pl = (Plano5) new Dao().find(new Plano5(), 1);
+                        pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
+                        dt_conciliacao = dataConciliacao;
+                    }
+                }
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), null, pl_conciliacao, dt_conciliacao));
+                numero = "";
+                dataConciliacao = null;
+                break;
+            default:
+                if (plano5.getId() == -1) {
+                    GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
+                    return;
+                }
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Float(valorDigitado), null, null, null));
+                break;
         }
         desHabilitaConta = true;
         desHabilitaQuitacao = true;

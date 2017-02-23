@@ -5,6 +5,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.SisAutorizacoes;
+import br.com.rtools.sistema.SisAutorizacoesTipo;
 import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -27,9 +28,11 @@ public class SisAutorizacoesBean implements Serializable {
     private String filter;
     private String status;
     private String value;
+    private List<SelectItem> listTipoAutorizacao;
     private List<SelectItem> listGestores;
     private List<SelectItem> listOperadores;
     private List<SelectItem> listRotinas;
+    private Integer idTipoAutorizacao;
     private Integer idGestor;
     private Integer idOperador;
     private Integer idRotina;
@@ -39,6 +42,7 @@ public class SisAutorizacoesBean implements Serializable {
         status = "aberto";
         filter = "";
         value = "";
+        loadListTipoAutorizacao();
         loadListSisAutorizacoes();
         loadListOperadores();
         loadListRotinas();
@@ -161,7 +165,7 @@ public class SisAutorizacoesBean implements Serializable {
             default:
                 break;
         }
-        listSisAutorizacoes = new SisAutorizacoesDao().findAll(status, filter, value, "");
+        listSisAutorizacoes = new SisAutorizacoesDao().findAll(idTipoAutorizacao, status, filter, value, "");
     }
 
     public void listener() {
@@ -242,6 +246,16 @@ public class SisAutorizacoesBean implements Serializable {
 
     }
 
+    public final void loadListTipoAutorizacao() {
+        listTipoAutorizacao = new ArrayList();
+        idTipoAutorizacao = -1;
+        List<SisAutorizacoesTipo> list = new Dao().list(new SisAutorizacoesTipo());
+        listTipoAutorizacao.add(new SelectItem(-1, "-- TODOS -- "));
+        for (int i = 0; i < list.size(); i++) {
+            listTipoAutorizacao.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
     public final void loadListRotinas() {
         listRotinas = new ArrayList();
         List<Rotina> list = new RotinaDao().findByTabela("sis_autorizacoes");
@@ -275,6 +289,22 @@ public class SisAutorizacoesBean implements Serializable {
 
     public void setIdRotina(Integer idRotina) {
         this.idRotina = idRotina;
+    }
+
+    public List<SelectItem> getListTipoAutorizacao() {
+        return listTipoAutorizacao;
+    }
+
+    public void setListTipoAutorizacao(List<SelectItem> listTipoAutorizacao) {
+        this.listTipoAutorizacao = listTipoAutorizacao;
+    }
+
+    public Integer getIdTipoAutorizacao() {
+        return idTipoAutorizacao;
+    }
+
+    public void setIdTipoAutorizacao(Integer idTipoAutorizacao) {
+        this.idTipoAutorizacao = idTipoAutorizacao;
     }
 
 }

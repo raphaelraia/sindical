@@ -2665,7 +2665,7 @@ public class MovimentoDao extends DB {
     }
 
     /**
-     * id_pessoa, id_titular, id_beneficiario
+     * Movimentos da pessoa
      *
      * @param pessoa_id
      * @return
@@ -2674,30 +2674,115 @@ public class MovimentoDao extends DB {
         return findBy("pessoa", pessoa_id, false);
     }
 
+    /**
+     * Movimentos do titular
+     *
+     * @param pessoa_id
+     * @return
+     */
     public List<Movimento> findByTitular(Integer pessoa_id) {
         return findBy("titular", pessoa_id, false);
     }
 
+    /**
+     * Movimentos do beneficiário
+     *
+     * @param pessoa_id
+     * @return
+     */
     public List<Movimento> findByBeneficiario(Integer pessoa_id) {
         return findBy("beneficiario", pessoa_id, false);
     }
 
+    /**
+     * (força a pesquisa do movimento nas colunas (pessoa)
+     *
+     * @param pessoa_id
+     * @return
+     */
     public List<Movimento> findByAllColumnsByPessoa(Integer pessoa_id) {
         return findBy("", pessoa_id, true);
     }
 
+    /**
+     *
+     * @param column (pessoa, titular, beneficiario)
+     * @param pessoa_id
+     * @return
+     */
     public List<Movimento> findBy(String column, Integer pessoa_id) {
         return findBy(column, pessoa_id, false);
     }
 
     public List<Movimento> findBy(String column, Integer pessoa_id, Boolean allColumns) {
+        return findBy(column, pessoa_id, null, allColumns, null, null);
+    }
+
+    /**
+     *
+     * @param column (pessoa, titular, beneficiario)
+     * @param pessoa_id
+     * @param servicos_id (caso for trazer movimento por serviço específico)
+     * @return
+     */
+    public List<Movimento> findBy(String column, Integer pessoa_id, Integer servicos_id) {
+        return findBy(column, pessoa_id, servicos_id, false, null, null);
+    }
+
+    /**
+     *
+     * @param column (pessoa, titular, beneficiario)
+     * @param pessoa_id
+     * @param servicos_id (caso for trazer movimento por serviço específico)
+     * @param allColumns (força a pesquisa do movimento nas colunas (pessoa)
+     * titular, beneficiario)
+     * @param ativo (situação do movimento)
+     * @param baixado (se movimento foi baixado = true, não false, ou null nada)
+     * @return
+     */
+    public List<Movimento> findBy(String column, Integer pessoa_id, Integer servicos_id, Boolean allColumns, Boolean ativo, Boolean baixado) {
         try {
+            List listWhere = new ArrayList();
             Query query;
+            String queryString = " "
+                    + "-- MovimentoDao()->findBy(...) \n\n"
+                    + "SELECT M.*                   \n"
+                    + "  FROM fin_movimento AS M    \n";
+
             if (allColumns != null && allColumns) {
-                query = getEntityManager().createNativeQuery("SELECT M.* FROM fin_movimento AS M WHERE M.id IN (SELECT M2.id FROM fin_movimento AS M2 WHERE (M2.id_pessoa = " + pessoa_id + " OR M2.id_titular = " + pessoa_id + " OR M2.id_beneficiario = " + pessoa_id + ") GROUP BY M2.id) ", Movimento.class);
+                listWhere.add(
+                        "      M.id IN (                                        \n"
+                        + "  SELECT M2.id                                       \n "
+                        + "    FROM fin_movimento AS M2                         \n "
+                        + "   WHERE (M2.id_pessoa = " + pessoa_id + "           \n"
+                        + "      OR M2.id_titular = " + pessoa_id + "           \n"
+                        + "      OR M2.id_beneficiario = " + pessoa_id + ")     \n"
+                        + "GROUP BY M2.id                                       \n"
+                        + ")                                                    \n");
             } else {
-                query = getEntityManager().createNativeQuery("SELECT M.* FROM fin_movimento AS M WHERE M.id_" + column + " = " + pessoa_id, Movimento.class);
+                listWhere.add("M.id_" + column + " = " + pessoa_id);
             }
+            if (servicos_id != null) {
+                listWhere.add("M.id_servicos = " + servicos_id);
+            }
+            if (ativo != null && ativo) {
+                listWhere.add("M.is_ativo = " + ativo);
+            }
+            if (baixado != null) {
+                if (baixado) {
+                    listWhere.add("M.id_baixa IS NOT NULL");
+                } else {
+                    listWhere.add("M.id_baixa IS NULL");
+                }
+            }
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + " \n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + " \n";
+                }
+            }
+            query = getEntityManager().createNativeQuery(queryString, Movimento.class);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

@@ -9,11 +9,11 @@ import oracle.toplink.essentials.exceptions.EJBQLException;
 
 public class GrupoCidadeDao extends DB {
 
-    public List<GrupoCidade> listaGrupoCidadePorConvencao(String listaConvencao) {
+    public List<GrupoCidade> listaGrupoCidadePorConvencao(String in_convencoes) {
         String textQuery;
         String filtroPorConvencao = "";
-        if (!listaConvencao.isEmpty()) {
-            filtroPorConvencao = " WHERE c.id_convencao in (" + listaConvencao + ") ";
+        if (!in_convencoes.isEmpty()) {
+            filtroPorConvencao = " WHERE c.id_convencao in (" + in_convencoes + ") ";
         }
         try {
 
