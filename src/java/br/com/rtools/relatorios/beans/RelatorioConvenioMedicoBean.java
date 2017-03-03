@@ -288,7 +288,7 @@ public class RelatorioConvenioMedicoBean implements Serializable {
     public List<SelectItem> getListRelatorios() {
         if (listRelatorio.isEmpty()) {
             RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = db.pesquisaTipoRelatorio(121);
+            List<Relatorios> list = db.pesquisaTipoRelatorio(303);
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {
                     index[0] = i;

@@ -2385,6 +2385,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioLocadora</from-outcome>
+            <to-view-id>/relatorioLocadora.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

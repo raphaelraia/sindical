@@ -306,7 +306,7 @@ public class HomologacaoDao extends DB {
                     + dataCampo
                     + homologadorCampo
                     + statusCampo
-                    + pessoaEmpresaCampo    
+                    + pessoaEmpresaCampo
                     + somenteAtivosString
                     + "        AND age.id_filial = " + idFilial + " \n"
                     + "      ORDER BY age.dt_data DESC, hor.ds_hora ASC      \n"
@@ -1151,4 +1151,17 @@ public class HomologacaoDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List findByDataHorarioEmpresa(Date data, Integer horario_id, Integer empresa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.dtData = :data AND A.horarios.id = :horario_id AND A.pessoaEmpresa.juridica.id = :empresa_id  AND A.status.id = 2 ORDER BY A.horarios.hora ASC");
+            query.setParameter("data", data);
+            query.setParameter("horario_id", horario_id);
+            query.setParameter("empresa_id", empresa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }

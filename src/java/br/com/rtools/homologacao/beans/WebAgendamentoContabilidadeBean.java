@@ -503,7 +503,11 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     GenericaMensagem.warn("Atenção", "Limite de Agendamentos para hoje é de " + f.getQuantidadeAgendamentosPorEmpresa());
                     return;
                 }
-
+                List list = db.findByDataHorarioEmpresa(data, ((Horarios) datao.getArgumento0()).getId(), empresa.getId());
+                if (list.size() == 1) {
+                    GenericaMensagem.error("Sistema", "Só é possível agendar um horário por empresa, nesta data!");
+                    return;
+                }
                 if (data.getDay() == 6 || data.getDay() == 0) {
                     GenericaMensagem.warn("Atenção", "Fins de semana não é permitido!");
                     return;

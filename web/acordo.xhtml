@@ -136,12 +136,14 @@
                                             <p:selectOneMenu value="#{acordoBean.frequenciaSind}">
                                                 <p:ajax event="change" update="@this" global="false"/>
                                                 <f:selectItem itemValue="30" itemLabel="Mensal"/>
+                                                <f:selectItem itemValue="15" itemLabel="Quinzenal"/>
                                                 <f:selectItem itemValue="7" itemLabel="Semanal"/>
                                             </p:selectOneMenu>
                                             <p:outputLabel value="Intervalo Outras: " />
                                             <p:selectOneMenu value="#{acordoBean.frequencia}">
                                                 <p:ajax event="change" update="@this" global="false"/>
                                                 <f:selectItem itemValue="30" itemLabel="Mensal"/>
+                                                <f:selectItem itemValue="15" itemLabel="Quinzenal"/>
                                                 <f:selectItem itemValue="7" itemLabel="Semanal"/>
                                             </p:selectOneMenu>
                                             <h:column rendered="#{acordoBean.parcela != 1}">

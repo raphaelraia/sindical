@@ -671,7 +671,6 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         idMotivoDemissao = 0;
         tipoAviso = null;
         Filial f = getFilialLocal();
-
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             // STATUS DISPONÍVEL
             case 1: {
@@ -689,6 +688,11 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 }
                 if (quantidade_resultado < 0 && quantidade != 1) {
                     GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    return;
+                }
+                List list = db.findByDataHorarioEmpresa(data, ((Horarios) datao.getArgumento0()).getId(), juridica.getId());
+                if (list.size() == 1) {
+                    GenericaMensagem.error("Sistema", "Só é possível agendar um horário por empresa, nesta data!");
                     return;
                 }
                 hrd.begin();
@@ -867,7 +871,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                     enderecoFisica = new PessoaEndereco();
                     return;
                 }
-                */
+                 */
                 List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(fisica.getPessoa().getDocumento());
                 if (!listFisica.isEmpty()) {
                     for (int i = 0; i < listFisica.size(); i++) {

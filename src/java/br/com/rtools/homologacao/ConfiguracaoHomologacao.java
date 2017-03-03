@@ -107,9 +107,9 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     @Column(name = "nr_inicio_dias_agendamento", columnDefinition = "integer default 0", nullable = false)
     private Integer inicioDiasAgendamento;
-    
+
     @Column(name = "is_web_imprimir_planilha_debito", columnDefinition = "boolean default false")
-    private Boolean webImprimirPlanilhaDebito;    
+    private Boolean webImprimirPlanilhaDebito;
 
 //    @Transient
 //    // @Temporal(TemporalType.DATE)
@@ -647,4 +647,4 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
     }
 
-}
+    }
