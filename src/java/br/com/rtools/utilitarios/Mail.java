@@ -261,7 +261,11 @@ public class Mail extends MailTemplate implements Serializable {
                             transport.sendMessage(msg, msg.getAllRecipients());
                             transport.close();
                         } else {
-                            Transport.send(msg);
+                            Transport transport = session.getTransport("smtps");
+                            transport.connect(xSmtp, xPorta, xEmail, xSenha);
+                            transport.sendMessage(msg, msg.getAllRecipients());
+                            transport.close();
+                            // Transport.send(msg);
                         }
                         boolean updateEmail = false;
                         if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {

@@ -70,7 +70,7 @@ public class RelatorioLocadoraBean implements Serializable {
         filters = new ArrayList<>();
         filters.add(new Filters("filial", "Filial", false));
         filters.add(new Filters("genero", "Gênero", false));
-        // filters.add(new Filters("lancamento", "Lançamento", false));
+        filters.add(new Filters("lancamento", "Lançamento", false));
         filters.add(new Filters("mes_ano_lancamento", "Mês/Ano - Lançamento", false));
     }
 

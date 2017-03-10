@@ -60,6 +60,9 @@
                                             <p:selectBooleanCheckbox value="#{registroEmpresarialBean.habilitaCorrecao}" itemLabel="Habilita Correção">
                                                 <p:ajax event="change" update="@this" />
                                             </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.imprimeSenhaMatricial}" itemLabel="Imprime Senha Matricial">
+                                                <p:ajax event="change" update=":form_ch:" listener="#{configuracaoHomologacaoBean.update}"/>
+                                            </p:selectBooleanCheckbox>
                                             <div style="clear: both;"></div>
                                             <p:accordionPanel>
                                                 <p:tab title="Documentos Necessários Homologação">

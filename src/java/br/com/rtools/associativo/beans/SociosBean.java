@@ -1478,7 +1478,8 @@ public class SociosBean implements Serializable {
                                 null,
                                 null,
                                 null,
-                                ""
+                                "",
+                                null
                         );
                         if (!dao.save(servicoPessoaDependente)) {
                             GenericaMensagem.warn("Erro", "Erro ao salvar Serviço Pessoa: " + listDependentes.get(i).getFisica().getPessoa().getNome());

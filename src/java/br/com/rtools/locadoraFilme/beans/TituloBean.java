@@ -859,6 +859,7 @@ public class TituloBean implements Serializable {
                         titulo = t;
                         listCatalogo.clear();
                         getListCatalogo();
+                        idGenero = titulo.getGenero().getId();
                     }
                 }
                 break;
@@ -875,6 +876,7 @@ public class TituloBean implements Serializable {
                             titulo.setId(null);
                         }
                         titulo = t;
+                        idGenero = titulo.getGenero().getId();
                         listCatalogo.clear();
                         getListCatalogo();
                     }

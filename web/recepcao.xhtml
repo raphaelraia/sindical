@@ -182,7 +182,12 @@
                                                 <p:column headerText="Senha" rendered="#{!recepcaoBean.ocultaSenha}" width="50" sortBy="#{linha.argumento10}">
                                                     <center>
                                                         <h:column rendered="#{linha.argumento10 ne ''}">
-                                                            <p:commandLink ajax="false" action="#{senhaHomologacao.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento10}"  title="Imprimir Senha" style="font-size: 8pt!important" />
+                                                            <h:column rendered="#{!configuracaoHomologacaoBean.configuracaoHomologacao.imprimeSenhaMatricial}">
+                                                                <p:commandLink ajax="false" action="#{senhaHomologacao.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento10}"  title="Imprimir Senha" style="font-size: 8pt!important" />
+                                                            </h:column>
+                                                            <h:column rendered="#{configuracaoHomologacaoBean.configuracaoHomologacao.imprimeSenhaMatricial}">
+                                                                <p:commandLink ajax="true" action="#{senhaHomologacao.imprimir(linha.argumento9)}" value="#{linha.argumento10}"  title="Imprimir Senha" style="font-size: 8pt!important" global="false"/>
+                                                            </h:column>
                                                         </h:column>
                                                         <h:column rendered="#{linha.argumento10 eq ''}">
                                                             <h:outputLabel value="#{linha.argumento10}" style="font-size: 8pt!important"/>

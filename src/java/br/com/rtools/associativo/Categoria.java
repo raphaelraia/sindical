@@ -19,7 +19,8 @@ import javax.persistence.UniqueConstraint;
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_grupo_categoria"})
 )
 @NamedQueries({
-    @NamedQuery(name = "Categoria.pesquisaID", query = "SELECT C FROM Categoria AS C WHERE C.id=:pid"),
+    @NamedQuery(name = "Categoria.pesquisaID", query = "SELECT C FROM Categoria AS C WHERE C.id=:pid")
+    ,
     @NamedQuery(name = "Categoria.findAll", query = "SELECT C FROM Categoria AS C ORDER BY C.grupoCategoria.grupoCategoria ASC, C.categoria ASC")
 })
 
@@ -56,9 +57,9 @@ public class Categoria implements Serializable {
     private boolean usaClubeSabado;
     @Column(name = "usa_clube_domingo", nullable = true)
     private boolean usaClubeDomingo;
-    @Column(name = "is_cartao_titular", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_cartao_titular", nullable = false, columnDefinition = "boolean default true")
     private boolean cartaoTitular;
-    @Column(name = "is_cartao_dependente", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_cartao_dependente", nullable = false, columnDefinition = "boolean default true")
     private boolean cartaoDependente;
     @Column(name = "is_bloqueia_meses", nullable = false, columnDefinition = "boolean default false")
     private Boolean bloqueiaMeses;

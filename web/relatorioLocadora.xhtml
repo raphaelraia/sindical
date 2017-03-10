@@ -101,6 +101,10 @@
                                                     </h:panelGrid>                                                    
                                                 </p:panel>
                                             </h:column>
+                                            <h:column rendered="#{relatorioLocadoraBean.getShow('lancamento')}">
+                                                <p:panel header="Filmes em lançamento">
+                                                </p:panel>
+                                            </h:column>                                            
                                             <h:column rendered="#{relatorioLocadoraBean.getShow('filial')}">
                                                 <p:panel header="Filial">
                                                     <h:panelGrid columns="2" cellspacing="5">

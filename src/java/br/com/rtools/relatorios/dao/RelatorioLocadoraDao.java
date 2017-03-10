@@ -1,6 +1,5 @@
 package br.com.rtools.relatorios.dao;
 
-import br.com.rtools.locadoraFilme.ConfiguracaoLocadora;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
@@ -20,6 +19,8 @@ public class RelatorioLocadoraDao extends DB {
             groups = "genero";
         } else if (groups.toLowerCase().contains("filial")) {
             groups = "filial";
+        } else {
+            groups = "titulo";            
         }
         List listWhere = new ArrayList();
         String queryString = "";
@@ -49,7 +50,8 @@ public class RelatorioLocadoraDao extends DB {
                 + " LEFT JOIN pes_juridica J ON J.id = FIL.id_filial        \n"
                 + " LEFT JOIN pes_pessoa P ON P.id = J.id_pessoa            \n";
         if (lancamento != null && lancamento) {
-            listWhere.add("'" + ConfiguracaoLocadora.get().getMesesLancamento() + "/ " );
+            listWhere.add("T.ds_mes_ano_lancamento <> '' ");
+            listWhere.add("current_date BETWEEN  CAST('01/' ||  ds_mes_ano_lancamento AS date) AND (CAST('01/' ||  ds_mes_ano_lancamento AS date) + INTERVAL  '3 MONTH')::date");
         }
         if (mes_ano_lancamento != null && !mes_ano_lancamento.isEmpty()) {
             listWhere.add("T.ds_mes_ano_lancamento = '" + mes_ano_lancamento + "'");
@@ -84,7 +86,7 @@ public class RelatorioLocadoraDao extends DB {
                 queryString += " ORDER BY G.ds_descricao, T.ds_descricao ";
                 break;
             case "filial":
-                queryString += " ORDER BY P.ds_nome, G.ds_descricao, T.ds_descricao ";
+                queryString += " ORDER BY P.ds_nome, T.ds_descricao ";
                 break;
             default:
                 queryString += " ORDER BY T.ds_descricao ";

@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao;
 
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -111,6 +112,9 @@ public class ConfiguracaoHomologacao implements Serializable {
     @Column(name = "is_web_imprimir_planilha_debito", columnDefinition = "boolean default false")
     private Boolean webImprimirPlanilhaDebito;
 
+    @Column(name = "is_imprime_senha_matricial", columnDefinition = "boolean default false", nullable = false)
+    private Boolean imprimeSenhaMatricial;
+
 //    @Transient
 //    // @Temporal(TemporalType.DATE)
 //    // @Column(name = "dt_atualiza")
@@ -179,6 +183,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaObs = "";
         this.inicioDiasAgendamento = 0;
         this.webImprimirPlanilhaDebito = false;
+        this.imprimeSenhaMatricial = false;
 //        this.dtAtualiza = null;
 //        this.dtHabilitaCorrecao = null;
 //        this.agendamentoWeb = false;
@@ -190,7 +195,7 @@ public class ConfiguracaoHomologacao implements Serializable {
 //        this.mesesInadimplentesAgenda = 0;
     }
 
-    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito) {
+    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito, Boolean imprimeSenhaMatricial) {
         this.id = id;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
@@ -230,6 +235,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaObs = webDesabilitaObs;
         this.inicioDiasAgendamento = inicioDiasAgendamento;
         this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
+        this.imprimeSenhaMatricial = imprimeSenhaMatricial;
     }
 
     public Integer getId() {
@@ -647,4 +653,16 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
     }
 
+    public Boolean getImprimeSenhaMatricial() {
+        return imprimeSenhaMatricial;
     }
+
+    public void setImprimeSenhaMatricial(Boolean imprimeSenhaMatricial) {
+        this.imprimeSenhaMatricial = imprimeSenhaMatricial;
+    }
+
+    public static ConfiguracaoHomologacao get() {
+        return (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
+    }
+
+}

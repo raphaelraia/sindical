@@ -79,6 +79,7 @@
                                     <p:separator />  
                                     <p:menuitem value="Pesquisar Logs"              action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
                                     <p:submenu label="Sistema">
+                                        <p:menuitem value="Dispositivos"           action="#{chamadaPaginaBean.pagina('dispositivo')}" />
                                         <p:menuitem value="Configurações"           action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
                                         <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                         <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>

@@ -2391,6 +2391,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>dispositivo</from-outcome>
+            <to-view-id>/dispositivo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
