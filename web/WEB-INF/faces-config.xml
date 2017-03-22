@@ -2404,8 +2404,8 @@
         </navigation-case>
         
         <navigation-case>
-            <from-outcome>relatorioCheques</from-outcome>
-            <to-view-id>/relatorioCheques.jsf</to-view-id>
+            <from-outcome>relatorioChequesEmitidos</from-outcome>
+            <to-view-id>/relatorioChequesEmitidos.jsf</to-view-id>
             <redirect/>
         </navigation-case>        
         

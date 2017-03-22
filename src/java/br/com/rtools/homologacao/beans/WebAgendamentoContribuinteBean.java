@@ -394,7 +394,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 return;
             }
         }
-        if (configuracaoHomologacao.getValidaFuncao()) {
+        if (configuracaoHomologacao.getWebValidaFuncao()) {
             if (profissao.getId().equals(-1) || profissao.getId().equals(0)) {
                 GenericaMensagem.warn("Validação", "Informar a função/profissão!");
                 return;

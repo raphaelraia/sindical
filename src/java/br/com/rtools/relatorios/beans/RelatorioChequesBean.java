@@ -4,16 +4,12 @@ import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.dao.ContaBancoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
-import br.com.rtools.locadoraFilme.Genero;
-import br.com.rtools.pessoa.Filial;
-import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioChequesDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Rotina;
-import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -21,7 +17,6 @@ import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +133,8 @@ public class RelatorioChequesBean implements Serializable {
                             o.get(7),
                             o.get(8),
                             o.get(9),
-                            o.get(10)
+                            o.get(10),
+                            o.get(11)
                     )
             );
         }
@@ -338,6 +334,7 @@ public class RelatorioChequesBean implements Serializable {
         private Object impressao;
         private Object cancelamento;
         private Object historico;
+        private Object valor;
 
         public ObjectCheques() {
             this.emissao = null;
@@ -351,9 +348,10 @@ public class RelatorioChequesBean implements Serializable {
             this.impressao = null;
             this.cancelamento = null;
             this.historico = null;
+            this.valor = null;
         }
 
-        public ObjectCheques(Object emissao, Object banco_numero, Object banco, Object conta, Object agencia, Object cheque, Object cpf_cnpj, Object nome, Object impressao, Object cancelamento, Object historico) {
+        public ObjectCheques(Object emissao, Object banco_numero, Object banco, Object conta, Object agencia, Object cheque, Object cpf_cnpj, Object nome, Object impressao, Object cancelamento, Object historico, Object valor) {
             this.emissao = emissao;
             this.banco_numero = banco_numero;
             this.banco = banco;
@@ -365,6 +363,7 @@ public class RelatorioChequesBean implements Serializable {
             this.impressao = impressao;
             this.cancelamento = cancelamento;
             this.historico = historico;
+            this.valor = valor;
         }
 
         public Object getEmissao() {
@@ -453,6 +452,14 @@ public class RelatorioChequesBean implements Serializable {
 
         public void setHistorico(Object historico) {
             this.historico = historico;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
         }
 
     }

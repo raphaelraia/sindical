@@ -26,7 +26,8 @@ public class RelatorioChequesDao extends DB {
                 + "           P.ds_nome 	 AS nome,                       \n"
                 + "           CH.dt_impressao    AS impressao,                  \n"
                 + "           CH.dt_cancelamento AS cancelamento,               \n"
-                + "           P5.ds_conta 	   AS historico                 \n"
+                + "           P5.ds_conta 	 AS historico,                  \n"
+                + "           F.nr_valor         AS valor                       \n"
                 + "      FROM fin_cheque_pag         AS CH \n"
                 + "INNER JOIN fin_plano5            AS CT ON CT.id		= CH.id_plano5 \n"
                 + "INNER JOIN fin_conta_banco       AS CB ON CB.id		= CT.id_conta_banco \n"
@@ -68,7 +69,8 @@ public class RelatorioChequesDao extends DB {
                 + "           P.ds_nome,          \n"
                 + "           CH.dt_impressao,    \n"
                 + "           CH.dt_cancelamento, \n"
-                + "           P5.ds_conta           ";
+                + "           P5.ds_conta,        \n"
+                + "           F.nr_valor          \n";
 
         queryString += " ORDER BY CH.dt_emissao, CB.ds_conta, CH.ds_cheque ";
         try {

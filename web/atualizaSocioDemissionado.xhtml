@@ -33,13 +33,22 @@
                         <div style="clear: both"></div>
                         <h:form id="formAtualizaSocioDemissionado">
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="1">
+                                <h:panelGrid columns="2">
                                     <h:column>
                                         <p:outputLabel value="Filtro" /><br />
                                         <p:selectOneMenu value="#{atualizaSocioDemissionadoBean.filtro}">
                                             <p:ajax event="change" listener="#{atualizaSocioDemissionadoBean.loadListaSocioDemissionado()}" update="@form" />
                                             <f:selectItem itemValue="contactar" itemLabel="Contactar"/>
                                             <f:selectItem itemValue="contactados" itemLabel="Contactados"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                    <h:column>
+                                        <p:outputLabel value="Aposentadoria" /><br />
+                                        <p:selectOneMenu value="#{atualizaSocioDemissionadoBean.aposentadoria}">
+                                            <p:ajax event="change" listener="#{atualizaSocioDemissionadoBean.loadListaSocioDemissionado()}" update="@form" />
+                                            <f:selectItem itemValue="ignorar" itemLabel="Selecionar"/>
+                                            <f:selectItem itemValue="aposentado" itemLabel="Aposentado"/>
+                                            <f:selectItem itemValue="nao_aposentado" itemLabel="Não Aposentado"/>
                                         </p:selectOneMenu>
                                     </h:column>
                                 </h:panelGrid>
