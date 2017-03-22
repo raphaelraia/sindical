@@ -128,12 +128,12 @@ public class SenhaHomologacao implements Serializable {
                 Juridica juridica = ConfiguracaoArrecadacao.get().getFilial().getFilial();
                 imls.add(new ImpressoraMatricialLinhas(null, im, 6, filial.getPessoa().getDocumento() + " - " + AnaliseString.removerAcentos(juridica.getPessoa().getNome())));
                 imls.add(new ImpressoraMatricialLinhas(null, im, 6, ""));
-                imls.add(new ImpressoraMatricialLinhas(null, im, 6, AnaliseString.removerAcentos("CNPJ: " + ps.getEmpresa_documento())));
-                imls.add(new ImpressoraMatricialLinhas(null, im, 6, AnaliseString.removerAcentos("EMPRESA: " + ps.getEmpresa_nome())));
+                imls.add(new ImpressoraMatricialLinhas(null, im, 6, "CNPJ: " + ps.getEmpresa_documento()));
+                imls.add(new ImpressoraMatricialLinhas(null, im, 6, " EMPRESA: " + AnaliseString.removerAcentos(ps.getEmpresa_nome())));
                 imls.add(new ImpressoraMatricialLinhas(null, im, 6, ""));
-                imls.add(new ImpressoraMatricialLinhas(null, im, 6, AnaliseString.removerAcentos("PREPOSTO: " + ps.getPreposto())));
-                imls.add(new ImpressoraMatricialLinhas(null, im, 6, AnaliseString.removerAcentos("FUNCIONÁRIO: " + ps.getFuncionario())));
-                imls.add(new ImpressoraMatricialLinhas(null, im, 6, AnaliseString.removerAcentos("ATENDIMENTO: " + ps.getUsuario_nome())));
+                imls.add(new ImpressoraMatricialLinhas(null, im, 6, "PREPOSTO: " + AnaliseString.removerAcentos(ps.getPreposto())));
+                imls.add(new ImpressoraMatricialLinhas(null, im, 6, AnaliseString.removerAcentos("FUNCIONARIO: " + ps.getFuncionario())));
+                imls.add(new ImpressoraMatricialLinhas(null, im, 6, "ATENDIMENTO: " + AnaliseString.removerAcentos(ps.getUsuario_nome())));
                 imls.add(new ImpressoraMatricialLinhas(null, im, 6, "DATA/HORA: " + ps.getData() + " " + ps.getHora() + " hrs"));
                 imls.add(new ImpressoraMatricialLinhas(null, im, 6, ""));
                 imls.add(new ImpressoraMatricialLinhas(null, im, 6, ""));

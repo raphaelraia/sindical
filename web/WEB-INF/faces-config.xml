@@ -2397,6 +2397,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>periodoMensalidade</from-outcome>
+            <to-view-id>/periodoMensalidade.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioCheques</from-outcome>
+            <to-view-id>/relatorioCheques.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

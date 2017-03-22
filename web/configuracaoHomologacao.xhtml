@@ -79,6 +79,9 @@
                                             <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.agendarSemHorarioWeb}" itemLabel="Agendar Sem horário">
                                                 <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_ch:"/>
                                             </p:selectBooleanCheckbox>                                            
+                                            <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.agendarMesmoHorarioEmpresa}" itemLabel="Agendar empresa no mesmo horário">
+                                                <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                            </p:selectBooleanCheckbox>
                                         </h:panelGrid>
                                         <h:panelGrid cellpadding="5" columns="2">
                                             <p:outputLabel value="Agendamento retroativo: " />
@@ -90,7 +93,7 @@
                                                 <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.tempoRefreshAgendamento}" max="120" min="5" size="5" stepFactor="0"  style="width: 80px">
                                                     <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
                                                 </p:spinner>
-                                            </p:column>                                        
+                                            </p:column>
                                         </h:panelGrid>
                                         <p:panel header="Campos obrigatórios - Agendamento">
                                             <h:panelGrid cellpadding="5" columns="4">
@@ -162,6 +165,9 @@
                                             <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.agendamentoWeb}" itemLabel="Libera Agendamento WEB">
                                                 <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_ch:"/>
                                             </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webAgendarMesmoHorarioEmpresa}" itemLabel="Agendar empresa no mesmo horário">
+                                                <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                            </p:selectBooleanCheckbox>                                            
                                         </h:panelGrid>                                        
                                         <h:panelGrid cellpadding="5" columns="2">
                                             <h:outputLabel value="Tempo de atualização de agendamentos" />

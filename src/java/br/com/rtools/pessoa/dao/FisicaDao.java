@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
+import oracle.toplink.essentials.internal.ejb.cmp3.EJBQueryImpl;
+import oracle.toplink.essentials.queryframework.DatabaseQuery;
 
 public class FisicaDao extends DB {
 
@@ -792,6 +794,9 @@ public class FisicaDao extends DB {
         }
 
         Query qry = getEntityManager().createNativeQuery(textQuery);
+        DatabaseQuery databaseQuery = ((EJBQueryImpl)qry).getDatabaseQuery(); 
+        String sqlString = databaseQuery.getSQLString();
+
 
         try {
             return qry.getResultList();
@@ -866,7 +871,9 @@ public class FisicaDao extends DB {
                 and += " AND m.id_titular = " + id_pessoa + " \n ";
                 break;
             case "beneficiario":
-                //and += " AND m.id_beneficiario = " + id_pessoa + " \n ";
+                and += " AND m.id_beneficiario = " + id_pessoa + " \n ";
+                break;
+            case "beneficiario_titular_atual":
                 and += " AND m.id_beneficiario = " + id_pessoa + " AND m.id_titular = func_titular_da_pessoa(" + id_pessoa + ") \n ";
                 break;
         }

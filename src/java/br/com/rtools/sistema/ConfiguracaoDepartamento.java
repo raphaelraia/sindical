@@ -42,6 +42,8 @@ public class ConfiguracaoDepartamento implements Serializable {
     private SisEmailProtocolo sisEmailProtocolo;
     @Column(name = "ds_assinatura", length = 500)
     private String assinatura;
+    @Column(name = "is_servidor_smtp")
+    private Boolean servidorSmtp;
 
     @Transient
     private Boolean selected;
@@ -67,9 +69,10 @@ public class ConfiguracaoDepartamento implements Serializable {
         this.selected = false;
         this.senhaConfirma = "";
         this.emailTest = "";
+        this.servidorSmtp = false;
     }
 
-    public ConfiguracaoDepartamento(Integer id, Departamento departamento, Filial filial, String email, String senha, String smtp, String emailResposta, Boolean autenticado, Integer porta, SisEmailProtocolo sisEmailProtocolo, String assinatura) {
+    public ConfiguracaoDepartamento(Integer id, Departamento departamento, Filial filial, String email, String senha, String smtp, String emailResposta, Boolean autenticado, Integer porta, SisEmailProtocolo sisEmailProtocolo, String assinatura, Boolean servidorSmtp) {
         this.id = id;
         this.departamento = departamento;
         this.filial = filial;
@@ -84,6 +87,7 @@ public class ConfiguracaoDepartamento implements Serializable {
         this.selected = false;
         this.senhaConfirma = "";
         this.emailTest = "";
+        this.servidorSmtp = servidorSmtp;
     }
 
     public Integer getId() {
@@ -196,6 +200,15 @@ public class ConfiguracaoDepartamento implements Serializable {
 
     public void setAssinatura(String assinatura) {
         this.assinatura = assinatura;
+    }
+
+    // SE USA SERVIDOR STMP EXTERNO / SERVIÇO CONTRATADO
+    public Boolean getServidorSmtp() {
+        return servidorSmtp;
+    }
+
+    public void setServidorSmtp(Boolean servidorSmtp) {
+        this.servidorSmtp = servidorSmtp;
     }
 
     @Override

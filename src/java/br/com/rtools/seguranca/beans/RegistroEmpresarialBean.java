@@ -103,9 +103,11 @@ public class RegistroEmpresarialBean implements Serializable {
     public void salvar() {
         if (codigoModulo == 0) {
             if (!senha.isEmpty()) {
-                if (!senha.equals(confirmaSenha)) {
-                    GenericaMensagem.warn("Validação", "Senhas não correspondem");
-                    return;
+                if (!registro.isSisEmailMarketing()) {
+                    if (!senha.equals(confirmaSenha)) {
+                        GenericaMensagem.warn("Validação", "Senhas não correspondem");
+                        return;
+                    }
                 }
                 registro.setSenha(senha);
             }
@@ -373,10 +375,10 @@ public class RegistroEmpresarialBean implements Serializable {
                 Cookie cookieWebServiceBoletoTest = (Cookie) cookies.get("webServiceBoletoTest");
                 if (cookieWebServiceBoletoTest != null) {
                     Boolean wst = Boolean.parseBoolean(cookieWebServiceBoletoTest.getValue());
-                    if(!Objects.equals(wst, webServiceBoletoTest)) {
-                            cookieWebServiceBoletoTest = new Cookie("webServiceBoletoTest", Boolean.toString(webServiceBoletoTest));
-                            // Adiciona
-                            ((HttpServletResponse) fc.getExternalContext().getResponse()).addCookie(cookieWebServiceBoletoTest);                        
+                    if (!Objects.equals(wst, webServiceBoletoTest)) {
+                        cookieWebServiceBoletoTest = new Cookie("webServiceBoletoTest", Boolean.toString(webServiceBoletoTest));
+                        // Adiciona
+                        ((HttpServletResponse) fc.getExternalContext().getResponse()).addCookie(cookieWebServiceBoletoTest);
                     }
                 } else {
                     if (fc != null) {
@@ -386,9 +388,9 @@ public class RegistroEmpresarialBean implements Serializable {
                         ((HttpServletResponse) fc.getExternalContext().getResponse()).addCookie(cookieWebServiceBoletoTest);
                     }
                 }
-            }            
+            }
         } catch (Exception e) {
-            
+
         }
         if (webServiceBoletoTest) {
             GenericaSessao.put("webServiceBoletoTest", true);

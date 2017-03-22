@@ -344,6 +344,9 @@ public class Registro implements Serializable {
     }
 
     public void setBloquearHomologacao(boolean bloquearHomologacao) {
+        if(!bloquearHomologacao) {
+            mesesInadimplentesAgenda = 0;
+        }
         this.bloquearHomologacao = bloquearHomologacao;
     }
 

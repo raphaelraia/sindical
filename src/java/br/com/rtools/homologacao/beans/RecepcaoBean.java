@@ -655,10 +655,14 @@ public class RecepcaoBean implements Serializable {
             PessoaEndereco enderecoEmpresa = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(agendamentoEdit.getPessoaEmpresa().getJuridica().getPessoa().getId(), 2);
             if (enderecoEmpresa.getId() != -1) {
                 String strCompl;
-                if (enderecoEmpresa.getComplemento().equals("")) {
-                    strCompl = " ";
-                } else {
-                    strCompl = " ( " + enderecoEmpresa.getComplemento() + " ) ";
+                try {
+                    if (enderecoEmpresa.getComplemento().equals("")) {
+                        strCompl = " ";
+                    } else {
+                        strCompl = " ( " + enderecoEmpresa.getComplemento() + " ) ";
+                    }
+                } catch (Exception e) {
+                    strCompl = "";
                 }
 
                 strEndereco = enderecoEmpresa.getEndereco().getLogradouro().getDescricao() + " "

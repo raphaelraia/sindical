@@ -894,11 +894,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
         if (agendamento.getId() == -1) {
-            List list = dba.findByDataHorarioEmpresa(agendamento.getDtData(), agendamento.getHorarios().getId(), juridica.getId());
-            if (list.size() == 1) {
-                dao.rollback();
-                GenericaMensagem.error("Sistema", "Só é possível agendar um horário por empresa, nesta data!");
-                return;
+            if (!configuracaoHomologacao.getAgendarMesmoHorarioEmpresa()) {
+                List list = dba.findByDataHorarioEmpresa(agendamento.getDtData(), agendamento.getHorarios().getId(), juridica.getId());
+                if (list.size() == 1) {
+                    dao.rollback();
+                    GenericaMensagem.error("Sistema", "Só é possível agendar um horário por empresa, nesta data!");
+                    return;
+                }
             }
         }
         boolean isOposicao = false;

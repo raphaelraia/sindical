@@ -3,10 +3,8 @@ package br.com.rtools.utilitarios;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.dao.JuridicaDao;
-import br.com.rtools.seguranca.EmailMarketing;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailArquivo;
 import br.com.rtools.sistema.ConfiguracaoDepartamento;
@@ -116,12 +114,16 @@ public class Mail extends MailTemplate implements Serializable {
                 String xNome = sindicato.getPessoa().getNome();
                 String xAssinatura = "";
                 if (configuracaoDepartamento != null) {
-                    xEmail = configuracaoDepartamento.getEmail();
+                    if (!configuracaoDepartamento.getServidorSmtp()) {
+                        xEmail = configuracaoDepartamento.getEmail();
+                    }
                     if (!registro.isSisEmailMarketing()) {
                         xSenha = configuracaoDepartamento.getSenha();
                     }
-                    xEmailResposta = configuracaoDepartamento.getEmailResposta();
-                    if (!registro.isSisEmailMarketing()) {
+                    if (!configuracaoDepartamento.getEmailResposta().isEmpty()) {
+                        xEmailResposta = configuracaoDepartamento.getEmailResposta();
+                    }
+                    if (!configuracaoDepartamento.getServidorSmtp()) {
                         xPorta = configuracaoDepartamento.getPorta();
                         xSisEmailProtocoloId = configuracaoDepartamento.getSisEmailProtocolo().getId();
                         xSmtp = configuracaoDepartamento.getSmtp();
@@ -136,11 +138,13 @@ public class Mail extends MailTemplate implements Serializable {
                     try {
                         Session session;
                         if (registro.isSisEmailMarketing()) {
-                            if (ControleUsuarioBean.getCliente().equals("Sindical") || ControleUsuarioBean.getCliente().equals("ComercioRP")) {
-                                session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME_COMERCIORP(), EmailMarketing.getPORT_COMERCIORP(), EmailMarketing.getLOGIN_COMERCIORP(), EmailMarketing.getPASSWORD_COMERCIORP(), EmailMarketing.isAUTH_COMERCIORP(), EmailMarketing.getPROTOCOL_COMERCIORP());
-                            } else {
-                                session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME(), EmailMarketing.getPORT(), EmailMarketing.getLOGIN(), EmailMarketing.getPASSWORD(), EmailMarketing.isAUTH(), EmailMarketing.getPROTOCOL());
-                            }
+                            session = EnviarEmail.configureSession(registro.getSmtp(), registro.getSisEmailPorta(), registro.getEmail(), registro.getSenha(), registro.isEmailAutenticado(), registro.getSisEmailProtocolo().getId());
+                            // session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME_COMERCIORP(), EmailMarketing.getPORT_COMERCIORP(), EmailMarketing.getLOGIN_COMERCIORP(), EmailMarketing.getPASSWORD_COMERCIORP(), EmailMarketing.isAUTH_COMERCIORP(), EmailMarketing.getPROTOCOL_COMERCIORP());
+//                            if (ControleUsuarioBean.getCliente().equals("Sindical") || ControleUsuarioBean.getCliente().equals("ComercioRP")) {
+//                                session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME_COMERCIORP(), EmailMarketing.getPORT_COMERCIORP(), EmailMarketing.getLOGIN_COMERCIORP(), EmailMarketing.getPASSWORD_COMERCIORP(), EmailMarketing.isAUTH_COMERCIORP(), EmailMarketing.getPROTOCOL_COMERCIORP());
+//                            } else {
+//                                session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME(), EmailMarketing.getPORT(), EmailMarketing.getLOGIN(), EmailMarketing.getPASSWORD(), EmailMarketing.isAUTH(), EmailMarketing.getPROTOCOL());
+//                            }
                         } else {
                             session = EnviarEmail.configureSession(xSmtp, xPorta, xEmail, xSenha, xAutenticado, xSisEmailProtocoloId);
                         }
@@ -150,10 +154,20 @@ public class Mail extends MailTemplate implements Serializable {
                         MimeMessage msg = new MimeMessage(session);
                         InternetAddress internetAddress = new InternetAddress();
                         if (registro.isSisEmailMarketing()) {
-                            msg.setFrom(new InternetAddress(registro.getSisEmailResposta(), personal));
-                            if (!registro.getSisEmailMarketingResposta().isEmpty()) {
-                                Address address[] = {new InternetAddress(registro.getSisEmailMarketingResposta())};
-                                msg.setReplyTo(address);
+                            if (configuracaoDepartamento != null) {
+                                if (!configuracaoDepartamento.getEmail().isEmpty()) {
+                                    msg.setFrom(new InternetAddress(configuracaoDepartamento.getEmail(), personal));
+                                    if (!configuracaoDepartamento.getEmailResposta().isEmpty()) {
+                                        Address address[] = {new InternetAddress(configuracaoDepartamento.getEmailResposta())};
+                                        msg.setReplyTo(address);
+                                    }
+                                }
+                            } else {
+                                msg.setFrom(new InternetAddress(registro.getSisEmailResposta(), personal));
+                                if (!registro.getSisEmailMarketingResposta().isEmpty()) {
+                                    Address address[] = {new InternetAddress(registro.getSisEmailMarketingResposta())};
+                                    msg.setReplyTo(address);
+                                }
                             }
                         } else if (!xEmailResposta.isEmpty()) {
                             internetAddress.setPersonal(xEmailResposta);
@@ -261,10 +275,17 @@ public class Mail extends MailTemplate implements Serializable {
                             transport.sendMessage(msg, msg.getAllRecipients());
                             transport.close();
                         } else {
-                            Transport transport = session.getTransport("smtps");
-                            transport.connect(xSmtp, xPorta, xEmail, xSenha);
-                            transport.sendMessage(msg, msg.getAllRecipients());
-                            transport.close();
+                            if (xAutenticado) {
+                                Transport transport = session.getTransport("smtps");
+                                transport.connect(xSmtp, xPorta, xEmail, xSenha);
+                                transport.sendMessage(msg, msg.getAllRecipients());
+                                transport.close();
+                            } else {
+                                Transport transport = session.getTransport("smtp");
+                                transport.connect(xSmtp, xPorta, xEmail, xSenha);
+                                transport.sendMessage(msg, msg.getAllRecipients());
+                                transport.close();
+                            }
                             // Transport.send(msg);
                         }
                         boolean updateEmail = false;
@@ -439,6 +460,8 @@ public class Mail extends MailTemplate implements Serializable {
         try {
             if (e.contains("Could not convert socket to TLS")) {
                 return "Não foi possível converter socket para TLS";
+            } else if (e.contains("504 Invalid Username or Password")) {
+                return "Login (Email) ou senha inválida";
             } else if (e.contains("Could not connect to SMTP host")) {
                 return "Não foi possível converter socket para SMTP";
             }
