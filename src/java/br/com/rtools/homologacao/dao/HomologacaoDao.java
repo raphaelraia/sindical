@@ -1016,7 +1016,7 @@ public class HomologacaoDao extends DB {
                     + "   AND s.filial.id = :pfilial"
                     + "   AND (s.horaChamada = '' OR s.horaChamada is null)"
                     + "   AND s.departamento.id = :pdepartamento"
-                    + " ORDER BY s.ordem ASC"
+                    + " ORDER BY s.senha ASC"
             );
 
             qry.setParameter("pdata", DataHoje.dataHoje());

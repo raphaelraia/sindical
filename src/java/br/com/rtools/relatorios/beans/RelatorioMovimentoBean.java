@@ -742,7 +742,7 @@ public class RelatorioMovimentoBean implements Serializable {
         List<ConvencaoCidade> list = convencaoCidadeDao.pesquisaGrupoPorConvencao(idConvencao);
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
-                listGrupoCidade.put(list.get(i).getGrupoCidade().getDescricao().toUpperCase(), list.get(i).getId());
+                listGrupoCidade.put(list.get(i).getGrupoCidade().getDescricao().toUpperCase(), list.get(i).getGrupoCidade().getId());
             }
         }
         loadListCnaeConvencao();
