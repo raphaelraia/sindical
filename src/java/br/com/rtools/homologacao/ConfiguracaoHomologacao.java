@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao;
 
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -107,9 +108,18 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     @Column(name = "nr_inicio_dias_agendamento", columnDefinition = "integer default 0", nullable = false)
     private Integer inicioDiasAgendamento;
-    
+
     @Column(name = "is_web_imprimir_planilha_debito", columnDefinition = "boolean default false")
-    private Boolean webImprimirPlanilhaDebito;    
+    private Boolean webImprimirPlanilhaDebito;
+
+    @Column(name = "is_imprime_senha_matricial", columnDefinition = "boolean default false", nullable = false)
+    private Boolean imprimeSenhaMatricial;
+
+    @Column(name = "is_agendar_mesmo_horario_empresa", columnDefinition = "boolean default false", nullable = false)
+    private Boolean agendarMesmoHorarioEmpresa;
+
+    @Column(name = "is_web_agendar_mesmo_horario_empresa", columnDefinition = "boolean default false", nullable = false)
+    private Boolean webAgendarMesmoHorarioEmpresa;
 
 //    @Transient
 //    // @Temporal(TemporalType.DATE)
@@ -179,6 +189,9 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaObs = "";
         this.inicioDiasAgendamento = 0;
         this.webImprimirPlanilhaDebito = false;
+        this.imprimeSenhaMatricial = false;
+        this.agendarMesmoHorarioEmpresa = false;
+        this.webAgendarMesmoHorarioEmpresa = false;
 //        this.dtAtualiza = null;
 //        this.dtHabilitaCorrecao = null;
 //        this.agendamentoWeb = false;
@@ -190,7 +203,7 @@ public class ConfiguracaoHomologacao implements Serializable {
 //        this.mesesInadimplentesAgenda = 0;
     }
 
-    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito) {
+    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito, Boolean imprimeSenhaMatricial, Boolean agendarMesmoHorarioEmpresa, Boolean webAgendarMesmoHorarioEmpresa) {
         this.id = id;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
@@ -230,6 +243,9 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaObs = webDesabilitaObs;
         this.inicioDiasAgendamento = inicioDiasAgendamento;
         this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
+        this.imprimeSenhaMatricial = imprimeSenhaMatricial;
+        this.agendarMesmoHorarioEmpresa = agendarMesmoHorarioEmpresa;
+        this.webAgendarMesmoHorarioEmpresa = webAgendarMesmoHorarioEmpresa;
     }
 
     public Integer getId() {
@@ -645,6 +661,34 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     public void setWebImprimirPlanilhaDebito(Boolean webImprimirPlanilhaDebito) {
         this.webImprimirPlanilhaDebito = webImprimirPlanilhaDebito;
+    }
+
+    public Boolean getImprimeSenhaMatricial() {
+        return imprimeSenhaMatricial;
+    }
+
+    public void setImprimeSenhaMatricial(Boolean imprimeSenhaMatricial) {
+        this.imprimeSenhaMatricial = imprimeSenhaMatricial;
+    }
+
+    public static ConfiguracaoHomologacao get() {
+        return (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
+    }
+
+    public Boolean getAgendarMesmoHorarioEmpresa() {
+        return agendarMesmoHorarioEmpresa;
+    }
+
+    public void setAgendarMesmoHorarioEmpresa(Boolean agendarMesmoHorarioEmpresa) {
+        this.agendarMesmoHorarioEmpresa = agendarMesmoHorarioEmpresa;
+    }
+
+    public Boolean getWebAgendarMesmoHorarioEmpresa() {
+        return webAgendarMesmoHorarioEmpresa;
+    }
+
+    public void setWebAgendarMesmoHorarioEmpresa(Boolean webAgendarMesmoHorarioEmpresa) {
+        this.webAgendarMesmoHorarioEmpresa = webAgendarMesmoHorarioEmpresa;
     }
 
 }

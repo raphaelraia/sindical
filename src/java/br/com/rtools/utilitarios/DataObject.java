@@ -1,8 +1,10 @@
 package br.com.rtools.utilitarios;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DataObject implements Serializable{
+public class DataObject implements Serializable {
 
     private Object argumento0;
     private Object argumento1;
@@ -321,7 +323,7 @@ public class DataObject implements Serializable{
         this.argumento28 = argumento28;
         this.argumento29 = argumento29;
     }
-    
+
     public DataObject(
             Object argumento0,
             Object argumento1,
@@ -394,7 +396,7 @@ public class DataObject implements Serializable{
         this.argumento33 = argumento33;
         this.argumento34 = argumento34;
     }
-    
+
     public DataObject(
             Object argumento0,
             Object argumento1,
@@ -459,7 +461,7 @@ public class DataObject implements Serializable{
         this.argumento29 = argumento29;
         this.argumento30 = argumento30;
     }
-    
+
     public DataObject(
             Object argumento0,
             Object argumento1,
@@ -826,5 +828,119 @@ public class DataObject implements Serializable{
 
     public void setArgumento34(Object argumento34) {
         this.argumento34 = argumento34;
+    }
+
+    public static List<DataObject> converte(List list) {
+        List<DataObject> dos = new ArrayList<>();
+        try {
+            for (int i = 0; i < list.size(); i++) {
+                List o = (List) list.get(i);
+                DataObject object = new DataObject();
+                try {
+                    object.setArgumento0(o.get(0));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento1(o.get(1));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento2(o.get(2));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento3(o.get(3));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento4(o.get(4));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento5(o.get(5));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento6(o.get(6));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento7(o.get(7));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento8(o.get(8));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento9(o.get(9));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento10(o.get(10));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento11(o.get(11));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento12(o.get(12));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento13(o.get(13));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento14(o.get(14));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento15(o.get(15));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento16(o.get(16));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento17(o.get(17));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento18(o.get(18));
+                } catch (Exception e) {
+
+                }
+                try {
+                    object.setArgumento19(o.get(19));
+                } catch (Exception e) {
+
+                }
+                dos.add(object);
+            }
+        } catch (Exception e) {
+
+        }
+        return dos;
     }
 }

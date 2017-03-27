@@ -16,7 +16,7 @@ import javax.persistence.Query;
  */
 public class AtualizaSocioDemissionadoDao extends DB {
 
-    public List<Object> listaSocioDemissionado(String tipo) {
+    public List<Object> listaSocioDemissionado(String tipo, String aposentadoria) {
         try {
             String text = "SELECT pe.id AS pessoa_empresa_id,\n"
                     + "       p.id AS pessoa_id, \n"
@@ -38,10 +38,15 @@ public class AtualizaSocioDemissionadoDao extends DB {
                     + " WHERE f.id NOT IN (SELECT id_fisica FROM pes_pessoa_empresa WHERE dt_demissao IS NULL) \n"
                     + "   AND pe.dt_demissao <= CURRENT_DATE - 90 \n"
                     + "   AND so.id_grupo_categoria = cf.id_grupo_categoria_inativa_demissionado \n";
-            
+            if (aposentadoria.equals("aposentado")) {
+                text += "AND F.dt_aposentadoria IS NOT NULL ";
+            } else if (aposentadoria.equals("nao_aposentado")) {
+                text += "AND F.dt_aposentadoria IS NULL ";
+            }
+
             String filtro = "";
-            
-            switch(tipo){
+
+            switch (tipo) {
                 case "contactar":
                     filtro = "   AND tl.id_pessoa_empresa IS NULL \n";
                     break;
@@ -49,10 +54,9 @@ public class AtualizaSocioDemissionadoDao extends DB {
                     filtro = "   AND tl.id_pessoa_empresa IS NOT NULL \n";
                     break;
             }
-            
+
             text += filtro;
             text += " ORDER BY pe.dt_demissao ";
-            
 
             Query qry = getEntityManager().createNativeQuery(text);
 

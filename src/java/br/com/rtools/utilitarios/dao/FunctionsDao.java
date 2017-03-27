@@ -340,4 +340,25 @@ public class FunctionsDao extends DB {
         }
         return true;
     }
+
+    /**
+     * Trazer o responsável
+     *
+     * @param pessoa_id
+     * @return
+     */
+    public Integer quantidadeMesesDebitoArr(Integer pessoa_id) {
+        Integer qtde = 0;
+        try {
+            String queryString = " SELECT func_inadimplente_meses_arr( " + pessoa_id + ") ";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                qtde = Integer.parseInt(((List) query.getSingleResult()).get(0).toString());
+            }
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+        return qtde;
+    }
 }

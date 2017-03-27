@@ -188,6 +188,7 @@ public class BaixaGeralBean implements Serializable {
 
         ChequePag ch = db.pesquisaChequeConta(numeroChequePag, pl.getId());
         ContaBanco cb = (ContaBanco) new Dao().find(new ContaBanco(), Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
+        cb = (ContaBanco) new Dao().rebind(cb);
         if (ch != null) {
             GenericaMensagem.warn("Erro", "O cheque " + numeroChequePag + " já existe");
             numeroChequePag = String.valueOf(cb.getUCheque() + 1);
@@ -1128,7 +1129,7 @@ public class BaixaGeralBean implements Serializable {
 
         if (!getEs().isEmpty() && getEs().equals("S")) {
             ContaBanco cb = (ContaBanco) new Dao().find(new ContaBanco(), Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
-
+            cb = (ContaBanco) new Dao().rebind(cb);
             numeroChequePag = String.valueOf(cb.getUCheque() + 1);
         }
         return listaBancoSaida;

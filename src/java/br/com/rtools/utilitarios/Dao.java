@@ -600,6 +600,10 @@ public class Dao extends DB implements DaoInterface {
         }
         if (order == null || order.isEmpty()) {
             order = "OB.id";
+        } else {
+            if (!order.contains("OB")) {
+                order = "OB." + order;
+            }
         }
         String queryPesquisaString = "";
         for (int i = 0; i < id.length; i++) {

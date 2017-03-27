@@ -52,7 +52,7 @@ public class MovimentoReceberDao extends DB {
                     + "                                                 (substring(m.ds_referencia,4,4)||substring(m.ds_referencia,1,2)) <= (substring(cr.ds_ref_final,4,4)||substring(cr.ds_ref_final,1,2))         "
                     + "  LEFT JOIN fin_indice                       AS i ON i.id = cr.id_indice \n"
                     + "      WHERE m.id_pessoa = " + pessoa_id + " \n"
-                    + "        AND m.is_ativo IS TRUE \n"
+                    + "        AND m.is_ativo = TRUE \n"
                     + "        AND m.id_baixa IS NULL \n"
                     + "        AND m.id_servicos IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4) \n"
                     + "   ORDER BY m.dt_vencimento \n";

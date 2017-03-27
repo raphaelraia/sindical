@@ -9,6 +9,7 @@ import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.impressao.ParametroContribuintes;
 import br.com.rtools.pessoa.CentroComercial;
 import br.com.rtools.pessoa.Cnae;
@@ -750,54 +751,71 @@ public class RelatorioContribuintesBean implements Serializable {
             return;
         }
         FacesContext faces = FacesContext.getCurrentInstance();
-        List<ParametroContribuintes> c = new ArrayList<>();
+        List c = new ArrayList<>();
         try {
             for (int i = 0; i < list.size(); i++) {
-                c.add(new ParametroContribuintes(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                        sindicato.getPessoa().getNome(),
-                        endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                        endSindicato.getEndereco().getLogradouro().getDescricao(),
-                        endSindicato.getNumero(),
-                        endSindicato.getComplemento(),
-                        endSindicato.getEndereco().getBairro().getDescricao(),
-                        endSindicato.getEndereco().getCep(),
-                        endSindicato.getEndereco().getCidade().getCidade(),
-                        endSindicato.getEndereco().getCidade().getUf(),
-                        sindicato.getPessoa().getTelefone1(),
-                        sindicato.getPessoa().getEmail1(),
-                        sindicato.getPessoa().getSite(),
-                        sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                        sindicato.getPessoa().getDocumento(),
-                        getConverteNullInt((list.get(i)).get(0)), // ID
-                        getConverteNullString((list.get(i)).get(1)), // NOME PESSOA
-                        getConverteNullString((list.get(i)).get(4)), // DESCRICAO ENDERECO
-                        getConverteNullString((list.get(i)).get(3)), // LOGRADOURO
-                        getConverteNullString((list.get(i)).get(7)), // NUMERO
-                        getConverteNullString((list.get(i)).get(8)), // COMPLEMENTO
-                        getConverteNullString((list.get(i)).get(11)), // BAIRRO
-                        getConverteNullString((list.get(i)).get(9)), // CEP
-                        getConverteNullString((list.get(i)).get(5)), // CIDADE
-                        getConverteNullString((list.get(i)).get(6)), // UF
-                        getConverteNullString((list.get(i)).get(12)), // TELEFONE
-                        getConverteNullString((list.get(i)).get(13)), // EMAIL
-                        getConverteNullString((list.get(i)).get(14)), // TIPO DOCUMENTO
-                        getConverteNullString((list.get(i)).get(2)), // DOCUMENTO
-                        getConverteNullInt((list.get(i)).get(15)), //ID CNAE
-                        getConverteNullString((list.get(i)).get(16)), // NUMERO CNAE
-                        getConverteNullString((list.get(i)).get(17)), // DESCRICAO CNAE
-                        getConverteNullInt((list.get(i)).get(18)), // ID CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(10)), // NOME CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(20)), // DESCRICAO ENDERECO CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(19)), // LOGRADOURO CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(24)), // NUMERO CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(25)), // COMPLEMENTO CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(21)), // BAIRRO CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(26)), // CEP CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(22)), // CIDADE CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(23)), // UF CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(27)), // TELEFONE CONTABILIDADE
-                        getConverteNullString((list.get(i)).get(28)) // EMAIL CONTABILIDADE
-                ));
+                List o = list.get(i);
+                if (rcd.getRelatorios().getNome().toUpperCase().contains("ETIQUETA")) {
+                    c.add(
+                            new Etiquetas(
+                                    o.get(1),
+                                    o.get(3),
+                                    o.get(4),
+                                    o.get(7),
+                                    o.get(11),
+                                    o.get(5),
+                                    o.get(6),
+                                    o.get(9),
+                                    o.get(8)
+                            )
+                    );
+                } else {
+                    c.add(new ParametroContribuintes(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                            sindicato.getPessoa().getNome(),
+                            endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
+                            endSindicato.getEndereco().getLogradouro().getDescricao(),
+                            endSindicato.getNumero(),
+                            endSindicato.getComplemento(),
+                            endSindicato.getEndereco().getBairro().getDescricao(),
+                            endSindicato.getEndereco().getCep(),
+                            endSindicato.getEndereco().getCidade().getCidade(),
+                            endSindicato.getEndereco().getCidade().getUf(),
+                            sindicato.getPessoa().getTelefone1(),
+                            sindicato.getPessoa().getEmail1(),
+                            sindicato.getPessoa().getSite(),
+                            sindicato.getPessoa().getTipoDocumento().getDescricao(),
+                            sindicato.getPessoa().getDocumento(),
+                            getConverteNullInt((list.get(i)).get(0)), // ID
+                            getConverteNullString((list.get(i)).get(1)), // NOME PESSOA
+                            getConverteNullString((list.get(i)).get(4)), // DESCRICAO ENDERECO
+                            getConverteNullString((list.get(i)).get(3)), // LOGRADOURO
+                            getConverteNullString((list.get(i)).get(7)), // NUMERO
+                            getConverteNullString((list.get(i)).get(8)), // COMPLEMENTO
+                            getConverteNullString((list.get(i)).get(11)), // BAIRRO
+                            getConverteNullString((list.get(i)).get(9)), // CEP
+                            getConverteNullString((list.get(i)).get(5)), // CIDADE
+                            getConverteNullString((list.get(i)).get(6)), // UF
+                            getConverteNullString((list.get(i)).get(12)), // TELEFONE
+                            getConverteNullString((list.get(i)).get(13)), // EMAIL
+                            getConverteNullString((list.get(i)).get(14)), // TIPO DOCUMENTO
+                            getConverteNullString((list.get(i)).get(2)), // DOCUMENTO
+                            getConverteNullInt((list.get(i)).get(15)), //ID CNAE
+                            getConverteNullString((list.get(i)).get(16)), // NUMERO CNAE
+                            getConverteNullString((list.get(i)).get(17)), // DESCRICAO CNAE
+                            getConverteNullInt((list.get(i)).get(18)), // ID CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(10)), // NOME CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(20)), // DESCRICAO ENDERECO CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(19)), // LOGRADOURO CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(24)), // NUMERO CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(25)), // COMPLEMENTO CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(21)), // BAIRRO CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(26)), // CEP CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(22)), // CIDADE CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(23)), // UF CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(27)), // TELEFONE CONTABILIDADE
+                            getConverteNullString((list.get(i)).get(28)) // EMAIL CONTABILIDADE
+                    ));
+                }
             }
             Jasper.printReports(rcd.getRelatorios().getJasper(), rcd.getRelatorios().getNome(), (Collection) c);
         } catch (Exception erro) {

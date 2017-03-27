@@ -2,6 +2,7 @@ package br.com.rtools.sistema.beans;
 
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Departamento;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.SisEmailProtocolo;
 import br.com.rtools.seguranca.Usuario;
@@ -47,6 +48,10 @@ public class ConfiguracaoDepartamentoBean implements Serializable {
         idFilial = null;
         idDepartamento = null;
         idSisEmailProtocolo = null;
+        Registro r = Registro.get();
+        if(r.isSisEmailMarketing()) {
+           configuracaoDepartamento.setServidorSmtp(true);
+        }
         loadListFiliais();
         loadListSisEmailProtocolo();
         loadListDepartamentos();
@@ -59,6 +64,7 @@ public class ConfiguracaoDepartamentoBean implements Serializable {
 
     public void clear() {
         GenericaSessao.remove("configuracaoDepartamentoBean");
+        GenericaSessao.remove("registroEmpresarialBean");
     }
 
     public void loadListFiliais() {
@@ -255,7 +261,7 @@ public class ConfiguracaoDepartamentoBean implements Serializable {
         mail.setEmailPessoas(emailPessoas);
         String[] string = mail.send();
         if (string[0].isEmpty()) {
-            GenericaMensagem.warn("Validação", "Erro ao enviar mensagem!" + string[0]);
+            GenericaMensagem.warn("Validação", "Erro ao enviar mensagem!" + string[1]);
         } else {
             GenericaMensagem.info("Sucesso", "Email enviado com sucesso!");
         }

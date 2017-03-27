@@ -79,6 +79,7 @@
                                     <p:separator />  
                                     <p:menuitem value="Pesquisar Logs"              action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
                                     <p:submenu label="Sistema">
+                                        <p:menuitem value="Dispositivos"           action="#{chamadaPaginaBean.pagina('dispositivo')}" />
                                         <p:menuitem value="Configurações"           action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
                                         <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                         <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
@@ -309,6 +310,32 @@
                                                 </p:rowExpansion>
                                             </p:dataTable>
                                         </h:panelGrid>
+                                        <h:panelGroup layout="block" rendered="#{not empty menuPrincipalBean.listInconsistenciaBaixa}">
+                                            <h:panelGrid>
+                                                <p:commandButton value="EXISTE(M) INCONSISTÊCIA(S) NA BAIXA" onclick="PF('dlg_inconsistencia_baixa').show()" styleClass="font-color-red bold"/>
+                                            </h:panelGrid>
+                                            <!--
+                                            -->
+                                        </h:panelGroup>
+                                        <p:dialog widgetVar="dlg_inconsistencia_baixa" modal="true"  header="Inconsistências na Baixa" width="800" height="400" resizable="false">
+                                            <p:dataTable value="#{menuPrincipalBean.listInconsistenciaBaixa}" var="inconsistenciaBaixa">
+                                                <p:column headerText="Nome">#{inconsistenciaBaixa.argumento0}</p:column>
+                                                <p:column headerText="Serviço">#{inconsistenciaBaixa.argumento1}</p:column>
+                                                <p:column headerText="Valor">
+                                                    <h:outputLabel value="#{inconsistenciaBaixa.argumento2}">
+                                                        <f:convertNumber minFractionDigits="2" />
+                                                    </h:outputLabel>                                                    
+                                                </p:column>
+                                                <p:column headerText="Movimento ID">#{inconsistenciaBaixa.argumento3}</p:column>
+                                                <p:column headerText="Dt. Baixa">
+                                                    <h:outputLabel value="#{inconsistenciaBaixa.argumento4}">
+                                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt,BR" dateStyle="long" />
+                                                    </h:outputLabel>                                                    
+                                                </p:column>
+                                                <p:column headerText="Baixa ID">#{inconsistenciaBaixa.argumento5}</p:column>
+                                                <p:column headerText="Caixa">#{inconsistenciaBaixa.argumento6}</p:column>
+                                            </p:dataTable> 
+                                        </p:dialog>
                                     </p:panel>
 
                                     <ui:include id="template_processo_automatico" src="templates/templateProcessamentoAutomatico.xhtml" />

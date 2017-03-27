@@ -10,6 +10,8 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
+import br.com.rtools.financeiro.dao.BaixaLogDao;
+import br.com.rtools.financeiro.dao.ChequePagDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.MovimentoInativoDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -39,9 +41,9 @@ public class GerarMovimento extends DB {
         Integer sizeBoleto = 0;
         List list = new ArrayList();
 //      VERIFICAÇÃO
-        try { 
+        try {
             textQry = "select '" + DataHoje.data() + "' as dt_emissao, 'R' as ds_pag_rec, 0 as nr_valor, '" + DataHoje.data() + "' as dt_lancamento, 1 as id_filial, cv.id_pessoa, 2 as id_tipo_documento, 4 as id_rotina, false as is_avencer_contabil " + "   from arr_contribuintes_vw cv "
-                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = " + id_servico +  " AND '" + vencimento + "' >= sp.dt_inicio AND '" + vencimento + "' <= sp.dt_fim   "
+                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = " + id_servico + " AND '" + vencimento + "' >= sp.dt_inicio AND '" + vencimento + "' <= sp.dt_fim   "
                     + "  where cv.dt_inativacao is null and cv.id_grupo_cidade = " + id_grupo_cidade + " and cv.id_convencao = " + id_convencao + " and cv.id_pessoa not in "
                     + "       (select id_pessoa from fin_movimento where ds_referencia='" + referencia + "' and id_servicos = " + id_servico + " and id_tipo_servico = " + id_tipo_servico + " and is_ativo = true) "
                     + " and (sp.is_geracao = true or sp.is_geracao is null) ";
@@ -908,8 +910,6 @@ public class GerarMovimento extends DB {
                 if (!mov.isAtivo() && mov.getBaixa() == null) {
                     mov.setAtivo(true);
 
-                    MovimentoInativo movimentoInativo = movimentoInativoDao.findByMovimento(mov.getId());
-
                     Boleto bol = movDB.pesquisaBoletos(mov.getNrCtrBoleto());
 
                     if (bol != null) {
@@ -923,8 +923,11 @@ public class GerarMovimento extends DB {
                         return "Erro ao excluir Movimento, verifique os logs!";
                     }
 
-                    if (!dao.delete(movimentoInativo)) {
-                        return "Erro ao salvar Motivo de Inativação, verifique os logs!";
+                    MovimentoInativo movimentoInativo = movimentoInativoDao.findByMovimento(mov.getId());
+                    if (movimentoInativo != null) {
+                        if (!dao.delete(movimentoInativo)) {
+                            return "Erro ao salvar Motivo de Inativação, verifique os logs!";
+                        }
                     }
 
                     String nrCtrBoleto = "";
@@ -933,9 +936,15 @@ public class GerarMovimento extends DB {
                             nrCtrBoleto = bol.getNrCtrBoleto();
                         }
                     }
-                    novoLog.setCodigo(movimentoInativo.getMovimento().getId());
-                    novoLog.setTabela("fin_movimento");
-                    novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + movimentoInativo.getMovimento().getId() + " - Documento: " + movimentoInativo.getMovimento().getDocumento() + " - Valor: " + movimentoInativo.getMovimento().getValorString() + " - Data que hávia sido inátivo: " + movimentoInativo.getData() + " - Pessoa: (" + movimentoInativo.getMovimento().getPessoa().getId() + ") - " + movimentoInativo.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: " + movimentoInativo.getHistorico());
+                    if (movimentoInativo == null) {
+                        novoLog.setCodigo(mov.getId());
+                        novoLog.setTabela("fin_movimento");
+                        novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + mov.getId() + " - Documento: " + mov.getDocumento() + " - Valor: " + mov.getValorString() + " - Data que hávia sido inátivo: SEM HISTÓRICO - Pessoa: (" + mov.getPessoa().getId() + ") - " + mov.getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: SEM HISTÓRICO");
+                    } else {
+                        novoLog.setCodigo(movimentoInativo.getMovimento().getId());
+                        novoLog.setTabela("fin_movimento");
+                        novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + movimentoInativo.getMovimento().getId() + " - Documento: " + movimentoInativo.getMovimento().getDocumento() + " - Valor: " + movimentoInativo.getMovimento().getValorString() + " - Data que hávia sido inátivo: " + movimentoInativo.getData() + " - Pessoa: (" + movimentoInativo.getMovimento().getPessoa().getId() + ") - " + movimentoInativo.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: " + movimentoInativo.getHistorico());
+                    }
                 }
             } catch (Exception e) {
                 mensagem = e.getMessage();
@@ -962,12 +971,20 @@ public class GerarMovimento extends DB {
             lista = db.movimentoIdbaixa(movimento.getBaixa().getId());
 
             dao.openTransaction();
+
+            BaixaLog baixaLog = new BaixaLogDao().findByBaixaMovimento(movimento.getBaixa().getId(), movimento.getId());
+            if (baixaLog != null) {
+                if (!dao.delete(baixaLog)) {
+                    dao.rollback();
+                    return false;
+                }
+            }
+            ChequePag chequePag = null;
             if (lista.isEmpty()) {
                 dao.rollback();
                 return false;
             } else if (lista.size() > 1) {
                 formaPagamento = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
-
                 for (int i = 0; i < formaPagamento.size(); i++) {
                     if (!dao.delete(formaPagamento.get(i))) {
                         dao.rollback();
@@ -978,6 +995,30 @@ public class GerarMovimento extends DB {
                         if (!dao.delete(formaPagamento.get(i).getChequeRec())) {
                             dao.rollback();
                             return false;
+                        }
+                    }
+
+                    if (formaPagamento.get(i).getChequePag() != null) {
+                        // ESTORNA PAGAMENTO COM ÚLTIMO CHEQUE NÃO IMPRESSO
+                        if (formaPagamento.get(i).getChequePag().getDtImpressao() == null) {
+                            ContaBanco cb = (ContaBanco) dao.find(new ContaBanco(), formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getId());
+                            if (cb != null) {
+                                if (cb.getUCheque() == formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getUCheque()) {
+                                    cb.setUCheque(formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getUCheque() - 1);
+                                    if (!dao.update(cb)) {
+                                        dao.rollback();
+                                        return false;
+                                    }
+                                    if (!dao.delete(formaPagamento.get(i).getChequePag())) {
+                                        dao.rollback();
+                                        return false;
+                                    }
+                                } else {
+                                    chequePag = formaPagamento.get(i).getChequePag();
+                                }
+                            }
+                        } else {
+                            chequePag = formaPagamento.get(i).getChequePag();
                         }
                     }
                 }
@@ -1002,6 +1043,16 @@ public class GerarMovimento extends DB {
                     return false;
                 }
 
+                if (chequePag != null) {
+                    chequePag.setOperadorCancelamento(Usuario.getUsuario());
+                    chequePag.setDtCancelamento(new Date());
+                    chequePag.setEstornoCaixaLote(ecl);
+                    // ESTORNA PAGAMENTO CHEQUE IMPRESSO 
+                    if (!dao.update(chequePag)) {
+                        dao.rollback();
+                        return false;
+                    }
+                }
                 for (int i = 0; i < lista.size(); i++) {
                     Float valor_baixa = lista.get(i).getValorBaixa();
 
@@ -1043,7 +1094,32 @@ public class GerarMovimento extends DB {
                             return false;
                         }
                     }
+
+                    if (formaPagamento.get(i).getChequePag() != null) {
+                        // ESTORNA PAGAMENTO COM ÚLTIMO CHEQUE NÃO IMPRESSO
+                        if (formaPagamento.get(i).getChequePag().getDtImpressao() == null) {
+                            ContaBanco cb = (ContaBanco) dao.find(new ContaBanco(), formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getId());
+                            if (cb != null) {
+                                if (cb.getUCheque() == Integer.parseInt(formaPagamento.get(i).getChequePag().getCheque())) {
+                                    cb.setUCheque(formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getUCheque() - 1);
+                                    if (!dao.update(cb)) {
+                                        dao.rollback();
+                                        return false;
+                                    }
+                                    if (!dao.delete(formaPagamento.get(i).getChequePag())) {
+                                        dao.rollback();
+                                        return false;
+                                    }
+                                } else {
+                                    chequePag = formaPagamento.get(i).getChequePag();
+                                }
+                            }
+                        } else {
+                            chequePag = formaPagamento.get(i).getChequePag();
+                        }
+                    }
                 }
+
                 baixa = (Baixa) dao.find(new Baixa(), movimento.getBaixa().getId());
 
                 EstornoCaixaLote ecl = new EstornoCaixaLote(
@@ -1058,6 +1134,25 @@ public class GerarMovimento extends DB {
                         null,
                         true
                 );
+
+                if (chequePag != null) {
+//                    if (chequePag.getDtImpressao() == null) {
+//                        if (!dao.delete(chequePag)) {
+//                            dao.rollback();
+//                            return false;
+//                        }
+//                    } else {
+//                    }
+                    chequePag.setOperadorCancelamento(Usuario.getUsuario());
+                    chequePag.setDtCancelamento(new Date());
+                    chequePag.setEstornoCaixaLote(ecl);
+                    // ESTORNA PAGAMENTO CHEQUE IMPRESSO 
+                    if (!dao.update(chequePag)) {
+                        dao.rollback();
+                        return false;
+                    }
+
+                }
 
                 if (!dao.save(ecl)) {
                     dao.rollback();
@@ -1274,6 +1369,10 @@ public class GerarMovimento extends DB {
                         return false;
                     }
                     fp1.setCartaoPag(cartao_pag);
+
+                    if (fp1.getChequePag().getDtImpressao() == null) {
+
+                    }
                 }
 
                 CartaoRec cartao_rec = new CartaoRec();
@@ -1306,8 +1405,18 @@ public class GerarMovimento extends DB {
                 }
 
                 valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValorBaixa());
-            }            
-            
+            }
+
+            for (int i = 0; i < movimento.size(); i++) {
+                BaixaLog baixaLog = new BaixaLog();
+                baixaLog.setMovimento(movimento.get(i));
+                baixaLog.setBaixa(movimento.get(i).getBaixa());
+                if (!dao.save(baixaLog)) {
+                    dao.rollback();
+                    return false;
+                }
+            }
+
             if (valor_forma_pagamento == valor_movimento) {
                 dao.commit();
                 return true;

@@ -37,6 +37,9 @@ public class ChequePag implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_impressao")
     private Date dtImpressao;
+    @JoinColumn(name = "id_estorno_caixa_lote", referencedColumnName = "id")
+    @ManyToOne
+    private EstornoCaixaLote estornoCaixaLote;
 
     public ChequePag() {
         this.id = -1;
@@ -48,9 +51,10 @@ public class ChequePag implements java.io.Serializable {
         this.operadorImpressao = null;
         this.operadorCancelamento = null;
         this.dtImpressao = null;
+        this.estornoCaixaLote = null;
     }
 
-    public ChequePag(int id, String cheque, Date dtEmissao, Date dtVencimento, Plano5 plano5, Date dtCancelamento, Usuario operadorImpressao, Usuario operadorCancelamento, Date dtImpressao) {
+    public ChequePag(int id, String cheque, Date dtEmissao, Date dtVencimento, Plano5 plano5, Date dtCancelamento, Usuario operadorImpressao, Usuario operadorCancelamento, Date dtImpressao, EstornoCaixaLote estornoCaixaLote) {
         this.id = id;
         this.cheque = cheque;
         this.dtEmissao = dtEmissao;
@@ -60,6 +64,7 @@ public class ChequePag implements java.io.Serializable {
         this.operadorImpressao = operadorImpressao;
         this.operadorCancelamento = operadorCancelamento;
         this.dtImpressao = dtImpressao;
+        this.estornoCaixaLote = estornoCaixaLote;
     }
 
     public int getId() {
@@ -164,6 +169,14 @@ public class ChequePag implements java.io.Serializable {
 
     public void setDtImpressaoString(String dtImpressaoString) {
         this.dtImpressao = DataHoje.converte(dtImpressaoString);
+    }
+
+    public EstornoCaixaLote getEstornoCaixaLote() {
+        return estornoCaixaLote;
+    }
+
+    public void setEstornoCaixaLote(EstornoCaixaLote estornoCaixaLote) {
+        this.estornoCaixaLote = estornoCaixaLote;
     }
 
 }

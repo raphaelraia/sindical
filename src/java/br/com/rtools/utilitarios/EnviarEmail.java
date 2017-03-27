@@ -504,10 +504,17 @@ public class EnviarEmail {
             if (port == 0) {
                 port = 25;
             }
+            if (port == 465) {
+                // SSL
+                properties.put("mail.smtp.socketFactory.port", "465"); //SSL Port
+                properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
+                // properties.put("mail.smtp.socketFactory.fallback", "false");
+            }
             properties.put("mail.smtp.port", "" + port);
-            properties.put("mail.smtp.debug", "true");
+            // properties.put("mail.smtp.debug", "true");
             if (protocol == 2) {
                 properties.put("mail.smtp.starttls.enable", "true");
+
             }
             // --- AUTH ---
             if (auth) {

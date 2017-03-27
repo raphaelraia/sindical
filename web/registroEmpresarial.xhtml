@@ -31,21 +31,24 @@
                             <c:if test="#{registroEmpresarialBean.codigoModulo == 0}">
                                 <p:tab title="Cadastro">
                                     <p:panelGrid columns="3" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="sbb">
-                                        <p:outputLabel value="Email: "/>
-                                        <p:inputText id="idEmail" size="50" value="#{registroEmpresarialBean.registro.email}" autocomplete="off" validatorMessage="Email inválido #{registroEmpresarialBean.registro.sisEmailResposta}" required="false" placeholder="Formato: meuemail@provedor.com" title="Não pode ter validação automática" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}">
+                                        <p:outputLabel value="#{registroEmpresarialBean.registro.sisEmailMarketing ? 'Login: ' : 'Email: '}"/>
+                                        <p:inputText id="idEmail" size="50" value="#{registroEmpresarialBean.registro.email}" autocomplete="off" validatorMessage="Email inválido #{registroEmpresarialBean.registro.sisEmailResposta}" required="false" placeholder="Formato: meuemail@provedor.com" title="Não pode ter validação automática">
                                             <p:ajax event="blur" update="i_message_email" />
                                             <!-- <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" /> -->
                                         </p:inputText>                                                
                                         <p:message for="idEmail" id="i_message_email" />
                                         <p:outputLabel value="Senha: " />
-                                        <h:inputSecret id="idSenha" size="15" value="#{registroEmpresarialBean.senha}" autocomplete="off" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}"/>
-                                        <p:column />
-                                        <p:outputLabel value="Confirmar Senha: " />
-                                        <h:inputSecret id="idConSenha" size="15" value="#{registroEmpresarialBean.confirmaSenha}" autocomplete="off" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}"/>
+                                        <h:column>
+                                            <h:inputSecret id="idSenha" size="15" value="#{registroEmpresarialBean.senha}" autocomplete="off" rendered="#{!registroEmpresarialBean.registro.sisEmailMarketing}"/>
+                                            <p:inputText size="15" value="#{registroEmpresarialBean.senha}" autocomplete="off" rendered="#{registroEmpresarialBean.registro.sisEmailMarketing}"/>
+                                        </h:column>
+                                        <p:column rendered="#{!registroEmpresarialBean.registro.sisEmailMarketing}"/>
+                                        <p:outputLabel value="Confirmar Senha: " rendered="#{!registroEmpresarialBean.registro.sisEmailMarketing}" />
+                                        <h:inputSecret id="idConSenha" size="15" value="#{registroEmpresarialBean.confirmaSenha}" autocomplete="off" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}" rendered="#{!registroEmpresarialBean.registro.sisEmailMarketing}"/>
                                         <p:column />                                        
                                         <p:column />
                                         <p:column>
-                                            <p:selectBooleanCheckbox id="i_aut" value="#{registroEmpresarialBean.registro.emailAutenticado}" itemLabel="Usar email autenticado" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}">
+                                            <p:selectBooleanCheckbox id="i_aut" value="#{registroEmpresarialBean.registro.emailAutenticado}" itemLabel="Usar email autenticado">
                                                 <p:ajax event="change" listener="#{registroEmpresarialBean.salvar}" update=":form_registro_empresarial:id_messages" global="true"/>
                                             </p:selectBooleanCheckbox>
                                         </p:column>
@@ -57,16 +60,16 @@
                                         </h:column>
                                         <h:column>
                                             <h:panelGrid columns="3">
-                                                <p:inputText size="30" value="#{registroEmpresarialBean.registro.smtp}" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}"/>
+                                                <p:inputText size="30" value="#{registroEmpresarialBean.registro.smtp}"/>
                                                 <p:outputLabel value="Porta: " />
-                                                <p:inputText size="3" value="#{registroEmpresarialBean.registro.sisEmailPorta}" styleClass="text-center" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}">
+                                                <p:inputText size="3" value="#{registroEmpresarialBean.registro.sisEmailPorta}" styleClass="text-center">
                                                     <f:ajax event="change" render="@this" />
                                                 </p:inputText>
                                             </h:panelGrid>
                                         </h:column>
                                         <p:column />
                                         <p:outputLabel value="Servidor Protocolo: " />
-                                        <p:selectOneMenu value="#{registroEmpresarialBean.idSisEmailProtocolo}" disabled="#{registroEmpresarialBean.registro.sisEmailMarketing}">
+                                        <p:selectOneMenu value="#{registroEmpresarialBean.idSisEmailProtocolo}">
                                             <f:selectItems value="#{registroEmpresarialBean.listaSisEmailProtocolo}" />
                                         </p:selectOneMenu>
                                         <p:column />
@@ -89,8 +92,8 @@
                                         <p:column colspan="3">
                                             <h:outputLabel value="Apelido/aliás dado ao e-mail principal, caso esse seja de um servidor externo." />
                                         </p:column>
-                                        <h:outputLabel value="Email do sistema: "/>
-                                        <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.sisEmailMarketing}" itemLabel="Habilita E-mail Marketing">
+                                        <h:outputLabel value=" "/>
+                                        <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.sisEmailMarketing}" itemLabel="Serviço STMP Próprio/Contratado">
                                             <p:ajax event="change" update=":form_registro_empresarial:" listener="#{registroEmpresarialBean.salvarSemSenha}" />
                                         </p:selectBooleanCheckbox>
                                         <p:column></p:column>
@@ -369,12 +372,16 @@
                                                     <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages"/>
                                                 </p:selectBooleanCheckbox>
                                                 <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.bloquearHomologacao}" itemLabel="Permitir agendamento para empresas em débito">
-                                                    <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages :form_registro_empresarial:i_per"/>
+                                                    <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages :form_registro_empresarial:i_per form_registro_empresarial:i_m_145577g4"/>
                                                 </p:selectBooleanCheckbox>
                                                 <p:column>
-                                                    <p:spinner id="i_per" size="2" maxlength="2" value="#{registroEmpresarialBean.registro.mesesInadimplentesAgenda}" disabled="#{!registroEmpresarialBean.registro.bloquearHomologacao}" title="Para habilitar este campo permita o agendamento para empresas em débito" min="0" max="24" valueChangeListener="#{registroEmpresarialBean.salvarSemSenha}"/>
-                                                    <p:outputLabel value=" meses de atraso"  title="Para habilitar este campo permita o agendamento para empresas em débito"/>
-                                                    <p:outputLabel value=" ( zero para meses indefinidos )" style="font-size: 8pt" title="Para habilitar este campo permita o agendamento para empresas em débito"/>
+                                                    <h:panelGroup id="i_m_145577g4">
+                                                        <p:column rendered="#{registroEmpresarialBean.registro.bloquearHomologacao}">
+                                                            <p:spinner id="i_per" size="2" maxlength="2" value="#{registroEmpresarialBean.registro.mesesInadimplentesAgenda}" title="Para habilitar este campo permita o agendamento para empresas em débito" min="0" max="24" valueChangeListener="#{registroEmpresarialBean.salvarSemSenha}"/>
+                                                            <p:outputLabel value=" meses de atraso"  title="Para habilitar este campo permita o agendamento para empresas em débito"/>
+                                                            <p:outputLabel value=" ( zero para meses indefinidos )" style="font-size: 8pt" title="Para habilitar este campo permita o agendamento para empresas em débito"/>                                                        
+                                                        </p:column>
+                                                    </h:panelGroup>
                                                 </p:column>
                                             </p:panelGrid>
                                         </p:panel>

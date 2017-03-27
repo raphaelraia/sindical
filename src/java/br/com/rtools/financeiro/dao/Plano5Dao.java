@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class Plano5Dao extends DB  {
+public class Plano5Dao extends DB {
 
     public List<String> pesquisaPlano5(int id) {
         List<String> result = null;
@@ -170,7 +170,7 @@ public class Plano5Dao extends DB  {
         }
         return new ArrayList();
     }
-    
+
     public List<Plano5> find(Integer plano5_id, Integer tipo_id) {
         try {
             String queryString = "SELECT P5 FROM Plano5 P5 WHERE P5.contaTipo.id = :tipo_id ";
@@ -188,4 +188,37 @@ public class Plano5Dao extends DB  {
             return new ArrayList();
         }
     }
+
+    public List findAllGroupByChequePag() {
+        String queryString = ""
+                + "    "
+                + "     SELECT P5.*                                             \n"
+                + "       FROM fin_plano5 P5                                    \n"
+                + "      WHERE P5.id IN (                                       \n"
+                + "                                                             \n"
+                + "    SELECT P5.id                                             \n"
+                + "      FROM fin_cheque_pag      AS ch                         \n"
+                + "INNER JOIN fin_plano5          AS ct ON ct.id = ch.id_plano5 \n"
+                + "INNER JOIN fin_conta_banco     AS cb ON cb.id = ct.id_conta_banco \n"
+                + "INNER JOIN fin_banco           AS bc ON bc.id = cb.id_banco  \n"
+                + "INNER JOIN fin_forma_pagamento AS f  ON f.id_cheque_pag=ch.id\n"
+                + "INNER JOIN fin_baixa           AS b  ON b.id  = f.id_baixa   \n"
+                + "INNER JOIN fin_movimento       AS m  ON m.id_baixa=b.id      \n"
+                + "                                    AND m.is_ativo=true      \n"
+                + "INNER JOIN fin_lote            AS l  ON l.id  = m.id_lote    \n"
+                + "INNER JOIN pes_pessoa          AS p  ON p.id  = m.id_pessoa  \n"
+                + "INNER JOIN fin_plano5          AS p5 ON p5.id = m.id_plano5  \n"
+                + "  GROUP BY P5.id                                             \n"
+                + "  ORDER BY P5.id                                             \n"
+                + "\n"
+                + "\n"
+                + ")";
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, Plano5.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }

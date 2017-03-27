@@ -82,6 +82,7 @@
                                         <p:menuitem value="Registro Empresarial" action="#{chamadaPaginaBean.pagina('registroEmpresarial')}" />
                                         <p:menuitem value="Sorteio Categoria"   disabled="true"/>
                                         <p:menuitem value="Sorteio Status"      disabled="true"/>
+                                        <p:menuitem value="Período Mensalidade" action="#{chamadaPaginaBean.pagina('periodoMensalidade')}" />
                                     </p:submenu>
                                     
                                     <p:submenu label="Declarações">
@@ -121,6 +122,7 @@
                                         <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
                                         <p:menuitem value="Cartas"                   action="#{chamadaPaginaBean.pagina('sisCarta')}" />
                                     </p:submenu>
+                                    <p:menuitem value="Sócios Demissionados" action="#{chamadaPaginaBean.pagina('atualizaSocioDemissionado')}" title="Sócios Demissionados "/>
                                 </p:submenu>    
 
 
@@ -151,8 +153,6 @@
                                         </p:submenu>                                            
                                         <p:menuitem value="Movtos Não Gerados"  action="#{chamadaPaginaBean.pagina('relatorioMovimentosNaoGerados')}" title="Movimentos Não Gerados"/>
                                     </p:submenu>
-                                    
-                                    <p:menuitem value="Sócios Demissionados" action="#{chamadaPaginaBean.pagina('atualizaSocioDemissionado')}" title="Sócios Demissionados "/>
                                 </p:submenu>                            
                             </p:menubar> 
                             <p:panel styleClass="margin-top-max">

@@ -433,6 +433,15 @@ public class AcordoBean implements Serializable {
                     dataPrincipal = movimento.getVencimento();
                     dataPrincipal = data.decrementarSemanas(1, dataPrincipal);
                     referencia = data.decrementarSemanas(1, dataPrincipal);// AQUI
+                } else if (frequenciaSind == 15) {
+                    if ((DataHoje.menorData(data.decrementarDias(15, date), vencimentoSind))
+                            && (!DataHoje.igualdadeData(data.decrementarDias(15, date), vencimentoSind))) {
+                        i++;
+                        continue;
+                    }
+                    dataPrincipal = movimento.getVencimento();
+                    dataPrincipal = data.decrementarSemanas(1, dataPrincipal);
+                    referencia = data.decrementarSemanas(1, dataPrincipal);// AQUI
                 }
             } else if (frequencia == 30) {
                 if ((DataHoje.menorData(data.decrementarMeses(1, date), vencimentoOut))
@@ -446,6 +455,15 @@ public class AcordoBean implements Serializable {
             } else if (frequencia == 7) {
                 if ((DataHoje.menorData(data.decrementarSemanas(1, date), vencimentoOut))
                         && (!DataHoje.igualdadeData(data.decrementarSemanas(1, date), vencimentoOut))) {
+                    i++;
+                    continue;
+                }
+                dataPrincipal = movimento.getVencimento();
+                dataPrincipal = data.decrementarSemanas(1, dataPrincipal);
+                referencia = data.decrementarSemanas(1, dataPrincipal);
+            } else if (frequencia == 15) {
+                if ((DataHoje.menorData(data.decrementarDias(15, date), vencimentoOut))
+                        && (!DataHoje.igualdadeData(data.decrementarDias(15, date), vencimentoOut))) {
                     i++;
                     continue;
                 }
@@ -532,6 +550,13 @@ public class AcordoBean implements Serializable {
                     }
                     referencia = movimento.getVencimento();// AQUI
                     dataPrincipal = data.incrementarSemanas(1, referencia);
+                } else if (frequenciaSind == 15) {
+                    if (DataHoje.maiorData(data.incrementarDias(15, date), ultimaData)) {
+                        i++;
+                        continue;
+                    }
+                    referencia = movimento.getVencimento();// AQUI
+                    dataPrincipal = data.incrementarDias(15, referencia);
                 }
             } else if (frequencia == 30) {
                 if (DataHoje.maiorData(data.incrementarMeses(1, date), ultimaData)) {
@@ -542,6 +567,13 @@ public class AcordoBean implements Serializable {
                 dataPrincipal = data.incrementarMeses(1, referencia);
             } else if (frequencia == 7) {
                 if (DataHoje.maiorData(data.incrementarSemanas(1, date), ultimaData)) {
+                    i++;
+                    continue;
+                }
+                referencia = movimento.getVencimento();
+                dataPrincipal = data.incrementarDias(15, referencia);
+            } else if (frequencia == 15) {
+                if (DataHoje.maiorData(data.incrementarDias(15, date), ultimaData)) {
                     i++;
                     continue;
                 }
@@ -694,6 +726,8 @@ public class AcordoBean implements Serializable {
                                 }
                             } else if (frequencia == 7) {
                                 ultimoVencimento = data.incrementarSemanas(1, ultimoVencimento);
+                            } else if (frequencia == 15) {
+                                ultimoVencimento = data.incrementarDias(15, ultimoVencimento);
                             }
                             j++;
 
@@ -732,7 +766,9 @@ public class AcordoBean implements Serializable {
                                     ultimoVencimentoSind = acordo.getData().substring(0, 2) + ultimoVencimentoSind.substring(2);
                                 }
                             } else if (frequenciaSind == 7) {
-                                ultimoVencimentoSind = data.incrementarSemanas(1, ultimoVencimentoSind);
+                                ultimoVencimentoSind = data.incrementarDias(15, ultimoVencimentoSind);
+                            } else if (frequenciaSind == 15) {
+                                ultimoVencimentoSind = data.incrementarDias(15, ultimoVencimentoSind);
                             }
                         }
                     }

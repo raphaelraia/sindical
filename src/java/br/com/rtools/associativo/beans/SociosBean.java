@@ -12,6 +12,7 @@ import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.*;
+import br.com.rtools.associativo.dao.PeriodoMensalidadeDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
 import br.com.rtools.associativo.lista.ListaDependentes;
@@ -38,6 +39,8 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
 import br.com.rtools.sistema.Mes;
+import br.com.rtools.sistema.Periodo;
+import br.com.rtools.sistema.dao.PeriodoDao;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
@@ -125,6 +128,8 @@ public class SociosBean implements Serializable {
     private Bloqueio bloqueio;
     private List<Socios> listSubSocios = new ArrayList();
     private List<Fisica> listFisicaSugestao = new ArrayList();
+    private List<SelectItem> listSisPeriodos;
+    private Integer idSisPeriodo;
 
     public SociosBean() {
         listFisicaSugestao = new ArrayList();
@@ -201,6 +206,8 @@ public class SociosBean implements Serializable {
         if (new File(url_temp).exists()) {
             new File(url_temp).delete();
         }
+        listSisPeriodos = new ArrayList();
+        idSisPeriodo = null;
     }
 
     @PreDestroy
@@ -440,16 +447,19 @@ public class SociosBean implements Serializable {
 
         atualizarListaDependenteAtivo();
         atualizarListaDependenteInativo();
-
+        listSisPeriodos = new ArrayList();
+        getListSisPeriodos();
+        if (socios.getServicoPessoa().getPeriodoCobranca() != null) {
+            idSisPeriodo = socios.getServicoPessoa().getPeriodoCobranca().getId();
+        }
         loadBloqueio();
+
     }
 
     public final void loadGrupoCategoria() {
-        listaGrupoCategoria.clear();
+        listaGrupoCategoria = new ArrayList();
         idGrupoCategoria = 0;
-        CategoriaDao db = new CategoriaDao();
-        List<GrupoCategoria> grupoCategorias = db.pesquisaGrupoCategoriaOrdenada();
-
+        List<GrupoCategoria> grupoCategorias = new CategoriaDao().pesquisaGrupoCategoriaOrdenada();
         if (!grupoCategorias.isEmpty()) {
             for (int i = 0; i < grupoCategorias.size(); i++) {
                 listaGrupoCategoria.add(new SelectItem(i, grupoCategorias.get(i).getGrupoCategoria(), "" + grupoCategorias.get(i).getId()));
@@ -1147,6 +1157,9 @@ public class SociosBean implements Serializable {
             return null;
         }
         Boolean save = false;
+        if (!socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
+            getListSisPeriodos();
+        }
         Dao dao = new Dao();
         MatriculaSocios msMemoria = new MatriculaSocios();
         dao.openTransaction();
@@ -1156,6 +1169,7 @@ public class SociosBean implements Serializable {
             servicoPessoa.setTipoDocumento((FTipoDocumento) dao.find(new FTipoDocumento(), Integer.parseInt(getListaTipoDocumento().get(0).getDescription())));
         }
         // NOVO REGISTRO -----------------------
+        servicoPessoa.setPeriodoCobranca((Periodo) dao.find(new Periodo(), idSisPeriodo));
         if (servicoPessoa.getId() == -1) {
             servicoPessoa.setAtivo(true);
             servicoPessoa.setCobranca(servicoPessoa.getPessoa());
@@ -1478,7 +1492,8 @@ public class SociosBean implements Serializable {
                                 null,
                                 null,
                                 null,
-                                ""
+                                "",
+                                null
                         );
                         if (!dao.save(servicoPessoaDependente)) {
                             GenericaMensagem.warn("Erro", "Erro ao salvar Serviço Pessoa: " + listDependentes.get(i).getFisica().getPessoa().getNome());
@@ -2950,7 +2965,7 @@ public class SociosBean implements Serializable {
         index_desconto = 0;
         descontoSocial = (DescontoSocial) new Dao().find(new DescontoSocial(), 1);
         servicoPessoa.setNrDesconto(descontoSocial.getNrDesconto());
-
+        idSisPeriodo = null;
         loadServicos();
         calculoValorDependente(null);
     }
@@ -3743,6 +3758,57 @@ public class SociosBean implements Serializable {
         this.listSubSocios = listSubSocios;
     }
 
+    public void listenerPeriodo() {
+        bloqueio = new Bloqueio();
+//        if (socios.getId() != -1) {
+//            List<ServicoPessoaBloqueio> list = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
+//            for (int i = 0; i < list.size(); i++) {
+//                new Dao().delete(list.get(i), true);
+//            }
+//        }
+        PeriodoMensalidade pm = new PeriodoMensalidadeDao().findByPeriodo(idSisPeriodo);
+        Integer z = null;
+        if (pm == null) {
+            z = Integer.parseInt(DataHoje.livre(new Date(), "MM"));
+        } else {
+            if (pm.getMes() == null) {
+                z = Integer.parseInt(DataHoje.livre(new Date(), "MM"));
+            } else {
+                z = pm.getMes().getId();
+            }
+        }
+        if (idSisPeriodo == 3) {
+            bloqueio = new Bloqueio();
+        } else {
+            bloqueio = new Bloqueio(false, false, false, false, false, false, false, false, false, false, false, false);
+
+            int j = z;
+            switch (idSisPeriodo) {
+                case 4:
+                    loopPeriodsMonths(j, 2);
+                    break;
+                case 5:
+                    loopPeriodsMonths(j, 3);
+                    break;
+                case 8:
+                    loopPeriodsMonths(j, 4);
+                    break;
+                case 6:
+                    loopPeriodsMonths(j, 6);
+                    break;
+                case 7:
+                    setMesBloqueio(z);
+                    break;
+                default:
+                    break;
+            }
+            if (socios.getId() != -1) {
+                // listenerBloqueio(true, socios.getServicoPessoa().getId(), null);
+                // GenericaMensagem.info("Sucesso", "Bloqueio atualizado com sucesso!");
+            }
+        }
+    }
+
     public void listenerSubSocios(Integer idPessoa) {
         listSubSocios.clear();
         SociosDao sociosDao = new SociosDao();
@@ -3770,6 +3836,98 @@ public class SociosBean implements Serializable {
             return odbt.existPessoaDocumentoPeriodo(documento);
         }
         return false;
+    }
+
+    public List<SelectItem> getListSisPeriodos() {
+        if (listSisPeriodos.isEmpty()) {
+            List<Periodo> list = new PeriodoDao().findByPeriodoMensalidade();
+            if (list.isEmpty()) {
+                list = new Dao().find("Periodo", new int[]{3}, "", "dias");
+            }
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idSisPeriodo = list.get(i).getId();
+                }
+                listSisPeriodos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+            }
+        }
+        return listSisPeriodos;
+    }
+
+    public void setListSisPeriodos(List<SelectItem> listSisPeriodos) {
+        this.listSisPeriodos = listSisPeriodos;
+    }
+
+    public Integer getIdSisPeriodo() {
+        return idSisPeriodo;
+    }
+
+    public void setIdSisPeriodo(Integer idSisPeriodo) {
+        this.idSisPeriodo = idSisPeriodo;
+    }
+
+    public void loopPeriodsMonths(Integer initial, Integer loop) {
+        setMesBloqueio(initial);
+        for (int x = 0; x < 12; x++) {
+            Boolean n = true;
+            for (int i = 0; i < 12; i++) {
+                if (n) {
+                    initial = initial + loop;
+                    if (initial > 12) {
+                        initial = initial - 12;
+                        setMesBloqueio(initial);
+                    } else {
+                        setMesBloqueio(initial);
+                    }
+                    n = false;
+                }
+            }
+        }
+    }
+
+    public void setMesBloqueio(Integer mes) {
+        if (null != mes) {
+            switch (mes) {
+                case 1:
+                    bloqueio.setJan(true);
+                    break;
+                case 2:
+                    bloqueio.setFev(true);
+                    break;
+                case 3:
+                    bloqueio.setMar(true);
+                    break;
+                case 4:
+                    bloqueio.setAbr(true);
+                    break;
+                case 5:
+                    bloqueio.setMai(true);
+                    break;
+                case 6:
+                    bloqueio.setJun(true);
+                    break;
+                case 7:
+                    bloqueio.setJul(true);
+                    break;
+                case 8:
+                    bloqueio.setAgo(true);
+                    break;
+                case 9:
+                    bloqueio.setSet(true);
+                    break;
+                case 10:
+                    bloqueio.setOut(true);
+                    break;
+                case 11:
+                    bloqueio.setNov(true);
+                    break;
+                case 12:
+                    bloqueio.setDez(true);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     public class Bloqueio {
@@ -3914,4 +4072,5 @@ public class SociosBean implements Serializable {
         }
 
     }
+
 }

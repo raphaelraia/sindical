@@ -2856,4 +2856,39 @@ public class MovimentoDao extends DB {
         }
 
     }
+
+    /**
+     *
+     * @return
+     */
+    public List existsInconsistenciaBaixa() {
+        try {
+            String queryString = ""
+                    + "SELECT \n"
+                    + "P.ds_nome       AS pessoa_nome,\n" // 0
+                    + "SE.ds_descricao AS servico_descricao,\n" // 1
+                    + "MM.nr_valor     AS movimento_valor,\n" // 2
+                    + "BL.id_movimento AS movimento_id,\n" // 3
+                    + "B.dt_baixa      AS baixa_data,\n" // 4
+                    + "B.id            AS baixa_id,\n" // 5
+                    + "C.ds_descricao  AS caixa\n" // 6
+                    + "FROM fin_baixa  AS B \n"
+                    + "INNER JOIN fin_baixa_log AS BL ON BL.id_baixa = B.id \n"
+                    + "INNER JOIN fin_caixa     AS C  ON C.id        = B.id_caixa \n"
+                    + "LEFT JOIN fin_movimento  AS MM ON MM.id       = BL.id_movimento \n"
+                    + "LEFT JOIN pes_pessoa     AS P  ON P.id        = MM.id_pessoa \n"
+                    + "LEFT JOIN fin_servicos   AS SE ON SE.id       = MM.id_servicos \n"
+                    + "LEFT JOIN fin_movimento  AS M  ON M.id_baixa  = B.id \n"
+                    + "WHERE M.id IS NULL\n"
+                    + "AND B.dt_baixa >= '01/01/2017'";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }

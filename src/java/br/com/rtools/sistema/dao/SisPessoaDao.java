@@ -44,18 +44,18 @@ public class SisPessoaDao extends DB {
     }
 
     public SisPessoa sisPessoaExiste(SisPessoa sp, boolean porDocumento) {
-        Query qry = null;
+        Query query = null;
         Boolean execute = false;
         if (porDocumento) {
             if (!sp.getDocumento().isEmpty()) {
-                qry = getEntityManager().createNativeQuery(
+                query = getEntityManager().createNativeQuery(
                         "SELECT sp.* "
                         + "  FROM sis_pessoa sp "
                         + " WHERE sp.ds_documento LIKE '" + sp.getDocumento() + "'", SisPessoa.class
                 );
                 execute = true;
             } else if (!sp.getRg().isEmpty()) {
-                qry = getEntityManager().createNativeQuery(
+                query = getEntityManager().createNativeQuery(
                         "SELECT sp.* "
                         + "  FROM sis_pessoa sp "
                         + " WHERE REPLACE(REPLACE(sp.ds_rg, '-', ''), '.', '') LIKE '" + sp.getRg() + "'", SisPessoa.class
@@ -64,24 +64,26 @@ public class SisPessoaDao extends DB {
                 execute = true;
             }
         } else {
-            if (!sp.getNome().isEmpty() && !sp.getNascimento().isEmpty()) {
-                String nome = AnaliseString.normalizeLower(sp.getNome());
-                qry = getEntityManager().createNativeQuery(
-                        "SELECT sp.* "
-                        + "  FROM sis_pessoa sp "
-                        + " WHERE LOWER(FUNC_TRANSLATE(sp.ds_nome)) LIKE '" + nome + "' \n "
-                        + "   AND sp.dt_nascimento = '" + DataHoje.converteData(sp.getDtNascimento()) + "'", SisPessoa.class
-                );
+            if (sp != null) {
+                if (!sp.getNome().isEmpty() && !sp.getNascimento().isEmpty()) {
+                    String nome = AnaliseString.normalizeLower(sp.getNome());
+                    query = getEntityManager().createNativeQuery(
+                            "SELECT sp.* "
+                            + "  FROM sis_pessoa sp "
+                            + " WHERE LOWER(FUNC_TRANSLATE(sp.ds_nome)) LIKE '" + nome + "' \n "
+                            + "   AND sp.dt_nascimento = '" + DataHoje.converteData(sp.getDtNascimento()) + "'", SisPessoa.class
+                    );
 
-                execute = true;
+                    execute = true;
+                }
             }
         }
 
         if (execute) {
             try {
-                qry.setMaxResults(1);
-                if (!qry.getResultList().isEmpty()) {
-                    return (SisPessoa) qry.getSingleResult();
+                query.setMaxResults(1);
+                if (!query.getResultList().isEmpty()) {
+                    return (SisPessoa) query.getSingleResult();
                 }
             } catch (Exception e) {
                 e.getMessage();

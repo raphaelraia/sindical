@@ -33,6 +33,7 @@ public class AtualizaSocioDemissionadoBean implements Serializable {
     private String filtro = "contactar";
     private List<ObjectListaSocioDemissionado> listaSocioDemissionado = new ArrayList();
     private List<ObjectListaSocioDemissionado> listaSocioDemissionadoSelecionado = new ArrayList();
+    private String aposentadoria = "nao_aposentado";
 
     public AtualizaSocioDemissionadoBean() {
         loadListaSocioDemissionado();
@@ -44,7 +45,7 @@ public class AtualizaSocioDemissionadoBean implements Serializable {
 
         AtualizaSocioDemissionadoDao dao_a = new AtualizaSocioDemissionadoDao();
 
-        List<Object> result = dao_a.listaSocioDemissionado(filtro);
+        List<Object> result = dao_a.listaSocioDemissionado(filtro, aposentadoria);
 
         Dao dao = new Dao();
         for (Object ob : result) {
@@ -118,6 +119,14 @@ public class AtualizaSocioDemissionadoBean implements Serializable {
 
     public void setListaSocioDemissionadoSelecionado(List<ObjectListaSocioDemissionado> listaSocioDemissionadoSelecionado) {
         this.listaSocioDemissionadoSelecionado = listaSocioDemissionadoSelecionado;
+    }
+
+    public String getAposentadoria() {
+        return aposentadoria;
+    }
+
+    public void setAposentadoria(String aposentadoria) {
+        this.aposentadoria = aposentadoria;
     }
 
     public class ObjectListaSocioDemissionado {

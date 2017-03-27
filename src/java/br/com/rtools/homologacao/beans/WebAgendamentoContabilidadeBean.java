@@ -503,7 +503,13 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     GenericaMensagem.warn("Atenção", "Limite de Agendamentos para hoje é de " + f.getQuantidadeAgendamentosPorEmpresa());
                     return;
                 }
-
+                if (!configuracaoHomologacao.getWebAgendarMesmoHorarioEmpresa()) {
+                    List list = db.findByDataHorarioEmpresa(data, ((Horarios) datao.getArgumento0()).getId(), empresa.getId());
+                    if (list.size() == 1) {
+                        GenericaMensagem.error("Sistema", "Só é possível agendar um horário por empresa, nesta data!");
+                        return;
+                    }
+                }
                 if (data.getDay() == 6 || data.getDay() == 0) {
                     GenericaMensagem.warn("Atenção", "Fins de semana não é permitido!");
                     return;
@@ -819,15 +825,20 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             dao.commit();
             return;
         }
-        if (!listaEmDebito.isEmpty() && (listaEmDebito.size() > registro.getMesesInadimplentesAgenda())) {
-            if (!updatePessoaEmpresa(dao)) {
-                GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
-                dao.rollback();
-                return;
+        if (!listaEmDebito.isEmpty() && registro.isBloquearHomologacao()) {
+            if (registro.getMesesInadimplentesAgenda() > 0) {
+                Integer qtdeMeses = new FunctionsDao().quantidadeMesesDebitoArr(pessoaEmpresa.getJuridica().getPessoa().getId());
+                if (qtdeMeses > registro.getMesesInadimplentesAgenda()) {
+                    if (!updatePessoaEmpresa(dao)) {
+                        GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
+                        dao.rollback();
+                        return;
+                    }
+                    GenericaMensagem.error("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
+                    dao.commit();
+                    return;
+                }
             }
-            GenericaMensagem.warn("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
-            dao.commit();
-            return;
         }
         Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId());
         if (bloqueiaOposicao) {

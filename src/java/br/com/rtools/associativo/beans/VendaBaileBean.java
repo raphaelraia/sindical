@@ -1204,7 +1204,8 @@ public class VendaBaileBean implements Serializable {
                 null,
                 null,
                 false,
-                ""
+                "",
+                null
         );
 
         if (!dao.save(l)) {

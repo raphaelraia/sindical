@@ -367,6 +367,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public void salvar() {
+        registro = (Registro) new Dao().find(new Registro(), 1);
         if (!validaAdmissao()) {
             return;
         }
@@ -393,7 +394,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 return;
             }
         }
-        if (configuracaoHomologacao.getValidaFuncao()) {
+        if (configuracaoHomologacao.getWebValidaFuncao()) {
             if (profissao.getId().equals(-1) || profissao.getId().equals(0)) {
                 GenericaMensagem.warn("Validação", "Informar a função/profissão!");
                 return;
@@ -582,15 +583,20 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return;
         }
 
-        if (!listaEmDebito.isEmpty() && (listaEmDebito.size() > registro.getMesesInadimplentesAgenda())) {
-            if (!updatePessoaEmpresa(dao)) {
-                GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
-                dao.rollback();
-                return;
+        if (!listaEmDebito.isEmpty() && registro.isBloquearHomologacao()) {
+            if (registro.getMesesInadimplentesAgenda() > 0) {
+                Integer qtdeMeses = new FunctionsDao().quantidadeMesesDebitoArr(pessoaEmpresa.getJuridica().getPessoa().getId());
+                if (qtdeMeses > registro.getMesesInadimplentesAgenda()) {
+                    if (!updatePessoaEmpresa(dao)) {
+                        GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
+                        dao.rollback();
+                        return;
+                    }
+                    GenericaMensagem.error("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
+                    dao.commit();
+                    return;
+                }
             }
-            GenericaMensagem.error("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
-            dao.commit();
-            return;
         }
         Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId());
         if (bloqueiaOposicao) {
@@ -671,7 +677,6 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         idMotivoDemissao = 0;
         tipoAviso = null;
         Filial f = getFilialLocal();
-
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             // STATUS DISPONÍVEL
             case 1: {
@@ -690,6 +695,13 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 if (quantidade_resultado < 0 && quantidade != 1) {
                     GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
                     return;
+                }
+                if (!configuracaoHomologacao.getWebAgendarMesmoHorarioEmpresa()) {
+                    List list = db.findByDataHorarioEmpresa(data, ((Horarios) datao.getArgumento0()).getId(), juridica.getId());
+                    if (list.size() == 1) {
+                        GenericaMensagem.error("Sistema", "Só é possível agendar um horário por empresa, nesta data!");
+                        return;
+                    }
                 }
                 hrd.begin();
                 List<Agendamento> list_a = db.pesquisaAgendadoPorEmpresaSemHorario(f.getId(), data, juridica.getPessoa().getId());
@@ -867,7 +879,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                     enderecoFisica = new PessoaEndereco();
                     return;
                 }
-                */
+                 */
                 List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(fisica.getPessoa().getDocumento());
                 if (!listFisica.isEmpty()) {
                     for (int i = 0; i < listFisica.size(); i++) {

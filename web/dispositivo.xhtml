@@ -1,0 +1,127 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Dispositivos</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view> 
+
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Dispositivos" styleClass="fonteHeader" />
+                        <h:form id="form_dispositivo">
+                            <c:set scope="request" var="object" value="${dispositivoBean.dispositivo}"/>
+                            <div style="clear:both"></div>
+                            <p:messages showDetail="true" closable="true" autoUpdate="true" />
+                            <br />
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="DATA: " />
+                                    <p:outputLabel value="#{dispositivoBean.dispositivo.data}" styleClass="bold">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt,BR" dateStyle="long" />
+                                    </p:outputLabel>
+                                    <p:outputLabel value="ATRIBUIR À FILIAL: " />
+                                    <p:selectOneMenu value="#{dispositivoBean.idFilial}" styleClass="text-center">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems  value="#{dispositivoBean.listFilial}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="TIPO: " />
+                                    <p:selectOneMenu value="#{dispositivoBean.idTipoDispositivo}" styleClass="text-center">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems  value="#{dispositivoBean.listTipoDispositivo}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="NOME: " />
+                                    <p:inputText value="#{dispositivoBean.dispositivo.nome}" converter="#{toUpperCase}" maxlength="100" size="70">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:inputText>
+                                    <p:outputLabel value="SOCKET SERVER IP/HOST: " />
+                                    <p:inputText value="#{dispositivoBean.dispositivo.socketHost}" maxlength="100" size="70">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:inputText>
+                                    <p:outputLabel value="SOCKET SERVER PORT: " />
+                                    <p:inputText value="#{dispositivoBean.dispositivo.socketPort}" maxlength="6" size="5">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:inputText>
+                                    <p:outputLabel value="MAC: " />
+                                    <h:column>
+                                        <p:inputMask value="#{dispositivoBean.dispositivo.mac}" size="15" mask="**-**-**-**-**-**">
+                                            <p:ajax event="change" update=":form_dispositivo:" listener="#{dispositivoBean.listener('mac')}" /> 
+                                        </p:inputMask>                                        
+                                    </h:column>
+                                    <p:outputLabel value="ULTIMO ACESSO: " />
+                                    <p:outputLabel value="#{dispositivoBean.dispositivo.conectado}"  styleClass="bold">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt,BR" dateStyle="long" />
+                                    </p:outputLabel>                                    
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{dispositivoBean.dispositivo.ativo}" itemLabel="Ativo">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:selectBooleanCheckbox>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Salvar" action="#{dispositivoBean.save}" update=":form_dispositivo:"/>                                        
+                                        <p:commandButton value="Novo" action="#{dispositivoBean.clear()}" update=":form_dispositivo:"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+                            <p:dataTable value="#{dispositivoBean.listDispositivo}" var="dispositivo" rows="10" paginator="true" styleClass="margin-top-max" emptyMessage="Nenhuma registro encontrado!">
+                                <p:column width="25" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-pencil" title="Editar Registro nº #{dispositivo.id}" action="#{dispositivoBean.edit(dispositivo)}" update=":form_dispositivo:"/>
+                                </p:column>
+                                <p:column headerText="Cadastrado" styleClass="text-center">
+                                    <p:outputLabel value="#{dispositivo.data}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" locale="pt,BR" dateStyle="long" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column headerText="MAC">
+                                    #{dispositivo.mac}, #{dispositivo.macFilial.filial.filial.pessoa.nome} - #{dispositivo.macFilial.descricao}
+                                </p:column>
+                                <p:column headerText="Nome" styleClass="text-center">
+                                    #{dispositivo.nome}
+                                </p:column>
+                                <p:column headerText="Filial" styleClass="text-center">
+                                    #{dispositivo.filial.filial.pessoa.documento} #{dispositivo.filial.filial.pessoa.nome}
+                                </p:column>
+                                <p:column headerText="Última conexão" styleClass="text-center">
+                                    #{dispositivoBean.dispositivo.conectado}
+                                </p:column>
+                                <p:column headerText="Situação" styleClass="text-center" width="80">
+                                    #{dispositivo.ativo ? 'HABILITADO' : 'INATIVO'}
+                                </p:column>
+                                <p:column width="25" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-trash"  action="#{dispositivoBean.remove(dispositivo)}" update=":form_dispositivo:"/>
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

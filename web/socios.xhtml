@@ -86,7 +86,7 @@
                                     <p:selectOneMenu value="#{sociosBean.idFilial}">
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{sociosBean.listaFilial}"/>
-                                    </p:selectOneMenu>                                
+                                    </p:selectOneMenu>                                                               
                                 </h:panelGrid>
                             </p:panel>
 
@@ -114,7 +114,14 @@
                                     </p:column>
                                 </h:panelGrid>
                                 <h:panelGroup layout="block" rendered="#{sociosBean.categoria != null and sociosBean.categoria.bloqueiaMeses}">
-                                    <p:panel header="Geração de Mensalidades: Gerar para meses marcados" styleClass="margin-top">
+                                    <h:panelGrid columns="2">
+                                        <h:outputLabel value="PERÍODO DE COBRANÇA DA MENSALIDADE: "/>
+                                        <p:selectOneMenu value="#{sociosBean.idSisPeriodo}">
+                                            <p:ajax event="change" update="@this i_block_mensalidades formSocios:i_growl" listener="#{sociosBean.listenerPeriodo()}"/>
+                                            <f:selectItems value="#{sociosBean.listSisPeriodos}"/>
+                                        </p:selectOneMenu>                                 
+                                    </h:panelGrid>
+                                    <p:panel header="Geração de Mensalidades: Gerar para meses marcados" styleClass="margin-top" id="i_block_mensalidades">
                                         <h:panelGrid columns="12" cellspacing="5">
                                             <h:outputLabel value="Jan" />
                                             <h:outputLabel value="Fev" />
@@ -128,40 +135,40 @@
                                             <h:outputLabel value="Out" />
                                             <h:outputLabel value="Nov" />
                                             <h:outputLabel value="Dez" />
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jan}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jan}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 1)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.fev}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.fev}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 2)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.mar}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.mar}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 3)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.abr}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.abr}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 4)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.mai}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.mai}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 5)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jun}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jun}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 6)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jul}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jul}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 7)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.ago}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.ago}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 8)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.set}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.set}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 9)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.out}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.out}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 10)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.nov}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.nov}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 11)}" global="false"/>
                                             </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.dez}">
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.dez}" disabled="true">
                                                 <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 12)}" global="false"/>
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>

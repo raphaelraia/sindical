@@ -1952,7 +1952,7 @@ public class ExtratoTelaBean implements Serializable {
         dao.openTransaction();
 
         if (!GerarMovimento.reativarArrayMovimento(listam, motivoReativacao, dao).isEmpty()) {
-            GenericaMensagem.error("Atenção", "Ocorreu um erro em uma dos movimentos a serem reativados, verifique o log!");
+            GenericaMensagem.error("Erro", "Ao reativar movimento(s), verifique o log!");
             dao.rollback();
             return;
         } else {

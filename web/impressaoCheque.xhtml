@@ -105,10 +105,12 @@
                                 <p:column style="width: 40px; text-align: center">
                                     <p:commandButton icon="ui-icon-print" title="IMPRIMIR ESTE CHEQUE" action="#{impressaoChequeBean.validaImpressao(linha)}" update=":formImpressaoCheque:panel_imprimir_cheque" oncomplete="PF('dlg_imprimir_cheque').show()" disabled="#{not empty linha.cancelamento or index ne 0 and impressaoChequeBean.statusCheque eq 'emitir' and controleAcessoBean.verificarPermissao('reimprimir_cheque', 1)}"/>
                                 </p:column>
-
-                                <p:column style="width: 40px; text-align: center" rendered="#{empty linha.cancelamento}">
-                                    <p:commandButton icon="ui-icon-close" title="CANCELAR ESTE CHEQUE" action="#{impressaoChequeBean.selecionarLinha(linha)}" oncomplete="PF('dlg_cancelar_cheque').show()" disabled="#{not empty linha.impressao or index ne 0}"/>
-                                </p:column>
+                                
+                                <!-- 
+                                    <p:column style="width: 40px; text-align: center" rendered="#{empty linha.cancelamento}">
+                                        <p:commandButton icon="ui-icon-close" title="CANCELAR ESTE CHEQUE" action="#{impressaoChequeBean.selecionarLinha(linha)}" oncomplete="PF('dlg_cancelar_cheque').show()" disabled="#{not empty linha.impressao or index ne 0}"/>
+                                    </p:column>
+                                -->
 
                                 <p:column style="width: 40px; text-align: center" rendered="#{not empty linha.cancelamento}">
                                     <p:commandButton icon="ui-icon-arrowrefresh-1-w" title="RESTAURAR ESTE CHEQUE" action="#{impressaoChequeBean.selecionarLinha(linha)}" disabled="#{not empty linha.impressao or index ne 0}" oncomplete="PF('dlg_restaurar_cheque').show()"/>

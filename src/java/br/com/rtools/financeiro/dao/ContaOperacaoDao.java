@@ -15,17 +15,36 @@ public class ContaOperacaoDao extends DB {
         if (null != idOperacao) {
             switch (idOperacao) {
                 case 1:
-                case 7:
-                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%ATIVO%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%PASSIVO%'\n";
+                    queryString += "WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%RECEITA%' ";
                     break;
                 case 2:
+                    queryString += "WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' ";
+                    break;
+                case 3:
+                    queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
+                    break;
+                case 4:
+                case 5:
+                    queryString += "WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' ";
+                    break;
+                case 6:
+                    queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
+                    break;
+                case 7:
+                    queryString
+                            += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%RECEITA%' \n "
+                            + "     OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' \n "
+                            + "     OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
                 case 8:
-                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%PASSIVO%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%ATIVO%'\n";
+                    queryString
+                            += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n "
+                            + "     OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' \n "
+                            + "     OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
                     break;
-                default:
-                    queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
-                            + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' \n ";
-                    break;
+//                default:
+//                    queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
+//                            + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' \n ";
+//                    break;
             }
         }
         queryString += " GROUP BY conta1,           \n"
@@ -111,7 +130,7 @@ public class ContaOperacaoDao extends DB {
             return new ArrayList();
         }
     }
-    
+
     public List findByFilialOperacao(Integer filial_id, Integer operacao_id, Integer centro_custo_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.centroCusto.id = :centro_custo_id ORDER BY CO.plano5.conta ASC");

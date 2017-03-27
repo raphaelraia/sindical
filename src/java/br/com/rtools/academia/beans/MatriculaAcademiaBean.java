@@ -23,6 +23,7 @@ import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.MovimentoInativo;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.ServicoValor;
@@ -319,7 +320,7 @@ public class MatriculaAcademiaBean implements Serializable {
         }
         List<Movimento> listMovimentoInativar = new MovimentoDao().findBy("pessoa", matriculaAcademiaAntiga.getServicoPessoa().getCobranca().getId(), matriculaAcademiaAntiga.getServicoPessoa().getServicos().getId(), false, true, false);
         if (!listMovimentoInativar.isEmpty()) {
-            GenericaMensagem.warn("SISTEMA", "Matrícula com momentos em aberto!");
+            GenericaMensagem.warn("SISTEMA", "Matrícula com movimentos em aberto!");
         }
 
     }
@@ -601,6 +602,15 @@ public class MatriculaAcademiaBean implements Serializable {
                 for (int i = 0; i < listMovimentoInativar.size(); i++) {
                     listMovimentoInativar.get(i).setAtivo(false);
                     if (!dao.update(listMovimentoInativar.get(i))) {
+                        message = "Falha ao inátivar movimentos!";
+                        return null;
+                    }
+                    MovimentoInativo movimentoInativo = new MovimentoInativo();
+                    movimentoInativo.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+                    movimentoInativo.setDtData(new Date());
+                    movimentoInativo.setMovimento(listMovimentoInativar.get(i));
+                    movimentoInativo.setHistorico("TROCA DE MODALIDADE NA ACADEMIA!");
+                    if (!dao.save(movimentoInativo)) {
                         message = "Falha ao inátivar movimentos!";
                         return null;
                     }
@@ -1903,7 +1913,8 @@ public class MatriculaAcademiaBean implements Serializable {
                                 null,
                                 null,
                                 false,
-                                ""
+                                "",
+                                null
                         )
                 );
                 di.openTransaction();
@@ -2174,7 +2185,8 @@ public class MatriculaAcademiaBean implements Serializable {
                         null,
                         null,
                         false,
-                        ""
+                        "",
+                        null
                 );
 
         if (!dao.save(lote_taxa)) {

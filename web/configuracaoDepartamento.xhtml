@@ -46,7 +46,7 @@
                                         <f:selectItems var="departamento" value="#{configuracaoDepartamentoBean.listDepartamentos}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Protocolo: " />
-                                    <p:selectOneMenu value="#{configuracaoDepartamentoBean.idSisEmailProtocolo}"  filter="true" filterMatchMode="startsWith">
+                                    <p:selectOneMenu value="#{configuracaoDepartamentoBean.idSisEmailProtocolo}"  filter="true" filterMatchMode="startsWith" disabled="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}">
                                         <f:selectItems value="#{configuracaoDepartamentoBean.listSisEmailProtocolo}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Email: "/>
@@ -59,22 +59,25 @@
                                     </h:column>         
                                     <p:outputLabel value="Senha: " />
                                     <h:panelGrid columns="3" cellpadding="3">
-                                        <p:inputText id="idSenha" size="15" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.senha}" autocomplete="off" type="password"/>
+                                        <p:inputText id="idSenha" size="15" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.senha}" autocomplete="off" type="password" disabled="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}"/>
                                         <p:outputLabel value="Confirmar Senha: " />
-                                        <p:inputText id="idConSenha" size="15" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.senhaConfirma}" autocomplete="off" type="password"/>                                        
+                                        <p:inputText id="idConSenha" size="15" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.senhaConfirma}" autocomplete="off" type="password" disabled="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}"/>                                        
                                     </h:panelGrid>
                                     <p:column />
                                     <p:column>
-                                        <p:selectBooleanCheckbox id="i_aut" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.autenticado}" itemLabel="Usar email autenticado">
+                                        <p:selectBooleanCheckbox id="i_aut" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.autenticado}" itemLabel="Usar email autenticado" disabled="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}">
+                                            <p:ajax event="change" update=":form_ed:" global="true"/>
+                                        </p:selectBooleanCheckbox>
+                                        <p:selectBooleanCheckbox value="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}" itemLabel="Envio com SMTP próprio/contratado" styleClass="margin-left-max" rendered="#{registroEmpresarialBean.registro.sisEmailMarketing}">
                                             <p:ajax event="change" update=":form_ed:" global="true"/>
                                         </p:selectBooleanCheckbox>
                                     </p:column>                                    
                                     <p:outputLabel value="Servidor Smtp: " />                                    
                                     <h:column>
                                         <h:panelGrid columns="3"  cellpadding="3">
-                                            <p:inputText size="30" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.smtp}" />
+                                            <p:inputText size="30" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.smtp}" disabled="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}"/>
                                             <p:outputLabel value="Porta: " />
-                                            <p:inputText size="3" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.porta}" styleClass="text-center">
+                                            <p:inputText size="3" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.porta}" styleClass="text-center" disabled="#{configuracaoDepartamentoBean.configuracaoDepartamento.servidorSmtp}">
                                                 <f:ajax event="change" render="@this" />
                                             </p:inputText>
                                         </h:panelGrid>

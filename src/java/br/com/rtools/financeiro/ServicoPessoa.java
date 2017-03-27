@@ -2,6 +2,7 @@ package br.com.rtools.financeiro;
 
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
@@ -64,6 +65,9 @@ public class ServicoPessoa implements java.io.Serializable {
     private Date dtInativacao;
     @Column(name = "ds_motivo_inativacao", length = 500)
     private String motivoInativacao;
+    @JoinColumn(name = "id_periodo_cobranca", referencedColumnName = "id")
+    @ManyToOne
+    private Periodo periodoCobranca;
 
     public ServicoPessoa() {
         this.id = -1;
@@ -86,11 +90,12 @@ public class ServicoPessoa implements java.io.Serializable {
         this.parceiro = null;
         this.dtInativacao = null;
         this.motivoInativacao = "";
+        this.periodoCobranca = null;
     }
 
     public ServicoPessoa(int id, String emissao, Pessoa pessoa, boolean descontoFolha, Servicos servicos, float nr_desconto, String referenciaVigoracao,
             String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, float nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt, Pessoa parceiro,
-            Date dtInativacao, String motivoInativacao) {
+            Date dtInativacao, String motivoInativacao, Periodo periodoCobranca) {
         this.id = id;
         this.setEmissao(emissao);
         this.pessoa = pessoa;
@@ -111,6 +116,7 @@ public class ServicoPessoa implements java.io.Serializable {
         this.parceiro = parceiro;
         this.dtInativacao = dtInativacao;
         this.motivoInativacao = motivoInativacao;
+        this.periodoCobranca = periodoCobranca;
     }
 
     public int getId() {
@@ -319,5 +325,13 @@ public class ServicoPessoa implements java.io.Serializable {
 
     public void setMotivoInativacao(String motivoInativacao) {
         this.motivoInativacao = motivoInativacao;
+    }
+
+    public Periodo getPeriodoCobranca() {
+        return periodoCobranca;
+    }
+
+    public void setPeriodoCobranca(Periodo periodoCobranca) {
+        this.periodoCobranca = periodoCobranca;
     }
 }

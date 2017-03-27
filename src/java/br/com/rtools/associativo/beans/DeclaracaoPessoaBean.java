@@ -50,49 +50,48 @@ public class DeclaracaoPessoaBean implements Serializable {
     private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
 
     private Boolean chkTodosConvenios = false;
-    
+
     public DeclaracaoPessoaBean() {
         loadListaDeclaracaoTipo();
         loadListaConvenio();
         loadListaDeclaracaoPessoa();
     }
-    
-    public void excluir(){
+
+    public void excluir() {
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         String delete_log
                 = "Pessoa: " + declaracaoPessoa.getPessoa().getDocumento() + ": " + declaracaoPessoa.getPessoa().getNome() + " \n "
                 + "Convênio: " + declaracaoPessoa.getConvenio().getDocumento() + ": " + declaracaoPessoa.getConvenio().getNome() + " \n "
                 + "Tipo Declaração: " + declaracaoPessoa.getDeclaracaoTipo().getDescricao();
-        
+
         Integer declaracao_id = declaracaoPessoa.getId();
-        if (!dao.delete(declaracaoPessoa)){
+        if (!dao.delete(declaracaoPessoa)) {
             dao.rollback();
             GenericaMensagem.error("Atenção", "Erro ao excluir declaração!");
             return;
         }
-        
 
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("soc_declaracao_pessoa");
 
         novoLog.setCodigo(declaracao_id);
-        
+
         novoLog.delete(
                 delete_log
         );
 
         dao.commit();
-        
+
         declaracaoPessoa = new DeclaracaoPessoa();
-        
+
         loadListaDeclaracaoPessoa();
-        
+
         GenericaMensagem.info("Sucesso", "Declaração excluída!");
     }
-    
+
     public void novo() {
         GenericaSessao.put("declaracaoPessoaBean", new DeclaracaoPessoaBean());
     }
@@ -111,9 +110,17 @@ public class DeclaracaoPessoaBean implements Serializable {
             return false;
         }
 
-        if (objPesquisaPessoaSelecionada.getIdade() > 24 && objPesquisaPessoaSelecionada.getParentesco().getId() != 1) {
-            GenericaMensagem.error("Atenção", "Beneficiário maior de 24 Anos!");
-            return false;
+        DeclaracaoTipo declaracao_tipo = (DeclaracaoTipo) new Dao().find(new DeclaracaoTipo(), Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
+
+        if (objPesquisaPessoaSelecionada.getParentesco().getId() != 1) {
+            if (objPesquisaPessoaSelecionada.getIdade() < declaracao_tipo.getIdadeInicio()) {
+                GenericaMensagem.error("Atenção", "Beneficiário fora abaixo da faixa de idade ! Idade mínima" + declaracao_tipo.getIdadeInicio());
+                return false;
+            }
+            if (objPesquisaPessoaSelecionada.getIdade() > declaracao_tipo.getIdadeFinal()) {
+                GenericaMensagem.error("Atenção", "Beneficiário fora abaixo da faixa de idade ! Idade máxima" + declaracao_tipo.getIdadeFinal());
+                return false;
+            }
         }
 
         if (!new DeclaracaoPessoaDao().listaDeclaracaoPessoaAnoVigente(objPesquisaPessoaSelecionada.getBeneficiario().getId()).isEmpty()) {
@@ -121,7 +128,6 @@ public class DeclaracaoPessoaBean implements Serializable {
             return false;
         }
 
-        DeclaracaoTipo declaracao_tipo = (DeclaracaoTipo) new Dao().find(new DeclaracaoTipo(), Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
         if (new FunctionsDao().inadimplente(objPesquisaPessoaSelecionada.getBeneficiario().getId(), declaracao_tipo.getDiasCarencia())) {
             GenericaMensagem.error("Atenção", "Beneficiário Inadimplente não pode imprimir declaração!");
             return false;

@@ -797,7 +797,8 @@ public class VendasCaravanaBean implements Serializable {
                     null,
                     null,
                     false,
-                    ""
+                    "",
+                    null
             );
             if (!dao.save(lote)) {
                 GenericaMensagem.warn("Erro", "Não foi possível salvar Lote!");
@@ -879,10 +880,13 @@ public class VendasCaravanaBean implements Serializable {
             } else {
                 listaParcelas.get(i).getMovimento().setVencimento(listaParcelas.get(i).getVencimento());
                 listaParcelas.get(i).getMovimento().setValorString(listaParcelas.get(i).getValor());
-                if (!dao.update(listaParcelas.get(i).getMovimento())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "Não é possivel atualizar movimento!");
-                    return;
+                Movimento m = (Movimento) dao.find(listaParcelas.get(i).getMovimento());
+                if (m.getBaixa() == null) {
+                    if (!dao.update(listaParcelas.get(i).getMovimento())) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "Não é possivel atualizar movimento!");
+                        return;
+                    }
                 }
             }
         }

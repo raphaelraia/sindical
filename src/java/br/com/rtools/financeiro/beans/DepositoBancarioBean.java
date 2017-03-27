@@ -229,7 +229,8 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 null,
                 false,
-                historico_contabil // HISTÓRICO CONTÁBIL
+                historico_contabil, // HISTÓRICO CONTÁBIL
+                null
         );
     }
 

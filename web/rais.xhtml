@@ -163,10 +163,8 @@
                                     </p:panel>
                                     <p:panel styleClass="margin-top-max">
                                         <h:panelGrid columns="6">
-                                            <p:commandButton icon="ui-icon-search" onclick="PF('dlg_profissao').show()" value="Profissão:" title="Selecionar profissão" />
+                                            <p:commandButton icon="ui-icon-search" onclick="PF('dlg_funcao').show()" value="Função:" title="Selecionar profissão" />
                                             <p:outputLabel value="#{raisBean.rais.profissao.cbo} #{raisBean.rais.profissao.profissao}" style="font-weight: bold"/>
-                                            <p:outputLabel value="Função: " styleClass="margin-left-max"/>                                                   
-                                            <p:inputText size="30" value="#{raisBean.rais.funcao}" />
                                         </h:panelGrid>
                                     </p:panel>
                                     <p:panel styleClass="margin-top-max" header="CLT">
@@ -249,13 +247,13 @@
                                 </f:facet>
                             </p:dialog>
                             <!-- PESQUISAR PROFISSAO -->
-                            <p:dialog modal="true" width="1024" height="600" widgetVar="dlg_profissao" closable="true" header="Pesquisar Profissão">
-                                <p:panel id="i_painel_profissao" styleClass="no-border">
+                            <p:dialog modal="true" width="1024" height="600" widgetVar="dlg_funcao" closable="true" header="Pesquisar Função">
+                                <p:panel id="i_painel_funcao" styleClass="no-border">
                                     <p:panelGrid columns="7" styleClass="sbb">
-                                        <h:outputLabel value="Profissão: " />
+                                        <h:outputLabel value="Funções: " />
                                         <p:inputText id="idProf" size="20" value="#{raisBean.profissao.profissao}" onkeypress="return event.keyCode !== 13;" />
-                                        <p:commandButton value="Inicial" action="#{raisBean.inicial}" update="i_tbl_prof" />
-                                        <p:commandButton value="Parcial" action="#{raisBean.parcial}" update="i_tbl_prof" />
+                                        <p:commandButton value="Inicial" action="#{raisBean.inicial}" update="i_tbl_func" />
+                                        <p:commandButton value="Parcial" action="#{raisBean.parcial}" update="i_tbl_func" />
                                         <p:outputLabel value="Por: " />
                                         <p:selectOneMenu id="idPor" value="#{raisBean.combo}" >
                                             <f:selectItem itemValue="cbo" itemLabel="Cbo"/>
@@ -263,16 +261,16 @@
                                         </p:selectOneMenu>
                                         <p:commandButton value="Cadastrar Novo" action="#{chamadaPaginaBean.profissao}" icon="ui-icon-plus" title="Cadastrar nova profissão"/>
                                     </p:panelGrid>
-                                    <p:panel id="i_tbl_prof" styleClass="margin-top-max sbb no-border" >
-                                        <p:dataTable var="profissao" value="#{raisBean.listaProfissao}" scrollHeight="300" scrollable="true" emptyMessage="Nenhum registro encontrado!">
+                                    <p:panel id="i_tbl_func" styleClass="margin-top-max sbb no-border" >
+                                        <p:dataTable var="funcao" value="#{raisBean.listaProfissao}" scrollHeight="300" scrollable="true" emptyMessage="Nenhum registro encontrado!">
                                             <p:column headerText="ID" styleClass="text-center" width="50">
-                                                <p:commandLink action="#{raisBean.rais.setProfissao(profissao)}" value="#{profissao.id}" update=":form_rais:" oncomplete="PF('dlg_profissao').hide()" styleClass="underline-hover" />
+                                                <p:commandLink action="#{raisBean.rais.setProfissao(funcao)}" value="#{funcao.id}" update=":form_rais:" oncomplete="PF('dlg_funcao').hide()" styleClass="underline-hover" />
                                             </p:column>
                                             <p:column headerText="Cbo" styleClass="text-center" width="50">
-                                                <p:commandLink action="#{raisBean.rais.setProfissao(profissao)}" value="#{profissao.cbo}" update=":form_rais:"  oncomplete="PF('dlg_profissao').hide()" styleClass="underline-hover" />
+                                                <p:commandLink action="#{raisBean.rais.setProfissao(funcao)}" value="#{funcao.cbo}" update=":form_rais:"  oncomplete="PF('dlg_funcao').hide()" styleClass="underline-hover" />
                                             </p:column>
                                             <p:column headerText="Profissão" width="300">
-                                                <p:commandLink action="#{raisBean.rais.setProfissao(profissao)}" value="#{profissao.profissao}" update=":form_rais:"  oncomplete="PF('dlg_profissao').hide()" styleClass="underline-hover" />
+                                                <p:commandLink action="#{raisBean.rais.setProfissao(funcao)}" value="#{funcao.profissao}" update=":form_rais:"  oncomplete="PF('dlg_funcao').hide()" styleClass="underline-hover" />
                                             </p:column>
                                         </p:dataTable>
                                     </p:panel>
