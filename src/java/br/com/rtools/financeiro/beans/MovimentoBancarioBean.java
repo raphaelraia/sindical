@@ -101,9 +101,9 @@ public class MovimentoBancarioBean implements Serializable {
     public void novoHistoricoBancario() {
         Plano5 pl_hist = historicoBancario.getPlano5();
         Rotina rot = historicoBancario.getRotina();
-        
+
         historicoBancario = new HistoricoBancario();
-        
+
         historicoBancario.setPlano5(pl_hist);
         historicoBancario.setRotina(rot);
     }
@@ -136,12 +136,12 @@ public class MovimentoBancarioBean implements Serializable {
         }
 
         dao.commit();
-        
+
         loadListaHistoricoBancario();
     }
-    
-    public void excluirHistoricoBancario(){
-         Dao dao = new Dao();
+
+    public void excluirHistoricoBancario() {
+        Dao dao = new Dao();
 
         dao.openTransaction();
         if (historicoBancario.getId() != -1) {
@@ -154,7 +154,7 @@ public class MovimentoBancarioBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Histórico Excluído!");
             dao.commit();
         }
-        
+
         loadListaHistoricoBancario();
     }
 
@@ -179,7 +179,7 @@ public class MovimentoBancarioBean implements Serializable {
     }
 
     public final void loadHistoricoDefault() {
-        if (movimentoEditar.getId() == -1){
+        if (movimentoEditar.getId() == -1) {
             if (!listaHistoricoBancario.isEmpty()) {
                 historico = ((HistoricoBancario) new Dao().find(new HistoricoBancario(), Integer.valueOf(listaHistoricoBancario.get(indexHistoricoBancario).getDescription()))).getHistorico();
             } else {
@@ -273,7 +273,7 @@ public class MovimentoBancarioBean implements Serializable {
             Float valor_saldo_anterior, valor_saldo;
             if (comeca_conta_saldo && !temFiltro()) {
                 DataHoje dh = new DataHoje();
-                
+
                 contaSaldo = mdao.pesquisaContaSaldoData(dh.decrementarDias(1, b.getBaixa()), plano.getId());
                 valor_saldo_anterior = contaSaldo.getSaldo();
                 valor_saldo = fp.getValor();
@@ -312,7 +312,6 @@ public class MovimentoBancarioBean implements Serializable {
             saldoFinal = listaMovimento.get(listaMovimento.size() - 1).getSaldo();
 
             //saldoDisponivel = Moeda.somaValores(Moeda.subtracaoValores(saldoFinal, saldoEntradaBloqueado), saldoSaidaBloqueado);
-            
             // NÃO SUBTRAI A SAIDA BLOQUEADA PARA NÃO CONTAR COM O DISPONIVEL COM SALDO COMPROMETIDO
             // MESMO SABENDO QUE NO BANCO ESSA SAIDA BLOQUEADA ESTARÁ DISPONÍVEL
             // JÁ RECEITA BLOQUEADA, LITERALMENTE NÃO ESTARÁ DISPONÍVEL

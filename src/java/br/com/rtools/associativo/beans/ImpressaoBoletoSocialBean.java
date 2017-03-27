@@ -28,6 +28,7 @@ import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
@@ -474,44 +475,8 @@ public class ImpressaoBoletoSocialBean {
                     }
                 }
             }
-            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ETIQUETA_SOCIO.jasper"));
-
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-
-            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-
-            List<JasperPrint> lista_jasper = new ArrayList();
-            lista_jasper.add(JasperFillManager.fillReport(jasperReport, null, dtSource));
-
-            JRPdfExporter exporter = new JRPdfExporter();
-
-            String nomeDownload = "etiqueta_" + DataHoje.livre(DataHoje.dataHoje(), "yyyyMMdd-HHmmss") + ".pdf";
-            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/etiquetas");
-
-            exporter.setExporterInput(SimpleExporterInput.getInstance(lista_jasper));
-            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(pathPasta + "/" + nomeDownload));
-
-            SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
-
-            configuration.setCreatingBatchModeBookmarks(true);
-
-            exporter.setConfiguration(configuration);
-
-            exporter.exportReport();
-
-            File fl = new File(pathPasta);
-
-            if (fl.exists()) {
-                Download download = new Download(
-                        nomeDownload,
-                        pathPasta,
-                        "application/pdf",
-                        FacesContext.getCurrentInstance()
-                );
-                download.baixar();
-                download.remover();
-            }
-        } catch (JRException e) {
+            Jasper.printReports("ETIQUETAS.jasper", "etiquetas", lista);            
+        } catch (NumberFormatException e) {
             e.getMessage();
         }
     }
