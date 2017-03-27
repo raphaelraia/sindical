@@ -51,7 +51,7 @@ public class RelatorioPlanoContasBean implements Serializable {
         for (Object obj : result) {
             List linha = (List) obj;
             lista.add(
-                    new ObjectLista(linha.get(0), linha.get(1), linha.get(2), linha.get(3), linha.get(4), linha.get(5), linha.get(6), linha.get(7))
+                    new ObjectLista(linha.get(0), linha.get(1), linha.get(2), linha.get(3), linha.get(4), linha.get(5), linha.get(6), linha.get(7), linha.get(8), linha.get(9), linha.get(10), linha.get(11))
             );
         }
 
@@ -112,8 +112,12 @@ public class RelatorioPlanoContasBean implements Serializable {
         private Object conta3;
         private Object conta4;
         private Object conta5;
+        private Object acesso1;
+        private Object acesso2;
+        private Object acesso3;
+        private Object acesso4;
 
-        public ObjectLista(Object acesso, Object classificador, Object codigo, Object conta1, Object conta2, Object conta3, Object conta4, Object conta5) {
+        public ObjectLista(Object acesso, Object classificador, Object codigo, Object conta1, Object conta2, Object conta3, Object conta4, Object conta5, Object acesso1, Object acesso2, Object acesso3, Object acesso4) {
             this.acesso = acesso;
             this.classificador = classificador;
             this.codigo = codigo;
@@ -122,6 +126,10 @@ public class RelatorioPlanoContasBean implements Serializable {
             this.conta3 = conta3;
             this.conta4 = conta4;
             this.conta5 = conta5;
+            this.acesso1 = acesso1;
+            this.acesso2 = acesso2;
+            this.acesso3 = acesso3;
+            this.acesso4 = acesso4;
         }
 
         public Object getAcesso() {
@@ -186,6 +194,38 @@ public class RelatorioPlanoContasBean implements Serializable {
 
         public void setConta5(Object conta5) {
             this.conta5 = conta5;
+        }
+
+        public Object getAcesso1() {
+            return acesso1;
+        }
+
+        public void setAcesso1(Object acesso1) {
+            this.acesso1 = acesso1;
+        }
+
+        public Object getAcesso2() {
+            return acesso2;
+        }
+
+        public void setAcesso2(Object acesso2) {
+            this.acesso2 = acesso2;
+        }
+
+        public Object getAcesso3() {
+            return acesso3;
+        }
+
+        public void setAcesso3(Object acesso3) {
+            this.acesso3 = acesso3;
+        }
+
+        public Object getAcesso4() {
+            return acesso4;
+        }
+
+        public void setAcesso4(Object acesso4) {
+            this.acesso4 = acesso4;
         }
     }
 }
