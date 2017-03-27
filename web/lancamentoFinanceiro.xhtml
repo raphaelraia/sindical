@@ -570,11 +570,11 @@
                                 <br />
                                 <f:facet name="footer">
                                     <h:panelGrid columns="8" id="i_actions">
-                                        <p:commandButton value="Salvar" onclick="PF('i_dlg_salvar').show()" title="Salvar este Lançamento" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}"/>
+                                        <p:commandButton value="Salvar" onclick="PF('i_dlg_salvar').show()" title="Salvar este Lançamento" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0 or controleAcessoBean.botaoSalvar}"/>
                                         <p:commandButton value="Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="form_lf" title="Limpar tudo e começar de Novo" />
                                         <p:commandButton ajax="false" value="Baixar" action="#{lancamentoFinanceiroBean.telaBaixa()}" update="tbl_p" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Baixar este Lançamento" />
-                                        <p:commandButton value="Estornar" onclick="PF('i_dlg_estornar').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Estornar este Lançamento" />
-                                        <p:commandButton value="Excluir este Lançamento" onclick="PF('i_dlg_ex_lancamento').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Excluir este Lançamento" />
+                                        <p:commandButton value="Estornar" onclick="PF('i_dlg_estornar').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Estornar este Lançamento" disabled="#{controleAcessoBean.verificarPermissao('estorno_lancamento_financeiro', 2)}" title="ESTORNO LANÇAMENTO FINANÇEIRO (EXCLUSÃO)"/>
+                                        <p:commandButton value="Excluir este Lançamento" onclick="PF('i_dlg_ex_lancamento').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Excluir este Lançamento" disabled="#{controleAcessoBean.botaoExcluir}"/>
                                         <p:commandButton value="Fechar esta Janela" action="#{lancamentoFinanceiroBean.fechaModal()}" onclick="PF('i_dlg_novo').hide();" update=":form_lf:"/>
                                     </h:panelGrid>
 

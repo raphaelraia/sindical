@@ -211,7 +211,7 @@ public class ImprimirBoleto implements Serializable {
             } else {
                 httppost = new HttpPost("http://192.168.1.108:8084/webservice/cliente/" + reg.getChaveCliente() + "/alterar_contribuinte");
             }
-            
+
             params = new ArrayList(2);
             params.add(new BasicNameValuePair("codigo", "" + pessoa.getId()));
             params.add(new BasicNameValuePair("documento", pessoa.getDocumento()));
@@ -243,7 +243,7 @@ public class ImprimirBoleto implements Serializable {
             httpclient.close();
             httppost.abort();
             httpclient = HttpClients.createDefault();
-            
+
             // PESQUISAR BOLETO
             if (!teste) {
                 httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
@@ -394,7 +394,7 @@ public class ImprimirBoleto implements Serializable {
                 hash.put("mensagem", "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + bol.getNrBoleto() + ")");
                 return hash;
             }
-                    
+
             //13/02/2017 
             // na lista de movimento vem o vencimento à ser alterado
             // PEGO O MOVIMENTO ANTIGO PARA QUE O VENCIMENTO fin_movimento.dt_vencimento NÃO SEJA ALTERADO NA IMPRESSÃO QUANDO EXECUTAR update
@@ -420,12 +420,10 @@ public class ImprimirBoleto implements Serializable {
                     Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
                     //bol.setContaCobranca(cc);
 
-
                     bol_novo.setNrCtrBoleto(String.valueOf(lista.get(i).getId()));
                     bol_novo.setVencimento(mov_antigo.getVencimento());
                     bol_novo.setVencimentoOriginal(mov_antigo.getVencimentoOriginal());
 
-                    
                     lista.get(i).setDocumento(bol_novo.getBoletoComposto());
                     lista.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
 
@@ -517,7 +515,7 @@ public class ImprimirBoleto implements Serializable {
                 httpclient.close();
                 httppost.abort();
                 httpclient = HttpClients.createDefault();
-                
+
                 // PESQUISAR BOLETO
                 if (!teste) {
                     httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/" + reg.getChaveCliente() + "/pesquisar_boleto");
@@ -968,16 +966,31 @@ public class ImprimirBoleto implements Serializable {
                     }
                 }
 
+                // <!-- 
+                /**
+                 * 1° Boletos convencionais pegarão sempre as mensagens da
+                 * tabela: arr_mensagem_convencao; 2º Boletos tipo acordo
+                 * pegarão sempre a mensagem do contribuínte na tabela
+                 * fin_historico e a mensagem de cobrança (Doc. do banco:
+                 * arr_mensagem_convencao.ds_referencia = ''); 3° Boletos de
+                 * mensagens avulsas, que não se enquadram na convenção sempre
+                 * existirá, um registro em fin_historico pegando mensagem do
+                 * contribuinte no campo ds_historico e doc. do banco em
+                 * ds_complemento;
+                 */
                 if (historico == null) {
-                    // mensagemErroMovimento += "Sem histórico para Acordo id_movimento " + lista.get(i).getId();
-                    // GenericaMensagem.error("Erro", mensagemErroMovimento);
                     mensagemCobranca = movDB.pesquisaMensagemCobranca(lista.get(i).getId());
                     mensagem = mensagemCobranca.getMensagemConvencao().getMensagemContribuinte();//mensagem
                     swap[25] = mensagemCobranca.getMensagemConvencao().getMensagemCompensacao();
                 } else {
                     mensagem = historico.getHistorico();
-                    swap[25] = historico.getComplemento(); // movDB.pesquisaDescMensagem(lista.get(i).getTipoServico().getId(), lista.get(i).getServicos().getId(), conv.getId(), dbCon.pesquisaGrupoCidadeJuridica(conv.getId(), id_cidade_endereco).getId());
+                    swap[25] = historico.getComplemento();
+                    if (lista.get(i).getTipoServico().getId() == 4) {
+                        mensagemCobranca = movDB.pesquisaMensagemCobranca(lista.get(i).getId());
+                        swap[25] = mensagemCobranca.getMensagemConvencao().getMensagemCompensacao();
+                    }
                 }
+                // -->
 
                 mensagemErroMovimento += " " + swap[0] + "\n "
                         + lista.get(i).getPessoa().getNome() + "\n"
