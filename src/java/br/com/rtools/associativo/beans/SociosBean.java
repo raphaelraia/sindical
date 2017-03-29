@@ -1169,7 +1169,15 @@ public class SociosBean implements Serializable {
             servicoPessoa.setTipoDocumento((FTipoDocumento) dao.find(new FTipoDocumento(), Integer.parseInt(getListaTipoDocumento().get(0).getDescription())));
         }
         // NOVO REGISTRO -----------------------
-        servicoPessoa.setPeriodoCobranca((Periodo) dao.find(new Periodo(), idSisPeriodo));
+        if (socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
+            if (listSisPeriodos.isEmpty()) {
+                servicoPessoa.setPeriodoCobranca((Periodo) dao.find(new Periodo(), 3));
+            } else {
+                servicoPessoa.setPeriodoCobranca((Periodo) dao.find(new Periodo(), idSisPeriodo));
+            }
+        } else {
+            servicoPessoa.setPeriodoCobranca((Periodo) dao.find(new Periodo(), 3));
+        }
         if (servicoPessoa.getId() == -1) {
             servicoPessoa.setAtivo(true);
             servicoPessoa.setCobranca(servicoPessoa.getPessoa());
@@ -1493,7 +1501,7 @@ public class SociosBean implements Serializable {
                                 null,
                                 null,
                                 "",
-                                null
+                                servicoPessoa.getPeriodoCobranca()
                         );
                         if (!dao.save(servicoPessoaDependente)) {
                             GenericaMensagem.warn("Erro", "Erro ao salvar Serviço Pessoa: " + listDependentes.get(i).getFisica().getPessoa().getNome());
@@ -1540,6 +1548,7 @@ public class SociosBean implements Serializable {
                         servicoPessoaDependente.setCobranca(servicoPessoa.getCobranca());
                         servicoPessoaDependente.setAtivo(servicoPessoa.isAtivo());
                         servicoPessoaDependente.setBanco(servicoPessoa.isBanco());
+                        servicoPessoaDependente.setPeriodoCobranca(servicoPessoa.getPeriodoCobranca());
                         if (!dao.update(servicoPessoaDependente)) {
                             GenericaMensagem.error("Erro", "Erro ao Alterar Serviço Pessoa: " + listDependentes.get(i).getFisica().getPessoa().getNome());
                             dao.rollback();
@@ -1644,6 +1653,7 @@ public class SociosBean implements Serializable {
 
         atualizarListaDependenteInativo();
 
+        /*
         if (socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
             List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
             if (spbs.isEmpty()) {
@@ -1658,17 +1668,17 @@ public class SociosBean implements Serializable {
                 bloqueio = new Bloqueio();
             }
         }
-
+         */
         return null;
     }
 
     public String editarTitular() {
         if (socios.getId() == -1) {
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
+            GenericaSessao.put("linkClicado", true);
             return "pessoaFisica";
         }
         FisicaDao db = new FisicaDao();
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("fisicaBean", new FisicaBean());
+        GenericaSessao.put("fisicaBean", new FisicaBean());
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).editarFisicaParametro(db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId()));
         GenericaSessao.put("linkClicado", true);
@@ -3588,6 +3598,8 @@ public class SociosBean implements Serializable {
     public void loadBloqueio() {
         List<Mes> list = new Dao().list(new Mes(), true);
         bloqueio = new Bloqueio();
+        listenerPeriodo();
+        /*
         List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
         if (!spbs.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
@@ -3638,6 +3650,7 @@ public class SociosBean implements Serializable {
                 }
             }
         }
+         */
     }
 
     public Bloqueio getBloqueio() {

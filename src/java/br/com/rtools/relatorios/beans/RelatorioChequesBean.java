@@ -4,12 +4,15 @@ import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.dao.ContaBancoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
+import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioChequesDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.utilitarios.DateFilters;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -37,10 +40,20 @@ public class RelatorioChequesBean implements Serializable {
     private List selectedContaBanco;
     private Map<String, Integer> listPlano5;
     private List selectedPlano5;
-    private String selectedStatus;
+    // private String selectedStatus;
+
+    // DATAS
+    // private List<DateFilters> listDateFilters;
+    private List<SelectItem> listDates;
+    private String selectedDate;
+    private String typeDate;
+    private String startDate;
+    private String finishDate;
+    private Pessoa pessoa;
+    private List<Pessoa> listPessoa;
 
     public RelatorioChequesBean() {
-        selectedStatus = "";
+        // selectedStatus = "";
         idRelatorio = null;
         idRelatorioOrdem = null;
         listRelatorio = new ArrayList();
@@ -69,6 +82,7 @@ public class RelatorioChequesBean implements Serializable {
         filters.add(new Filters("conta_banco", "Conta Banco", false));
         filters.add(new Filters("plano5", "Histórico", false));
         filters.add(new Filters("status", "Status", false));
+        filters.add(new Filters("pessoa", "Pessoa", false));
     }
 
     public void close(Filters filter) {
@@ -88,11 +102,23 @@ public class RelatorioChequesBean implements Serializable {
         load(f);
     }
 
+    public void loadStatus() {
+        typeDate = "todos";
+        startDate = "";
+        finishDate = "";
+    }
+
     public void load(Filters filter) {
         switch (filter.getKey()) {
 
             case "status":
-                selectedStatus = "";
+                selectedDate = "";
+                loadStatus();
+                if (filter.getActive()) {
+                    selectedDate = "nao_impressos";
+                    loadDates();
+                }
+
                 break;
             case "conta_banco":
                 listContaBanco = new LinkedHashMap<>();
@@ -108,13 +134,41 @@ public class RelatorioChequesBean implements Serializable {
                     loadPlano5();
                 }
                 break;
+            case "pessoa":
+                listPessoa = new ArrayList();
+                pessoa = new Pessoa();
+                break;
         }
+    }
+
+    public void addPessoa() {
+        for (int i = 0; i < listPessoa.size(); i++) {
+            if (listPessoa.get(i).getId() == pessoa.getId()) {
+                GenericaMensagem.warn("Validação", "PESSOA JÁ SELECIONADA!");
+                return;
+            }
+        }
+        listPessoa.add(pessoa);
+        pessoa = new Pessoa();
+    }
+
+    public void removePessoa() {
+        pessoa = new Pessoa();
+    }
+
+    public void removePessoa(Pessoa p) {
+        listPessoa.remove(pessoa);
     }
 
     public String print() {
         Relatorios relatorios = new RelatorioDao().pesquisaRelatorios(idRelatorio);
         List<ObjectCheques> listObjectCheques = new ArrayList<>();
-        List list = new RelatorioChequesDao().find(inIdPlano5(), inIdContaBanco(), selectedStatus);
+        DateFilters dateFilters = new DateFilters();
+        dateFilters.setTitle(selectedDate);
+        dateFilters.setType(typeDate);
+        dateFilters.setStart(startDate);
+        dateFilters.setFinish(finishDate);
+        List list = new RelatorioChequesDao().find(inIdPlano5(), inIdContaBanco(), inIdPessoas(), dateFilters);
         if (list.isEmpty()) {
             GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
             return null;
@@ -209,6 +263,28 @@ public class RelatorioChequesBean implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             listPlano5.put(list.get(i).getConta(), list.get(i).getId());
         }
+    }
+
+    // TRATAMENTO
+    public String inIdPessoas() {
+        String ids = null;
+        if (listPessoa != null) {
+            if (pessoa != null && pessoa.getId() != -1) {
+                ids = "";
+                ids = "" + pessoa.getId();
+            }
+            for (int i = 0; i < listPessoa.size(); i++) {
+                if (listPessoa.get(i) != null) {
+                    if (ids == null) {
+                        ids = "";
+                        ids = "" + listPessoa.get(i).getId();
+                    } else {
+                        ids += "," + listPessoa.get(i).getId();
+                    }
+                }
+            }
+        }
+        return ids;
     }
 
     public String inIdPlano5() {
@@ -312,13 +388,80 @@ public class RelatorioChequesBean implements Serializable {
     public void setSelectedPlano5(List selectedPlano5) {
         this.selectedPlano5 = selectedPlano5;
     }
+//
+//    public String getSelectedStatus() {
+//        return selectedStatus;
+//    }
+//
+//    public void setSelectedStatus(String selectedStatus) {
+//        this.selectedStatus = selectedStatus;
+//    }
 
-    public String getSelectedStatus() {
-        return selectedStatus;
+    public void loadDates() {
+        listDates = new ArrayList();
+        listDates.add(new SelectItem("nao_impressos", "NÃO IMPRESSOS"));
+        listDates.add(new SelectItem("impressos", "IMPRESSOS"));
+        listDates.add(new SelectItem("cancelados", "CANCELADOS"));
+        listDates.add(new SelectItem("emissao", "EMISSÃO"));
     }
 
-    public void setSelectedStatus(String selectedStatus) {
-        this.selectedStatus = selectedStatus;
+    public List<SelectItem> getListDates() {
+        return listDates;
+    }
+
+    public void setListDates(List<SelectItem> listDates) {
+        this.listDates = listDates;
+    }
+
+    public String getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(String selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
+    public String getTypeDate() {
+        return typeDate;
+    }
+
+    public void setTypeDate(String typeDate) {
+        this.typeDate = typeDate;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(String finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public Pessoa getPessoa() {
+        if (GenericaSessao.exists("pessoaPesquisa")) {
+            pessoa = ((Pessoa) GenericaSessao.getObject("pessoaPesquisa", true));
+        }
+        return pessoa;
+    }
+
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
+    }
+
+    public List<Pessoa> getListPessoa() {
+        return listPessoa;
+    }
+
+    public void setListPessoa(List<Pessoa> listPessoa) {
+        this.listPessoa = listPessoa;
     }
 
     public class ObjectCheques {

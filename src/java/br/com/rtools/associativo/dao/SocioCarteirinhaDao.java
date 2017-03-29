@@ -1012,7 +1012,7 @@ public class SocioCarteirinhaDao extends DB {
     }
 
     public List<AutorizaImpressaoCartao> listaAutoriza(int id_pessoa, int id_modelo) {
-        String text_qry = "SELECT ai FROM AutorizaImpressaoCartao ai WHERE ai.pessoa.id = " + id_pessoa + " AND ai.modeloCarteirinha.id = " + id_modelo;
+        String text_qry = "SELECT ai FROM AutorizaImpressaoCartao ai WHERE ai.pessoa.id = " + id_pessoa + " AND ai.modeloCarteirinha.id = " + id_modelo + " AND ai.historicoCarteirinha IS NULL";
         try {
             Query qry = getEntityManager().createQuery(text_qry);
             return qry.getResultList();
