@@ -602,7 +602,7 @@
                                                             <p:inputMask mask="99/99/9999" value="#{relatorioSociosBean.startDate}" converter="#{isDateString}" rendered="#{relatorioSociosBean.typeDate ne 'todos' and relatorioSociosBean.typeDate ne 'com' and relatorioSociosBean.typeDate ne 'sem'}" size="10" styleClass="text-center">
                                                                 <p:ajax event="change" global="false" />
                                                             </p:inputMask>
-                                                            <p:outputLabel value="até" rendered="#{relatorioCupomBean.tipoDataEmissao eq 'faixa'}" styleClass="margin-left-max"/>
+                                                            <p:outputLabel value="até" rendered="#{relatorioChequesBean.typeDate eq 'faixa'}" styleClass="margin-left-max"/>
                                                             <p:inputMask mask="99/99/9999" value="#{relatorioSociosBean.finishDate}" converter="#{isDateString}" rendered="#{relatorioSociosBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
                                                                 <p:ajax event="change" global="false" />
                                                             </p:inputMask>

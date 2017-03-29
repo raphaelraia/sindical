@@ -10,6 +10,7 @@ import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.ServicoRotinaDao;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.impressao.ParametroMovimentos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -240,7 +241,6 @@ public class RelatorioMovimentoBean implements Serializable {
         );
 
         Collection listaParametro = new ArrayList<>();
-
         if (null != idRelatorio) {
             switch (idRelatorio) {
                 case 66:
@@ -296,6 +296,7 @@ public class RelatorioMovimentoBean implements Serializable {
                     }
                     break;
                 default:
+                    Integer codigo_pessoa = null;
                     for (Object l : list) {
                         List o = (List) l;
                         float valor = Float.parseFloat(getConverteNullString(o.get(6))); // VALOR ORIGINAL
@@ -317,72 +318,108 @@ public class RelatorioMovimentoBean implements Serializable {
                         }
 
                         float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(o.get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(o.get(43))))), repasse);
+                        if (getRelatorios().getNome().toUpperCase().contains(("Etiqueta por Empresa").toUpperCase())) {
+                            if (codigo_pessoa == null || codigo_pessoa != getConverteNullInt(o.get(41))) {
+                                codigo_pessoa = getConverteNullInt(o.get(41));
+                                listaParametro.add(
+                                        new Etiquetas(
+                                                o.get(10),
+                                                o.get(12),
+                                                o.get(11),
+                                                o.get(13),
+                                                o.get(15),
+                                                o.get(17),
+                                                o.get(18),
+                                                o.get(16),
+                                                o.get(14)
+                                        )
+                                );
+                            }
+                        } else if (getRelatorios().getNome().toUpperCase().contains(("Etiqueta por Escritório").toUpperCase())) {
+                            if (codigo_pessoa == null || codigo_pessoa != getConverteNullInt(o.get(26))) {
+                                codigo_pessoa = getConverteNullInt(o.get(26));
+                                listaParametro.add(
+                                        new Etiquetas(
+                                                o.get(27),
+                                                o.get(29),
+                                                o.get(28),
+                                                o.get(30),
+                                                o.get(32),
+                                                o.get(34),
+                                                o.get(35),
+                                                o.get(33),
+                                                o.get(31)
+                                        )
+                                );
 
-                        listaParametro.add(
-                                new ParametroMovimentos(
-                                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                                        sindicato.getPessoa().getNome(),
-                                        endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                                        endSindicato.getEndereco().getLogradouro().getDescricao(),
-                                        endSindicato.getNumero(),
-                                        endSindicato.getComplemento(),
-                                        endSindicato.getEndereco().getBairro().getDescricao(),
-                                        endSindicato.getEndereco().getCep(),
-                                        endSindicato.getEndereco().getCidade().getCidade(),
-                                        endSindicato.getEndereco().getCidade().getUf(),
-                                        sindicato.getPessoa().getTelefone1(),
-                                        sindicato.getPessoa().getEmail1(),
-                                        sindicato.getPessoa().getSite(),
-                                        sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                                        sindicato.getPessoa().getDocumento(),
-                                        getConverteNullInt(o.get(41)), // ID JURIDICA
-                                        getConverteNullString(o.get(10)), // NOME PESSOA
-                                        getConverteNullString(o.get(11)), // ENDERECO PESSOA
-                                        getConverteNullString(o.get(12)), // LOGRADOURO PESSOA
-                                        getConverteNullString(o.get(13)), // NUMERO ENDERECO PESSOA
-                                        getConverteNullString(o.get(14)), // COMPLEMENTO PESSOA
-                                        getConverteNullString(o.get(15)), // BAIRRO PESSOA
-                                        getConverteNullString(o.get(16)), // CEP PESSOA
-                                        getConverteNullString(o.get(17)), // CIDADE PESSOA
-                                        getConverteNullString(o.get(18)), // UF PESSOA
-                                        getConverteNullString(o.get(19)), // TELEFONE PESSOA
-                                        getConverteNullString(o.get(20)), // EMAIL PESSOA
-                                        getConverteNullString(o.get(21)), // TIPO DOC PESSOA
-                                        getConverteNullString(o.get(22)), // DOCUMENTO PESSOA
-                                        getConverteNullInt(o.get(23)), // ID CNAE
-                                        getConverteNullString(o.get(24)), // NUMERO CNAE
-                                        getConverteNullString(o.get(25)), // NOME CNAE
-                                        getConverteNullInt(o.get(26)), // ID CONTABILIDADE
-                                        getConverteNullString(o.get(27)), // NOME CONTABILIDADE
-                                        getConverteNullString(o.get(28)), // ENDERECO CONTABIL
-                                        getConverteNullString(o.get(29)), // LOGRADOURO CONTABIL
-                                        getConverteNullString(o.get(30)), // NUMERO CONTABIL
-                                        getConverteNullString(o.get(31)), // COMPLEMENTO CONTABIL
-                                        getConverteNullString(o.get(32)), // BAIRRO CONTABIL
-                                        getConverteNullString(o.get(33)), // CEP CONTABIL
-                                        getConverteNullString(o.get(34)), // CIDADE CONTABIL
-                                        getConverteNullString(o.get(35)), // UF CONTABIL
-                                        getConverteNullString(o.get(36)), // TELEFONE CONTABIL
-                                        getConverteNullString(o.get(37)), // EMAIL CONTABIL
-                                        getConverteNullString(o.get(1)), // NUMERO BOLETO
-                                        getConverteNullString(o.get(2)), // SERVICO
-                                        getConverteNullString(o.get(3)), // TIPO SERVICO
-                                        getConverteNullString(o.get(4)), // REFERENCIA
-                                        DataHoje.converteData((Date) o.get(5)), // VENCIMENTO
-                                        quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
-                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(47)))), // VALOR BAIXA
-                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(43)))),// TAXA
-                                        importacao, //result.get(i).getLoteBaixa().getImportacao(),
-                                        usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
-                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(44)))),// MULTA,
-                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(45)))),// JUROS,
-                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(46)))),// CORRECAO,
-                                        new BigDecimal(valor), // VALOR TOTAL
-                                        new BigDecimal(repasse), // REPASSE
-                                        new BigDecimal(valorLiquido), // VALOR LIQUIDO
-                                        totaliza
-                                )
-                        );
+                            }
+                        } else {
+                            listaParametro.add(
+                                    new ParametroMovimentos(
+                                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                                            sindicato.getPessoa().getNome(),
+                                            endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
+                                            endSindicato.getEndereco().getLogradouro().getDescricao(),
+                                            endSindicato.getNumero(),
+                                            endSindicato.getComplemento(),
+                                            endSindicato.getEndereco().getBairro().getDescricao(),
+                                            endSindicato.getEndereco().getCep(),
+                                            endSindicato.getEndereco().getCidade().getCidade(),
+                                            endSindicato.getEndereco().getCidade().getUf(),
+                                            sindicato.getPessoa().getTelefone1(),
+                                            sindicato.getPessoa().getEmail1(),
+                                            sindicato.getPessoa().getSite(),
+                                            sindicato.getPessoa().getTipoDocumento().getDescricao(),
+                                            sindicato.getPessoa().getDocumento(),
+                                            getConverteNullInt(o.get(41)), // ID JURIDICA
+                                            getConverteNullString(o.get(10)), // NOME PESSOA
+                                            getConverteNullString(o.get(11)), // ENDERECO PESSOA
+                                            getConverteNullString(o.get(12)), // LOGRADOURO PESSOA
+                                            getConverteNullString(o.get(13)), // NUMERO ENDERECO PESSOA
+                                            getConverteNullString(o.get(14)), // COMPLEMENTO PESSOA
+                                            getConverteNullString(o.get(15)), // BAIRRO PESSOA
+                                            getConverteNullString(o.get(16)), // CEP PESSOA
+                                            getConverteNullString(o.get(17)), // CIDADE PESSOA
+                                            getConverteNullString(o.get(18)), // UF PESSOA
+                                            getConverteNullString(o.get(19)), // TELEFONE PESSOA
+                                            getConverteNullString(o.get(20)), // EMAIL PESSOA
+                                            getConverteNullString(o.get(21)), // TIPO DOC PESSOA
+                                            getConverteNullString(o.get(22)), // DOCUMENTO PESSOA
+                                            getConverteNullInt(o.get(23)), // ID CNAE
+                                            getConverteNullString(o.get(24)), // NUMERO CNAE
+                                            getConverteNullString(o.get(25)), // NOME CNAE
+                                            getConverteNullInt(o.get(26)), // ID CONTABILIDADE
+                                            getConverteNullString(o.get(27)), // NOME CONTABILIDADE
+                                            getConverteNullString(o.get(28)), // ENDERECO CONTABIL
+                                            getConverteNullString(o.get(29)), // LOGRADOURO CONTABIL
+                                            getConverteNullString(o.get(30)), // NUMERO CONTABIL
+                                            getConverteNullString(o.get(31)), // COMPLEMENTO CONTABIL
+                                            getConverteNullString(o.get(32)), // BAIRRO CONTABIL
+                                            getConverteNullString(o.get(33)), // CEP CONTABIL
+                                            getConverteNullString(o.get(34)), // CIDADE CONTABIL
+                                            getConverteNullString(o.get(35)), // UF CONTABIL
+                                            getConverteNullString(o.get(36)), // TELEFONE CONTABIL
+                                            getConverteNullString(o.get(37)), // EMAIL CONTABIL
+                                            getConverteNullString(o.get(1)), // NUMERO BOLETO
+                                            getConverteNullString(o.get(2)), // SERVICO
+                                            getConverteNullString(o.get(3)), // TIPO SERVICO
+                                            getConverteNullString(o.get(4)), // REFERENCIA
+                                            DataHoje.converteData((Date) o.get(5)), // VENCIMENTO
+                                            quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
+                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(47)))), // VALOR BAIXA
+                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(43)))),// TAXA
+                                            importacao, //result.get(i).getLoteBaixa().getImportacao(),
+                                            usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
+                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(44)))),// MULTA,
+                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(45)))),// JUROS,
+                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(46)))),// CORRECAO,
+                                            new BigDecimal(valor), // VALOR TOTAL
+                                            new BigDecimal(repasse), // REPASSE
+                                            new BigDecimal(valorLiquido), // VALOR LIQUIDO
+                                            totaliza
+                                    )
+                            );
+                        }
                     }
                     break;
             }

@@ -76,45 +76,103 @@
                                 </h:column>
                                 <h:column>
                                     <h:panelGroup layout="block" id="id_panel_relatorio" style="min-width: 800px!important; width: 100%!important;" >
-                                        <!-- SÓCIOS -->
+                                        <!-- status -->
                                         <h:panelGrid style="width: 100%!important">
                                             <h:column rendered="#{relatorioChequesBean.getShow('status')}">
                                                 <p:panel header="Status">
-                                                    <h:panelGrid columns="2" cellspacing="5">
-                                                        <p:selectOneMenu value="#{relatorioChequesBean.selectedStatus}">
-                                                            <p:ajax event="change" update="@this"/>
-                                                            <f:selectItem itemValue="nao_impressos" itemLabel="NÃO IMPRESSO"/>
-                                                            <f:selectItem itemValue="impressos" itemLabel="IMPRESSO"/>
-                                                            <f:selectItem itemValue="cancelados" itemLabel="CANCELADO"/>
-                                                        </p:selectOneMenu> 
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('conta_banco')}" title="Remover filtro" update="form_relatorio"/>
-                                                    </h:panelGrid>                                                    
+                                                    <f:facet name="actions">
+                                                        <div class="float-right">
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('status')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        </div>
+                                                    </f:facet>
+                                                    <h:panelGroup layout="block" id="i_panel_datas">
+                                                        <h:panelGrid columns="5" cellspacing="5">
+                                                            <p:selectOneMenu value="#{relatorioChequesBean.selectedDate}">
+                                                                <p:ajax event="change" update="@this i_panel_datas" listener="#{relatorioChequesBean.loadStatus()}"/>
+                                                                <f:selectItems value="#{relatorioChequesBean.listDates}" />
+                                                            </p:selectOneMenu>
+                                                            <p:selectOneMenu label="Data" value="#{relatorioChequesBean.typeDate}" disabled="#{relatorioChequesBean.selectedDate eq 'nao_impressos'}">
+                                                                <p:ajax event="change" update="@this i_panel_datas" />
+                                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                            </p:selectOneMenu>
+                                                            <p:inputMask mask="99/99/9999" value="#{relatorioChequesBean.startDate}" converter="#{isDateString}" rendered="#{relatorioChequesBean.typeDate ne 'todos'}" size="10" styleClass="text-center">
+                                                                <p:ajax event="change" global="false" />
+                                                            </p:inputMask>
+                                                            <p:outputLabel value="até" rendered="#{relatorioChequesBean.typeDate eq 'faixa'}" />
+                                                            <p:inputMask mask="99/99/9999" value="#{relatorioChequesBean.finishDate}" converter="#{isDateString}" rendered="#{relatorioChequesBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
+                                                                <p:ajax event="change" global="false" />
+                                                            </p:inputMask>
+                                                        </h:panelGrid>
+                                                    </h:panelGroup>
                                                 </p:panel>
                                             </h:column>                                            
                                             <h:column rendered="#{relatorioChequesBean.getShow('conta_banco')}">
                                                 <p:panel header="Dados da Conta">
+                                                    <f:facet name="actions">
+                                                        <div class="float-right">
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('conta_banco')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        </div>
+                                                    </f:facet>                                                    
                                                     <h:panelGrid columns="2" cellspacing="5">
                                                         <p:selectCheckboxMenu label="Selecionar conta" value="#{relatorioChequesBean.selectedContaBanco}" filter="true" filterMatchMode="startsWith">
                                                             <p:ajax event="toggleSelect" global="false"/>
                                                             <p:ajax event="change" global="false"/>
                                                             <f:selectItems value="#{relatorioChequesBean.listContaBanco}" />
                                                         </p:selectCheckboxMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('conta_banco')}" title="Remover filtro" update="form_relatorio"/>
                                                     </h:panelGrid>                                                    
                                                 </p:panel>
                                             </h:column>                                            
                                             <h:column rendered="#{relatorioChequesBean.getShow('plano5')}">
                                                 <p:panel header="Tipo de Despeza">
+                                                    <f:facet name="actions">
+                                                        <div class="float-right">
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('plano5')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        </div>
+                                                    </f:facet>                                                      
                                                     <h:panelGrid columns="2" cellspacing="5">
                                                         <p:selectCheckboxMenu label="Selecionar histórico" value="#{relatorioChequesBean.selectedPlano5}" filter="true" filterMatchMode="startsWith">
                                                             <p:ajax event="toggleSelect" global="false"/>
                                                             <p:ajax event="change" global="false"/>
                                                             <f:selectItems value="#{relatorioChequesBean.listPlano5}" />
                                                         </p:selectCheckboxMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('plano5')}" title="Remover filtro" update="form_relatorio"/>
                                                     </h:panelGrid>
                                                 </p:panel>
-                                            </h:column>                                            
+                                            </h:column>
+                                            <h:column rendered="#{relatorioChequesBean.getShow('pessoa')}">
+                                                <p:panel header="PESSOA">
+                                                    <f:facet name="actions">
+                                                        <div class="float-right">
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.close('pessoa')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        </div>
+                                                    </f:facet>                                                    
+                                                    <h:panelGrid columns="5" cellspacing="5">
+                                                        <p:commandButton icon="ui-icon-search" value="PESQUISAR PESSOA" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa')}" immediate="true"/>
+                                                        <p:outputLabel value="#{relatorioChequesBean.pessoa.nome} - #{relatorioChequesBean.pessoa.documento} " styleClass="bold font-color-red" rendered="#{relatorioChequesBean.pessoa.id != -1}"/>
+                                                        <p:commandButton icon="ui-icon-plus" action="#{relatorioChequesBean.addPessoa()}" title="Adicionar a lista" update="form_relatorio" rendered="#{relatorioChequesBean.pessoa.id != -1}"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.removePessoa}" title="Remover" update=":form_relatorio" rendered="#{relatorioChequesBean.pessoa.id != -1}"/> 
+                                                    </h:panelGrid>
+                                                    <h:panelGroup layout="block" id="i_list_pessoas">
+                                                        <p:dataTable value="#{relatorioChequesBean.listPessoa}" var="pessoa" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                                            <p:column headerText="Código" width="50" styleClass="text-center">
+                                                                #{pessoa.id}
+                                                            </p:column>
+                                                            <p:column headerText="Documento" width="150" styleClass="text-center">
+                                                                #{pessoa.documento}                                                                
+                                                            </p:column>
+                                                            <p:column headerText="Nome">
+                                                                #{pessoa.nome}                                                                
+                                                            </p:column>
+                                                            <p:column width="30" styleClass="text-center">
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioChequesBean.removePessoa(pessoa)}" title="Remover" update=":form_relatorio:i_list_pessoas"/> 
+                                                            </p:column>
+                                                        </p:dataTable>
+                                                    </h:panelGroup> 
+                                                </p:panel>
+                                            </h:column>                                             
                                         </h:panelGrid>                                        
                                     </h:panelGroup>
                                 </h:column>
