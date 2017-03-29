@@ -15,17 +15,17 @@ public class ContaOperacaoDao extends DB {
         if (null != idOperacao) {
             switch (idOperacao) {
                 case 1:
-                    queryString += "WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%RECEITA%' ";
+                    queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%RECEITA%' \n ";
                     break;
                 case 2:
-                    queryString += "WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' ";
+                    queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n ";
                     break;
                 case 3:
                     queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
                     break;
                 case 4:
                 case 5:
-                    queryString += "WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' ";
+                    queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' \n ";
                     break;
                 case 6:
                     queryString += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
@@ -35,6 +35,7 @@ public class ContaOperacaoDao extends DB {
                             += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%RECEITA%' \n "
                             + "     OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%ATIVO%' \n "
                             + "     OR REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%PASSIVO%' \n";
+                    break;
                 case 8:
                     queryString
                             += " WHERE REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n "
