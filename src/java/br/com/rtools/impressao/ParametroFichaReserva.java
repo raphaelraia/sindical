@@ -13,9 +13,9 @@ public class ParametroFichaReserva {
     private Object idade;
     private Object data;
     private Object observacao;
-    private Object entrada;
-    private Object saida;
-    private Object periodo;
+    private Object embarque_ida;
+    private Object embarque_retorno;
+    private Object periodo_estadia;
     private Object dias;
     private Object local;
     private Object lancamento_extenso;
@@ -42,8 +42,13 @@ public class ParametroFichaReserva {
     private Object lista_parcelas;
     private Object lista_parcelas2;
     private Object poltrona;
+    private Object local_endereco_embarque_ida;
+    private Object local_embarque_ida;
+    private Object local_cidade;
+    private Object local_uf;
+    private Object tempo_viagem;
 
-    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object entrada, Object saida, Object periodo, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona) {
+    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object embarque_ida, Object embarque_retorno, Object periodo_estadia, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona, Object local_endereco_embarque_ida, Object local_embarque_ida, Object local_cidade, Object local_uf, Object tempo_viagem) {
         this.responsavel_nome = responsavel_nome;
         this.responsavel_endereco = responsavel_endereco;
         this.empresa_nome = empresa_nome;
@@ -55,9 +60,9 @@ public class ParametroFichaReserva {
         this.idade = idade;
         this.data = data;
         this.observacao = observacao;
-        this.entrada = entrada;
-        this.saida = saida;
-        this.periodo = periodo;
+        this.embarque_ida = embarque_ida;
+        this.embarque_retorno = embarque_retorno;
+        this.periodo_estadia = periodo_estadia;
         this.dias = dias;
         this.local = local;
         this.lancamento_extenso = lancamento_extenso;
@@ -84,14 +89,11 @@ public class ParametroFichaReserva {
         this.lista_parcelas = lista_parcelas;
         this.lista_parcelas2 = lista_parcelas2;
         this.poltrona = poltrona;
-    }
-
-    public Object getNome() {
-        return nome;
-    }
-
-    public void setNome(Object nome) {
-        this.nome = nome;
+        this.local_endereco_embarque_ida = local_endereco_embarque_ida;
+        this.local_embarque_ida = local_embarque_ida;
+        this.local_cidade = local_cidade;
+        this.local_uf = local_uf;
+        this.tempo_viagem = tempo_viagem;
     }
 
     public Object getResponsavel_nome() {
@@ -124,6 +126,14 @@ public class ParametroFichaReserva {
 
     public void setEmpresa_cnpj(Object empresa_cnpj) {
         this.empresa_cnpj = empresa_cnpj;
+    }
+
+    public Object getNome() {
+        return nome;
+    }
+
+    public void setNome(Object nome) {
+        this.nome = nome;
     }
 
     public Object getCpf() {
@@ -174,28 +184,28 @@ public class ParametroFichaReserva {
         this.observacao = observacao;
     }
 
-    public Object getEntrada() {
-        return entrada;
+    public Object getEmbarque_ida() {
+        return embarque_ida;
     }
 
-    public void setEntrada(Object entrada) {
-        this.entrada = entrada;
+    public void setEmbarque_ida(Object embarque_ida) {
+        this.embarque_ida = embarque_ida;
     }
 
-    public Object getSaida() {
-        return saida;
+    public Object getEmbarque_retorno() {
+        return embarque_retorno;
     }
 
-    public void setSaida(Object saida) {
-        this.saida = saida;
+    public void setEmbarque_retorno(Object embarque_retorno) {
+        this.embarque_retorno = embarque_retorno;
     }
 
-    public Object getPeriodo() {
-        return periodo;
+    public Object getPeriodo_estadia() {
+        return periodo_estadia;
     }
 
-    public void setPeriodo(Object periodo) {
-        this.periodo = periodo;
+    public void setPeriodo_estadia(Object periodo_estadia) {
+        this.periodo_estadia = periodo_estadia;
     }
 
     public Object getDias() {
@@ -405,4 +415,45 @@ public class ParametroFichaReserva {
     public void setPoltrona(Object poltrona) {
         this.poltrona = poltrona;
     }
+
+    public Object getLocal_endereco_embarque_ida() {
+        return local_endereco_embarque_ida;
+    }
+
+    public void setLocal_endereco_embarque_ida(Object local_endereco_embarque_ida) {
+        this.local_endereco_embarque_ida = local_endereco_embarque_ida;
+    }
+
+    public Object getLocal_embarque_ida() {
+        return local_embarque_ida;
+    }
+
+    public void setLocal_embarque_ida(Object local_embarque_ida) {
+        this.local_embarque_ida = local_embarque_ida;
+    }
+
+    public Object getLocal_cidade() {
+        return local_cidade;
+    }
+
+    public void setLocal_cidade(Object local_cidade) {
+        this.local_cidade = local_cidade;
+    }
+
+    public Object getLocal_uf() {
+        return local_uf;
+    }
+
+    public void setLocal_uf(Object local_uf) {
+        this.local_uf = local_uf;
+    }
+
+    public Object getTempo_viagem() {
+        return tempo_viagem;
+    }
+
+    public void setTempo_viagem(Object tempo_viagem) {
+        this.tempo_viagem = tempo_viagem;
+    }
+
 }

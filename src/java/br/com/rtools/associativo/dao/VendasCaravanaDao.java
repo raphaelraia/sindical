@@ -1,7 +1,5 @@
 package br.com.rtools.associativo.dao;
 
-import br.com.rtools.associativo.CaravanaVenda;
-import br.com.rtools.associativo.CaravanaReservas;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;

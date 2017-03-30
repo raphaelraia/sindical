@@ -66,7 +66,7 @@ public class CaravanaVendaDao extends DB {
                     queryString += " AND " + listWhere.get(i).toString() + " \n";
                 }
             }
-            queryString += " ORDER BY C.dt_saida, RESP.ds_nome";
+            queryString += " ORDER BY C.dt_embarque_ida, RESP.ds_nome";
             int maxResults = 1000;
             if (limit == 0) {
                 switch (description.length()) {
