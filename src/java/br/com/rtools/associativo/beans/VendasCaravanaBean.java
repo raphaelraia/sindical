@@ -238,10 +238,23 @@ public class VendasCaravanaBean implements Serializable {
             financeiroString += (i + 1) + " | " + listaParcelas.get(i).getVencimento() + " | " + listaParcelas.get(i).getValor() + "\n";
         }
 
-        String cidade = Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade();
+        String cidade = Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade().toUpperCase();
 
         for (ListaReservas lr : listaReservas) {
             Fisica f = (Fisica) lr.getFisica();
+            String localDoEmbarque = "";
+            String cidadeDoEmbarque = "";
+            String ufDoEmbarque = "SP";
+            if (caravana.getEnderecoEmbarqueIda() == null) {
+                localDoEmbarque = cidade;
+            } else {
+                localDoEmbarque = caravana.getEnderecoEmbarqueIda().getEnderecoSimplesToString()
+                        + ", " + caravana.getNumero()
+                        + " " + caravana.getComplementoEmbarqueIda()
+                        + " - " + caravana.getEnderecoEmbarqueIda().getBairro().getDescricao() + "\n";
+                cidadeDoEmbarque = caravana.getEnderecoEmbarqueIda().getCidade().getCidade();
+                ufDoEmbarque = caravana.getEnderecoEmbarqueIda().getCidade().getUf();
+            }
             l.add(
                     new ParametroFichaReserva(
                             vendas.getResponsavel().getNome(),
@@ -255,11 +268,11 @@ public class VendasCaravanaBean implements Serializable {
                             dh.calcularIdade(f.getNascimento()),
                             f.getNascimento(),
                             vendas.getObservacao(),
-                            cidade.toUpperCase() + " ÀS " + caravana.getHoraSaida(),
-                            caravana.getHoraRetorno(),
-                            "De " + caravana.getDataSaida() + " à " + caravana.getDataRetorno(),
-                            DataHoje.calculoDosDias(caravana.getDtSaida(), caravana.getDtRetorno()),
-                            vendas.getEvento().getDescricaoEvento().getDescricao(),
+                            caravana.getDataEmbarqueIda() + " às " + caravana.getHoraEmbarqueIda() + " hrs",
+                            caravana.getDataEmbarqueRetorno() + " às " + caravana.getHoraEmbarqueRetorno() + " hrs",
+                            "De " + caravana.getDataEstadiaInicio() + " à " + caravana.getDataEstadiaFim(),
+                            DataHoje.calculoDosDias(caravana.getDtEstadiaInicio(), caravana.getDtEstadiaFim()),
+                            vendas.getEvento().getDescricaoEvento().getDescricao() + " " + vendas.getCaravana().getTituloComplemento(),
                             DataHoje.dataExtenso(vendas.getEmissao(), 3), // NÃO TEM EM vendas.getData
                             DataHoje.dataExtenso(DataHoje.data(), 3),
                             tipo[0],
@@ -283,7 +296,12 @@ public class VendasCaravanaBean implements Serializable {
                             total,
                             financeiroString,
                             listaParcelas,
-                            lr.poltrona
+                            lr.poltrona,
+                            localDoEmbarque,
+                            caravana.getLocalEmbarqueIda(),
+                            cidadeDoEmbarque,
+                            ufDoEmbarque,
+                            caravana.getDuracaoViagem()
                     )
             );
         }
@@ -348,7 +366,7 @@ public class VendasCaravanaBean implements Serializable {
                     movimentoInativo.setMovimento(listaMovimento1);
                     movimentoInativo.setDtData(new Date());
                     movimentoInativo.setUsuario(usuario);
-                    movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataSaida());
+                    movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataEmbarqueIda());
                     if (!dao.save(movimentoInativo)) {
                         GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
                         dao.rollback();
@@ -408,7 +426,7 @@ public class VendasCaravanaBean implements Serializable {
             new NovoLog().update("",
                     "VENDA CANCELADA Nº" + vendas.getId()
                     + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
-                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - " + vendas.getCaravana().getDataEmbarqueIda()
                     + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
                     + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
                     + " - QUARTO: " + vendas.getQuarto()
@@ -426,7 +444,7 @@ public class VendasCaravanaBean implements Serializable {
             new NovoLog().delete(
                     "VENDA Nº" + vendas.getId()
                     + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
-                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - " + vendas.getCaravana().getDataEmbarqueIda()
                     + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
                     + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
                     + " - QUARTO: " + vendas.getQuarto()
@@ -565,7 +583,7 @@ public class VendasCaravanaBean implements Serializable {
         }
         if (listaCaravanaSelect.isEmpty()) {
             idCaravanaSelect = caravana.getId();
-            listaCaravanaSelect.add(new SelectItem(caravana.getId(), caravana.getDataSaida() + " - " + caravana.getHoraSaida() + " - " + caravana.getEvento().getDescricaoEvento().getDescricao(), "0"));
+            listaCaravanaSelect.add(new SelectItem(caravana.getId(), caravana.getDataEmbarqueIda() + " - " + caravana.getHoraEmbarqueIda() + " - " + caravana.getEvento().getDescricaoEvento().getDescricao() + " " + caravana.getTituloComplemento(), "0"));
             listaCaravana.add(caravana);
         }
         idCaravanaSelect = vendas.getCaravana().getId();
@@ -688,7 +706,7 @@ public class VendasCaravanaBean implements Serializable {
             novoLog.save(
                     "VENDA Nº" + vendas.getId()
                     + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
-                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - " + vendas.getCaravana().getDataEmbarqueIda()
                     + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
                     + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
                     + " - QUARTO: " + vendas.getQuarto()
@@ -702,7 +720,7 @@ public class VendasCaravanaBean implements Serializable {
             CaravanaVenda cv = (CaravanaVenda) dao.find(vendas);
             String beforeUpdate = "VENDA Nº" + cv.getId()
                     + " - CARAVANA: " + cv.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
-                    + " - " + cv.getCaravana().getDataSaida()
+                    + " - " + cv.getCaravana().getDataEmbarqueIda()
                     + " - OPERADOR: " + cv.getOperador().getPessoa().getNome()
                     + " - RESPONSÁVEL: " + cv.getResponsavel().getNome()
                     + " - QUARTO: " + cv.getQuarto()
@@ -710,7 +728,7 @@ public class VendasCaravanaBean implements Serializable {
             novoLog.update(beforeUpdate,
                     "VENDA Nº" + vendas.getId()
                     + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
-                    + " - " + vendas.getCaravana().getDataSaida()
+                    + " - " + vendas.getCaravana().getDataEmbarqueIda()
                     + " - OPERADOR: " + vendas.getOperador().getPessoa().getNome()
                     + " - RESPONSÁVEL: " + vendas.getResponsavel().getNome()
                     + " - QUARTO: " + vendas.getQuarto()
@@ -742,7 +760,7 @@ public class VendasCaravanaBean implements Serializable {
                 novoLog.save(
                         "RESERVAS - VENDA Nº" + vendas.getId()
                         + " - CARAVANA: " + vendas.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
-                        + " - " + vendas.getCaravana().getDataSaida()
+                        + " - " + vendas.getCaravana().getDataEmbarqueIda()
                         + " - OPERADOR: " + res.getOperador().getPessoa().getNome()
                         + " - PASSAGEIRO: " + res.getPessoa().getNome()
                         + " - POLTRONA: " + res.getPoltrona()
@@ -825,7 +843,7 @@ public class VendasCaravanaBean implements Serializable {
                         movimentoInativo.setMovimento(listaMovimento1);
                         movimentoInativo.setDtData(new Date());
                         movimentoInativo.setUsuario(usuario);
-                        movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataSaida());
+                        movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataEmbarqueIda());
                         if (!dao.save(movimentoInativo)) {
                             GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
                             dao.rollback();
@@ -1128,7 +1146,7 @@ public class VendasCaravanaBean implements Serializable {
                     caravana = list.get(i);
                     vendas.setEvento(list.get(i).getEvento());
                 }
-                listaCaravanaSelect.add(new SelectItem(list.get(i).getId(), list.get(i).getDataSaida() + " - " + list.get(i).getHoraSaida() + " - " + list.get(i).getEvento().getDescricaoEvento().getDescricao(), Integer.toString(i)));
+                listaCaravanaSelect.add(new SelectItem(list.get(i).getId(), list.get(i).getDataEmbarqueIda() + " - " + list.get(i).getHoraEmbarqueIda() + " - " + list.get(i).getEvento().getDescricaoEvento().getDescricao() + "  " + list.get(i).getTituloComplemento(), Integer.toString(i)));
                 listaCaravana.add(list.get(i));
 
             }

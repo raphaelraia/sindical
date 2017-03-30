@@ -5,10 +5,10 @@ import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.CaravanaDao;
+import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -130,34 +130,48 @@ public class CaravanaBean implements Serializable {
             GenericaMensagem.warn("Validação", "CADASTRAR DESCRIÇÃO DE EVENTOS!");
             return false;
         }
-
-        if (caravana.getDataSaida().isEmpty()) {
-            GenericaMensagem.warn("Validação", "DIGITE UMA DATA DE SAÍDA!");
+        if (caravana.getTituloComplemento().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE O TITULO/COMPLEMENTO DA CARAVANA!");
             return false;
         }
 
-        if (caravana.getHoraSaida().isEmpty()) {
-            GenericaMensagem.warn("Validação", "DIGITE UM HORÁRIO DE SAÍDA!");
+        if (caravana.getDataEmbarqueIda().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE A DATA DE EMBARQUE IDA!");
             return false;
         }
 
-        if (caravana.getDataChegada().isEmpty()) {
-            GenericaMensagem.warn("Validação", "DIGITE UMA DATA DE CHEGADA!");
+        if (caravana.getHoraEmbarqueIda().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE O HORÁRIO DE EMBARQUE IDA!");
             return false;
         }
 
-        if (caravana.getHoraChegada().isEmpty()) {
-            GenericaMensagem.warn("Validação", "DIGITE UM HORÁRIO DE CHEGADA!");
+        if (caravana.getDataEstadiaInicio().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE A DATA DE INICIO DA ESTÁDIA!");
             return false;
         }
 
-        if (caravana.getDataRetorno().isEmpty()) {
-            GenericaMensagem.warn("Validação", "DIGITE UMA DATA DE RETORNO!");
+        if (caravana.getHoraEstadiaInicio().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE O HORÁRIO DE INICIO DA ESTÁDIA!");
             return false;
         }
 
-        if (caravana.getHoraRetorno().isEmpty()) {
-            GenericaMensagem.warn("Validação", "DIGITE UM HORÁRIO DE RETORNO!");
+        if (caravana.getDataEstadiaFim().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE A DATA DO FINAL DA ESTÁDIA!");
+            return false;
+        }
+
+        if (caravana.getHoraEstadiaFim().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE O HORÁRIO DO FINAL DA ESTÁDIA!");
+            return false;
+        }
+
+        if (caravana.getDataEmbarqueRetorno().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE A DATA DE EMBARQUE RETORNO!");
+            return false;
+        }
+
+        if (caravana.getHoraEmbarqueRetorno().isEmpty()) {
+            GenericaMensagem.warn("Validação", "DIGITE O HORÁRIO DE EMBARQUE RETORNO!");
             return false;
         }
 
@@ -221,7 +235,7 @@ public class CaravanaBean implements Serializable {
                 GenericaMensagem.warn("Erro", "AO ATUALIZAR CARAVANA!");
                 dao.rollback();
             } else {
-                GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
+                GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
                 dao.commit();
                 loadListCaravanas();
             }
@@ -419,6 +433,9 @@ public class CaravanaBean implements Serializable {
     }
 
     public Caravana getCaravana() {
+        if (GenericaSessao.exists("enderecoPesquisa")) {
+            caravana.setEnderecoEmbarqueIda((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
+        }
         return caravana;
     }
 

@@ -57,13 +57,13 @@
                                             <p:commandButton icon="ui-icon-link" action="#{vendasCaravanaBean.edit(reservas.venda)}" title="Editar registro nº #{reservas.id}"/>
                                         </p:column>
                                         <p:column headerText="Caravana">
-                                            #{reservas.venda.evento.descricaoEvento.descricao}
+                                            #{reservas.venda.evento.descricaoEvento.descricao} #{reservas.venda.caravana.tituloComplemento}
                                         </p:column>
-                                        <p:column headerText="Saída" width="80" styleClass="text-center">
-                                            #{reservas.venda.caravana.dataSaida}
+                                        <p:column headerText="Embarque Ida" width="80" styleClass="text-center">
+                                            #{reservas.venda.caravana.dataEmbarqueIda}
                                         </p:column>
-                                        <p:column headerText="Retorno" width="80" styleClass="text-center">
-                                            #{reservas.venda.caravana.dataRetorno}
+                                        <p:column headerText="Embarque Retorno" width="80" styleClass="text-center">
+                                            #{reservas.venda.caravana.dataEmbarqueRetorno}
                                         </p:column>                                        
                                         <p:column headerText="Data reserva"  styleClass="text-center" width="80">
                                             #{reservas.venda.emissao}
@@ -91,13 +91,13 @@
                                             <p:commandButton icon="ui-icon-link" action="#{vendasCaravanaBean.edit(venda)}" title="Editar registro nº #{venda.id}"/>
                                         </p:column>
                                         <p:column headerText="Caravana">
-                                            #{venda.evento.descricaoEvento.descricao}
+                                            #{venda.evento.descricaoEvento.descricao} #{venda.caravana.tituloComplemento}
                                         </p:column>
-                                        <p:column headerText="Saída" width="80" styleClass="text-center">
-                                            #{venda.caravana.dataSaida}
+                                        <p:column headerText="Embarque Ida" width="80" styleClass="text-center">
+                                            #{venda.caravana.dataEmbarqueIda}
                                         </p:column>
-                                        <p:column headerText="Retorno" width="80" styleClass="text-center">
-                                            #{venda.caravana.dataRetorno}
+                                        <p:column headerText="Embarque Retorno" width="80" styleClass="text-center">
+                                            #{venda.caravana.dataEmbarqueRetorno}
                                         </p:column>
                                         <p:column headerText="Data reserva" styleClass="text-center" width="80">
                                             #{venda.emissao}
