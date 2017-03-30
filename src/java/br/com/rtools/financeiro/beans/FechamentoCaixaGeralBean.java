@@ -26,6 +26,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
     private String valorFechamento;
     private List<Vector> listaDetalhesFechamento;
     private FechamentoCaixa fechamento;
+    private String filtro = "30dias";
     
     @PostConstruct
     public void init(){
@@ -89,7 +90,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
         
         FinanceiroDao db = new FinanceiroDao();
         
-        List<Vector> list = db.listaFechamentoCaixaGeral();
+        List<Vector> list = db.listaFechamentoCaixaGeral(filtro);
         
         for (Vector result : list){
             Caixa cx = (Caixa) new Dao().find( new Caixa(), (Integer) result.get(6));
@@ -179,5 +180,13 @@ public class FechamentoCaixaGeralBean implements Serializable {
 
     public void setFechamento(FechamentoCaixa fechamento) {
         this.fechamento = fechamento;
+    }
+
+    public String getFiltro() {
+        return filtro;
+    }
+
+    public void setFiltro(String filtro) {
+        this.filtro = filtro;
     }
 }

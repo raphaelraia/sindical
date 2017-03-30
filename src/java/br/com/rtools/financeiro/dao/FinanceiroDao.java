@@ -1570,7 +1570,39 @@ public class FinanceiroDao extends DB {
         return null;
     }
 
-    public List<Vector> listaFechamentoCaixaGeral() {
+    public List<Vector> listaFechamentoCaixaGeral(String filtro) {
+        List<String> list_where = new ArrayList();
+
+        String WHERE = "";
+
+        switch (filtro) {
+            case "30dias":
+                list_where.add("dt_fechamento >= CURRENT_DATE - 30");
+                break;
+
+            case "60dias":
+                list_where.add("dt_fechamento >= CURRENT_DATE - 60");
+                break;
+
+            case "6meses":
+                list_where.add("dt_fechamento >= CURRENT_DATE - 180");
+                break;
+
+            case "1ano":
+                list_where.add("dt_fechamento >= CURRENT_DATE - 365");
+                break;
+            default:
+                break;
+        }
+
+        for (String w : list_where) {
+            if (WHERE.isEmpty()) {
+                WHERE = " WHERE " + w + " \n ";
+            } else {
+                WHERE += " AND " + w + " \n ";
+            }
+        }
+        
         String text
                 = "SELECT \n"
                 + " caixa, \n"
@@ -1580,7 +1612,8 @@ public class FinanceiroDao extends DB {
                 + " sum(valor) as valor, \n"
                 + " id_fechamento_caixa, \n"
                 + " id_caixa \n"
-                + "  FROM  fin_fecha_caixa_geral_vw \n"
+                + "  FROM fin_fecha_caixa_geral_vw \n"
+                + WHERE
                 + " GROUP BY \n"
                 + " caixa, \n"
                 + " dt_fechamento, \n"

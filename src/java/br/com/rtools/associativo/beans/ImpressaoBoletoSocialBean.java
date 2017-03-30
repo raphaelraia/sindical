@@ -75,7 +75,7 @@ public class ImpressaoBoletoSocialBean {
     private boolean atualizaListaPessoaSemEndereco = true;
     private Integer qntPessoasSelecionadas = 0;
     private String valorTotal = "0,00";
-    
+
     private String boletoRegistrado = "todos";
 
     @PostConstruct
@@ -111,9 +111,8 @@ public class ImpressaoBoletoSocialBean {
         }
 
         new RegistrarBoletoThread(lista, "soc_boletos_vw").runDebug();
-        
-        // loadLista();
 
+        // loadLista();
         GenericaMensagem.info("Sucesso", "Registro de Boletos concluído!");
     }
 
@@ -475,7 +474,7 @@ public class ImpressaoBoletoSocialBean {
                     }
                 }
             }
-            Jasper.printReports("ETIQUETAS.jasper", "etiquetas", lista);            
+            Jasper.printReports("ETIQUETAS.jasper", "etiquetas", lista);
         } catch (NumberFormatException e) {
             e.getMessage();
         }

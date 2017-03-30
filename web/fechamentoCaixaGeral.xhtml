@@ -13,18 +13,18 @@
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
-            
+
             .column01{
                 width: 100%;
             }
-            
+
             .column02{
                 width: 0px;
             }
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -34,42 +34,62 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Fechamento Caixa Geral" styleClass="fonteHeader" />
                         <h:form id="formFechamentoCaixaGeral">
-                            <div style="clear: both"></div>                            
-                            <p:dataTable var="linha" id="tbl" value="#{fechamentoCaixaGeralBean.listaFechamentoCaixa}" emptyMessage="Nenhum fechamento encontrado!">
+                            <p:panel id="panelGrupo" styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="1">
+                                    <h:column>
+                                        <p:outputLabel value="Período" /><br />
+                                        <p:selectOneMenu value="#{fechamentoCaixaGeralBean.filtro}">
+                                            <p:ajax event="change" update="tbl" listener="#{fechamentoCaixaGeralBean.loadListaFechamentoCaixa()}"/>
+                                            <f:selectItem itemValue="30dias" itemLabel="30 Dias"/>
+                                            <f:selectItem itemValue="60dias" itemLabel="60 Dias"/>
+                                            <f:selectItem itemValue="6meses" itemLabel="6 meses"/>
+                                            <f:selectItem itemValue="1ano" itemLabel="1 Ano"/>
+                                            <f:selectItem itemValue="Todos" itemLabel="Todos"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:dataTable var="linha" id="tbl" value="#{fechamentoCaixaGeralBean.listaFechamentoCaixa}" emptyMessage="Nenhum fechamento encontrado!" rowIndexVar="index">
+                                <p:column headerText="#" style="text-align: center; width: 40px; font-weight: bold">
+                                    <p:outputLabel value="#{index + 1}" />
+                                </p:column>
+                                
                                 <p:column headerText="Nome do Caixa">
                                     <p:commandLink value="#{linha.argumento0[0]}" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Data do Fechamento" style="width: 80px; text-align: center">
                                     <p:commandLink value="#{fechamentoCaixaGeralBean.converteData(linha.argumento0[1])}" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Hora" style="width: 60px; text-align: center">
                                     <p:commandLink value="#{linha.argumento0[2]}" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Data de Transferência" style="width: 90px; text-align: center">
                                     <p:commandLink value="#{fechamentoCaixaGeralBean.converteData(linha.argumento0[3])}" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Valor" style="width: 80px; text-align: right">
                                     <p:commandLink value="#{fechamentoCaixaGeralBean.converteValor(linha.argumento0[4])}" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Operador" rendered="false">
                                     <p:commandLink value="#{(linha.argumento2.usuario != null) ? linha.argumento2.usuario.pessoa.nome : null}" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Consulta" style="width: 80px; text-align: center">
                                     <p:commandLink value="Operadores" action="#{fechamentoCaixaGeralBean.loadListaDetalhesFechamento(linha.argumento0[6], linha.argumento0[5])}" update=":formFechamentoCaixaGeral:tbl2" oncomplete="PF('dlg_detalhes_fechamento').show()"/>
                                 </p:column>
-                                
-                                <p:column headerText="" style="width: 80px; text-align: center">
+
+                                <p:column headerText="" style="width: 50px; text-align: center">
                                     <p:commandButton icon="ui-icon-close" action="#{fechamentoCaixaGeralBean.loadEstornarFechamento(linha.argumento0[5])}" update=":formFechamentoCaixaGeral:i_panel_estorno" oncomplete="PF('dlg_estornar_fechamento').show()" rendered="#{linha.argumento0[3] != null}"/>
                                 </p:column>
                             </p:dataTable>
@@ -91,15 +111,15 @@
 
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:dialog widgetVar="dlg_fechamento" header="Fechamento de Caixa Geral" resizable="false" width="400" modal="true">
                                 <p:outputLabel value="Deseja concluir este Fechamento Geral?" style="font-size: 12pt!important" />
                                 <br /><br />
                                 <p:commandButton value="Sim" styleClass="ui-confirmdialog-yes" action="#{fechamentoCaixaGeralBean.salvar()}" update="formFechamentoCaixaGeral" icon="ui-icon-check" />  
                                 <p:commandButton value="Não" styleClass="ui-confirmdialog-no" onclick="PF('dlg_fechamento').hide()" icon="ui-icon-close"/>       
                             </p:dialog>
-                            
-                            
+
+
                             <p:dialog widgetVar="dlg_detalhes_fechamento" header="Detalhes do Fechamento Caixa" resizable="false" width="400" modal="true">
                                 <p:dataTable var="linha" id="tbl2" value="#{fechamentoCaixaGeralBean.listaDetalhesFechamento}" emptyMessage="Nenhum fechamento encontrado!">
                                     <p:column headerText="Operador">
@@ -113,7 +133,7 @@
                                 <br /><br />
                                 <p:commandButton value="OK" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" onclick="PF('dlg_detalhes_fechamento').hide()"/>  
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_estornar_fechamento" header="Estornar Fechamento" resizable="false" width="400" modal="true">
                                 <p:outputLabel value="Deseja realmente estornar esta transferencia?" style="font-size: 12pt!important"/>
                                 <h:panelGrid id="i_panel_estorno" columns="4">
@@ -128,9 +148,9 @@
                                     <p:commandButton value="Cancelar" icon="ui-icon-close" onclick="PF('dlg_estornar_fechamento').hide()"/>  
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                         </h:form>
-                    
+
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
