@@ -208,7 +208,28 @@
                                                     </p:column>
                                                 </p:dataTable>                                        
                                             </h:panelGrid>
-                                        </p:column>                                         
+                                        </p:column> 
+                                        <!-- STATUS -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(5).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="STATUS" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="3">
+                                                        <p:selectOneMenu value="#{relatorioFinanceiroEscolaBean.status}" style="padding-right: 20px">
+                                                            <p:ajax event="change" update="@this"/>
+                                                            <f:selectItem itemValue="" itemLabel="Todos" />
+                                                            <f:selectItem itemValue="quitados" itemLabel="Quitados" />
+                                                            <f:selectItem itemValue="abertos" itemLabel="Abertos" />
+                                                            <f:selectItem itemValue="atrasados" itemLabel="Atrasados" />
+                                                        </p:selectOneMenu>
+                                                    </h:panelGrid>
+                                                </h:column>
+
+                                            </h:panelGrid>
+                                        </h:column>
                                     </h:panelGrid>
                                 </h:column>
                             </h:panelGrid>             

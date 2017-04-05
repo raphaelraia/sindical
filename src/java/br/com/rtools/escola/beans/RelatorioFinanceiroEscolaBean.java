@@ -58,6 +58,8 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
     private Turma turma;
     private List<Turma> listTurma;
 
+    private String status = "";
+
     public RelatorioFinanceiroEscolaBean() {
         loadListaRelatorio();
         loadListaFiltro();
@@ -173,7 +175,7 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
         Map params = new HashMap();
         params.put("descricao_pesquisa", descricaoData);
 
-        List<Object> result = new RelatorioFinanceiroEscolaDao().listaRelatorioFinanceiro(id_servicos, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_pessoa, id_pessoa, ordem, relatorios, desconto_inicial, desconto_final, in_turmas);
+        List<Object> result = new RelatorioFinanceiroEscolaDao().listaRelatorioFinanceiro(id_servicos, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_pessoa, id_pessoa, ordem, relatorios, desconto_inicial, desconto_final, in_turmas, status);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -225,6 +227,12 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
                 turma = new Turma();
                 listTurma = new ArrayList<>();
                 break;
+            case "status":
+                status = "";
+                if (linha.ativo) {
+                    status = "todos";
+                }
+                break;
         }
     }
 
@@ -240,11 +248,12 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
     public final void loadListaFiltro() {
         listaFiltros.clear();
 
-        listaFiltros.add(new Filtros("tipoPessoa", "Tipo de Pessoa", false));
-        listaFiltros.add(new Filtros("datas", "Datas", false));
-        listaFiltros.add(new Filtros("servicos", "Cursos", false));
-        listaFiltros.add(new Filtros("faixa_desconto", "Faixa de Desconto", false));
-        listaFiltros.add(new Filtros("turma", "Turma", false));
+        /* 00 */ listaFiltros.add(new Filtros("tipoPessoa", "Tipo de Pessoa", false));
+        /* 01 */ listaFiltros.add(new Filtros("datas", "Datas", false));
+        /* 02 */ listaFiltros.add(new Filtros("servicos", "Cursos", false));
+        /* 03 */ listaFiltros.add(new Filtros("faixa_desconto", "Faixa de Desconto", false));
+        /* 04 */ listaFiltros.add(new Filtros("turma", "Turma", false));
+        /* 05 */ listaFiltros.add(new Filtros("status", "Status", false));
     }
 
     public final void loadListaRelatorioOrdem() {
@@ -471,6 +480,14 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
 
     public void setListTurma(List<Turma> listTurma) {
         this.listTurma = listTurma;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public class Filtros {

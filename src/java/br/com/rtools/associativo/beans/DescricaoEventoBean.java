@@ -76,7 +76,7 @@ public class DescricaoEventoBean implements Serializable {
             new NovoLog().save("GRUPO EVENTO: " + descricaoEvento.getGrupoEvento().getDescricao() + " - DESCRIÇÃO: " + descricaoEvento.getDescricao());
             loadListDescricaoEvento();
             GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
-        } else if (!dao.update(descricaoEvento, true)) {
+        } else if (!dao.update(descricaoEvento)) {
             dao.rollback();
             GenericaMensagem.warn("Erro", "AO ADICIONAR REGISTRO!");
         } else {

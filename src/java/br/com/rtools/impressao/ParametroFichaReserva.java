@@ -47,8 +47,9 @@ public class ParametroFichaReserva {
     private Object local_cidade;
     private Object local_uf;
     private Object tempo_viagem;
+    private Object caravana_id;
 
-    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object embarque_ida, Object embarque_retorno, Object periodo_estadia, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona, Object local_endereco_embarque_ida, Object local_embarque_ida, Object local_cidade, Object local_uf, Object tempo_viagem) {
+    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object embarque_ida, Object embarque_retorno, Object periodo_estadia, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona, Object local_endereco_embarque_ida, Object local_embarque_ida, Object local_cidade, Object local_uf, Object tempo_viagem, Object caravana_id) {
         this.responsavel_nome = responsavel_nome;
         this.responsavel_endereco = responsavel_endereco;
         this.empresa_nome = empresa_nome;
@@ -94,6 +95,7 @@ public class ParametroFichaReserva {
         this.local_cidade = local_cidade;
         this.local_uf = local_uf;
         this.tempo_viagem = tempo_viagem;
+        this.caravana_id = caravana_id;
     }
 
     public Object getResponsavel_nome() {
@@ -454,6 +456,14 @@ public class ParametroFichaReserva {
 
     public void setTempo_viagem(Object tempo_viagem) {
         this.tempo_viagem = tempo_viagem;
+    }
+
+    public Object getCaravana_id() {
+        return caravana_id;
+    }
+
+    public void setCaravana_id(Object caravana_id) {
+        this.caravana_id = caravana_id;
     }
 
 }

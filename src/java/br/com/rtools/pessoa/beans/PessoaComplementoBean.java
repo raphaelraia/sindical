@@ -89,12 +89,16 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
     }
 
     public String pessoaComplementoPesquisaPessoa(Integer idPessoa) {
-        PessoaDao pessoaDB = new PessoaDao();
-        pessoaComplemento = pessoaDB.pesquisaPessoaComplementoPorPessoa(idPessoa);
-        if (pessoaComplemento.getId() == -1) {
-            diaVencimento = getRegistro().getFinDiaVencimentoCobranca();
-        } else {
-            diaVencimento = pessoaComplemento.getNrDiaVencimento();
+        try {
+            PessoaDao pessoaDB = new PessoaDao();
+            pessoaComplemento = pessoaDB.pesquisaPessoaComplementoPorPessoa(idPessoa);
+            if (pessoaComplemento.getId() == -1) {
+                diaVencimento = getRegistro().getFinDiaVencimentoCobranca();
+            } else {
+                diaVencimento = pessoaComplemento.getNrDiaVencimento();
+            }            
+        } catch (Exception e)  {
+            
         }
         return null;
     }
