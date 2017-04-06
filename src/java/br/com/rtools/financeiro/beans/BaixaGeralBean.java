@@ -19,9 +19,9 @@ import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
-import br.com.rtools.financeiro.dao.FormaPagamentoDao;
 import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
@@ -214,6 +214,9 @@ public class BaixaGeralBean implements Serializable {
             GenericaSessao.put("baixa_geral_sucesso", true);
             String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
             GenericaSessao.put("linkClicado", true);
+            
+            GenericaSessao.remove("tipo_recibo_imprimir");
+            
             if (url.equals("baixaBoleto")) {
                 ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
                 return "baixaBoleto";
@@ -242,6 +245,8 @@ public class BaixaGeralBean implements Serializable {
                 return "conviteMovimento";
             } else if (url.equals("devolucaoFilme")) {
                 return "devolucaoFilme";
+            } else if (url.equals("contasAPagar")) {
+                return "contasAPagar";
             } else {
                 return "menuPrincipal";
             }
@@ -645,6 +650,8 @@ public class BaixaGeralBean implements Serializable {
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).getListaMovimentos().clear();
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaCamposMovimento(true);
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
+            } else if (url.equals("contasAPagar")) {
+                ((ContasAPagarBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("contasAPagarBean")).loadListaContas();
             }
 
             ((EmissaoGuiasBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("emissaoGuiasBean")).atualizarHistorico();
@@ -730,6 +737,7 @@ public class BaixaGeralBean implements Serializable {
                     return;
                 }
             }
+
             Map map = new HashMap();
             if (!dataEmissaoRecibo.isEmpty()) {
                 map.put("data_emissao", dataEmissaoRecibo);
@@ -739,7 +747,17 @@ public class BaixaGeralBean implements Serializable {
             } else {
                 map.put("obs", "");
             }
-            new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
+
+            if (!GenericaSessao.exists("tipo_recibo_imprimir")) {
+                new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
+            } else {
+
+                if (((TipoRecibo) GenericaSessao.getObject("tipo_recibo_imprimir")).getId() == 1) {
+                    new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
+                } else {
+                    new ImprimirRecibo().reciboGenerico(listaMovimentos.get(0).getId(), null);
+                }
+            }
         }
     }
 
@@ -836,14 +854,12 @@ public class BaixaGeralBean implements Serializable {
     public boolean isDesHabilitaQuitacao() {
         if (tipo.equals("banco")) {
             desHabilitaQuitacao = false;
-        } else {
-            // TRUE = não tem permissão
-            if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
+        } else // TRUE = não tem permissão
+         if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
                 desHabilitaQuitacao = true;
             } else {
                 desHabilitaQuitacao = false;
             }
-        }
         return desHabilitaQuitacao;
     }
 

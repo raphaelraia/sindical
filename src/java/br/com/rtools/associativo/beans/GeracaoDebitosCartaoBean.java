@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.BaixaGeralBean;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -272,6 +273,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
         BaixaGeralBean.listenerTipoCaixaSession("caixa");
         GenericaSessao.put("listaMovimento", listMovimentoSelected);
         GenericaMensagem.info("Sucesso", "Geração efetuada com sucesso!");
+        GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         // return null;
     }

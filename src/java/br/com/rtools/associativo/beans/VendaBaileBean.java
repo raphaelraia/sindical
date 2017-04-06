@@ -19,6 +19,7 @@ import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroConviteBaile;
@@ -1157,6 +1158,7 @@ public class VendaBaileBean implements Serializable {
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
 
                 GenericaSessao.put("caixa_banco", "caixa");
+                GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
                 return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
 
             } else {

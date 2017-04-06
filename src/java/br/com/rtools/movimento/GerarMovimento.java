@@ -972,13 +972,16 @@ public class GerarMovimento extends DB {
 
             dao.openTransaction();
 
-            BaixaLog baixaLog = new BaixaLogDao().findByBaixaMovimento(movimento.getBaixa().getId(), movimento.getId());
-            if (baixaLog != null) {
-                if (!dao.delete(baixaLog)) {
-                    dao.rollback();
-                    return false;
+            List<BaixaLog> l_baixaLog = new BaixaLogDao().listByBaixaMovimento(movimento.getBaixa().getId());
+            if (!l_baixaLog.isEmpty()) {
+                for (BaixaLog bl : l_baixaLog) {
+                    if (!dao.delete(bl)) {
+                        dao.rollback();
+                        return false;
+                    }
                 }
             }
+            
             ChequePag chequePag = null;
             if (lista.isEmpty()) {
                 dao.rollback();

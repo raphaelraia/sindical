@@ -3,11 +3,13 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -180,6 +182,7 @@ public class BaixaBoletoBean {
 
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("caixa_banco", caixaBanco);
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
+        GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
     }
 

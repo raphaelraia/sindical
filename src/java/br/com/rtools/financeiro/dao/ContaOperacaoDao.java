@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.dao;
 
+import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,5 +155,25 @@ public class ContaOperacaoDao extends DB {
         } catch (Exception e) {
             return new ArrayList();
         }
+    }
+
+    public List<ContaOperacao> listContaOperacaoExistente(Integer id_plano5, Integer id_operacao, Integer id_filial) {
+        try {
+
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT co.* \n "
+                    + "  FROM fin_conta_operacao co \n "
+                    + " WHERE co.id_plano5 = " + id_plano5 + " \n "
+                    + "   AND co.id_operacao = " + id_operacao + " \n "
+                    + "   AND co.id_filial = " + id_filial,
+                    ContaOperacao.class
+            );
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
+        return new ArrayList();
     }
 }

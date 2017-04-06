@@ -92,6 +92,31 @@ public class LancamentoFinanceiroDao extends DB {
         return null;
     }
 
+    public Boolean estornarTipoConta(Integer id_baixa) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "SELECT count(*) \n"
+                    + "  FROM ( \n"
+                    + "	SELECT id_pessoa, id_baixa \n"
+                    + "	  FROM fin_movimento \n"
+                    + "	 WHERE is_ativo = true \n"
+                    + "	   AND id_baixa IS NOT NULL\n"
+                    + "	   AND ds_es = 'S' \n"
+                    + "	   AND id_baixa = 1 \n"
+                    + "	 GROUP BY id_pessoa, id_baixa \n"
+                    + ") AS bb \n"
+                    + "GROUP BY id_baixa \n"
+                    + "HAVING count(*) > 1"
+            );
+            
+            List<Object> result = qry.getResultList();
+            return result.get(0) == null ? false : (Integer) result.get(0) == 1;
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return false;
+    }
+
 //   
 //    public List<ContaOperacao> listaContaOperacaoContabil(int id_centro_custo_contabil_sub) {
 //        try {

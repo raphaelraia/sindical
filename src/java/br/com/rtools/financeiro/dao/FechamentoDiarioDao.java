@@ -44,6 +44,7 @@ public class FechamentoDiarioDao extends DB {
                     + "  FROM fin_conta_saldo AS cs \n"
                     + "  INNER JOIN fin_plano5 AS p ON p.id = cs.id_plano5 \n"
                     + "  WHERE cs.dt_data = '" + data + "' \n"
+                    + "    AND cs.nr_saldo > 0  \n"
                     + " GROUP BY cs.id, p.id, cs.dt_data, p.ds_conta\n"
                     + " ORDER BY cs.dt_data, p.ds_conta"
             );

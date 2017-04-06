@@ -3,6 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.dao.MovimentoReceberDao;
 import br.com.rtools.financeiro.lista.ListMovimentoReceber;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -247,6 +248,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
             }
             if (!list.isEmpty()) {
                 GenericaSessao.put("listaMovimento", list);
+                GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
                 return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
             } else {
                 GenericaMensagem.warn("Validação", "Nenhum boleto selecionado!");

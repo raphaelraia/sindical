@@ -28,6 +28,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoPromocionalDao;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
@@ -2305,6 +2306,7 @@ public class MatriculaAcademiaBean implements Serializable {
             }
             if (!listaMovimentoAuxiliar.isEmpty()) {
                 GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
+                GenericaSessao.put("tipo_recibo_imprimir", dao.find(new TipoRecibo(), 1));
                 return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
             }
         }

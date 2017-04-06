@@ -51,7 +51,7 @@ public class RelatorioPlanoContasBean implements Serializable {
         for (Object obj : result) {
             List linha = (List) obj;
             lista.add(
-                    new ObjectLista(linha.get(0), linha.get(1), linha.get(2), linha.get(3), linha.get(4), linha.get(5), linha.get(6), linha.get(7), linha.get(8), linha.get(9), linha.get(10), linha.get(11))
+                    new ObjectLista(linha.get(0), linha.get(1), linha.get(2), linha.get(3), linha.get(4), linha.get(5), linha.get(6), linha.get(7), linha.get(8), linha.get(9), linha.get(10), linha.get(11), linha.get(12), linha.get(13), linha.get(14), linha.get(15))
             );
         }
 
@@ -116,8 +116,12 @@ public class RelatorioPlanoContasBean implements Serializable {
         private Object acesso2;
         private Object acesso3;
         private Object acesso4;
+        private Object classificador1;
+        private Object classificador2;
+        private Object classificador3;
+        private Object classificador4;
 
-        public ObjectLista(Object acesso, Object classificador, Object codigo, Object conta1, Object conta2, Object conta3, Object conta4, Object conta5, Object acesso1, Object acesso2, Object acesso3, Object acesso4) {
+        public ObjectLista(Object acesso, Object classificador, Object codigo, Object conta1, Object conta2, Object conta3, Object conta4, Object conta5, Object acesso1, Object acesso2, Object acesso3, Object acesso4, Object classificador1, Object classificador2, Object classificador3, Object classificador4) {
             this.acesso = acesso;
             this.classificador = classificador;
             this.codigo = codigo;
@@ -130,8 +134,12 @@ public class RelatorioPlanoContasBean implements Serializable {
             this.acesso2 = acesso2;
             this.acesso3 = acesso3;
             this.acesso4 = acesso4;
+            this.classificador1 = classificador1;
+            this.classificador2 = classificador2;
+            this.classificador3 = classificador3;
+            this.classificador4 = classificador4;
         }
-
+        
         public Object getAcesso() {
             return acesso;
         }
@@ -226,6 +234,38 @@ public class RelatorioPlanoContasBean implements Serializable {
 
         public void setAcesso4(Object acesso4) {
             this.acesso4 = acesso4;
+        }
+
+        public Object getClassificador1() {
+            return classificador1;
+        }
+
+        public void setClassificador1(Object classificador1) {
+            this.classificador1 = classificador1;
+        }
+
+        public Object getClassificador2() {
+            return classificador2;
+        }
+
+        public void setClassificador2(Object classificador2) {
+            this.classificador2 = classificador2;
+        }
+
+        public Object getClassificador3() {
+            return classificador3;
+        }
+
+        public void setClassificador3(Object classificador3) {
+            this.classificador3 = classificador3;
+        }
+
+        public Object getClassificador4() {
+            return classificador4;
+        }
+
+        public void setClassificador4(Object classificador4) {
+            this.classificador4 = classificador4;
         }
     }
 }

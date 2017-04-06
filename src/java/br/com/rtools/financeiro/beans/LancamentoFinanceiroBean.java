@@ -487,11 +487,19 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         boolean reverse = false;
+        
         for (Parcela p : listaParcelaSelecionada) {
             if (p.getMovimento().getBaixa() == null) {
                 continue;
             }
+
             movimento = p.getMovimento();
+            
+            if (!new LancamentoFinanceiroDao().estornarTipoConta(movimento.getBaixa().getId())) {
+                GenericaMensagem.warn("Atenção", "ESTORNAR PELA ROTINA DE CONTAS A PAGAR!");
+                return;
+            }
+            
             if (GerarMovimento.estornarMovimento(movimento, motivoEstorno)) {
                 reverse = true;
             }
@@ -578,6 +586,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("esMovimento", lista.get(0).getEs());
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("caixa_banco", "caixa");
+            GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 2));
             return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
         }
         return null;

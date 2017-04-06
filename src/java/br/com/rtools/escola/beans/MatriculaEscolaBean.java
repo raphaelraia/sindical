@@ -24,6 +24,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
@@ -353,6 +354,7 @@ public class MatriculaEscolaBean implements Serializable {
         if (!lm.isEmpty()) {
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lm);
             GenericaSessao.put("caixa_banco", caixa_banco);
+            GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
             return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
         } else {
             GenericaMensagem.warn("Atenção", "Lista de movimento vazia, tente novamente!");

@@ -10,6 +10,7 @@ import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.financeiro.beans.ConfiguracaoFinanceiroBean;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
@@ -1338,6 +1339,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
                 
                 GenericaSessao.put("caixa_banco", caixa_banco);
+                GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
                 return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
             } else {
                 msgConfirma = "Nenhum boleto foi selecionado";

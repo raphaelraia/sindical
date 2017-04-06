@@ -240,8 +240,16 @@ public class ContaOperacaoBean implements Serializable {
         } else {
             contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[4]).getDescription())));
         }
+
+        ContaOperacaoDao c_dao = new ContaOperacaoDao();
+
         dao.openTransaction();
         if (contaOperacao.getId() == -1) {
+            if (!c_dao.listContaOperacaoExistente(contaOperacao.getPlano5().getId(), contaOperacao.getOperacao().getId(), contaOperacao.getFilial().getId()).isEmpty()) {
+                GenericaMensagem.warn("Atenção", "Esta Conta Operação já existe!");
+                dao.rollback();
+                return;
+            }
             if (dao.save(contaOperacao)) {
                 dao.commit();
                 GenericaMensagem.info("Sucesso", "Registro adicionado com sucesso");
@@ -289,17 +297,36 @@ public class ContaOperacaoBean implements Serializable {
         if (!getListCentroCusto().isEmpty()) {
             centroCusto = (CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription()));
         }
-        for (int i = 0; i < listPlano5.size(); i++) {
-            if (listPlano5.get(i).getSelected() || selected) {
-                cc.setPlano5(listPlano5.get(i));
-                cc.setOperacao(o);
-                cc.setFilial(f);
-                cc.setCentroCusto(centroCusto);
-                cc.setContaFixa(contaFixa);
-                dao.save(cc, true);
-                cc = new ContaOperacao();
+        
+        ContaOperacaoDao c_dao = new ContaOperacaoDao();
+        
+        if (!listPlano5.isEmpty()){
+            dao.openTransaction();
+            for (int i = 0; i < listPlano5.size(); i++) {
+                if (listPlano5.get(i).getSelected() || selected) {
+                    cc.setPlano5(listPlano5.get(i));
+                    cc.setOperacao(o);
+                    cc.setFilial(f);
+                    cc.setCentroCusto(centroCusto);
+                    cc.setContaFixa(contaFixa);
+
+                    if (!c_dao.listContaOperacaoExistente(cc.getPlano5().getId(), cc.getOperacao().getId(), cc.getFilial().getId()).isEmpty()) {
+                        GenericaMensagem.warn("Atenção", "Esta Conta Operação já existe!");
+                        dao.rollback();
+                        return;
+                    }
+                    
+                    if (!dao.save(cc)){
+                        GenericaMensagem.error("Atenção", "Não foi possível salvar Conta Operação!");
+                        dao.rollback();
+                        return;
+                    }
+                    cc = new ContaOperacao();
+                }
             }
+            dao.commit();
         }
+        
         PF.update("form_co:i_panel_co_todos");
         PF.update("form_co:i_message_co_todos");
         PF.update("form_co:i_tbl_co");

@@ -6,6 +6,7 @@ import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.impressao.ParametroRecibo;
+import br.com.rtools.impressao.ParametroReciboFinanceiro;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -15,6 +16,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.ValorExtenso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,6 +39,71 @@ import org.apache.commons.collections.map.HashedMap;
 
 public class ImprimirRecibo {
 
+    public String reciboGenerico(Integer id_movimento, Map parameter) {
+        Collection vetor = new ArrayList();
+        Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
+        PessoaEnderecoDao dbp = new PessoaEnderecoDao();
+
+        PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
+
+        MovimentoDao db = new MovimentoDao();
+        Movimento movimento = db.pesquisaCodigo(id_movimento);
+
+        vetor.add(
+                new ParametroReciboFinanceiro(
+                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                        sindicato.getPessoa().getNome(),
+                        pe.getEndereco().getDescricaoEndereco().getDescricao(),
+                        pe.getEndereco().getLogradouro().getDescricao(),
+                        pe.getNumero(),
+                        pe.getComplemento(),
+                        pe.getEndereco().getBairro().getDescricao(),
+                        pe.getEndereco().getCep().substring(0, 5) + "-" + pe.getEndereco().getCep().substring(5),
+                        pe.getEndereco().getCidade().getCidade(),
+                        pe.getEndereco().getCidade().getUf(),
+                        sindicato.getPessoa().getTelefone1(),
+                        sindicato.getPessoa().getEmail1(),
+                        sindicato.getPessoa().getSite(),
+                        sindicato.getPessoa().getDocumento(),
+                        movimento.getPessoa().getNome(),
+                        movimento.getPessoa().getId(),
+                        movimento.getBaixa().getId(),
+                        movimento.getBaixa().getBaixa(),
+                        movimento.getLote().getHistoricoContabil(),
+                        movimento.getEs(),
+                        movimento.getValorBaixa(),
+                        movimento.getValorBaixaString() + " ( " + new ValorExtenso(movimento.getValorBaixa()).toString() + " ) ",
+                        pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.data(), 3)
+                )
+        );
+
+        try {
+            File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RECIBO_FINANCEIRO.jasper"));
+            JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
+
+            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
+            if (parameter == null) {
+                parameter = new HashedMap();
+            }
+            JasperPrint print = JasperFillManager.fillReport(jasper, parameter, dtSource);
+
+            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
+
+            salvarRecibo(arquivo, movimento.getBaixa());
+
+            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+            res.setContentType("application/pdf");
+            res.setHeader("Content-disposition", "inline; filename=\"" + "recibo_financeiro" + ".pdf\"");
+            res.getOutputStream().write(arquivo);
+            res.getCharacterEncoding();
+
+            FacesContext.getCurrentInstance().responseComplete();
+        } catch (JRException | IOException e) {
+            e.getMessage();
+        }
+        return null;
+    }
+
     public String recibo(Integer id_movimento) {
         return recibo(id_movimento, null);
     }
@@ -48,7 +115,7 @@ public class ImprimirRecibo {
             Collection vetor = new ArrayList();
             Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
             PessoaEnderecoDao dbp = new PessoaEnderecoDao();
-            
+
             PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
 
             // PESQUISA FORMA DE PAGAMENTO

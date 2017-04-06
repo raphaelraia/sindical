@@ -26,6 +26,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
@@ -263,6 +264,7 @@ public class EmissaoGuiasBean implements Serializable {
                 listHistoricoEmissaoGuias.clear();
                 GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
                 GenericaSessao.put("caixa_banco", "caixa");
+                GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
                 return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
             }
         }
@@ -983,6 +985,7 @@ public class EmissaoGuiasBean implements Serializable {
 
             GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
             GenericaSessao.put("mensagem_recibo", observacao);
+            GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         }
         message = " Lançamento efetuado com Sucesso!";

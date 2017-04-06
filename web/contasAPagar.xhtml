@@ -1,0 +1,339 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Contas a Pagar</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+
+            .column00{
+                padding-right: 50px
+            }
+
+            .column01{
+
+            }
+
+            .col_grid00  {
+                padding-right: 20px;
+            }
+            .col_grid01  {
+                padding-right: 20px;
+            }
+            .col_grid02  {
+                padding-right: 20px;
+            }
+            .col_grid03  {
+                padding-right: 20px;
+            }
+
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
+                    <ui:include src="templates/templateAcessoFilial.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Contas a Pagar" styleClass="fonteHeader" />
+
+                        <h:form id="formContasAPagar">
+                            <p:panel styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="3">
+                                    <h:column>
+                                        <h:outputLabel value="Condição"/><br />
+                                        <p:selectOneMenu value="#{contasAPagarBean.filtros.condicao}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItem itemValue="em_aberto" itemLabel="Em Aberto"/>
+                                            <f:selectItem itemValue="pagos" itemLabel="Pagos"/>
+                                            <f:selectItem itemValue="todos" itemLabel="Todos"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:outputLabel value="Ordem"/><br />
+                                        <p:selectOneMenu value="#{contasAPagarBean.filtros.ordem}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItem itemValue="vencimento" itemLabel="Vencimento"/>
+                                            <f:selectItem itemValue="pagamento" itemLabel="Pagamento"/>
+                                            <f:selectItem itemValue="nome_vencimento" itemLabel="Nome / Vencimento"/>
+                                            <f:selectItem itemValue="nome_pagamento" itemLabel="Nome / Pagamento"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="FILTRAR" action="#{contasAPagarBean.loadListaContas()}" update="@form" style="font-weight: bold"/>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="4">
+                                    <h:column>
+                                        <p:panel>
+                                            <h:outputLabel value="Vencimento" style="font-weight: bold"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.vencimento}" mask="99/99/9999" style="width: 100px; text-align: center"/><br />
+                                            <h:outputLabel value="Até"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.vencimentoFinal}" mask="99/99/9999" style="width: 100px; text-align: center"/>
+                                        </p:panel>
+                                    </h:column>
+                                    
+                                    
+                                    <h:column>
+                                        <p:panel>
+                                            <h:outputLabel value="Pagamento" style="font-weight: bold"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.pagamento}" mask="99/99/9999" style="width: 100px; text-align: center"/><br />
+                                            <h:outputLabel value="Até"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.pagamentoFinal}" mask="99/99/9999" style="width: 100px; text-align: center"/>
+                                        </p:panel>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:panel>
+                                            <h:outputLabel value="Lançamento" style="font-weight: bold"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.lancamento}" mask="99/99/9999" style="width: 100px; text-align: center"/><br />
+                                            <h:outputLabel value="Até"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.lancamentoFinal}" mask="99/99/9999" style="width: 100px; text-align: center"/>
+                                        </p:panel>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:panel>
+                                            <h:outputLabel value="Emissão" style="font-weight: bold"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.emissao}" mask="99/99/9999" style="width: 100px; text-align: center"/><br />
+                                            <h:outputLabel value="Até"/><br />
+                                            <p:inputMask value="#{contasAPagarBean.filtros.emissaoFinal}" mask="99/99/9999" style="width: 100px; text-align: center"/>
+                                        </p:panel>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:messages closable="true" showDetail="true" />
+
+                            <p:dataTable id="tbl_contas" value="#{contasAPagarBean.listaContas}" var="contas_pagar" emptyMessage="Nenhuma Conta Encontrada" selection="#{contasAPagarBean.listaContasSelecionada}" rowKey="#{contas_pagar.movimentoId}">
+                                <p:ajax event="rowSelect" update="formContasAPagar:panel_selecionados" />
+                                <p:ajax event="rowUnselect" update="formContasAPagar:panel_selecionados" />
+                                <p:ajax event="toggleSelect" update="formContasAPagar:panel_selecionados" />
+                                <p:ajax event="rowSelectCheckbox" update="formContasAPagar:panel_selecionados" />
+                                <p:ajax event="rowUnselectCheckbox" update="formContasAPagar:panel_selecionados" />
+
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
+                                <p:column selectionMode="multiple" style="width:16px; text-align:center"/>
+
+                                <p:column headerText="Nome">
+                                    <p:outputLabel value="#{contas_pagar.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Documento" style="width: 100px">
+                                    <p:outputLabel value="#{contas_pagar.documento}" />
+                                </p:column>
+
+                                <p:column headerText="Vencimento" style="width: 80px; text-align: center">
+                                    <p:outputLabel value="#{contas_pagar.vencimentoString}" />
+                                </p:column>
+
+                                <p:column headerText="Ref." style="width: 60px; text-align: center">
+                                    <p:outputLabel value="#{contas_pagar.referencia}" />
+                                </p:column>
+
+                                <p:column headerText="Valor" style="width: 100px; text-align: right">
+                                    <p:outputLabel value="#{contas_pagar.valorString}" />
+                                </p:column>
+
+                                <p:column headerText="Acréscimo" style="width: 80px; text-align: right" rendered="#{contasAPagarBean.filtros.condicao ne 'em_aberto'}">
+                                    <p:outputLabel value="#{contas_pagar.acrescimoString}" />
+                                </p:column>
+
+                                <p:column headerText="Desconto" style="width: 80px; text-align: right" rendered="#{contasAPagarBean.filtros.condicao ne 'em_aberto'}">
+                                    <p:outputLabel value="#{contas_pagar.descontoString}" />
+                                </p:column>
+
+                                <p:column headerText="Acréscimo" style="width: 80px; text-align: right" rendered="#{contasAPagarBean.filtros.condicao eq 'em_aberto'}">
+                                    <p:inputText value="#{contas_pagar.acrescimoEditadoString}" style="width: 80px; text-align: right">
+                                        <p:ajax event="change" listener="#{contasAPagarBean.calculoAcrescimoDesconto(contas_pagar)}" update="@this tbl_contas formContasAPagar:panel_selecionados" global="false"/>
+                                    </p:inputText>
+                                </p:column>
+
+                                <p:column headerText="Desconto" style="width: 80px; text-align: right" rendered="#{contasAPagarBean.filtros.condicao eq 'em_aberto'}">
+                                    <p:inputText value="#{contas_pagar.descontoEditadoString}" style="width: 80px; text-align: right">
+                                        <p:ajax event="change" listener="#{contasAPagarBean.calculoAcrescimoDesconto(contas_pagar)}" update="@this tbl_contas formContasAPagar:panel_selecionados" global="false"/>
+                                    </p:inputText>
+                                </p:column>
+
+                                <p:column headerText="Vl. Pagto" style="width: 80px; text-align: right">
+                                    <p:outputLabel value="#{contas_pagar.valorPagamentoString}" />
+                                </p:column>
+
+                                <p:column headerText="Dt. Pag" style="width: 100px; text-align: center">
+                                    <p:outputLabel value="#{contas_pagar.baixaString}" />
+                                </p:column>
+
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                        <h:column rendered="#{contas_pagar.lancamentoString ne ''}">
+                                            <p:outputLabel value="Lançamento" /><br />
+                                            <p:outputLabel value="#{contas_pagar.lancamentoString}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.lancamentoString ne ''}">
+                                            <p:outputLabel value="Emissão" /><br />
+                                            <p:outputLabel value="#{contas_pagar.lancamentoString}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.conta ne ''}">
+                                            <p:outputLabel value="Conta" /><br />
+                                            <p:outputLabel value="#{contas_pagar.conta}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.baixaId ne null}">
+                                            <p:outputLabel value="Lote Baixa" /><br />
+                                            <p:outputLabel value="#{contas_pagar.baixaId}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.operador ne null}">
+                                            <p:outputLabel value="Operador Baixa" /><br />
+                                            <p:outputLabel value="#{contas_pagar.operador}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.caixa ne null}">
+                                            <p:outputLabel value="Caixa" /><br />
+                                            <p:outputLabel value="#{contas_pagar.caixa}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.tipoDocumentoLote ne ''}">
+                                            <p:outputLabel value="Tipo de Documento" /><br />
+                                            <p:outputLabel value="#{contas_pagar.tipoDocumentoLote}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.documentoLote ne ''}">
+                                            <p:outputLabel value="Documento" /><br />
+                                            <p:outputLabel value="#{contas_pagar.documentoLote}" style="font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column rendered="#{contas_pagar.descricao ne ''}">
+                                            <p:outputLabel value="Descrição" /><br />
+                                            <p:outputLabel value="#{contas_pagar.descricao}" style="font-weight: bold"/>
+                                        </h:column>
+                                        
+                                        <h:column rendered="#{contas_pagar.historico ne ''}">
+                                            <p:outputLabel value="Histórico" /><br />
+                                            <p:outputLabel value="#{contas_pagar.historico}" style="font-weight: bold"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
+                            </p:dataTable>
+                            <br />
+                            <h:panelGrid id="panel_selecionados" columns="2" columnClasses="column00, column01">
+                                <h:column>
+                                    <p:outputLabel value="SELECIONADOS" style="font-weight: bold; font-size: 9pt!important"/><br />
+                                    <h:panelGrid columns="4" columnClasses="col_grid00, col_grid01, col_grid02, col_grid03">
+                                        <h:column>
+                                            <p:outputLabel value="Itens" /><br />
+                                            <p:outputLabel value="#{contasAPagarBean.listaContasSelecionada.size()}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Total" /><br />
+                                            <p:outputLabel value="R$ #{contasAPagarBean.totalSelecionado}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Em Aberto" /><br />
+                                            <p:outputLabel value="R$ #{contasAPagarBean.totalEmAbertoSelecionado}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Pago" /><br />
+                                            <p:outputLabel value="R$ #{contasAPagarBean.totalPagoSelecionado}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="TOTAL GERAL" style="font-weight: bold; font-size: 9pt!important"/><br />
+                                    <h:panelGrid columns="4" columnClasses="col_grid00, col_grid01, col_grid02, col_grid03">
+                                        <h:column>
+                                            <p:outputLabel value="Itens" /><br />
+                                            <p:outputLabel value="#{contasAPagarBean.listaContas.size()}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Total" /><br />
+                                            <p:outputLabel value="R$ #{contasAPagarBean.total}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Em Aberto" /><br />
+                                            <p:outputLabel value="R$ #{contasAPagarBean.totalEmAberto}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Pago" /><br />
+                                            <p:outputLabel value="R$ #{contasAPagarBean.totalPago}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:panelGrid>
+                            <hr />
+                            <h:panelGrid id="panel_botoes" columns="2">
+                                <p:commandButton value="Baixar" action="#{contasAPagarBean.baixar()}" rendered="#{contasAPagarBean.filtros.condicao eq 'em_aberto'}" disabled="#{controleAcessoBean.verificarPermissao('baixa_conta_pagar', 1)}" update="@form">
+                                    <p:confirm header="Baixar Contas Selecionadas" message="Deseja Realmente BAIXAR estas Contas?" icon="ui-icon-alert" />
+                                </p:commandButton>
+
+                                <p:commandButton value="Estornar" disabled="#{controleAcessoBean.verificarPermissao('estorno_conta_pagar', 3)}" onclick="PF('dlg_estornar_conta').show()"/>
+                            </h:panelGrid>
+
+                            <p:dialog widgetVar="dlg_estornar_conta" header="Estornar Contas Selecionadas" resizable="false" width="400" modal="true">
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Deseja Realmente ESTORNAR estas Contas?" />
+                                </h:panelGrid>
+
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Digite um motivo para o Estorno." style="color: red"/>
+                                    <p:inputTextarea value="#{contasAPagarBean.motivoEstorno}" style="width: 100%" rows="2" />
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Sim" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" action="#{contasAPagarBean.estornar()}" update="@form"/>
+                                    <p:commandButton value="Não" styleClass="ui-confirmdialog-no" icon="ui-icon-close" onclick="PF('dlg_estornar_conta').hide()"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

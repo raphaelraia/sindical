@@ -2409,6 +2409,12 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>contasAPagar</from-outcome>
+            <to-view-id>/contasAPagar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

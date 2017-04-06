@@ -22,6 +22,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoValor;
+import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -1239,6 +1240,7 @@ public class ConviteMovimentoBean implements Serializable {
             list.add(movimento);
             GenericaSessao.put("listaMovimento", list);
             GenericaSessao.put("caixa_banco", "caixa");
+            GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
             return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
         }
         return null;
