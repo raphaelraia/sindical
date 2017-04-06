@@ -301,7 +301,7 @@ public class Jasper implements Serializable {
         printReports(jasperName, fileName, (Collection) list, parameters);
     }
 
-    public static void printReports(String jasperName, String fileName, Collection c, Map parameters) {
+        public static void printReports(String jasperName, String fileName, Collection c, Map parameters) {
         printReports(jasperName, fileName, c, parameters, new ArrayList());
     }
 

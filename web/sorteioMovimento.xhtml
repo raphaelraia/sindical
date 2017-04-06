@@ -52,7 +52,12 @@
                                     </p:dataTable>
                                 </h:panelGrid>
                                 <f:facet name="footer">
-                                    <p:commandButton value="Sortear" action="#{sorteioMovimentoBean.process}" update="id_grid_sorteados" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <h:panelGrid columns="1">
+                                        <p:commandButton value="Sortear" action="#{sorteioMovimentoBean.process}" update="id_grid_sorteados" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                        <br />
+                                        <h:outputLabel value="(*APOSENTADOS OU QUE TRABALHAM A MAIS DE 6 MESES NA CATEGORIA)" styleClass="margin-top-max font-color-red bold"/>
+                                        
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:panel>
                             <p:panel header="Sorteados" id="id_grid_sorteados" styleClass="margin-top-max">

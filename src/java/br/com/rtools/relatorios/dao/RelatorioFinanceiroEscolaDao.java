@@ -6,12 +6,10 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioGrupo;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -22,7 +20,7 @@ import javax.persistence.Query;
  */
 public class RelatorioFinanceiroEscolaDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(String id_servicos, String data_vencimento, String data_vencimento_final, String data_quitacao, String data_quitacao_final, String tipo_pessoa, Integer id_pessoa, String order, Relatorios relatorio, Float desconto, Float desconto_final, String in_turmas) {
+    public List<Object> listaRelatorioFinanceiro(String id_servicos, String data_vencimento, String data_vencimento_final, String data_quitacao, String data_quitacao_final, String tipo_pessoa, Integer id_pessoa, String order, Relatorios relatorio, Float desconto, Float desconto_final, String in_turmas, String status) {
         String select
                 = " SELECT ";
 
@@ -54,10 +52,8 @@ public class RelatorioFinanceiroEscolaDao extends DB {
 //                + "  LEFT JOIN soc_socios_vw AS s ON s.codsocio = b.id          \n";
 //        if (!in_turmas.isEmpty()) {
 //            //select += "  LEFT JOIN esc_turma     AS T ON T.id_curso = S.id_servico  \n";
-
-
 //        }        
-            List<String> list_where = new ArrayList();
+        List<String> list_where = new ArrayList();
         if (id_pessoa != null) {
             switch (tipo_pessoa) {
                 case "aluno":
@@ -93,6 +89,22 @@ public class RelatorioFinanceiroEscolaDao extends DB {
         if (!id_servicos.isEmpty()) {
             list_where.add(" m.id_servico IN (" + id_servicos + ") \n ");
         }
+        // STATUS
+        if (status != null && !status.isEmpty()) {
+            switch (status) {
+                case "abertos":
+                    list_where.add("M.id_baixa IS NULL \n");
+                    break;
+                case "quitados":
+                    list_where.add("M.id_baixa IS NOT NULL \n");
+                    break;
+                case "atrasados":
+                    list_where.add("M.id_baixa IS NULL AND M.dt_vencimento < current_date \n");
+                    break;
+                default:
+                    break;
+            }
+        }
         // FAIXA DE DESCONTO
 //        if (desconto != null && desconto_final != null) {
 //            list_where.add("SP.nr_desconto BETWEEN " + desconto + " AND " + desconto_final);
@@ -104,7 +116,7 @@ public class RelatorioFinanceiroEscolaDao extends DB {
         // TURMA
         if (!in_turmas.isEmpty()) {
             //list_where.add("T.id IN(" + in_turmas + ")");
-           // list_where.add("SP.dt_emissao BETWEEN T.dt_inicio AND T.dt_termino");
+            // list_where.add("SP.dt_emissao BETWEEN T.dt_inicio AND T.dt_termino");
         }
 
         if (list_where.isEmpty()) {
@@ -114,9 +126,9 @@ public class RelatorioFinanceiroEscolaDao extends DB {
         String where = "";
         for (String linha : list_where) {
             if (where.isEmpty()) {
-                where = " WHERE " + linha;
+                where = " WHERE " + linha + " \n";
             } else {
-                where += " AND " + linha;
+                where += " AND " + linha + " \n";
             }
         }
 

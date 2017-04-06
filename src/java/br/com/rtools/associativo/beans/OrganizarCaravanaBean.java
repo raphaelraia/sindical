@@ -214,13 +214,13 @@ public class OrganizarCaravanaBean implements Serializable {
         List<FichaReservas> listFichaReservas = new ArrayList();
         for (Reservas r : listReservas) {
             FichaReservas fichaReservas = new FichaReservas();
-            fichaReservas.setLocal(caravana.getEvento().getDescricaoEvento().getDescricao());
-            fichaReservas.setPeriodo("De " + caravana.getDataEmbarqueIda() + " à " + caravana.getDataEmbarqueRetorno());
-            fichaReservas.setEntrada(caravana.getHoraEmbarqueIda());
-            fichaReservas.setSaida(caravana.getHoraEmbarqueRetorno());
+            fichaReservas.setLocal(caravana.getEvento().getDescricaoEvento().getDescricao() + " " + caravana.getTituloComplemento());
+            fichaReservas.setPeriodo("De " + caravana.getDataEstadiaInicio() + " à " + caravana.getDataEstadiaFim());
+            fichaReservas.setEntrada(caravana.getDataEmbarqueIda() + " - " + caravana.getHoraEmbarqueIda() + " hrs");
+            fichaReservas.setSaida(caravana.getDataEmbarqueRetorno()+ " - " + caravana.getHoraEmbarqueRetorno() + " hrs");
             fichaReservas.setResponsavel_nome(r.getCaravanaReservas().getVenda().getResponsavel().getNome());
             fichaReservas.setResponsavel_documento(r.getCaravanaReservas().getVenda().getResponsavel().getDocumento());
-            fichaReservas.setDias(DataHoje.calculoDosDias(caravana.getDtEmbarqueIda(), caravana.getDtEmbarqueRetorno()));
+            fichaReservas.setDias(DataHoje.calculoDosDias(caravana.getDtEstadiaInicio(), caravana.getDtEstadiaFim()));
             fichaReservas.setCategoria(r.getCaravanaReservas().getVenda().getResponsavel().getSocios().getMatriculaSocios().getCategoria().getCategoria());
             fichaReservas.setQuantidade_poltronas(caravana.getQuantidadePoltronas());
             Fisica passageiro = r.getCaravanaReservas().getPessoa().getFisica();

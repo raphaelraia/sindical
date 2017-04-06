@@ -270,7 +270,7 @@ public class VendasCaravanaBean implements Serializable {
                             vendas.getObservacao(),
                             caravana.getDataEmbarqueIda() + " às " + caravana.getHoraEmbarqueIda() + " hrs",
                             caravana.getDataEmbarqueRetorno() + " às " + caravana.getHoraEmbarqueRetorno() + " hrs",
-                            "De " + caravana.getDataEstadiaInicio() + " à " + caravana.getDataEstadiaFim(),
+                            "De " + caravana.getDataEstadiaInicio() + " às " +  caravana.getHoraEstadiaInicio() + "hrs até " + caravana.getDataEstadiaFim() + " às " +  caravana.getHoraEstadiaFim() + "hrs",
                             DataHoje.calculoDosDias(caravana.getDtEstadiaInicio(), caravana.getDtEstadiaFim()),
                             vendas.getEvento().getDescricaoEvento().getDescricao() + " " + vendas.getCaravana().getTituloComplemento(),
                             DataHoje.dataExtenso(vendas.getEmissao(), 3), // NÃO TEM EM vendas.getData
@@ -301,7 +301,8 @@ public class VendasCaravanaBean implements Serializable {
                             caravana.getLocalEmbarqueIda(),
                             cidadeDoEmbarque,
                             ufDoEmbarque,
-                            caravana.getDuracaoViagem()
+                            caravana.getDuracaoViagem(),
+                            caravana.getId()
                     )
             );
         }

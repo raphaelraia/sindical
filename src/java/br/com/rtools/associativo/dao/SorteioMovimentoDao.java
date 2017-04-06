@@ -38,7 +38,7 @@ public class SorteioMovimentoDao extends DB {
     }
 
     public Pessoa sort(Integer sorteio_id) {
-        return sort("1", "1,3", sorteio_id);
+        return sort("1,3", "1", sorteio_id);
     }
 
     public Pessoa sort(String in_categorias, String in_parentescos, Integer sorteio_id) {
@@ -49,12 +49,14 @@ public class SorteioMovimentoDao extends DB {
                     + "    SELECT S.codsocio                                                     \n"
                     + "      FROM soc_socios_vw AS S                                             \n"
                     + "INNER JOIN sort_status AS SS ON SS.id_sorteio = " + sorteio_id + "        \n"
+                    + " LEFT JOIN pes_pessoa_vw AS PVW ON PVW.codigo = S.titular                 \n"
                     + "     WHERE S.id_parentesco IN (" + in_parentescos + ")                    \n"
                     + "       AND S.id_categoria IN(" + in_categorias + ")                       \n"
                     + "       AND func_inadimplente(S.codsocio, SS.nr_carencia_debito) = false   \n"
-                    + "       AND S.codsocio NOT IN(SELECT id_pessoa FROM sort_movimento WHERE id_sorteio = " + sorteio_id + " )   \n"
+                    + "       AND S.codsocio NOT IN(SELECT id_pessoa FROM sort_movimento WHERE id_sorteio = " + sorteio_id + " )         \n"
+                    + "       AND ( (PVW.dt_aposentadoria IS NOT NULL) OR (PVW.admissao <= (CURRENT_DATE - 180) AND demissao IS NULL) )  \n"
                     + "  ORDER BY random()                                                       \n"
-                    + "     LIMIT 1                                                               \n"
+                    + "     LIMIT 1                                                              \n"
                     + "                                                                          \n"
                     + ")                                                                         \n"
                     + "";
