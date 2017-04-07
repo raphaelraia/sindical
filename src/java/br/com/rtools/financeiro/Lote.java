@@ -87,6 +87,8 @@ public class Lote implements java.io.Serializable {
     @JoinColumn(name = "id_periodo_cobranca", referencedColumnName = "id")
     @OneToOne
     private Periodo periodoCobranca;
+    @Column(name = "ds_historico_contabil_padrao", length = 2000, nullable = false)
+    private String historicoContabilPadrao;
 
     public Lote() {
         this.id = -1;
@@ -115,9 +117,10 @@ public class Lote implements java.io.Serializable {
         this.contaFixa = false;
         this.historicoContabil = "";
         this.periodoCobranca = null;
+        this.historicoContabilPadrao = "";
     }
 
-    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa, String historicoContabil, Periodo periodoCobranca) {
+    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa, String historicoContabil, Periodo periodoCobranca, String historicoContabilPadrao) {
         this.id = id;
         this.rotina = rotina;
         this.pagRec = pagRec;
@@ -144,6 +147,7 @@ public class Lote implements java.io.Serializable {
         this.contaFixa = contaFixa;
         this.historicoContabil = historicoContabil;
         this.periodoCobranca = periodoCobranca;
+        this.historicoContabilPadrao = historicoContabilPadrao;
     }
 
     public int getId() {
@@ -376,5 +380,13 @@ public class Lote implements java.io.Serializable {
 
     public void setPeriodoCobranca(Periodo periodoCobranca) {
         this.periodoCobranca = periodoCobranca;
+    }
+
+    public String getHistoricoContabilPadrao() {
+        return historicoContabilPadrao;
+    }
+
+    public void setHistoricoContabilPadrao(String historicoContabilPadrao) {
+        this.historicoContabilPadrao = historicoContabilPadrao;
     }
 }

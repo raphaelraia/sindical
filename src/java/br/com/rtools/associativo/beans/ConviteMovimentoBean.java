@@ -1156,7 +1156,8 @@ public class ConviteMovimentoBean implements Serializable {
                     null,
                     false,
                     "",
-                    null
+                    null,
+                    ""
             );
             try {
                 String nrCtrBoletoResp = "";

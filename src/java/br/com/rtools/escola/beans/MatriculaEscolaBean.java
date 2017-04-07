@@ -414,7 +414,8 @@ public class MatriculaEscolaBean implements Serializable {
                         null,
                         false,
                         "",
-                        null
+                        null,
+                        ""
                 )
         );
 

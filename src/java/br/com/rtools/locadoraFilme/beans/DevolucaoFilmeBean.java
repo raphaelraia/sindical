@@ -202,7 +202,8 @@ public class DevolucaoFilmeBean implements Serializable {
                                         null,
                                         false,
                                         "",
-                                        null
+                                        null,
+                                        ""
                                 );
                                 if (!dao.save(lote)) {
                                     dao.rollback();

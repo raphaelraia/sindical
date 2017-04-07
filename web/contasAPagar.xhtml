@@ -93,8 +93,8 @@
                                             <p:inputMask value="#{contasAPagarBean.filtros.vencimentoFinal}" mask="99/99/9999" style="width: 100px; text-align: center"/>
                                         </p:panel>
                                     </h:column>
-                                    
-                                    
+
+
                                     <h:column>
                                         <p:panel>
                                             <h:outputLabel value="Pagamento" style="font-weight: bold"/><br />
@@ -233,12 +233,27 @@
                                             <p:outputLabel value="Descrição" /><br />
                                             <p:outputLabel value="#{contas_pagar.descricao}" style="font-weight: bold"/>
                                         </h:column>
-                                        
+
                                         <h:column rendered="#{contas_pagar.historico ne ''}">
                                             <p:outputLabel value="Histórico" /><br />
                                             <p:outputLabel value="#{contas_pagar.historico}" style="font-weight: bold"/>
                                         </h:column>
                                     </h:panelGrid>
+
+                                    <p:dataTable value="#{contas_pagar.listaFormaPagamento}" var="linha_forma_pagamento" rendered="#{!empty(contas_pagar.listaFormaPagamento)}">
+                                        <f:facet name="header">
+                                            <p:outputLabel value="Forma de Pagamento" />
+                                        </f:facet>
+                                        
+                                        <p:column headerText="Tipo" style="width: 80px;">
+                                            <p:outputLabel value="#{linha_forma_pagamento.tipoPagamento.descricao}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="Valor" style="width: 80px;">
+                                            <p:outputLabel value="#{linha_forma_pagamento.valorString}" />
+                                        </p:column>
+                                        
+                                    </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
                             <br />

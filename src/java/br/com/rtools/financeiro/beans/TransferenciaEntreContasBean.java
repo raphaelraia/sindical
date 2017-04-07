@@ -151,7 +151,7 @@ public class TransferenciaEntreContasBean implements Serializable {
             dao.rollback();
             return;
         }
-        
+
         Movimento movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
         Movimento movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
 
@@ -203,7 +203,8 @@ public class TransferenciaEntreContasBean implements Serializable {
                 null,
                 false,
                 historico_contabil,
-                null
+                null,
+                ""
         );
     }
 
@@ -259,9 +260,9 @@ public class TransferenciaEntreContasBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 null,
-                0, 
+                0,
                 null,
-                null, 
+                null,
                 null
         );
     }
