@@ -174,6 +174,8 @@ public class ContasAPagarBean implements Serializable {
         
         GenericaSessao.put("tipo_recibo_imprimir", dao.find(new TipoRecibo(), 1));
 
+        GenericaSessao.put("esMovimento", "S");
+        
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
     }
 
@@ -225,6 +227,7 @@ public class ContasAPagarBean implements Serializable {
         Float valor = new Float(0);
         for (ListaContas lc : listaContas) {
             valor = Moeda.somaValores(valor, lc.getValor());
+            valor = Moeda.subtracaoValores(Moeda.somaValores(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
         }
         return Moeda.converteR$Float(valor);
     }
@@ -234,6 +237,7 @@ public class ContasAPagarBean implements Serializable {
         for (ListaContas lc : listaContas) {
             if (lc.getBaixaId() == null) {
                 valor = Moeda.somaValores(valor, lc.getValor());
+                valor = Moeda.subtracaoValores(Moeda.somaValores(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
             }
         }
         return Moeda.converteR$Float(valor);

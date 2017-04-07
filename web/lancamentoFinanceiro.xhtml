@@ -29,8 +29,8 @@
             }
 
             document.onkeypress = stopRKey;
- 
-       </script>
+
+        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -161,7 +161,7 @@
                                 </h:panelGroup>
                             </p:dialog>                            
 
-                            <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="950" height="500" minHeight="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
+                            <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="1020" height="500" minHeight="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
                                 <p:ajax event="close" listener="#{lancamentoFinanceiroBean.fechaModal()}" update=":form_lf:"/>  
                                 <h:panelGroup layout="block" id="i_validations">
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADATRAR CONTAS')}" escape="false" rendered="#{lancamentoFinanceiroBean.idContaOperacao eq 0}" />
@@ -531,6 +531,11 @@
                                         <h:outputText value="#{parcela.dataQuitacao}"/>
                                     </p:column>
 
+                                    <p:column style="text-align: center; width: 30px" headerText="Recibo">
+                                        <h:commandLink target="#{lancamentoFinanceiroBean.targetImprimeRecibo(parcela.movimento)}" action="#{lancamentoFinanceiroBean.recibo(parcela.movimento)}" title="Imprimir este Recibo" rendered="#{parcela.movimento.baixa ne null}">
+                                            <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo"/>
+                                        </h:commandLink>
+                                    </p:column>
 
                                     <p:rowExpansion>
                                         <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">

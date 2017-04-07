@@ -18,6 +18,7 @@ import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.homologacao.dao.OperacaoDao;
 import br.com.rtools.movimento.GerarMovimento;
+import br.com.rtools.movimento.ImprimirRecibo;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -45,6 +46,7 @@ import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -219,6 +221,36 @@ public class LancamentoFinanceiroBean implements Serializable {
         GenericaSessao.remove("lancamentoFinanceiroBean");
         GenericaSessao.remove("fisicaPesquisa");
         GenericaSessao.remove("juridicaPesquisa");
+    }
+    
+    public String targetImprimeRecibo(Movimento movimento) {
+        if (validaImprimeRecibo(movimento)) {
+            return "_blank";
+        }
+        return "";
+    }
+     
+    public Boolean validaImprimeRecibo(Movimento mov) {
+        if (Usuario.getUsuario().getId() != 1) {
+            if (mov.getBaixa() != null && !mov.getBaixa().getImportacao().isEmpty()) {
+                GenericaMensagem.fatal("ATENÇÃO", "RECIBO COM DATA DE IMPORTAÇÃO NÃO PODE SER REIMPRESSO!");
+                return false;
+            }
+            
+//            if (mov.getBaixa().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("reimpressao_recibo_outro_operador", 4)) {
+//                GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA REIMPRIMIR ESTE RECIBO! (BAIXADO POR: " + mov.getBaixa().getUsuario().getPessoa().getNome() + ")");
+//                return false;
+//            }
+        }
+        return true;
+    }
+    
+    public String recibo(Movimento mov) {
+        ImprimirRecibo ir = new ImprimirRecibo();
+
+        ir.reciboGenerico(mov.getId(), null);
+        
+        return null;
     }
 
     public void addItemPedido() {

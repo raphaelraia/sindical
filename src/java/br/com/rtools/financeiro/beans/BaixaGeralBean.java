@@ -1111,9 +1111,8 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public String getEs() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("esMovimento") != null) {
-            es = String.valueOf(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("esMovimento"));
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("esMovimento");
+        if (GenericaSessao.exists("esMovimento")) {
+            es = String.valueOf(GenericaSessao.getString("esMovimento", true));
         }
         return es;
     }
