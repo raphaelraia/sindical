@@ -6,10 +6,12 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Caixa;
+import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.dao.ContasAPagarDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.seguranca.MacFilial;
@@ -187,12 +189,19 @@ public class ContasAPagarBean implements Serializable {
     public final void loadListaContas() {
         listaContas.clear();
         listaContasSelecionada.clear();
+        
+        MovimentoDao db = new MovimentoDao();
 
         List<Object> result = new ContasAPagarDao().listaContasAPagar(filtros);
-
         for (Object ob : result) {
             List linha = (List) ob;
-
+            
+            List<FormaPagamento> list_fp = new ArrayList();
+            
+            if (linha.get(13) != null){
+                list_fp = db.pesquisaFormaPagamento((Integer) linha.get(13));
+            }
+            
             listaContas.add(
                     new ListaContas(
                             linha.get(0).toString(),
@@ -217,7 +226,8 @@ public class ContasAPagarBean implements Serializable {
                             linha.get(19).toString(),
                             linha.get(20).toString(),
                             new Float(0),
-                            new Float(0)
+                            new Float(0),
+                            list_fp
                     )
             );
         }
@@ -460,8 +470,10 @@ public class ContasAPagarBean implements Serializable {
         // EDITADO
         private Float acrescimoEditado;
         private Float descontoEditado;
+        
+        private List<FormaPagamento> listaFormaPagamento;
 
-        public ListaContas(String nome, Date vencimento, String referencia, Float valor, Float acrescimo, Float desconto, Float valorPagamento, Date baixa, String tipoDocumento, String documento, Date lancamento, Date emissao, String conta, Integer baixaId, Integer movimentoId, String operador, String caixa, String tipoDocumentoLote, String documentoLote, String descricao, String historico, Float acrescimoEditado, Float descontoEditado) {
+        public ListaContas(String nome, Date vencimento, String referencia, Float valor, Float acrescimo, Float desconto, Float valorPagamento, Date baixa, String tipoDocumento, String documento, Date lancamento, Date emissao, String conta, Integer baixaId, Integer movimentoId, String operador, String caixa, String tipoDocumentoLote, String documentoLote, String descricao, String historico, Float acrescimoEditado, Float descontoEditado, List<FormaPagamento> listaFormaPagamento) {
             this.nome = nome;
             this.vencimento = vencimento;
             this.referencia = referencia;
@@ -485,6 +497,7 @@ public class ContasAPagarBean implements Serializable {
             this.historico = historico;
             this.acrescimoEditado = acrescimoEditado;
             this.descontoEditado = descontoEditado;
+            this.listaFormaPagamento = listaFormaPagamento;
         }
 
         public String getNome() {
@@ -749,6 +762,14 @@ public class ContasAPagarBean implements Serializable {
 
         public void setDescontoEditadoString(String descontoEditadoString) {
             this.descontoEditado = Moeda.converteUS$(descontoEditadoString);
+        }
+
+        public List<FormaPagamento> getListaFormaPagamento() {
+            return listaFormaPagamento;
+        }
+
+        public void setListaFormaPagamento(List<FormaPagamento> listaFormaPagamento) {
+            this.listaFormaPagamento = listaFormaPagamento;
         }
 
     }

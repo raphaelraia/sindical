@@ -249,7 +249,8 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 false,
                 historico_contabil,
-                null
+                null,
+                ""
         );
     }
 

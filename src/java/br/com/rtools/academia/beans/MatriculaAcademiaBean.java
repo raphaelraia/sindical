@@ -1915,7 +1915,8 @@ public class MatriculaAcademiaBean implements Serializable {
                                 null,
                                 false,
                                 "",
-                                null
+                                null,
+                                ""
                         )
                 );
                 di.openTransaction();
@@ -2187,7 +2188,8 @@ public class MatriculaAcademiaBean implements Serializable {
                         null,
                         false,
                         "",
-                        null
+                        null,
+                        ""
                 );
 
         if (!dao.save(lote_taxa)) {

@@ -1,4 +1,3 @@
-
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Baixa;
@@ -228,7 +227,8 @@ public class ConciliacaoBean implements Serializable {
                 null,
                 false,
                 historico_contabil,
-                null
+                null,
+                ""
         );
     }
 

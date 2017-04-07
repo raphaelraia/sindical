@@ -232,7 +232,7 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Número Doc." />
                                                 <p:inputText value="#{lancamentoFinanceiroBean.lote.documento}" style="width: 125px">
-                                                    <p:ajax event="change" update="@this i_historico" global="false" listener="#{lancamentoFinanceiroBean.setHistorico('')}"/>
+                                                    <p:ajax event="change" update="@this i_historico_padrao" global="false" listener="#{lancamentoFinanceiroBean.atualizaHistorico()}"/>
                                                 </p:inputText>                                                
                                             </h:panelGrid>
                                         </h:column>
@@ -241,7 +241,7 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Tipo" />
                                                 <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipo}" style="width: 100px">
-                                                    <p:ajax event="change" update="@this i_historico" global="false" listener="#{lancamentoFinanceiroBean.setHistorico('')}"/>
+                                                    <p:ajax event="change" update="@this i_historico_padrao" global="false" listener="#{lancamentoFinanceiroBean.atualizaHistorico()}"/>
                                                     <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipo}"/>
                                                 </p:selectOneMenu>                                                
                                             </h:panelGrid>
@@ -278,7 +278,7 @@
                                                         <h:panelGrid>
                                                             <h:outputText value="Conta" styleClass="font-color-red bold"/>
                                                             <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}" filter="true" filterMatchMode="startsWith">
-                                                                <p:ajax event="change" update="@this i_para_conta i_valor i_chk_produtos" />
+                                                                <p:ajax event="change" listener="#{lancamentoFinanceiroBean.atualizaHistorico()}" update="@this i_para_conta i_valor i_chk_produtos i_historico_padrao" />
                                                                 <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
                                                             </p:selectOneMenu>
                                                         </h:panelGrid>
@@ -316,7 +316,7 @@
 
                                             <p:column>
                                                 <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" readonly="#{lancamentoFinanceiroBean.pessoa.id != -1}" styleClass="text-center" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 4}" >
-                                                    <p:ajax event="change" listener="#{lancamentoFinanceiroBean.pesquisarPessoa()}" update="i_panel_pessoa i_panel_cadastro" />
+                                                    <p:ajax event="change" listener="#{lancamentoFinanceiroBean.pesquisarPessoa()}" update="i_panel_pessoa i_panel_cadastro i_historico_padrao" />
                                                 </p:inputMask>
 
                                                 <p:watermark value="Documento" for="i_documento" />
@@ -470,9 +470,13 @@
                                         </p:column>
                                     </h:panelGrid>
 
-                                    <p:inputTextarea id="i_historico" style="width: 100%;" rows="2" maxlength="2000" value="#{lancamentoFinanceiroBean.historico}" placeholder="Digite o Histórico" autoResize="true">
+                                    <h:panelGrid columns="1" style="width: 100%">
+                                        <p:outputLabel value="Histórico Padrão" style="font-weight: bold"/>
+                                        <p:inputTextarea id="i_historico_padrao" style="width: 100%; opacity: .8; font-style: italic; font-weight: bold" rows="2" value="#{lancamentoFinanceiroBean.lote.historicoContabilPadrao}" placeholder="Histórico Padrão Gerado pelo Sistema" disabled="true" />
 
-                                    </p:inputTextarea>
+                                        <p:outputLabel value="Histórico Personalizado" style="font-weight: bold"/>
+                                        <p:inputTextarea id="i_historico" style="width: 100%;" rows="2" maxlength="2000" value="#{lancamentoFinanceiroBean.lote.historicoContabil}" placeholder="Histórico Personalizado" autoResize="true" />
+                                    </h:panelGrid>
                                 </p:panel>
 
                                 <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max">

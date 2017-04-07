@@ -230,7 +230,8 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 false,
                 historico_contabil, // HISTÓRICO CONTÁBIL
-                null
+                null,
+                ""
         );
     }
 
@@ -301,9 +302,9 @@ public class DepositoBancarioBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 fstatus,
-                devolucao, 
-                null, 
-                null, 
+                devolucao,
+                null,
+                null,
                 null
         );
     }

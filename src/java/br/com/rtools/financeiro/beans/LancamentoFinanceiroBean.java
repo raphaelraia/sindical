@@ -101,7 +101,6 @@ public class LancamentoFinanceiroBean implements Serializable {
     private String correcao;
     private String desconto;
     private String strVisualizando;
-    private String historico;
     private boolean modalVisivel;
     private boolean chkImposto;
     private boolean disabledConta;
@@ -168,7 +167,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         opcaoCadastro = "";
         vencimento = DataHoje.data();
         strConta = "";
-        historico = "";
         documentoMovimento = "";
         porPesquisa = "dias";
         maskSearch = "todos";
@@ -214,6 +212,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         listFisicaSugestao = new ArrayList();
         listJuridicaSugestao = new ArrayList();
         listaSocios = new ArrayList();
+        atualizaHistorico();
     }
 
     @PreDestroy
@@ -222,21 +221,34 @@ public class LancamentoFinanceiroBean implements Serializable {
         GenericaSessao.remove("fisicaPesquisa");
         GenericaSessao.remove("juridicaPesquisa");
     }
-    
+
     public String targetImprimeRecibo(Movimento movimento) {
         if (validaImprimeRecibo(movimento)) {
             return "_blank";
         }
         return "";
     }
-     
+
+    public void atualizaHistorico() {
+        if (es.equals("S") && pessoa.getId() != -1) {
+            Dao dao = new Dao();
+            FTipoDocumento f_doc = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
+            String num = lote.getDocumento().isEmpty() ? "____" : lote.getDocumento();
+            String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
+            lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num + " a " + pessoa.getNome() + ", " + pes_doc);
+        } else if (es.equals("E") && pessoa.getId() != -1) {
+            String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
+            lote.setHistoricoContabilPadrao("Referente ao recebimento de " + pessoa.getNome() + ", " + pes_doc);
+        }
+    }
+
     public Boolean validaImprimeRecibo(Movimento mov) {
         if (Usuario.getUsuario().getId() != 1) {
             if (mov.getBaixa() != null && !mov.getBaixa().getImportacao().isEmpty()) {
                 GenericaMensagem.fatal("ATENÇÃO", "RECIBO COM DATA DE IMPORTAÇÃO NÃO PODE SER REIMPRESSO!");
                 return false;
             }
-            
+
 //            if (mov.getBaixa().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("reimpressao_recibo_outro_operador", 4)) {
 //                GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA REIMPRIMIR ESTE RECIBO! (BAIXADO POR: " + mov.getBaixa().getUsuario().getPessoa().getNome() + ")");
 //                return false;
@@ -244,12 +256,12 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
         return true;
     }
-    
+
     public String recibo(Movimento mov) {
         ImprimirRecibo ir = new ImprimirRecibo();
 
         ir.reciboGenerico(mov.getId(), null);
-        
+
         return null;
     }
 
@@ -519,19 +531,19 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         boolean reverse = false;
-        
+
         for (Parcela p : listaParcelaSelecionada) {
             if (p.getMovimento().getBaixa() == null) {
                 continue;
             }
 
             movimento = p.getMovimento();
-            
+
             if (!new LancamentoFinanceiroDao().estornarTipoConta(movimento.getBaixa().getId())) {
                 GenericaMensagem.warn("Atenção", "ESTORNAR PELA ROTINA DE CONTAS A PAGAR!");
                 return;
             }
-            
+
             if (GerarMovimento.estornarMovimento(movimento, motivoEstorno)) {
                 reverse = true;
             }
@@ -659,8 +671,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             idCentroCusto = lote.getCentroCusto().getId();
         }
 
-        historico = lote.getHistoricoContabil();
-
+        //historico = lote.getHistoricoContabilPadrao();
         // OPERACAO
         loadListaContaOperacao();
         if (lote.getPlano5() != null) {
@@ -777,7 +788,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setRotina((Rotina) dao.find(new Rotina(), 231));
             lote.setEvt(null);
             lote.setPessoa(pessoa);
-            lote.setHistoricoContabil(historico);
+            //lote.setHistoricoContabilPadrao(historico);
             lote.setPessoaSemCadastro(null);
             lote.setUsuario(us);
             lote.setOperacao(operacao);
@@ -1222,6 +1233,8 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
             telaSalva = false;
         }
+        
+        atualizaHistorico();
     }
 
     public void cancelarCadastro() {
@@ -1279,7 +1292,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         loadListaOperacao();
         loadListaCentroCusto();
         loadListaContaOperacao();
-        historico = "";
     }
 
     public void atualizaComboOperacao() {
@@ -1611,6 +1623,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
             opcaoCadastro = "";
+            atualizaHistorico();
         } else if (GenericaSessao.exists("fisicaPesquisa")) {
             pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
             descricao = pessoa.getDocumento();
@@ -1630,6 +1643,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
             opcaoCadastro = "";
+            atualizaHistorico();
         } else if (GenericaSessao.exists("pessoaPesquisa")) {
             pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             descricao = pessoa.getDocumento();
@@ -1649,6 +1663,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
             opcaoCadastro = "";
+            atualizaHistorico();
         }
         return pessoa;
     }
@@ -2181,24 +2196,6 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void setParcela(Parcela parcela) {
         this.parcela = parcela;
-    }
-
-    public String getHistorico() {
-        if (historico.isEmpty() && es.equals("S") && pessoa.getId() != -1) {
-            Dao dao = new Dao();
-            FTipoDocumento f_doc = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
-            String num = lote.getDocumento().isEmpty() ? "____" : lote.getDocumento();
-            String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
-            historico = "Pagamento referente a " + f_doc.getDescricao() + " de número " + num + " a " + pessoa.getNome() + ", " + pes_doc;
-        } else if (historico.isEmpty() && es.equals("E") && pessoa.getId() != -1) {
-            String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
-            historico = "Referente ao recebimento de " + pessoa.getNome() + ", " + pes_doc;
-        }
-        return historico;
-    }
-
-    public void setHistorico(String historico) {
-        this.historico = historico;
     }
 
     public Boolean getProdutos() {
