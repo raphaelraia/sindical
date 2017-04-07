@@ -12,11 +12,14 @@ import br.com.rtools.pessoa.dao.BiometriaErroDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.sistema.Dispositivo;
+import br.com.rtools.sistema.dao.DispositivoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
+import java.net.Socket;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -114,6 +117,47 @@ public class BiometriaBean implements Serializable {
             biometriaCaptura.setPessoa(p);
             dao.save(biometriaCaptura, true);
             biometria = null;
+            Dispositivo dispositivo = new DispositivoDao().findByMacFilial(biometriaCaptura.getMacFilial().getId(), 2);
+            if (dispositivo != null && dispositivo.getSocketPort() != null) {
+                Socket socket = null;
+                try {
+                    if (!dispositivo.getAtivo()) {
+                        GenericaMensagem.warn("Sistema", "DISPOSITIVO COM STATUS INÁTIVO!");
+                        return;
+                    }
+                    if (dispositivo.getSocketPort() != null && dispositivo.getSocketPort() != 0 && (dispositivo.getSocketHost() == null && dispositivo.getSocketHost().isEmpty())) {
+                        socket = new Socket("localhost", dispositivo.getSocketPort());
+                    } else if (dispositivo.getSocketHost() != null && !dispositivo.getSocketHost().isEmpty() && dispositivo.getSocketPort() != null && dispositivo.getSocketPort() != 0) {
+                        socket = new Socket(dispositivo.getSocketHost(), dispositivo.getSocketPort());
+                    }
+                    if (socket != null) {
+                        if (socket == null) {
+                            GenericaMensagem.warn("Sistema", "DISPOSITIVO DESCONECTADO!");
+                            return;
+                        }
+                        try {
+                            if (socket.isClosed()) {
+                                GenericaMensagem.warn("Sistema", "DISPOSITIVO DESCONECTADO!");
+                                return;
+                            }
+                        } catch (Exception e) {
+
+                        }
+                        // BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        // String answer = br.readLine();
+                        // br.close();
+                        dispositivo = (Dispositivo) dao.find(dispositivo);
+                        if (!dispositivo.getMensagemAlerta().isEmpty()) {
+                            GenericaMensagem.warn("Sistema", dispositivo.getMensagemAlerta());
+                            dispositivo.setMensagemAlerta("");
+                            dao.update(dispositivo, true);
+                        }
+                    }
+                } catch (Exception e) {
+                    GenericaMensagem.warn("Sistema", e.getMessage());
+                    return;
+                }
+            }
             for (int i = 0; i < 10; i++) {
 //                try {
 //                    Socket socket = new Socket("192.168.1.160", 5566);

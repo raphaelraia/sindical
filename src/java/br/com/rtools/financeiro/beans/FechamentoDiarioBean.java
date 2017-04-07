@@ -31,7 +31,7 @@ public class FechamentoDiarioBean implements Serializable {
     private ObjectFechamentoDiario ofdEstornar = null;
     private String dataFechamento = "";
     private ControleAcessoBean cab = new ControleAcessoBean();
-    
+
     public FechamentoDiarioBean() {
         loadListaFechamentoDiario();
         GenericaSessao.remove("dataRFD");
@@ -41,32 +41,31 @@ public class FechamentoDiarioBean implements Serializable {
     public void fechar() {
         FechamentoDiarioDao fdao = new FechamentoDiarioDao();
         Dao dao = new Dao();
-        
+
         if (dataFechamento.isEmpty()) {
             //data_fechamento = DataHoje.dataHoje();
             GenericaMensagem.error("Atenção", "Conta Saldo sem valor inicial!");
             return;
         }
-        
 
         Date data = fdao.ultimaDataContaSaldo();
         if (DataHoje.converteData(data).equals(DataHoje.data())) {
             GenericaMensagem.warn("Atenção", "Fechamento já foi concluído para o dia de hoje!");
             return;
         }
-        
+
         if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
             GenericaMensagem.warn("Atenção", "Não existe dia para ser fechado!");
             return;
         }
-        
+
         if (dataFechamento.equals(DataHoje.data())) {
             // SE true NÃO TEM PERMISSÃO
-            if (cab.verificaPermissao("fechar_dia_hoje", 1)){
+            if (cab.verificaPermissao("fechar_dia_hoje", 1)) {
                 GenericaMensagem.fatal("Atenção", "Você não tem permissão para este Fechamento Diário!");
                 return;
             }
-        }   
+        }
 
         List<Object> result = fdao.listaConcluirFechamentoDiario(dataFechamento, DataHoje.converteData(data));
 
@@ -125,13 +124,13 @@ public class FechamentoDiarioBean implements Serializable {
     public void selecionarFechar() {
         FechamentoDiarioDao fdao = new FechamentoDiarioDao();
         Date data = fdao.ultimaDataContaSaldo();
-        dataFechamento =  (data != null) ? DataHoje.converteData((Date)  data) : "";
-        if (!dataFechamento.isEmpty()){
+        dataFechamento = (data != null) ? DataHoje.converteData((Date) data) : "";
+        if (!dataFechamento.isEmpty()) {
             DataHoje dh = new DataHoje();
             dataFechamento = dh.incrementarDias(1, dataFechamento);
         }
     }
-    
+
     public void selecionarEstornar(ObjectFechamentoDiario ofd) {
         ofdEstornar = ofd;
     }
@@ -147,32 +146,30 @@ public class FechamentoDiarioBean implements Serializable {
             Dao dao = new Dao();
             dao.openTransaction();
 
-            for (ObjectFechamentoDiarioDetalhe of : ofdEstornar.getListObjectFechamentoDiarioDetalhe()){
+            for (ObjectFechamentoDiarioDetalhe of : ofdEstornar.getListObjectFechamentoDiarioDetalhe()) {
                 if (!dao.delete(dao.find(of.getContaSaldo()))) {
                     dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível estornar Fechamento Diario!");
                     return;
                 }
-                
+
                 string_logs.add(
                         "CONTA SALDO ID: " + of.getContaSaldo().getId() + " \n "
                         + " VALOR: " + of.getContaSaldo().getSaldoString() + " \n "
                         + " CONTA: " + of.getPlano5().getConta() + " \n "
-                        + "------------------------------------------------------------ " 
+                        + "------------------------------------------------------------ "
                 );
             }
 
             dao.commit();
-            
+
             NovoLog log = new NovoLog();
             String logs = "";
-            for (String log_string : string_logs){
+            for (String log_string : string_logs) {
                 logs += log_string + " \n ";
             }
             log.delete(logs);
         }
-
-
 
         ofdEstornar = null;
         loadListaFechamentoDiario();
@@ -201,7 +198,9 @@ public class FechamentoDiarioBean implements Serializable {
                                 (Plano5) dao.find(new Plano5(), (Integer) linha_detalhe.get(1)),
                                 (Date) linha_detalhe.get(2),
                                 (String) linha_detalhe.get(3),
-                                ((Double) linha_detalhe.get(4)).floatValue()
+                                ((Double) linha_detalhe.get(4)).floatValue(),
+                                (String) linha_detalhe.get(5),
+                                linha_detalhe.get(6)
                         )
                 );
             }
@@ -322,16 +321,20 @@ public class FechamentoDiarioBean implements Serializable {
         private Date data;
         private String conta;
         private Float saldo;
+        private String classificador;
+        private Object caixaBanco;
 
-        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Float saldo) {
+        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Float saldo, String classificador, Object caixaBanco) {
             this.contaSaldo = contaSaldo;
             this.plano5 = plano5;
             this.data = data;
             this.conta = conta;
             this.saldo = saldo;
+            this.classificador = classificador;
+            this.classificador = classificador;
+            this.caixaBanco = caixaBanco;
         }
-        
-        
+
         public Date getData() {
             return data;
         }
@@ -386,6 +389,22 @@ public class FechamentoDiarioBean implements Serializable {
 
         public void setPlano5(Plano5 plano5) {
             this.plano5 = plano5;
+        }
+
+        public String getClassificador() {
+            return classificador;
+        }
+
+        public void setClassificador(String classificador) {
+            this.classificador = classificador;
+        }
+
+        public Object getCaixaBanco() {
+            return caixaBanco;
+        }
+
+        public void setCaixaBanco(Object caixaBanco) {
+            this.caixaBanco = caixaBanco;
         }
 
     }

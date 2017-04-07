@@ -40,13 +40,16 @@ public class FechamentoDiarioDao extends DB {
                     + "     p.id, \n "
                     + "     cs.dt_data, \n "
                     + "     p.ds_conta, \n "
-                    + "     sum(cs.nr_saldo) \n"
+                    + "     sum(cs.nr_saldo), \n"
+                    + "     p.ds_classificador, \n"
+                    + "     CB.id_plano5    \n"
                     + "  FROM fin_conta_saldo AS cs \n"
                     + "  INNER JOIN fin_plano5 AS p ON p.id = cs.id_plano5 \n"
+                    + "   LEFT JOIN caixa_banco_vw AS CB ON CB.id_plano5 = P.id \n"
                     + "  WHERE cs.dt_data = '" + data + "' \n"
                     + "    AND cs.nr_saldo > 0  \n"
-                    + " GROUP BY cs.id, p.id, cs.dt_data, p.ds_conta\n"
-                    + " ORDER BY cs.dt_data, p.ds_conta"
+                    + " GROUP BY cs.id, p.id, cs.dt_data, p.ds_conta, p.ds_classificador, CB.id_plano5 \n"
+                    + " ORDER BY cs.dt_data,  p.ds_classificador, p.ds_conta"
             );
             return qry.getResultList();
         } catch (Exception e) {
@@ -92,7 +95,7 @@ public class FechamentoDiarioDao extends DB {
                     + "\n"
                     + "SELECT \n"
                     + "       id_forma_pagamento AS id, \n"
-                    + "       valor AS valor, \n"
+                    + "       valor*func_dc(dc) AS valor, \n"
                     + "       id_conta, \n"
                     + "       1 AS id_usuario, \n"
                     + "       1 AS id_filial \n"
@@ -101,6 +104,7 @@ public class FechamentoDiarioDao extends DB {
                     + " WHERE baixa = '" + data_fechamento + "' \n"
                     + "  \n"
                     + ") AS b \n"
+                    + " WHERE valor <> 0  \n"
                     + "GROUP BY 1,3,4,5 "
             );
             return qry.getResultList();

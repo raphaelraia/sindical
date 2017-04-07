@@ -34,12 +34,12 @@
                         <div style="clear: both"></div>
                         <h:form id="formFechamentoDiario">
                             <p:messages showDetail="true" closable="true" />
-                            
+
                             <p:commandButton value="FECHAR DIA" onclick="PF('dlg_fechar').show()" action="#{fechamentoDiarioBean.selecionarFechar()}" style="font-weight: bold;" update="formFechamentoDiario:panel_fechamento_diario" disabled="#{fechamentoDiarioBean.cab.verificarPermissao('fechar_dia', 1)}"/>
-                            
+
                             <p:dataTable value="#{fechamentoDiarioBean.listaFechamentoDiario}" var="linha" emptyMessage="Nenhum Fechamento Diário encontrado!">
                                 <p:column style="width:15px">  
-                                    <p:rowToggler />  
+                                    <p:rowToggler></p:rowToggler>  
                                 </p:column>  
 
                                 <p:column headerText="Data" style="width: 80px; text-align: center">
@@ -49,35 +49,39 @@
                                 <p:column headerText="Saldo R$ (Caixa + Banco)">
                                     <p:outputLabel value="#{linha.saldoString}" style="float: right"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="" style="width: 80px; text-align: center">
                                     <p:commandLink value="ESTORNAR" action="#{fechamentoDiarioBean.selecionarEstornar(linha)}" onclick="PF('dlg_estornar').show()" style="font-weight: bold" rendered="#{linha.estornar}" disabled="#{fechamentoDiarioBean.cab.verificarPermissao('estornar_dia', 2)}"/>
                                 </p:column>
-                                
+
                                 <p:column width="60" styleClass="text-center" headerText="Relatório">
                                     <p:commandButton icon="ui-icon-document" action="#{chamadaPaginaBean.pagina('relatorioMovimentoDiario')}" actionListener="#{genericaSessao.putString('dataRFD', linha.dataString)}" title="Relatório de movimentos diário para esta data"/>
                                 </p:column>
 
                                 <p:rowExpansion>
                                     <p:dataTable var="linha_detalhe" value="#{linha.listObjectFechamentoDiarioDetalhe}" emptyMessage="Sem Detalhes!">
-                                        <p:column headerText="Data" style="width: 80px">
-                                            <p:outputLabel value="#{linha_detalhe.dataString}" />
+                                        <p:column headerText="Data" width="80" styleClass="text-center">
+                                            <p:outputLabel value="#{linha_detalhe.dataString}"/>
                                         </p:column>
 
-                                        <p:column headerText="Conta">
-                                            <p:outputLabel value="#{linha_detalhe.conta}" />
+                                        <p:column headerText="Conta"  >
+                                            <p:outputLabel value="#{linha_detalhe.conta}" style="#{linha_detalhe.caixaBanco ne null ? 'color:blue; font-weight:bold; font-size: 12pt!important' : ''}"/>
                                         </p:column>
 
-                                        <p:column headerText="Saldo" style="width:90px">
-                                            <h:outputText value="R$ "/>
-                                            <p:commandLink value="#{linha_detalhe.saldoString}" style="float: right"/>
+                                        <p:column headerText="Código" >
+                                            <p:outputLabel value="#{linha_detalhe.classificador}" style="#{linha_detalhe.caixaBanco ne null ? 'color:blue; font-weight:bold' : ''}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Saldo" width="150">
+                                            
+                                            <p:commandLink value="R$ #{linha_detalhe.saldoString}" style="float: right; #{linha_detalhe.caixaBanco ne null ? 'color:blue; font-weight:bold;font-size: 12pt!important' : ''}"/>
                                         </p:column>
                                     </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
-                            
-                             <p:dialog widgetVar="dlg_fechar" header="Fechamento Diario" resizable="false" width="400" modal="true">
-                                 <h:panelGrid id="panel_fechamento_diario">
+
+                            <p:dialog widgetVar="dlg_fechar" header="Fechamento Diario" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="panel_fechamento_diario">
                                     <p:outputLabel value="Deseja realmente concluir este fechamento?" style="font-size: 11pt!important; font-weight: bold"/><br />
                                     <p:outputLabel value="DATA: #{fechamentoDiarioBean.dataFechamento}"  style="font-size: 11pt!important; font-weight: bold"/>
                                 </h:panelGrid>
@@ -85,8 +89,8 @@
                                 <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{fechamentoDiarioBean.fechar()}" update="@form" onclick="PF('dlg_fechar').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_fechar').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
-                            
-                             <p:dialog widgetVar="dlg_estornar" header="Estornar Fechamento Diario" resizable="false" width="400" modal="true">
+
+                            <p:dialog widgetVar="dlg_estornar" header="Estornar Fechamento Diario" resizable="false" width="400" modal="true">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente ESTORNAR este fechamento?" style="font-size: 11pt!important; color: red"/>
                                 </h:panelGrid>
