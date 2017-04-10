@@ -5,6 +5,7 @@
  */
 package br.com.rtools.financeiro.dao;
 
+import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,5 +123,20 @@ public class FechamentoDiarioDao extends DB {
             return null;
         }
     }
+    
+    public List<ContaSaldo> listaFechamentoDiarioDetalheTodos(String data) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT cs.* \n"
+                    + "  FROM fin_conta_saldo AS cs \n"
+                    + "  WHERE cs.dt_data = '" + data + "'", ContaSaldo.class
+                    
+            );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }    
 
 }

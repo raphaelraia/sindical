@@ -31,7 +31,7 @@ public class FechamentoDiarioBean implements Serializable {
     private ObjectFechamentoDiario ofdEstornar = null;
     private String dataFechamento = "";
     private ControleAcessoBean cab = new ControleAcessoBean();
-    
+
     public FechamentoDiarioBean() {
         loadListaFechamentoDiario();
         GenericaSessao.remove("dataRFD");
@@ -41,32 +41,31 @@ public class FechamentoDiarioBean implements Serializable {
     public void fechar() {
         FechamentoDiarioDao fdao = new FechamentoDiarioDao();
         Dao dao = new Dao();
-        
+
         if (dataFechamento.isEmpty()) {
             //data_fechamento = DataHoje.dataHoje();
             GenericaMensagem.error("Atenção", "Conta Saldo sem valor inicial!");
             return;
         }
-        
 
         Date data = fdao.ultimaDataContaSaldo();
         if (DataHoje.converteData(data).equals(DataHoje.data())) {
             GenericaMensagem.warn("Atenção", "Fechamento já foi concluído para o dia de hoje!");
             return;
         }
-        
+
         if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
             GenericaMensagem.warn("Atenção", "Não existe dia para ser fechado!");
             return;
         }
-        
+
         if (dataFechamento.equals(DataHoje.data())) {
             // SE true NÃO TEM PERMISSÃO
-            if (cab.verificaPermissao("fechar_dia_hoje", 1)){
+            if (cab.verificaPermissao("fechar_dia_hoje", 1)) {
                 GenericaMensagem.fatal("Atenção", "Você não tem permissão para este Fechamento Diário!");
                 return;
             }
-        }   
+        }
 
         List<Object> result = fdao.listaConcluirFechamentoDiario(dataFechamento, DataHoje.converteData(data));
 
@@ -125,13 +124,13 @@ public class FechamentoDiarioBean implements Serializable {
     public void selecionarFechar() {
         FechamentoDiarioDao fdao = new FechamentoDiarioDao();
         Date data = fdao.ultimaDataContaSaldo();
-        dataFechamento =  (data != null) ? DataHoje.converteData((Date)  data) : "";
-        if (!dataFechamento.isEmpty()){
+        dataFechamento = (data != null) ? DataHoje.converteData((Date) data) : "";
+        if (!dataFechamento.isEmpty()) {
             DataHoje dh = new DataHoje();
             dataFechamento = dh.incrementarDias(1, dataFechamento);
         }
     }
-    
+
     public void selecionarEstornar(ObjectFechamentoDiario ofd) {
         ofdEstornar = ofd;
     }
@@ -145,34 +144,37 @@ public class FechamentoDiarioBean implements Serializable {
         if (!ofdEstornar.getListObjectFechamentoDiarioDetalhe().isEmpty()) {
             List<String> string_logs = new ArrayList();
             Dao dao = new Dao();
-            dao.openTransaction();
 
-            for (ObjectFechamentoDiarioDetalhe of : ofdEstornar.getListObjectFechamentoDiarioDetalhe()){
-                if (!dao.delete(dao.find(of.getContaSaldo()))) {
-                    dao.rollback();
-                    GenericaMensagem.error("Erro", "Não foi possível estornar Fechamento Diario!");
-                    return;
-                }
+            List<ContaSaldo> l_saldo = new FechamentoDiarioDao().listaFechamentoDiarioDetalheTodos(ofdEstornar.getDataString());
+
+            if (!l_saldo.isEmpty()) {
                 
-                string_logs.add(
-                        "CONTA SALDO ID: " + of.getContaSaldo().getId() + " \n "
-                        + " VALOR: " + of.getContaSaldo().getSaldoString() + " \n "
-                        + " CONTA: " + of.getPlano5().getConta() + " \n "
-                        + "------------------------------------------------------------ " 
-                );
-            }
+                dao.openTransaction();
+                for (ContaSaldo cs : l_saldo) {
+                    if (!dao.delete(cs)) {
+                        dao.rollback();
+                        GenericaMensagem.error("Erro", "Não foi possível estornar Fechamento Diario!");
+                        return;
+                    }
 
-            dao.commit();
-            
-            NovoLog log = new NovoLog();
-            String logs = "";
-            for (String log_string : string_logs){
-                logs += log_string + " \n ";
+                    string_logs.add(
+                            "CONTA SALDO ID: " + cs.getId() + " \n "
+                            + " VALOR: " + cs.getSaldoString() + " \n "
+                            + " CONTA: " + cs.getPlano5().getConta() + " \n "
+                            + "------------------------------------------------------------ "
+                    );
+                }
+
+                dao.commit();
+                NovoLog log = new NovoLog();
+                String logs = "";
+                for (String log_string : string_logs) {
+                    logs += log_string + " \n ";
+                }
+                log.delete(logs);
+                
             }
-            log.delete(logs);
         }
-
-
 
         ofdEstornar = null;
         loadListaFechamentoDiario();
@@ -330,8 +332,7 @@ public class FechamentoDiarioBean implements Serializable {
             this.conta = conta;
             this.saldo = saldo;
         }
-        
-        
+
         public Date getData() {
             return data;
         }

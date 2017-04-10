@@ -224,4 +224,22 @@ public class LoteDao extends DB {
     public List<Lote> pesquisaLotesPorEvt(int evt) {
         return pesquisaLotesPorEvt(new Evt(evt));
     }
+
+    public List<Lote> pesquisaLoteDocumento(Integer tipo_documento_id, String documento) {
+
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    " SELECT l.* \n "
+                    + "   FROM fin_lote l \n"
+                    + "  WHERE ds_documento = '" + documento + "' \n"
+                    + "    AND l.id_tipo_documento = " + tipo_documento_id,
+                    Lote.class
+            );
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
+        return new ArrayList();
+    }
 }

@@ -23,7 +23,6 @@ import br.com.rtools.utilitarios.Implantacao;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -97,7 +96,7 @@ public class ControleUsuarioBean implements Serializable {
         }
         if (nomeCliente.equals("Rtools") || nomeCliente.equals("Sindical") || nomeCliente.equals("ComercioLimeira")) {
             return true;
-        } 
+        }
         ResultSet rs;
         PreparedStatement ps;
         DBExternal dBExternal = new DBExternal();

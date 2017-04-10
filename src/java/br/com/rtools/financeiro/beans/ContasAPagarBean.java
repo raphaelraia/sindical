@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
+import br.com.rtools.movimento.ImprimirRecibo;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -173,12 +174,27 @@ public class ContasAPagarBean implements Serializable {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
 
         GenericaSessao.put("caixa_banco", "caixa");
-        
-        GenericaSessao.put("tipo_recibo_imprimir", dao.find(new TipoRecibo(), 1));
+
+        GenericaSessao.put("tipo_recibo_imprimir", dao.find(new TipoRecibo(), 2));
 
         GenericaSessao.put("esMovimento", "S");
-        
+
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
+    }
+
+    public void recibo() {
+        List<Movimento> l_movimento = new ArrayList();
+        
+        Dao dao = new Dao();
+        
+        for (ListaContas lc : listaContasSelecionada){
+            Movimento mov = (Movimento) dao.find(new Movimento(), lc.getMovimentoId());
+            l_movimento.add(mov);
+        }
+        
+        ImprimirRecibo ir = new ImprimirRecibo();
+
+        ir.reciboGenerico(l_movimento, null);
     }
 
     public void calculoAcrescimoDesconto(ListaContas lc) {
@@ -189,19 +205,19 @@ public class ContasAPagarBean implements Serializable {
     public final void loadListaContas() {
         listaContas.clear();
         listaContasSelecionada.clear();
-        
+
         MovimentoDao db = new MovimentoDao();
 
         List<Object> result = new ContasAPagarDao().listaContasAPagar(filtros);
         for (Object ob : result) {
             List linha = (List) ob;
-            
+
             List<FormaPagamento> list_fp = new ArrayList();
-            
-            if (linha.get(13) != null){
+
+            if (linha.get(13) != null) {
                 list_fp = db.pesquisaFormaPagamento((Integer) linha.get(13));
             }
-            
+
             listaContas.add(
                     new ListaContas(
                             linha.get(0).toString(),
@@ -470,7 +486,7 @@ public class ContasAPagarBean implements Serializable {
         // EDITADO
         private Float acrescimoEditado;
         private Float descontoEditado;
-        
+
         private List<FormaPagamento> listaFormaPagamento;
 
         public ListaContas(String nome, Date vencimento, String referencia, Float valor, Float acrescimo, Float desconto, Float valorPagamento, Date baixa, String tipoDocumento, String documento, Date lancamento, Date emissao, String conta, Integer baixaId, Integer movimentoId, String operador, String caixa, String tipoDocumentoLote, String documentoLote, String descricao, String historico, Float acrescimoEditado, Float descontoEditado, List<FormaPagamento> listaFormaPagamento) {

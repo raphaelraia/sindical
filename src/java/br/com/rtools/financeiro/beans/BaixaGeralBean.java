@@ -755,7 +755,7 @@ public class BaixaGeralBean implements Serializable {
                 if (((TipoRecibo) GenericaSessao.getObject("tipo_recibo_imprimir")).getId() == 1) {
                     new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
                 } else {
-                    new ImprimirRecibo().reciboGenerico(listaMovimentos.get(0).getId(), null);
+                    new ImprimirRecibo().reciboGenerico(listaMovimentos, null);
                 }
             }
         }

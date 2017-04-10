@@ -260,7 +260,9 @@ public class LancamentoFinanceiroBean implements Serializable {
     public String recibo(Movimento mov) {
         ImprimirRecibo ir = new ImprimirRecibo();
 
-        ir.reciboGenerico(mov.getId(), null);
+        List<Movimento> l = new ArrayList();
+        l.add(mov);
+        ir.reciboGenerico(l, null);
 
         return null;
     }
@@ -743,13 +745,18 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void save() {
         Dao dao = new Dao();
         try {
+            if (lote.getDocumento().isEmpty()){
+                GenericaMensagem.error("Atenção", "DIGITE UM NÚMERO DE DOCUMENTO!");
+                return;
+            }
+            
             if (listaParcela.isEmpty()) {
                 GenericaMensagem.warn("Erro", "ADICIONE UMA PARCELA para salvar este lançamento!");
                 return;
             }
+            
             float soma = 0;
             for (Parcela p : listaParcela) {
-
                 soma = Moeda.somaValores(soma, p.getMovimento().getValor());
             }
 
@@ -760,16 +767,19 @@ public class LancamentoFinanceiroBean implements Serializable {
                 GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
                 return;
             }
+            
             dao.openTransaction();
             ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
             FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
             Filial filial = (Filial) dao.find(new Filial(), idFilial);
             CondicaoPagamento cp;
+            
             if (condicao.equals("vista")) {
                 cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1);
             } else {
                 cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
             }
+            
             CentroCusto cc = null;
             if (!listaCentroCusto.isEmpty()) {
                 cc = (CentroCusto) dao.find(new CentroCusto(), idCentroCusto);
@@ -794,12 +804,19 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setOperacao(operacao);
             lote.setCentroCusto(cc);
             lote.setOperacao(o);
+            
             if (es.equals("E")) {
                 lote.setPagRec("R");
             } else {
                 lote.setPagRec("P");
             }
+            
             if (lote.getId() == -1) {
+                if (!new LoteDao().pesquisaLoteDocumento(lote.getFtipoDocumento().getId(), lote.getDocumento()).isEmpty()){
+                    GenericaMensagem.warn("Atenção", "NÚMERO DE DOCUMENTO JÁ EXISTE PARA ESTE TIPO!");
+                    dao.rollback();
+                    return;
+                }
                 if (!dao.save(lote)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Lote!");
                     dao.rollback();
