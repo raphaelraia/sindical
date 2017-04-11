@@ -382,7 +382,7 @@
                                     </p:inputText>
                                 </p:column>
                                 <p:column headerText="Status" styleClass="text-center">
-                                    <h:outputLabel value="· #{parcelas.baixado ? 'PAGO' : 'NÃO PAGO'} ·" style="color:#{parcelas.baixado ? 'blue' : 'red'}; font-weight: bold" />
+                                    <p:commandButton value="#{parcelas.baixado ? 'PAGO' : 'NÃO PAGO'}" style="color:#{parcelas.baixado ? 'blue' : 'red'}; font-weight: bold" update=":form_vendas_caravana:i_forma_pagto_baixa" onclick="PF('dlg_forma_pagto_baixa').show()" action="#{financeiroCardBean.cardFormaPagamentoBaixa(parcelas.movimento.baixa.id)}" title="Ver detalhes" disabled="#{parcelas.baixado ? false : true}"/>
                                 </p:column>                                    
                                 <p:row rendered="#{parcelas.movimento.ativo}">
                                 </p:row>
@@ -502,6 +502,12 @@
                             <p:panel id="i_pessoa_fisica_card">
                                 <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
                             </p:panel>
+                        </p:dialog>                        
+                        <p:dialog widgetVar="dlg_forma_pagto_baixa" modal="true" resizable="false" height="400" width="600" header="FORMAS DE PAGAMENTO DA BAIXA">
+                            <p:ajax event="close" listener="#{financeiroCardBean.close}"/>  
+                            <h:panelGroup layout="block" id="i_forma_pagto_baixa">
+                                <ui:include src="templates/templateFormaPagtoBaixa.xhtml" />
+                            </h:panelGroup>
                         </p:dialog>                        
                     </h:form>                    
                     <p:dialog id="i_dialog" widgetVar="i_dlg_mapa" header="Mapa de Lugares" resizable="false" width="1000" modal="true" height="800">
