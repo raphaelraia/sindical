@@ -43,10 +43,11 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.StatusRetorno;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
+import static java.lang.Integer.reverse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -532,8 +533,6 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
 
-        boolean reverse = false;
-
         for (Parcela p : listaParcelaSelecionada) {
             if (p.getMovimento().getBaixa() == null) {
                 continue;
@@ -546,19 +545,18 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
 
-            if (GerarMovimento.estornarMovimento(movimento, motivoEstorno)) {
-                reverse = true;
+            StatusRetorno sr = GerarMovimento.estornarMovimento(movimento, motivoEstorno);
+
+            if (!sr.getStatus()) {
+                GenericaMensagem.warn("Atenção", sr.getMensagem());
+                return;
             }
         }
 
-        if (reverse) {
-            listaParcela.clear();
-            listaParcelaSelecionada.clear();
-            GenericaMensagem.info("Sucesso", "Estorno concluído!");
-        } else {
-            GenericaMensagem.warn("Erro", "NENHUMA parcela para ser estornada!");
+        listaParcela.clear();
+        listaParcelaSelecionada.clear();
+        GenericaMensagem.info("Sucesso", "Estorno concluído!");
 
-        }
     }
 
     public String telaBaixa() {
@@ -745,16 +743,16 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void save() {
         Dao dao = new Dao();
         try {
-            if (lote.getDocumento().isEmpty()){
+            if (lote.getDocumento().isEmpty()) {
                 GenericaMensagem.error("Atenção", "DIGITE UM NÚMERO DE DOCUMENTO!");
                 return;
             }
-            
+
             if (listaParcela.isEmpty()) {
                 GenericaMensagem.warn("Erro", "ADICIONE UMA PARCELA para salvar este lançamento!");
                 return;
             }
-            
+
             float soma = 0;
             for (Parcela p : listaParcela) {
                 soma = Moeda.somaValores(soma, p.getMovimento().getValor());
@@ -767,19 +765,19 @@ public class LancamentoFinanceiroBean implements Serializable {
                 GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
                 return;
             }
-            
+
             dao.openTransaction();
             ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
             FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
             Filial filial = (Filial) dao.find(new Filial(), idFilial);
             CondicaoPagamento cp;
-            
+
             if (condicao.equals("vista")) {
                 cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1);
             } else {
                 cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
             }
-            
+
             CentroCusto cc = null;
             if (!listaCentroCusto.isEmpty()) {
                 cc = (CentroCusto) dao.find(new CentroCusto(), idCentroCusto);
@@ -804,15 +802,15 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setOperacao(operacao);
             lote.setCentroCusto(cc);
             lote.setOperacao(o);
-            
+
             if (es.equals("E")) {
                 lote.setPagRec("R");
             } else {
                 lote.setPagRec("P");
             }
-            
+
             if (lote.getId() == -1) {
-                if (!new LoteDao().pesquisaLoteDocumento(lote.getFtipoDocumento().getId(), lote.getDocumento()).isEmpty()){
+                if (!new LoteDao().pesquisaLoteDocumento(lote.getFtipoDocumento().getId(), lote.getDocumento()).isEmpty()) {
                     GenericaMensagem.warn("Atenção", "NÚMERO DE DOCUMENTO JÁ EXISTE PARA ESTE TIPO!");
                     dao.rollback();
                     return;
@@ -1250,7 +1248,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
             telaSalva = false;
         }
-        
+
         atualizaHistorico();
     }
 
