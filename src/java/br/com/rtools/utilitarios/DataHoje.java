@@ -19,7 +19,7 @@ public class DataHoje {
         Date dateTime = new Date();
         return dateTime;
     }
-    
+
     public static java.sql.Date dataHojeSQL() {
         Date dateTime = new Date();
         java.sql.Date sqlDate = new java.sql.Date(dateTime.getTime());
@@ -143,6 +143,27 @@ public class DataHoje {
         } else {
             return null;
         }
+    }
+
+    public static Date converteStringToSqlDate(String date) {
+        if (date != null) {
+            date = date.replace("/", "");
+            try {
+                String dia = date.substring(0, 2);
+                String mes = date.substring(2, 4);
+                String ano = date.substring(4, 8);
+
+                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                Date parsed = format.parse(ano + mes + dia);
+                java.sql.Date sql = new java.sql.Date(parsed.getTime());
+                return sql;
+            } catch (Exception e) {
+                e.getMessage();
+            }
+        } else {
+            return null;
+        }
+        return null;
     }
 
     public static String dataReferencia(String data) {

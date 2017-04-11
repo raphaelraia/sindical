@@ -94,23 +94,28 @@ public class LancamentoFinanceiroDao extends DB {
 
     public Boolean estornarTipoConta(Integer id_baixa) {
         try {
-            Query qry = getEntityManager().createQuery(
+            Query qry = getEntityManager().createNativeQuery(
                     "SELECT count(*) \n"
                     + "  FROM ( \n"
-                    + "	SELECT id_pessoa, id_baixa \n"
+                    + "	SELECT id_lote, id_baixa \n"
                     + "	  FROM fin_movimento \n"
                     + "	 WHERE is_ativo = true \n"
                     + "	   AND id_baixa IS NOT NULL\n"
                     + "	   AND ds_es = 'S' \n"
-                    + "	   AND id_baixa = 1 \n"
-                    + "	 GROUP BY id_pessoa, id_baixa \n"
+                    + "	   AND id_baixa = " + id_baixa + " \n"
+                    + "	 GROUP BY id_lote, id_baixa \n"
                     + ") AS bb \n"
                     + "GROUP BY id_baixa \n"
                     + "HAVING count(*) > 1"
             );
-            
+
             List<Object> result = qry.getResultList();
-            return result.get(0) == null ? false : (Integer) result.get(0) == 1;
+            if (result.isEmpty()){
+                return true;
+            }
+            
+            List<Object> r = (List) result.get(0);
+            return r.get(0) == null ? false : ((Long) r.get(0)).intValue() == 1;
         } catch (Exception e) {
             e.getMessage();
         }

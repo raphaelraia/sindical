@@ -79,33 +79,42 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             GenericaMensagem.warn("Validação", "Selecione um filtro!");
             return;
         }
+
         if (data.isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar uma data!");
             return;
         }
+
         SisProcesso sisProcesso = new SisProcesso();
         sisProcesso.start();
         Relatorios r = getRelatorios();
+
         if (r == null) {
             return;
         }
+
         List listDetalhePesquisa = new ArrayList();
         List<ObjectJasper> oj = new ArrayList<>();
         sisProcesso.startQuery();
         RelatorioMovimentoDiarioDao rpd = new RelatorioMovimentoDiarioDao();
+
         if (idRelatorioOrdem != null) {
             RelatorioOrdem ro = (RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem);
             rpd.setRelatorioOrdem(ro);
         }
+
         rpd.setRelatorios(r);
         List list = rpd.find(idCaixaBanco, inIdFStatus(), data);
         sisProcesso.finishQuery();
         Double saldo = new Double(0);
         Double saldo_anterior = rpd.findSaldoAnterior(data, idCaixaBanco);
+
         if (saldo_anterior == null) {
             saldo_anterior = new Double(0);
         }
-        oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "SALDO ANTERIOR", "", saldo_anterior > 0 ? saldo_anterior : 0, saldo_anterior < 0 ? saldo_anterior : 0, saldo_anterior, "", -1));
+
+        //oj.add(new ObjectJasper(DataHoje.converteStringToSqlDate(new DataHoje().decrementarDias(1, data)), "SALDO ANTERIOR", "", saldo_anterior > 0 ? saldo_anterior : 0, saldo_anterior < 0 ? saldo_anterior : 0, saldo_anterior, "", -1));
+
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             if (i == 0) {
@@ -115,10 +124,12 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             }
             oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), saldo, o.get(6), o.get(7)));
         }
+
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
         }
+
         String detalheRelatorio = "";
         if (listDetalhePesquisa.isEmpty()) {
             detalheRelatorio += "Pesquisar todos registros!";
@@ -132,6 +143,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
                 }
             }
         }
+
         Jasper.EXPORT_TO = true;
         Jasper.TITLE = "RELATÓRIO " + r.getNome().toUpperCase();
         Jasper.TYPE = "default";
@@ -139,10 +151,12 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         map.put("saldo_anterior", saldo_anterior);
         map.put("detalhes_relatorio", detalheRelatorio);
         map.put("caixa_banco", "CAIXA / BANCO");
+
         if (idCaixaBanco != null) {
             Plano5 p = (Plano5) new Dao().find(new Plano5(), idCaixaBanco);
             map.put("caixa_banco", p.getConta());
         }
+
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj, map);
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();
