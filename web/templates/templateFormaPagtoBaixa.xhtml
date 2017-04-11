@@ -1,0 +1,46 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <f:view>
+        <f:metadata>  
+            <!-- <f:event type="preRenderView" listener=""/>  -->
+        </f:metadata>
+        <h:panelGrid columns="2">
+            <h:outputLabel value="BAIXA Nº"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.id}"/>
+            <h:outputLabel value="DATA DA BAIXA:"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.baixa}"/>
+            <h:outputLabel value="OPERADOR:"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.usuario.pessoa.nome}"  />
+            <h:outputLabel value="IMPORTAÇÃO:"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.importacao}"  />
+            <h:outputLabel value="TROCO:"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.troco}">
+                <f:convertNumber pattern="#0.00" />
+            </h:outputLabel>            
+            <h:outputLabel value="CAIXA:"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.caixa.descricao}"  />            
+            <h:outputLabel value="DATA DO FECHAMENTO:"  />
+            <h:outputLabel value="#{financeiroCardBean.baixa.fechamentoCaixa.data}"  />            
+        </h:panelGrid>
+        <p:dataTable value="#{financeiroCardBean.listFormaPagamento}" var="formaPagamento"  styleClass="margin-top-max">
+            <f:facet name="header">
+                Formas de Pagamento
+            </f:facet>
+            <p:column headerText="Tipo">
+                #{formaPagamento.tipoPagamento.descricao.toUpperCase()}
+            </p:column>
+            <p:column headerText="Valor">
+                #{formaPagamento.valorString}
+            </p:column>
+            <p:column width="15">  
+                <p:rowToggler />  
+            </p:column>
+            <p:rowExpansion>
+
+            </p:rowExpansion>            
+        </p:dataTable>
+    </f:view>
+</ui:composition>

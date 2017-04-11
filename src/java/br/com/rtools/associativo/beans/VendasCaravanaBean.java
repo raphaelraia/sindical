@@ -573,7 +573,7 @@ public class VendasCaravanaBean implements Serializable {
         listaCaravanaSelect = new ArrayList();
         loadListaCaravanaSelect();
         locked = true;
-        vendas = (CaravanaVenda) new Dao().rebind(v);
+        vendas = (CaravanaVenda) new Dao().rebind(new Dao().find(v));
         loadListReservas();
         loadListReservasCanceladas();
         if (vendas.getCaravana() == null) {
