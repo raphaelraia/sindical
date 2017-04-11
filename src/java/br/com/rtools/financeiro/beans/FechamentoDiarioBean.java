@@ -203,7 +203,9 @@ public class FechamentoDiarioBean implements Serializable {
                                 (Plano5) dao.find(new Plano5(), (Integer) linha_detalhe.get(1)),
                                 (Date) linha_detalhe.get(2),
                                 (String) linha_detalhe.get(3),
-                                ((Double) linha_detalhe.get(4)).floatValue()
+                                ((Double) linha_detalhe.get(4)).floatValue(),
+                                (String) linha_detalhe.get(5),
+                                linha_detalhe.get(6)
                         )
                 );
             }
@@ -324,13 +326,18 @@ public class FechamentoDiarioBean implements Serializable {
         private Date data;
         private String conta;
         private Float saldo;
+        private String classificador;
+        private Object caixaBanco;
 
-        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Float saldo) {
+        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Float saldo, String classificador, Object caixaBanco) {
             this.contaSaldo = contaSaldo;
             this.plano5 = plano5;
             this.data = data;
             this.conta = conta;
             this.saldo = saldo;
+            this.classificador = classificador;
+            this.classificador = classificador;
+            this.caixaBanco = caixaBanco;
         }
 
         public Date getData() {
@@ -387,6 +394,22 @@ public class FechamentoDiarioBean implements Serializable {
 
         public void setPlano5(Plano5 plano5) {
             this.plano5 = plano5;
+        }
+
+        public String getClassificador() {
+            return classificador;
+        }
+
+        public void setClassificador(String classificador) {
+            this.classificador = classificador;
+        }
+
+        public Object getCaixaBanco() {
+            return caixaBanco;
+        }
+
+        public void setCaixaBanco(Object caixaBanco) {
+            this.caixaBanco = caixaBanco;
         }
 
     }

@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.impressao.ParametroSocios;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Fisica;
@@ -650,6 +651,24 @@ public class RelatorioSociosBean implements Serializable {
         Jasper.TITLE = relatorios.getNome();
         Map map = new HashMap();
         map.put("groups", selectedGroups);
+        if (relatorios.getNome().equals("ETIQUETAS")) {
+            collection = new ArrayList();
+            for (int i = 0; i < list.size(); i++) {
+                collection.add(
+                        new Etiquetas(
+                                list.get(i).getNome(),
+                                list.get(i).getLogradouro(),
+                                list.get(i).getEndereco(),
+                                list.get(i).getNumero(),
+                                list.get(i).getBairro(),
+                                list.get(i).getCidade(),
+                                list.get(i).getUf(),
+                                list.get(i).getCep(),
+                                list.get(i).getComplemento()
+                        )
+                );
+            }
+        }
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) collection, map);
         return null;
     }
