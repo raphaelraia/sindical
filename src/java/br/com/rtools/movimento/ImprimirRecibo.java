@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.faces.context.FacesContext;
@@ -39,7 +40,7 @@ import org.apache.commons.collections.map.HashedMap;
 
 public class ImprimirRecibo {
 
-    public String reciboGenerico(Integer id_movimento, Map parameter) {
+    public String reciboGenerico(List<Movimento> lista_movimento, Map parameter) {
         Collection vetor = new ArrayList();
         Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
         PessoaEnderecoDao dbp = new PessoaEnderecoDao();
@@ -47,36 +48,51 @@ public class ImprimirRecibo {
         PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
 
         MovimentoDao db = new MovimentoDao();
-        Movimento movimento = db.pesquisaCodigo(id_movimento);
 
-        vetor.add(
-                new ParametroReciboFinanceiro(
-                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                        sindicato.getPessoa().getNome(),
-                        pe.getEndereco().getDescricaoEndereco().getDescricao(),
-                        pe.getEndereco().getLogradouro().getDescricao(),
-                        pe.getNumero(),
-                        pe.getComplemento(),
-                        pe.getEndereco().getBairro().getDescricao(),
-                        pe.getEndereco().getCep().substring(0, 5) + "-" + pe.getEndereco().getCep().substring(5),
-                        pe.getEndereco().getCidade().getCidade(),
-                        pe.getEndereco().getCidade().getUf(),
-                        sindicato.getPessoa().getTelefone1(),
-                        sindicato.getPessoa().getEmail1(),
-                        sindicato.getPessoa().getSite(),
-                        sindicato.getPessoa().getDocumento(),
-                        movimento.getPessoa().getNome(),
-                        movimento.getPessoa().getId(),
-                        movimento.getBaixa().getId(),
-                        movimento.getBaixa().getBaixa(),
-                        movimento.getLote().getHistoricoContabil(),
-                        movimento.getEs(),
-                        movimento.getValorBaixa(),
-                        movimento.getValorBaixaString() + " ( " + new ValorExtenso(movimento.getValorBaixa()).toString() + " ) ",
-                        pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.data(), 3)
-                )
-        );
+        String ids = "";
+        for (Movimento m : lista_movimento) {
+            if (ids.isEmpty()) {
+                ids = "" + m.getId();
+            } else {
+                ids += ", " + m.getId();
+            }
+        }
 
+        List<Object> m_ordenado = db.listaMovimentoAgrupadoOrdemBaixa(ids);
+
+        for (Object obj : m_ordenado) {
+            List linha = (List) obj;
+            
+            vetor.add(
+                    new ParametroReciboFinanceiro(
+                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                            sindicato.getPessoa().getNome(),
+                            pe.getEndereco().getDescricaoEndereco().getDescricao(),
+                            pe.getEndereco().getLogradouro().getDescricao(),
+                            pe.getNumero(),
+                            pe.getComplemento(),
+                            pe.getEndereco().getBairro().getDescricao(),
+                            pe.getEndereco().getCep().substring(0, 5) + "-" + pe.getEndereco().getCep().substring(5),
+                            pe.getEndereco().getCidade().getCidade(),
+                            pe.getEndereco().getCidade().getUf(),
+                            sindicato.getPessoa().getTelefone1(),
+                            sindicato.getPessoa().getEmail1(),
+                            sindicato.getPessoa().getSite(),
+                            sindicato.getPessoa().getDocumento(),
+                            linha.get(0), // NOME PESSOA
+                            (Integer) linha.get(1), // ID PESSOA
+                            (Integer) linha.get(2), // ID BAIXA
+                            (Date) linha.get(3), // DATA BAIXA
+                            linha.get(4).toString(), // HISTORICO CONTABIL + HISTORICO PADRAO
+                            linha.get(5).toString(), // ES
+                            ((Double) linha.get(6)).floatValue(), // VALOR BAIXADO
+                            Moeda.converteR$Float(((Double) linha.get(6)).floatValue()) + " ( " + new ValorExtenso(((Double) linha.get(6)).floatValue()).toString() + " ) ",
+                            pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.data(), 3),
+                            (Integer) linha.get(7)
+                    )
+            );
+        }
+        
         try {
             File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RECIBO_FINANCEIRO.jasper"));
             JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
@@ -89,7 +105,7 @@ public class ImprimirRecibo {
 
             byte[] arquivo = JasperExportManager.exportReportToPdf(print);
 
-            salvarRecibo(arquivo, movimento.getBaixa());
+            // salvarRecibo(arquivo, movimento.getBaixa());
 
             HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
             res.setContentType("application/pdf");

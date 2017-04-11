@@ -144,31 +144,36 @@ public class FechamentoDiarioBean implements Serializable {
         if (!ofdEstornar.getListObjectFechamentoDiarioDetalhe().isEmpty()) {
             List<String> string_logs = new ArrayList();
             Dao dao = new Dao();
-            dao.openTransaction();
 
-            for (ObjectFechamentoDiarioDetalhe of : ofdEstornar.getListObjectFechamentoDiarioDetalhe()) {
-                if (!dao.delete(dao.find(of.getContaSaldo()))) {
-                    dao.rollback();
-                    GenericaMensagem.error("Erro", "Não foi possível estornar Fechamento Diario!");
-                    return;
+            List<ContaSaldo> l_saldo = new FechamentoDiarioDao().listaFechamentoDiarioDetalheTodos(ofdEstornar.getDataString());
+
+            if (!l_saldo.isEmpty()) {
+                
+                dao.openTransaction();
+                for (ContaSaldo cs : l_saldo) {
+                    if (!dao.delete(cs)) {
+                        dao.rollback();
+                        GenericaMensagem.error("Erro", "Não foi possível estornar Fechamento Diario!");
+                        return;
+                    }
+
+                    string_logs.add(
+                            "CONTA SALDO ID: " + cs.getId() + " \n "
+                            + " VALOR: " + cs.getSaldoString() + " \n "
+                            + " CONTA: " + cs.getPlano5().getConta() + " \n "
+                            + "------------------------------------------------------------ "
+                    );
                 }
 
-                string_logs.add(
-                        "CONTA SALDO ID: " + of.getContaSaldo().getId() + " \n "
-                        + " VALOR: " + of.getContaSaldo().getSaldoString() + " \n "
-                        + " CONTA: " + of.getPlano5().getConta() + " \n "
-                        + "------------------------------------------------------------ "
-                );
+                dao.commit();
+                NovoLog log = new NovoLog();
+                String logs = "";
+                for (String log_string : string_logs) {
+                    logs += log_string + " \n ";
+                }
+                log.delete(logs);
+                
             }
-
-            dao.commit();
-
-            NovoLog log = new NovoLog();
-            String logs = "";
-            for (String log_string : string_logs) {
-                logs += log_string + " \n ";
-            }
-            log.delete(logs);
         }
 
         ofdEstornar = null;

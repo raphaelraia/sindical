@@ -2891,4 +2891,36 @@ public class MovimentoDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List<Object> listaMovimentoAgrupadoOrdemBaixa(String movimento_ids) {
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    "  SELECT p.ds_nome AS nome, \n "
+                    + "       p.id AS pessoa_id, \n "
+                    + "       b.id AS baixa_id,\n "
+                    + "       b.dt_baixa AS data_baixa, \n "
+                    + "       trim(l.ds_historico_contabil_padrao) || trim(l.ds_historico_contabil) AS historico_contabil, \n "
+                    + "       m.ds_es AS es, \n "
+                    + "       sum(m.nr_valor_baixa) AS valor_baixa, \n "
+                    + "       l.id \n "
+                    + "  FROM fin_movimento m \n "
+                    + " INNER JOIN pes_pessoa p ON p.id = m.id_pessoa\n "
+                    + " INNER JOIN fin_baixa b ON b.id = m.id_baixa \n "
+                    + " INNER JOIN fin_lote l ON l.id = m.id_lote \n "
+                    + " WHERE m.id IN (" + movimento_ids + ") \n "
+                    + "   AND m.id_plano5 NOT IN (SELECT id_plano5 FROM fin_conta_tipo_plano5 WHERE id_conta_tipo = 1) \n "
+                    + " GROUP BY p.ds_nome, \n "
+                    + "          p.id, \n "
+                    + "          b.id,\n "
+                    + "          b.dt_baixa, \n "
+                    + "          m.ds_es, \n "
+                    + "          l.id \n "
+                    + " ORDER BY p.ds_nome, b.id, l.id"
+            );
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
 }

@@ -127,11 +127,11 @@
                             <p:messages closable="true" showDetail="true" />
 
                             <p:dataTable id="tbl_contas" value="#{contasAPagarBean.listaContas}" var="contas_pagar" emptyMessage="Nenhuma Conta Encontrada" selection="#{contasAPagarBean.listaContasSelecionada}" rowKey="#{contas_pagar.movimentoId}">
-                                <p:ajax event="rowSelect" update="formContasAPagar:panel_selecionados" />
-                                <p:ajax event="rowUnselect" update="formContasAPagar:panel_selecionados" />
-                                <p:ajax event="toggleSelect" update="formContasAPagar:panel_selecionados" />
-                                <p:ajax event="rowSelectCheckbox" update="formContasAPagar:panel_selecionados" />
-                                <p:ajax event="rowUnselectCheckbox" update="formContasAPagar:panel_selecionados" />
+                                <p:ajax event="rowSelect" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
+                                <p:ajax event="rowUnselect" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
+                                <p:ajax event="toggleSelect" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
+                                <p:ajax event="rowSelectCheckbox" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
+                                <p:ajax event="rowUnselectCheckbox" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
 
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
@@ -244,15 +244,15 @@
                                         <f:facet name="header">
                                             <p:outputLabel value="Forma de Pagamento" />
                                         </f:facet>
-                                        
+
                                         <p:column headerText="Tipo" style="width: 80px;">
                                             <p:outputLabel value="#{linha_forma_pagamento.tipoPagamento.descricao}" />
                                         </p:column>
-                                        
-                                        <p:column headerText="Valor" style="width: 80px;">
+
+                                        <p:column headerText="Valor" style="width: 80px; text-align: right">
                                             <p:outputLabel value="#{linha_forma_pagamento.valorString}" />
                                         </p:column>
-                                        
+
                                     </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
@@ -309,12 +309,21 @@
                                 </h:column>
                             </h:panelGrid>
                             <hr />
-                            <h:panelGrid id="panel_botoes" columns="2">
+                            <h:panelGrid id="panel_botoes" columns="3">
                                 <p:commandButton value="Baixar" action="#{contasAPagarBean.baixar()}" rendered="#{contasAPagarBean.filtros.condicao eq 'em_aberto'}" disabled="#{controleAcessoBean.verificarPermissao('baixa_conta_pagar', 1)}" update="@form">
                                     <p:confirm header="Baixar Contas Selecionadas" message="Deseja Realmente BAIXAR estas Contas?" icon="ui-icon-alert" />
                                 </p:commandButton>
 
                                 <p:commandButton value="Estornar" disabled="#{controleAcessoBean.verificarPermissao('estorno_conta_pagar', 3)}" onclick="PF('dlg_estornar_conta').show()"/>
+                                
+                                <h:panelGroup rendered="#{contasAPagarBean.filtros.condicao eq 'pagos' and !empty(contasAPagarBean.listaContasSelecionada)}" layout="block">
+                                    <p:commandLink action="#{contasAPagarBean.recibo()}" target="_blank" ajax="false">
+                                        <p:button icon="ui-icon-print" value="Imprimir Recibo" />
+                                    </p:commandLink>  
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{contasAPagarBean.filtros.condicao eq 'pagos' and empty(contasAPagarBean.listaContasSelecionada)}" layout="block">
+                                    <p:button icon="ui-icon-print" value="Imprimir Recibo" disabled="true"/>
+                                </h:panelGroup>
                             </h:panelGrid>
 
                             <p:dialog widgetVar="dlg_estornar_conta" header="Estornar Contas Selecionadas" resizable="false" width="400" modal="true">

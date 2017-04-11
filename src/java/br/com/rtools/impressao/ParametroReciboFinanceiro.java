@@ -25,8 +25,9 @@ public class ParametroReciboFinanceiro {
     private Object valor;
     private Object valorString;
     private Object dataExtenso;
+    private Object idLote;
 
-    public ParametroReciboFinanceiro(Object sinLogo, Object sinNome, Object sinEndereco, Object sinLogradouro, Object sinNumero, Object sinComplemento, Object sinBairro, Object sinCep, Object sinCidade, Object sinUF, Object sinTelefone, Object sinEmail, Object sinSite, Object sinDocumento, Object pessoa, Object idPessoa, Object idBaixa, Object dataBaixa, Object historico, Object es, Object valor, Object valorString, Object dataExtenso) {
+    public ParametroReciboFinanceiro(Object sinLogo, Object sinNome, Object sinEndereco, Object sinLogradouro, Object sinNumero, Object sinComplemento, Object sinBairro, Object sinCep, Object sinCidade, Object sinUF, Object sinTelefone, Object sinEmail, Object sinSite, Object sinDocumento, Object pessoa, Object idPessoa, Object idBaixa, Object dataBaixa, Object historico, Object es, Object valor, Object valorString, Object dataExtenso, Object idLote) {
         this.sinLogo = sinLogo;
         this.sinNome = sinNome;
         this.sinEndereco = sinEndereco;
@@ -50,6 +51,7 @@ public class ParametroReciboFinanceiro {
         this.valor = valor;
         this.valorString = valorString;
         this.dataExtenso = dataExtenso;
+        this.idLote = idLote;
     }
 
     public Object getSinLogo() {
@@ -234,6 +236,14 @@ public class ParametroReciboFinanceiro {
 
     public void setDataExtenso(Object dataExtenso) {
         this.dataExtenso = dataExtenso;
+    }
+
+    public Object getIdLote() {
+        return idLote;
+    }
+
+    public void setIdLote(Object idLote) {
+        this.idLote = idLote;
     }
 
 }
