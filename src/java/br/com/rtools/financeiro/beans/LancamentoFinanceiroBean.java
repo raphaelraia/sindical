@@ -235,10 +235,12 @@ public class LancamentoFinanceiroBean implements Serializable {
             FTipoDocumento f_doc = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
             String num = lote.getDocumento().isEmpty() ? "____" : lote.getDocumento();
             String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
-            lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num + " a " + pessoa.getNome() + ", " + pes_doc);
+            // lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num + " a " + pessoa.getNome() + ", " + pes_doc);
+            lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num );
         } else if (es.equals("E") && pessoa.getId() != -1) {
             String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
-            lote.setHistoricoContabilPadrao("Referente ao recebimento de " + pessoa.getNome() + ", " + pes_doc);
+            // lote.setHistoricoContabilPadrao("Referente ao recebimento de " + pessoa.getNome() + ", " + pes_doc);
+            lote.setHistoricoContabilPadrao("Referente ao recebimento de ");
         }
     }
 
