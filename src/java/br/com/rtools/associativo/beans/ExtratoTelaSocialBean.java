@@ -6,7 +6,6 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -26,6 +25,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.StatusRetorno;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -243,6 +243,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         int qnt = 0;
+        
         Movimento mov = null;
 
         for (DataObject listaMovimento1 : listaMovimento) {
@@ -252,11 +253,11 @@ public class ExtratoTelaSocialBean implements Serializable {
             }
         }
 
-        if (qnt == 0) {
+        if (mov == null) {
             GenericaMensagem.warn("Atenção", "Nenhum Movimento selecionado!");
             return;
         }
-
+        
         if (qnt > 1) {
             GenericaMensagem.warn("Erro", "Mais de um movimento foi selecionado!");
             return;
@@ -272,8 +273,6 @@ public class ExtratoTelaSocialBean implements Serializable {
             return;
         }
 
-        boolean est = true;
-
         if (!mov.isAtivo()) {
             GenericaMensagem.warn("Atenção", "Boleto ID: " + mov.getId() + " esta inativo, não é possivel concluir estorno!");
             return;
@@ -288,12 +287,10 @@ public class ExtratoTelaSocialBean implements Serializable {
             mov.setAtivo(false);
         }
 
-        if (!GerarMovimento.estornarMovimento(mov, motivoEstorno)) {
-            est = false;
-        }
-
-        if (!est) {
-            GenericaMensagem.warn("Atenção", "Ocorreu erros ao estornar boletos, verifique o log!");
+        StatusRetorno sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
+        
+        if (!sr.getStatus()) {
+            GenericaMensagem.warn("Atenção", sr.getMensagem());
         } else {
             GenericaMensagem.info("Sucesso", "Boletos estornados com sucesso!");
         }

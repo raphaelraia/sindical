@@ -26,8 +26,11 @@ public class ParametroReciboFinanceiro {
     private Object valorString;
     private Object dataExtenso;
     private Object idLote;
+    private Object idTipoDocumento;
+    private Object tipoDocumentoPessoa;
+    private Object documentoPessoa;
 
-    public ParametroReciboFinanceiro(Object sinLogo, Object sinNome, Object sinEndereco, Object sinLogradouro, Object sinNumero, Object sinComplemento, Object sinBairro, Object sinCep, Object sinCidade, Object sinUF, Object sinTelefone, Object sinEmail, Object sinSite, Object sinDocumento, Object pessoa, Object idPessoa, Object idBaixa, Object dataBaixa, Object historico, Object es, Object valor, Object valorString, Object dataExtenso, Object idLote) {
+    public ParametroReciboFinanceiro(Object sinLogo, Object sinNome, Object sinEndereco, Object sinLogradouro, Object sinNumero, Object sinComplemento, Object sinBairro, Object sinCep, Object sinCidade, Object sinUF, Object sinTelefone, Object sinEmail, Object sinSite, Object sinDocumento, Object pessoa, Object idPessoa, Object idBaixa, Object dataBaixa, Object historico, Object es, Object valor, Object valorString, Object dataExtenso, Object idLote, Object idTipoDocumento, Object tipoDocumentoPessoa, Object documentoPessoa) {
         this.sinLogo = sinLogo;
         this.sinNome = sinNome;
         this.sinEndereco = sinEndereco;
@@ -52,6 +55,9 @@ public class ParametroReciboFinanceiro {
         this.valorString = valorString;
         this.dataExtenso = dataExtenso;
         this.idLote = idLote;
+        this.idTipoDocumento = idTipoDocumento;
+        this.tipoDocumentoPessoa = tipoDocumentoPessoa;
+        this.documentoPessoa = documentoPessoa;
     }
 
     public Object getSinLogo() {
@@ -245,5 +251,30 @@ public class ParametroReciboFinanceiro {
     public void setIdLote(Object idLote) {
         this.idLote = idLote;
     }
+
+    public Object getIdTipoDocumento() {
+        return idTipoDocumento;
+    }
+
+    public void setIdTipoDocumento(Object idTipoDocumento) {
+        this.idTipoDocumento = idTipoDocumento;
+    }
+    
+    public Object getTipoDocumentoPessoa() {
+        return tipoDocumentoPessoa;
+    }
+
+    public void setTipoDocumentoPessoa(Object tipoDocumentoPessoa) {
+        this.tipoDocumentoPessoa = tipoDocumentoPessoa;
+    }
+
+    public Object getDocumentoPessoa() {
+        return documentoPessoa;
+    }
+
+    public void setDocumentoPessoa(Object documentoPessoa) {
+        this.documentoPessoa = documentoPessoa;
+    }
+
 
 }

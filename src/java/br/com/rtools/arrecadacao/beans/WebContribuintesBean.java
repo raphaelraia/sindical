@@ -27,6 +27,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.StatusRetorno;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -451,14 +452,21 @@ public class WebContribuintesBean extends MovimentoValorBean {
                             "",
                             strVencimento,
                             0,
-                            0, 0, 0, 0, 0, 0, (FTipoDocumento) new Dao().find(new FTipoDocumento(), 2), 0, null);
+                            0, 0, 0, 0, 0, 0, (FTipoDocumento) new Dao().find(new FTipoDocumento(), 2),
+                            0,
+                            null
+                    );
 
-                    if (GerarMovimento.salvarUmMovimento(new Lote(), movi)) {
+                    StatusRetorno sr = GerarMovimento.salvarUmMovimento(new Lote(), movi);
+                    
+                    if (sr.getStatus()) {
+                        
                         loadList();
                         GenericaMensagem.info("Sucesso", "Boleto Adicionado!");
                         renderNovo = false;
+                        
                     } else {
-                        GenericaMensagem.error("Erro", "Erro ao Gerar boletos, tente novamente!");
+                        GenericaMensagem.error("Atenção", sr.getMensagem());
                     }
                 } else {
                     GenericaMensagem.warn("Atenção", "Mensagem Convenção não existe. Entrar em contato com seu Sindicato para permitir a criação desta referência!");

@@ -24,6 +24,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.StatusRetorno;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -91,8 +92,6 @@ public class ContasAPagarBean implements Serializable {
             return null;
         }
 
-        boolean est = true;
-
         if (!mov.isAtivo()) {
             GenericaMensagem.warn("Erro", "Boleto ID: " + mov.getId() + " esta inativo, não é possivel concluir estorno!");
             return null;
@@ -103,12 +102,11 @@ public class ContasAPagarBean implements Serializable {
         }
 
         Integer id_baixa_estornada = mov.getBaixa().getId();
-        if (!GerarMovimento.estornarMovimento(mov, motivoEstorno)) {
-            est = false;
-        }
 
-        if (!est) {
-            GenericaMensagem.warn("Erro", "Ocorreu erros ao estornar boletos, verifique o log!");
+        StatusRetorno sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
+
+        if (!sr.getStatus()) {
+            GenericaMensagem.warn("Erro", sr.getMensagem());
         } else {
             NovoLog novoLog = new NovoLog();
             novoLog.setCodigo(mov.getId());
@@ -161,17 +159,14 @@ public class ContasAPagarBean implements Serializable {
         for (ListaContas lc : listaContasSelecionada) {
             Movimento movimento = (Movimento) dao.find(new Movimento(), lc.getMovimentoId());
 
-            //movimento.setMulta(Moeda.converteUS$(listaMovimento.get(i).getArgumento19().toString()));
-            //movimento.setJuros(Moeda.converteUS$(listaMovimento.get(i).getArgumento20().toString()));
             movimento.setCorrecao(lc.getAcrescimoEditado());
             movimento.setDesconto(lc.getDescontoEditado());
 
-            //movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
             movimento.setValorBaixa(Moeda.subtracaoValores(Moeda.somaValores(lc.getValor(), lc.getAcrescimoEditado()), lc.getDescontoEditado()));
             lista.add(movimento);
         }
 
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
+        GenericaSessao.put("listaMovimento", lista);
 
         GenericaSessao.put("caixa_banco", "caixa");
 
@@ -184,14 +179,14 @@ public class ContasAPagarBean implements Serializable {
 
     public void recibo() {
         List<Movimento> l_movimento = new ArrayList();
-        
+
         Dao dao = new Dao();
-        
-        for (ListaContas lc : listaContasSelecionada){
+
+        for (ListaContas lc : listaContasSelecionada) {
             Movimento mov = (Movimento) dao.find(new Movimento(), lc.getMovimentoId());
             l_movimento.add(mov);
         }
-        
+
         ImprimirRecibo ir = new ImprimirRecibo();
 
         ir.reciboGenerico(l_movimento, null);

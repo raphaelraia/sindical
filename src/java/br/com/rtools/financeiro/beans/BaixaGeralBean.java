@@ -21,6 +21,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
+import br.com.rtools.financeiro.dao.FechamentoDiarioDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -43,6 +44,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.StatusRetorno;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -110,6 +112,8 @@ public class BaixaGeralBean implements Serializable {
     private ControleAcessoBean cab = new ControleAcessoBean();
     private String dataEmissaoRecibo;
 
+    private Boolean visibleImprimirRecibo = false;
+    
     @PostConstruct
     public void init() {
         cfb.init();
@@ -125,6 +129,18 @@ public class BaixaGeralBean implements Serializable {
 
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
         dataEmissaoRecibo = "";
+    }
+
+    public void validacao() {
+        String data_fechamento_diario = DataHoje.converteData(new FechamentoDiarioDao().ultimaDataContaSaldo());
+        String data_hoje = DataHoje.data();
+
+        if (DataHoje.menorData(data_hoje, data_fechamento_diario) || data_hoje.equals(data_fechamento_diario)) {
+            mensagem = "FECHAMENTO DIÁRIO EFETUADO, MOVIMENTO NÃO PODE SER BAIXADO!";
+            visibleModal = true;
+            retorna = true;
+            visibleImprimirRecibo = false;
+        }
     }
 
     public final void loadListaTodosBancos() {
@@ -214,9 +230,9 @@ public class BaixaGeralBean implements Serializable {
             GenericaSessao.put("baixa_geral_sucesso", true);
             String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
             GenericaSessao.put("linkClicado", true);
-            
+
             GenericaSessao.remove("tipo_recibo_imprimir");
-            
+
             if (url.equals("baixaBoleto")) {
                 ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
                 return "baixaBoleto";
@@ -598,8 +614,10 @@ public class BaixaGeralBean implements Serializable {
 
         float vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
 
-        if (!GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl)) {
-            mensagem = "Erro ao baixar!";
+        StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl);
+        
+        if (!sr.getStatus()) {
+            mensagem = "Erro ao baixar! " + sr.getMensagem();
             return null;
         } else {
             Dao dao = new Dao();
@@ -660,6 +678,7 @@ public class BaixaGeralBean implements Serializable {
             mensagem = "Baixa realizada com sucesso!";
             GenericaSessao.put("baixa_sucesso", true);
             visibleModal = true;
+            visibleImprimirRecibo = true;
         }
         return null;
     }
@@ -750,13 +769,10 @@ public class BaixaGeralBean implements Serializable {
 
             if (!GenericaSessao.exists("tipo_recibo_imprimir")) {
                 new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
+            } else if (((TipoRecibo) GenericaSessao.getObject("tipo_recibo_imprimir")).getId() == 1) {
+                new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
             } else {
-
-                if (((TipoRecibo) GenericaSessao.getObject("tipo_recibo_imprimir")).getId() == 1) {
-                    new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
-                } else {
-                    new ImprimirRecibo().reciboGenerico(listaMovimentos, null);
-                }
+                new ImprimirRecibo().reciboGenerico(listaMovimentos, null);
             }
         }
     }
@@ -855,11 +871,13 @@ public class BaixaGeralBean implements Serializable {
         if (tipo.equals("banco")) {
             desHabilitaQuitacao = false;
         } else // TRUE = não tem permissão
-         if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
+        {
+            if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
                 desHabilitaQuitacao = true;
             } else {
                 desHabilitaQuitacao = false;
             }
+        }
         return desHabilitaQuitacao;
     }
 
@@ -1346,5 +1364,13 @@ public class BaixaGeralBean implements Serializable {
             ir.recibo(mov.getId(), map);
         }
         return null;
+    }
+
+    public Boolean getVisibleImprimirRecibo() {
+        return visibleImprimirRecibo;
+    }
+
+    public void setVisibleImprimirRecibo(Boolean visibleImprimirRecibo) {
+        this.visibleImprimirRecibo = visibleImprimirRecibo;
     }
 }

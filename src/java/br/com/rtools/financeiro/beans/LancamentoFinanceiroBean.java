@@ -613,7 +613,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         for (Parcela p : listaParcelaSelecionada) {
             movimento = (Movimento) p.getMovimento();
 
-            //movimento = db.pesquisaCodigo(Integer.parseInt(String.valueOf(listaMovimento.get(i).getArgumento1())));
             movimento.setMulta(Moeda.converteUS$(p.getMulta()));
             movimento.setJuros(Moeda.converteUS$(p.getJuros()));
             movimento.setCorrecao(Moeda.converteUS$(p.getCorrecao()));
@@ -621,7 +620,6 @@ public class LancamentoFinanceiroBean implements Serializable {
 
             float valor_baixa = Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(p.getAcrescimo()));
             valor_baixa = Moeda.subtracaoValores(valor_baixa, movimento.getDesconto());
-            //movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
 
             movimento.setValorBaixa(valor_baixa);
 
@@ -673,7 +671,6 @@ public class LancamentoFinanceiroBean implements Serializable {
             idCentroCusto = lote.getCentroCusto().getId();
         }
 
-        //historico = lote.getHistoricoContabilPadrao();
         // OPERACAO
         loadListaContaOperacao();
         if (lote.getPlano5() != null) {
@@ -684,6 +681,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
         }
+        
         // TIPO DOCUMENTO -- CNPJ -- CPF -- SEM DOCUMENTO
         idTipoDocumento = pessoa.getTipoDocumento().getId();
         listaParcela = new ArrayList();
@@ -694,7 +692,9 @@ public class LancamentoFinanceiroBean implements Serializable {
         if (!selectMovimento.isEmpty()) {
             esLancamento = selectMovimento.get(0).getEs();
         }
+        
         float acre, valor_quitado = 0;
+        
         for (Movimento mov : selectMovimento) {
             String data_quitacao = "";
             String caixa = "NÃO BAIXADO";
@@ -798,7 +798,6 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setRotina((Rotina) dao.find(new Rotina(), 231));
             lote.setEvt(null);
             lote.setPessoa(pessoa);
-            //lote.setHistoricoContabilPadrao(historico);
             lote.setPessoaSemCadastro(null);
             lote.setUsuario(us);
             lote.setOperacao(operacao);
@@ -1306,9 +1305,14 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void atualizaComboES() {
         esLancamento = es;
+        
         loadListaOperacao();
+        
         loadListaCentroCusto();
+        
         loadListaContaOperacao();
+        
+        atualizaHistorico();
     }
 
     public void atualizaComboOperacao() {
@@ -1921,34 +1925,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaCentroCusto = listaCentroCusto;
     }
 
-//    public List<SelectItem> getListaTipoCentroCusto() {
-//        if (listaTipoCentroCusto.isEmpty()) {
-//            if (idCentroCusto == 0) {
-//                GenericaMensagem.error("Erro", "Cadastre um Centro de Custo para fazer um Lançamento!");
-//                listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
-//                return listaTipoCentroCusto;
-//            }
-//
-//            CentroCusto centroCusto = (CentroCusto) new Dao().find(new CentroCusto(), idCentroCusto);
-////            List<CentroCustoContabilSub> listaCentroContabil = (new LancamentoFinanceiroDao()).listaTipoCentroCusto(centroCusto.getCentroCustoContabil().getId(), es);
-////            if (!listaCentroContabil.isEmpty()) {
-////                for (int i = 0; i < listaCentroContabil.size(); i++) {
-////                    listaTipoCentroCusto.add(new SelectItem(
-////                            i,
-////                            listaCentroContabil.get(i).getDescricao(),
-////                            Integer.toString(listaCentroContabil.get(i).getId()))
-////                    );
-////                }
-////            } else {
-////                listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
-////            }
-//        }
-//        return listaTipoCentroCusto;
-//    }
-//
-//    public void setListaTipoCentroCusto(List<SelectItem> listaTipoCentroCusto) {
-//        this.listaTipoCentroCusto = listaTipoCentroCusto;
-//    }
     public Operacao getOperacao() {
         if (listaOperacao.size() != 1 && !idOperacao.equals(0)) {
             if (!idOperacao.equals(operacao.getId())) {

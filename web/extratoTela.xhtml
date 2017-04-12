@@ -316,15 +316,16 @@
                                             <p:outputLabel value="Acordo" style="font-weight: bold" rendered="#{not empty movimentos.argumento27}" /><br />
                                             <p:commandLink value="#{movimentos.argumento27[0].acordo.id} (Visualizar)" rendered="#{not empty movimentos.argumento27}"  action="#{extratoTelaBean.setListMovimentosAcordo(movimentos.argumento27)}" onclick="PF('dlg_acordos').show()" update=":formExtratoTelaOpcoes:i_m_a" styleClass="bold font-color-blue" title="Visualizar esta lista"/>
                                         </p:column>
+                                        
                                         <p:column>
                                             <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{extratoTelaBean.porPesquisa == 'recebidas'}">
                                                 <h:commandLink target="#{baixaGeralBean.targetImprimeRecibo(movimentos.argumento1)}" action="#{baixaGeralBean.recibo2Via(movimentos.argumento1)}" rendered="#{movimentos.argumento28 eq 'CAIXA'}" title="Imprimir este Recibo">
                                                     <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo" value="2ª Via de Recibo"/>
                                                 </h:commandLink>
-                                            </p:column>                                
-
+                                            </p:column>
                                         </p:column>                                       
                                     </h:panelGrid>
+                                    
                                     <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">                                        
                                         <p:column>
                                             <p:outputLabel value="Vencto Original" style="font-weight: bold"/><br />

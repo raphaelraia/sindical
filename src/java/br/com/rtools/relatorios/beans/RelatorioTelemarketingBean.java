@@ -122,10 +122,10 @@ public class RelatorioTelemarketingBean implements Serializable {
         List<Etiquetas> e = new ArrayList<>();
         sisProcesso.startQuery();
         RelatorioTelemarketingDao rcd = new RelatorioTelemarketingDao();
-        if(!listRelatorioOrdem.isEmpty()) {
-            if(idRelatorioOrdem != null) {
-                rcd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));            
-            }            
+        if (!listRelatorioOrdem.isEmpty()) {
+            if (idRelatorioOrdem != null) {
+                rcd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
+            }
         }
         rcd.setRelatorios(r);
         List list = rcd.find(tipoDataLancamento, dataLancamentoInicial, dataLancamentoFinal, pessoa, inIdOperador(), inIdTmktNatureza(), inIdTmktContato(), inIdDepartamento());

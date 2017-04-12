@@ -39,6 +39,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.StatusRetorno;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -526,8 +527,12 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     movim.setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
                     String vencto = ((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento();
 
-                    if (GerarMovimento.salvarUmMovimento(lote, movim)) {
+                    StatusRetorno sr = GerarMovimento.salvarUmMovimento(lote, movim); 
+                    
+                    if (sr.getStatus()) {
+                        
                         movim.setVencimento(vencto);
+                        
                         novoLog.save(
                                 " Movimento: (" + movim.getId() + ") "
                                 + " - Referência: (" + movim.getReferencia()
@@ -537,12 +542,17 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                                 + " - Valor: " + movim.getValorString()
                                 + " - Vencimento: " + movim.getVencimento()
                         );
+                        
                         GenericaMensagem.info("Sucesso", "Gerado");
+                        
                     } else {
-                        GenericaMensagem.warn("Erro", "Ao gerar boletos!");
+                        
+                        GenericaMensagem.warn("Erro", sr.getMensagem());
                         success = false;
+                        
                     }
                 }
+                
                 if (success) {
                     Historico h = ((Movimento) listMovimentos.get(i).getArgumento1()).getHistorico();
                     if (h != null) {

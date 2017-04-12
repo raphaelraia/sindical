@@ -6,9 +6,9 @@ import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.FechamentoDiarioDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.DocumentoInvalido;
@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -104,6 +105,16 @@ public abstract class ArquivoRetorno {
         TipoServico tipoServico;
         HashMap hash_detalhes = new LinkedHashMap();
         List<ObjectDetalheRetorno> lista_detalhe = new ArrayList();
+
+        String data_fechamento_diario = DataHoje.converteData(new FechamentoDiarioDao().ultimaDataContaSaldo());
+
+        for (int u = 0; u < listaParametros.size(); u++) {
+            String data_pag = DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento());
+            if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
+                return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
+            }
+        }
+
         // LAYOUT 2 = SINDICAL
         if (this.getContaCobranca().getLayout().getId() == 2) {
             for (int u = 0; u < listaParametros.size(); u++) {
@@ -191,7 +202,9 @@ public abstract class ArquivoRetorno {
                                 (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                                 0, null);
 
-                        if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
+                        StatusRetorno sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
+
+                        if (sr.getStatus()) {
                             float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
                             GerarMovimento.baixarMovimento(
                                     movi,
@@ -310,7 +323,9 @@ public abstract class ArquivoRetorno {
                             null
                     );
 
-                    if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
+                    StatusRetorno sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
+
+                    if (sr.getStatus()) {
                         float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
                         GerarMovimento.baixarMovimento(
                                 movi,
@@ -353,9 +368,14 @@ public abstract class ArquivoRetorno {
                             0, 0, 0, 0, 0,
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                            (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2), 0, null);
+                            (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
+                            0,
+                            null
+                    );
 
-                    if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
+                    StatusRetorno sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
+
+                    if (sr.getStatus()) {
                         float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
 
                         DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
@@ -470,6 +490,16 @@ public abstract class ArquivoRetorno {
         flDes.mkdir();
 
         List<Object[]> lista_logs = new ArrayList();
+
+        String data_fechamento_diario = DataHoje.converteData(new FechamentoDiarioDao().ultimaDataContaSaldo());
+
+        for (int u = 0; u < listaParametros.size(); u++) {
+            String data_pag = DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento());
+            if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
+                return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
+            }
+        }
+
         // LAYOUT 2 = SINDICAL
         if (this.getContaCobranca().getLayout().getId() != 2) {
             for (int u = 0; u < listaParametros.size(); u++) {

@@ -38,7 +38,7 @@
 
         </script>
     </h:head>
-    <h:body>
+    <h:body onload="#{baixaGeralBean.validacao()}">
         <!-- INICIA DIV wrap e main -->
         <div id="wrapx">
             <div id="mainx">
@@ -47,6 +47,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                     <ui:include src="templates/templateAcessoFilial.xhtml"/>
                 </f:subview>
+                
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Baixa Geral" styleClass="fonteHeader" />
@@ -156,6 +157,7 @@
                                     </p:column>
                                 </h:panelGrid>
                             </h:panelGrid>
+                            
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
                             
                             <p:dataTable var="linha" id="tbl" value="#{baixaGeralBean.listaValores}" rowIndexVar="index" emptyMessage="Nenhum valor adicionado.">
@@ -220,11 +222,11 @@
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog widgetVar="i_dlg_s" header="Baixa Concluída!" resizable="false" width="400" modal="true" closable="false" visible="#{baixaGeralBean.visibleModal}">
+                            <p:dialog widgetVar="i_dlg_s" header="#{baixaGeralBean.visibleImprimirRecibo eq true ? 'Baixa Concluída' : 'Baixa não Permitida'}" resizable="false" width="400" modal="true" closable="false" visible="#{baixaGeralBean.visibleModal}">
                                 <h:panelGrid id="i_mensagem" style="width: 100%">
-                                    <h:outputLabel value="#{baixaGeralBean.mensagem}" style="font-size: 12pt!important"/>
+                                    <h:outputLabel value="#{baixaGeralBean.mensagem}" style="font-size: 12pt!important; #{baixaGeralBean.visibleImprimirRecibo eq false ? 'color: red' : ''}"/>
                                     <h:panelGrid columns="2" style="width: 100%; margin-top: 20px">
-                                        <p:commandLink action="#{baixaGeralBean.imprimirRecibo()}" style="float: left" target="_blank" ajax="false" onclick="PF('i_dlg_s').show()" rendered="#{baixaGeralBean.visibleModal}">
+                                        <p:commandLink action="#{baixaGeralBean.imprimirRecibo()}" style="float: left" target="_blank" ajax="false" onclick="PF('i_dlg_s').show()" rendered="#{baixaGeralBean.visibleImprimirRecibo}">
                                             <p:button icon="ui-icon-print" value="Imprimir Recibo" />
                                         </p:commandLink>  
 
@@ -296,6 +298,7 @@
                                         </h:column>
                                     </h:panelGrid>
                                 </h:panelGroup>
+                                
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">                                    
                                         <p:commandButton value="ADICIONAR" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral" onclick="PF('i_dlg_cartao').hide()"  icon="ui-icon-check"/>
@@ -309,11 +312,9 @@
                                     <h:panelGrid columns="1">
                                         <p:column>
                                             <br />
-                                            <!-- <h:column test="# {baixaGeralBean.listaCartao.size() > 0}"> -->
                                             <p:selectOneMenu value="#{baixaGeralBean.idBanco}">
                                                 <f:selectItems value="#{baixaGeralBean.listaBanco}"/>
                                             </p:selectOneMenu>
-                                            <!-- </h:column> -->
                                         </p:column>
                                         
                                         <p:column rendered="#{baixaGeralBean.es eq 'E' and (baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10)}">

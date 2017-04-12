@@ -699,14 +699,18 @@ public class ExtratoTelaBean implements Serializable {
             msgConfirma = "Boletos do tipo acordo não podem ser Excluídos";
             return null;
         }
+        
         boolean exc = true;
+        
         for (int i = 0; i < listaMovimentos.size(); i++) {
             if (((Boolean) listaMovimentos.get(i).getArgumento0())) {
-                if (!GerarMovimento.excluirUmMovimento(db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1()))) {
+                StatusRetorno sr = GerarMovimento.excluirUmMovimento(db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1()));
+                if (!sr.getStatus()) {
                     exc = false;
                 }
             }
         }
+        
         if (!exc) {
             msgConfirma = "Ocorreu um erro em uma das exclusões, verifique o log!";
         } else {
@@ -714,6 +718,7 @@ public class ExtratoTelaBean implements Serializable {
         }
 
         loadListBeta();
+        
         return null;
     }
 
@@ -894,22 +899,19 @@ public class ExtratoTelaBean implements Serializable {
             return null;
         }
 
-        boolean est = true;
         for (DataObject listaMovimento : listaMovimentos) {
             if ((Boolean) listaMovimento.getArgumento0()) {
-                if (!GerarMovimento.estornarMovimento(db.pesquisaCodigo((Integer) listaMovimento.getArgumento1()), motivoEstorno)) {
-                    est = false;
+                StatusRetorno sr = GerarMovimento.estornarMovimento(db.pesquisaCodigo((Integer) listaMovimento.getArgumento1()), motivoEstorno);
+                if (!sr.getStatus()) {
+                    msgConfirma = sr.getMensagem();
+                    GenericaMensagem.error("ERRO", sr.getMensagem());
+                    return null;
                 }
             }
         }
 
-        if (!est) {
-            msgConfirma = "Ocorreu erros ao estornar boletos, verifique o log!";
-            GenericaMensagem.error("ERRO", "Ocorreu erros ao estornar boletos, verifique o log!");
-        } else {
-            msgConfirma = "Boletos estornados com sucesso!";
-            GenericaMensagem.info("OK", "Boletos estornados com sucesso!");
-        }
+        GenericaMensagem.info("OK", "Boletos estornados com sucesso!");
+        
         loadListBeta();
 
         PF.update("formExtratoTela:i_msg");
@@ -918,22 +920,7 @@ public class ExtratoTelaBean implements Serializable {
         PF.closeDialog("dlg_estornar");
         return null;
     }
-
-//   public String excluir(){
-//        MovimentoDao db = new MovimentoDao();
-//        Movimento movimento = db.pesquisaCodigo(2156);
-//        if (movimento.getId()!=-1){
-//            db.getEntityManager().getTransaction().begin();
-//            movimento = db.pesquisaCodigo(movimento.getId());
-//            db.delete(movimento);
-//            db.getEntityManager().getTransaction().rollback();
-//
-//            //    db.getEntityManager().getTransaction().commit();
-//
-//
-//        }
-//       return null;
-//   }
+    
     public String imprimirPromissoria() {
         List<Movimento> listaC = new ArrayList();
         MovimentoDao db = new MovimentoDao();
@@ -1099,11 +1086,13 @@ public class ExtratoTelaBean implements Serializable {
                 listaVencimentos.add(mov.getVencimento());
             }
         }
+        
         ImprimirBoleto imp = new ImprimirBoleto();
 
         listaC = imp.atualizaContaCobrancaMovimento(listaC);
 
         imp.imprimirBoleto(listaC, listaValores, listaVencimentos, imprimirVerso);
+        
         imp.visualizar(null);
 
         loadListBeta(0);

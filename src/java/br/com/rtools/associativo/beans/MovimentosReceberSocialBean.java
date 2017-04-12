@@ -48,6 +48,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.StatusRetorno;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1212,8 +1213,6 @@ public class MovimentosReceberSocialBean implements Serializable {
             }
         }
         
-        boolean est = true;
-        
         if (!mov.isAtivo()) {
             msgConfirma = "Boleto ID: " + mov.getId() + " esta inativo, não é possivel concluir estorno!";
             GenericaMensagem.warn("Erro", msgConfirma);
@@ -1225,15 +1224,15 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
         
         Integer id_baixa_estornada = mov.getBaixa().getId();
-        if (!GerarMovimento.estornarMovimento(mov, motivoEstorno)) {
-            est = false;
-        }
         
-        if (!est) {
-            msgConfirma = "Ocorreu erros ao estornar boletos, verifique o log!";
+        StatusRetorno sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
+        
+        if (!sr.getStatus()) {
+            msgConfirma = sr.getMensagem();
             GenericaMensagem.warn("Erro", msgConfirma);
         } else {
-            msgConfirma = "Boletos estornados com sucesso!";
+            msgConfirma = sr.getMensagem();
+            
             NovoLog novoLog = new NovoLog();
             novoLog.setCodigo(mov.getId());
             novoLog.setTabela("fin_movimento");

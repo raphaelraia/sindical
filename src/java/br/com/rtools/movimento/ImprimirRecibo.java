@@ -87,8 +87,12 @@ public class ImprimirRecibo {
                             linha.get(5).toString(), // ES
                             ((Double) linha.get(6)).floatValue(), // VALOR BAIXADO
                             Moeda.converteR$Float(((Double) linha.get(6)).floatValue()) + " ( " + new ValorExtenso(((Double) linha.get(6)).floatValue()).toString() + " ) ",
-                            pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.data(), 3),
-                            (Integer) linha.get(7)
+                            pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.converteData((Date) linha.get(3)), 3),
+                            (Integer) linha.get(7),
+                            (Integer) linha.get(8),
+                            linha.get(9).toString(),
+                            linha.get(10).toString()
+                            
                     )
             );
         }
