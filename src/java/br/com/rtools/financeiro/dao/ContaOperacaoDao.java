@@ -9,7 +9,7 @@ import javax.persistence.Query;
 public class ContaOperacaoDao extends DB {
 
     public List listPlano4AgrupadoPlanoVwNotInContaOperacao(Integer idOperacao) {
-        String queryString = " "
+        String queryString = " " 
                 + "     SELECT id_p4,                                           \n"
                 + "            CONCAT(conta1 ||' - '|| conta3 ||' - '|| conta4) \n"
                 + "       FROM plano_vw                                         \n";
