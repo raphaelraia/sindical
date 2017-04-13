@@ -339,12 +339,14 @@ public class VendasCaravanaBean implements Serializable {
 
         lr = new CaravanaReservasDao().listaReservasVenda(vendas.getId());
         Usuario usuario = Usuario.getUsuario();
+        Boolean possui_reserva = false;
         for (CaravanaReservas lr1 : lr) {
             res = (CaravanaReservas) dao.find(lr1);
             if (res.getCancelamento() != null) {
                 res.setOperadorCancelamento(usuario);
                 res.setDtCancelamento(new Date());
                 res.setMotivoCancelamento(vendas.getMotivoCancelamento());
+                possui_reserva = true;
                 if (!dao.update(res)) {
                     GenericaMensagem.warn("Erro", "AO CANCELAR RESERVAS!");
                     dao.rollback();
@@ -353,33 +355,38 @@ public class VendasCaravanaBean implements Serializable {
             }
         }
         MovimentoDao md = new MovimentoDao();
-        List<Movimento> listaMovimento = md.findByLote(vendas.getLote().getId());
-        if (!listaMovimento.isEmpty()) {
-            for (Movimento listaMovimento1 : listaMovimento) {
-                if (listaMovimento1.getBaixa() == null) {
-                    listaMovimento1.setAtivo(false);
-                    if (!dao.update(listaMovimento1)) {
-                        GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
-                        dao.rollback();
-                        return;
+        Movimento mov;
+        Lote lot = new Lote();
+        Evt evt = new Evt();
+        List<Lote> listLote = new ArrayList();
+        List<Evt> listEvt = new ArrayList();
+        if (vendas.getLote() != null || possui_reserva) {
+            if(vendas.getLote() != null) {
+                List<Movimento> listaMovimento = md.findByLote(vendas.getLote().getId());
+                if (!listaMovimento.isEmpty()) {
+                    for (Movimento listaMovimento1 : listaMovimento) {
+                        if (listaMovimento1.getBaixa() == null) {
+                            listaMovimento1.setAtivo(false);
+                            if (!dao.update(listaMovimento1)) {
+                                GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
+                                dao.rollback();
+                                return;
+                            }
+                            MovimentoInativo movimentoInativo = new MovimentoInativo();
+                            movimentoInativo.setMovimento(listaMovimento1);
+                            movimentoInativo.setDtData(new Date());
+                            movimentoInativo.setUsuario(usuario);
+                            movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataEmbarqueIda());
+                            if (!dao.save(movimentoInativo)) {
+                                GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
+                                dao.rollback();
+                                return;
+                            }
+                        }
                     }
-                    MovimentoInativo movimentoInativo = new MovimentoInativo();
-                    movimentoInativo.setMovimento(listaMovimento1);
-                    movimentoInativo.setDtData(new Date());
-                    movimentoInativo.setUsuario(usuario);
-                    movimentoInativo.setHistorico("CANCELAMENTO DE COMPRA DE RESERVAS PARA CARAVANA! ID: (" + (caravana.getEvento().getId()) + ") " + caravana.getEvento().getDescricaoEvento().getDescricao() + " - DATA SAÍDA: " + caravana.getDataEmbarqueIda());
-                    if (!dao.save(movimentoInativo)) {
-                        GenericaMensagem.warn("Erro", "AO INATIVAR MOVIMENTO!");
-                        dao.rollback();
-                        return;
-                    }
-                }
+                }                
             }
-            Movimento mov;
-            Lote lot = new Lote();
-            Evt evt = new Evt();
-            List<Lote> listLote = new ArrayList();
-            List<Evt> listEvt = new ArrayList();
+
 //            for (Movimento listaMovimento1 : listaMovimento) {
 //                mov = (Movimento) dao.find(listaMovimento1);
 //                if (!dao.delete(mov)) {
