@@ -3,11 +3,15 @@ package br.com.rtools.movimento;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoServico;
+import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.ConvencaoServicoDao;
 import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
+import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.cobranca.*;
 import br.com.rtools.financeiro.Boleto;
@@ -759,7 +763,9 @@ public class ImprimirBoleto implements Serializable {
             GenericaMensagem.error("Erro", hash.get("mensagem").toString());
             return new byte[0];
         }
-
+        MensagemConvencaoDao dbm = new MensagemConvencaoDao();
+        GrupoCidadesDao dbgc = new GrupoCidadesDao();
+        CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         int i = 0;
         String mensagemErroMovimento = "Movimento(s) sem mensagem: ";
         try {
@@ -986,8 +992,21 @@ public class ImprimirBoleto implements Serializable {
                     mensagem = historico.getHistorico();
                     swap[25] = historico.getComplemento();
                     if (lista.get(i).getTipoServico().getId() == 4) {
-                        mensagemCobranca = movDB.pesquisaMensagemCobranca(lista.get(i).getId());
-                        swap[25] = mensagemCobranca.getMensagemConvencao().getMensagemCompensacao();
+                        Convencao convencao = dbco.pesquisarCnaeConvencaoPorPessoa(lista.get(i).getPessoa().getId());
+                        if (convencao == null) {
+                            return arquivo;
+                        }
+                        MensagemConvencao mc = new MensagemConvencao();
+                        mc = dbm.verificaMensagem(convencao.getId(),
+                                lista.get(i).getServicos().getId(),
+                                lista.get(i).getTipoServico().getId(),
+                                dbgc.grupoCidadesPorPessoa(lista.get(i).getPessoa().getId(), convencao.getId()).getId(), "");
+                        if (mc == null) {
+                            return arquivo;
+                        }
+                        // mensagemCobranca = movDB.pesquisaMensagemCobranca(lista.get(i).getId());
+                        // swap[25] = mensagemCobranca.getMensagemConvencao().getMensagemCompensacao();
+                        swap[25] = mc.getMensagemCompensacao();
                     }
                 }
                 // -->
@@ -2593,6 +2612,7 @@ public class ImprimirBoleto implements Serializable {
     public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
+        ConfiguracaoSocial cs = (ConfiguracaoSocial.get());
         FinanceiroDao db = new FinanceiroDao();
 
         try {
@@ -2739,7 +2759,9 @@ public class ImprimirBoleto implements Serializable {
                 }
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-                jasperPrintList.add(JasperFillManager.fillReport(jasperReport, null, dtSource));
+                Map map = new HashMap();
+                map.put("titulo_extrato", cs.getTituloExtrato());
+                jasperPrintList.add(JasperFillManager.fillReport(jasperReport, map, dtSource));
                 if (imprimeVerso) {
                     dtSource = new JRBeanCollectionDataSource(lista);
                     jasperPrintList.add(JasperFillManager.fillReport(jasperReportVerso, null, dtSource));
@@ -2774,7 +2796,7 @@ public class ImprimirBoleto implements Serializable {
         FinanceiroDao db = new FinanceiroDao();
         MovimentoDao movimentoDao = new MovimentoDao();
         BoletoDao boletoDao = new BoletoDao();
-
+        ConfiguracaoSocial cs = (ConfiguracaoSocial.get());
         Dao dao = new Dao();
         //dao.openTransaction();
         try {
@@ -2976,9 +2998,11 @@ public class ImprimirBoleto implements Serializable {
                 }
 
                 if (novo_boleto) {
+                    Map map = new HashMap();
+                    map.put("titulo_extrato", cs.getTituloExtrato());
                     // DEIXA 30 SEGUNDOS MAIS LENTO, E O VERSO APARACE NO FINAL DE CADA BOLETO
                     JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-                    jasperPrintList.add(JasperFillManager.fillReport(jasperReport, null, dtSource));
+                    jasperPrintList.add(JasperFillManager.fillReport(jasperReport, map, dtSource));
                     if (imprimeVerso) {
                         dtSource = new JRBeanCollectionDataSource(lista);
                         jasperPrintList.add(JasperFillManager.fillReport(jasperReportVerso, null, dtSource));
