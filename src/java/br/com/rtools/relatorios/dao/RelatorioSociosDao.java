@@ -145,21 +145,17 @@ public class RelatorioSociosDao extends DB {
         String p_demissao;
         DateFilters demissao = DateFilters.getDateFilters(listDateFilters, "demissao");
         if (demissao != null && demissao.getDtStart() != null && demissao.getDtFinish() != null) {
-            p_demissao = " , pempresa.admissao_empresa_demissionada, \n"
-                    + // 79
-                    "   pempresa.demissao_empresa_demissionada, \n"
-                    + // 80
-                    "   pempresa.cnpj_empresa_demissionada, \n"
-                    + // 81
-                    "   pempresa.empresa_demissionada \n "; // 82
+            p_demissao = " , "
+                    + " pempresa.admissao_empresa_demissionada,                 \n" // 79
+                    + " pempresa.demissao_empresa_demissionada,                 \n" // 80
+                    + " pempresa.cnpj_empresa_demissionada,                     \n" // 81
+                    + " pempresa.empresa_demissionada                           \n "; // 82
         } else {
-            p_demissao = " , null AS admissao_empresa_demissionada, \n"
-                    + // 79
-                    "   null AS demissao_empresa_demissionada, \n"
-                    + // 80
-                    "   null AS cnpj_empresa_demissionada, \n"
-                    + // 81
-                    "   null AS empresa_demissionada \n "; // 82            
+            p_demissao = " , "
+                    + " dm.admissao  AS admissao_empresa_demissionada,          \n" // 79
+                    + " dm.demissao  AS demissao_empresa_demissionada,          \n" // 80
+                    + " dm.documento AS cnpj_empresa_demissionada,              \n" // 81
+                    + " dm.empresa   AS empresa_demissionada                    \n "; // 82            
         }
 
         String queryString = " -- RelatorioSociosDao->find()                    \n"
@@ -251,6 +247,7 @@ public class RelatorioSociosDao extends DB {
                 + "      FROM pes_pessoa_vw      AS p                           \n "
                 + " LEFT JOIN soc_socios_vw      AS so   ON so.codsocio     = p.codigo              \n "
                 + " LEFT JOIN pes_pessoa         AS pt   ON pt.id           = so.titular            \n "
+                + " LEFT JOIN demitidos_vw       AS dm   ON dm.id_pessoa = p.codigo                 \n "
                 + " LEFT JOIN soc_suspencao      AS SS   ON SS.id_pessoa = p.codigo \n              \n ";
         if (status.equals("nao_socio")) {
             queryString += " LEFT JOIN pes_juridica AS J ON J.id = P.e_id AND J.id IN(SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n ";
@@ -893,6 +890,7 @@ public class RelatorioSociosDao extends DB {
             subquery += " ) \n";
             listWhere.add(subquery);
         }
+
 
         if (chk_validade_dependente != null) {
             if (chk_validade_dependente) {

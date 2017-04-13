@@ -775,7 +775,7 @@ public class EmissaoGuiasBean implements Serializable {
         lote.setAvencerContabil(false);
         lote.setPagRec("R");
         lote.setValor(Moeda.converteUS$(total));
-        lote.setFilial(serv.getFilial());
+        lote.setFilial(MacFilial.getAcessoFilial().getFilial());
         lote.setEvt(null);
         lote.setPessoa(pessoa);
         lote.setFTipoDocumento(td);
