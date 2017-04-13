@@ -17,6 +17,7 @@ import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.homologacao.dao.OperacaoDao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirRecibo;
 import br.com.rtools.pessoa.Filial;
@@ -93,7 +94,6 @@ public class LancamentoFinanceiroBean implements Serializable {
     private String vencimento;
     private String strConta;
     private String documentoMovimento;
-    private String porPesquisa;
     private String maskSearch;
     private String description;
     private String acrescimo;
@@ -130,6 +130,10 @@ public class LancamentoFinanceiroBean implements Serializable {
     private List<Fisica> listFisicaSugestao;
     private List<Socios> listaSocios;
     private List<Juridica> listJuridicaSugestao;
+
+    private Filtro filtro;
+    private Boolean adicionarImposto;
+    private Boolean mostrarAdicionarParcela;
 
     @PostConstruct
     public void init() {
@@ -169,7 +173,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         vencimento = DataHoje.data();
         strConta = "";
         documentoMovimento = "";
-        porPesquisa = "dias";
         maskSearch = "todos";
         description = "";
         acrescimo = "0";
@@ -200,6 +203,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         pedido = new Pedido();
         modalPedido = false;
         produtos = true;
+        filtro = new Filtro();
+
         loadLiberaAcessaFilial();
         lote.setEmissao(DataHoje.data());
         loadListaFilial();
@@ -214,6 +219,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         listJuridicaSugestao = new ArrayList();
         listaSocios = new ArrayList();
         atualizaHistorico();
+        adicionarImposto = false;
+        mostrarAdicionarParcela = true;
     }
 
     @PreDestroy
@@ -221,6 +228,15 @@ public class LancamentoFinanceiroBean implements Serializable {
         GenericaSessao.remove("lancamentoFinanceiroBean");
         GenericaSessao.remove("fisicaPesquisa");
         GenericaSessao.remove("juridicaPesquisa");
+    }
+
+    public void actAdicionarParcela() {
+
+    }
+
+    public void atualizaChkImposto() {
+        listaPlano5.clear();
+        adicionarImposto = chkImposto;
     }
 
     public String targetImprimeRecibo(Movimento movimento) {
@@ -237,7 +253,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             String num = lote.getDocumento().isEmpty() ? "____" : lote.getDocumento();
             String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
             // lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num + " a " + pessoa.getNome() + ", " + pes_doc);
-            lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num );
+            lote.setHistoricoContabilPadrao("Pagamento referente a " + f_doc.getDescricao() + " de número " + num);
         } else if (es.equals("E") && pessoa.getId() != -1) {
             String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
             // lote.setHistoricoContabilPadrao("Referente ao recebimento de " + pessoa.getNome() + ", " + pes_doc);
@@ -639,6 +655,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void edit(Lote l) {
         lote = new Lote();
         lote = l;
+        mostrarAdicionarParcela = false;
         pessoa = lote.getPessoa();
         descricao = pessoa.getDocumento();
         modalVisivel = true;
@@ -681,7 +698,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
         }
-        
+
         // TIPO DOCUMENTO -- CNPJ -- CPF -- SEM DOCUMENTO
         idTipoDocumento = pessoa.getTipoDocumento().getId();
         listaParcela = new ArrayList();
@@ -692,9 +709,9 @@ public class LancamentoFinanceiroBean implements Serializable {
         if (!selectMovimento.isEmpty()) {
             esLancamento = selectMovimento.get(0).getEs();
         }
-        
+
         float acre, valor_quitado = 0;
-        
+
         for (Movimento mov : selectMovimento) {
             String data_quitacao = "";
             String caixa = "NÃO BAIXADO";
@@ -745,10 +762,6 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void save() {
         Dao dao = new Dao();
         try {
-            if (lote.getDocumento().isEmpty()) {
-                GenericaMensagem.error("Atenção", "DIGITE UM NÚMERO DE DOCUMENTO!");
-                return;
-            }
 
             if (listaParcela.isEmpty()) {
                 GenericaMensagem.warn("Erro", "ADICIONE UMA PARCELA para salvar este lançamento!");
@@ -768,6 +781,8 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
 
+            List<String> list_log = new ArrayList();
+
             dao.openTransaction();
             ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
             FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
@@ -784,7 +799,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             if (!listaCentroCusto.isEmpty()) {
                 cc = (CentroCusto) dao.find(new CentroCusto(), idCentroCusto);
             }
-            Usuario us = (Usuario) dao.find((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+
             Operacao o = (Operacao) new Dao().find(new Operacao(), idOperacao);
 
             lote.setValor(Moeda.converteUS$(total));
@@ -799,10 +814,13 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setEvt(null);
             lote.setPessoa(pessoa);
             lote.setPessoaSemCadastro(null);
-            lote.setUsuario(us);
-            lote.setOperacao(operacao);
+            //lote.setOperacao(operacao); ???
             lote.setCentroCusto(cc);
             lote.setOperacao(o);
+
+            if (lote.getDocumento().isEmpty()) {
+                lote.setDocumento("S/N");
+            }
 
             if (es.equals("E")) {
                 lote.setPagRec("R");
@@ -811,22 +829,48 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
 
             if (lote.getId() == -1) {
-                if (!new LoteDao().pesquisaLoteDocumento(lote.getFtipoDocumento().getId(), lote.getDocumento()).isEmpty()) {
+                list_log.add("** Novo Lançamento Financeiro **");
+
+                Usuario us = (Usuario) dao.find((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+                lote.setUsuario(us);
+
+                if (!new LoteDao().pesquisaLoteDocumento(lote.getPessoa().getId(), lote.getFtipoDocumento().getId(), lote.getDocumento(), lote.getValor()).isEmpty()) {
                     GenericaMensagem.warn("Atenção", "NÚMERO DE DOCUMENTO JÁ EXISTE PARA ESTE TIPO!");
                     dao.rollback();
                     return;
                 }
+
                 if (!dao.save(lote)) {
-                    GenericaMensagem.warn("Erro", "Erro ao Salvar Lote!");
+                    GenericaMensagem.warn("Atenção", "ERRO AO SALVAR LOTE!");
                     dao.rollback();
                     return;
                 }
-            } else if (!dao.update(lote)) {
-                GenericaMensagem.warn("Erro", "Erro ao Atualizar Lote!");
-                dao.rollback();
-                return;
+
+            } else {
+                list_log.add("** Atualizar Lançamento Financeiro **");
+
+                if (!dao.update(lote)) {
+                    GenericaMensagem.warn("Atenção", "ERRO AO ATUALIZAR LOTE!");
+                    dao.rollback();
+                    return;
+                }
             }
+
+            list_log.add("ID LOTE: " + lote.getId());
+            list_log.add("PESSOA: " + lote.getPessoa().getNome());
+            list_log.add("CONTA: " + lote.getPlano5().getConta());
+            list_log.add("DOCUMENTO: " + lote.getDocumento());
+            list_log.add("OPERAÇÃO: " + lote.getOperacao().getDescricao());
+            list_log.add("DESCONTO: " + lote.getDescontoString());
+            list_log.add("VALOR: " + lote.getValorString());
+
+            list_log.add(" ** Parcelas ** ");
+            if (listaParcela.isEmpty()) {
+                list_log.add("-- NENHUMA PARCELA --");
+            }
+
             Boolean bloqueiaTipoCondicao = true;
+
             int i = 0;
             for (Parcela p : listaParcela) {
                 Movimento movimento = (Movimento) p.getMovimento();
@@ -872,9 +916,15 @@ public class LancamentoFinanceiroBean implements Serializable {
                         return;
                     }
                 }
+
+                list_log.add("ID MOVIMENTO: " + movimento.getId());
+                list_log.add("REFERÊNCIA: " + movimento.getReferencia());
+                list_log.add("VENCIMENTO: " + movimento.getVencimento());
+                list_log.add("VALOR: " + movimento.getValorString());
             }
 
             if (condicao.equals("prazo")) {
+                list_log.add("CONDIÇÃO: A PRAZO");
                 if (bloqueiaTipoCondicao) {
                     if (lote.getId() == -1) {
                         for (Parcela p : listaParcela) {
@@ -890,6 +940,13 @@ public class LancamentoFinanceiroBean implements Serializable {
                     dao.rollback();
                     return;
                 }
+            } else {
+                list_log.add("CONDIÇÃO: A VISTA");
+            }
+
+            list_log.add(" ** Pedidos ** ");
+            if (listaPedidos.isEmpty()) {
+                list_log.add("-- NENHUM PEDIDO --");
             }
 
             for (Pedido pedidox : listaPedidos) {
@@ -905,7 +962,18 @@ public class LancamentoFinanceiroBean implements Serializable {
                     dao.rollback();
                     return;
                 }
+
+                list_log.add("ID PEDIDO: " + pedidox.getId());
+                list_log.add("PRODUTO / ID: " + pedidox.getProduto().getDescricao() + " - " + pedidox.getProduto().getId());
+                list_log.add("VALOR UNITÁRIO:: " + pedidox.getValorUnitarioString());
             }
+
+            String log_string = "";
+            log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
+            NovoLog log = new NovoLog();
+            log.save(
+                    log_string
+            );
 
             GenericaMensagem.info("OK", "Lançamento SALVO com Sucesso!");
             dao.commit();
@@ -1003,7 +1071,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 false, // OBRIGACAO
                 pessoa, // TITULAR
                 pessoa, // BENEFICIARIO
-                documentoMovimento, // DOCUMENTO
+                documentoMovimento.isEmpty() ? "S/N" : documentoMovimento, // DOCUMENTO
                 "", // NR CTR BOLETO
                 vencimento, // VENCIMENTO ORIGINAL
                 0, // DESCONTO ATE VENCIMENTO
@@ -1222,9 +1290,11 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
 
-        if (pessoa.getId() != -1 && pessoa.getDocumento().equals(descricao)) {
-            return;
-        }
+        pessoa = new Pessoa();
+//
+//        if (pessoa.getId() != -1 && pessoa.getDocumento().equals(descricao)) {
+//            return;
+//        }
 
         TipoDocumento td = (TipoDocumento) new Dao().find(new TipoDocumento(), idTipoDocumento);
         if (td.getDescricao().toLowerCase().equals("sem documento")) {
@@ -1305,13 +1375,13 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void atualizaComboES() {
         esLancamento = es;
-        
+
         loadListaOperacao();
-        
+
         loadListaCentroCusto();
-        
+
         loadListaContaOperacao();
-        
+
         atualizaHistorico();
     }
 
@@ -1397,13 +1467,22 @@ public class LancamentoFinanceiroBean implements Serializable {
         loadListaLancamento();
     }
 
+    public void atualizaFiltro() {
+        filtro.setDescricao("");
+
+        loadListaLancamento();
+    }
+
     public void loadListaLancamento() {
         listaLancamento = new ArrayList();
         LoteDao loteDao = new LoteDao();
+
+        filtro.loadMask();
+
         if (usuarioSelecionado.getId() == -1) {
-            listaLancamento = loteDao.find(-1, porPesquisa, description);
+            listaLancamento = loteDao.find(-1, filtro);
         } else {
-            listaLancamento = loteDao.find(usuarioSelecionado.getId(), porPesquisa, description);
+            listaLancamento = loteDao.find(usuarioSelecionado.getId(), filtro);
         }
     }
 
@@ -2051,42 +2130,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.plano = plano;
     }
 
-    public String getPorPesquisa() {
-        return porPesquisa;
-    }
-
-    public void setPorPesquisa(String porPesquisa) {
-        this.porPesquisa = porPesquisa;
-    }
-
-    public String getMaskSearch() {
-        switch (porPesquisa) {
-            case "emissao":
-                maskSearch = "99/99/9999";
-                break;
-            case "documento":
-                if (null != idTipoDocumento) {
-                    switch (idTipoDocumento) {
-                        case 0:
-                            maskSearch = "999.999.999-99";
-                            break;
-                        case 1:
-                            maskSearch = "99.999.999/9999-99";
-                            break;
-                        default:
-                            maskSearch = "";
-                            break;
-                    }
-                }
-                break;
-            default:
-                maskSearch = "";
-                break;
-        }
-
-        return maskSearch;
-    }
-
     public void setMaskSearch(String maskSearch) {
         this.maskSearch = maskSearch;
     }
@@ -2219,6 +2262,30 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void setListJuridicaSugestao(List<Juridica> listJuridicaSugestao) {
         this.listJuridicaSugestao = listJuridicaSugestao;
+    }
+
+    public Filtro getFiltro() {
+        return filtro;
+    }
+
+    public void setFiltro(Filtro filtro) {
+        this.filtro = filtro;
+    }
+
+    public Boolean getAdicionarImposto() {
+        return adicionarImposto;
+    }
+
+    public void setAdicionarImposto(Boolean adicionarImposto) {
+        this.adicionarImposto = adicionarImposto;
+    }
+
+    public Boolean getMostrarAdicionarParcela() {
+        return mostrarAdicionarParcela;
+    }
+
+    public void setMostrarAdicionarParcela(Boolean mostrarAdicionarParcela) {
+        this.mostrarAdicionarParcela = mostrarAdicionarParcela;
     }
 
     public class Parcela {
@@ -2494,6 +2561,93 @@ public class LancamentoFinanceiroBean implements Serializable {
             return odbt.existPessoaDocumentoPeriodo(documento);
         }
         return false;
+    }
+
+    public class Filtro {
+
+        private String pesquisaPor = "ultimos60dias";
+        private String descricao = "";
+        private String mask = "";
+        private Integer indexTipoDocumentoPesquisa = 0;
+        private List<SelectItem> listaTipoDocumentoPesquisa = new ArrayList();
+
+        public Filtro() {
+            this.loadListaTipoDocumentoPesquisa();
+        }
+
+        public final void loadListaTipoDocumentoPesquisa() {
+            this.listaTipoDocumentoPesquisa = new ArrayList();
+
+            List<TipoDocumento> list = (new LancamentoFinanceiroDao()).listaTipoDocumento();
+
+            for (int i = 0; i < list.size(); i++) {
+                this.listaTipoDocumentoPesquisa.add(
+                        new SelectItem(
+                                i,
+                                list.get(i).getDescricao(),
+                                "" + list.get(i).getId()
+                        )
+                );
+            }
+        }
+
+        public final void loadMask() {
+            switch (pesquisaPor) {
+                case "cpf":
+                    mask = "999.999.999-99";
+                    break;
+                case "cnpj":
+                    mask = "99.999.999/9999-99";
+                    break;
+                case "emissao":
+                case "lancamento":
+                    mask = "99/99/9999";
+                    break;
+                default:
+                    mask = "";
+                    break;
+            }
+        }
+
+        public String getPesquisaPor() {
+            return pesquisaPor;
+        }
+
+        public void setPesquisaPor(String pesquisaPor) {
+            this.pesquisaPor = pesquisaPor;
+        }
+
+        public String getDescricao() {
+            return descricao;
+        }
+
+        public void setDescricao(String descricao) {
+            this.descricao = descricao;
+        }
+
+        public String getMask() {
+            return mask;
+        }
+
+        public void setMask(String mask) {
+            this.mask = mask;
+        }
+
+        public Integer getIndexTipoDocumentoPesquisa() {
+            return indexTipoDocumentoPesquisa;
+        }
+
+        public void setIndexTipoDocumentoPesquisa(Integer indexTipoDocumentoPesquisa) {
+            this.indexTipoDocumentoPesquisa = indexTipoDocumentoPesquisa;
+        }
+
+        public List<SelectItem> getListaTipoDocumentoPesquisa() {
+            return listaTipoDocumentoPesquisa;
+        }
+
+        public void setListaTipoDocumentoPesquisa(List<SelectItem> listaTipoDocumentoPesquisa) {
+            this.listaTipoDocumentoPesquisa = listaTipoDocumentoPesquisa;
+        }
     }
 
 //                0 - listaParcela.size(),

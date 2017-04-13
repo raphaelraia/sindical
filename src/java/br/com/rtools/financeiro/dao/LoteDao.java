@@ -2,7 +2,9 @@ package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Lote;
+import br.com.rtools.financeiro.beans.LancamentoFinanceiroBean.Filtro;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,40 +12,87 @@ import javax.persistence.Query;
 
 public class LoteDao extends DB {
 
-    public List find(Integer usuario_id, String forSearch, String description) {
-        String select
-                = "SELECT L "
-                + "  FROM Lote L "
-                + " WHERE L.rotina.id = 231 ";
+    public List<Lote> find(Integer usuario_id, Filtro f) {
 
-        String and = "";
+        List<String> list_where = new ArrayList();
+
+        list_where.add("l.id_rotina = 231");
 
         if (usuario_id != -1) {
-            and = "   AND L.usuario.id = " + usuario_id;
+            list_where.add("l.id_usuario = " + usuario_id);
         }
 
-        String order_by = " ORDER BY L.dtEmissao desc";
+        switch (f.getPesquisaPor()) {
+            case "ultimos60dias":
+                String data = new DataHoje().decrementarMeses(2, DataHoje.data());
+                list_where.add("l.dt_emissao >= '" + data + "'");
+                break;
+            case "emissao":
+                if (f.getDescricao().isEmpty()) {
+                    return new ArrayList();
+                }
 
-        String data = "";
-        if (forSearch.equals("dias")) {
-            DataHoje dh = new DataHoje();
-            data = dh.decrementarMeses(2, DataHoje.data());
+                list_where.add("l.dt_emissao = '" + f.getDescricao() + "'");
+                break;
+            case "lancamento":
+                if (f.getDescricao().isEmpty()) {
+                    return new ArrayList();
+                }
 
-            and += "  AND L.dtEmissao >= :data";
-        } else if (forSearch.equals("emissao")) {
-            data = description;
-            and += "  AND L.dtEmissao = :data";
-        } else if (forSearch.equals("fornecedor")) {
-            and += "  AND L.pessoa.nome LIKE '%" + description.toUpperCase() + "%'";
-        } else if (forSearch.equals("documento")) {
-            and += "  AND L.pessoa.documento LIKE '%" + description + "%'";
+                list_where.add("l.dt_lancamento = '" + f.getDescricao() + "'");
+                break;
+            case "documentoNF":
+                if (f.getDescricao().isEmpty()) {
+                    return new ArrayList();
+                }
+
+                list_where.add("l.ds_documento = '" + f.getDescricao() + "'");
+                break;
+            case "fornecedor":
+                if (f.getDescricao().isEmpty()) {
+                    return new ArrayList();
+                }
+
+                list_where.add("LOWER(TRANSLATE(p.ds_nome)) LIKE '%" + AnaliseString.normalizeLower(f.getDescricao()) + "%'");
+                break;
+            case "cpf":
+            case "cnpj":
+                if (f.getDescricao().isEmpty()) {
+                    return new ArrayList();
+                }
+                list_where.add("p.ds_documento = '" + f.getDescricao() + "'");
+                break;
+            case "valorNF":
+                if (f.getDescricao().isEmpty()) {
+                    return new ArrayList();
+                }
+
+                list_where.add("l.nr_valor = " + f.getDescricao().replace(",", ""));
+                break;
+            default:
+                break;
         }
-        try {
-            Query qry = getEntityManager().createQuery(select + and + order_by);
 
-            if (!data.isEmpty()) {
-                qry.setParameter("data", DataHoje.converte(data));
+        String WHERE = "";
+
+        for (String w : list_where) {
+            if (WHERE.isEmpty()) {
+                WHERE = " WHERE " + w + " \n ";
+            } else {
+                WHERE += " AND " + w + " \n ";
             }
+        }
+
+        String ORDER_BY = " ORDER BY l.dt_emissao DESC";
+
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT l.* \n "
+                    + "  FROM fin_lote l \n "
+                    + " INNER JOIN pes_pessoa p ON p.id = l.id_pessoa \n "
+                    + WHERE
+                    + ORDER_BY, Lote.class
+            );
 
             return qry.getResultList();
         } catch (Exception e) {
@@ -225,14 +274,20 @@ public class LoteDao extends DB {
         return pesquisaLotesPorEvt(new Evt(evt));
     }
 
-    public List<Lote> pesquisaLoteDocumento(Integer tipo_documento_id, String documento) {
+    public List<Lote> pesquisaLoteDocumento(Integer pessoa_id, Integer tipo_documento_id, String documento, Float valor) {
 
+        if (documento.equals("S/N")){
+            return new ArrayList();
+        }
+        
         try {
             Query query = getEntityManager().createNativeQuery(
                     " SELECT l.* \n "
                     + "   FROM fin_lote l \n"
-                    + "  WHERE ds_documento = '" + documento + "' \n"
-                    + "    AND l.id_tipo_documento = " + tipo_documento_id,
+                    + "  WHERE l.id_pessoa = " + pessoa_id + " \n"
+                    + "    AND l.ds_documento = '" + documento + "' \n"
+                    + "    AND l.id_tipo_documento = " + tipo_documento_id + "' \n"
+                    + "    AND CAST((l.nr_valor * 100) AS int) = " + Integer.valueOf(valor.toString().replaceAll(",", "").replace(".", "")),
                     Lote.class
             );
             return query.getResultList();
