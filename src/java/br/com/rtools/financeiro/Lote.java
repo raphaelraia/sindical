@@ -333,6 +333,14 @@ public class Lote implements java.io.Serializable {
     public void setDesconto(float desconto) {
         this.desconto = desconto;
     }
+    
+    public String getDescontoString() {
+        return Moeda.converteR$Float(desconto);
+    }
+
+    public void setDescontoString(String descontoString) {
+        this.desconto = Moeda.converteUS$(descontoString);
+    }
 
     public Usuario getUsuario() {
         return usuario;

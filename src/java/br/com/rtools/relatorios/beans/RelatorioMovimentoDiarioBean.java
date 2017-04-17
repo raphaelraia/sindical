@@ -126,8 +126,9 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         }
 
         if (list.isEmpty()) {
-            GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
-            return;
+            oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "", "", new Double(0), new Double(0), new Double(0), null, null));
+//            GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
+//            return;
         }
 
         String detalheRelatorio = "";

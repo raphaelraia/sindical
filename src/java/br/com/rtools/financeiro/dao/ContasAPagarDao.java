@@ -71,6 +71,10 @@ public class ContasAPagarDao extends DB {
             list_where.add("l.dt_emissao <= '" + f.getEmissaoFinal() + "'");
         }
 
+        if (!f.getNumeroBaixa().isEmpty()){
+            list_where.add("m.id_baixa = " + f.getNumeroBaixa());
+        }
+        
         for (String w : list_where) {
             if (WHERE.isEmpty()) {
                 WHERE = " WHERE " + w + " \n ";
