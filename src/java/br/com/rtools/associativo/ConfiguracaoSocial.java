@@ -67,6 +67,8 @@ public class ConfiguracaoSocial implements Serializable {
     private Boolean obrigatorioEmail;
     @Column(name = "is_bloqueia_cpf", columnDefinition = "boolean default false", nullable = false)
     private Boolean bloqueiaCpf;
+    @Column(name = "ds_titulo_extrato", length = 255)
+    private String tituloExtrato;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -91,9 +93,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.imprimeConviteTeste = false;
         this.obrigatorioEmail = false;
         this.bloqueiaCpf = false;
+        this.tituloExtrato = "";
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -116,6 +119,7 @@ public class ConfiguracaoSocial implements Serializable {
         this.imprimeConviteTeste = imprimeConviteTeste;
         this.obrigatorioEmail = obrigatorioEmail;
         this.bloqueiaCpf = bloqueiaCpf;
+        this.tituloExtrato = tituloExtrato;
     }
 
     public Integer getId() {
@@ -304,5 +308,13 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setBloqueiaCpf(Boolean bloqueiaCpf) {
         this.bloqueiaCpf = bloqueiaCpf;
+    }
+    
+      public String getTituloExtrato() {
+        return tituloExtrato;
+    }
+
+    public void setTituloExtrato(String tituloExtrato) {
+        this.tituloExtrato = tituloExtrato;
     }
 }

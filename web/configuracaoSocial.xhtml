@@ -187,6 +187,14 @@
                                     <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.obsDescontoFolha}" style="width: 100%" maxlength="2000"/>
                                 </h:panelGrid>
                             </p:panel>
+                            <p:panel styleClass="margin-top-max">
+                                <p:outputLabel value="Titulo Extrato (Boleto)" style="font-weight: bold; font-size: 11pt!important"/>
+                                <h:panelGrid columns="1" style="width: 100%" >
+                                    <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.tituloExtrato}" maxlength="255" size="150" converter="#{toUpperCase}">
+                                         <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                </h:panelGrid>
+                            </p:panel>
 
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Observação convite clube" style="font-weight: bold; font-size: 11pt!important"/>
