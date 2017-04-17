@@ -136,7 +136,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
             RelatorioDao rgdb = new RelatorioDao();
             relatorios = rgdb.pesquisaRelatorios(Integer.parseInt(getListRelatorios().get(index[0]).getDescription()));
             if (!getListRelatorioOrdem().isEmpty()) {
-                relatorios.setQryOrdem(((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.parseInt(getListRelatorioOrdem().get(index[2]).getDescription()))).getQuery());
+                relatorios.setQryOrdem(((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.parseInt(getListRelatorioOrdem().get(index[1]).getDescription()))).getQuery());
             }
         }
         if (relatorios == null) {
@@ -424,21 +424,22 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     }
 
     public List<SelectItem> getListRelatorioOrdem() {
-        listSelectItem[1].clear();
-        if (index[0] != null) {
-            if (!getListRelatorios().isEmpty()) {
-                RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
-                List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(Integer.parseInt(getListRelatorios().get(index[0]).getDescription()));
-                if (list.isEmpty()) {
-                    index[1] = null;
-                }
-                for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getPrincipal()) {
-                        index[1] = i;
+        if(listSelectItem[1].isEmpty()) {
+            if (index[0] != null) {
+                if (!getListRelatorios().isEmpty()) {
+                    RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
+                    List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(Integer.parseInt(getListRelatorios().get(index[0]).getDescription()));
+                    if (list.isEmpty()) {
+                        index[1] = null;
                     }
-                    listSelectItem[1].add(new SelectItem(i, list.get(i).getNome(), "" + list.get(i).getId()));
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).getPrincipal()) {
+                            index[1] = i;
+                        }
+                        listSelectItem[1].add(new SelectItem(i, list.get(i).getNome(), "" + list.get(i).getId()));
+                    }
                 }
-            }
+            }            
         }
         return listSelectItem[1];
     }

@@ -24,7 +24,7 @@
                         <h:panelGrid  cellpadding="5" columns="6" id="i_ordernacao">
                             <p:outputLabel value="Tipo de Relatório: " />
                             <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioFechamentoGuiasBean.index[0]}" >
-                                <p:ajax event="change" update="@this i_ordernacao" global="false"/>
+                                <p:ajax event="change" update="@this i_ordernacao" global="false" listener="#{relatorioFechamentoGuiasBean.listSelectItem[1].clear}"/>
                                 <f:selectItems value="#{relatorioFechamentoGuiasBean.listRelatorios}"/>
                             </p:selectOneMenu>
                             <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioFechamentoGuiasBean.listRelatorioOrdem}"/>
