@@ -51,6 +51,11 @@ public class ContasAPagarBean implements Serializable {
         loadListaContas();
     }
 
+    public void actNumeroBaixa(){
+        filtros.setVencimento("");
+        filtros.setVencimentoFinal("");
+    }
+    
     public String baixar() {
         if (listaContasSelecionada.isEmpty()) {
             GenericaMensagem.error("Atenção", "Selecione uma Conta para BAIXAR!");
@@ -347,6 +352,7 @@ public class ContasAPagarBean implements Serializable {
         private String pagamentoFinal;
         private String lancamentoFinal;
         private String emissaoFinal;
+        private String numeroBaixa;
         private String ordem;
 
         public Filtros() {
@@ -359,15 +365,17 @@ public class ContasAPagarBean implements Serializable {
             this.pagamentoFinal = "";
             this.lancamentoFinal = "";
             this.emissaoFinal = "";
+            this.numeroBaixa = "";
             this.ordem = "vencimento";
         }
 
-        public Filtros(String condicao, String vencimento, String pagamento, String lancamento, String emissao, String ordem) {
+        public Filtros(String condicao, String vencimento, String pagamento, String lancamento, String emissao, String numeroBaixa, String ordem) {
             this.condicao = condicao;
             this.vencimento = vencimento;
             this.pagamento = pagamento;
             this.lancamento = lancamento;
             this.emissao = emissao;
+            this.numeroBaixa = numeroBaixa;
             this.ordem = ordem;
         }
 
@@ -449,6 +457,14 @@ public class ContasAPagarBean implements Serializable {
 
         public void setEmissaoFinal(String emissaoFinal) {
             this.emissaoFinal = emissaoFinal;
+        }
+
+        public String getNumeroBaixa() {
+            return numeroBaixa;
+        }
+
+        public void setNumeroBaixa(String numeroBaixa) {
+            this.numeroBaixa = numeroBaixa;
         }
 
     }

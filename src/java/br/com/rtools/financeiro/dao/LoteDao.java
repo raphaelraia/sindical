@@ -67,7 +67,7 @@ public class LoteDao extends DB {
                     return new ArrayList();
                 }
 
-                list_where.add("l.nr_valor = " + f.getDescricao().replace(",", ""));
+                list_where.add("CAST((l.nr_valor * 100) AS int) = " + f.getDescricao().replace(",", "").replace(".", ""));
                 break;
             default:
                 break;

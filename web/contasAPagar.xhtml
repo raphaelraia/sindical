@@ -56,7 +56,7 @@
 
                         <h:form id="formContasAPagar">
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="4">
                                     <h:column>
                                         <h:outputLabel value="Condição"/><br />
                                         <p:selectOneMenu value="#{contasAPagarBean.filtros.condicao}">
@@ -77,6 +77,13 @@
                                             <f:selectItem itemValue="nome_pagamento" itemLabel="Nome / Pagamento"/>
                                         </p:selectOneMenu>
                                     </h:column>
+                                    
+                                    <h:column>
+                                        <h:outputLabel value="Lote Baixa"/><br />
+                                        <p:inputText value="#{contasAPagarBean.filtros.numeroBaixa}" placeholder="Número da Baixa">
+                                            <p:ajax event="change" update="panel_data" listener="#{contasAPagarBean.actNumeroBaixa()}" global="false"/>
+                                        </p:inputText>
+                                    </h:column>
 
                                     <h:column>
                                         <br />
@@ -84,7 +91,7 @@
                                     </h:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid columns="4">
+                                <h:panelGrid id="panel_data" columns="4">
                                     <h:column>
                                         <p:panel>
                                             <h:outputLabel value="Vencimento" style="font-weight: bold"/><br />

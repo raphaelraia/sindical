@@ -44,11 +44,11 @@
         <!-- INICIA DIV wrap e main -->
         <div id="wrapx">
             <div id="mainx">
-                <ui:include src="templates/templateAcessoFilial.xhtml"/>
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                     <ui:include src="templates/templateStatus.xhtml"/>
+                    <ui:include src="templates/templateAcessoFilial.xhtml"/>
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -89,7 +89,7 @@
                                             </p:column>
 
                                             <p:column>
-                                                <p:inputMask id="i_pesquisa" mask="#{lancamentoFinanceiroBean.filtro.mask}" value="#{lancamentoFinanceiroBean.filtro.descricao}" rendered="#{(lancamentoFinanceiroBean.filtro.pesquisaPor ne 'ultimos60dias' and lancamentoFinanceiroBean.filtro.pesquisaPor ne 'todos')}">
+                                                <p:inputMask id="i_pesquisa" mask="#{lancamentoFinanceiroBean.filtro.mask}" value="#{lancamentoFinanceiroBean.filtro.descricao}" rendered="#{(lancamentoFinanceiroBean.filtro.pesquisaPor ne 'ultimos60dias' and lancamentoFinanceiroBean.filtro.pesquisaPor ne 'todos')}" onfocus="this.select()">
                                                     <p:ajax event="change" update="@this tbl i_panel_search" listener="#{lancamentoFinanceiroBean.loadListaLancamento()}"/>
                                                 </p:inputMask>
 
@@ -329,6 +329,9 @@
                                 <hr />
                                 <h:panelGroup layout="block">
                                     <p:panel header="Credor/Devedor">
+                                        <h:column rendered="#{lancamentoFinanceiroBean.pessoa.id != -1}">
+
+                                        </h:column>
                                         <h:panelGrid columns="3" id="i_panel_cadastro" >
                                             <p:column>
                                                 <h:panelGrid columns="2">
@@ -411,7 +414,7 @@
                                             <p:ajax update="form_lf:panel_nova_parcela" listener="#{lancamentoFinanceiroBean.actAdicionarParcela()}" global="false"/>
                                         </p:selectBooleanButton>
                                     </h:panelGrid>
-                                    
+
                                     <p:panel rendered="#{lancamentoFinanceiroBean.mostrarAdicionarParcela}">
                                         <h:panelGrid id="i_para_conta" columns="3">
                                             <h:outputLabel value="Lançamento para Conta " />
@@ -580,28 +583,17 @@
                                     </p:column>
 
                                     <p:rowExpansion>
-                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                        <h:panelGrid columns="4" style="height: 40px">
                                             <p:column>
                                                 <h:outputText value="Conta" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{parcela.movimento.plano5.conta}" />
                                             </p:column>
 
                                             <p:column>
-                                                <h:outputText value="Lote Baixa" style="font-weight: bold"/><br />
-                                                <h:outputLabel value="#{parcela.loteBaixa}" />
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputText value="Usuário" style="font-weight: bold"/><br />
+                                                <h:outputText value="Operador (Criação)" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{parcela.usuarioNome}" />
                                             </p:column>
 
-                                            <p:column>
-                                                <h:outputText value="Caixa" style="font-weight: bold"/><br />
-                                                <h:outputLabel value="#{parcela.caixa}" />
-                                            </p:column>
-                                        </h:panelGrid>
-                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
                                             <p:column>
                                                 <h:outputText value="Tipo de Documento" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{parcela.movimento.tipoDocumento.descricao}" />
@@ -610,7 +602,28 @@
                                             <p:column>
                                                 <h:outputText value="Documento" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{parcela.movimento.documento}" />
-                                            </p:column>                                            
+                                            </p:column>    
+                                        </h:panelGrid>
+
+                                        <h:panelGrid columns="4" style="height: 40px">
+                                            <p:column>
+                                                <h:outputText value="Lote Baixa" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.loteBaixa}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Operador (Baixa)" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.movimento.baixa.usuario.pessoa.nome}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Caixa" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.caixa}" />
+                                            </p:column>                                        
+
+                                            <p:column>
+
+                                            </p:column>                                        
                                         </h:panelGrid>
                                     </p:rowExpansion>
                                 </p:dataTable>

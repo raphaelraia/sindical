@@ -721,7 +721,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             if (mov.getBaixa() != null) {
                 valor_quitado = mov.getValorBaixa();
                 data_quitacao = mov.getBaixa().getBaixa();
-                caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getCaixa() + "" : "NÃO BAIXADO";
+                caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getDescricao() + "" : "NÃO BAIXADO";
                 loteBaixa = mov.getBaixa() != null ? mov.getBaixa().getId() + "" : "NÃO BAIXADO";
             }
 
@@ -1707,61 +1707,64 @@ public class LancamentoFinanceiroBean implements Serializable {
         if (GenericaSessao.exists("juridicaPesquisa")) {
             pessoa = ((Juridica) GenericaSessao.getObject("juridicaPesquisa", true)).getPessoa();
             descricao = pessoa.getDocumento();
-            if (null != pessoa.getTipoDocumento().getId()) {
-                switch (pessoa.getTipoDocumento().getId()) {
-                    case 1:
-                        idTipoDocumento = 0;
-                        break;
-                    case 2:
-                        idTipoDocumento = 1;
-                        break;
-                    case 4:
-                        idTipoDocumento = 2;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            idTipoDocumento = pessoa.getTipoDocumento().getId();
+//            if (null != pessoa.getTipoDocumento().getId()) {
+//                switch (pessoa.getTipoDocumento().getId()) {
+//                    case 1:
+//                        idTipoDocumento = 0;
+//                        break;
+//                    case 2:
+//                        idTipoDocumento = 1;
+//                        break;
+//                    case 4:
+//                        idTipoDocumento = 2;
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
             opcaoCadastro = "";
             atualizaHistorico();
         } else if (GenericaSessao.exists("fisicaPesquisa")) {
             pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
             descricao = pessoa.getDocumento();
-            if (null != pessoa.getTipoDocumento().getId()) {
-                switch (pessoa.getTipoDocumento().getId()) {
-                    case 1:
-                        idTipoDocumento = 0;
-                        break;
-                    case 2:
-                        idTipoDocumento = 1;
-                        break;
-                    case 4:
-                        idTipoDocumento = 2;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            idTipoDocumento = pessoa.getTipoDocumento().getId();
+//            if (null != pessoa.getTipoDocumento().getId()) {
+//                switch (pessoa.getTipoDocumento().getId()) {
+//                    case 1:
+//                        idTipoDocumento = 0;
+//                        break;
+//                    case 2:
+//                        idTipoDocumento = 1;
+//                        break;
+//                    case 4:
+//                        idTipoDocumento = 2;
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
             opcaoCadastro = "";
             atualizaHistorico();
         } else if (GenericaSessao.exists("pessoaPesquisa")) {
             pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             descricao = pessoa.getDocumento();
-            if (null != pessoa.getTipoDocumento().getId()) {
-                switch (pessoa.getTipoDocumento().getId()) {
-                    case 1:
-                        idTipoDocumento = 0;
-                        break;
-                    case 2:
-                        idTipoDocumento = 1;
-                        break;
-                    case 4:
-                        idTipoDocumento = 2;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            idTipoDocumento = pessoa.getTipoDocumento().getId();
+//            if (null != pessoa.getTipoDocumento().getId()) {
+//                switch (pessoa.getTipoDocumento().getId()) {
+//                    case 1:
+//                        idTipoDocumento = 0;
+//                        break;
+//                    case 2:
+//                        idTipoDocumento = 1;
+//                        break;
+//                    case 4:
+//                        idTipoDocumento = 2;
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
             opcaoCadastro = "";
             atualizaHistorico();
         }
@@ -1814,7 +1817,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 if (mov.getBaixa() != null) {
                     valor_quitado = mov.getValorBaixa();
                     data_quitacao = mov.getBaixa().getBaixa();
-                    caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getCaixa() + "" : "NÃO BAIXADO";
+                    caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getDescricao() + "" : "NÃO BAIXADO";
                     loteBaixa = mov.getBaixa() != null ? mov.getBaixa().getId() + "" : "NÃO BAIXADO";
                 } else {
                     valor_quitado = Moeda.subtracaoValores(Moeda.somaValores(mov.getValor(), acre), desc);
@@ -2602,6 +2605,10 @@ public class LancamentoFinanceiroBean implements Serializable {
                 case "emissao":
                 case "lancamento":
                     mask = "99/99/9999";
+                    break;
+                case "valorNF":
+                    mask = "";
+                    descricao = Moeda.converteR$(descricao);
                     break;
                 default:
                     mask = "";
