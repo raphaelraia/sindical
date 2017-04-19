@@ -50,7 +50,7 @@ public class FechamentoDiarioDao extends DB {
                     + "  WHERE cs.dt_data = '" + data + "' \n"
                     + "    AND cs.nr_saldo > 0  \n"
                     + " GROUP BY cs.id, p.id, cs.dt_data, p.ds_conta, p.ds_classificador, CB.id_plano5 \n"
-                    + " ORDER BY cs.dt_data,  p.ds_classificador, p.ds_conta"
+                    + " ORDER BY cs.dt_data, p.id_plano4, p.ds_conta"
             );
             return qry.getResultList();
         } catch (Exception e) {

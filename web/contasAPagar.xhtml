@@ -77,7 +77,7 @@
                                             <f:selectItem itemValue="nome_pagamento" itemLabel="Nome / Pagamento"/>
                                         </p:selectOneMenu>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <h:outputLabel value="Lote Baixa"/><br />
                                         <p:inputText value="#{contasAPagarBean.filtros.numeroBaixa}" placeholder="Número da Baixa">
@@ -321,8 +321,8 @@
                                     <p:confirm header="Baixar Contas Selecionadas" message="Deseja Realmente BAIXAR estas Contas?" icon="ui-icon-alert" />
                                 </p:commandButton>
 
-                                <p:commandButton value="Estornar" disabled="#{controleAcessoBean.verificarPermissao('estorno_conta_pagar', 3)}" onclick="PF('dlg_estornar_conta').show()"/>
-                                
+                                <p:commandButton value="Estornar" disabled="#{controleAcessoBean.verificarPermissao('estorno_conta_pagar', 3) or empty(contasAPagarBean.listaContasSelecionada) or contasAPagarBean.listaContasSelecionada.size() > 1}" action="#{contasAPagarBean.loadListaMovimentoEstorno()}" rendered="#{contasAPagarBean.filtros.condicao eq 'pagos'}" icon="ui-icon-arrowreturnthick-1-w"/>
+
                                 <h:panelGroup rendered="#{contasAPagarBean.filtros.condicao eq 'pagos' and !empty(contasAPagarBean.listaContasSelecionada)}" layout="block">
                                     <p:commandLink action="#{contasAPagarBean.recibo()}" target="_blank" ajax="false">
                                         <p:button icon="ui-icon-print" value="Imprimir Recibo" />
@@ -333,14 +333,67 @@
                                 </h:panelGroup>
                             </h:panelGrid>
 
-                            <p:dialog widgetVar="dlg_estornar_conta" header="Estornar Contas Selecionadas" resizable="false" width="400" modal="true">
+                            <p:dialog id="dlg_estornar_conta" widgetVar="dlg_estornar_conta" header="Estornar Contas Selecionadas" resizable="false" width="700" modal="true">
                                 <h:panelGrid style="width: 100%">
-                                    <p:outputLabel value="Deseja Realmente ESTORNAR estas Contas?" />
+                                    <p:outputLabel value="Deseja Realmente ESTORNAR estas Contas?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
+                                <br />
+                                <h:panelGrid columns="3" columnClasses="column00, column00, column00">
+                                    <h:column>
+                                        <p:outputLabel value="Número da Baixa" style="font-weight: bold"/><br />
+                                        <p:outputLabel value="#{contasAPagarBean.mes.movimento.baixa.id}" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Data da Baixa" style="font-weight: bold"/><br />
+                                        <p:outputLabel value="#{contasAPagarBean.mes.movimento.baixa.baixa}" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Total Baixa" style="font-weight: bold"/><br />
+                                        <p:outputLabel value="#{contasAPagarBean.mes.totalBaixaString}" />
+                                    </h:column>
+                                </h:panelGrid>
+                                
+                                <br />
+                                
+                                <h:panelGrid columns="2" columnClasses="column00, column00">
+                                    <h:column>
+                                        <p:outputLabel value="Caixa" style="font-weight: bold"/><br />
+                                        <p:outputLabel value="#{contasAPagarBean.mes.movimento.baixa.caixa.descricao}" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Operador (Baixa)" style="font-weight: bold"/><br />
+                                        <p:outputLabel value="#{contasAPagarBean.mes.movimento.baixa.usuario.pessoa.nome}" />
+                                    </h:column>
+                                </h:panelGrid>
+                                
+                                <br />
+                                
+                                <p:dataTable value="#{contasAPagarBean.listaMovimentoEstorno}" var="linha_movimento_estorno">
+                                    <p:column headerText="Nome">
+                                        <p:outputLabel value="#{linha_movimento_estorno.pessoa.nome}" />
+                                    </p:column>
 
+                                    <p:column headerText="Vencimento" style="text-align: center; width: 80px">
+                                        <p:outputLabel value="#{linha_movimento_estorno.vencimento}" />
+                                    </p:column>
+                                    
+                                    <p:column headerText="Ref." style="text-align: center; width: 60px">
+                                        <p:outputLabel value="#{linha_movimento_estorno.referencia}" />
+                                    </p:column>
+                                    
+                                    <p:column headerText="Valor R$" style="text-align: right; width: 100px">
+                                        <p:outputLabel value="#{linha_movimento_estorno.valorBaixaString}" />
+                                    </p:column>
+                                </p:dataTable>
+                                
+                                <br />
+                                
                                 <h:panelGrid style="width: 100%">
                                     <p:outputLabel value="Digite um motivo para o Estorno." style="color: red"/>
-                                    <p:inputTextarea value="#{contasAPagarBean.motivoEstorno}" style="width: 100%" rows="2" />
+                                    <p:inputTextarea value="#{contasAPagarBean.motivoEstorno}" style="width: 100%" rows="2" placeholder="MOTIVO PELO QUAL ESTOU ESTORNANDO ESTE MOVIMENTO" />
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2">

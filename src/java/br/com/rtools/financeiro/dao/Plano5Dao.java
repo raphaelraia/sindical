@@ -38,12 +38,10 @@ public class Plano5Dao extends DB {
     public List pesquisaCaixaBanco() {
         List result = null;
         try {
-            Query qry = getEntityManager().createQuery(
-                    "select p"
-                    + "  from Plano5 p"
-                    + " where p.contaBanco.id is not null");
+            Query qry = getEntityManager().createQuery("SELECT P5 FROM Plano5 P5 WHERE P5.plano4.id IN (SELECT CR.plano4.id FROM ContaRotina CR WHERE CR.rotina.id = 2 ) ORDER BY P5.plano4.id, P5.conta");
             result = qry.getResultList();
         } catch (Exception e) {
+            e.getMessage();
         }
         return result;
     }

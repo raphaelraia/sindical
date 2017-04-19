@@ -127,11 +127,17 @@ public class MovimentoBancarioDao extends DB {
 
     public ContaSaldo pesquisaContaSaldoData(String data, Integer id_conta) {
         try {
-            String text
-                    = "SELECT cs.* \n"
+            String text = ""
+                    + "SELECT cs.* \n"
                     + "  FROM fin_conta_saldo cs \n"
-                    + " WHERE cs.dt_data = '" + data + "'\n"
-                    + "   AND cs.id_plano5 = " + id_conta;
+                    + " WHERE cs.dt_data = (\n"
+                    + "SELECT MAX(cs2.dt_data) \n"
+                    + "  FROM fin_conta_saldo cs2 \n"
+                    + " WHERE cs2.dt_data < '" + data + "'\n"
+                    + "   AND cs2.id_plano5 = " + id_conta + "\n"
+                    + " ) \n"
+                    + "   AND cs.id_plano5 = " + id_conta + "\n"
+                    + "";
 
             Query qry = getEntityManager().createNativeQuery(text, ContaSaldo.class);
             return (ContaSaldo) qry.getSingleResult();

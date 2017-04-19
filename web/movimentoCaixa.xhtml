@@ -85,7 +85,7 @@
                             </p:dataTable>
 
 
-                            <p:dialog widgetVar="dlg_detalhes_saldo" header="Detalhes do Saldo" resizable="false" width="800" modal="true">
+                            <p:dialog widgetVar="dlg_detalhes_saldo" header="Detalhes do Saldo" resizable="false" width="800" modal="true" position="top">
                                 <h:panelGrid id="panel_detalhes_saldo">
                                     <h:panelGrid columns="2" columnClasses="column01, column02" style="float: right">
                                         <p:column>
@@ -102,7 +102,7 @@
                                     <br />
 
 
-                                    <p:dataTable var="linha_saldo_selecionado" id="tbl_detalhe" value="#{movimentoCaixaBean.listaSaldoDetalhe}" emptyMessage="Nenhum Saldo Encontrado!">
+                                    <p:dataTable var="linha_saldo_selecionado" id="tbl_detalhe" value="#{movimentoCaixaBean.listaSaldoDetalhe}" emptyMessage="Nenhum Saldo Encontrado!" scrollable="true" scrollHeight="500">
                                         <p:column style="width:15px">  
                                             <p:rowToggler />  
                                         </p:column>  

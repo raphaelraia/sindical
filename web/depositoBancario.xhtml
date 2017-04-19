@@ -12,21 +12,21 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
-            
+
             .column01{
                 float: right;
             }
-            
+
             .column02{
                 padding-right: 20px;
                 float: right;
             }
-            
+
             .column03{
                 padding-right: 20px;
                 text-align: center;
             }
-            
+
             .column04{
                 text-align: right;
             }
@@ -50,70 +50,94 @@
                         <h:outputText value="Depósito Bancário" styleClass="fonteHeader" />
                         <h:form id="formDepositoBancario">
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="2">
+                                <h:panelGrid columns="5">
                                     <p:column>
                                         <h:outputLabel value="Depositar na Conta" /><br />
-                                        <p:selectOneMenu id="i_select_conta" value="#{depositoBancarioBean.idConta}" style="width: 450px; margin-right: 15px;">
+                                        <p:selectOneMenu id="i_select_conta" value="#{depositoBancarioBean.idConta}" style="margin-right: 15px;">
                                             <p:ajax event="change" update="@this"/>
                                             <f:selectItems value="#{depositoBancarioBean.listaConta}" />
                                         </p:selectOneMenu>
                                     </p:column>
 
                                     <p:column>
+                                        <h:outputLabel value="Tipo" /><br />
+                                        <p:selectOneMenu value="#{depositoBancarioBean.indexListaFTipoDocumento}" style="margin-right: 15px;">
+                                            <p:ajax event="change" update="@form" listener="#{depositoBancarioBean.refreshTipo()}"/>
+                                            <f:selectItems value="#{depositoBancarioBean.listaFTipoDocumento}" />
+                                        </p:selectOneMenu>
+                                    </p:column>
+
+                                    <p:column rendered="#{depositoBancarioBean.indexListaFTipoDocumento eq 1}">
+                                        <h:outputLabel value="Valor" /><br />
+                                        <p:inputText value="#{depositoBancarioBean.valorDepositoString}" style="margin-right: 15px; text-align: right" onfocus="this.select()">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputText>
+                                    </p:column>
+
+                                    <p:column>
                                         <br />
-                                        <p:commandButton value="Depositar cheques abaixo" onclick="PF('i_dlg_deposito').show()"/>
+                                        <p:commandButton value="#{depositoBancarioBean.indexListaFTipoDocumento eq 0 ? 'Depositar Cheques Abaixo' : 'Depositar em Dinheiro'}" onclick="PF('i_dlg_deposito').show()" style="margin-right: 15px"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Atualizar Lista pela Data do Saldo" action="#{depositoBancarioBean.atualizarListaDataSaldo()}" update="@form" rendered="#{usuarioBean.usuario.pessoa.id eq 1}" icon="ui-icon-alert" title="Atualizar Lista pela Data do Saldo">
+                                            <p:confirm header="Atualizar Lista pela Data do Saldo" message="Deseja realmente atualizar esta lista?" icon="ui-icon-alert"/>
+                                        </p:commandButton>
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
 
                             <p:messages id="i_msg" showDetail="true" closable="true" />
 
-                            <p:dataTable var="linha" id="tbl" value="#{depositoBancarioBean.listaCheques}" rowKey="#{linha.chequeRec.id}" selection="#{depositoBancarioBean.listaSelecionado}" emptyMessage="Nenhum cheque encontrado!" rows="20" paginator="true">
-                                <p:column selectionMode="multiple" style="width:20px" />  
-                                <p:ajax event="toggleSelect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" />
-                                <p:ajax event="rowSelect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
-                                <p:ajax event="rowSelectCheckbox" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
-                                <p:ajax event="rowUnselect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
-                                <p:ajax event="rowUnselectCheckbox" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                            <h:panelGrid rendered="#{depositoBancarioBean.indexListaFTipoDocumento eq 0}">
+                                <p:dataTable var="linha" id="tbl" value="#{depositoBancarioBean.listaCheques}" rowKey="#{linha.chequeRec.id}" selection="#{depositoBancarioBean.listaSelecionado}" emptyMessage="Nenhum cheque encontrado!" rows="20" paginator="true">
+                                    <p:column selectionMode="multiple" style="width:20px" />  
+                                    <p:ajax event="toggleSelect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" />
+                                    <p:ajax event="rowSelect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                                    <p:ajax event="rowSelectCheckbox" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                                    <p:ajax event="rowUnselect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                                    <p:ajax event="rowUnselectCheckbox" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
 
-                                <p:column headerText="Baixa" style="text-align: center">
-                                    <h:outputText value="#{linha.baixa.id}"/>
-                                </p:column>
+                                    <p:column headerText="Baixa" style="text-align: center">
+                                        <h:outputText value="#{linha.baixa.id}"/>
+                                    </p:column>
 
-                                <p:column headerText="Banco">
-                                    <h:outputText value="#{linha.chequeRec.banco.banco}"/>
-                                </p:column>
+                                    <p:column headerText="Banco">
+                                        <h:outputText value="#{linha.chequeRec.banco.banco}"/>
+                                    </p:column>
 
-                                <p:column headerText="Agência">
-                                    <h:outputText value="#{linha.chequeRec.agencia}"/>
-                                </p:column>
+                                    <p:column headerText="Agência">
+                                        <h:outputText value="#{linha.chequeRec.agencia}"/>
+                                    </p:column>
 
-                                <p:column headerText="Conta">
-                                    <h:outputText value="#{linha.chequeRec.conta}"/>
-                                </p:column>
+                                    <p:column headerText="Conta">
+                                        <h:outputText value="#{linha.chequeRec.conta}"/>
+                                    </p:column>
 
-                                <p:column headerText="Cheque">
-                                    <h:outputText value="#{linha.chequeRec.cheque}"/>
-                                </p:column>
+                                    <p:column headerText="Cheque">
+                                        <h:outputText value="#{linha.chequeRec.cheque}"/>
+                                    </p:column>
 
-                                <p:column headerText="Valor">
-                                    <h:outputText value="R$ "/>
-                                    <h:outputText value="#{linha.formaPagamento.valorString}" style="float: right"/>
-                                </p:column>
+                                    <p:column headerText="Valor">
+                                        <h:outputText value="R$ "/>
+                                        <h:outputText value="#{linha.formaPagamento.valorString}" style="float: right"/>
+                                    </p:column>
 
-                                <p:column headerText="Emissão" style="text-align: center">
-                                    <h:outputText value="#{linha.chequeRec.emissao}"/>
-                                </p:column>
+                                    <p:column headerText="Emissão" style="text-align: center">
+                                        <h:outputText value="#{linha.chequeRec.emissao}"/>
+                                    </p:column>
 
-                                <p:column headerText="Vencimento" style="text-align: center">
-                                    <h:outputText value="#{linha.chequeRec.vencimento}"/>
-                                </p:column>
-                                <p:column headerText="Dev." style="width:50px; text-align: center">
-                                    <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
-                                </p:column>
-                            </p:dataTable>
+                                    <p:column headerText="Vencimento" style="text-align: center">
+                                        <h:outputText value="#{linha.chequeRec.vencimento}"/>
+                                    </p:column>
+                                    <p:column headerText="Dev." style="width:50px; text-align: center">
+                                        <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
 
-                            <h:panelGrid id="panel_valores" style="width: 100%" columns="3" columnClasses="column01, column02, column02">
+                            <h:panelGrid id="panel_valores" style="width: 100%" columns="3" columnClasses="column01, column02, column02" rendered="#{depositoBancarioBean.indexListaFTipoDocumento eq 0}">
                                 <h:panelGrid columns="2" columnClasses="column03, column04">
                                     <h:column>
                                         <p:outputLabel value="CHEQUES SELECIONADOS" style="font-size: 7pt!important"/><br />
@@ -125,11 +149,11 @@
                                         <p:outputLabel value="#{depositoBancarioBean.valorTotalSelecionadoString}" style="font-weight: bold; font-size: 14pt!important"/>
                                     </h:column>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid>
                                     <p:outputLabel value="||" />
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="2" columnClasses="column03, column04">
                                     <h:column>
                                         <p:outputLabel value="TOTAL DE CHEQUES" style="font-size: 7pt!important"/><br />
@@ -147,6 +171,11 @@
                                 <p:commandButton value="Concluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{depositoBancarioBean.depositar()}" update="formDepositoBancario" onclick="PF('i_dlg_deposito').hide()" style="clear: both; float: left" icon="ui-icon-check" />  
                                 <p:commandButton value="Voltar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_deposito').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
+
+                            <p:confirmDialog global="true">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
                         </h:form>
                     </p:panel>
                 </f:view>

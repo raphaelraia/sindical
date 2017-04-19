@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.financeiro.EstornoCaixaLote;
 import br.com.rtools.financeiro.FStatus;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Lote;
@@ -497,11 +498,11 @@ public class FinanceiroDao extends DB {
                     + "  INNER JOIN fin_forma_pagamento AS f ON f.id_cheque_rec = c.id AND f.id_status = " + id_status + " \n"
                     + "  INNER JOIN fin_banco AS banc ON banc.id = c.id_banco \n"
                     + "  WHERE dt_vencimento <= CURRENT_DATE  \n"
-                    + "    AND c.dt_emissao > (\n"
-                    + "    SELECT CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END\n"
-                    + "      FROM fin_conta_saldo \n"
-                    + "     WHERE id_plano5 = 1 \n"
-                    + "    )"
+            //                    + "    AND c.dt_emissao > (\n"
+            //                    + "    SELECT CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END\n"
+            //                    + "      FROM fin_conta_saldo \n"
+            //                    + "     WHERE id_plano5 = 1 \n"
+            //                    + "    )"
             );
             return qry.getResultList();
         } catch (Exception e) {
@@ -1570,31 +1571,31 @@ public class FinanceiroDao extends DB {
         return null;
     }
 
-    public List<Vector> listaFechamentoCaixaGeral(String filtro) {
+    public List<Object> listaFechamentoCaixaGeral(String filtro) {
         List<String> list_where = new ArrayList();
-
-        String WHERE = "";
 
         switch (filtro) {
             case "30dias":
-                list_where.add("dt_fechamento >= CURRENT_DATE - 30");
+                list_where.add("( dt_fechamento >= CURRENT_DATE - 30 OR dt_fechamento IS NULL )");
                 break;
 
             case "60dias":
-                list_where.add("dt_fechamento >= CURRENT_DATE - 60");
+                list_where.add("( dt_fechamento >= CURRENT_DATE - 60 OR dt_fechamento IS NULL )");
                 break;
 
             case "6meses":
-                list_where.add("dt_fechamento >= CURRENT_DATE - 180");
+                list_where.add("( dt_fechamento >= CURRENT_DATE - 180 OR dt_fechamento IS NULL )");
                 break;
 
             case "1ano":
-                list_where.add("dt_fechamento >= CURRENT_DATE - 365");
+                list_where.add("( dt_fechamento >= CURRENT_DATE - 365 OR dt_fechamento IS NULL )");
                 break;
             default:
                 break;
         }
 
+        String WHERE = "";
+        
         for (String w : list_where) {
             if (WHERE.isEmpty()) {
                 WHERE = " WHERE " + w + " \n ";
@@ -1602,7 +1603,7 @@ public class FinanceiroDao extends DB {
                 WHERE += " AND " + w + " \n ";
             }
         }
-        
+
         String text
                 = "SELECT \n"
                 + " caixa, \n"
@@ -1611,7 +1612,8 @@ public class FinanceiroDao extends DB {
                 + " dt_transferencia, \n"
                 + " sum(valor) as valor, \n"
                 + " id_fechamento_caixa, \n"
-                + " id_caixa \n"
+                + " id_caixa, \n"
+                + " dt_baixa \n"
                 + "  FROM fin_fecha_caixa_geral_vw \n"
                 + WHERE
                 + " GROUP BY \n"
@@ -1620,7 +1622,8 @@ public class FinanceiroDao extends DB {
                 + " hora_fechamento, \n"
                 + " dt_transferencia, \n"
                 + " id_fechamento_caixa, \n"
-                + " id_caixa \n"
+                + " id_caixa, \n"
+                + " dt_baixa \n"
                 + " ORDER BY dt_fechamento, caixa ";
 
         try {
@@ -1864,6 +1867,22 @@ public class FinanceiroDao extends DB {
         );
 
         try {
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<FTipoDocumento> listaTipoDocumentoIn(String ids) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT td.* \n "
+                    + "  FROM fin_tipo_documento td \n "
+                    + " WHERE td.id IN (" + ids + ") \n "
+                    + " ORDER BY td.ds_descricao", FTipoDocumento.class
+            );
+            
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

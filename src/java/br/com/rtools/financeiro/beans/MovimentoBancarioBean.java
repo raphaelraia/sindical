@@ -274,7 +274,8 @@ public class MovimentoBancarioBean implements Serializable {
             if (comeca_conta_saldo && !temFiltro()) {
                 DataHoje dh = new DataHoje();
 
-                contaSaldo = mdao.pesquisaContaSaldoData(dh.decrementarDias(1, b.getBaixa()), plano.getId());
+                // contaSaldo = mdao.pesquisaContaSaldoData(dh.decrementarDias(1, b.getBaixa()), plano.getId());
+                contaSaldo = mdao.pesquisaContaSaldoData(b.getBaixa(), plano.getId());
                 valor_saldo_anterior = contaSaldo.getSaldo();
                 valor_saldo = fp.getValor();
             } else {
@@ -373,13 +374,14 @@ public class MovimentoBancarioBean implements Serializable {
 
         Plano5Dao db = new Plano5Dao();
 
-        List<Plano5> result = db.pesquisaCaixaBanco();
-        for (int i = 0; i < result.size(); i++) {
+        List<Plano5> listPlano5 = db.pesquisaCaixaBanco();
+        for (int i = 0; i < listPlano5.size(); i++) {
             listaConta.add(
                     new SelectItem(
                             i,
-                            result.get(i).getContaBanco().getBanco().getBanco() + " - " + result.get(i).getContaBanco().getAgencia() + " - " + result.get(i).getContaBanco().getConta(),
-                            Integer.toString((result.get(i).getId()))
+                            //listPlano5.get(i).getContaBanco().getBanco().getBanco() + " - " + listPlano5.get(i).getContaBanco().getAgencia() + " - " + listPlano5.get(i).getContaBanco().getConta(),
+                            listPlano5.get(i).getConta(),
+                            Integer.toString((listPlano5.get(i).getId()))
                     )
             );
         }

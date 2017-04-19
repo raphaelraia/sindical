@@ -47,15 +47,76 @@ public class ContasAPagarBean implements Serializable {
 
     private String motivoEstorno = "";
 
+    private List<Movimento> listaMovimentoEstorno = new ArrayList();
+
+    private MovimentoEstornoSelecionado mes = new MovimentoEstornoSelecionado();
+
     public ContasAPagarBean() {
         loadListaContas();
     }
 
-    public void actNumeroBaixa(){
+    public void loadListaMovimentoEstorno() {
+        listaMovimentoEstorno.clear();
+        motivoEstorno = "";
+
+        if (!validaEstorno()) {
+            PF.update("formContasAPagar");
+            return;
+        }
+
+        MovimentoDao db = new MovimentoDao();
+
+        listaMovimentoEstorno = db.movimentoIdbaixa(mes.getMovimento().getBaixa().getId());
+        
+        for(Movimento m : listaMovimentoEstorno){
+            mes.setTotalBaixa(Moeda.somaValores(mes.getTotalBaixa(), m.getValorBaixa()));
+        }
+        
+        PF.update("formContasAPagar:dlg_estornar_conta");
+
+        PF.openDialog("dlg_estornar_conta");
+    }
+
+    public Boolean validaEstorno() {
+        mes = new MovimentoEstornoSelecionado();
+
+        if (listaContasSelecionada.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Selecione uma Conta para ESTORNAR!");
+            return false;
+        }
+
+        if (listaContasSelecionada.size() > 1) {
+            GenericaMensagem.error("Atenção", "Apenas uma conta pode ser estornada por vez!");
+            return false;
+        }
+
+        mes.setMovimento((Movimento) new Dao().find(new Movimento(), listaContasSelecionada.get(0).getMovimentoId()));
+
+        GenericaSessao.remove("estorno_movimento_sucesso");
+
+        if (mes.getMovimento().getBaixa() == null) {
+            GenericaMensagem.warn("Erro", "Existem boletos que não foram pagos para estornar!");
+            return false;
+        }
+
+        if (mes.getMovimento().getBaixa().getFechamentoCaixa() != null) {
+            GenericaMensagem.warn("Atenção", "Boletos COM CAIXA FECHADO não podem ser estornados!");
+            return false;
+        }
+
+        if (!mes.getMovimento().isAtivo()) {
+            GenericaMensagem.warn("Erro", "Boleto ID: " + mes.getMovimento().getId() + " esta inativo, não é possivel concluir estorno!");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void actNumeroBaixa() {
         filtros.setVencimento("");
         filtros.setVencimentoFinal("");
     }
-    
+
     public String baixar() {
         if (listaContasSelecionada.isEmpty()) {
             GenericaMensagem.error("Atenção", "Selecione uma Conta para BAIXAR!");
@@ -66,29 +127,7 @@ public class ContasAPagarBean implements Serializable {
     }
 
     public String estornar() {
-        if (listaContasSelecionada.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Selecione uma Conta para ESTORNAR!");
-            return null;
-        }
-
-        if (listaContasSelecionada.size() > 1) {
-            GenericaMensagem.error("Atenção", "Apenas uma conta pode ser estornada por vez!");
-            return null;
-        }
-
-        GenericaSessao.remove("estorno_movimento_sucesso");
-
-        Dao dao = new Dao();
-
-        Movimento mov = (Movimento) dao.find(new Movimento(), listaContasSelecionada.get(0).getMovimentoId());
-
-        if (mov.getBaixa() == null) {
-            GenericaMensagem.warn("Erro", "Existem boletos que não foram pagos para estornar!");
-            return null;
-        }
-
-        if (mov.getBaixa().getFechamentoCaixa() != null) {
-            GenericaMensagem.warn("Atenção", "Boletos COM CAIXA FECHADO não podem ser estornados!");
+        if (!validaEstorno()) {
             return null;
         }
 
@@ -97,31 +136,26 @@ public class ContasAPagarBean implements Serializable {
             return null;
         }
 
-        if (!mov.isAtivo()) {
-            GenericaMensagem.warn("Erro", "Boleto ID: " + mov.getId() + " esta inativo, não é possivel concluir estorno!");
-            return null;
+        if (mes.getMovimento().getLote().getRotina() != null && mes.getMovimento().getLote().getRotina().getId() == 132) {
+            mes.getMovimento().setAtivo(false);
         }
 
-        if (mov.getLote().getRotina() != null && mov.getLote().getRotina().getId() == 132) {
-            mov.setAtivo(false);
-        }
+        Integer id_baixa_estornada = mes.getMovimento().getBaixa().getId();
 
-        Integer id_baixa_estornada = mov.getBaixa().getId();
-
-        StatusRetorno sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
+        StatusRetorno sr = GerarMovimento.estornarMovimento(mes.getMovimento(), motivoEstorno);
 
         if (!sr.getStatus()) {
             GenericaMensagem.warn("Erro", sr.getMensagem());
         } else {
             NovoLog novoLog = new NovoLog();
-            novoLog.setCodigo(mov.getId());
+            novoLog.setCodigo(mes.getMovimento().getId());
             novoLog.setTabela("fin_movimento");
             novoLog.update("",
-                    " Movimento - ID: " + mov.getId()
-                    + " - Ref.: " + mov.getReferencia()
-                    + " - Vencimento: " + mov.getVencimento()
-                    + " - Valor: " + mov.getValor()
-                    + " - Responsável: (" + mov.getPessoa().getId() + ") " + mov.getPessoa().getNome()
+                    " Movimento - ID: " + mes.getMovimento().getId()
+                    + " - Ref.: " + mes.getMovimento().getReferencia()
+                    + " - Vencimento: " + mes.getMovimento().getVencimento()
+                    + " - Valor: " + mes.getMovimento().getValor()
+                    + " - Responsável: (" + mes.getMovimento().getPessoa().getId() + ") " + mes.getMovimento().getPessoa().getNome()
                     + " - Motivo: " + motivoEstorno
                     + " - Número da Baixa: " + id_baixa_estornada
             );
@@ -339,6 +373,22 @@ public class ContasAPagarBean implements Serializable {
 
     public void setMotivoEstorno(String motivoEstorno) {
         this.motivoEstorno = motivoEstorno;
+    }
+
+    public List<Movimento> getListaMovimentoEstorno() {
+        return listaMovimentoEstorno;
+    }
+
+    public void setListaMovimentoEstorno(List<Movimento> listaMovimentoEstorno) {
+        this.listaMovimentoEstorno = listaMovimentoEstorno;
+    }
+
+    public MovimentoEstornoSelecionado getMes() {
+        return mes;
+    }
+
+    public void setMes(MovimentoEstornoSelecionado mes) {
+        this.mes = mes;
     }
 
     public class Filtros {
@@ -799,5 +849,45 @@ public class ContasAPagarBean implements Serializable {
             this.listaFormaPagamento = listaFormaPagamento;
         }
 
+    }
+
+    public class MovimentoEstornoSelecionado {
+
+        private Movimento movimento;
+        private Float totalBaixa;
+
+        public MovimentoEstornoSelecionado() {
+            this.movimento = new Movimento();
+            this.totalBaixa = new Float(0);
+        }
+
+        public MovimentoEstornoSelecionado(Movimento movimento, Float totalBaixa) {
+            this.movimento = movimento;
+            this.totalBaixa = totalBaixa;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public Float getTotalBaixa() {
+            return totalBaixa;
+        }
+
+        public void setTotalBaixa(Float totalBaixa) {
+            this.totalBaixa = totalBaixa;
+        }
+        
+        public String getTotalBaixaString() {
+            return Moeda.converteR$Float(totalBaixa);
+        }
+
+        public void setTotalBaixa(String totalBaixaString) {
+            this.totalBaixa = Moeda.converteUS$(totalBaixaString);
+        }
     }
 }

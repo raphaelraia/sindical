@@ -41,14 +41,70 @@ public class DepositoBancarioBean implements Serializable {
     private Float valorTotal = (float) 0;
     private Float valorTotalSelecionado = (float) 0;
 
+    private Integer indexListaFTipoDocumento = 0;
+    private List<SelectItem> listaFTipoDocumento = new ArrayList();
+    private Float valorDeposito = new Float(0);
+
     public DepositoBancarioBean() {
         loadListaCheques();
+        loadListaFTipoDocumento();
+    }
+
+    public void atualizarListaDataSaldo() {
+        
+        Boolean result = new Dao().executeQuery(
+                " UPDATE fin_forma_pagamento SET id_status = 9 --- Realizado \n "
+                + "WHERE id IN \n "
+                + "( \n "
+                + "SELECT f.id \n "
+                + "  FROM fin_cheque_rec AS c \n "
+                + " INNER JOIN fin_forma_pagamento AS f ON f.id_cheque_rec = c.id AND f.id_status = 7 \n "
+                + " INNER JOIN fin_banco AS banc ON banc.id = c.id_banco \n "
+                + " WHERE dt_vencimento <= CURRENT_DATE \n"
+                + "   AND c.dt_emissao < ( \n "
+                + "    SELECT \n "
+                + "      CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END \n "
+                + "      FROM fin_conta_saldo \n "
+                + "     WHERE id_plano5 = 1 \n "
+                + "   ) \n "
+                + ") "
+        );
+
+        if (!result) {
+            GenericaMensagem.error("Atenção", "NÃO FOI POSSÍVEL ATUALIZAR LISTA!");
+            return;
+        }
+
+        GenericaMensagem.info("Sucesso", "LISTA ATUALIZADA!");
+    }
+
+    public void refreshTipo() {
+        loadListaCheques();
+
+        valorDeposito = new Float(0);
+    }
+
+    public final void loadListaFTipoDocumento() {
+        indexListaFTipoDocumento = 0;
+        listaFTipoDocumento.clear();
+
+        List<FTipoDocumento> result = new FinanceiroDao().listaTipoDocumentoIn("3, 4");
+
+        for (int i = 0; i < result.size(); i++) {
+            listaFTipoDocumento.add(
+                    new SelectItem(i, result.get(i).getDescricao(), Integer.toString(result.get(i).getId()))
+            );
+        }
     }
 
     public final void loadListaCheques() {
         listaCheques.clear();
         listaSelecionado.clear();
+        valorTotal = new Float(0);
+        valorTotalSelecionado = new Float(0);
+
         FinanceiroDao db = new FinanceiroDao();
+
         Dao dao = new Dao();
 
         List<Object> result = db.listaDeCheques(7);
@@ -77,6 +133,116 @@ public class DepositoBancarioBean implements Serializable {
     }
 
     public void depositar() {
+        // = 4 ( CHEQUE )
+        if (Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription()) == 4) {
+            depositarCheque();
+        } else {
+            depositarDinheiro();
+        }
+    }
+
+    public void depositarDinheiro() {
+        if (valorDeposito <= 0) {
+            GenericaMensagem.warn("Atenção", "DIGITE UM VALOR PARA DEPÓSITO!");
+            return;
+        }
+
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+
+        Plano5 plano_combo = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
+        Plano5 plano_caixa = (Plano5) dao.find(new Plano5(), 1);
+
+        String historico_contabil = "Deposito bancário para a conta " + plano_combo.getConta();
+
+        // MOVIMENTO SAIDA -----------------------------------------------------
+        Baixa baixa_saida = null;
+        Lote lote_saida = null;
+        Movimento movimento_saida = null;
+
+        if (baixa_saida == null) {
+            baixa_saida = novaBaixa();
+            if (!dao.save(baixa_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
+                dao.rollback();
+                return;
+            }
+        }
+
+        if (lote_saida == null) {
+            lote_saida = novoLote(dao, "P", plano_combo, null, valorDeposito, (FStatus) dao.find(new FStatus(), 1), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
+            if (!dao.save(lote_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
+                dao.rollback();
+                return;
+            }
+        }
+
+        if (movimento_saida == null) {
+            movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
+            if (!dao.save(movimento_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Saida!");
+                dao.rollback();
+                return;
+            }
+        }
+
+        Plano5 plano_forma = plano_caixa;
+        if (!dao.save(novaFormaPagamento(dao, baixa_saida, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0))) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
+            dao.rollback();
+            return;
+        }
+
+        // MOVIMENTO ENTRADA ---------------------------------------------------
+        Baixa baixa_entrada = null;
+        Lote lote_entrada = null;
+        Movimento movimento_entrada = null;
+
+        if (baixa_entrada == null) {
+            baixa_entrada = novaBaixa();
+            if (!dao.save(baixa_entrada)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
+                dao.rollback();
+                return;
+            }
+        }
+
+        Plano5 plano = plano_caixa;
+
+        if (lote_entrada == null) {
+            lote_entrada = novoLote(dao, "R", plano, null, valorDeposito, (FStatus) dao.find(new FStatus(), 14), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
+            if (!dao.save(lote_entrada)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Entrada!");
+                dao.rollback();
+                return;
+            }
+        }
+
+        movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
+        if (!dao.save(movimento_entrada)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Entrada!");
+            dao.rollback();
+            return;
+        }
+
+        plano_forma = plano_combo;
+
+        if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0))) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
+            dao.rollback();
+            return;
+        }
+
+        dao.commit();
+
+        loadListaCheques();
+        valorDeposito = new Float(0);
+        GenericaMensagem.info("Sucesso", "Dinheiro Depositado com Sucesso!");
+    }
+
+    public void depositarCheque() {
         if (listaSelecionado.isEmpty()) {
             GenericaMensagem.warn("Erro", "Nenhum cheque foi selecionado!");
             return;
@@ -125,7 +291,7 @@ public class DepositoBancarioBean implements Serializable {
             float valor = listaSelecionado.get(i).getFormaPagamento().getValor();
 
             if (lote_saida == null) {
-                lote_saida = novoLote(dao, "P", plano_combo, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil);
+                lote_saida = novoLote(dao, "P", plano_combo, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
                 if (!dao.save(lote_saida)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
                     dao.rollback();
@@ -169,7 +335,7 @@ public class DepositoBancarioBean implements Serializable {
             Plano5 plano = plano_caixa;
 
             if (lote_entrada == null) {
-                lote_entrada = novoLote(dao, "R", plano, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 14), historico_contabil);
+                lote_entrada = novoLote(dao, "R", plano, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 14), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
                 if (!dao.save(lote_entrada)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Entrada!");
                     dao.rollback();
@@ -204,7 +370,7 @@ public class DepositoBancarioBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Cheques depositados com Sucesso!");
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, float valor, FStatus fstatus, String historico_contabil) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, float valor, FStatus fstatus, String historico_contabil, FTipoDocumento tipoDocumento) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 224), // ROTINA
@@ -213,13 +379,13 @@ public class DepositoBancarioBean implements Serializable {
                 (Pessoa) dao.find(new Pessoa(), 0), // PESSOA
                 plano, // PLANO 5
                 false,// VENCER CONTABIL
-                cheque.getCheque(), // DOCUMENTO
+                cheque != null ? cheque.getCheque() : null, // DOCUMENTO
                 valor, // VALOR
                 (Filial) dao.find(new Filial(), 1), // FILIAL
                 null, // DEPARTAMENTO
                 null, // EVT
                 historico_contabil, // HISTÓRICO
-                (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
+                tipoDocumento, // 4 - CHEQUE / 5 - CHEQUE PRE
                 (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1), // 1 - A VISTA / 2 - PRAZO
                 fstatus, // 1 - EFETIVO // 8 - DEPOSITADO // 14 - NÃO CONTABILIZAR
                 null, // PESSOA SEM CADASTRO
@@ -328,18 +494,21 @@ public class DepositoBancarioBean implements Serializable {
     }
 
     public boolean mensagemStatus(int id_status) {
-        if (id_status == 8) {
-            GenericaMensagem.warn("Erro", "Cheque DEPOSITADO não pode ser selecionado!");
-            return false;
-        } else if (id_status == 9) {
-            GenericaMensagem.warn("Erro", "Cheque LIQUIDADO não pode ser selecionado!");
-            return false;
-        } else if (id_status == 10) {
-            GenericaMensagem.warn("Erro", "Cheque DEVOLVIDO não pode ser selecionado!");
-            return false;
-        } else if (id_status == 11) {
-            GenericaMensagem.warn("Erro", "Cheque SUSTADO não pode ser selecionado!");
-            return false;
+        switch (id_status) {
+            case 8:
+                GenericaMensagem.warn("Erro", "Cheque DEPOSITADO não pode ser selecionado!");
+                return false;
+            case 9:
+                GenericaMensagem.warn("Erro", "Cheque LIQUIDADO não pode ser selecionado!");
+                return false;
+            case 10:
+                GenericaMensagem.warn("Erro", "Cheque DEVOLVIDO não pode ser selecionado!");
+                return false;
+            case 11:
+                GenericaMensagem.warn("Erro", "Cheque SUSTADO não pode ser selecionado!");
+                return false;
+            default:
+                break;
         }
         return true;
     }
@@ -398,6 +567,38 @@ public class DepositoBancarioBean implements Serializable {
 
     public void setValorTotalSelecionadoString(String valorTotalSelecionadoString) {
         this.valorTotalSelecionado = Moeda.converteUS$(valorTotalSelecionadoString);
+    }
+
+    public List<SelectItem> getListaFTipoDocumento() {
+        return listaFTipoDocumento;
+    }
+
+    public void setListaFTipoDocumento(List<SelectItem> listaFTipoDocumento) {
+        this.listaFTipoDocumento = listaFTipoDocumento;
+    }
+
+    public Integer getIndexListaFTipoDocumento() {
+        return indexListaFTipoDocumento;
+    }
+
+    public void setIndexListaFTipoDocumento(Integer indexListaFTipoDocumento) {
+        this.indexListaFTipoDocumento = indexListaFTipoDocumento;
+    }
+
+    public Float getValorDeposito() {
+        return valorDeposito;
+    }
+
+    public void setValorDeposito(Float valorDeposito) {
+        this.valorDeposito = valorDeposito;
+    }
+
+    public String getValorDepositoString() {
+        return Moeda.converteR$Float(valorDeposito);
+    }
+
+    public void setValorDepositoString(String valorDepositoString) {
+        this.valorDeposito = Moeda.converteUS$(valorDepositoString);
     }
 
     public class ObjectCheque {
