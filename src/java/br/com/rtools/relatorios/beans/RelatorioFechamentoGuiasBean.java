@@ -241,6 +241,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                 parametroFechamentoGuias.add(pfg);
             }
             Jasper.TYPE = "paisagem";
+            Jasper.TITLE = relatorios.getNome();
             Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), parametroFechamentoGuias, params);
         }
     }
