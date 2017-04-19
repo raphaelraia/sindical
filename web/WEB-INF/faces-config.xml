@@ -2415,6 +2415,18 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>relacaoEmpregados</from-outcome>
+            <to-view-id>/relacaoEmpregados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>relacaoEmpregadosEntrega</from-outcome>
+            <to-view-id>/relacaoEmpregadosEntrega.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

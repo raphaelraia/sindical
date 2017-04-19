@@ -1,0 +1,93 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Relação de Empregados</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }            
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="border: 0px; margin: 0 auto; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Relação de Empregados" styleClass="fonteHeader" />
+                        <h:form id="form_relacao_empregados">
+                            <c:set scope="request" var="object" value="${relacaoEmpregadosBean.relacaoEmpregadosRef}"/>
+                            <div class="clear"></div>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="6" cellspacing="5">
+                                    <h:outputLabel value="REFERÊNCIA: " />
+                                    <p:inputMask value="#{relacaoEmpregadosBean.relacaoEmpregadosRef.referencia}" size="5" mask="99/9999">
+                                        <p:ajax event="change" update="@this" />                                    
+                                    </p:inputMask>
+                                    <p:column>
+                                    </p:column>
+                                    <h:outputLabel value="CARÊNCIA ENTREGA: " />
+                                    <p:inputMask value="#{relacaoEmpregadosBean.relacaoEmpregadosRef.carenciaEntrega}" size="10" mask="99/99/9999" converter="#{isDateString}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
+                                    <p:selectBooleanCheckbox value="#{relacaoEmpregadosBean.relacaoEmpregadosRef.bloqueiaHomologacao}" itemLabel="BLOQUEIA HOMOLOGAÇÃO">
+                                    <p:ajax event="change" update="@this" />
+                                    </p:selectBooleanCheckbox>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="SALVAR" action="#{relacaoEmpregadosBean.save()}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_relacao_empregados:" />
+                                        <p:commandButton value="NOVO" action="#{relacaoEmpregadosBean.clear()}" update=":form_relacao_empregados:" />
+                                        <p:commandButton value="EXCLUIR" action="#{relacaoEmpregadosBean.delete()}" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_relacao_empregados:" />
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+                            <p:messages autoUpdate="true" showDetail="true" closable="true" /> 
+                            <p:dataTable var="linha" value="#{relacaoEmpregadosBean.listRelacaoEmpregadosRef}" paginator="true" rows="10" emptyMessage="NENHUM REGISTRO ENCONTRADO!">
+
+                                <p:column width="30" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-pencil" action="#{relacaoEmpregadosBean.edit(linha)}" disabled="#{controleAcessoBean.botaoAlterar}" update=":form_relacao_empregados:" />
+                                </p:column>
+
+                                <p:column headerText="Referência" styleClass="text-center"  width="80">
+                                    <p:outputLabel value="#{linha.referencia}" />
+                                </p:column>
+
+                                <p:column headerText="Data Máx. Entrega" styleClass="text-center" width="80">
+                                    <p:outputLabel value="#{linha.carenciaEntrega}" />
+                                </p:column>
+
+                                <p:column headerText="BLOQUEIA HOMOLOGAÇÃO" styleClass="text-center">
+                                    <p:outputLabel value="#{linha.bloqueiaHomologacao ? 'SIM' : 'MOSTRAR AVISO'}" />
+                                </p:column>
+
+                            </p:dataTable>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>
