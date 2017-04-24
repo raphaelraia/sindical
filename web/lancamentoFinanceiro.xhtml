@@ -420,8 +420,8 @@
                                             <h:outputLabel value="Lançamento para Conta " />
                                             <h:outputLabel value="#{lancamentoFinanceiroBean.strConta}" style="font-weight: bold"/>
 
-                                            <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.chkImposto}" itemLabel="Imposto" onchange="">
-                                                <p:ajax event="change" update="@form" onsuccess="PF('i_dlg_conta').show()" listener="#{lancamentoFinanceiroBean.atualizaChkImposto()}"/>
+                                            <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.chkImposto}" itemLabel="IMPOSTO">
+                                                <p:ajax event="change" update="@form" listener="#{lancamentoFinanceiroBean.openDialogImposto()}"  />
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>
 
@@ -643,9 +643,9 @@
                                 </f:facet>
                             </p:dialog>
 
-                            <p:dialog id="i_dlg_conta" widgetVar="i_dlg_conta" header="Conta Obrigação" modal="true" resizable="false" width="600" height="70" visible="#{lancamentoFinanceiroBean.adicionarImposto}" closable="false" draggable="false">
-                                <h:panelGrid>
-                                    <h:outputText value="Conta" styleClass="bold"/>
+                            <p:dialog id="i_dlg_conta" widgetVar="dlg_conta" header="CONTA OBRIGAÇÃO" modal="true" resizable="false" width="600" height="70" visible="#{lancamentoFinanceiroBean.adicionarImposto}" closable="false" draggable="false">
+                                <h:panelGrid columns="2" cellspacing="5">
+                                    <h:outputText value="CONTA: " styleClass="bold"/>
                                     <p:selectOneMenu value="#{lancamentoFinanceiroBean.idPlano5}">
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{lancamentoFinanceiroBean.listaPlano5}"/>
@@ -654,7 +654,7 @@
 
                                 <f:facet name="footer">
                                     <h:panelGrid>
-                                        <p:commandButton value="OK" update="@form" onclick="PF('i_dlg_conta').hide()" action="#{lancamentoFinanceiroBean.setAdicionarImposto(false)}"/>                                            
+                                        <p:commandButton value="OK" update="@form" onclick="PF('dlg_conta').hide()" action="#{lancamentoFinanceiroBean.closeDialogImposto()}"/>                                            
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>                            

@@ -6,7 +6,9 @@ import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
+import br.com.rtools.arrecadacao.RelacaoEmpregados;
 import br.com.rtools.arrecadacao.dao.ConvencaoDao;
+import br.com.rtools.arrecadacao.dao.RelacaoEmpregadosDao;
 import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
@@ -996,6 +998,12 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.error("Erro", "Não foi possível alterar Pessoa Empresa!");
             return;
         }
+
+        if (!new RelacaoEmpregadosDao().findNotSendingByPessoa(agendamento.getPessoaEmpresa().getJuridica().getId(), DataHoje.converteDataParaReferencia(agendamento.getDtEmissao())).isEmpty()) {
+            GenericaMensagem.warn("Erro", "Empresa não entregou relação de empregados no período específicado!");
+            return;
+        }
+
         if (configuracaoHomologacao.getValidaContato()) {
             if (agendamento.getContato().isEmpty()) {
                 dao.rollback();
