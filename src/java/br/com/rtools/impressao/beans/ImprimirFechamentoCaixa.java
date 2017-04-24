@@ -132,21 +132,21 @@ public class ImprimirFechamentoCaixa {
         }
 
         for (int i = 0; i < lista_fp_saida.size(); i++) {
-            switch (lista_fp_saida.get(i).getTipoPagamento().getId()) {
-                case 3:
-                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-                    //dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-                    break;
-                case 4:
-                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-                    //cheque = Moeda.somaValores(cheque, lista_fp_saida.get(i).getValor());
-                    //lista_cheque.add(new DataObject(lista_fp_saida.get(i).getChequeRec(), Moeda.converteR$Float(lista_fp_saida.get(i).getValor())));
-                    break;
-                case 5:
-                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-                    //cheque_pre = Moeda.somaValores(cheque_pre, lista_fp_saida.get(i).getValor());
-                    break;
-            }
+            dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
+//            switch (lista_fp_saida.get(i).getTipoPagamento().getId()) {
+//                case 3:
+//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
+//                    //dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
+//                    break;
+//                case 4:
+//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
+//                    //cheque = Moeda.somaValores(cheque, lista_fp_saida.get(i).getValor());
+//                    //lista_cheque.add(new DataObject(lista_fp_saida.get(i).getChequeRec(), Moeda.converteR$Float(lista_fp_saida.get(i).getValor())));
+//                    break;
+//                case 5:
+//                    //cheque_pre = Moeda.somaValores(cheque_pre, lista_fp_saida.get(i).getValor());
+//                    break;
+//            }
         }
 
         String status = "VALOR BATIDO";
