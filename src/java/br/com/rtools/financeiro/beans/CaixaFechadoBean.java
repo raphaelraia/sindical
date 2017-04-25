@@ -151,7 +151,15 @@ public class CaixaFechadoBean implements Serializable {
 //        }
         // TOTAL SAIDA
         for (int i = 0; i < lista_fp_saida.size(); i++) {
-            valor_saida = Moeda.somaValores(valor_saida, lista_fp_saida.get(i).getValor());
+            // EM 24/04/2017 ROGÉRIO, MOVIMENTO DE SAIDA SOMAVA TODOS OS TIPOS DE PAGAMENTO
+            // PARA ABATER DAS ENTRADAS CUJO SALDO TRANSFERIDO PARA O CAIXA CENTRAL
+            // MODIFICADO NESTA DATA DE FORMA QUE SOMASSE SOMENTE OS PAGAMENTOS EM DINHEIRO PARA ABATER DOS RECEBIMENTOS EM DINHEIRO
+            // POIS PAGAMENTOS EM CHEQUE, TRANSAÇÕES BANCÁRIAS ETC ... NÃO PODEM SER ABATIDO DOS RECEBIMENTOS EM DINHEIRO
+            // valor_saida = Moeda.somaValores(valor_saida, lista_fp_saida.get(i).getValor());
+            
+            if (lista_fp_saida.get(i).getTipoPagamento().getId() == 3) {
+                valor_saida = Moeda.somaValores(valor_saida, lista_fp_saida.get(i).getValor());
+            }
 //            if (lista_fp_saida.get(i).getTipoPagamento().getId() == 3){
 //                dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
 //            }else{

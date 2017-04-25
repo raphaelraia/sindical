@@ -369,6 +369,7 @@ public final class FechamentoCaixaBean implements Serializable {
             }
             dao.commit();
 
+            loadListaFechamento();
             GenericaMensagem.info("Atenção", "Apenas estornos foram fechados!");
             return;
         }
@@ -400,6 +401,8 @@ public final class FechamentoCaixaBean implements Serializable {
                 dao.commit();
 
                 GenericaMensagem.info("Atenção", "Apenas estornos foram fechados!");
+                
+                loadListaFechamento();
                 return;
             }
         }
@@ -588,7 +591,7 @@ public final class FechamentoCaixaBean implements Serializable {
                     listaCaixa.add(
                             new SelectItem(
                                     0,
-                                    cx.getCaixa() + " - " + cx.getDescricao(),
+                                    cx.getDescricao() + " ( " + cx.getCaixa() + " )",
                                     Integer.toString(cx.getId())
                             )
                     );
@@ -601,7 +604,7 @@ public final class FechamentoCaixaBean implements Serializable {
 
                             listaCaixa.add(
                                     new SelectItem(i,
-                                            list.get(i).getCaixa() + " - " + list.get(i).getDescricao(),
+                                            list.get(i).getDescricao() + " ( " + list.get(i).getCaixa() + " )",
                                             Integer.toString(list.get(i).getId())));
                         }
                     } else {
@@ -620,7 +623,7 @@ public final class FechamentoCaixaBean implements Serializable {
                     for (int i = 0; i < list.size(); i++) {
                         listaCaixa.add(
                                 new SelectItem(i,
-                                        list.get(i).getCaixa() + " - " + list.get(i).getDescricao(),
+                                        list.get(i).getDescricao() + " ( " + list.get(i).getCaixa() + " )",
                                         Integer.toString(list.get(i).getId())));
                     }
                 } else {

@@ -31,7 +31,6 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
@@ -52,7 +51,7 @@ public class MovimentoBancarioBean implements Serializable {
     private int idConta = 0;
     private int idServicos = 0;
     private final List<SelectItem> listaConta = new ArrayList();
-    private final List<SelectItem> listaServicos = new ArrayList();
+    private List<SelectItem> listaServicos = new ArrayList();
     private String valor = "";
     private String tipo = "saida";
     private List<ObjectMovimentoBancario> listaMovimento = new ArrayList();
@@ -66,7 +65,7 @@ public class MovimentoBancarioBean implements Serializable {
     private Movimento movimentoEditar = new Movimento();
 
     private ObjectMovimentoBancario statusEditar;
-    private final List<SelectItem> listaStatus = new ArrayList();
+    private List<SelectItem> listaStatus = new ArrayList();
     private Integer indexStatus = 0;
 
     private ContaSaldo contaSaldo = new ContaSaldo();
@@ -76,7 +75,7 @@ public class MovimentoBancarioBean implements Serializable {
     private Float saldoDisponivel = (float) 0;
     private String historico = "";
 
-    private final List<SelectItem> listaHistoricoBancario = new ArrayList();
+    private List<SelectItem> listaHistoricoBancario = new ArrayList();
     private Integer indexHistoricoBancario = 0;
 
     private HistoricoBancario historicoBancario = new HistoricoBancario();
@@ -89,6 +88,49 @@ public class MovimentoBancarioBean implements Serializable {
 
     public MovimentoBancarioBean() {
         loadListaConta();
+        loadListaContaOperacao();
+        loadListaStatus();
+        loadListaMovimento();
+    }
+    
+    public final void novaClass(){
+
+        idServicos = 0;
+        listaServicos = new ArrayList();
+        valor = "";
+        tipo = "saida";
+        listaMovimento = new ArrayList();
+        dataEmissao = DataHoje.dataHoje();
+
+        idContaOperacao = 0;
+        listaContaOperacao = new ArrayList();
+
+        formaPagamentoEditar = new FormaPagamento();
+        loteEditar = new Lote();
+        movimentoEditar = new Movimento();
+
+        //ObjectMovimentoBancario statusEditar;
+        listaStatus = new ArrayList();
+        indexStatus = 0;
+
+        contaSaldo = new ContaSaldo();
+        saldoFinal = (float) 0;
+        saldoEntradaBloqueado = (float) 0;
+        saldoSaidaBloqueado = (float) 0;
+        saldoDisponivel = (float) 0;
+        historico = "";
+
+        listaHistoricoBancario = new ArrayList();
+        indexHistoricoBancario = 0;
+
+        historicoBancario = new HistoricoBancario();
+
+        // FILTROS
+        esFiltro = "todos";
+        tipoPagamentoFiltro = "todos";
+        statusFiltro = "todos";
+        // ---
+        
         loadListaContaOperacao();
         loadListaStatus();
         loadListaMovimento();
@@ -236,77 +278,81 @@ public class MovimentoBancarioBean implements Serializable {
         List<Object> result = mdao.listaMovimentoBancario(plano.getId(), esFiltro, tipoPagamentoFiltro, statusFiltro);
 
         Boolean comeca_conta_saldo = true;
-        for (int i = 0; i < result.size(); i++) {
-            List result_object = (List) (Object) result.get(i);
+        if (!result.isEmpty()) {
+            for (int i = 0; i < result.size(); i++) {
+                List result_object = (List) (Object) result.get(i);
 
-            FormaPagamento fp = (FormaPagamento) dao.find(new FormaPagamento(), (Integer) result_object.get(0));
-            Baixa b = (Baixa) dao.find(new Baixa(), (Integer) result_object.get(1));
-            Movimento m = (Movimento) dao.find(new Movimento(), (Integer) result_object.get(4));
+                FormaPagamento fp = (FormaPagamento) dao.find(new FormaPagamento(), (Integer) result_object.get(0));
+                Baixa b = (Baixa) dao.find(new Baixa(), (Integer) result_object.get(1));
+                Movimento m = (Movimento) dao.find(new Movimento(), (Integer) result_object.get(4));
 
-            ChequeRec cheque_rec = null;
-            if (result_object.get(7) != null) {
-                cheque_rec = (ChequeRec) dao.find(new ChequeRec(), (Integer) result_object.get(7));
-            }
-
-            ChequePag cheque_pag = null;
-            if (result_object.get(8) != null) {
-                cheque_pag = (ChequePag) dao.find(new ChequePag(), (Integer) result_object.get(8));
-            }
-
-            CartaoRec cartao_rec = null;
-            if (result_object.get(10) != null) {
-                cartao_rec = (CartaoRec) dao.find(new CartaoRec(), (Integer) result_object.get(10));
-            }
-
-            CartaoPag cartao_pag = null;
-            if (result_object.get(11) != null) {
-                cartao_pag = (CartaoPag) dao.find(new CartaoPag(), (Integer) result_object.get(11));
-            }
-
-            List<ObjectDetalheMovimentoBancario> list_detalhe = new ArrayList();
-            List<Object> result_detalhe = mdao.listaDetalheMovimentoBancario((Integer) result_object.get(1));
-            for (Object linha : result_detalhe) {
-                List list = (List) linha;
-                list_detalhe.add(new ObjectDetalheMovimentoBancario((String) list.get(0), Moeda.converteUS$(Moeda.converteR$Double((Double) list.get(1)))));
-            }
-
-            Float valor_saldo_anterior, valor_saldo;
-            if (comeca_conta_saldo && !temFiltro()) {
-                DataHoje dh = new DataHoje();
-
-                // contaSaldo = mdao.pesquisaContaSaldoData(dh.decrementarDias(1, b.getBaixa()), plano.getId());
-                contaSaldo = mdao.pesquisaContaSaldoData(b.getBaixa(), plano.getId());
-                valor_saldo_anterior = contaSaldo.getSaldo();
-                valor_saldo = fp.getValor();
-            } else {
-                if (listaMovimento.isEmpty()) {
-                    valor_saldo_anterior = (float) 0;
-                } else {
-                    valor_saldo_anterior = listaMovimento.get(i - 1).getSaldo();
+                ChequeRec cheque_rec = null;
+                if (result_object.get(7) != null) {
+                    cheque_rec = (ChequeRec) dao.find(new ChequeRec(), (Integer) result_object.get(7));
                 }
-                valor_saldo = fp.getValor();
+
+                ChequePag cheque_pag = null;
+                if (result_object.get(8) != null) {
+                    cheque_pag = (ChequePag) dao.find(new ChequePag(), (Integer) result_object.get(8));
+                }
+
+                CartaoRec cartao_rec = null;
+                if (result_object.get(10) != null) {
+                    cartao_rec = (CartaoRec) dao.find(new CartaoRec(), (Integer) result_object.get(10));
+                }
+
+                CartaoPag cartao_pag = null;
+                if (result_object.get(11) != null) {
+                    cartao_pag = (CartaoPag) dao.find(new CartaoPag(), (Integer) result_object.get(11));
+                }
+
+                List<ObjectDetalheMovimentoBancario> list_detalhe = new ArrayList();
+                List<Object> result_detalhe = mdao.listaDetalheMovimentoBancario((Integer) result_object.get(1));
+                for (Object linha : result_detalhe) {
+                    List list = (List) linha;
+                    list_detalhe.add(new ObjectDetalheMovimentoBancario((String) list.get(0), Moeda.converteUS$(Moeda.converteR$Double((Double) list.get(1)))));
+                }
+
+                Float valor_saldo_anterior, valor_saldo;
+                if (comeca_conta_saldo && !temFiltro()) {
+                    DataHoje dh = new DataHoje();
+
+                    // contaSaldo = mdao.pesquisaContaSaldoData(dh.decrementarDias(1, b.getBaixa()), plano.getId());
+                    contaSaldo = mdao.pesquisaContaSaldoData(b.getBaixa(), plano.getId());
+                    valor_saldo_anterior = contaSaldo.getSaldo();
+                    valor_saldo = fp.getValor();
+                } else {
+                    if (listaMovimento.isEmpty()) {
+                        valor_saldo_anterior = (float) 0;
+                    } else {
+                        valor_saldo_anterior = listaMovimento.get(i - 1).getSaldo();
+                    }
+                    valor_saldo = fp.getValor();
+                }
+
+                listaMovimento.add(
+                        new ObjectMovimentoBancario(
+                                fp, // ID FORMA PAGAMENTO
+                                b, // ID BAIXA
+                                (String) result_object.get(2), // DOCUMENTO
+                                (String) result_object.get(3), // HISTORICO 
+                                m, // ID BAIXA
+                                (m.getEs().equals("E") ? Moeda.somaValores(valor_saldo_anterior, valor_saldo) : Moeda.subtracaoValores(valor_saldo_anterior, valor_saldo)), // SALDO
+                                (TipoPagamento) dao.find(new TipoPagamento(), (Integer) result_object.get(6)), // ID TIPO PAGAMENTO
+                                cheque_rec,
+                                cheque_pag,
+                                list_detalhe,
+                                cartao_rec,
+                                cartao_pag
+                        )
+                );
+
+                comeca_conta_saldo = false;
+
+                calculaValoresDoTipo(cheque_rec, cheque_pag, cartao_rec, cartao_pag, m, fp);
             }
-
-            listaMovimento.add(
-                    new ObjectMovimentoBancario(
-                            fp, // ID FORMA PAGAMENTO
-                            b, // ID BAIXA
-                            (String) result_object.get(2), // DOCUMENTO
-                            (String) result_object.get(3), // HISTORICO 
-                            m, // ID BAIXA
-                            (m.getEs().equals("E") ? Moeda.somaValores(valor_saldo_anterior, valor_saldo) : Moeda.subtracaoValores(valor_saldo_anterior, valor_saldo)), // SALDO
-                            (TipoPagamento) dao.find(new TipoPagamento(), (Integer) result_object.get(6)), // ID TIPO PAGAMENTO
-                            cheque_rec,
-                            cheque_pag,
-                            list_detalhe,
-                            cartao_rec,
-                            cartao_pag
-                    )
-            );
-
-            comeca_conta_saldo = false;
-
-            calculaValoresDoTipo(cheque_rec, cheque_pag, cartao_rec, cartao_pag, m, fp);
+        } else {
+            contaSaldo = mdao.pesquisaContaSaldoData(null, plano.getId());
         }
 
         if (!listaMovimento.isEmpty()) {
@@ -317,6 +363,9 @@ public class MovimentoBancarioBean implements Serializable {
             // MESMO SABENDO QUE NO BANCO ESSA SAIDA BLOQUEADA ESTARÁ DISPONÍVEL
             // JÁ RECEITA BLOQUEADA, LITERALMENTE NÃO ESTARÁ DISPONÍVEL
             saldoDisponivel = Moeda.subtracaoValores(saldoFinal, saldoEntradaBloqueado);
+        } else {
+            saldoFinal = contaSaldo.getSaldo();
+            saldoDisponivel = contaSaldo.getSaldo();
         }
     }
 
@@ -389,14 +438,14 @@ public class MovimentoBancarioBean implements Serializable {
 
     public final void loadListaContaOperacao() {
         listaContaOperacao.clear();
-
+        
         List<ContaOperacao> result = new ContaOperacaoDao().findByOperacao(tipo.equals("entrada") ? 7 : 8);
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaContaOperacao.add(
                         new SelectItem(
                                 i,
-                                result.get(i).getPlano5().getConta(),
+                                result.get(i).getPlano5().getPlano4().getConta() + " - " + result.get(i).getPlano5().getConta(),
                                 "" + result.get(i).getId()
                         )
                 );
@@ -408,7 +457,7 @@ public class MovimentoBancarioBean implements Serializable {
 
     public final void loadListaStatus() {
         listaStatus.clear();
-
+        
         List<FStatus> result = new FinanceiroDao().listaFStatusIn("8, 9, 10, 11");
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
@@ -605,7 +654,13 @@ public class MovimentoBancarioBean implements Serializable {
     }
 
     public void novo() {
-        GenericaSessao.put("movimentoBancarioBean", new MovimentoBancarioBean());
+        //Integer id = idConta;
+        
+        //GenericaSessao.put("movimentoBancarioBean", new MovimentoBancarioBean());
+        
+        //((MovimentoBancarioBean) GenericaSessao.getObject("movimentoBancarioBean")).setIdConta(id);
+        
+        novaClass();
     }
 
     public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus, String historicox) {

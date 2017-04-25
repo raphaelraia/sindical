@@ -66,6 +66,7 @@ public class ImpressaoBoletoSocialBean {
     private String strResponsavel = "";
     private String strLote = "";
     private String strData = "";
+    private String strMesAno = "";
     private String strDocumento = "";
 
     private String tipo = "fisica";
@@ -182,14 +183,14 @@ public class ImpressaoBoletoSocialBean {
         listaGrid = new ArrayList();
         listaPessoaSemEndereco = new ArrayList();
 
-        if (strResponsavel.length() == 1 && strLote.isEmpty() && strData.isEmpty() && strDocumento.isEmpty()) {
+        if (strResponsavel.length() == 1 && strLote.isEmpty() && strData.isEmpty() && strDocumento.isEmpty() && strMesAno.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Muitos resultatos na pesquisa pode gerar lentidão!");
             return;
         }
 
-        if (!strResponsavel.isEmpty() || !strLote.isEmpty() || !strData.isEmpty() || !strDocumento.isEmpty()) {
+        if (!strResponsavel.isEmpty() || !strLote.isEmpty() || !strData.isEmpty() || !strDocumento.isEmpty() || !strMesAno.isEmpty()) {
             FinanceiroDao dao = new FinanceiroDao();
-            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, tipo, strDocumento, boletoRegistrado);
+            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, tipo, strDocumento, boletoRegistrado, strMesAno);
 
             int contador = 1;
             for (int i = 0; i < lista_agrupado.size(); i++) {
@@ -601,5 +602,13 @@ public class ImpressaoBoletoSocialBean {
 
     public void setBoletoRegistrado(String boletoRegistrado) {
         this.boletoRegistrado = boletoRegistrado;
+    }
+
+    public String getStrMesAno() {
+        return strMesAno;
+    }
+
+    public void setStrMesAno(String strMesAno) {
+        this.strMesAno = strMesAno;
     }
 }

@@ -268,7 +268,7 @@ public class FinanceiroDao extends DB {
         try {
             //Query qry = getEntityManager().createQuery("select c from Caixa c where c.caixa <> 1 order by c.caixa");
             // ROGÉRIO QUER O CAIXA 01 PARA O FECHAMENTO
-            Query qry = getEntityManager().createQuery("select c from Caixa c order by c.caixa");
+            Query qry = getEntityManager().createQuery("select c from Caixa c order by c.descricao");
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();
@@ -668,7 +668,7 @@ public class FinanceiroDao extends DB {
         }
     }
 
-    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String tipo, String documento, String boletoRegistrado) {
+    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String tipo, String documento, String boletoRegistrado, String mesAno) {
 
         String text_qry = "", where = "", inner_join = "";
 
@@ -718,6 +718,10 @@ public class FinanceiroDao extends DB {
                 break;
             default:
                 break;
+        }
+
+        if (!mesAno.isEmpty()) {
+            where += " AND to_char(b.vencimento_boleto, 'MM/YYYY') = '" + mesAno + "' \n ";
         }
 
         text_qry
@@ -1595,7 +1599,7 @@ public class FinanceiroDao extends DB {
         }
 
         String WHERE = "";
-        
+
         for (String w : list_where) {
             if (WHERE.isEmpty()) {
                 WHERE = " WHERE " + w + " \n ";
@@ -1882,7 +1886,7 @@ public class FinanceiroDao extends DB {
                     + " WHERE td.id IN (" + ids + ") \n "
                     + " ORDER BY td.ds_descricao", FTipoDocumento.class
             );
-            
+
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

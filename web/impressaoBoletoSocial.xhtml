@@ -61,7 +61,7 @@
                             <p:poll id="i_reload" interval="60" update="i_reload i_datatable_boletos" delay="15" ignoreAutoUpdate="true" />
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:outputLabel value="Opção Marcar" style="font-size: 12pt!important"/><br />
-                                <h:panelGrid columns="12">
+                                <h:panelGrid columns="4">
                                     <p:column>
                                         <h:outputLabel value="De" /><br />
                                         <p:inputText size="4" value="#{impressaoBoletoSocialBean.de}"/>
@@ -81,7 +81,9 @@
                                         <br />
                                         <p:commandButton icon="ui-icon-close" action="#{impressaoBoletoSocialBean.desmarcarTudo()}" update="tbl i_panel_quantidade" />
                                     </p:column>
-
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="9">
                                     <p:column id="i_documento">
                                         <h:outputText value="Documento" /><br />
                                         <p:inputMask value="#{impressaoBoletoSocialBean.strDocumento}" mask="#{(impressaoBoletoSocialBean.tipo eq 'juridica') ? '99.999.999/9999-99' : '999.999.999-99'}" style="width: 140px"/>
@@ -119,7 +121,12 @@
 
                                     <p:column>
                                         <h:outputLabel value="Data Proc." /><br />
-                                        <p:inputMask value="#{impressaoBoletoSocialBean.strData}" mask="99/99/9999" size="8" style="background: #ffc8c8; font-weight: bold"/>
+                                        <p:inputMask value="#{impressaoBoletoSocialBean.strData}" mask="99/99/9999" size="8" style="background: #ffc8c8; font-weight: bold; text-align: center"/>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="Mês / Ano (vencto)" /><br />
+                                        <p:inputMask value="#{impressaoBoletoSocialBean.strMesAno}" mask="99/9999" style="width: 130px; text-align: center"/>
                                     </p:column>
                                     
                                     <p:column>
