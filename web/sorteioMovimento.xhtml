@@ -33,15 +33,24 @@
                             <c:set scope="request" var="object" value="${sorteioMovimentoBean.sorteio}"/>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <p:panel>
-                                <h:panelGrid columns="3" cellspacing="5" id="i_grid_sorteio">
-                                    <h:outputLabel value="Sorteio" />
+                                <h:panelGrid columns="6" cellspacing="5" id="i_grid_sorteio">
+                                    <h:outputLabel value="SORTEIO: " />
                                     <p:selectOneMenu value="#{sorteioMovimentoBean.idSorteio}" >
-                                        <p:ajax event="change" update="@this id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadSorteio}"/>
+                                        <p:ajax event="change" update="@this id_grid_sorteados id_sorteio_categoria i_status" listener="#{sorteioMovimentoBean.loadSorteio}"/>
                                         <f:selectItems value="#{sorteioMovimentoBean.listSorteio}" />
                                     </p:selectOneMenu>
-                                    <p:selectBooleanCheckbox value="#{sorteioMovimentoBean.historico}" itemLabel="Histórico">
+                                    <p:selectBooleanCheckbox value="#{sorteioMovimentoBean.historico}" itemLabel="Histórico" style="margin-right: 20px">
                                         <p:ajax event="change" update="@this i_grid_sorteio id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadListSorteio()}"/>
                                     </p:selectBooleanCheckbox>
+                                    <h:outputLabel value="GRUPO CIDADE: " />
+                                    <h:column>
+                                        <h:panelGroup id="i_status" layout="block">
+                                            <p:selectOneMenu value="#{sorteioMovimentoBean.idStatus}" >
+                                                <p:ajax event="change" update="@this id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadSorteio(false)}" />
+                                                <f:selectItems value="#{sorteioMovimentoBean.listStatus}" />
+                                            </p:selectOneMenu>                                                                                    
+                                        </h:panelGroup>
+                                    </h:column>
                                 </h:panelGrid>
                                 <h:panelGrid id="id_sorteio_categoria" width="350">
                                     <p:outputLabel value="Carência débito: #{sorteioMovimentoBean.sorteio.sorteioStatus.carenciaDebito} dia(s)" />
@@ -56,7 +65,7 @@
                                         <p:commandButton value="Sortear" action="#{sorteioMovimentoBean.process}" update="id_grid_sorteados" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                         <br />
                                         <h:outputLabel value="(*APOSENTADOS OU QUE TRABALHAM A MAIS DE 6 MESES NA CATEGORIA)" styleClass="margin-top-max font-color-red bold"/>
-                                        
+
                                     </h:panelGrid>
                                 </f:facet>
                             </p:panel>

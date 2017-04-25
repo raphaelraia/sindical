@@ -37,28 +37,40 @@ public class SorteioMovimentoDao extends DB {
         return new ArrayList();
     }
 
-    public Pessoa sort(Integer sorteio_id) {
-        return sort("1,3", "1", sorteio_id);
+    public Pessoa sort(Integer sorteio_id, Integer grupo_cidade_id) {
+        return sort("1,3", "1", sorteio_id, grupo_cidade_id);
     }
 
-    public Pessoa sort(String in_categorias, String in_parentescos, Integer sorteio_id) {
+    public Pessoa sort(String in_categorias, String in_parentescos, Integer sorteio_id, Integer grupo_cidade_id) {
         try {
             String queryString = ""
-                    + "SELECT P.* FROM pes_pessoa AS P WHERE P.id IN (                           \n"
-                    + "                                                                          \n"
-                    + "    SELECT S.codsocio                                                     \n"
-                    + "      FROM soc_socios_vw AS S                                             \n"
-                    + "INNER JOIN sort_status AS SS ON SS.id_sorteio = " + sorteio_id + "        \n"
-                    + " LEFT JOIN pes_pessoa_vw AS PVW ON PVW.codigo = S.titular                 \n"
-                    + "     WHERE S.id_parentesco IN (" + in_parentescos + ")                    \n"
-                    + "       AND S.id_categoria IN(" + in_categorias + ")                       \n"
-                    + "       AND func_inadimplente(S.codsocio, SS.nr_carencia_debito) = false   \n"
+                    + "SELECT P.* FROM pes_pessoa AS P WHERE P.id IN (                          \n"
+                    + "                                                                         \n"
+                    + "    SELECT S.codsocio                                                    \n"
+                    + "      FROM soc_socios_vw AS S                                            \n"
+                    + "INNER JOIN sort_status AS SS ON SS.id_sorteio = " + sorteio_id + "       \n"
+                    + " LEFT JOIN pes_pessoa_vw AS PVW ON PVW.codigo = S.titular                \n"
+                    + "     WHERE S.id_parentesco IN (" + in_parentescos + ")                   \n"
+                    + "       AND S.id_categoria IN(" + in_categorias + ")                      \n"
+                    + "       AND S.filiacao <= (CURRENT_DATE - (SS.nr_filiacao_meses*30))         \n"
+                    + "       AND func_inadimplente(S.codsocio, SS.nr_carencia_debito) = false  \n"
                     + "       AND S.codsocio NOT IN(SELECT id_pessoa FROM sort_movimento WHERE id_sorteio = " + sorteio_id + " )         \n"
-                    + "       AND ( (PVW.dt_aposentadoria IS NOT NULL) OR (PVW.admissao <= (CURRENT_DATE - 180) AND demissao IS NULL) )  \n"
-                    + "  ORDER BY random()                                                       \n"
-                    + "     LIMIT 1                                                              \n"
-                    + "                                                                          \n"
-                    + ")                                                                         \n"
+                    + "       AND ( (PVW.dt_aposentadoria IS NOT NULL) OR ( PVW.admissao <= (CURRENT_DATE - (ss.nr_admissao_meses*30) ) AND demissao IS NULL) )    \n";
+            if (grupo_cidade_id != null) {
+                queryString += " "
+                        + " AND PVW.codigo IN (                                                     \n"
+                        + "               SELECT codigo                                             \n"
+                        + "                 FROM pes_pessoa_vw      AS P                            \n"
+                        + "           INNER JOIN arr_grupo_cidades  AS G ON G.id_grupo_cidade = " + grupo_cidade_id + "\n"
+                        + "                                             AND G.id_cidade=e_id_cidade \n"
+                        + " )                                                                       \n";
+
+            }
+            queryString += ""
+                    + " ORDER BY random() \n"
+                    + "    LIMIT 1        \n"
+                    + "                   \n"
+                    + ")                  \n"
                     + "";
             Query query = getEntityManager().createNativeQuery(queryString, Pessoa.class);
             return (Pessoa) query.getSingleResult();

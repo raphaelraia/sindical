@@ -49,7 +49,7 @@ public class Sorteio implements Serializable {
         this.dtInicio = null;
         this.dtFim = null;
         this.sorteioStatus = null;
-        this.listSorteioCategoria = null;        
+        this.listSorteioCategoria = null;
     }
 
     public Sorteio(Integer id, String descricao, Date dtInicio, Date dtFim) {
@@ -108,10 +108,10 @@ public class Sorteio implements Serializable {
     }
 
     public List<SorteioCategoria> getListSorteioCategoria() {
-        if(this.listSorteioCategoria == null) {
-            if(this.id != null) {
+        if (this.listSorteioCategoria == null) {
+            if (this.id != null) {
                 this.listSorteioCategoria = new ArrayList<>();
-                this.listSorteioCategoria = new SorteioCategoriaDao().findBySorteio(this.id);                
+                this.listSorteioCategoria = new SorteioCategoriaDao().findBySorteio(this.id);
             }
         }
         return listSorteioCategoria;
@@ -122,10 +122,10 @@ public class Sorteio implements Serializable {
     }
 
     public SorteioStatus getSorteioStatus() {
-        if(this.sorteioStatus == null) {
-            if(this.id != null) {
+        if (this.sorteioStatus == null) {
+            if (this.id != null) {
                 sorteioStatus = new SorteioStatus();
-                sorteioStatus = new SorteioStatusDao().findBySorteio(this.id);            
+                sorteioStatus = new SorteioStatusDao().findBySorteio(this.id, null);
             }
         }
         return sorteioStatus;
