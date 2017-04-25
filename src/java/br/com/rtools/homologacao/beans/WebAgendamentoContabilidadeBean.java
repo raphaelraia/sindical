@@ -9,6 +9,7 @@ import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoDao;
+import br.com.rtools.arrecadacao.dao.RelacaoEmpregadosDao;
 import br.com.rtools.arrecadacao.dao.WebContabilidadeDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
@@ -727,7 +728,12 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             GenericaMensagem.warn("Atenção", "Data de Demissão é obrigatória!");
             return;
         }
-
+        // RELAÇÃO DE EMPREGADOS
+        List listRelacao = new RelacaoEmpregadosDao().findNotSendingByPessoa(juridica.getPessoa().getId());
+        if (!listRelacao.isEmpty()) {
+            GenericaMensagem.warn("Erro", "Para efetuar esse agendamento CONTATE o Sindicato (2)!");
+            return;
+        }
         dao.openTransaction();
         if (fisica.getId() == -1) {
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -821,7 +827,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 dao.rollback();
                 return;
             }
-            GenericaMensagem.warn("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
+            GenericaMensagem.warn("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato (3)!");
             dao.commit();
             return;
         }
@@ -834,7 +840,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                         dao.rollback();
                         return;
                     }
-                    GenericaMensagem.error("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
+                    GenericaMensagem.error("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato (4)!");
                     dao.commit();
                     return;
                 }
@@ -853,7 +859,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 return;
             }
             dao.commit();
-            GenericaMensagem.warn("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato!");
+            GenericaMensagem.warn("Atenção", "Para efetuar esse agendamento CONTATE o Sindicato (1)!");
         } else {
             Demissao demissaox = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
             if (agendamento.getId() == -1) {

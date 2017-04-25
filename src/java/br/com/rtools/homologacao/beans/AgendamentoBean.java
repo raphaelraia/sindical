@@ -998,12 +998,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.error("Erro", "Não foi possível alterar Pessoa Empresa!");
             return;
         }
-
-        if (!new RelacaoEmpregadosDao().findNotSendingByPessoa(agendamento.getPessoaEmpresa().getJuridica().getId(), DataHoje.converteDataParaReferencia(agendamento.getDtEmissao())).isEmpty()) {
+        List listRelacao = new RelacaoEmpregadosDao().findNotSendingByPessoa(agendamento.getPessoaEmpresa().getJuridica().getId());
+        if (!listRelacao.isEmpty()) {
             GenericaMensagem.warn("Erro", "Empresa não entregou relação de empregados no período específicado!");
             return;
         }
-
         if (configuracaoHomologacao.getValidaContato()) {
             if (agendamento.getContato().isEmpty()) {
                 dao.rollback();

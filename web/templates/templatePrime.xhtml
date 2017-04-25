@@ -73,6 +73,7 @@
                         <p:menuitem value="Meus Logs" action="#{chamadaPaginaBean.pesquisa('pesquisaLog', 'rotinaPesquisaLog', segurancaUtilitariosBean.rotina.id, 'pesquisaLogBean')}"  />
                         <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
                         <p:menuitem value="Rotinas Vínculadas" action="#{rotinaBean.loadShowRotinas}" onclick="PF('dlg_show_rotinas').show()" update=":header:form_show_rotinas:i_list_show_rotinas" />
+                        <p:menuitem value="Relação de Erros" onclick="PF('dlg_show_erros').show()" update=":header:form_show_erros:i_list_show_erros" />
                         <p:menuitem value="Emails" icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(-1)}"/>
                         <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
                         <p:separator />
@@ -131,6 +132,25 @@
                         </p:column>
                     </p:dataTable>                    
                 </h:panelGroup>
+            </p:dialog>
+        </h:form>
+        <h:form id="form_show_erros">
+            <p:dialog widgetVar="dlg_show_erros" header="Rotinas vínculadas a está página" resizable="false" modal="true" width="600">
+                <h:panelGroup layout="block" id="i_list_show_erros">
+                    <p:dataTable var="erros" value="#{menuPrincipalBean.listErros}" emptyMessage="Nenhum registro encontrado" rows="10" paginator="true" rowIndexVar="index" styleClass="margin-top-max"> 
+                        <p:column headerText="CÓD." width="30" styleClass="text-center ">
+                            <p:outputLabel value="#{erros.id}" styleClass="font-size-12 bold"/>
+                        </p:column>                        
+                        <p:column headerText="ERRO">
+                            <p:outputLabel value="#{erros.descricao}" />
+                        </p:column>                        
+                    </p:dataTable>
+                </h:panelGroup>
+                <f:facet name="footer">
+                    <h:panelGrid>
+                        <p:commandButton action="#{menuPrincipalBean.printErros()}" value="RELAÇÃO DE ERROS" icon="ui-icon-print" ajax="false" />                        
+                    </h:panelGrid>
+                </f:facet>
             </p:dialog>
         </h:form>
         <h:form id="form_report_bug">
