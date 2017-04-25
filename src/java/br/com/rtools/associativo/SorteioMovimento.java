@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
@@ -40,6 +41,9 @@ public class SorteioMovimento implements Serializable {
     @JoinColumn(name = "id_operador", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     private Usuario operador;
+    @JoinColumn(name = "id_grupo_cidade", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private GrupoCidade grupoCidade;
 
     public SorteioMovimento() {
         this.id = null;
@@ -47,14 +51,16 @@ public class SorteioMovimento implements Serializable {
         this.pessoa = null;
         this.dtSorteio = null;
         this.operador = null;
+        this.grupoCidade = null;
     }
 
-    public SorteioMovimento(Integer id, Sorteio sorteio, Pessoa pessoa, Date dtSorteio, Usuario operador) {
+    public SorteioMovimento(Integer id, Sorteio sorteio, Pessoa pessoa, Date dtSorteio, Usuario operador, GrupoCidade grupoCidade) {
         this.id = id;
         this.sorteio = sorteio;
         this.pessoa = pessoa;
         this.dtSorteio = dtSorteio;
         this.operador = operador;
+        this.grupoCidade = grupoCidade;
     }
 
     public Integer getId() {
@@ -92,7 +98,7 @@ public class SorteioMovimento implements Serializable {
     public String getSorteioString() {
         return DataHoje.converteData(dtSorteio);
     }
-    
+
     public String getHorario() {
         return DataHoje.converteHora(dtSorteio);
     }
@@ -109,9 +115,17 @@ public class SorteioMovimento implements Serializable {
         this.operador = operador;
     }
 
+    public GrupoCidade getGrupoCidade() {
+        return grupoCidade;
+    }
+
+    public void setGrupoCidade(GrupoCidade grupoCidade) {
+        this.grupoCidade = grupoCidade;
+    }
+
     @Override
     public String toString() {
-        return "SorteioMovimento{" + "id=" + id + ", sorteio=" + sorteio + ", pessoa=" + pessoa + ", dtSorteio=" + dtSorteio + ", operador=" + operador + '}';
+        return "SorteioMovimento{" + "id=" + id + ", sorteio=" + sorteio + ", pessoa=" + pessoa + ", dtSorteio=" + dtSorteio + ", operador=" + operador + ", grupoCidade=" + grupoCidade + '}';
     }
 
 }

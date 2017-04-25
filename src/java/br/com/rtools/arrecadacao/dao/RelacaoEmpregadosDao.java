@@ -18,4 +18,18 @@ public class RelacaoEmpregadosDao extends DB {
         }
     }
 
+    public List findNotSendingByPessoa(Integer pessoa_id, String referencia) {
+        try {
+            String queryString = ""
+                    + "     SELECT *                                            \n"
+                    + "       FROM arr_pendencia_relacao_empregados_vw PRE      \n"
+                    + "      WHERE PRE.ds_referencia = '" + referencia + "'     \n"
+                    + "        AND PRE.id_pessoa = " + pessoa_id;
+            Query query = getEntityManager().createNativeQuery(queryString);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }

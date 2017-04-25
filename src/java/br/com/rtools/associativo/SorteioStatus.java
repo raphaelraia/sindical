@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.arrecadacao.GrupoCidade;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "sort_status",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"id_sorteio", "nr_carencia_debito"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_sorteio", "nr_carencia_debito", "id_grupo_cidade"})
 )
 public class SorteioStatus implements Serializable {
 
@@ -27,17 +28,30 @@ public class SorteioStatus implements Serializable {
     private Sorteio sorteio;
     @Column(name = "nr_carencia_debito", nullable = false, length = 250)
     private Integer carenciaDebito;
+    @JoinColumn(name = "id_grupo_cidade", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private GrupoCidade grupoCidade;
+    @Column(name = "nr_admissao_meses")
+    private Integer admissaoMeses;
+    @Column(name = "nr_filiacao_meses ")
+    private Integer filiacaoMeses;
 
     public SorteioStatus() {
         this.id = null;
         this.sorteio = null;
         this.carenciaDebito = 0;
+        this.grupoCidade = null;
+        this.admissaoMeses = 0;
+        this.filiacaoMeses = 0;
     }
 
-    public SorteioStatus(Integer id, Sorteio sorteio, Integer carenciaDebito) {
+    public SorteioStatus(Integer id, Sorteio sorteio, Integer carenciaDebito, GrupoCidade grupoCidade, Integer admissaoMeses, Integer filiacaoMeses) {
         this.id = id;
         this.sorteio = sorteio;
         this.carenciaDebito = carenciaDebito;
+        this.grupoCidade = grupoCidade;
+        this.admissaoMeses = admissaoMeses;
+        this.filiacaoMeses = filiacaoMeses;
     }
 
     public Integer getId() {
@@ -64,9 +78,33 @@ public class SorteioStatus implements Serializable {
         this.carenciaDebito = carenciaDebito;
     }
 
+    public GrupoCidade getGrupoCidade() {
+        return grupoCidade;
+    }
+
+    public void setGrupoCidade(GrupoCidade grupoCidade) {
+        this.grupoCidade = grupoCidade;
+    }
+
+    public Integer getAdmissaoMeses() {
+        return admissaoMeses;
+    }
+
+    public void setAdmissaoMeses(Integer admissaoMeses) {
+        this.admissaoMeses = admissaoMeses;
+    }
+
+    public Integer getFiliacaoMeses() {
+        return filiacaoMeses;
+    }
+
+    public void setFiliacaoMeses(Integer filiacaoMeses) {
+        this.filiacaoMeses = filiacaoMeses;
+    }
+
     @Override
     public String toString() {
-        return "SorteioStatus{" + "id=" + id + ", sorteio=" + sorteio + ", carenciaDebito=" + carenciaDebito + '}';
+        return "SorteioStatus{" + "id=" + id + ", sorteio=" + sorteio + ", carenciaDebito=" + carenciaDebito + ", grupoCidade=" + grupoCidade + ", admissaoMeses=" + admissaoMeses + ", filiacaoMeses=" + filiacaoMeses + '}';
     }
 
 }

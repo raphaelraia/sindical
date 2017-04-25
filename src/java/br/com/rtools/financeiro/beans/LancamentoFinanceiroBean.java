@@ -234,9 +234,20 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     }
 
-    public void atualizaChkImposto() {
-        listaPlano5.clear();
-        adicionarImposto = chkImposto;
+    public void openDialogImposto() {
+        if(chkImposto) {
+            adicionarImposto = chkImposto;
+            loadListPlano5Imposto();
+            PF.openDialog("dlg_conta");
+        }
+    }
+
+    public void closeDialogImposto() {
+        listaPlano5 = new ArrayList();
+        adicionarImposto = false;
+        if(idPlano5 == 0) {
+            chkImposto = false;
+        }
     }
 
     public String targetImprimeRecibo(Movimento movimento) {
@@ -1048,6 +1059,10 @@ public class LancamentoFinanceiroBean implements Serializable {
         FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipoMovimento);
         Plano5 pl5;
         if (chkImposto) {
+            if (idPlano5 == null || idPlano5 == 0) {
+                GenericaMensagem.warn("Validação", "SELECIONAR O IMPOSTO OU DESMARCAR A OPÇÃO!");
+                return;
+            }
             pl5 = ((Plano5) dao.find(new Plano5(), idPlano5));
         } else {
             pl5 = co.getPlano5();
@@ -2029,9 +2044,6 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public boolean isChkImposto() {
-        if (chkImposto) {
-            listaPlano5.clear();
-        }
         return chkImposto;
     }
 
@@ -2040,25 +2052,6 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public List<SelectItem> getListaPlano5() {
-        if (listaPlano5.isEmpty()) {
-            List<Plano5> list = new Plano5Dao().find(-1, 1);
-            if (!list.isEmpty()) {
-                for (int i = 0; i < list.size(); i++) {
-                    if (i == 0) {
-                        idPlano5 = list.get(i).getId();
-                    }
-                    listaPlano5.add(
-                            new SelectItem(
-                                    list.get(i).getId(),
-                                    list.get(i).getConta()
-                            )
-                    );
-                }
-            } else {
-                idPlano5 = 0;
-                listaPlano5.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
-            }
-        }
         return listaPlano5;
     }
 
@@ -2071,7 +2064,9 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void setIdPlano5(Integer idPlano5) {
-        this.idPlano5 = idPlano5;
+        if(idPlano5 != null) {
+            this.idPlano5 = idPlano5;            
+        }
     }
 
     public String getStrConta() {
@@ -2079,7 +2074,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             if (!listaContaOperacao.isEmpty() && !chkImposto) {
                 ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), idContaOperacao);
                 strConta = co.getPlano5().getConta();
-            } else if (!listaPlano5.isEmpty() && chkImposto) {
+            } else if (idPlano5 != 0 && chkImposto) {
                 Plano5 p = (Plano5) new Dao().find(new Plano5(), idPlano5);
                 strConta = p.getConta();
             } else {
@@ -2564,6 +2559,26 @@ public class LancamentoFinanceiroBean implements Serializable {
             return odbt.existPessoaDocumentoPeriodo(documento);
         }
         return false;
+    }
+
+    public void loadListPlano5Imposto() {
+        listaPlano5 = new ArrayList();
+        List<Plano5> list = new Plano5Dao().find(-1, 1);
+        idPlano5 = 0;
+        listaPlano5.add(new SelectItem(0, "SELECIONAR"));
+        if (!list.isEmpty()) {
+            for (int i = 0; i < list.size(); i++) {
+                listaPlano5.add(
+                        new SelectItem(
+                                list.get(i).getId(),
+                                list.get(i).getConta()
+                        )
+                );
+            }
+        } else {
+            idPlano5 = 0;
+            listaPlano5.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
+        }
     }
 
     public class Filtro {
