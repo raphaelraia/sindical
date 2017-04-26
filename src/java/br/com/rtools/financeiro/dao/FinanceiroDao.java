@@ -555,6 +555,38 @@ public class FinanceiroDao extends DB {
         }
     }
 
+    public List<TransferenciaCaixa> listaTransferenciaDinheiroSaidaEntreCaixas(int id_fechamento_caixa, int id_caixa) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "SELECT tc "
+                    + "  FROM TransferenciaCaixa tc "
+                    + " WHERE tc.fechamentoSaida.id = " + id_fechamento_caixa
+                    + "   AND tc.caixaSaida.id = " + id_caixa
+                    + "   AND tc.status.id <> 12"
+            );
+            return qry.getResultList();
+
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+    
+    public List<TransferenciaCaixa> listaTransferenciaDinheiroSaidaCaixaCentral(int id_fechamento_caixa, int id_caixa) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "SELECT tc "
+                    + "  FROM TransferenciaCaixa tc "
+                    + " WHERE tc.fechamentoSaida.id = " + id_fechamento_caixa
+                    + "   AND tc.caixaSaida.id = " + id_caixa
+                    + "   AND tc.status.id = 12"
+            );
+            return qry.getResultList();
+
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List<FormaPagamento> listaTransferenciaFormaPagamento(int id_fechamento_caixa, int id_caixa, String es) {
         try {
             Query qry = getEntityManager().createQuery(

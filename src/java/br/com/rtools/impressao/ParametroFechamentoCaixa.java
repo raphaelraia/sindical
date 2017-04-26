@@ -17,6 +17,7 @@ public class ParametroFechamentoCaixa {
     private String transferencia_entrada = "";
     private String transferencia_saida = "";
     private String pagamento = "";
+    private String outros_pagamento = "";
     private String status = "";
     private String banco = "";
     private String banco_dados = "";
@@ -34,7 +35,7 @@ public class ParametroFechamentoCaixa {
     private String mensagem_estorno = "";
 
     public ParametroFechamentoCaixa(String data, String filial, String caixa, String usuario, String valor_fechamento, String valor_informado, String saldo_anterior,
-            String dinheiro, String cheque, String cheque_pre, String cartao_credito, String cartao_debito, String transferencia_entrada, String transferencia_saida, String pagamento, String status, String banco, String banco_dados,
+            String dinheiro, String cheque, String cheque_pre, String cartao_credito, String cartao_debito, String transferencia_entrada, String transferencia_saida, String pagamento, String outros_pagamento, String status, String banco, String banco_dados,
             String descricao_caixa, boolean mostrar_valor_informado, String valor_caixa, String valor_transferido, String saldo_atual, String deposito_bancario, String doc_bancario, String transferencia_bancaria,
             String ticket, String debito_automatico, String boleto, String mensagem_estorno) {
         this.data = data;
@@ -52,6 +53,7 @@ public class ParametroFechamentoCaixa {
         this.transferencia_entrada = transferencia_entrada;
         this.transferencia_saida = transferencia_saida;
         this.pagamento = pagamento;
+        this.outros_pagamento = outros_pagamento;
         this.status = status;
         this.banco = banco;
         this.banco_dados = banco_dados;
@@ -307,6 +309,14 @@ public class ParametroFechamentoCaixa {
 
     public void setMensagem_estorno(String mensagem_estorno) {
         this.mensagem_estorno = mensagem_estorno;
+    }
+
+    public String getOutros_pagamento() {
+        return outros_pagamento;
+    }
+
+    public void setOutros_pagamento(String outros_pagamento) {
+        this.outros_pagamento = outros_pagamento;
     }
 
 }

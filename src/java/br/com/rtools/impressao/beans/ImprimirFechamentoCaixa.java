@@ -75,20 +75,27 @@ public class ImprimirFechamentoCaixa {
 
         List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "E");
         List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "S");
-        float transferencia_entrada = 0, transferencia_saida = 0, dinheiro_baixa = 0, cheque = 0, cheque_pre = 0, cartao_cre = 0, cartao_deb = 0, saldo_atual = 0;
+        float transferencia_entrada = 0, transferencia_saida = 0, transferencia_saida_central = 0, dinheiro_baixa = 0, cheque = 0, cheque_pre = 0, cartao_cre = 0, cartao_deb = 0, saldo_atual = 0;
         float deposito_bancario = 0, doc_bancario = 0, transferencia_bancaria = 0, ticket = 0, debito = 0, boleto = 0;
-        float dinheiro_pagamento = 0;
+        float dinheiro_pagamento = 0, outros_pagamento = 0;
         Collection lista = new ArrayList();
         List<DataObject> lista_cheque = new ArrayList();
 
         List<TransferenciaCaixa> lEntrada = db.listaTransferenciaDinheiroEntrada(fc.getId(), caixa.getId());
-        List<TransferenciaCaixa> lSaida = db.listaTransferenciaDinheiroSaida(fc.getId(), caixa.getId());
+
+        List<TransferenciaCaixa> lSaida = db.listaTransferenciaDinheiroSaidaEntreCaixas(fc.getId(), caixa.getId());
+
+        List<TransferenciaCaixa> lSaida_central = db.listaTransferenciaDinheiroSaidaCaixaCentral(fc.getId(), caixa.getId());
         for (int i = 0; i < lEntrada.size(); i++) {
             transferencia_entrada = Moeda.somaValores(transferencia_entrada, lEntrada.get(i).getValor());
         }
 
         for (int i = 0; i < lSaida.size(); i++) {
             transferencia_saida = Moeda.somaValores(transferencia_saida, lSaida.get(i).getValor());
+        }
+
+        for (int i = 0; i < lSaida_central.size(); i++) {
+            transferencia_saida_central = Moeda.somaValores(transferencia_saida_central, lSaida_central.get(i).getValor());
         }
 
         for (int i = 0; i < lista_fp_entrada.size(); i++) {
@@ -132,21 +139,15 @@ public class ImprimirFechamentoCaixa {
         }
 
         for (int i = 0; i < lista_fp_saida.size(); i++) {
-            dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//            switch (lista_fp_saida.get(i).getTipoPagamento().getId()) {
-//                case 3:
-//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    //dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    break;
-//                case 4:
-//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    //cheque = Moeda.somaValores(cheque, lista_fp_saida.get(i).getValor());
-//                    //lista_cheque.add(new DataObject(lista_fp_saida.get(i).getChequeRec(), Moeda.converteR$Float(lista_fp_saida.get(i).getValor())));
-//                    break;
-//                case 5:
-//                    //cheque_pre = Moeda.somaValores(cheque_pre, lista_fp_saida.get(i).getValor());
-//                    break;
-//            }
+//            dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
+            switch (lista_fp_saida.get(i).getTipoPagamento().getId()) {
+                case 3:
+                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
+                    break;
+                default:
+                    outros_pagamento = Moeda.somaValores(outros_pagamento, lista_fp_saida.get(i).getValor());
+                    break;
+            }
         }
 
         String status = "VALOR BATIDO";
@@ -176,7 +177,7 @@ public class ImprimirFechamentoCaixa {
         }
 
         float total_dinheiro = dinheiro_baixa;
-        float valor_transferido = Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(dinheiro_baixa, cheque), cheque_pre), ticket), saldo_atual);
+        float valor_caixa = Moeda.subtracaoValores(Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(dinheiro_baixa, cheque), cheque_pre), ticket), saldo_atual), dinheiro_pagamento);
 
         JasperReport j_fechamento_caixa = Jasper.load("FECHAMENTO_CAIXA.jasper");
         JasperReport j_estorno_caixa = Jasper.load("ESTORNO_CAIXA.jasper");
@@ -192,7 +193,7 @@ public class ImprimirFechamentoCaixa {
                         caixa.getFilial().getFilial().getPessoa().getNome(),
                         caixa.getCaixa() == 0 ? "" : Integer.toString(caixa.getCaixa()),
                         usuarios,
-                        Moeda.converteR$Float(fc.getValorFechamento()),
+                        Moeda.converteR$Float(fc.getValorFechamento()), // valor_fechamento
                         Moeda.converteR$Float(fc.getValorInformado()),
                         Moeda.converteR$Float(saldo_atual),
                         Moeda.converteR$Float(total_dinheiro),
@@ -203,14 +204,15 @@ public class ImprimirFechamentoCaixa {
                         Moeda.converteR$Float(transferencia_entrada),
                         Moeda.converteR$Float(transferencia_saida),
                         Moeda.converteR$Float(dinheiro_pagamento),
+                        Moeda.converteR$Float(outros_pagamento),
                         status,
                         cr.getAgencia() + " - " + cr.getConta() + " " + cr.getBanco().getNumero(),
                         cr.getCheque() + " - " + cr.getVencimento() + " | R$ " + lista_cheque.get(i).getArgumento1(),
                         caixa.getDescricao(),
                         cfb.getConfiguracaoFinanceiro().isAlterarValorFechamento(),
-                        Moeda.converteR$Float(valor_transferido),
-                        Moeda.converteR$Float(Moeda.subtracaoValores(valor_transferido, caixa.getFundoFixo())),
-                        Moeda.converteR$Float(caixa.getFundoFixo()),
+                        Moeda.converteR$Float(valor_caixa), // valor_caixa
+                        Moeda.converteR$Float(transferencia_saida_central), // valor_transferido
+                        Moeda.converteR$Float(caixa.getFundoFixo()), // saldo_atual
                         Moeda.converteR$Float(deposito_bancario),
                         Moeda.converteR$Float(doc_bancario),
                         Moeda.converteR$Float(transferencia_bancaria),
@@ -237,14 +239,15 @@ public class ImprimirFechamentoCaixa {
                     Moeda.converteR$Float(transferencia_entrada),
                     Moeda.converteR$Float(transferencia_saida),
                     Moeda.converteR$Float(dinheiro_pagamento),
+                    Moeda.converteR$Float(outros_pagamento),
                     status,
                     null,
                     null,
                     caixa.getDescricao(),
                     cfb.getConfiguracaoFinanceiro().isAlterarValorFechamento(),
-                    Moeda.converteR$Float(valor_transferido),
-                    Moeda.converteR$Float(Moeda.subtracaoValores(valor_transferido, caixa.getFundoFixo())),
-                    Moeda.converteR$Float(caixa.getFundoFixo()),
+                    Moeda.converteR$Float(valor_caixa), // valor_caixa
+                    Moeda.converteR$Float(transferencia_saida_central), // valor_transferido
+                    Moeda.converteR$Float(caixa.getFundoFixo()), // saldo_atual
                     Moeda.converteR$Float(deposito_bancario),
                     Moeda.converteR$Float(doc_bancario),
                     Moeda.converteR$Float(transferencia_bancaria),

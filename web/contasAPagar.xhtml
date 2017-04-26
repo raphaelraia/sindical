@@ -133,7 +133,7 @@
 
                             <p:messages closable="true" showDetail="true" />
 
-                            <p:dataTable id="tbl_contas" value="#{contasAPagarBean.listaContas}" var="contas_pagar" emptyMessage="Nenhuma Conta Encontrada" selection="#{contasAPagarBean.listaContasSelecionada}" rowKey="#{contas_pagar.movimentoId}">
+                            <p:dataTable id="tbl_contas" value="#{contasAPagarBean.listaContas}" var="contas_pagar" emptyMessage="Nenhuma Conta Encontrada" selection="#{contasAPagarBean.listaContasSelecionada}" rowKey="#{contas_pagar.movimentoId}" rowSelectMode="add">
                                 <p:ajax event="rowSelect" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
                                 <p:ajax event="rowUnselect" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
                                 <p:ajax event="toggleSelect" update="formContasAPagar:panel_selecionados formContasAPagar:panel_botoes" />
@@ -333,7 +333,7 @@
                                 </h:panelGroup>
                             </h:panelGrid>
 
-                            <p:dialog id="dlg_estornar_conta" widgetVar="dlg_estornar_conta" header="Estornar Contas Selecionadas" resizable="false" width="700" modal="true">
+                            <p:dialog id="dlg_estornar_conta" widgetVar="dlg_estornar_conta" header="Estornar Contas Selecionadas" resizable="false" width="700" modal="true" position="top">
                                 <h:panelGrid style="width: 100%">
                                     <p:outputLabel value="Deseja Realmente ESTORNAR estas Contas?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
@@ -371,7 +371,7 @@
                                 
                                 <br />
                                 
-                                <p:dataTable value="#{contasAPagarBean.listaMovimentoEstorno}" var="linha_movimento_estorno">
+                                <p:dataTable value="#{contasAPagarBean.listaMovimentoEstorno}" var="linha_movimento_estorno" scrollable="true" scrollHeight="250">
                                     <p:column headerText="Nome">
                                         <p:outputLabel value="#{linha_movimento_estorno.pessoa.nome}" />
                                     </p:column>
