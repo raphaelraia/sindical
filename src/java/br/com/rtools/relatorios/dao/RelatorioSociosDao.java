@@ -812,9 +812,17 @@ public class RelatorioSociosDao extends DB {
 
         if (empresa != null && !empresa.isEmpty()) {
             if (!in_empresas.equals("-1") && empresa.equals("especificas")) {
-                listWhere.add("p.e_id IN (" + in_empresas + ")");
+                if (relatorios.getId() == 46) {
+                    listWhere.add("dm.id_juridica IN (" + in_empresas + ")");
+                } else {
+                    listWhere.add("p.e_id IN (" + in_empresas + ")");
+                }
             } else if (empresa.equals("com")) {
-                listWhere.add("p.empresa <> '' ");
+                if (relatorios.getId() == 46) {
+                    listWhere.add("dm.empresa <> '' ");
+                } else {
+                    listWhere.add("p.empresa <> '' ");
+                }
                 // CNAES
                 if (!in_cnaes.isEmpty()) {
                     listWhere.add("(J.id_cnae IS NOT NULL AND J.id_cnae IN(" + in_cnaes + "))");
@@ -891,7 +899,6 @@ public class RelatorioSociosDao extends DB {
             listWhere.add(subquery);
         }
 
-
         if (chk_validade_dependente != null) {
             if (chk_validade_dependente) {
                 listWhere.add(" (so.validade IS NULL OR so.validade = '')");
@@ -944,19 +951,22 @@ public class RelatorioSociosDao extends DB {
         String select, innerjoin = "", textQry, and = "", orderby, ordem = "";
 
         if (comDependentes != null && comDependentes) {
-            select = "  SELECT P.ds_nome AS titular,    \n"
-                    + "        S.titular AS codtitular, \n"
-                    + "        S.codsocio,              \n"
-                    + "        S.nome,                  \n"
-                    + "        S.parentesco,            \n"
-                    + "        S.matricula,             \n"
-                    + "        S.categoria,             \n"
-                    + "        S.filiacao,              \n"
-                    + "        S.inativacao,            \n"
-                    + "        S.motivo_inativacao,     \n"
-                    + "        S.id_categoria,          \n"
-                    + "        S.id_grupo_categoria     \n";
+            select = "  SELECT P.ds_nome AS titular,    \n" // 0
+                    + "        S.titular AS codtitular, \n" // 1
+                    + "        S.codsocio,              \n" // 2
+                    + "        S.nome,                  \n" // 3
+                    + "        S.parentesco,            \n" // 4
+                    + "        S.matricula,             \n" // 5
+                    + "        S.categoria,             \n" // 6
+                    + "        S.filiacao,              \n" // 7
+                    + "        S.inativacao,            \n" // 8
+                    + "        S.motivo_inativacao,     \n" // 9
+                    + "        S.id_categoria,          \n" // 10
+                    + "        S.id_grupo_categoria,    \n" // 11
+                    + "        DE.documento,            \n" // 12
+                    + "        DE.empresa               \n"; // 13
             innerjoin = " INNER JOIN pes_pessoa AS P ON P.id = S.titular \n";
+            innerjoin += " LEFT JOIN demitidos_vw AS DE ON DE.id_pessoa = S.codsocio \n";
             orderby = " P.ds_nome,      \n"
                     + " S.titular,      \n"
                     + " S.categoria,    \n"
@@ -983,19 +993,22 @@ public class RelatorioSociosDao extends DB {
             }
 
         } else {
-            select = "SELECT S.nome AS titular,         \n"
-                    + "      S.codsocio AS codtitular,  \n"
-                    + "      S.codsocio,                \n"
-                    + "      S.nome,                    \n"
-                    + "      S.parentesco,              \n"
-                    + "      S.matricula,               \n"
-                    + "      S.categoria,               \n"
-                    + "      S.filiacao,                \n"
-                    + "      S.inativacao,              \n"
-                    + "      S.motivo_inativacao,       \n"
-                    + "      S.id_categoria,            \n"
-                    + "      S.id_grupo_categoria       \n";
+            select = "SELECT S.nome AS titular,         \n" // 0
+                    + "      S.codsocio AS codtitular,  \n" // 1
+                    + "      S.codsocio,                \n" // 2
+                    + "      S.nome,                    \n" // 3
+                    + "      S.parentesco,              \n" // 4
+                    + "      S.matricula,               \n" // 5
+                    + "      S.categoria,               \n" // 6
+                    + "      S.filiacao,                \n" // 7
+                    + "      S.inativacao,              \n" // 8
+                    + "      S.motivo_inativacao,       \n" // 9
+                    + "      S.id_categoria,            \n" // 10
+                    + "      S.id_grupo_categoria,      \n" // 11
+                    + "      DE.documento,              \n" // 12
+                    + "      DE.empresa                 \n"; // 13;
             and = "    WHERE S.parentesco = 'TITULAR'   \n";
+            innerjoin += " LEFT JOIN demitidos_vw AS DE ON DE.id_pessoa = S.codsocio \n";
             orderby = " S.inativacao DESC ";
 
             switch (ordernarPor) {

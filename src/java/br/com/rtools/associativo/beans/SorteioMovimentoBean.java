@@ -96,17 +96,26 @@ public class SorteioMovimentoBean implements Serializable {
                     listStatus.add(new SelectItem(list.get(i).getId(), list.get(i).getGrupoCidade().getDescricao().toUpperCase()));
                 }
             }
-            loadListSorteioMovimento();
             if (sorteio.getId() != null) {
                 sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId(), idGrupoCidade);
             }
+            loadListSorteioMovimento();
         }
     }
 
     public void loadListSorteioMovimento() {
         listSorteioMovimento = new ArrayList();
         if (this.sorteio.getId() != null) {
-            listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId());
+            if (idStatus == null) {
+                listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId(), null);
+            } else {
+                SorteioStatus ss = (SorteioStatus) new Dao().find(new SorteioStatus(), idStatus);
+                if (ss.getGrupoCidade() == null) {
+                    listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId(), null);
+                } else {
+                    listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId(), ss.getGrupoCidade().getId());
+                }
+            }
         }
     }
 
@@ -126,14 +135,19 @@ public class SorteioMovimentoBean implements Serializable {
         if (sorteio.getId() != null) {
             new SorteioStatusDao().findBySorteio(sorteio.getId());
         }
-        SorteioStatus ss = (SorteioStatus) new Dao().find(new SorteioStatus(), idStatus);
+        SorteioStatus ss;
         sorteioStatus = new SorteioStatus();
-        if (ss != null) {
-            if (ss.getGrupoCidade() == null) {
-                sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId(), null);
-            } else {
-                sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId(), ss.getGrupoCidade().getId());
+        if (idStatus != null) {
+            ss = (SorteioStatus) new Dao().find(new SorteioStatus(), idStatus);
+            if (ss != null) {
+                if (ss.getGrupoCidade() == null) {
+                    sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId(), null);
+                } else {
+                    sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId(), ss.getGrupoCidade().getId());
+                }
             }
+        } else {
+            sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId(), null);
         }
     }
 
@@ -156,11 +170,14 @@ public class SorteioMovimentoBean implements Serializable {
     public void process() {
         if (sorteio.getId() != null) {
             Integer grupo_cidade_id = null;
-            SorteioStatus ss = (SorteioStatus) new Dao().find(new SorteioStatus(), idStatus);
-            if (ss != null) {
-                if (ss.getGrupoCidade().getId() != -1) {
-                    grupo_cidade_id = ss.getGrupoCidade().getId();
-                }
+//            SorteioStatus ss = (SorteioStatus) new Dao().find(new SorteioStatus(), idStatus);
+//            if (ss != null) {
+//                if (ss.getGrupoCidade().getId() != -1) {
+//                    grupo_cidade_id = ss.getGrupoCidade().getId();
+//                }
+//            }
+            if (sorteioStatus != null && sorteioStatus.getId() != null && sorteioStatus.getGrupoCidade() != null) {
+                grupo_cidade_id = sorteioStatus.getGrupoCidade().getId();
             }
             Pessoa pessoa = new SorteioMovimentoDao().sort(sorteio.getId(), grupo_cidade_id);
             SorteioMovimento sorteioMovimento = new SorteioMovimento();
@@ -170,8 +187,7 @@ public class SorteioMovimentoBean implements Serializable {
             sorteioMovimento.setPessoa(pessoa);
             sorteioMovimento.setGrupoCidade(sorteioStatus.getGrupoCidade());
             if (new Dao().save(sorteioMovimento, true)) {
-                listSorteioMovimento = new ArrayList();
-                listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId());
+                loadListSorteioMovimento();
                 GenericaMensagem.warn("Sucesso", "Sorteio realizado");
             } else {
                 GenericaMensagem.warn("Erro", "Ao realizar processo!");
@@ -181,8 +197,7 @@ public class SorteioMovimentoBean implements Serializable {
 
     public void delete(SorteioMovimento sm) {
         if (new Dao().delete(sm, true)) {
-            listSorteioMovimento = new ArrayList();
-            listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId());
+            loadListSorteioMovimento();
             GenericaMensagem.warn("Sucesso", "Registro removido!");
             NovoLog novoLog = new NovoLog();
             novoLog.delete("ID: " + sm.getId() + " - Sorteio: (" + sm.getSorteio().getId() + ") " + sm.getSorteio().getDescricao() + " - Sorteado: (" + sm.getPessoa().getId() + ") " + sm.getPessoa().getNome() + " - CPF: " + sm.getPessoa().getDocumento() + " - Data: " + sm.getSorteioString());

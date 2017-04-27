@@ -43,7 +43,7 @@ import org.primefaces.context.RequestContext;
 @SessionScoped
 public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean implements Serializable {
 
-    private String strEndereco = "";
+    private String strEndereco = ""; 
     private String statusEmpresa = "";
     private Date data = DataHoje.converte(new DataHoje().incrementarDias(1, DataHoje.data()));
     private int idStatus = 0;
@@ -92,7 +92,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             if (configuracaoHomologacao == null) {
                 configuracaoHomologacao = new ConfiguracaoHomologacao();
                 new Dao().save(configuracaoHomologacao, true);
-            } else {
+            } else { 
 
             }
             if (configuracaoHomologacao.getId() != null && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {

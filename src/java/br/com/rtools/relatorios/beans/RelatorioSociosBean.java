@@ -233,7 +233,7 @@ public class RelatorioSociosBean implements Serializable {
         if (tcase.equals("reload")) {
             loadRelatoriosOrdem();
             selectedGroups = "categoria";
-            if (idRelatorio == 12 || idRelatorio == 16 || idRelatorio == 40) {
+            if (idRelatorio == 12 || idRelatorio == 16 || idRelatorio == 40 || idRelatorio == 46) {
                 for (int i = 0; i < filtersSocio.size(); i++) {
                     if (filtersSocio.get(i).getKey().equals("status")) {
                         statusSocio = "";
