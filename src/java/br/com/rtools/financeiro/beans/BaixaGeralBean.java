@@ -412,9 +412,14 @@ public class BaixaGeralBean implements Serializable {
                     GenericaMensagem.error("Erro", "Nenhum Banco Encontrado!");
                     return;
                 }
+                
+                // PLANO DEFAULT
                 Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                 Plano5 pl_conciliacao = null;
                 Date dt_conciliacao = null;
+                
+                // QUANDO RECEBIMENTO TIPO
+                // 8;"Depósito Bancário" 9;"DOC / TED" 10;"Trans. Bancária"
                 if (!getEs().isEmpty() && getEs().equals("E")) {
                     if (tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10) {
                         if (dataConciliacao == null) {
@@ -428,11 +433,13 @@ public class BaixaGeralBean implements Serializable {
                             return;
                         }
 
+                        // ALTERAÇÃO DE PLANO PARA CONCILIAÇÃO
                         pl = (Plano5) new Dao().find(new Plano5(), 1);
                         pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                         dt_conciliacao = dataConciliacao;
                     }
                 }
+                
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), null, pl_conciliacao, dt_conciliacao));
                 numero = "";
                 dataConciliacao = null;
