@@ -68,7 +68,7 @@ public class RelatorioContasPagarDao extends DB {
             }
             // FILIAIS
             if (in_filiais != null) {
-                listWhere.add("FI.id IN (" + in_filiais + ")");
+                listWhere.add("F.id IN (" + in_filiais + ")");
             }
             // CONTAS
             if (in_contas != null) {

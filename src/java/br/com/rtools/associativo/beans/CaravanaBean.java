@@ -82,6 +82,8 @@ public class CaravanaBean implements Serializable {
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("caravanaBean");
+        GenericaSessao.remove("pesquisaEnderecoIda");
+        GenericaSessao.remove("pesquisaEnderecoRetorno");
     }
 
     public void loadListaServicos() {
@@ -434,7 +436,11 @@ public class CaravanaBean implements Serializable {
 
     public Caravana getCaravana() {
         if (GenericaSessao.exists("enderecoPesquisa")) {
-            caravana.setEnderecoEmbarqueIda((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
+            if(GenericaSessao.exists("pesquisaEnderecoIda", true)) {
+                caravana.setEnderecoEmbarqueIda((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
+            } else if(GenericaSessao.exists("pesquisaEnderecoRetorno", true)) {
+                caravana.setEnderecoEmbarqueRetorno((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
+            }
         }
         return caravana;
     }

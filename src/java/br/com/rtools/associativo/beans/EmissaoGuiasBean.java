@@ -567,6 +567,13 @@ public class EmissaoGuiasBean implements Serializable {
         FTipoDocumento fTipoDocumento = (FTipoDocumento) di.find(new FTipoDocumento(), 2); // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         float valorx = Moeda.converteUS$(valor);
         Servicos servicos = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+        if (servicos.getGuiaSomenteSocio()) {
+            if (pessoa.getSocios().getId() == -1) {
+                GenericaMensagem.warn("Validação", "Permitido Somente para Sócios!");
+                return;
+            }
+
+        }
         MovimentoDao db = new MovimentoDao();
         //SociosDB dbs = new SociosDao();
         listaMovimentosEmitidos.clear();
@@ -973,7 +980,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
 
             StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0);
-            
+
             if (!sr.getStatus()) {
                 message = "Erro ao baixar Guias! " + sr.getMensagem();
                 return null;

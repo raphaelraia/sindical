@@ -245,6 +245,9 @@ public class VendasCaravanaBean implements Serializable {
             String localDoEmbarque = "";
             String cidadeDoEmbarque = "";
             String ufDoEmbarque = "SP";
+            String localDoRetorno = "";
+            String cidadeDoRetorno = "";
+            String ufDoRetorno = "SP";
             if (caravana.getEnderecoEmbarqueIda() == null) {
                 localDoEmbarque = cidade;
             } else {
@@ -254,6 +257,16 @@ public class VendasCaravanaBean implements Serializable {
                         + " - " + caravana.getEnderecoEmbarqueIda().getBairro().getDescricao() + "\n";
                 cidadeDoEmbarque = caravana.getEnderecoEmbarqueIda().getCidade().getCidade();
                 ufDoEmbarque = caravana.getEnderecoEmbarqueIda().getCidade().getUf();
+            }
+            if (caravana.getEnderecoEmbarqueRetorno() == null) {
+                localDoRetorno = cidade;
+            } else {
+                localDoRetorno = caravana.getEnderecoEmbarqueRetorno().getEnderecoSimplesToString()
+                        + ", " + caravana.getNumeroRetorno()
+                        + " " + caravana.getComplementoEmbarqueRetorno()
+                        + " - " + caravana.getEnderecoEmbarqueRetorno().getBairro().getDescricao() + "\n";
+                cidadeDoRetorno = caravana.getEnderecoEmbarqueRetorno().getCidade().getCidade();
+                ufDoRetorno = caravana.getEnderecoEmbarqueRetorno().getCidade().getUf();
             }
             l.add(
                     new ParametroFichaReserva(
@@ -302,7 +315,11 @@ public class VendasCaravanaBean implements Serializable {
                             cidadeDoEmbarque,
                             ufDoEmbarque,
                             caravana.getDuracaoViagem(),
-                            caravana.getId()
+                            caravana.getId(),
+                            localDoRetorno,
+                            caravana.getLocalEmbarqueRetorno(),
+                            cidadeDoRetorno,
+                            ufDoRetorno
                     )
             );
         }
@@ -361,7 +378,7 @@ public class VendasCaravanaBean implements Serializable {
         List<Lote> listLote = new ArrayList();
         List<Evt> listEvt = new ArrayList();
         if (vendas.getLote() != null || possui_reserva) {
-            if(vendas.getLote() != null) {
+            if (vendas.getLote() != null) {
                 List<Movimento> listaMovimento = md.findByLote(vendas.getLote().getId());
                 if (!listaMovimento.isEmpty()) {
                     for (Movimento listaMovimento1 : listaMovimento) {
@@ -384,7 +401,7 @@ public class VendasCaravanaBean implements Serializable {
                             }
                         }
                     }
-                }                
+                }
             }
 
 //            for (Movimento listaMovimento1 : listaMovimento) {

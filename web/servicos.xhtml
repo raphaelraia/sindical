@@ -87,9 +87,7 @@
 
                                             <p:column>
                                                 <br />
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.boleto}" itemLabel="Sair Descrição no Boleto">
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:selectBooleanCheckbox>
+
                                             </p:column>
 
                                             <p:column>
@@ -132,6 +130,11 @@
                                                 <p:ajax event="change" update="@this"/>
                                             </p:selectBooleanCheckbox>
                                         </p:panelGrid>
+                                        <p:panelGrid columns="9" styleClass="sbb">
+                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.boleto}" itemLabel="Sair Descrição no Boleto">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:selectBooleanCheckbox>
+                                        </p:panelGrid>
                                         <p:panel styleClass="margin-top-max">
                                             <f:facet name="header">
                                                 <p:selectBooleanCheckbox value="#{servicosBean.descontoMatricula}" itemLabel="Desconto na Matrícula">
@@ -172,7 +175,7 @@
                                         <p:separator />
                                         <br />
                                         <p:fieldset legend="Opções da GUIA" toggleable="true" collapsed="true" toggleSpeed="500">
-                                            <h:panelGrid id="i_panel_opcoes" columns="3">
+                                            <h:panelGrid id="i_panel_opcoes" columns="10" cellpadding="5">
                                                 <h:column>
                                                     <p:outputLabel value="Periodo de fornecimento gratuito "/><br />
                                                     <p:selectOneMenu id="i_periodo" value="#{servicosBean.idPeriodo}" style="margin-right: 10px; width: 200px">
@@ -184,36 +187,44 @@
                                                     <p:outputLabel value="Quantidade por Periodo"/><br />
                                                     <p:inputText value="#{servicosBean.servicos.quantidadePeriodo}" size="18" styleClass="text-center"/>
                                                 </h:column>
-                                                <h:panelGrid columns="2">
-                                                    <h:column>
-                                                        <br />
-                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.familiarPeriodo}" itemLabel="Controle Familiar" style="margin-left: 20px; margin-right: 20px"/>
-                                                    </h:column>
+                                                <h:column>
+                                                    <br />
+                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuias}" itemLabel="Serviço com validade"   >
+                                                        <p:ajax event="change" update="@this"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </h:column>
 
-                                                    <h:column>
-                                                        <br />
-                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuias}" itemLabel="Serviço com validade"   >
-                                                            <p:ajax event="change" update="@this"/>
-                                                        </p:selectBooleanCheckbox>
-                                                    </h:column>
+                                                <h:column>
+                                                    <br />
+                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuiasVigente}" itemLabel="Validade somente dentro do mês vigente">
+                                                        <p:ajax event="change" update="@this i_panel_opcoes"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </h:column>
 
-                                                    <h:column>
-                                                        <br />
-                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuiasVigente}" itemLabel="Validade somente dentro do mês vigente">
-                                                            <p:ajax event="change" update="@this i_panel_opcoes"/>
-                                                        </p:selectBooleanCheckbox>
-                                                    </h:column>
+                                                <h:column>
+                                                    <br />
 
-                                                    <h:column>
-                                                        <br />
-                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorZerado}" itemLabel="Valor zerado Guias" style="margin-left: 20px; margin-right: 30px"/>
-                                                    </h:column>
+                                                </h:column>
 
-                                                    <h:column rendered="#{!servicosBean.servicos.validadeGuiasVigente}">
-                                                        <p:outputLabel value="Dias validos da guia" for="idDiaValido" style="font-weight: bold"/><br />
-                                                        <p:spinner id="idDiaValido" size="14" value="#{servicosBean.servicos.validade}" min="0" max="360"/>
-                                                    </h:column>
-                                                </h:panelGrid>
+                                                <h:column rendered="#{!servicosBean.servicos.validadeGuiasVigente}">
+                                                    <p:outputLabel value="Dias validos da guia" for="idDiaValido" style="font-weight: bold"/><br />
+                                                    <p:spinner id="idDiaValido" size="14" value="#{servicosBean.servicos.validade}" min="0" max="360"/>
+                                                </h:column>
+                                            </h:panelGrid>
+                                            <h:panelGrid columns="9" cellspacing="5" styleClass="sbb">
+
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.guiaSomenteSocio}" itemLabel="Guias Somente p/ Sócios" title="Emissão de guias somente para Sócios">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.familiarPeriodo}" itemLabel="Controle Familiar">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorZerado}" itemLabel="Valor zerado Guias">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+
                                             </h:panelGrid>
                                         </p:fieldset>
                                     </p:tab>

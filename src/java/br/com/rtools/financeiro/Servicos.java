@@ -13,7 +13,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "fin_servicos")
 @NamedQueries({
-    @NamedQuery(name = "Servicos.pesquisaID", query = "SELECT S FROM Servicos AS S WHERE S.id = :pid"),
+    @NamedQuery(name = "Servicos.pesquisaID", query = "SELECT S FROM Servicos AS S WHERE S.id = :pid")
+    ,
     @NamedQuery(name = "Servicos.findAll", query = "SELECT S FROM Servicos AS S ORDER BY S.descricao ASC ")
 })
 public class Servicos implements java.io.Serializable {
@@ -85,6 +86,8 @@ public class Servicos implements java.io.Serializable {
     private Integer mesesDebitoExclusao;
     @Column(name = "is_meses_debito_exclusao_todos", nullable = true, columnDefinition = "boolean default false")
     private boolean mesesDebitoExclusaoTodos;
+    @Column(name = "is_guia_somente_socio", nullable = true, columnDefinition = "boolean default false")
+    private Boolean guiaSomenteSocio;
 
     @Transient
     private Boolean selected;
@@ -123,6 +126,7 @@ public class Servicos implements java.io.Serializable {
         this.mesesDebitoExclusao = 60;
         this.selected = false;
         this.mesesDebitoExclusaoTodos = false;
+        this.guiaSomenteSocio = false;
         // TRANSIENT
         this.valorCheio = null;
     }
@@ -155,7 +159,8 @@ public class Servicos implements java.io.Serializable {
             boolean boleto,
             ModeloCarteirinha modeloCarteirinha,
             Integer mesesDebitoExclusao,
-            boolean mesesDebitoExclusaoTodos) {
+            boolean mesesDebitoExclusaoTodos,
+            boolean guiaSomenteSocio) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -185,6 +190,7 @@ public class Servicos implements java.io.Serializable {
         this.modeloCarteirinha = modeloCarteirinha;
         this.mesesDebitoExclusao = mesesDebitoExclusao;
         this.mesesDebitoExclusaoTodos = mesesDebitoExclusaoTodos;
+        this.guiaSomenteSocio = guiaSomenteSocio;
     }
 
     public int getId() {
@@ -505,6 +511,14 @@ public class Servicos implements java.io.Serializable {
 
     public void setValorCheio(Float valorCheio) {
         this.valorCheio = valorCheio;
+    }
+
+    public Boolean getGuiaSomenteSocio() {
+        return guiaSomenteSocio;
+    }
+
+    public void setGuiaSomenteSocio(Boolean guiaSomenteSocio) {
+        this.guiaSomenteSocio = guiaSomenteSocio;
     }
 
 }

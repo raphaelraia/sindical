@@ -34,7 +34,7 @@
                             <c:set scope="request" var="object" value="${caravanaBean.caravana}"/>
                             <h:panelGrid columns="3" style="width: 100%!important">
                                 <p:column>
-                                    <p:panel styleClass="fundoCinza" style="height: 475px" header="VIAGENS">
+                                    <p:panel styleClass="fundoCinza" style="height: 660px" header="VIAGENS">
                                         <h:panelGrid columns="1">
                                             <p:selectOneMenu id="idDescricao" value="#{caravanaBean.idDescricaoEvento}" style="width: 440px">
                                                 <f:selectItems value="#{caravanaBean.listaDescricaoEvento}"/>
@@ -87,7 +87,7 @@
                                 </p:column>
 
                                 <p:column>
-                                    <p:panel styleClass="margin-left-max" style="height: 475px">
+                                    <p:panel styleClass="margin-left-max" style="height: 660px">
                                         <f:facet name="actions">
                                         </f:facet>
                                         <f:facet name="header">
@@ -97,7 +97,7 @@
                                                     <p:ajax event="change" update="@this" />
                                                 </p:inputText>                                                
                                                 <h:column>
-                                                    <p:commandButton value="Pesquisar Endereço" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaEndereco')}"  rendered="#{caravanaBean.caravana.enderecoEmbarqueIda eq null}" styleClass="margin-top-max"/>
+                                                    <p:commandButton value="Pesquisar Endereço" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaEndereco')}"  rendered="#{caravanaBean.caravana.enderecoEmbarqueIda eq null}" styleClass="margin-top-max" actionListener="#{genericaSessao.putBoolean('pesquisaEnderecoIda', true)}"/>
                                                     <h:panelGrid columns="2" cellpadding="5">
                                                         <p:outputLabel value="#{caravanaBean.caravana.enderecoEmbarqueIda.enderecoSimplesToString}, #{caravanaBean.caravana.enderecoEmbarqueIda.bairro.descricao} - #{caravanaBean.caravana.enderecoEmbarqueIda.cidade.cidade} / #{caravanaBean.caravana.enderecoEmbarqueIda.cidade.uf}" rendered="#{caravanaBean.caravana.enderecoEmbarqueIda ne null}" styleClass="font-color-red bold"/>
                                                         <p:commandButton icon="ui-icon-close" action="#{caravanaBean.caravana.setEnderecoEmbarqueIda(null)}"   update=":form_caravana:" rendered="#{caravanaBean.caravana.enderecoEmbarqueIda ne null}"/>
@@ -190,32 +190,58 @@
                                                 </h:panelGrid>
                                             </p:column>
                                         </h:panelGrid>
+                                        <f:facet name="footer">
+                                            <h:panelGrid columns="1">
+                                                <p:outputLabel value="LOCAL DO RETORNO" styleClass="margin-left-min bold"/>
+                                                <p:inputText value="#{caravanaBean.caravana.localEmbarqueRetorno}" size="50" converter="#{toUpperCase}" placeholder="DIGITE O LOCAL AQUI...">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>                                                
+                                                <h:column>
+                                                    <p:commandButton value="Pesquisar Endereço" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaEndereco')}"  rendered="#{caravanaBean.caravana.enderecoEmbarqueRetorno eq null}" styleClass="margin-top-max" actionListener="#{genericaSessao.putBoolean('pesquisaEnderecoRetorno', true)}"/>
+                                                    <h:panelGrid columns="2" cellpadding="5">
+                                                        <p:outputLabel value="#{caravanaBean.caravana.enderecoEmbarqueRetorno.enderecoSimplesToString}, #{caravanaBean.caravana.enderecoEmbarqueRetorno.bairro.descricao} - #{caravanaBean.caravana.enderecoEmbarqueRetorno.cidade.cidade} / #{caravanaBean.caravana.enderecoEmbarqueRetorno.cidade.uf}" rendered="#{caravanaBean.caravana.enderecoEmbarqueRetorno ne null}" styleClass="font-color-red bold"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{caravanaBean.caravana.setEnderecoEmbarqueRetorno(null)}"   update=":form_caravana:" rendered="#{caravanaBean.caravana.enderecoEmbarqueRetorno ne null}"/>
+                                                    </h:panelGrid>
+                                                    <h:panelGrid columns="4" cellpadding="5" rendered="#{caravanaBean.caravana.enderecoEmbarqueRetorno ne null}">
+                                                        <p:outputLabel value="NÚMERO: " styleClass="bold"/>
+                                                        <p:inputText value="#{caravanaBean.caravana.numero}" size="5" styleClass="text-center">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                        <p:outputLabel value="COMPLEMENTO: " styleClass="bold"/>
+                                                        <p:inputText value="#{caravanaBean.caravana.complementoEmbarqueRetorno}" size="10" maxlength="30">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                    </h:panelGrid>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="3">
+                                                        <p:column>
+                                                            <h:panelGrid>                                                
+                                                                <h:outputLabel value="DT. EMBARQUE RETORNO" style="font-weight: bold"/>
+                                                                <p:inputMask value="#{caravanaBean.caravana.dataEmbarqueRetorno}" mask="99/99/9999" converter="#{isDateString}" styleClass="text-center font-size-12 bold" size="15">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputMask>
+                                                            </h:panelGrid>
+                                                        </p:column>
 
-                                        <h:panelGrid columns="3" cellpadding="5">
-                                            <p:column>
-                                                <h:panelGrid>                                                
-                                                    <h:outputLabel value="DT. EMBARQUE RETORNO" style="font-weight: bold"/>
-                                                    <p:inputMask value="#{caravanaBean.caravana.dataEmbarqueRetorno}" mask="99/99/9999" converter="#{isDateString}" styleClass="text-center font-size-12 bold" size="15">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputMask>
-                                                </h:panelGrid>
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:panelGrid>
-                                                    <h:outputLabel value="HORÁRIO"/>
-                                                    <p:inputMask value="#{caravanaBean.caravana.horaEmbarqueRetorno}" size="5" styleClass="text-center font-size-12 bold" mask="99:99" converter="#{isValidTimeString}">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputMask>
-                                                </h:panelGrid>
-                                            </p:column>
-                                        </h:panelGrid>                                        
+                                                        <p:column>
+                                                            <h:panelGrid style="margin-left: 10px">
+                                                                <h:outputLabel value="HORÁRIO"/>
+                                                                <p:inputMask value="#{caravanaBean.caravana.horaEmbarqueRetorno}" size="5" styleClass="text-center font-size-12 bold" mask="99:99" converter="#{isValidTimeString}">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputMask>
+                                                            </h:panelGrid>
+                                                        </p:column>
+                                                    </h:panelGrid>                                        
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </f:facet>                                        
 
                                     </p:panel>
                                 </p:column>
 
                             </h:panelGrid>
-                            
+
                             <p:panel styleClass="margin-top-med" header="Relatório da viagem" rendered="#{caravanaBean.caravana.id != null}">
                                 <p:inputTextarea value="#{caravanaBean.caravana.relatorio}"  rows="4" maxlength="1000" style="width: 100%"/>
                             </p:panel>
