@@ -180,7 +180,9 @@ public class RelatorioSociosInativosBean implements Serializable {
                     o.get(6).toString(), // categoria
                     DataHoje.converteData((Date) o.get(7)), // filiacao -- data
                     DataHoje.converteData((Date) o.get(8)), // inativacao -- data
-                    o.get(9).toString()) // motivo_inativacao
+                    o.get(9).toString(), // motivo_inativacao
+                    o.get(13),
+                    o.get(12))
             );
         }
         if (tag == null || !tag) {

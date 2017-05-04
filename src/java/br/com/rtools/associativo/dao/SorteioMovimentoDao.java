@@ -26,6 +26,29 @@ public class SorteioMovimentoDao extends DB {
         return new ArrayList();
     }
 
+    public List findBySorteio(Integer sorteio_id, Integer grupo_cidade_id) {
+        String queryString = "       "
+                + "     SELECT SM.*                                             \n"
+                + "       FROM sort_movimento AS SM                             \n"
+                + " INNER JOIN pes_pessoa AS P ON P.id = SM.id_pessoa           \n"
+                + "      WHERE SM.id_sorteio = " + sorteio_id + "               \n";
+        if (grupo_cidade_id == null) {
+            queryString += " AND SM.id_grupo_cidade IS NULL \n";
+        } else {
+            queryString += " AND SM.id_grupo_cidade = " + grupo_cidade_id + " \n";
+        }
+        queryString += ""
+                + "   ORDER BY to_date(to_char(SM.dt_sorteio, 'YYYY/MM/DD'), 'YYYY/MM/DD') DESC, \n"
+                + "            P.ds_nome ASC                                    \n";
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, SorteioMovimento.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
     public List findByPessoa(Integer pessoa_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT SM FROM SorteioMovimento AS SM WHERE SM.pessoa.id = :pessoa_id ORDER BY SM.dtSorteio DESC ");
@@ -57,14 +80,16 @@ public class SorteioMovimentoDao extends DB {
                     + "       AND S.codsocio NOT IN(SELECT id_pessoa FROM sort_movimento WHERE id_sorteio = " + sorteio_id + " )         \n"
                     + "       AND ( (PVW.dt_aposentadoria IS NOT NULL) OR ( PVW.admissao <= (CURRENT_DATE - (ss.nr_admissao_meses*30) ) AND demissao IS NULL) )    \n";
             if (grupo_cidade_id != null) {
+                queryString += " AND S.codsocio NOT IN ( SELECT id_pessoa FROM sort_movimento WHERE id_sorteio = " + sorteio_id + " AND id_grupo_cidade = " + grupo_cidade_id + " AND date(dt_sorteio) = current_date )    \n";
                 queryString += " "
                         + " AND PVW.codigo IN (                                                     \n"
                         + "               SELECT codigo                                             \n"
                         + "                 FROM pes_pessoa_vw      AS P                            \n"
                         + "           INNER JOIN arr_grupo_cidades  AS G ON G.id_grupo_cidade = " + grupo_cidade_id + "\n"
                         + "                                             AND G.id_cidade=e_id_cidade \n"
-                        + " )                                                                       \n";
-
+                        + " ) ";
+            } else {
+                queryString += " AND S.codsocio NOT IN ( SELECT id_pessoa FROM sort_movimento WHERE id_sorteio = " + sorteio_id + " AND id_grupo_cidade IS NULL AND date(dt_sorteio) = current_date ) \n";
             }
             queryString += ""
                     + " ORDER BY random() \n"

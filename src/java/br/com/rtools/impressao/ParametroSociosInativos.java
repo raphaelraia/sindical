@@ -1,6 +1,7 @@
 package br.com.rtools.impressao;
 
 public class ParametroSociosInativos {
+
     private String sinLogo;
     private String sinSite;
     private String sinNome;
@@ -23,8 +24,10 @@ public class ParametroSociosInativos {
     private String filiacao;
     private String inativacao;
     private String motivo_inativacao;
+    private Object empresa;
+    private Object documento;
 
-    public ParametroSociosInativos(String sinLogo, String sinSite, String sinNome, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinCidadeUf, String sinDocumento, String nomeTitular, String codTitular, String codSocio, String nome, String parentesco, String matricula, String categoria, String filiacao, String inativacao, String motivo_inativacao) {
+    public ParametroSociosInativos(String sinLogo, String sinSite, String sinNome, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinCidadeUf, String sinDocumento, String nomeTitular, String codTitular, String codSocio, String nome, String parentesco, String matricula, String categoria, String filiacao, String inativacao, String motivo_inativacao, Object empresa, Object documento) {
         this.sinLogo = sinLogo;
         this.sinSite = sinSite;
         this.sinNome = sinNome;
@@ -47,6 +50,8 @@ public class ParametroSociosInativos {
         this.filiacao = filiacao;
         this.inativacao = inativacao;
         this.motivo_inativacao = motivo_inativacao;
+        this.empresa = empresa;
+        this.documento = documento;
     }
 
     public String getSinLogo() {
@@ -223,5 +228,21 @@ public class ParametroSociosInativos {
 
     public void setMotivo_inativacao(String motivo_inativacao) {
         this.motivo_inativacao = motivo_inativacao;
+    }
+
+    public Object getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Object empresa) {
+        this.empresa = empresa;
+    }
+
+    public Object getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(Object documento) {
+        this.documento = documento;
     }
 }

@@ -82,6 +82,15 @@ public class Caravana implements Serializable {
     private String numero;
     @Column(name = "ds_complemento_embarque_ida", length = 300)
     private String complementoEmbarqueIda;
+    @Column(name = "ds_local_embarque_retorno", length = 300)
+    private String localEmbarqueRetorno;
+    @JoinColumn(name = "id_endereco_embarque_retorno", referencedColumnName = "id")
+    @ManyToOne
+    private Endereco enderecoEmbarqueRetorno;
+    @Column(name = "ds_numero_retorno")
+    private String numeroRetorno;
+    @Column(name = "ds_complemento_embarque_retorno", length = 300)
+    private String complementoEmbarqueRetorno;
 
     public Caravana() {
         this.id = null;
@@ -108,9 +117,13 @@ public class Caravana implements Serializable {
         this.enderecoEmbarqueIda = null;
         this.numero = "";
         this.complementoEmbarqueIda = "";
+        this.localEmbarqueRetorno = "";
+        this.enderecoEmbarqueRetorno = null;
+        this.numeroRetorno = "";
+        this.complementoEmbarqueRetorno = "";
     }
 
-    public Caravana(Integer id, AEvento evento, String tituloComplemento, Date dtEmbarqueIda, String horaEmbarqueIda, Date dtEmbarqueRetorno, String horaEmbarqueRetorno, Date dtEstadiaInicio, String horaEstadiaInicio, Date dtEstadiaFim, String horaEstadiaFim, String duracaoViagem, Boolean cafe, Boolean almoco, Boolean jantar, Integer quantidadePoltronas, Integer guiaRecolhimento, String observacao, Evt evt, String relatorio, String localEmbarqueIda, Endereco enderecoEmbarqueIda, String numero, String complementoEmbarqueIda) {
+    public Caravana(Integer id, AEvento evento, String tituloComplemento, Date dtEmbarqueIda, String horaEmbarqueIda, Date dtEmbarqueRetorno, String horaEmbarqueRetorno, Date dtEstadiaInicio, String horaEstadiaInicio, Date dtEstadiaFim, String horaEstadiaFim, String duracaoViagem, Boolean cafe, Boolean almoco, Boolean jantar, Integer quantidadePoltronas, Integer guiaRecolhimento, String observacao, Evt evt, String relatorio, String localEmbarqueIda, Endereco enderecoEmbarqueIda, String numero, String complementoEmbarqueIda, String localEmbarqueRetorno, Endereco enderecoEmbarqueRetorno, String numeroRetorno, String complementoEmbarqueRetorno) {
         this.id = id;
         this.evento = evento;
         this.tituloComplemento = tituloComplemento;
@@ -135,6 +148,10 @@ public class Caravana implements Serializable {
         this.enderecoEmbarqueIda = enderecoEmbarqueIda;
         this.numero = numero;
         this.complementoEmbarqueIda = complementoEmbarqueIda;
+        this.localEmbarqueRetorno = localEmbarqueRetorno;
+        this.enderecoEmbarqueRetorno = enderecoEmbarqueRetorno;
+        this.numeroRetorno = numeroRetorno;
+        this.complementoEmbarqueRetorno = complementoEmbarqueRetorno;
     }
 
     public Integer getId() {
@@ -393,6 +410,38 @@ public class Caravana implements Serializable {
 
     public void setComplementoEmbarqueIda(String complementoEmbarqueIda) {
         this.complementoEmbarqueIda = complementoEmbarqueIda;
+    }
+
+    public String getLocalEmbarqueRetorno() {
+        return localEmbarqueRetorno;
+    }
+
+    public void setLocalEmbarqueRetorno(String localEmbarqueRetorno) {
+        this.localEmbarqueRetorno = localEmbarqueRetorno;
+    }
+
+    public Endereco getEnderecoEmbarqueRetorno() {
+        return enderecoEmbarqueRetorno;
+    }
+
+    public void setEnderecoEmbarqueRetorno(Endereco enderecoEmbarqueRetorno) {
+        this.enderecoEmbarqueRetorno = enderecoEmbarqueRetorno;
+    }
+
+    public String getNumeroRetorno() {
+        return numeroRetorno;
+    }
+
+    public void setNumeroRetorno(String numeroRetorno) {
+        this.numeroRetorno = numeroRetorno;
+    }
+
+    public String getComplementoEmbarqueRetorno() {
+        return complementoEmbarqueRetorno;
+    }
+
+    public void setComplementoEmbarqueRetorno(String complementoEmbarqueRetorno) {
+        this.complementoEmbarqueRetorno = complementoEmbarqueRetorno;
     }
 
 }

@@ -48,8 +48,12 @@ public class ParametroFichaReserva {
     private Object local_uf;
     private Object tempo_viagem;
     private Object caravana_id;
+    private Object local_endereco_embarque_retorno;
+    private Object local_embarque_retorno;
+    private Object local_cidade_retorno;
+    private Object local_uf_retorno;
 
-    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object embarque_ida, Object embarque_retorno, Object periodo_estadia, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona, Object local_endereco_embarque_ida, Object local_embarque_ida, Object local_cidade, Object local_uf, Object tempo_viagem, Object caravana_id) {
+    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object embarque_ida, Object embarque_retorno, Object periodo_estadia, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2, Object poltrona, Object local_endereco_embarque_ida, Object local_embarque_ida, Object local_cidade, Object local_uf, Object tempo_viagem, Object caravana_id, Object local_endereco_embarque_retorno, Object local_embarque_retorno, Object local_cidade_retorno, Object local_uf_retorno) {
         this.responsavel_nome = responsavel_nome;
         this.responsavel_endereco = responsavel_endereco;
         this.empresa_nome = empresa_nome;
@@ -96,6 +100,10 @@ public class ParametroFichaReserva {
         this.local_uf = local_uf;
         this.tempo_viagem = tempo_viagem;
         this.caravana_id = caravana_id;
+        this.local_endereco_embarque_retorno = local_endereco_embarque_retorno;
+        this.local_embarque_retorno = local_embarque_retorno;
+        this.local_cidade_retorno = local_cidade_retorno;
+        this.local_uf_retorno = local_uf_retorno;
     }
 
     public Object getResponsavel_nome() {
@@ -464,6 +472,38 @@ public class ParametroFichaReserva {
 
     public void setCaravana_id(Object caravana_id) {
         this.caravana_id = caravana_id;
+    }
+
+    public Object getLocal_endereco_embarque_retorno() {
+        return local_endereco_embarque_retorno;
+    }
+
+    public void setLocal_endereco_embarque_retorno(Object local_endereco_embarque_retorno) {
+        this.local_endereco_embarque_retorno = local_endereco_embarque_retorno;
+    }
+
+    public Object getLocal_embarque_retorno() {
+        return local_embarque_retorno;
+    }
+
+    public void setLocal_embarque_retorno(Object local_embarque_retorno) {
+        this.local_embarque_retorno = local_embarque_retorno;
+    }
+
+    public Object getLocal_cidade_retorno() {
+        return local_cidade_retorno;
+    }
+
+    public void setLocal_cidade_retorno(Object local_cidade_retorno) {
+        this.local_cidade_retorno = local_cidade_retorno;
+    }
+
+    public Object getLocal_uf_retorno() {
+        return local_uf_retorno;
+    }
+
+    public void setLocal_uf_retorno(Object local_uf_retorno) {
+        this.local_uf_retorno = local_uf_retorno;
     }
 
 }
