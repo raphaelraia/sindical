@@ -72,7 +72,9 @@ public class MatriculaSeguroBean implements Serializable {
     public final void loadListaMatriculaSeguro() {
         listaMatriculaSeguro.clear();
 
-        listaMatriculaSeguro = new MatriculaSeguroDao().listaMatriculaSeguro("", Integer.valueOf(listaServicos.get(indexServicos).getDescription()), "servico", "");
+        if (!listaServicos.isEmpty()){
+            listaMatriculaSeguro = new MatriculaSeguroDao().listaMatriculaSeguro("", Integer.valueOf(listaServicos.get(indexServicos).getDescription()), "servico", "");
+        }
     }
 
     public final void loadListaServicos() {

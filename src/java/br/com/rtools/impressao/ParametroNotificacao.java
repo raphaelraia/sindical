@@ -27,8 +27,9 @@ public class ParametroNotificacao {
     private String movreferencia;
     private String movnumeroboleto;
     private String ds_mensagem;
+    private String marca_dagua;
 
-    public ParametroNotificacao(String escnome, String esctelefone, String esclogradouro, String escendereco, String escnumero, String esccomplemento, String escbairro, String esccep, String esccidade, String escuf, String jurnome, String jurdocumento, String jurtelefone, String jurcidade, String juruf, String jurcep, String jurlogradouro, String jurendereco, String jurnumero, String jurcomplemento, String jurbairro, String movservico, String movtiposervico, String movreferencia, String movnumeroboleto, String ds_mensagem) {
+    public ParametroNotificacao(String escnome, String esctelefone, String esclogradouro, String escendereco, String escnumero, String esccomplemento, String escbairro, String esccep, String esccidade, String escuf, String jurnome, String jurdocumento, String jurtelefone, String jurcidade, String juruf, String jurcep, String jurlogradouro, String jurendereco, String jurnumero, String jurcomplemento, String jurbairro, String movservico, String movtiposervico, String movreferencia, String movnumeroboleto, String ds_mensagem, String marca_dagua) {
         this.escnome = escnome;
         this.esctelefone = esctelefone;
         this.esclogradouro = esclogradouro;
@@ -55,6 +56,7 @@ public class ParametroNotificacao {
         this.movreferencia = movreferencia;
         this.movnumeroboleto = movnumeroboleto;
         this.ds_mensagem = ds_mensagem;
+        this.marca_dagua = marca_dagua;
     }
 
     public String getEscnome() {
@@ -263,5 +265,13 @@ public class ParametroNotificacao {
 
     public void setDs_mensagem(String ds_mensagem) {
         this.ds_mensagem = ds_mensagem;
+    }
+
+    public String getMarca_dagua() {
+        return marca_dagua;
+    }
+
+    public void setMarca_dagua(String marca_dagua) {
+        this.marca_dagua = marca_dagua;
     }
 }

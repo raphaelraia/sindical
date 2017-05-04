@@ -1,6 +1,7 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
+import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.CobrancaEnvio;
@@ -33,6 +34,8 @@ import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Jasper.FillObject;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.SalvaArquivos;
 import java.io.File;
@@ -54,7 +57,11 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 
 @ManagedBean
 @SessionScoped
@@ -94,6 +101,8 @@ public class NotificacaoBean implements Serializable {
 
     private String tipoEmpresa = "ativas";
     
+    private Boolean chkImprimirVerso = false;
+
     public NotificacaoBean() {
         registro = (Registro) new Dao().find(new Registro(), 1);
         ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
@@ -103,11 +112,11 @@ public class NotificacaoBean implements Serializable {
         if (indexTab == 0) {
             gerarParaTodasAtivas();
         }
-        
+
         if (indexTab == 1) {
             gerarParaTodasInativas();
         }
-        
+
         if (indexTab == 2) {
             gerarParaTodas();
         }
@@ -163,7 +172,7 @@ public class NotificacaoBean implements Serializable {
         comContabil = false;
         semContabil = false;
     }
-    
+
     public void gerarParaTodasInativas() {
         tipoEmpresa = "inativas";
         listaNotificacao.clear();
@@ -172,7 +181,7 @@ public class NotificacaoBean implements Serializable {
         comContabil = false;
         semContabil = false;
     }
-    
+
     public void gerarParaTodas() {
         tipoEmpresa = "todas";
         listaNotificacao.clear();
@@ -291,10 +300,12 @@ public class NotificacaoBean implements Serializable {
             if (lote.getId() != -1) {
                 obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
             } else // EMPRESA --
-            if ((indexTab == 3 && empresas.isEmpty()) || (indexTab == 4 && contabils.isEmpty())) {
-                return listaNotificacao;
-            } else {
-                obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
+            {
+                if ((indexTab == 3 && empresas.isEmpty()) || (indexTab == 4 && contabils.isEmpty())) {
+                    return listaNotificacao;
+                } else {
+                    obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
+                }
             }
 
             result = (Vector) obj[1];
@@ -617,6 +628,7 @@ public class NotificacaoBean implements Serializable {
             }
         }
 
+        // 4;"EMAIL PARA OS ESCRITÓRIO" 5;"EMAIL PARA AS EMPRESAS"
         if (ct.getId() == 4 || ct.getId() == 5) {
             List<Vector> lista = db.pollingEmailTrue();
             if (!lista.isEmpty()) {
@@ -633,6 +645,14 @@ public class NotificacaoBean implements Serializable {
 
             int atual = 1;
             String ph = "";
+            
+            File fl_marca_d = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/notificacao_marca_dagua.png"));
+            String marca_dagua = "";
+            
+            if (fl_marca_d.exists()){
+                marca_dagua = fl_marca_d.getPath();
+            }
+            
             for (int i = 0; i < result.size(); i++) {
                 listax.add(
                         new ParametroNotificacao(
@@ -661,7 +681,8 @@ public class NotificacaoBean implements Serializable {
                                 getConverteNullString(result.get(i).get(22)),
                                 getConverteNullString(result.get(i).get(23)),
                                 getConverteNullString(result.get(i).get(24)),
-                                getConverteNullString(result.get(i).get(25))
+                                getConverteNullString(result.get(i).get(25)),
+                                marca_dagua
                         )
                 );
 
@@ -761,14 +782,44 @@ public class NotificacaoBean implements Serializable {
                     }
                     enviar = false;
                     listax.clear();
+                
                 }
+                
             }
+            
         } else {
-            int id_compara = 0;
-            boolean imprimir = false;
-            int atual = 0, limite = 3000;
-            JasperReport jasper = null;
 
+            boolean imprimir = false, adicionar_jasper = false;
+
+            int atual = 0, limite = 3000;
+
+            List<JasperPrint> listJasper = new ArrayList();
+
+            String load_file = "";
+
+            switch (ct.getId()) {
+                // 1;"ESCRITÓRIO"
+                case 1:
+                    load_file = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_ESCRITORIO.jasper");
+                    break;
+                // 2;"EMPRESA COM ESCRITÓRIO"
+                // 3;"EMPRESA SEM ESCRITÓRIO"
+                case 2:
+                case 3:
+                    load_file = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper");
+                    break;
+                default:
+                    break;
+            }
+
+            JasperReport jasper = (JasperReport) JRLoader.loadObject(new File(load_file));
+            
+            File fl_marca_d = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/notificacao_marca_dagua.png"));
+            String marca_dagua = "";
+            
+            if (fl_marca_d.exists()){
+                marca_dagua = fl_marca_d.getPath();
+            }
             for (int i = 0; i < result.size(); i++) {
                 listax.add(
                         new ParametroNotificacao(
@@ -797,53 +848,80 @@ public class NotificacaoBean implements Serializable {
                                 getConverteNullString(result.get(i).get(22)),
                                 getConverteNullString(result.get(i).get(23)),
                                 getConverteNullString(result.get(i).get(24)),
-                                getConverteNullString(result.get(i).get(25))
+                                getConverteNullString(result.get(i).get(25)),
+                                marca_dagua
                         )
                 );
 
-                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
-                String nomeArq = "notificacao_";
                 try {
-                    File fl;
-                    if (ct.getId() == 1) {
-                        id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
-                        fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_ESCRITORIO.jasper"));
-                        jasper = (JasperReport) JRLoader.loadObject(fl);
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(26)) && !imprimir) {
-                            imprimir = true;
-                        }
-                    } else if (ct.getId() == 2) {
-                        id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
-                        fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper"));
-                        jasper = (JasperReport) JRLoader.loadObject(fl);
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(27)) && !imprimir) {
-                            imprimir = true;
-                        }
-                    } else if (ct.getId() == 3) {
-                        fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper"));
-                        jasper = (JasperReport) JRLoader.loadObject(fl);
-                        id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
-                        if (id_compara == 393) {
-                            String teste = "";
-                        }
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(27)) && !imprimir) {
-                            imprimir = true;
-                        }
+                    int id_compara;
+                    switch (ct.getId()) {
+                        // 1;"ESCRITÓRIO"
+                        case 1:
+                            id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
+                            if (id_compara != getConverteNullInt(result.get(i + 1).get(26)) && !adicionar_jasper) {
+                                adicionar_jasper = true;
+                            }
+                            break;
+                        // 2;"EMPRESA COM ESCRITÓRIO"
+                        // 3;"EMPRESA SEM ESCRITÓRIO"
+                        case 2:
+                        case 3:
+                            id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
+                            if (id_compara != getConverteNullInt(result.get(i + 1).get(27)) && !adicionar_jasper) {
+                                adicionar_jasper = true;
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 } catch (Exception e) {
+                    adicionar_jasper = true;
                     imprimir = true;
                     atual = limite;
                 }
 
                 try {
-                    if (imprimir && (atual >= limite)) {
-                        JasperPrint print = JasperFillManager.fillReport(jasper, params, dtSource);
-                        byte[] arquivo = new byte[0];
-                        arquivo = JasperExportManager.exportReportToPdf(print);
 
-                        String nomeDownload = nomeArq + DataHoje.hora().replace(":", "") + ".pdf";
-                        Thread.sleep(2000);
-                        SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
+                    if (adicionar_jasper) {
+
+                        JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
+
+                        //* JASPER FRENTE *//
+                        JasperPrint print = JasperFillManager.fillReport(jasper, params, dtSource);
+                        listJasper.add(print);
+
+                        // 3;"EMPRESA SEM ESCRITÓRIO"
+                        if (ct.getId() == 3 && chkImprimirVerso) {
+                            //* JASPER VERSO *//
+                            JasperReport jasper_verso = (JasperReport) JRLoader.loadObject(
+                                    new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_VERSO.jasper"))
+                            );
+
+                            HashMap params_verso = new LinkedHashMap();
+
+                            Pessoa p_resp = (Pessoa) dao.find(new Pessoa(), getConverteNullInt(result.get(i).get(27)));
+
+                            params_verso.put("serrilha", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Imagens/serrilha.GIF")); // SERRILHA
+                            params_verso.put("logo_verso", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+                            params_verso.put("sindicato_nome", ca.getFilial().getFilial().getPessoa().getNome());
+                            params_verso.put("sindicato_endereco", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEnderecoCompletoSemComplementoString());
+                            params_verso.put("sindicato_complemento", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getComplemento());
+                            params_verso.put("responsavel_nome", p_resp.getNome());
+                            params_verso.put("responsavel_endereco", p_resp.getPessoaEndereco().getEnderecoCompletoSemComplementoString());
+                            params_verso.put("responsavel_complemento", p_resp.getPessoaEndereco().getComplemento());
+
+                            print = JasperFillManager.fillReport(jasper_verso, params_verso);
+                            listJasper.add(print);
+                        }
+
+                        adicionar_jasper = false;
+                        listax = new ArrayList();
+                    }
+
+                    if (imprimir && (atual >= limite)) {
+                        String nomeArq = "notificacao_";
+
                         String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
 
                         File create = new File(pathPasta);
@@ -851,7 +929,19 @@ public class NotificacaoBean implements Serializable {
                             create.mkdir();
                         }
 
-                        sa.salvaNaPasta(pathPasta);
+                        Thread.sleep(2000);
+
+                        String nomeDownload = nomeArq + DataHoje.hora().replace(":", "") + ".pdf";
+
+                        File file = new File(pathPasta + "/" + nomeDownload);
+
+                        JRPdfExporter exporter = new JRPdfExporter();
+                        exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
+                        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
+                        SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+                        configuration.setCreatingBatchModeBookmarks(true);
+                        exporter.setConfiguration(configuration);
+                        exporter.exportReport();
 
                         Links link = new Links();
                         link.setCaminho(registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
@@ -952,8 +1042,7 @@ public class NotificacaoBean implements Serializable {
             JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
             JasperPrint print = JasperFillManager.fillReport(jasper, params, dtSource);
 
-            byte[] arquivo = new byte[0];
-            arquivo = JasperExportManager.exportReportToPdf(print);
+            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
 
             String nomeDownload = nomeArq + DataHoje.hora().replace(":", "") + ".pdf";
             SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
@@ -1371,6 +1460,14 @@ public class NotificacaoBean implements Serializable {
 
     public void setListaTipoServico(List<ListaDeTipoServico> listaTipoServico) {
         this.listaTipoServico = listaTipoServico;
+    }
+
+    public Boolean getChkImprimirVerso() {
+        return chkImprimirVerso;
+    }
+
+    public void setChkImprimirVerso(Boolean chkImprimirVerso) {
+        this.chkImprimirVerso = chkImprimirVerso;
     }
 
     public class ListaDeServicos {

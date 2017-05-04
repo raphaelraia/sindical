@@ -111,7 +111,7 @@ public class PessoaEndereco implements java.io.Serializable {
         }
         try {
             if (!numero.equals("")) {
-                enderecoString += ", nº" + numero + " ";
+                enderecoString += ", nº " + numero + " ";
             }
         } catch (Exception e) {
 
@@ -119,6 +119,53 @@ public class PessoaEndereco implements java.io.Serializable {
         try {
             if (!complemento.equals("")) {
                 enderecoString += " - " + this.complemento;
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (!this.endereco.getCidade().getCidade().equals("")) {
+                enderecoString += " - " + this.endereco.getCidade().getCidade();
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (!this.endereco.getCidade().getUf().equals("")) {
+                enderecoString += " - " + this.endereco.getCidade().getUf();
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (!this.endereco.getCep().equals("")) {
+                enderecoString += " - CEP: " + Mask.cep(this.endereco.getCep());
+            }
+        } catch (Exception e) {
+
+        }
+        return enderecoString;
+    }
+
+    public String getEnderecoCompletoSemComplementoString() {
+        String enderecoString = "";
+        try {
+            if (!this.endereco.getLogradouro().getDescricao().equals("")) {
+                enderecoString += this.endereco.getLogradouro().getDescricao();
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (!this.endereco.getDescricaoEndereco().getDescricao().equals("")) {
+                enderecoString += " " + this.endereco.getDescricaoEndereco().getDescricao();
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (!numero.equals("")) {
+                enderecoString += ", nº " + numero + " ";
             }
         } catch (Exception e) {
 

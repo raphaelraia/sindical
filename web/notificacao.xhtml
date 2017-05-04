@@ -36,7 +36,7 @@
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid id="i_panel" columns="6">
                                     <p:column>
-                                        <p:selectOneMenu value="#{notificacaoBean.idLista}" style="width: 400px;">
+                                        <p:selectOneMenu value="#{notificacaoBean.idLista}" style="width: 350px;">
                                             <p:ajax event="change" listener="#{notificacaoBean.alteraCombo()}" update="formNotificacao"/>
                                             <f:selectItems value="#{notificacaoBean.itensLista}"/>
                                         </p:selectOneMenu>
@@ -55,7 +55,7 @@
                                     </p:column>
 
                                     <p:column>
-                                        <p:selectOneMenu value="#{notificacaoBean.idTipoEnvio}" rendered="#{notificacaoBean.lote.id != -1}" style="padding-right: 20px">
+                                        <p:selectOneMenu value="#{notificacaoBean.idTipoEnvio}" rendered="#{notificacaoBean.lote.id != -1}">
                                             <p:ajax event="change" update="i_panel" />
                                             <f:selectItems value="#{notificacaoBean.listaTipoEnvio}"/>
                                         </p:selectOneMenu>
@@ -66,6 +66,12 @@
                                             <p:commandButton value="Enviar" title="Enviar Notificação por Email" rendered="#{notificacaoBean.lote.id != -1}" onclick="PF('i_dlg_e').show()"/>
                                         </h:column>
 
+                                        <h:column rendered="#{notificacaoBean.lote.id ne -1 and notificacaoBean.idTipoEnvio eq 2}">
+                                            <p:selectBooleanCheckbox value="#{notificacaoBean.chkImprimirVerso}" itemLabel="Imprimir com Verso" style="margin-left: 10px; margin-right: 10px; font-weight: bold">
+                                                <p:ajax event="change" update="@this" global="false" />
+                                            </p:selectBooleanCheckbox>
+                                        </h:column>
+                                        
                                         <h:column rendered="#{notificacaoBean.idTipoEnvio == 0 or notificacaoBean.idTipoEnvio == 1 or notificacaoBean.idTipoEnvio == 2}">
                                             <p:commandButton value="Criar Arquivos" title="Criar arquivos de Notificação" rendered="#{notificacaoBean.lote.id != -1}" onclick="PF('i_dlg_e').show()"/>
                                         </h:column>
