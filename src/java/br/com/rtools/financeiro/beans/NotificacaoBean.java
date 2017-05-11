@@ -910,6 +910,7 @@ public class NotificacaoBean implements Serializable {
                             params_verso.put("responsavel_nome", p_resp.getNome());
                             params_verso.put("responsavel_endereco", p_resp.getPessoaEndereco().getEnderecoCompletoSemComplementoString());
                             params_verso.put("responsavel_complemento", p_resp.getPessoaEndereco().getComplemento());
+                            params_verso.put("servico_nome", listax.get(0).getMovservico());
 
                             print = JasperFillManager.fillReport(jasper_verso, params_verso);
                             listJasper.add(print);
