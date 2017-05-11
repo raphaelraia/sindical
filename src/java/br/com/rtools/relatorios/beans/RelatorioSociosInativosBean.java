@@ -144,7 +144,7 @@ public class RelatorioSociosInativosBean implements Serializable {
             in_motivo = "" + idMotivo;
         }
         Boolean dependentes = listFilters.get(0).getActive();
-        if (tag != null && tag) {
+        if (tag != null && tag) { 
             dependentes = false;
         }
         List list = db.listaSociosInativos(dependentes, dtII, dtIF, dtFI, dtFF, categoria_id, grupo_categoria_id, ordernarPor, s, in_motivo);

@@ -2,13 +2,17 @@ package br.com.rtools.arrecadacao;
 
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "arr_faturamento_folha_empresa")
 @NamedQueries({
-    @NamedQuery(name = "FolhaEmpresa.pesquisaID", query = "SELECT FE FROM FolhaEmpresa AS FE WHERE FE.id = :pid"),
+    @NamedQuery(name = "FolhaEmpresa.pesquisaID", query = "SELECT FE FROM FolhaEmpresa AS FE WHERE FE.id = :pid")
+    ,
     @NamedQuery(name = "FolhaEmpresa.findAll", query = "SELECT FE FROM FolhaEmpresa AS FE "),})
 public class FolhaEmpresa implements Serializable {
 
@@ -30,6 +34,14 @@ public class FolhaEmpresa implements Serializable {
     private int numFuncionarios;
     @Column(name = "nr_alteracoes", nullable = false)
     private int alteracoes;
+    @Column(name = "dt_lancamento")
+    @Temporal(TemporalType.DATE)
+    private Date dtLancamento;
+
+    @Transient
+    private Double valorFolha;
+    @Transient
+    private Double valorBoleto;
 
     public FolhaEmpresa() {
         this.id = -1;
@@ -39,9 +51,12 @@ public class FolhaEmpresa implements Serializable {
         this.valorMes = 0;
         this.numFuncionarios = 0;
         this.alteracoes = 1;
+        this.dtLancamento = new Date();
+        this.valorFolha = null;
+        this.valorBoleto = null;
     }
 
-    public FolhaEmpresa(int id, Juridica juridica, TipoServico tipoServico, String referencia, float valorMes, int numFuncionarios, int alteracoes) {
+    public FolhaEmpresa(int id, Juridica juridica, TipoServico tipoServico, String referencia, float valorMes, int numFuncionarios, int alteracoes, Date dtLancamento) {
         this.id = id;
         this.juridica = juridica;
         this.tipoServico = tipoServico;
@@ -49,6 +64,9 @@ public class FolhaEmpresa implements Serializable {
         this.valorMes = valorMes;
         this.numFuncionarios = numFuncionarios;
         this.alteracoes = alteracoes;
+        this.dtLancamento = dtLancamento;
+        this.valorFolha = null;
+        this.valorBoleto = null;
     }
 
     public int getId() {
@@ -83,6 +101,14 @@ public class FolhaEmpresa implements Serializable {
         this.valorMes = valorMes;
     }
 
+    public String getValorMesString() {
+        return Moeda.converteR$Float(valorMes);
+    }
+
+    public void setValorMesString(String valorMesString) {
+        this.valorMes = Moeda.converteUS$(valorMesString);
+    }
+
     public Juridica getJuridica() {
         return juridica;
     }
@@ -99,6 +125,14 @@ public class FolhaEmpresa implements Serializable {
         this.numFuncionarios = numFuncionarios;
     }
 
+    public String getNumFuncionariosString() {
+        return numFuncionarios + "";
+    }
+
+    public void setNumFuncionariosString(String numFuncionariosString) {
+        this.numFuncionarios = Integer.parseInt(numFuncionariosString);
+    }
+
     public int getAlteracoes() {
         return alteracoes;
     }
@@ -106,4 +140,29 @@ public class FolhaEmpresa implements Serializable {
     public void setAlteracoes(int alteracoes) {
         this.alteracoes = alteracoes;
     }
+
+    public String getAlteracoesString() {
+        return alteracoes + "";
+    }
+
+    public void setAlteracoesString(String alteracoesString) {
+        this.alteracoes = Integer.parseInt(alteracoesString);
+    }
+
+    public Date getDtLancamento() {
+        return dtLancamento;
+    }
+
+    public void setDtLancamento(Date dtLancamento) {
+        this.dtLancamento = dtLancamento;
+    }
+
+    public String getLancamento() {
+        return DataHoje.converteData(dtLancamento);
+    }
+
+    public void setLancamento(String lancamento) {
+        this.dtLancamento = DataHoje.converte(lancamento);
+    }
+
 }

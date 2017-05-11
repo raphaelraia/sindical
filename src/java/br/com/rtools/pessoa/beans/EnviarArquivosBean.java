@@ -8,13 +8,16 @@ import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.EnviarArquivosDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Mensagem;
+import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -70,37 +73,37 @@ public class EnviarArquivosBean implements Serializable {
     private String tipo = "";
 
     private String descricao = "";
-    
+
     private boolean empresaDebito = false;
     private String cobrarAteVencimento = "";
     private List<DataObject> listaServicosAteVencimento = new ArrayList();
     private boolean marcarServicos = true;
 
-    public EnviarArquivosBean(){
+    public EnviarArquivosBean() {
         DataHoje dh = new DataHoje();
         cobrarAteVencimento = dh.decrementarDias(1, DataHoje.data());
-        
+
         loadListaServicosAteVencimento();
     }
-    
-    public void loadListaServicosAteVencimento(){
+
+    public void loadListaServicosAteVencimento() {
         listaServicosAteVencimento.clear();
         EnviarArquivosDao db = new EnviarArquivosDao();
-        
+
         List<Servicos> result = db.listaServicosAteVencimento();
-        
-        for (Servicos s : result){
+
+        for (Servicos s : result) {
             listaServicosAteVencimento.add(new DataObject(true, s));
         }
     }
-    
-    public void marcar(){
-        for (DataObject d : listaServicosAteVencimento){
+
+    public void marcar() {
+        for (DataObject d : listaServicosAteVencimento) {
             d.setArgumento0(marcarServicos);
         }
         listaContribuintes.clear();
     }
-    
+
     /* EMPRESA */
     public void limparEmpresa() {
         listaContribuintes.clear();
@@ -146,7 +149,7 @@ public class EnviarArquivosBean implements Serializable {
     }
 
     /* FIM EMPRESA */
-    /* CONTABILIDADE */
+ /* CONTABILIDADE */
     public void todasContabilidade() {
         listaContabilidades.clear();
         adicionar = false;
@@ -189,8 +192,8 @@ public class EnviarArquivosBean implements Serializable {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("enviarArquivosBean", new EnviarArquivosBean());
         return "enviarArquivosContabilidade";
     }
-    /* FIM CONTABILIDADE */
 
+    /* FIM CONTABILIDADE */
     public String novoContribuinte() {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("enviarArquivosBean", new EnviarArquivosBean());
         return "enviarArquivosContribuinte";
@@ -272,6 +275,13 @@ public class EnviarArquivosBean implements Serializable {
             emailPessoas.add(emailPessoa);
             mail.setEmailPessoas(emailPessoas);
             emailPessoa = new EmailPessoa();
+        }
+        ConfiguracaoDepartamento configuracaoDepartamento = null;
+        if (MacFilial.getAcessoFilial().getFilial().getId() != -1) {
+            configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(14, MacFilial.getAcessoFilial().getFilial().getId());
+        }
+        if (configuracaoDepartamento != null) {
+            mail.setConfiguracaoDepartamento(configuracaoDepartamento);
         }
         String[] retorno = mail.send("personalizado");
 
@@ -449,23 +459,25 @@ public class EnviarArquivosBean implements Serializable {
         if (listaContribuintes.isEmpty() && !adicionar) {
             EnviarArquivosDao db = new EnviarArquivosDao();
             String ids_servicos = "";
-            if (empresaDebito && !cobrarAteVencimento.isEmpty()){
-                for (DataObject d : listaServicosAteVencimento){
-                    if ((Boolean) d.getArgumento0()){
-                        if (ids_servicos.isEmpty())
-                            ids_servicos = ""+((Servicos) d.getArgumento1()).getId();
-                        else
-                            ids_servicos += ", "+((Servicos) d.getArgumento1()).getId();
+            if (empresaDebito && !cobrarAteVencimento.isEmpty()) {
+                for (DataObject d : listaServicosAteVencimento) {
+                    if ((Boolean) d.getArgumento0()) {
+                        if (ids_servicos.isEmpty()) {
+                            ids_servicos = "" + ((Servicos) d.getArgumento1()).getId();
+                        } else {
+                            ids_servicos += ", " + ((Servicos) d.getArgumento1()).getId();
+                        }
                     }
                 }
             }
-            
+
             List list = new ArrayList();
-            if (empresaDebito && ids_servicos.isEmpty()){
+            if (empresaDebito && ids_servicos.isEmpty()) {
                 list = new ArrayList();
-            }else
+            } else {
                 list = db.pesquisaContribuintes(convencoesSelecionadasId(), gruposCidadeSelecionadosId(), cnaesSelecionadosId(), empresaDebito, ids_servicos, cobrarAteVencimento);
-            
+            }
+
             for (int i = 0; i < list.size(); i++) {
                 Juridica juridica = db.pesquisaCodigo((Integer) ((List) list.get(i)).get(0));
                 listaContribuintes.add(juridica);
@@ -478,13 +490,14 @@ public class EnviarArquivosBean implements Serializable {
         if (listaContribuintesPesquisa.isEmpty() && !descricao.isEmpty()) {
             EnviarArquivosDao db = new EnviarArquivosDao();
             String ids_servicos = "";
-            if (empresaDebito && !cobrarAteVencimento.isEmpty()){
-                for (DataObject d : listaServicosAteVencimento){
-                    if ((Boolean) d.getArgumento0()){
-                        if (ids_servicos.isEmpty())
-                            ids_servicos = ""+((Servicos) d.getArgumento1()).getId();
-                        else
-                            ids_servicos += ", "+((Servicos) d.getArgumento1()).getId();
+            if (empresaDebito && !cobrarAteVencimento.isEmpty()) {
+                for (DataObject d : listaServicosAteVencimento) {
+                    if ((Boolean) d.getArgumento0()) {
+                        if (ids_servicos.isEmpty()) {
+                            ids_servicos = "" + ((Servicos) d.getArgumento1()).getId();
+                        } else {
+                            ids_servicos += ", " + ((Servicos) d.getArgumento1()).getId();
+                        }
                     }
                 }
             }

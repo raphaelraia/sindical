@@ -67,7 +67,7 @@ public class CartaoSocialBean implements Serializable {
     private List<List> listaSelecionadoMemoria = new ArrayList();
     private List<SelectItem> listFilial = new ArrayList();
     private List listaHistorico = new ArrayList();
-    private String por = "";
+    private String por = ""; 
     private String porLabel = "";
     private String indexOrdem = "0";
     private Integer page;

@@ -988,6 +988,9 @@ public class RelatorioSociosDao extends DB {
                 case "filiacao":
                     ordem = " S.filiacao DESC, \n";
                     break;
+                case "empresa":
+                    ordem = " DE.empresa ASC, \n";
+                    break;
                 default:
                     break;
             }
@@ -1023,6 +1026,9 @@ public class RelatorioSociosDao extends DB {
                     break;
                 case "categoria":
                     ordem = " S.categoria, \n";
+                    break;
+                case "empresa":
+                    ordem = " DE.empresa, \n";
                     break;
                 default:
                     break;

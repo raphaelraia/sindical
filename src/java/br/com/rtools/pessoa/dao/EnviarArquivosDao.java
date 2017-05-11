@@ -92,19 +92,6 @@ public class EnviarArquivosDao extends DB {
 
         String caso = "";
         String inStringCnae = "";
-
-        if (!listaConvencao.isEmpty() && caso.equals("")) {
-            caso = "3";
-            inStringCnae += " AND c.id_convencao IN (" + listaConvencao + ") ";
-        }
-        if (!listaGrupoCidade.isEmpty() && caso.equals("")) {
-            caso = "2";
-            inStringCnae += " AND c.id_grupo_cidade IN(" + listaGrupoCidade + ") ";
-        }
-        if (!listaCnae.isEmpty()) {
-            caso = "1";
-            inStringCnae += " AND j.id_cnae IN(" + listaCnae + ") ";
-        }
         String textQuery = "";
         String textQuery1;
         try {
@@ -127,15 +114,30 @@ public class EnviarArquivosDao extends DB {
                     + "      WHERE c.dt_inativacao is null                      "
                     + "        AND length(rtrim(p.ds_email1)) > 0               ";
 
-            if (caso.equals("1")) {
+            if (!listaConvencao.isEmpty() && caso.equals("") && listaGrupoCidade.isEmpty() && listaCnae.isEmpty()) {
+                caso = "3";
+                inStringCnae += " AND c.id_convencao IN (" + listaConvencao + ") ";
                 textQuery += textQuery1 + "  " + inStringCnae + " ";
-            } else if (caso.equals("2")) {
-                textQuery += textQuery1 + " " + inStringCnae + " ";
-            } else if (caso.equals("3")) {
-                textQuery += textQuery1 + " " + inStringCnae + " ";
-            } else {
-                textQuery += textQuery1;
             }
+            if (!listaConvencao.isEmpty() && caso.equals("") && !listaGrupoCidade.isEmpty() && listaCnae.isEmpty()) {
+                caso = "2";
+                inStringCnae += " AND c.id_grupo_cidade IN(" + listaGrupoCidade + ") ";
+                textQuery += textQuery1 + "  " + inStringCnae + " ";
+            }
+            if (!listaConvencao.isEmpty() && caso.equals("") && !listaGrupoCidade.isEmpty() && !listaCnae.isEmpty()) {
+                caso = "1";
+                inStringCnae += " AND j.id_cnae IN(" + listaCnae + ") ";
+                textQuery += textQuery1 + "  " + inStringCnae + " ";
+            }
+//            if (caso.equals("1")) {
+//                textQuery += textQuery1 + "  " + inStringCnae + " ";
+//            } else if (caso.equals("2")) {
+//                textQuery += textQuery1 + " " + inStringCnae + " ";
+//            } else if (caso.equals("3")) {
+//                textQuery += textQuery1 + " " + inStringCnae + " ";
+//            } else {
+//                textQuery += textQuery1;
+//            }
 
             textQuery += inStringCnae + "   ORDER BY p.ds_nome  ;";
             Query qry = getEntityManager().createNativeQuery(textQuery);

@@ -2427,6 +2427,12 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>folhaEmpresa</from-outcome>
+            <to-view-id>/folhaEmpresa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

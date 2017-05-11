@@ -41,7 +41,7 @@
                                         <h:outputLabel value="FILIAL: "/>
                                         <p:selectOneMenu value="#{cartaoSocialBean.idFilial}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
                                             <p:ajax event="change" update="@this"  global="false" />
-                                            <f:selectItems value="#{cartaoSocialBean.listFilial}"/>
+                                            <f:selectItems value="#{cartaoSocialBean.listFilial}"/> 
                                         </p:selectOneMenu>                                
                                         <h:outputLabel value="Operador: " styleClass="margin-left-max" rendered="#{cartaoSocialBean.status ne 'nao_impressos'}"/>
                                         <p:selectOneMenu value="#{cartaoSocialBean.idOperador}" rendered="#{cartaoSocialBean.status ne 'nao_impressos'}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
