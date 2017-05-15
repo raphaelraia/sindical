@@ -16,11 +16,11 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-
 @Entity
 @Table(name = "arr_empregados")
 @NamedQuery(name = "Empregados.pesquisaID", query = "select e from Empregados e where e.id = :pid")
-public class Empregados  implements Serializable {
+public class Empregados implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -34,7 +34,7 @@ public class Empregados  implements Serializable {
     private String referencia;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_lancamento")
-    private Date dtLancamento;    
+    private Date dtLancamento;
 
     public Empregados() {
         this.id = -1;
@@ -43,8 +43,7 @@ public class Empregados  implements Serializable {
         this.referencia = "";
         this.dtLancamento = DataHoje.dataHoje();
     }
-    
-    
+
     public Empregados(int id, Juridica juridica, int quantidade, String referencia, Date dtLancamento) {
         this.id = id;
         this.juridica = juridica;
@@ -92,7 +91,5 @@ public class Empregados  implements Serializable {
     public void setDtLancamento(Date dtLancamento) {
         this.dtLancamento = dtLancamento;
     }
-    
-    
-    
+
 }

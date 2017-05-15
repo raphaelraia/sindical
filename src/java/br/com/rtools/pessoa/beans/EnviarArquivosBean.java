@@ -27,7 +27,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
-import java.io.Serializable;
+import java.io.Serializable; 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -277,9 +277,14 @@ public class EnviarArquivosBean implements Serializable {
             emailPessoa = new EmailPessoa();
         }
         ConfiguracaoDepartamento configuracaoDepartamento = null;
-        if (MacFilial.getAcessoFilial().getFilial().getId() != -1) {
-            configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(14, MacFilial.getAcessoFilial().getFilial().getId());
-        }
+       
+        
+        
+        if (MacFilial.getAcessoFilial().getFilial().getId() != -1) { 
+            
+            configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(14, MacFilial.getAcessoFilial().getFilial().getId()); 
+            
+        }  
         if (configuracaoDepartamento != null) {
             mail.setConfiguracaoDepartamento(configuracaoDepartamento);
         }

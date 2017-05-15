@@ -2598,7 +2598,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String converteMoeda(String valor) {
-        return Moeda.converteR$(valor);
+        Double d = new Double(0);
+        if(valor != null) {
+            try {
+               d = new Double(valor.toString());
+            } catch (Exception e)  {
+                
+            }
+        }
+        return Moeda.converteR$Double(d);
     }
 
     public String getSomaValoresHistorico() {
