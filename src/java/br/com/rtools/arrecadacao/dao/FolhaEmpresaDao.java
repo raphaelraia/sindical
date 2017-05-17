@@ -91,7 +91,8 @@ public class FolhaEmpresaDao extends DB {
                     + "           func_arr_calcula_valor_boleto(c.id_pessoa, " + servico_id + ",'" + referencia + "', nr_valor, D.nr_num_funcionarios) AS valor_boleto,       \n"
                     + "           DE.id_servicos,                               \n"
                     + "           D.id,                                         \n"
-                    + "           D.nr_num_funcionarios                         \n"
+                    + "           D.nr_num_funcionarios,                        \n"
+                    + "           C.id_juridica AS juridica_id                  \n"
                     + "      FROM arr_contribuintes_vw AS C                     \n"
                     + "INNER JOIN arr_desconto_empregado AS DE ON DE.id_grupo_cidade = C.id_grupo_cidade AND DE.id_convencao = C.id_convencao AND DE.id_servicos = " + servico_id + " \n"
                     + "       AND date('01/'||'" + referencia + "') >= date('01/'||ds_ref_inicial)  \n"
@@ -101,7 +102,7 @@ public class FolhaEmpresaDao extends DB {
                 if (by.equals("nome")) {
                     qs.addWhere("UPPER(func_translate(ds_nome)) LIKE UPPER(func_translate('%" + description + "%'))");
                 }
-                if (by.equals("documento")) {
+                if (by.equals("cpf") || by.equals("cnpj")) {
                     qs.addWhere("ds_documento = '" + description + "'");
                 }
             }

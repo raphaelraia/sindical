@@ -13,9 +13,11 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -37,6 +39,8 @@ public class FolhaEmpresaBean implements Serializable {
     private String by;
     private String description;
     private Boolean visible;
+    private Double valorBoleto;
+    private Double valorFolha;
 
     public FolhaEmpresaBean() {
         GenericaSessao.remove("juridicaPesquisa");
@@ -49,6 +53,8 @@ public class FolhaEmpresaBean implements Serializable {
         this.idTipoServicoFilter = 1;
         this.empresa = new Juridica();
         this.referencia = DataHoje.converteDataParaReferencia(DataHoje.dataHoje());
+        this.valorBoleto = new Double(0);
+        this.valorFolha = new Double(0);
         by = "nome";
         description = "";
         visible = false;
@@ -63,7 +69,10 @@ public class FolhaEmpresaBean implements Serializable {
     }
 
     public void newRegister() {
+        valorFolha = new Double(0);
+        valorBoleto = new Double(0);
         folhaEmpresa = new FolhaEmpresa();
+        folhaEmpresa.setJuridica(new Juridica());
         folhaEmpresa.setReferencia(referencia);
         empresa = new Juridica();
         idTipoServico = idTipoServicoFilter;
@@ -72,16 +81,24 @@ public class FolhaEmpresaBean implements Serializable {
 
     public void close() {
         folhaEmpresa = new FolhaEmpresa();
+        if (empresa.getId() != -1) {
+            // loadListFolhaEmpresas();
+        }
         empresa = new Juridica();
         idTipoServico = 1;
         loadListServicos();
-        visible = false;        
+        visible = false;
     }
 
     public void removeEmpresa() {
+        valorFolha = new Double(0);
+        valorBoleto = new Double(0);
+        folhaEmpresa = new FolhaEmpresa();
+        folhaEmpresa.setReferencia(referencia);
         empresa = new Juridica();
         folhaEmpresa.setJuridica(new Juridica());
-        loadListFolhaEmpresas();
+        idTipoServico = idTipoServicoFilter;
+        visible = true;
     }
 
     public void save() {
@@ -96,17 +113,18 @@ public class FolhaEmpresaBean implements Serializable {
             GenericaMensagem.warn("Validação", "INFORMAR REFERÊNCIA!");
             return;
         }
+        folhaEmpresa.setValorMes(new Float(valorFolha.toString()));
         if (folhaEmpresa.getValorMes() <= 0) {
-            GenericaMensagem.warn("Validação", "INFORMAR VALOR DO MÊS!");
+            GenericaMensagem.warn("Validação", "INFORMAR VALORES DO BOLETO OU FOLHA!");
             return;
         }
-        if (folhaEmpresa.getNumFuncionarios() <= 0) {
-            GenericaMensagem.warn("Validação", "INFORMAR NÚMERO DE FUNCIONÁRIOS!");
+        if (folhaEmpresa.getNumFuncionarios() < 0) {
+            GenericaMensagem.warn("Validação", "INFORMAR NÚMERO DE FUNCIONÁRIOS IGUAL OU MAIOR QUE ZERO!");
             return;
         }
         dao.openTransaction();
         if (folhaEmpresa.getId() == -1) {
-            List<ContribuintesInativos> ci = new ContribuintesInativosDao().findByJuridica(empresa.getId());
+            List<ContribuintesInativos> ci = new ContribuintesInativosDao().findByJuridica(folhaEmpresa.getJuridica().getId());
             if (!ci.isEmpty()) {
                 dao.rollback();
                 GenericaMensagem.warn("Validação", "CONTRIBUINTE INÁTIVO");
@@ -122,31 +140,60 @@ public class FolhaEmpresaBean implements Serializable {
                 dao.rollback();
                 return;
             }
+            GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
         } else {
             if (!dao.update(folhaEmpresa)) {
                 GenericaMensagem.warn("Erro", "AO INSERIR REGISTRO!");
                 dao.rollback();
                 return;
             }
+            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
         }
         dao.commit();
-        GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
-        loadListFolhaEmpresas();
+        for (int i = 0; i < listFolhaEmpresas.size(); i++) {
+            if (folhaEmpresa.getJuridica().getPessoa().getDocumento().equals(listFolhaEmpresas.get(i).getDocumento())) {
+                if (listFolhaEmpresas.get(i).getId() == null) {
+                    listFolhaEmpresas.get(i).setId(folhaEmpresa.getId());
+                }
+                listFolhaEmpresas.get(i).setNumero_funcionarios(folhaEmpresa.getNumFuncionariosString());
+                listFolhaEmpresas.get(i).setValor_boleto(valorBoleto);
+                listFolhaEmpresas.get(i).setValor_folha(valorFolha);
+                break;
+            }
+        }
 
     }
 
     public void edit(FolhaEmpresaObject fe) {
+        valorFolha = new Double(0);
+        valorBoleto = new Double(0);
         if (fe.getId() != null) {
             folhaEmpresa = (FolhaEmpresa) new Dao().find(new FolhaEmpresa(), new Integer(fe.getId().toString()));
             idTipoServico = folhaEmpresa.getTipoServico().getId();
             idServico = Integer.parseInt(fe.getServicos_id() + "");
+            valorFolha = (double) folhaEmpresa.getValorMes();
+            changeValorBoleto();
+        } else {
+            folhaEmpresa = new FolhaEmpresa();
+            folhaEmpresa.setReferencia(referencia);
+            empresa = (Juridica) new Dao().find(new Juridica(), new Integer(fe.getJuridica_id().toString()));
+            idTipoServico = idTipoServicoFilter;
         }
+        visible = true;
     }
 
     public void delete(FolhaEmpresaObject fe) {
         if (fe.getId() != null) {
-            new Dao().delete(new Dao().find(new FolhaEmpresa(), fe.getId()));
-
+            new Dao().delete(new Dao().find(new FolhaEmpresa(), fe.getId()), true);
+        }
+        for (int i = 0; i < listFolhaEmpresas.size(); i++) {
+            if (fe.getId() == listFolhaEmpresas.get(i).getId()) {
+                listFolhaEmpresas.get(i).setId(null);
+                listFolhaEmpresas.get(i).setValor_boleto("0,00");
+                listFolhaEmpresas.get(i).setValor_folha("0,00");
+                listFolhaEmpresas.get(i).setNumero_funcionarios(0);
+                break;
+            }
         }
     }
 
@@ -173,7 +220,7 @@ public class FolhaEmpresaBean implements Serializable {
         List list = new FolhaEmpresaDao().findByNative(by, description, idServico, idTipoServicoFilter, referencia);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            listFolhaEmpresas.add(new FolhaEmpresaObject(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6)));
+            listFolhaEmpresas.add(new FolhaEmpresaObject(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7)));
         }
     }
 
@@ -223,10 +270,20 @@ public class FolhaEmpresaBean implements Serializable {
     public void findByDocument() {
         if (folhaEmpresa.getJuridica().getId() == -1) {
             if (!folhaEmpresa.getJuridica().getPessoa().getDocumento().isEmpty()) {
-                Juridica j = (Juridica) new JuridicaDao().findByDocumento(folhaEmpresa.getJuridica().getPessoa().getDocumento());
-                if (j != null) {
-                    folhaEmpresa.setJuridica(j);
+                for (int i = 0; i < listFolhaEmpresas.size(); i++) {
+                    if (folhaEmpresa.getJuridica().getPessoa().getDocumento().equals(listFolhaEmpresas.get(i).getDocumento())) {
+                        folhaEmpresa.setReferencia(referencia);
+                        folhaEmpresa.setDtLancamento(new Date());
+                        folhaEmpresa.setJuridica((Juridica) new Dao().find(new Juridica(), (int) listFolhaEmpresas.get(i).getJuridica_id()));
+                        folhaEmpresa.setNumFuncionarios(0);
+                        folhaEmpresa.setValorMes(0);
+                        return;
+                    }
                 }
+                // Juridica j = (Juridica) new JuridicaDao().findByDocumento(folhaEmpresa.getJuridica().getPessoa().getDocumento());
+                // if (j != null) {
+                // folhaEmpresa.setJuridica(j);
+                // }
             }
         }
     }
@@ -236,6 +293,8 @@ public class FolhaEmpresaBean implements Serializable {
             if (!document.isEmpty()) {
                 Juridica j = (Juridica) new JuridicaDao().findByDocumento(document);
                 if (j != null) {
+                    valorFolha = new Double(0);
+                    valorBoleto = new Double(0);
                     folhaEmpresa.setJuridica(j);
                     folhaEmpresa.setReferencia(referencia);
                     idTipoServico = idTipoServicoFilter;
@@ -286,11 +345,46 @@ public class FolhaEmpresaBean implements Serializable {
     }
 
     public Double getValorBoleto() {
-        return new FunctionsDao().arrCalculaValorBoleto(folhaEmpresa.getJuridica().getPessoa().getId(), idServico, folhaEmpresa.getReferencia(), folhaEmpresa.getValorMes() + "", folhaEmpresa.getNumFuncionarios());
+        return valorBoleto;
+    }
+
+    public String getValorBoletoString() {
+        return Moeda.converteR$Double(valorBoleto);
+    }
+
+    public void setValorBoletoString(String valorBoletoString) {
+        this.valorBoleto = (double) Moeda.converteUS$(valorBoletoString);
     }
 
     public Double getValorFolha() {
-        return new FunctionsDao().arrCalculaValorFolha(folhaEmpresa.getJuridica().getPessoa().getId(), idServico, folhaEmpresa.getReferencia(), folhaEmpresa.getValorMes() + "");
+        return valorFolha;
+    }
+
+    public void setValorFolha(Double valorFolha) {
+        this.valorFolha = valorFolha;
+    }
+
+    public String getValorFolhaString() {
+        return Moeda.converteR$Double(valorFolha);
+    }
+
+    public void setValorFolhaString(String valorFolhaString) {
+        this.valorFolha = (double) Moeda.converteUS$(valorFolhaString);
+    }
+
+    public void changeValorBoletoEFolha() {
+        valorFolha = new Double(0);
+        valorBoleto = new Double(0);
+        // changeValorBoleto();
+        // changeValorFolha();
+    }
+
+    public void changeValorBoleto() {
+        this.valorBoleto = new FunctionsDao().arrCalculaValorBoleto(folhaEmpresa.getJuridica().getPessoa().getId(), idServico, folhaEmpresa.getReferencia(), valorFolha.toString(), folhaEmpresa.getNumFuncionarios());
+    }
+
+    public void changeValorFolha() {
+        this.valorFolha = new FunctionsDao().arrCalculaValorFolha(folhaEmpresa.getJuridica().getPessoa().getId(), idServico, folhaEmpresa.getReferencia(), valorBoleto.toString());
     }
 
     public List<SelectItem> getListServicos() {
@@ -309,6 +403,15 @@ public class FolhaEmpresaBean implements Serializable {
         this.idServico = idServico;
     }
 
+    public Servicos getServicoNome() {
+        try {
+            Servicos s = (Servicos) new Dao().find(new Servicos(), idServico);
+            return s;
+        } catch (Exception e) {
+            return new Servicos();
+        }
+    }
+
     public class FolhaEmpresaObject {
 
         private Object documento;
@@ -318,6 +421,7 @@ public class FolhaEmpresaBean implements Serializable {
         private Object servicos_id;
         private Object id;
         private Object numero_funcionarios;
+        private Object juridica_id;
 
         public FolhaEmpresaObject() {
             this.documento = "";
@@ -327,9 +431,10 @@ public class FolhaEmpresaBean implements Serializable {
             this.servicos_id = null;
             this.id = null;
             this.numero_funcionarios = 0;
+            this.juridica_id = null;
         }
 
-        public FolhaEmpresaObject(Object documento, Object nome, Object valor_folha, Object valor_boleto, Object servicos_id, Object id, Object numero_funcionarios) {
+        public FolhaEmpresaObject(Object documento, Object nome, Object valor_folha, Object valor_boleto, Object servicos_id, Object id, Object numero_funcionarios, Object juridica_id) {
             this.documento = documento;
             this.nome = nome;
             this.valor_folha = valor_folha;
@@ -337,6 +442,7 @@ public class FolhaEmpresaBean implements Serializable {
             this.servicos_id = servicos_id;
             this.id = id;
             this.numero_funcionarios = numero_funcionarios;
+            this.juridica_id = juridica_id;
         }
 
         public Object getDocumento() {
@@ -393,6 +499,14 @@ public class FolhaEmpresaBean implements Serializable {
 
         public void setNumero_funcionarios(Object numero_funcionarios) {
             this.numero_funcionarios = numero_funcionarios;
+        }
+
+        public Object getJuridica_id() {
+            return juridica_id;
+        }
+
+        public void setJuridica_id(Object juridica_id) {
+            this.juridica_id = juridica_id;
         }
 
     }

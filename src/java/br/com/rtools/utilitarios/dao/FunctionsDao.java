@@ -375,7 +375,7 @@ public class FunctionsDao extends DB {
      */
     public Double arrCalculaValorBoleto(Integer pessoa_id, Integer tipo_servico_id, String referencia, String valor, Integer qtde_empregados) {
         Double v = new Double(0);
-        if (pessoa_id != -1 && tipo_servico_id != -1 && !referencia.isEmpty() && Moeda.converteUS$(valor) > 0 && qtde_empregados > 0) {
+        if (pessoa_id != -1 && tipo_servico_id != -1 && !referencia.isEmpty() && Moeda.converteUS$(valor) > 0) {
             try {
                 String queryString = " SELECT func_arr_calcula_valor_boleto(" + pessoa_id + "," + tipo_servico_id + ",'" + referencia + "'," + valor + ", " + qtde_empregados + ") ";
                 Query query = getEntityManager().createNativeQuery(queryString);
