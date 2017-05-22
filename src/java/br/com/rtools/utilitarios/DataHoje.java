@@ -386,7 +386,7 @@ public class DataHoje {
                 if ((d[1] + qtd) > 12) {
                     int tmp = (d[1] + qtd);
                     while (tmp > 12) {
-                        tmp -= 12;
+                        tmp -= 12; 
                         c++;
                     }
                     d[2] += c;
@@ -1077,7 +1077,7 @@ public class DataHoje {
      * System.out.println("null" + " = " + dataValidaConverte(null));
      */
     public static Date dataValidaConverte(String input) {
-        List<SimpleDateFormat> dateFormats = new ArrayList<SimpleDateFormat>();
+        List<SimpleDateFormat> dateFormats = new ArrayList<>();
         dateFormats.add(new SimpleDateFormat("M/dd/yyyy"));
         dateFormats.add(new SimpleDateFormat("dd.M.yyyy"));
         dateFormats.add(new SimpleDateFormat("M/dd/yyyy hh:mm:ss a"));
