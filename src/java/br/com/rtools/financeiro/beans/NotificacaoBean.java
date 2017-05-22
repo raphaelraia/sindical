@@ -1,7 +1,6 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
-import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.CobrancaEnvio;
@@ -34,8 +33,6 @@ import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.Jasper.FillObject;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.SalvaArquivos;
 import java.io.File;
@@ -100,12 +97,35 @@ public class NotificacaoBean implements Serializable {
     private ConfiguracaoArrecadacao ca = new ConfiguracaoArrecadacao();
 
     private String tipoEmpresa = "ativas";
-    
+
     private Boolean chkImprimirVerso = false;
 
     public NotificacaoBean() {
         registro = (Registro) new Dao().find(new Registro(), 1);
         ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+    }
+
+    public void loadListaArquivos() {
+        listaArquivo.clear();
+
+        LinksDao db = new LinksDao();
+
+        try {
+            String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
+            File files = new File(caminho);
+            File listFile[] = files.listFiles();
+
+            for (int i = 0; i < listFile.length; i++) {
+                Links link = db.pesquisaNomeArquivo(listFile[i].getName());
+                if (link == null) {
+                    continue;
+                }
+
+                listaArquivo.add(new DataObject(registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId() + "/" + listFile[i].getName(), i + 1, link));
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
     }
 
     public void acoes() {
@@ -300,13 +320,11 @@ public class NotificacaoBean implements Serializable {
             if (lote.getId() != -1) {
                 obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
             } else // EMPRESA --
-            {
-                if ((indexTab == 3 && empresas.isEmpty()) || (indexTab == 4 && contabils.isEmpty())) {
+             if ((indexTab == 3 && empresas.isEmpty()) || (indexTab == 4 && contabils.isEmpty())) {
                     return listaNotificacao;
                 } else {
                     obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
                 }
-            }
 
             result = (Vector) obj[1];
             if (!result.isEmpty()) {
@@ -339,19 +357,22 @@ public class NotificacaoBean implements Serializable {
             File files = new File(caminho);
             File listFile[] = files.listFiles();
 
-            for (int i = 0; i < listFile.length; i++) {
-                Links link = db.pesquisaNomeArquivo(listFile[i].getName());
-                if (link == null) {
-                    continue;
-                }
-
-                if (dao.delete(link)) {
-                    File f_delete = new File(caminho + "/" + listFile[i].getName());
-                    if (f_delete.exists()) {
-                        f_delete.delete();
+            if (listFile.length > 0) {
+                for (int i = 0; i < listFile.length; i++) {
+                    Links link = db.pesquisaNomeArquivo(listFile[i].getName());
+                    if (link == null) {
+                        continue;
                     }
+
+                    if (dao.delete(link)) {
+                        File f_delete = new File(caminho + "/" + listFile[i].getName());
+                        if (f_delete.exists()) {
+                            f_delete.delete();
+                        }
+                    }
+
                 }
-                listaArquivo.clear();
+                loadListaArquivos();
             }
         } catch (Exception e) {
             //sv.desfazerTransacao();
@@ -413,6 +434,7 @@ public class NotificacaoBean implements Serializable {
         listaContabilAdd.clear();
         lote = new CobrancaLote();
         chkTodos = true;
+        loadListaArquivos();
         return null;
     }
 
@@ -645,14 +667,14 @@ public class NotificacaoBean implements Serializable {
 
             int atual = 1;
             String ph = "";
-            
+
             File fl_marca_d = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/notificacao_marca_dagua.png"));
             String marca_dagua = "";
-            
-            if (fl_marca_d.exists()){
+
+            if (fl_marca_d.exists()) {
                 marca_dagua = fl_marca_d.getPath();
             }
-            
+
             for (int i = 0; i < result.size(); i++) {
                 listax.add(
                         new ParametroNotificacao(
@@ -782,11 +804,11 @@ public class NotificacaoBean implements Serializable {
                     }
                     enviar = false;
                     listax.clear();
-                
+
                 }
-                
+
             }
-            
+
         } else {
 
             boolean imprimir = false, adicionar_jasper = false;
@@ -808,16 +830,19 @@ public class NotificacaoBean implements Serializable {
                 case 3:
                     load_file = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper");
                     break;
+                case 8:
+                    load_file = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_ESCRITORIO_RESUMO.jasper");
+                    break;
                 default:
                     break;
             }
 
             JasperReport jasper = (JasperReport) JRLoader.loadObject(new File(load_file));
-            
+
             File fl_marca_d = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/notificacao_marca_dagua.png"));
-            String marca_dagua = "";
-            
-            if (fl_marca_d.exists()){
+            String marca_dagua = null;
+
+            if (fl_marca_d.exists()) {
                 marca_dagua = fl_marca_d.getPath();
             }
             for (int i = 0; i < result.size(); i++) {
@@ -858,6 +883,7 @@ public class NotificacaoBean implements Serializable {
                     switch (ct.getId()) {
                         // 1;"ESCRITÓRIO"
                         case 1:
+                        case 8:
                             id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
                             if (id_compara != getConverteNullInt(result.get(i + 1).get(26)) && !adicionar_jasper) {
                                 adicionar_jasper = true;
@@ -920,19 +946,19 @@ public class NotificacaoBean implements Serializable {
                         listax = new ArrayList();
                     }
 
-                    if (imprimir && (atual >= limite)) {
+                    if (imprimir || (atual >= limite)) {
                         String nomeArq = "notificacao_";
 
                         String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
 
                         File create = new File(pathPasta);
                         if (!create.exists()) {
-                            create.mkdir();
+                            create.mkdirs();
                         }
 
                         Thread.sleep(2000);
 
-                        String nomeDownload = nomeArq + DataHoje.hora().replace(":", "") + ".pdf";
+                        String nomeDownload = nomeArq + DataHoje.hora().replace(":", "") + DataHoje.data().replace("/", "") + ".pdf";
 
                         File file = new File(pathPasta + "/" + nomeDownload);
 
@@ -972,7 +998,8 @@ public class NotificacaoBean implements Serializable {
             dao.commit();
         }
 
-        listaNotificacao.clear();
+        //listaNotificacao.clear();
+        loadListaArquivos();
     }
 
     public String enviarEmailPolling(Links link) {
@@ -1133,6 +1160,7 @@ public class NotificacaoBean implements Serializable {
             }
         }
         listaNotificacao.clear();
+        loadListaArquivos();
     }
 
     public String getConverteNullString(Object object) {
@@ -1379,28 +1407,6 @@ public class NotificacaoBean implements Serializable {
     }
 
     public List<DataObject> getListaArquivo() {
-        if (listaNotificacao.isEmpty()) {
-            listaArquivo.clear();
-        }
-        if (listaArquivo.isEmpty()) {
-            LinksDao db = new LinksDao();
-            try {
-                String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
-                File files = new File(caminho);
-                File listFile[] = files.listFiles();
-
-                for (int i = 0; i < listFile.length; i++) {
-                    Links link = db.pesquisaNomeArquivo(listFile[i].getName());
-                    if (link == null) {
-                        continue;
-                    }
-
-                    listaArquivo.add(new DataObject(registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId() + "/" + listFile[i].getName(), i + 1, link));
-                }
-            } catch (Exception e) {
-                return new ArrayList();
-            }
-        }
         return listaArquivo;
     }
 

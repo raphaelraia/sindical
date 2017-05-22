@@ -25,21 +25,17 @@ public class ConvenioServico implements java.io.Serializable {
     @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Servicos servicos;
-    @Column(name = "is_encaminhamento", nullable = true)
-    private boolean encaminhamento;
 
     public ConvenioServico() {
         this.id = -1;
         this.subGrupoConvenio = new SubGrupoConvenio();
         this.servicos = new Servicos();
-        this.encaminhamento = false;
     }
 
-    public ConvenioServico(int id, SubGrupoConvenio subGrupoConvenio, Servicos servicos, boolean encaminhamento) {
+    public ConvenioServico(int id, SubGrupoConvenio subGrupoConvenio, Servicos servicos) {
         this.id = id;
         this.subGrupoConvenio = subGrupoConvenio;
         this.servicos = servicos;
-        this.encaminhamento = encaminhamento;
     }
 
     public int getId() {
@@ -66,11 +62,4 @@ public class ConvenioServico implements java.io.Serializable {
         this.servicos = servicos;
     }
 
-    public boolean isEncaminhamento() {
-        return encaminhamento;
-    }
-
-    public void setEncaminhamento(boolean encaminhamento) {
-        this.encaminhamento = encaminhamento;
-    }
 }

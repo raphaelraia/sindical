@@ -13,7 +13,7 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-public class BloqueioServicosJSFBean {
+public class BloqueioServicosBean {
 
     private BloqueiaServicoPessoa bloqueia = new BloqueiaServicoPessoa();
     private Pessoa pessoa = new Pessoa();
@@ -24,11 +24,18 @@ public class BloqueioServicosJSFBean {
     private String refInicial = "";
     private String refFinal = "";
 
-    public BloqueioServicosJSFBean() {
-        DataHoje dh = new DataHoje();
+    public BloqueioServicosBean() {
+        refInicial = DataHoje.dataReferencia(DataHoje.data());
+        refFinal = refInicial.substring(0, 2) + "/2050";
+    }
+
+    public void novo() {
+        bloqueia = new BloqueiaServicoPessoa();
 
         refInicial = DataHoje.dataReferencia(DataHoje.data());
-        refFinal = refInicial.substring(0, 2) + "/2050";// DataHoje.dataReferencia(dh.incrementarAnos(1, DataHoje.data()));
+        refFinal = refInicial.substring(0, 2) + "/2050";
+
+        listaBloqueios.clear();
     }
 
     public String salvar() {
@@ -52,6 +59,9 @@ public class BloqueioServicosJSFBean {
             return null;
         }
 
+        refInicial = new DataHoje().incrementarMeses(1, "01/" + refInicial).substring(3);
+        refFinal = new DataHoje().incrementarMeses(1, "01/" + refFinal).substring(3);
+
         Servicos servicos = (Servicos) dao.find(new Servicos(), Integer.parseInt(this.getListaServico().get(idServicos).getDescription()));
         NovoLog novoLog = new NovoLog();
         FinanceiroDao db = new FinanceiroDao();
@@ -60,18 +70,20 @@ public class BloqueioServicosJSFBean {
 
         bloqueia.setInicio("01/" + refInicial);
         bloqueia.setFim(d_fim + "/" + refFinal);
-
-        if (db.pesquisaBloqueiaServicoPessoa(pessoa.getId(), servicos.getId(), bloqueia.getDtInicio(), bloqueia.getDtFim()) != null) {
-            msgConfirma = "Este bloqueio já existe!";
-            GenericaMensagem.warn("Erro", msgConfirma);
-            return null;
-        }
-
         bloqueia.setPessoa(pessoa);
         bloqueia.setServicos(servicos);
 
-        dao.openTransaction();
         if (bloqueia.getId() == -1) {
+
+            if (db.pesquisaBloqueiaServicoPessoa(pessoa.getId(), servicos.getId(), bloqueia.getDtInicio(), bloqueia.getDtFim(), null)) {
+                novo();
+
+                msgConfirma = "Este bloqueio já existe!";
+                GenericaMensagem.warn("Erro", msgConfirma);
+                return null;
+            }
+
+            dao.openTransaction();
             if (dao.save(bloqueia)) {
                 novoLog.save(
                         "ID: " + bloqueia.getId()
@@ -83,16 +95,26 @@ public class BloqueioServicosJSFBean {
                 );
                 msgConfirma = "Bloqueio salvo com Sucesso!";
                 GenericaMensagem.info("Sucesso", msgConfirma);
-                listaBloqueios.clear();
-                bloqueia = new BloqueiaServicoPessoa();
                 dao.commit();
             } else {
                 msgConfirma = "Erro ao salvar Bloqueio!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 dao.rollback();
             }
+            novo();
         } else {
+
+            if (db.pesquisaBloqueiaServicoPessoa(pessoa.getId(), servicos.getId(), bloqueia.getDtInicio(), bloqueia.getDtFim(), bloqueia.getId())) {
+                novo();
+                msgConfirma = "Este bloqueio já existe!";
+                GenericaMensagem.warn("Erro", msgConfirma);
+                return null;
+            }
+
+            dao.openTransaction();
+
             BloqueiaServicoPessoa bsp = (BloqueiaServicoPessoa) dao.find(bloqueia);
+
             String beforeUpdate
                     = "ID: " + bsp.getId()
                     + " - Pessoa: (" + bsp.getPessoa().getId() + ") " + bsp.getPessoa().getNome()
@@ -100,6 +122,7 @@ public class BloqueioServicosJSFBean {
                     + " - Período: " + bsp.getInicio() + " - " + bsp.getFim()
                     + " - Gerar Guias: " + bsp.isGeracao()
                     + " - Impressão: " + bsp.isImpressao();
+
             if (dao.update(bloqueia)) {
                 novoLog.update(beforeUpdate,
                         "ID: " + bloqueia.getId()
@@ -111,14 +134,13 @@ public class BloqueioServicosJSFBean {
                 );
                 msgConfirma = "Bloqueio alterado com Sucesso!";
                 GenericaMensagem.info("Sucesso", msgConfirma);
-                listaBloqueios.clear();
-                bloqueia = new BloqueiaServicoPessoa();
                 dao.commit();
             } else {
                 msgConfirma = "Erro ao excluir Bloqueio!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 dao.rollback();
             }
+            novo();
         }
         return null;
     }
@@ -141,12 +163,23 @@ public class BloqueioServicosJSFBean {
             msgConfirma = "Erro ao excluir bloqueio!";
             GenericaMensagem.warn("Erro", msgConfirma);
         }
+
+        novo();
+
         return null;
     }
 
-    public String editar(BloqueiaServicoPessoa bl) {
+    public void editar(BloqueiaServicoPessoa bl) {
         bloqueia = bl;
-        return null;
+
+        refInicial = DataHoje.dataReferencia(bloqueia.getInicio());
+        refFinal = DataHoje.dataReferencia(bloqueia.getFim());
+
+        for (int i = 0; i < listaServicos.size(); i++) {
+            if (Integer.valueOf(listaServicos.get(i).getDescription()) == bloqueia.getServicos().getId()) {
+                idServicos = i;
+            }
+        }
     }
 
     public String alteraImprime(BloqueiaServicoPessoa bl) {

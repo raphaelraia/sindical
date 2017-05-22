@@ -134,6 +134,8 @@ public class LancamentoFinanceiroBean implements Serializable {
     private Filtro filtro;
     private Boolean adicionarImposto;
     private Boolean mostrarAdicionarParcela;
+    
+    private String motivoInativacao;
 
     @PostConstruct
     public void init() {
@@ -221,6 +223,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         atualizaHistorico();
         adicionarImposto = false;
         mostrarAdicionarParcela = true;
+        motivoInativacao = "";
     }
 
     @PreDestroy
@@ -291,8 +294,12 @@ public class LancamentoFinanceiroBean implements Serializable {
         ImprimirRecibo ir = new ImprimirRecibo();
 
         List<Movimento> l = new ArrayList();
+        
         l.add(mov);
-        ir.reciboGenerico(l, null);
+        
+        if (ir.gerar_recibo_generico(l, null)){
+            ir.imprimir();
+        }
 
         return null;
     }
@@ -485,67 +492,85 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
         }
+        
+        if (motivoInativacao.isEmpty() || motivoInativacao.length() < 5){
+            GenericaMensagem.warn("Atenção", "Digite um motivo para exclusão válido!");
+            return;
+        }
+        
         Dao dao = new Dao();
 
-        Map<Integer, EstornoCaixa> hashEc = new LinkedHashMap<>();
-        Map<Integer, EstornoCaixaLote> hashEcl = new LinkedHashMap<>();
+        //Map<Integer, EstornoCaixa> hashEc = new LinkedHashMap<>();
+        //Map<Integer, EstornoCaixaLote> hashEcl = new LinkedHashMap<>();
 
         dao.openTransaction();
 
-        EstornoCaixaDao estornoCaixaDao = new EstornoCaixaDao();
+        //EstornoCaixaDao estornoCaixaDao = new EstornoCaixaDao();
 
+        // NOVA EXCLUSÃO NÃO CONTÉM EXCLUSÃO DE ESTORNO
+//        for (Parcela p : listaParcela) {
+//            List<EstornoCaixa> listEc = estornoCaixaDao.findAllByMovimento(p.getMovimento().getId());
+//            for (int i = 0; i < listEc.size(); i++) {
+//                hashEc.put(listEc.get(i).getId(), listEc.get(i));
+//                hashEcl.put(listEc.get(i).getEstornoCaixaLote().getId(), listEc.get(i).getEstornoCaixaLote());
+//            }
+//        }
+//
+//        if (!hashEc.isEmpty()) {
+//            for (Map.Entry<Integer, EstornoCaixa> entry : hashEc.entrySet()) {
+//                if (!dao.delete(entry.getValue())) {
+//                    dao.rollback();
+//                    GenericaMensagem.warn("Erro", "Estorno caixa não pode ser excluído!");
+//                    return;
+//                }
+//            }
+//
+//            for (Map.Entry<Integer, EstornoCaixaLote> entry : hashEcl.entrySet()) {
+//                if (!dao.delete(entry.getValue())) {
+//                    dao.rollback();
+//                    GenericaMensagem.warn("Erro", "Estorno caixa lote não pode ser excluído!");
+//                    return;
+//                }
+//            }
+//        }
+
+        List<Movimento> list_m_excluir = new ArrayList();
+        
         for (Parcela p : listaParcela) {
-            List<EstornoCaixa> listEc = estornoCaixaDao.findAllByMovimento(p.getMovimento().getId());
-            for (int i = 0; i < listEc.size(); i++) {
-                hashEc.put(listEc.get(i).getId(), listEc.get(i));
-                hashEcl.put(listEc.get(i).getEstornoCaixaLote().getId(), listEc.get(i).getEstornoCaixaLote());
-            }
+            list_m_excluir.add(p.getMovimento());
+//            if (!dao.delete(p.getMovimento())) {
+//                GenericaMensagem.warn("Erro", "Movimento não pode ser Excluído!");
+//                dao.rollback();
+//                return;
+//            }
         }
 
-        if (!hashEc.isEmpty()) {
-            for (Map.Entry<Integer, EstornoCaixa> entry : hashEc.entrySet()) {
-                if (!dao.delete(entry.getValue())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "Estorno caixa não pode ser excluído!");
-                    return;
-                }
-            }
+//        for (Pedido pedidox : listaPedidos) {
+//            if (!dao.delete(dao.find(pedidox))) {
+//                GenericaMensagem.warn("Erro", "PEDIDO não pode ser Excluído!");
+//                dao.rollback();
+//                return;
+//            }
+//        }
 
-            for (Map.Entry<Integer, EstornoCaixaLote> entry : hashEcl.entrySet()) {
-                if (!dao.delete(entry.getValue())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "Estorno caixa lote não pode ser excluído!");
-                    return;
-                }
-            }
-        }
+//        if (!dao.delete(dao.find(lote))) {
+//            GenericaMensagem.warn("Erro", "Lote não pode ser Excluído!");
+//            dao.rollback();
+//            return;
+//        }
 
-        for (Parcela p : listaParcela) {
-            if (!dao.delete(p.getMovimento())) {
-                GenericaMensagem.warn("Erro", "Movimento não pode ser Excluído!");
-                dao.rollback();
-                return;
-            }
-        }
-
-        for (Pedido pedidox : listaPedidos) {
-            if (!dao.delete(dao.find(pedidox))) {
-                GenericaMensagem.warn("Erro", "PEDIDO não pode ser Excluído!");
-                dao.rollback();
-                return;
-            }
-        }
-
-        if (!dao.delete(dao.find(lote))) {
-            GenericaMensagem.warn("Erro", "Lote não pode ser Excluído!");
-            dao.rollback();
+        String retorno = GerarMovimento.inativarArrayMovimento(list_m_excluir, motivoInativacao, dao);
+        
+        if (!retorno.isEmpty()){
+            GenericaMensagem.error("Atenção", retorno);
             return;
         }
 
         GenericaMensagem.info("Sucesso", "Lançamento excluído com Sucesso!");
-
-        limpar();
+        
         dao.commit();
+        
+        limpar();
     }
 
     public void reverse() {
@@ -2284,6 +2309,14 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void setMostrarAdicionarParcela(Boolean mostrarAdicionarParcela) {
         this.mostrarAdicionarParcela = mostrarAdicionarParcela;
+    }
+
+    public String getMotivoInativacao() {
+        return motivoInativacao;
+    }
+
+    public void setMotivoInativacao(String motivoInativacao) {
+        this.motivoInativacao = motivoInativacao;
     }
 
     public class Parcela {

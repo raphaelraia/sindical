@@ -37,54 +37,59 @@ public class GerarMovimento extends DB {
         Object[] message = new Object[2];
         String textQry = "";
         getEntityManager().getTransaction().begin();
-        Query qry = null;
+
         NovoLog log = new NovoLog();
         Integer sizeBoleto = 0;
-        List list = new ArrayList();
+
 //      VERIFICAÇÃO
         try {
-            textQry = "select '" + DataHoje.data() + "' as dt_emissao, 'R' as ds_pag_rec, 0 as nr_valor, '" + DataHoje.data() + "' as dt_lancamento, 1 as id_filial, cv.id_pessoa, 2 as id_tipo_documento, 4 as id_rotina, false as is_avencer_contabil " + "   from arr_contribuintes_vw cv "
-                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = " + id_servico + " AND '" + vencimento + "' >= sp.dt_inicio AND '" + vencimento + "' <= sp.dt_fim   "
-                    + "  where cv.dt_inativacao is null and cv.id_grupo_cidade = " + id_grupo_cidade + " and cv.id_convencao = " + id_convencao + " and cv.id_pessoa not in "
-                    + "       (select id_pessoa from fin_movimento where ds_referencia='" + referencia + "' and id_servicos = " + id_servico + " and id_tipo_servico = " + id_tipo_servico + " and is_ativo = true) "
-                    + " and (sp.is_geracao = true or sp.is_geracao is null) ";
-            qry = getEntityManager().createNativeQuery(textQry);
+            String LEFT_BLOQUEIA_SERVICO 
+                    = " LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = c.id_pessoa \n "
+                    + "  AND sp.id_servicos = " + id_servico + " \n "
+                    + "  AND '" + vencimento + "' >= sp.dt_inicio \n "
+                    + "  AND '" + vencimento + "' <= sp.dt_fim \n ";
+
+            String select_lote
+                    = " SELECT '" + DataHoje.data() + "' AS dt_emissao,    \n "
+                    + "      'R' AS ds_pag_rec,                          \n "
+                    + "      0 AS nr_valor,                              \n "
+                    + "      '" + DataHoje.data() + "' AS dt_lancamento, \n "
+                    + "      1 AS id_filial,                             \n "
+                    + "      c.id_pessoa AS id_pessoa,                   \n "
+                    + "      2 AS id_tipo_documento,                     \n "
+                    + "      4 AS id_rotina,                             \n "
+                    + "      false AS is_avencer_contabil                \n "
+                    + " FROM arr_contribuintes_vw c                      \n "
+                    + LEFT_BLOQUEIA_SERVICO
+                    + "WHERE c.dt_inativacao IS NULL \n "
+                    + "  AND c.id_grupo_cidade = " + id_grupo_cidade + " \n "
+                    + "  AND c.id_convencao = " + id_convencao + " \n "
+                    + "  AND c.id_pessoa NOT IN ( \n "
+                    + "         SELECT id_pessoa \n "
+                    + "           FROM fin_movimento \n "
+                    + "          WHERE ds_referencia = '" + referencia + "' \n "
+                    + "            AND id_servicos = " + id_servico + " \n "
+                    + "            AND id_tipo_servico = " + id_tipo_servico + " \n "
+                    + "            AND is_ativo = true \n "
+                    + " ) \n "
+                    + " AND (sp.is_geracao = TRUE OR sp.is_geracao IS NULL) ";
+
+            Query qry = getEntityManager().createNativeQuery(select_lote);
             qry.setMaxResults(1);
-            list = qry.getResultList();
+
+            List list = qry.getResultList();
+
             if (list.isEmpty()) {
                 getEntityManager().getTransaction().rollback();
                 message[0] = 0;
                 message[1] = "Não existem registros a serem processados!";
                 return message;
             }
-//
-//
-//         INSERÇÃO DO LOTE
-            textQry = "INSERT INTO fin_lote (dt_emissao, ds_pag_rec, nr_valor, dt_lancamento, id_filial, id_pessoa, id_tipo_documento, id_rotina, is_avencer_contabil) \n"
-                    + " (  SELECT '" + DataHoje.data() + "' AS dt_emissao,      \n"
-                    + "           'R' AS ds_pag_rec,                            \n"
-                    + "           0  AS nr_valor,                               \n"
-                    + "           '" + DataHoje.data() + "' AS dt_lancamento,   \n"
-                    + "           1  AS id_filial,                              \n"
-                    + "           cv.id_pessoa,                                 \n"
-                    + "           2 AS id_tipo_documento,                       \n"
-                    + "           4 AS id_rotina,                               \n"
-                    + "           false AS is_avencer_contabil                  \n"
-                    + "      FROM arr_contribuintes_vw AS cv                    \n"
-                    + " LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = cv.id_pessoa          \n"
-                    + "        AND sp.id_servicos = " + id_servico + "          \n"
-                    + "        AND '" + vencimento + "' >= sp.dt_inicio         \n"
-                    + "        AND '" + vencimento + "' <= sp.dt_fim            \n"
-                    + "     WHERE cv.dt_inativacao IS NULL                      \n"
-                    + "       AND cv.id_grupo_cidade = " + id_grupo_cidade + "  \n"
-                    + "       AND cv.id_convencao = " + id_convencao + "        \n"
-                    + "       AND cv.id_pessoa NOT IN                           \n"
-                    + "         (SELECT id_pessoa FROM fin_movimento WHERE ds_referencia='" + referencia + "' \n"
-                    + "             AND id_servicos = " + id_servico + "        \n"
-                    + "             AND id_tipo_servico = " + id_tipo_servico + "\n"
-                    + "             AND is_ativo = true                         \n"
-                    + "         )                                               \n"
-                    + "       AND (sp.is_geracao IS TRUE OR sp.is_geracao IS NULL));";
+
+//          INSERÇÃO DO LOTE
+            textQry = "INSERT INTO fin_lote (dt_emissao, ds_pag_rec, nr_valor, dt_lancamento, id_filial, id_pessoa, id_tipo_documento, id_rotina, is_avencer_contabil) \n "
+                    + " ( " + select_lote + " );";
+
             qry = getEntityManager().createNativeQuery(textQry);
             if (qry.executeUpdate() <= 0) {
                 getEntityManager().getTransaction().rollback();
@@ -92,10 +97,10 @@ public class GerarMovimento extends DB {
                 message[1] = "Erro ao gravar lote!";
                 return message;
             }
+
             log.save("Geracao geral: FIN_LOTE - Data: " + DataHoje.data() + " id_grupo_cidade: " + id_grupo_cidade + " id_convencao: " + id_convencao + " id_servico: " + id_servico + " referencia: " + referencia);
-//
-//
-//         INSERÇÃO DO MOVIMENTO
+
+//          INSERÇÃO DO MOVIMENTO
             textQry = "INSERT INTO fin_movimento (ds_referencia, ds_es, ds_documento, nr_valor, dt_vencimento_original, dt_vencimento, nr_ctr_boleto, id_pessoa, id_tipo_documento, id_tipo_servico, id_titular, id_servicos, id_beneficiario, id_lote, is_ativo, is_obrigacao,nr_multa,nr_desconto,nr_taxa,nr_quantidade, "
                     + "nr_valor_baixa, nr_repasse_automatico, nr_correcao, nr_desconto_ate_vencimento, nr_juros, id_plano5) \n"
                     + "(    SELECT '" + referencia + "' AS ds_referencia,           \n"
@@ -127,23 +132,23 @@ public class GerarMovimento extends DB {
                     + "       FROM arr_contribuintes_vw AS c                        \n"
                     + " INNER JOIN fin_lote AS l ON l.id_pessoa = c.id_pessoa       \n"
                     + "  LEFT JOIN fin_movimento AS m on m.id_lote = l.id           \n"
-                    + "  LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = c.id_pessoa  \n"
-                    + "        AND sp.id_servicos = " + id_servico + "                              \n"
-                    + "        AND '" + vencimento + "' >= sp.dt_inicio                             \n"
-                    + "        AND '" + vencimento + "' <= sp.dt_fim                                \n"
+                    + LEFT_BLOQUEIA_SERVICO
                     + " INNER JOIN fin_servicos AS se ON se.id = " + id_servico + "                 \n"
                     + "      WHERE m.id_lote IS NULL                                                \n"
                     + "        AND c.id_grupo_cidade = " + id_grupo_cidade + "                      \n"
                     + "        AND c.id_convencao = " + id_convencao + "                            \n"
                     + "        AND (sp.is_geracao = TRUE OR sp.is_geracao IS NULL )                 \n"
                     + "        AND c.dt_inativacao IS NULL )";
+
             qry = getEntityManager().createNativeQuery(textQry);
+
             if (qry.executeUpdate() <= 0) {
                 getEntityManager().getTransaction().rollback();
                 message[0] = 1;
                 message[1] = "Erro ao gravar movimento!";
                 return message;
             }
+
             String queryString = ""
                     + "     SELECT m.id                                                                 \n"
                     + "       FROM fin_movimento AS m                                                   \n"
@@ -583,12 +588,12 @@ public class GerarMovimento extends DB {
         MovimentoDao db = new MovimentoDao();
 
         ContaCobranca cc = dbc.pesquisaServicoCobranca(movimento.getServicos().getId(), movimento.getTipoServico().getId());
-        
+
         if (cc == null) {
             dao.rollback();
             return new StatusRetorno(Boolean.FALSE, "CONTA COBRANÇA NÃO ENCONTRADA!");
         }
-        
+
         if (movimento.getPessoa().getId() != 0) {
             Convencao convencao = dbco.pesquisarCnaeConvencaoPorPessoa(movimento.getPessoa().getId());
             if (convencao == null) {
@@ -666,7 +671,7 @@ public class GerarMovimento extends DB {
                             dao.rollback();
                             return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
                         }
-                        
+
                         if (!dao.update(boleto)) {
                             dao.rollback();
                             return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
@@ -689,12 +694,12 @@ public class GerarMovimento extends DB {
                 dao.rollback();
                 return new StatusRetorno(Boolean.FALSE, "ERRO AO ENCONTRAR MOVIMENTO!");
             }
-            
+
             dao.commit();
         } else {
             return new StatusRetorno(Boolean.FALSE, "ERRO AO ENCONTRAR BOLETO!");
         }
-        
+
         return new StatusRetorno(Boolean.TRUE, "MOVIMENTO SALVO!");
     }
 
@@ -773,23 +778,23 @@ public class GerarMovimento extends DB {
 
                 // EXCLUI BOLETO 
                 Object bols = dao.find(new Boleto(), movDB.pesquisaBoletos(String.valueOf(movimento.getId())).getId());
-                
+
                 if (bols != null) {
                     if (!dao.delete(bols)) {
                         dao.rollback();
                         return new StatusRetorno(Boolean.FALSE, "ERRO NA EXCLUSÃO DO BOLETO!");
                     }
                 }
-                
+
                 dao.commit();
-                
+
                 return new StatusRetorno(Boolean.TRUE, "MOVIMENTO EXCLUÍDO!");
             }
-            
+
         } catch (Exception e) {
             return new StatusRetorno(Boolean.FALSE, e.getMessage());
         }
-        
+
         return new StatusRetorno(Boolean.FALSE, "NÃO FOI POSSÍVEL EXCLUIR MOVIMENTO!");
     }
 
@@ -1392,7 +1397,7 @@ public class GerarMovimento extends DB {
                         dao.rollback();
                         return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR CARTÃO PAG");
                     }
-                    
+
                     fp1.setCartaoPag(cartao_pag);
 
                     if (fp1.getChequePag().getDtImpressao() == null) {
@@ -1409,7 +1414,7 @@ public class GerarMovimento extends DB {
                         dao.rollback();
                         return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR CARTÃO REC");
                     }
-                    
+
                     fp1.setCartaoRec(cartao_rec);
                 }
 
@@ -1437,7 +1442,7 @@ public class GerarMovimento extends DB {
                 BaixaLog baixaLog = new BaixaLog();
                 baixaLog.setMovimento(movimento.get(i));
                 baixaLog.setBaixa(movimento.get(i).getBaixa());
-                
+
                 if (!dao.save(baixaLog)) {
                     dao.rollback();
                     return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR BAIXA LOG");

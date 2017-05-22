@@ -774,13 +774,22 @@ public class BaixaGeralBean implements Serializable {
                 map.put("obs", "");
             }
 
+            ImprimirRecibo ir = new ImprimirRecibo();
+            
+            Boolean stat = false;
+            
             if (!GenericaSessao.exists("tipo_recibo_imprimir")) {
-                new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
+                stat = ir.gerar_recibo(listaMovimentos.get(0).getId(), map);
             } else if (((TipoRecibo) GenericaSessao.getObject("tipo_recibo_imprimir")).getId() == 1) {
-                new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
+                stat = ir.gerar_recibo(listaMovimentos.get(0).getId(), map);
             } else {
-                new ImprimirRecibo().reciboGenerico(listaMovimentos, null);
+                stat = ir.gerar_recibo_generico(listaMovimentos, null);
             }
+            
+            if (stat){
+                ir.imprimir();
+            }
+            
         }
     }
 
@@ -1368,7 +1377,10 @@ public class BaixaGeralBean implements Serializable {
             if (!dataEmissaoRecibo.isEmpty()) {
                 map.put("data_emissao", dataEmissaoRecibo);
             }
-            ir.recibo(mov.getId(), map);
+            
+            if (ir.gerar_recibo(mov.getId(), map)){
+                ir.imprimir();
+            }
         }
         return null;
     }

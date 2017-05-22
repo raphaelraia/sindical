@@ -234,16 +234,28 @@ public class FinanceiroDao extends DB {
         }
     }
 
-    public BloqueiaServicoPessoa pesquisaBloqueiaServicoPessoa(int id_pessoa, int id_servico, Date dt_inicial, Date dt_final) {
+    public Boolean pesquisaBloqueiaServicoPessoa(int id_pessoa, int id_servico, Date dt_inicial, Date dt_final, Integer id_bloqueio) {
         try {
-            Query qry = getEntityManager().createQuery(
-                    "select bl from BloqueiaServicoPessoa bl where bl.pessoa.id = " + id_pessoa + " and bl.servicos.id = " + id_servico + " and bl.dtInicio = :dtInicial and bl.dtFim = :dtFinal");
-            qry.setParameter("dtInicial", dt_inicial);
-            qry.setParameter("dtFinal", dt_final);
-            return (BloqueiaServicoPessoa) qry.getSingleResult();
+
+            String ref_ini = DataHoje.converteDataParaReferencia(dt_inicial), ref_fim = DataHoje.converteDataParaReferencia(dt_final);
+
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT count(*) FROM fin_bloqueia_servico_pessoa \n "
+                    + "WHERE id_pessoa = " + id_pessoa + " \n "
+                    + "  AND id_servicos = " + id_servico + " \n "
+                    + "  AND func_compara_intervalo_ref( \n "
+                    + "     '" + ref_ini + "','" + ref_fim + "', \n"
+                    + "     RIGHT('0'||EXTRACT(MONTH FROM dt_inicio),2)||'/'||EXTRACT(YEAR FROM dt_inicio), \n"
+                    + "     RIGHT('0'||EXTRACT(MONTH FROM dt_fim),2)||'/'||EXTRACT(YEAR FROM dt_fim) \n"
+                    + ") = TRUE \n "
+                    + (id_bloqueio != null ? "  AND id <> " + id_bloqueio : "")
+            );
+
+            return ((Long) ((List) qry.getSingleResult()).get(0)).intValue() > 0;
         } catch (Exception e) {
+            e.getMessage();
         }
-        return null;
+        return false;
     }
 
     public List<Movimento> pesquisaMovimentoPorLote(int id_lote) {
@@ -570,7 +582,7 @@ public class FinanceiroDao extends DB {
             return new ArrayList();
         }
     }
-    
+
     public List<TransferenciaCaixa> listaTransferenciaDinheiroSaidaCaixaCentral(int id_fechamento_caixa, int id_caixa) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -1689,16 +1701,21 @@ public class FinanceiroDao extends DB {
 
     public String dataFechamentoCaixa(Integer id_caixa) {
         try {
-            //Query qry = getEntityManager().createNativeQuery("SELECT MIN(dt_baixa) FROM fin_baixa WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015'");
+            
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT MIN(dt_baixa) FROM \n"
+                    "SELECT MIN(dt_baixa) FROM \n "
                     + "( \n "
-                    + "SELECT MIN(dt_baixa) AS dt_baixa FROM fin_baixa WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015' \n"
-                    + "UNION \n"
-                    + "SELECT min(dt_baixa) AS dt_baixa FROM fin_estorno_caixa_lote \n"
-                    + "WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '11/10/2016' AND is_movimento = TRUE \n"
+                    + "	SELECT MIN(b.dt_baixa) AS dt_baixa \n "
+                    + "	  FROM fin_baixa b \n "
+                    + "         INNER JOIN fin_movimento m ON m.id_baixa = b.id AND m.is_ativo = TRUE \n "
+                    + "	 WHERE id_caixa = " + id_caixa + " AND b.id_fechamento_caixa IS NULL AND b.dt_baixa >= '01/04/2015' \n "
+                    + "UNION \n "
+                    + "	SELECT min(dt_baixa) AS dt_baixa \n "
+                    + "	  FROM fin_estorno_caixa_lote \n "
+                    + "         WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '11/10/2016' AND is_movimento = TRUE \n "
                     + ") AS x"
             );
+            
             List<Object> result = qry.getResultList();
             if (!result.isEmpty() && ((List) result.get(0)).get(0) != null) {
                 return DataHoje.converteData((Date) ((List) result.get(0)).get(0));

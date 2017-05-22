@@ -228,7 +228,9 @@ public class ContasAPagarBean implements Serializable {
 
         ImprimirRecibo ir = new ImprimirRecibo();
 
-        ir.reciboGenerico(l_movimento, null);
+        if (ir.gerar_recibo_generico(l_movimento, null)){
+            ir.imprimir();
+        }
     }
 
     public void calculoAcrescimoDesconto(ListaContas lc) {

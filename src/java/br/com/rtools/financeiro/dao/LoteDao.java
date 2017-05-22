@@ -18,6 +18,16 @@ public class LoteDao extends DB {
 
         list_where.add("l.id_rotina = 231");
 
+        list_where.add(
+                "l.id IN ( \n "
+                + "SELECT m.id_lote \n "
+                + "  FROM fin_movimento m \n "
+               // + " INNER JOIN fin_movimento_inativo mi ON mi.id_movimento = m.id \n "
+                + " WHERE m.is_ativo = true \n "
+                + "   AND m.id_lote = l.id \n "
+                + " ) "
+        );
+
         if (usuario_id != -1) {
             list_where.add("l.id_usuario = " + usuario_id);
         }
@@ -276,17 +286,17 @@ public class LoteDao extends DB {
 
     public List<Lote> pesquisaLoteDocumento(Integer pessoa_id, Integer tipo_documento_id, String documento, Float valor) {
 
-        if (documento.equals("S/N")){
+        if (documento.equals("S/N")) {
             return new ArrayList();
         }
-        
+
         try {
             Query query = getEntityManager().createNativeQuery(
                     " SELECT l.* \n "
                     + "   FROM fin_lote l \n"
                     + "  WHERE l.id_pessoa = " + pessoa_id + " \n"
                     + "    AND l.ds_documento = '" + documento + "' \n"
-                    + "    AND l.id_tipo_documento = " + tipo_documento_id + "' \n"
+                    + "    AND l.id_tipo_documento = " + tipo_documento_id + " \n"
                     + "    AND CAST((l.nr_valor * 100) AS int) = " + Integer.valueOf(valor.toString().replaceAll(",", "").replace(".", "")),
                     Lote.class
             );

@@ -213,25 +213,35 @@ public class NotificacaoDao extends DB {
                     + " INNER JOIN fin_cobranca_lote      AS l    ON l.id           = c.id_lote \n "
                     + " WHERE m.id_baixa IS NULL AND is_ativo = TRUE AND l.id = " + id_lote + " \n ";
 
-            // 1 "ESCRITÓRIO"
-            if (tipo_envio == 1) {
-                textQry += "  AND pj.escNome is not null \n "
-                        + " ORDER BY pj.escNome,pj.escid, pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+            switch (tipo_envio) {
+                // 1 "ESCRITÓRIO"
+                // 8 "ESCRITÓRIO RESUMO"
+                case 1:
+                case 8:
+                    textQry += "  AND pj.escNome is not null \n "
+                            + " ORDER BY pj.escNome,pj.escid, pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                    break;
                 // 2 "EMPRESA COM ESCRITÓRIO"
-            } else if (tipo_envio == 2) {
-                textQry += "  AND pj.escNome is not null \n "
-                        + " ORDER BY pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                case 2:
+                    textQry += "  AND pj.escNome is not null \n "
+                            + " ORDER BY pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                    break;
                 // 3 "EMPRESA SEM ESCRITÓRIO"    
-            } else if (tipo_envio == 3) {
-                textQry += "  AND pj.escNome is null \n "
-                        + " ORDER BY pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                case 3:
+                    textQry += "  AND pj.escNome is null \n "
+                            + " ORDER BY pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                    break;
                 // 4 "EMAIL PARA OS ESCRITÓRIO"    AGRUPAR POR pj.escid -- id_escritorio
-            } else if (tipo_envio == 4) {
-                textQry += "  AND pj.escNome is not null \n "
-                        + " ORDER BY pj.escNome, pj.escid, pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                case 4:
+                    textQry += "  AND pj.escNome is not null \n "
+                            + " ORDER BY pj.escNome, pj.escid, pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                    break;
                 // 5 "EMAIL PARA AS EMPRESAS" -- AGRUPAR POR pj.id_pessoa -- id_pessoa
-            } else if (tipo_envio == 5) {
-                textQry += " ORDER BY pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                case 5:
+                    textQry += " ORDER BY pj.jurNome, pj.jurid, substring(m.ds_referencia,4,4) || substring(m.ds_referencia,1,2) \n ";
+                    break;
+                default:
+                    break;
             }
 
             Query qry = getEntityManager().createNativeQuery(textQry);

@@ -311,7 +311,6 @@ public class LancamentoIndividualBean implements Serializable {
                     lote,
                     empresaConveniada,
                     null,
-                    false,
                     "",
                     null
             );

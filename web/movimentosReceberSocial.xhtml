@@ -355,7 +355,7 @@
                                 </p:column>
 
                                 <p:column style="text-align: center; width: 30px" headerText="Enc.">
-                                    <h:commandLink target="_blank" action="#{movimentosReceberSocialBean.encaminhamento(linha.argumento27)}" rendered="#{movimentosReceberSocialBean.pesquisaGuia(linha.argumento27).encaminhamento == true}" title="Imprimir este Encaminhamento">
+                                    <h:commandLink target="_blank" action="#{movimentosReceberSocialBean.encaminhamento(linha.argumento27)}" rendered="#{movimentosReceberSocialBean.renderedEncaminhamento(linha.argumento27) eq true}" title="Imprimir este Encaminhamento">
                                         <p:commandButton icon="ui-icon-print"  title="Imprimir este Encaminhamento"/>
                                     </h:commandLink>
                                 </p:column>
@@ -363,7 +363,7 @@
                                 <p:column headerText="Opções" style="width: 120px; text-align: center" rendered="false">
                                     <p:splitButton value="Alterar" title="Alterar este Movimento" action="#{movimentosReceberSocialBean.telaMovimento(linha.argumento1)}" icon="ui-icon-arrowrefresh-1-w">
                                         <p:menuitem value="Imprimir Recibo" action="#{movimentosReceberSocialBean.recibo(linha.argumento1)}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' and !empty(linha.argumento10)}" ajax="false" target="_blank" icon="ui-icon-print"/>
-                                        <p:menuitem value="Imprimir Encaminhamento" action="#{movimentosReceberSocialBean.encaminhamento(linha.argumento27)}" rendered="#{movimentosReceberSocialBean.pesquisaGuia(linha.argumento27).encaminhamento == true}" ajax="false" target="_blank" icon="ui-icon-print"/>
+                                        <p:menuitem value="Imprimir Encaminhamento" action="#{movimentosReceberSocialBean.encaminhamento(linha.argumento27)}" rendered="#{movimentosReceberSocialBean.renderedEncaminhamento(linha.argumento27) eq true}" ajax="false" target="_blank" icon="ui-icon-print"/>
                                     </p:splitButton>
                                 </p:column>
 

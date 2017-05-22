@@ -7,6 +7,19 @@
 
     <h:head>
         <title>Sub-Grupo Convênio</title>
+        <style>
+            .column00 {
+                width: 48%;
+            }
+            .column01 {
+                width: 4%;
+            }
+            .column02 {
+                width: 48%;
+            }
+        </style>
+            
+            
     </h:head>
     <h:body>
         <f:subview id="header">
@@ -32,7 +45,11 @@
                                 <p:outputLabel value="Descrição: " for="idSubgrupo"/>
                                 <p:inputText id="idSubgrupo" value="#{subGrupoConvenioBean.subGrupoConvenio.descricao}" size="50" maxlength="50" placeholder="Descrição"/>
                                 <h:column></h:column>
+
                                 <p:selectBooleanCheckbox value="#{subGrupoConvenioBean.subGrupoConvenio.principal}" itemLabel="Principal" />
+
+                                <p:selectBooleanCheckbox value="#{subGrupoConvenioBean.subGrupoConvenio.encaminhamento}" itemLabel="Encaminhamento" />
+
                                 <h:column>
                                     <p:commandButton value="Salvar" action="#{subGrupoConvenioBean.add()}" update="growl id_subgrupos :form_subgrupo_convenio:id_subgrupos_filtro" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                     <p:commandButton value="Novo" action="#{subGrupoConvenioBean.novo()}" update="id_panel_grid_novo"  styleClass="margin-left-max"/>                        
@@ -93,9 +110,10 @@
                                 <p:ajax event="change" update="@this form_subgrupo_convenio" listener="#{subGrupoConvenioBean.clear(2)}"/>
                             </p:selectBooleanCheckbox>                            
                         </h:panelGrid>
-                        <p:panelGrid columns="3" styleClass="sbb" id="id_subgrupos_grid">
-                            <p:panel style="width: 370px;">
-                                <p:dataTable value="#{subGrupoConvenioBean.listServicosDisponiveis}" var="list" emptyMessage="Não existem registros" scrollHeight="200" selection="#{subGrupoConvenioBean.servicoSelecionado}" rowKey="#{list.servicos.id}" scrollable="true" >
+
+                        <h:panelGrid columns="3" id="id_subgrupos_grid" style="width: 100%;" columnClasses="column00, column01, column02">
+                            <h:column>
+                                <p:dataTable value="#{subGrupoConvenioBean.listServicosDisponiveis}" var="list" emptyMessage="Não existem registros" scrollHeight="200" selection="#{subGrupoConvenioBean.servicoSelecionado}" rowKey="#{list.servicos.id}" scrollable="true">
                                     <f:facet name="header">Disponíveis</f:facet>
                                     <p:column selectionMode="multiple" width="20" styleClass="text-center"/>
                                     <p:column style="width:20px" rendered="#{subGrupoConvenioBean.enableSubGroup}">
@@ -112,29 +130,28 @@
                                         </h:dataTable>
                                     </p:rowExpansion>                                    
                                 </p:dataTable>
-                            </p:panel>
-                            <p:panel style="width: 140px;" styleClass="no-border">
-                                <p:panelGrid columns="1" styleClass="sbb">
-                                    <p:commandButton icon="ui-icon-carat-1-e" value="Adicionar" action="#{subGrupoConvenioBean.addConvenioServico()}" update="id_subgrupos_filtro :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoSalvar}"/>
-                                    <p:commandButton icon="ui-icon-carat-1-w" value="Remover" action="#{subGrupoConvenioBean.removeConvenioServico()}" update="form_subgrupo_convenio :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoExcluir}"/>
-                                </p:panelGrid>
-                            </p:panel>
-                            <p:panel style="width: 370px;">
-                                <p:dataTable value="#{subGrupoConvenioBean.listServicosAdicionados}" var="convenioServico" emptyMessage="Nenhum registro adicionado" scrollHeight="200" selection="#{subGrupoConvenioBean.convenioServicoSelecionado}"  rowKey="#{convenioServico.id}"  scrollable="true">
+                            </h:column>
+                            
+                            <h:column>
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <p:commandButton icon="ui-icon-carat-1-e" value="Adicionar" action="#{subGrupoConvenioBean.addConvenioServico()}" update="id_subgrupos_filtro :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoSalvar}" style="width: 100%"/>
+                                    <p:commandButton icon="ui-icon-carat-1-w" value="Remover" action="#{subGrupoConvenioBean.removeConvenioServico()}" update="form_subgrupo_convenio :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoExcluir}"  style="width: 100%"/>
+                                </h:panelGrid>
+                            </h:column>
+
+                            <h:column>
+                                <p:dataTable value="#{subGrupoConvenioBean.listServicosAdicionados}" var="convenioServico" emptyMessage="Nenhum registro adicionado" scrollHeight="200" selection="#{subGrupoConvenioBean.convenioServicoSelecionado}"  rowKey="#{convenioServico.id}"  scrollable="true" style="width: 100%;">
                                     <f:facet name="header">Adicionados</f:facet>
-                                    <f:facet name="footer">Obs. E - Encaminhamento</f:facet>
+
                                     <p:column selectionMode="multiple" width="20" styleClass="text-center"/>
+
                                     <p:column headerText="Descrição" filterBy="#{convenioServico.servicos.descricao}" filterMatchMode="global">
                                         #{convenioServico.servicos.descricao}
                                     </p:column>
-                                    <p:column width="20" headerText="E">
-                                        <p:selectBooleanCheckbox value="#{convenioServico.encaminhamento}">
-                                            <p:ajax event="change" update="@this :form_novo_subgrupo_convenio:growl" listener="#{subGrupoConvenioBean.updateConvenioServico(convenioServico)}"/>
-                                        </p:selectBooleanCheckbox>
-                                    </p:column>
+
                                 </p:dataTable>
-                            </p:panel>
-                        </p:panelGrid>
+                            </h:column>
+                        </h:panelGrid>
                     </p:panel>
                 </h:form>
             </p:panel>          

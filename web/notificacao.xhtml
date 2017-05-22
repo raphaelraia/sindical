@@ -56,13 +56,13 @@
 
                                     <p:column>
                                         <p:selectOneMenu value="#{notificacaoBean.idTipoEnvio}" rendered="#{notificacaoBean.lote.id != -1}">
-                                            <p:ajax event="change" update="i_panel" />
+                                            <p:ajax event="change" update="@form" listener="#{notificacaoBean.loadListaArquivos()}"/>
                                             <f:selectItems value="#{notificacaoBean.listaTipoEnvio}"/>
                                         </p:selectOneMenu>
                                     </p:column>
 
                                     <p:column>
-                                        <h:column rendered="#{notificacaoBean.idTipoEnvio == 3 or notificacaoBean.idTipoEnvio == 4}">
+                                        <h:column rendered="#{notificacaoBean.idTipoEnvio == 3 or notificacaoBean.idTipoEnvio eq 4}">
                                             <p:commandButton value="Enviar" title="Enviar Notificação por Email" rendered="#{notificacaoBean.lote.id != -1}" onclick="PF('i_dlg_e').show()"/>
                                         </h:column>
 
@@ -72,11 +72,11 @@
                                             </p:selectBooleanCheckbox>
                                         </h:column>
                                         
-                                        <h:column rendered="#{notificacaoBean.idTipoEnvio == 0 or notificacaoBean.idTipoEnvio == 1 or notificacaoBean.idTipoEnvio == 2}">
+                                        <h:column rendered="#{notificacaoBean.idTipoEnvio eq 0 or notificacaoBean.idTipoEnvio eq 1 or notificacaoBean.idTipoEnvio eq 2 or notificacaoBean.idTipoEnvio eq 7}">
                                             <p:commandButton value="Criar Arquivos" title="Criar arquivos de Notificação" rendered="#{notificacaoBean.lote.id != -1}" onclick="PF('i_dlg_e').show()"/>
                                         </h:column>
 
-                                        <h:column rendered="#{notificacaoBean.idTipoEnvio == 5 or notificacaoBean.idTipoEnvio == 6}">
+                                        <h:column rendered="#{notificacaoBean.idTipoEnvio eq 5 or notificacaoBean.idTipoEnvio eq 6}">
                                             <p:commandButton ajax="false" value="Criar Etiquetas" title="Criar etiquetas de Notificação" rendered="#{notificacaoBean.lote.id != -1}" action="#{notificacaoBean.gerarEtiquetas}"/>
                                         </h:column>
                                     </p:column>

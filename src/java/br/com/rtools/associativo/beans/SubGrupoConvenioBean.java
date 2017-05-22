@@ -78,6 +78,14 @@ public class SubGrupoConvenioBean implements Serializable {
         GenericaSessao.remove("subGrupoConvenioPesquisa");
     }
 
+    public final void loadListServicosAdicionados() {
+        listServicosAdicionados.clear();
+        if (!listSubGrupoConvenio.isEmpty()) {
+            SubGrupoConvenioDao subGrupoConvenioDB = new SubGrupoConvenioDao();
+            listServicosAdicionados = subGrupoConvenioDB.listaServicosAdicionados(Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()));
+        }
+    }
+
     public String novo() {
         idGrupoConvenio = 0;
         subGrupoConvenio = new SubGrupoConvenio();
@@ -94,12 +102,12 @@ public class SubGrupoConvenioBean implements Serializable {
         if (tcase == 1) {
             listServicosDisponiveis.clear();
             servicoSelecionado = null;
-            listServicosAdicionados.clear();
+            loadListServicosAdicionados();
         }
         if (tcase == 2) {
             listServicosDisponiveis.clear();
             servicoSelecionado = null;
-            listServicosAdicionados.clear();
+            loadListServicosAdicionados();
             listSubGrupoFinanceiro.clear();
         }
         if (tcase == 3) {
@@ -124,7 +132,7 @@ public class SubGrupoConvenioBean implements Serializable {
         SubGrupoConvenioDao sgcdb = new SubGrupoConvenioDao();
         GrupoConvenio gc = (GrupoConvenio) di.find(new GrupoConvenio(), Integer.parseInt(listGrupoConvenio.get(idGrupoConvenio).getDescription()));
         List<SubGrupoConvenio> list = sgcdb.listaSubGrupoConvenioPorGrupo(gc.getId());
-        for(int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             list.get(i).setPrincipal(false);
             new Dao().update(list.get(i), true);
         }
@@ -247,17 +255,15 @@ public class SubGrupoConvenioBean implements Serializable {
                                 idMemory = ((Servicos) list.get(i)).getSubGrupoFinanceiro().getId();
                             }
                         }
-                    } else {
-                        if (!listSubGrupoFinanceiro.isEmpty()) {
-                            List<Servicos> list = (List<Servicos>) subGrupoConvenioDB.listaServicosDisponiveisPorSubGrupoFinanceiro(Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()), Integer.parseInt(getListSubGrupoFinanceiro().get(idSubGrupoFinanceiro).getDescription()));
-                            ListServicosSubGrupoFinanceiro lssgf;
-                            for (int i = 0; i < list.size(); i++) {
-                                lssgf = new ListServicosSubGrupoFinanceiro();
-                                lssgf.setDescricao(((Servicos) list.get(i)).getDescricao());
-                                lssgf.setSubGrupoFinanceiro(((Servicos) list.get(i)).getSubGrupoFinanceiro());
-                                lssgf.setServicos(((Servicos) list.get(i)));
-                                listServicosDisponiveis.add(lssgf);
-                            }
+                    } else if (!listSubGrupoFinanceiro.isEmpty()) {
+                        List<Servicos> list = (List<Servicos>) subGrupoConvenioDB.listaServicosDisponiveisPorSubGrupoFinanceiro(Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()), Integer.parseInt(getListSubGrupoFinanceiro().get(idSubGrupoFinanceiro).getDescription()));
+                        ListServicosSubGrupoFinanceiro lssgf;
+                        for (int i = 0; i < list.size(); i++) {
+                            lssgf = new ListServicosSubGrupoFinanceiro();
+                            lssgf.setDescricao(((Servicos) list.get(i)).getDescricao());
+                            lssgf.setSubGrupoFinanceiro(((Servicos) list.get(i)).getSubGrupoFinanceiro());
+                            lssgf.setServicos(((Servicos) list.get(i)));
+                            listServicosDisponiveis.add(lssgf);
                         }
                     }
                 } else {
@@ -272,16 +278,13 @@ public class SubGrupoConvenioBean implements Serializable {
                     }
                 }
             }
+            
+            loadListServicosAdicionados();
         }
         return listServicosDisponiveis;
     }
 
     public List<ConvenioServico> getListServicosAdicionados() {
-        listServicosAdicionados.clear();
-        if (!listSubGrupoConvenio.isEmpty()) {
-            SubGrupoConvenioDao subGrupoConvenioDB = new SubGrupoConvenioDao();
-            listServicosAdicionados = subGrupoConvenioDB.listaServicosAdicionados(Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()));
-        }
         return listServicosAdicionados;
     }
 
@@ -306,7 +309,7 @@ public class SubGrupoConvenioBean implements Serializable {
                                 "Convênio Serviço - ID: " + convenioServico.getId()
                                 + " - Sub Grupo Convenio: (" + convenioServico.getSubGrupoConvenio().getId() + ") - " + convenioServico.getSubGrupoConvenio().getDescricao()
                                 + " - Serviço: (" + convenioServico.getServicos().getId() + ") - " + convenioServico.getServicos().getDescricao()
-                                + " - Encaminhamento: " + convenioServico.isEncaminhamento()
+                        //+ " - Encaminhamento: " + convenioServico.isEncaminhamento()
                         );
                         sucesso = true;
                     }
@@ -324,7 +327,7 @@ public class SubGrupoConvenioBean implements Serializable {
                                     "Convênio Serviço - ID: " + convenioServico.getId()
                                     + " - Sub Grupo Convenio: (" + convenioServico.getSubGrupoConvenio().getId() + ") - " + convenioServico.getSubGrupoConvenio().getDescricao()
                                     + " - Serviço: (" + convenioServico.getServicos().getId() + ") - " + convenioServico.getServicos().getDescricao()
-                                    + " - Encaminhamento: " + convenioServico.isEncaminhamento()
+                            //+ " - Encaminhamento: " + convenioServico.isEncaminhamento()
                             );
                             sucesso = true;
                         }
@@ -354,7 +357,7 @@ public class SubGrupoConvenioBean implements Serializable {
                                 "Convênio Serviço - ID: " + convenioServico.getId()
                                 + " - Sub Grupo Convenio: (" + convenioServico.getSubGrupoConvenio().getId() + ") - " + convenioServico.getSubGrupoConvenio().getDescricao()
                                 + " - Serviço: (" + convenioServico.getServicos().getId() + ") - " + convenioServico.getServicos().getDescricao()
-                                + " - Encaminhamento: " + convenioServico.isEncaminhamento()
+                        //+ " - Encaminhamento: " + convenioServico.isEncaminhamento()
                         );
                         sucesso = true;
                     }
@@ -366,34 +369,38 @@ public class SubGrupoConvenioBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Registro(s) removido(s)");
         }
     }
-
-    public void updateConvenioServico(ConvenioServico convenioServico) {
-        Dao di = new Dao();
-        NovoLog novoLog = new NovoLog();
-        if (convenioServico.isEncaminhamento()) {
-            convenioServico.setEncaminhamento(false);
-        } else {
-            convenioServico.setEncaminhamento(true);
-        }
-        ConvenioServico cs = (ConvenioServico) di.find(convenioServico);
-        String beforeUpdate
-                = "Convênio Serviço - ID: " + cs.getId()
-                + " - Sub Grupo Convenio: (" + cs.getSubGrupoConvenio().getId() + ") - " + cs.getSubGrupoConvenio().getDescricao()
-                + " - Serviço: (" + cs.getServicos().getId() + ") - " + cs.getServicos().getDescricao()
-                + " - Encaminhamento: " + cs.isEncaminhamento();
-        if (di.update(convenioServico, true)) {
-            novoLog.update(beforeUpdate,
-                    "Convênio Serviço - ID: " + convenioServico.getId()
-                    + " - Sub Grupo Convenio: (" + convenioServico.getSubGrupoConvenio().getId() + ") - " + convenioServico.getSubGrupoConvenio().getDescricao()
-                    + " - Serviço: (" + convenioServico.getServicos().getId() + ") - " + convenioServico.getServicos().getDescricao()
-                    + " - Encaminhamento: " + convenioServico.isEncaminhamento()
-            );
-            GenericaMensagem.info("Sucesso", "Registro(s) atualizado(s)");
-        } else {
-            GenericaMensagem.warn("Erro", "Ao atualizar este registro");
-        }
-
-    }
+//
+//    public void updateConvenioServico(ConvenioServico convenioServico) {
+//        Dao di = new Dao();
+//        NovoLog novoLog = new NovoLog();
+////        if (convenioServico.isEncaminhamento()) {
+////            convenioServico.setEncaminhamento(false);
+////        } else {
+////            convenioServico.setEncaminhamento(true);
+////        }
+//        ConvenioServico cs = (ConvenioServico) di.find(convenioServico);
+//
+//        String beforeUpdate
+//                = "Convênio Serviço - ID: " + cs.getId()
+//                + " - Sub Grupo Convenio: (" + cs.getSubGrupoConvenio().getId() + ") - " + cs.getSubGrupoConvenio().getDescricao()
+//                + " - Serviço: (" + cs.getServicos().getId() + ") - " + cs.getServicos().getDescricao()
+//                + " - Encaminhamento: " + cs.getSubGrupoConvenio().getEncaminhamento();
+//        if (di.update(convenioServico, true)) {
+//
+//            di.update(convenioServico.getSubGrupoConvenio(), true);
+//
+//            novoLog.update(beforeUpdate,
+//                    "Convênio Serviço - ID: " + convenioServico.getId()
+//                    + " - Sub Grupo Convenio: (" + convenioServico.getSubGrupoConvenio().getId() + ") - " + convenioServico.getSubGrupoConvenio().getDescricao()
+//                    + " - Serviço: (" + convenioServico.getServicos().getId() + ") - " + convenioServico.getServicos().getDescricao()
+//                    + " - Encaminhamento: " + cs.getSubGrupoConvenio().getEncaminhamento()
+//            );
+//            GenericaMensagem.info("Sucesso", "Registro(s) atualizado(s)");
+//        } else {
+//            GenericaMensagem.warn("Erro", "Ao atualizar este registro");
+//        }
+//
+//    }
 
     public String getMessage() {
         return message;

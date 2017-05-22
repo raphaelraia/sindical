@@ -36,9 +36,9 @@
    
     <managed-bean>
         <managed-bean-name>bloqueioServicosBean</managed-bean-name>
-        <managed-bean-class>br.com.rtools.financeiro.beans.BloqueioServicosJSFBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
+        <managed-bean-class>br.com.rtools.financeiro.beans.BloqueioServicosBean</managed-bean-class>
+    
+        <managed-bean-scope>session</managed-bean-scope></managed-bean>
     
     <navigation-rule>
         

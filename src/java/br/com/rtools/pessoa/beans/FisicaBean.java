@@ -1478,8 +1478,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
         }
-
+        
         if (socios.getId() == -1 || (socios.getId() != -1 && (socios.getMatriculaSocios().getDtInativo() != null || !socios.getServicoPessoa().isAtivo()))) {
+            if (DataHoje.menorData(p.getRecadastroString(), new DataHoje().decrementarDias(30, DataHoje.data()))){
+                GenericaMensagem.error("Atenção", "Conferir os dados para fins de RECADASTRAMENTO!");
+                return null;
+            }
+            
             if (listaPessoaEndereco.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Cadastrar um Endereço!");
                 return null;

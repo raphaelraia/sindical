@@ -25,20 +25,25 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
+
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Bloqueio de Serviços" styleClass="fonteHeader" />
                         <h:form id="formBloqueioServicos">
                             <c:set scope="request" var="object" value="${bloqueioServicosBean.bloqueia}"/>
                             <p:panel styleClass="fundoCinza" style="clear: both">
+
                                 <h:panelGrid id="i_panel_pessoa" columns="2">
                                     <p:commandButton ajax="false" action="#{chamadaPaginaBean.pesquisaPessoa}" value="Adicionar Pessoa" rendered="#{bloqueioServicosBean.pessoa.id == -1}"/>
                                     <h:outputText id="i_nome" value="#{bloqueioServicosBean.pessoa.nome}" title="#{bloqueioServicosBean.pessoa.nome}" style="font-weight: bold"/>
-                                    <p:commandButton id="b_remover" icon="ui-icon-trash" action="#{bloqueioServicosBean.removerPesquisa}" rendered="#{bloqueioServicosBean.pessoa.id != -1}" update="i_panel_pessoa"/>
+                                    <p:commandButton id="b_remover" icon="ui-icon-trash" action="#{bloqueioServicosBean.removerPesquisa}" rendered="#{bloqueioServicosBean.pessoa.id != -1}" update="i_panel_pessoa" style="margin-left: 15px"/>
                                 </h:panelGrid>
-
-                                <h:panelGrid id="i_panel_servicos" columns="6">
+                                
+                                <hr />
+                                
+                                <h:panelGrid id="i_panel_servicos" columns="7">
                                     <p:column>
                                         <h:outputLabel value="Serviços" /><br />
                                         <p:selectOneMenu  value="#{bloqueioServicosBean.idServicos}" style="width: 180px">
@@ -68,20 +73,25 @@
 
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="Salvar" action="#{bloqueioServicosBean.salvar}" style="margin-left: 20px" title="Salvar este Bloqueio" update="formBloqueioServicos" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                        <p:commandButton value="#{bloqueioServicosBean.bloqueia.id eq -1 ? 'Salvar' : 'Alterar'}" action="#{bloqueioServicosBean.salvar}" style="margin-left: 20px" title="Salvar este Bloqueio" update="formBloqueioServicos" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Novo" action="#{bloqueioServicosBean.novo()}" style="margin-left: 20px" title="Novo Bloqueio" update="formBloqueioServicos" />
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
-                            
+
                             <p:dataTable value="#{bloqueioServicosBean.listaBloqueios}" var="linha" id="tbl" emptyMessage="Nenhum Bloqueio foi encontrado!">
                                 <p:column headerText="Excluir" style="text-align: center">
                                     <p:commandButton icon="ui-icon-trash" action="#{bloqueioServicosBean.excluir(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":formBloqueioServicos" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Serviços">
-                                    <p:commandLink value="#{linha.servicos.descricao}" action="#{bloqueioServicosBean.editar(linha)}" update=":formBloqueioServicos"/>
+                                    <p:commandLink value="#{linha.servicos.descricao}" action="#{bloqueioServicosBean.editar(linha)}" update="@form"/>
                                 </p:column>
 
                                 <p:column headerText="Data Inicial">
@@ -91,15 +101,15 @@
                                 <p:column headerText="Data Final">
                                     <h:outputText value="#{linha.fim}"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Impressão de Guias" style="text-align: center">
-                                    <p:commandLink value="** IMPRIME **"     action="#{bloqueioServicosBean.alteraImprime(linha)}" title="Clique para mudar o Status" rendered="#{linha.impressao}" update=":formBloqueioServicos"/>
-                                    <p:commandLink value="** NÃO IMPRIME **" action="#{bloqueioServicosBean.alteraImprime(linha)}" title="Clique para mudar o Status" rendered="#{!linha.impressao}" update=":formBloqueioServicos"/>
+                                    <p:commandLink value="** IMPRIME **"     action="#{bloqueioServicosBean.alteraImprime(linha)}" title="Clique para mudar o Status" rendered="#{linha.impressao}" update="@form"/>
+                                    <p:commandLink value="** NÃO IMPRIME **" action="#{bloqueioServicosBean.alteraImprime(linha)}" title="Clique para mudar o Status" rendered="#{!linha.impressao}" update="@form"/>
                                 </p:column>
 
                                 <p:column headerText="Geração de Guias" style="text-align: center">
-                                    <p:commandLink value="** GERA BOLETOS **" action="#{bloqueioServicosBean.alteraGera(linha)}" title="Clique para mudar o Status" rendered="#{linha.geracao}" update=":formBloqueioServicos"/>
-                                    <p:commandLink value="** NÃO GERA BOLETOS **" action="#{bloqueioServicosBean.alteraGera(linha)}" title="Clique para mudar o Status" rendered="#{!linha.geracao}" update=":formBloqueioServicos"/>
+                                    <p:commandLink value="** GERA BOLETOS **" action="#{bloqueioServicosBean.alteraGera(linha)}" title="Clique para mudar o Status" rendered="#{linha.geracao}" update="@form"/>
+                                    <p:commandLink value="** NÃO GERA BOLETOS **" action="#{bloqueioServicosBean.alteraGera(linha)}" title="Clique para mudar o Status" rendered="#{!linha.geracao}" update="@form"/>
                                 </p:column>
                             </p:dataTable>
                         </h:form>

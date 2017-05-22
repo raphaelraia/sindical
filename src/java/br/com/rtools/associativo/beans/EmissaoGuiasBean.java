@@ -134,6 +134,8 @@ public class EmissaoGuiasBean implements Serializable {
     private List<SelectItem> listParceiro;
     private Integer idParceiro;
 
+    private Boolean renderedEncaminhamento = false;
+
     @PostConstruct
     public void init() {
         estoque = new Estoque();
@@ -860,7 +862,6 @@ public class EmissaoGuiasBean implements Serializable {
                 lote,
                 empresaConvenio.getPessoa(),
                 (SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription())),
-                false,
                 observacao,
                 parceiro
         );
@@ -930,22 +931,25 @@ public class EmissaoGuiasBean implements Serializable {
         );
 
         GenericaSessao.put("caixa_banco", "caixa");
-        if (valor_soma == 0) {
-            di.openTransaction();
-            guias.setEncaminhamento(true);
-            di.update(guias);
 
-            for (HistoricoEmissaoGuias heg : list_heg) {
-                heg.setBaixado(true);
+        if (guias.getSubGrupoConvenio().getEncaminhamento()) {
+            if (!list_heg.isEmpty()) {
+                di.openTransaction();
+                //guias.setEncaminhamento(true);
+                //di.update(guias);
 
-                if (!di.update(heg)) {
-                    di.rollback();
-                    message = "Erro atualizar Histórico de Impressão!";
-                    return null;
+                for (HistoricoEmissaoGuias heg : list_heg) {
+                    heg.setBaixado(true);
+
+                    if (!di.update(heg)) {
+                        di.rollback();
+                        message = "Erro atualizar Histórico de Impressão!";
+                        return null;
+                    }
                 }
-            }
 
-            di.commit();
+                di.commit();
+            }
 
             List<FormaPagamento> lf = new ArrayList();
 
@@ -979,11 +983,23 @@ public class EmissaoGuiasBean implements Serializable {
                 }
             }
 
-            StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0);
+            if (valor_soma == 0) {
+                StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0);
+                if (!sr.getStatus()) {
+                    message = "Erro ao baixar Guias! " + sr.getMensagem();
+                    return null;
+                }
+            } else {
+                if (GenericaSessao.exists("sessaoSisAutorizacao")) {
+                    SisAutorizacoes sa = (SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao", true);
+                    sa.setDtConcluido(new Date());
+                    new Dao().update(sa, true);
+                }
 
-            if (!sr.getStatus()) {
-                message = "Erro ao baixar Guias! " + sr.getMensagem();
-                return null;
+                GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
+                GenericaSessao.put("mensagem_recibo", observacao);
+                GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
+                return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
             }
         } else if (!listaMovimentoAuxiliar.isEmpty()) {
 
@@ -998,7 +1014,9 @@ public class EmissaoGuiasBean implements Serializable {
             GenericaSessao.put("tipo_recibo_imprimir", new Dao().find(new TipoRecibo(), 1));
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         }
+
         message = " Lançamento efetuado com Sucesso!";
+
         return null;
     }
 
@@ -1600,6 +1618,22 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void setIdParceiro(Integer idParceiro) {
         this.idParceiro = idParceiro;
+    }
+
+    public Boolean getRenderedEncaminhamento() {
+        renderedEncaminhamento = false;
+        if (lote.getId() != -1) {
+            MovimentoDao db = new MovimentoDao();
+            Guia gu = db.pesquisaGuias(lote.getId());
+            if (gu.getId() != -1 && gu.getSubGrupoConvenio() != null) {
+                renderedEncaminhamento = gu.getSubGrupoConvenio().getEncaminhamento();
+            }
+        }
+        return renderedEncaminhamento;
+    }
+
+    public void setRenderedEncaminhamento(Boolean renderedEncaminhamento) {
+        this.renderedEncaminhamento = renderedEncaminhamento;
     }
 
 }

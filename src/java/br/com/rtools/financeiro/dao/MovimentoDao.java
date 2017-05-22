@@ -2930,4 +2930,19 @@ public class MovimentoDao extends DB {
         }
         return new ArrayList();
     }
+
+    public Boolean imprimeEncaminhamentoJunto(Integer baixa_id) {
+
+        Query qry = getEntityManager().createNativeQuery(
+                "  SELECT count(*) \n "
+                + "  FROM fin_guia AS g \n "
+                + " INNER JOIN soc_convenio_sub_grupo AS s ON s.id = g.id_convenio_sub_grupo \n "
+                + " INNER JOIN fin_movimento AS m ON m.id_lote = g.id_lote \n "
+                + " WHERE m.id_baixa = " + baixa_id + " \n "
+                + "   AND s.is_encaminhamento = true"
+        );
+
+        return ((Long) ((List) qry.getSingleResult()).get(0)).intValue() > 0;
+    }
+
 }

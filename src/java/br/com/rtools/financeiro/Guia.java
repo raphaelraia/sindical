@@ -22,20 +22,17 @@ public class Guia implements java.io.Serializable {
     @JoinColumn(name = "id_convenio_sub_grupo", referencedColumnName = "id")
     @ManyToOne
     private SubGrupoConvenio subGrupoConvenio;
-    @Column(name = "is_encaminhamento", nullable = true)
-    private boolean encaminhamento;
     @Column(name = "ds_observacao", length = 1000)
     private String observacao;
     @JoinColumn(name = "id_parceiro", referencedColumnName = "id")
     @ManyToOne
     private Pessoa parceiro;
 
-    public Guia(int id, Lote lote, Pessoa pessoa, SubGrupoConvenio subGrupoConvenio, boolean encaminhamento, String observacao, Pessoa parceiro) {
+    public Guia(int id, Lote lote, Pessoa pessoa, SubGrupoConvenio subGrupoConvenio, String observacao, Pessoa parceiro) {
         this.id = id;
         this.lote = lote;
         this.pessoa = pessoa;
         this.subGrupoConvenio = subGrupoConvenio;
-        this.encaminhamento = encaminhamento;
         this.observacao = observacao;
         this.parceiro = parceiro;
     }
@@ -45,7 +42,6 @@ public class Guia implements java.io.Serializable {
         this.lote = new Lote();
         this.pessoa = new Pessoa();
         this.subGrupoConvenio = new SubGrupoConvenio();
-        this.encaminhamento = false;
         this.observacao = "";
         this.parceiro = null;
     }
@@ -80,14 +76,6 @@ public class Guia implements java.io.Serializable {
 
     public void setSubGrupoConvenio(SubGrupoConvenio subGrupoConvenio) {
         this.subGrupoConvenio = subGrupoConvenio;
-    }
-
-    public boolean isEncaminhamento() {
-        return encaminhamento;
-    }
-
-    public void setEncaminhamento(boolean encaminhamento) {
-        this.encaminhamento = encaminhamento;
     }
 
     public String getObservacao() {

@@ -780,6 +780,12 @@
 
                             <p:dialog widgetVar="i_dlg_ex_lancamento" header="Deseja EXCLUIR DEFINITIVAMENTE este lançamento?" resizable="false" modal="true">
                                 <h:outputLabel value="(Atenção) Após a exclusão este lançamento não poderá ser retornado!" style="font-size: 10pt!important; color: red"/>
+                                
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Digite um motivo para exclusão" style="font-size: 10pt!important; font-weight: bold"/>
+                                    <p:inputTextarea value="#{lancamentoFinanceiroBean.motivoInativacao}" style="width: 100%"/>
+                                </h:panelGrid>
+                                
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Sim" onclick="PF('i_dlg_ex_lancamento').hide()" action="#{lancamentoFinanceiroBean.delete()}" update="form_lf"  title="Excluir este Lançamento" icon="ui-icon-check"/>  

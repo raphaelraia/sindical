@@ -36,6 +36,8 @@ public class SubGrupoConvenio implements Serializable {
     private String observacao;
     @Column(name = "is_principal", columnDefinition = "boolean default false")
     private Boolean principal;
+    @Column(name = "is_encaminhamento", nullable = false, columnDefinition = "boolean default false")
+    private Boolean encaminhamento;
 
     public SubGrupoConvenio() {
         this.id = -1;
@@ -43,14 +45,16 @@ public class SubGrupoConvenio implements Serializable {
         this.grupoConvenio = new GrupoConvenio();
         this.observacao = "";
         this.principal = false;
+        this.encaminhamento = false;
     }
 
-    public SubGrupoConvenio(int id, String descricao, GrupoConvenio grupoConvenio, String observacao, Boolean principal) {
+    public SubGrupoConvenio(int id, String descricao, GrupoConvenio grupoConvenio, String observacao, Boolean principal, Boolean encaminhamento) {
         this.id = id;
         this.descricao = descricao;
         this.grupoConvenio = grupoConvenio;
         this.observacao = observacao;
         this.principal = principal;
+        this.encaminhamento = encaminhamento;
     }
 
     public int getId() {
@@ -91,5 +95,13 @@ public class SubGrupoConvenio implements Serializable {
 
     public void setPrincipal(Boolean principal) {
         this.principal = principal;
+    }
+
+    public Boolean getEncaminhamento() {
+        return encaminhamento;
+    }
+
+    public void setEncaminhamento(Boolean encaminhamento) {
+        this.encaminhamento = encaminhamento;
     }
 }
