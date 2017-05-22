@@ -2,8 +2,10 @@ package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.FolhaEmpresa;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.QueryString;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -81,7 +83,43 @@ public class FolhaEmpresaDao extends DB {
         }
     }
 
-    public List findByNative(String by, String description, Integer servico_id, Integer tipo_servico_id, String referencia) {
+    public Boolean capturaFolhaAnterior(String referencia) {
+        try {
+            DataHoje dh = new DataHoje();
+            String referenciaOriginal = referencia;
+            String dm = dh.decrementarMeses(1, DataHoje.converteData(DataHoje.converte("01/" + referencia)));
+            referencia = DataHoje.converteDataParaReferencia(dm);
+            Query query;
+            String queryString = "SELECT * FROM arr_faturamento_folha_empresa  WHERE (nr_valor=0 or nr_valor IS NULL) AND ds_referencia='" + referenciaOriginal + "'\n";
+            getEntityManager().getTransaction().begin();
+            query = getEntityManager().createNativeQuery(queryString);
+            if(!query.getResultList().isEmpty()) {
+                query = getEntityManager().createNativeQuery("DELETE FROM arr_faturamento_folha_empresa  WHERE (nr_valor=0 or nr_valor IS NULL) AND ds_referencia='" + referenciaOriginal + "'");
+                if (query.executeUpdate() == 0) {
+                    getEntityManager().getTransaction().rollback();
+                    return false;
+                }
+            }
+            queryString = ""
+                    + "INSERT INTO arr_faturamento_folha_empresa (ds_referencia,nr_num_funcionarios,nr_alteracoes,nr_valor,id_juridica,id_tipo_servico,dt_lancamento) \n"
+                    + "( \n"
+                    + "SELECT '" + referenciaOriginal + "',nr_num_funcionarios,nr_alteracoes,nr_valor,id_juridica,id_tipo_servico,dt_lancamento FROM arr_faturamento_folha_empresa \n"
+                    + "WHERE ds_referencia='" + referencia + "' AND nr_valor > 0 AND id_juridica NOT IN (SELECT id_juridica FROM arr_faturamento_folha_empresa WHERE ds_referencia='" + referenciaOriginal + "') \n"
+                    + ") ";
+            query = getEntityManager().createNativeQuery(queryString);
+            if (query.executeUpdate() == 0) {
+                getEntityManager().getTransaction().rollback();
+                return false;
+            }
+            getEntityManager().getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            return false;
+
+        }
+    }
+
+    public List findByNative(String by, String description, Integer servico_id, Integer tipo_servico_id, String referencia, String type_value) {
         QueryString qs = new QueryString();
         try {
             String queryString = ""
@@ -97,7 +135,7 @@ public class FolhaEmpresaDao extends DB {
                     + "INNER JOIN arr_desconto_empregado AS DE ON DE.id_grupo_cidade = C.id_grupo_cidade AND DE.id_convencao = C.id_convencao AND DE.id_servicos = " + servico_id + " \n"
                     + "       AND date('01/'||'" + referencia + "') >= date('01/'||ds_ref_inicial)  \n"
                     + "       AND date('01/'||'" + referencia + "') <= date('01/'||ds_ref_final)    \n";
-            queryString += " LEFT JOIN arr_faturamento_folha_empresa AS D ON D.id_juridica = C.id_juridica AND D.ds_referencia ='" + referencia + "' \n";            
+            queryString += " LEFT JOIN arr_faturamento_folha_empresa AS D ON D.id_juridica = C.id_juridica AND D.ds_referencia ='" + referencia + "' \n";
             if (!description.isEmpty()) {
                 if (by.equals("nome")) {
                     qs.addWhere("UPPER(func_translate(ds_nome)) LIKE UPPER(func_translate('%" + description + "%'))");
@@ -105,6 +143,11 @@ public class FolhaEmpresaDao extends DB {
                 if (by.equals("cpf") || by.equals("cnpj")) {
                     qs.addWhere("ds_documento = '" + description + "'");
                 }
+            }
+            if (type_value.equals("com")) {
+                qs.addWhere("(D.nr_valor IS NOT NULL AND D.nr_valor <> 0)");
+            } else if (type_value.equals("sem")) {
+                qs.addWhere("(D.nr_valor IS NULL OR D.nr_valor = 0)");
             }
             qs.addWhere("C.dt_inativacao IS NULL");
             queryString += qs.get();

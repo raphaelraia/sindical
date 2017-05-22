@@ -41,6 +41,7 @@ public class FolhaEmpresaBean implements Serializable {
     private Boolean visible;
     private Double valorBoleto;
     private Double valorFolha;
+    private String typeValue;
 
     public FolhaEmpresaBean() {
         GenericaSessao.remove("juridicaPesquisa");
@@ -55,7 +56,8 @@ public class FolhaEmpresaBean implements Serializable {
         this.referencia = DataHoje.converteDataParaReferencia(DataHoje.dataHoje());
         this.valorBoleto = new Double(0);
         this.valorFolha = new Double(0);
-        by = "nome";
+        by = "cnpj";
+        typeValue = "todos";
         description = "";
         visible = false;
         loadListServicos();
@@ -217,7 +219,7 @@ public class FolhaEmpresaBean implements Serializable {
 
     public void loadListFolhaEmpresas() {
         listFolhaEmpresas = new ArrayList();
-        List list = new FolhaEmpresaDao().findByNative(by, description, idServico, idTipoServicoFilter, referencia);
+        List list = new FolhaEmpresaDao().findByNative(by, description, idServico, idTipoServicoFilter, referencia, typeValue);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             listFolhaEmpresas.add(new FolhaEmpresaObject(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7)));
@@ -410,6 +412,23 @@ public class FolhaEmpresaBean implements Serializable {
         } catch (Exception e) {
             return new Servicos();
         }
+    }
+
+    public String getTypeValue() {
+        return typeValue;
+    }
+
+    public void setTypeValue(String typeValue) {
+        this.typeValue = typeValue;
+    }
+
+    public void capturaFolhaAnterior() {
+        if (!new FolhaEmpresaDao().capturaFolhaAnterior(referencia)) {
+            GenericaMensagem.warn("Erro", "Operação não realizada");
+            return;
+        }
+        loadListFolhaEmpresas();
+        GenericaMensagem.info("Sucesso", "Operação concluída");
     }
 
     public class FolhaEmpresaObject {

@@ -17,6 +17,7 @@ public class RelatorioSociosDao extends DB {
 
     /**
      *
+     * 
      * @param in_tipo_cobranca
      * @param in_grupo_categoria
      * @param in_categoria
@@ -68,7 +69,7 @@ public class RelatorioSociosDao extends DB {
      * @param ref_validade_dependente_final
      * @return
      */
-    public List find(
+    public List find( 
             /**
              * IN
              */
