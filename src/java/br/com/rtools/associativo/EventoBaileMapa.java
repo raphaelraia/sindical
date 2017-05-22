@@ -21,7 +21,7 @@ public class EventoBaileMapa implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @JoinColumn(name = "id_evento_baile", referencedColumnName = "id")
+    @JoinColumn(name = "id_evento_baile", referencedColumnName = "id") 
     @ManyToOne
     private EventoBaile eventoBaile;
     @Column(name = "nr_mesa")

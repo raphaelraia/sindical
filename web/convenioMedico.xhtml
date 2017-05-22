@@ -5,7 +5,7 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <h:head>
+    <h:head> 
         <title>Convênio Médico</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
     </h:head>
@@ -21,7 +21,7 @@
                     <p:panel>
                         <c:set scope="request" var="object" value="${matriculaConvenioMedicoBean.matriculaConvenioMedico}"/>
                         
-                        <p:dialog header="Deseja salvar este Registro?" widgetVar="dlg_save" modal="true" closable="true">
+                        <p:dialog header="Deseja salvar este Registro?" widgetVar="dlg_save" modal="true" closable="true"> 
                             <f:facet name="footer">
                                 <p:commandButton value="Sim" title="Salvar" action="#{matriculaConvenioMedicoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();" update=":form_cm:, outConfirma"/>
                                 <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>

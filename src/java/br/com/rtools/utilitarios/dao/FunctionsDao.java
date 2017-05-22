@@ -8,6 +8,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -360,5 +361,59 @@ public class FunctionsDao extends DB {
             return -1;
         }
         return qtde;
+    }
+
+    /**
+     * Trazer o responsável
+     *
+     * @param pessoa_id
+     * @param tipo_servico_id
+     * @param referencia
+     * @param valor
+     * @param qtde_empregados
+     * @return
+     */
+    public Double arrCalculaValorBoleto(Integer pessoa_id, Integer tipo_servico_id, String referencia, String valor, Integer qtde_empregados) {
+        Double v = new Double(0);
+        if (pessoa_id != -1 && tipo_servico_id != -1 && !referencia.isEmpty() && Moeda.converteUS$(valor) > 0) {
+            try {
+                String queryString = " SELECT func_arr_calcula_valor_boleto(" + pessoa_id + "," + tipo_servico_id + ",'" + referencia + "'," + valor + ", " + qtde_empregados + ") ";
+                Query query = getEntityManager().createNativeQuery(queryString);
+                List list = query.getResultList();
+                if (!list.isEmpty()) {
+                    v = Double.parseDouble(((List) query.getSingleResult()).get(0).toString());
+                }
+            } catch (Exception e) {
+                return new Double(0);
+            }
+
+        }
+        return v;
+    }
+
+    /**
+     * Valor da Folha Empresa
+     *
+     * @param pessoa_id
+     * @param tipo_servico_id
+     * @param referencia
+     * @param valor
+     * @return
+     */
+    public Double arrCalculaValorFolha(Integer pessoa_id, Integer tipo_servico_id, String referencia, String valor) {
+        Double v = new Double(0);
+        if (pessoa_id != -1 && tipo_servico_id != -1 && !referencia.isEmpty() && Moeda.converteUS$(valor) > 0) {
+            try {
+                String queryString = " SELECT func_arr_calcula_valor_folha(" + pessoa_id + "," + tipo_servico_id + ",'" + referencia + "'," + valor + ") ";
+                Query query = getEntityManager().createNativeQuery(queryString);
+                List list = query.getResultList();
+                if (!list.isEmpty()) {
+                    v = Double.parseDouble(((List) query.getSingleResult()).get(0).toString());
+                }
+            } catch (Exception e) {
+                return new Double(0);
+            }
+        }
+        return v;
     }
 }

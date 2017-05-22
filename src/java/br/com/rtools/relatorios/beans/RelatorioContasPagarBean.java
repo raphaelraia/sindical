@@ -207,7 +207,7 @@ public class RelatorioContasPagarBean implements Serializable {
             RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
             List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
+                if (list.get(i).getPrincipal()) {
                     idRelatorioOrdem = list.get(i).getId();
                 }
                 listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
@@ -235,6 +235,7 @@ public class RelatorioContasPagarBean implements Serializable {
     public void listener(Integer tcase) {
         switch (tcase) {
             case 1:
+                loadRelatorioOrdem();
                 loadFilters();
                 break;
             case 2:

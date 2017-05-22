@@ -195,7 +195,7 @@
                                     <p:selectBooleanCheckbox value="#{relatorioBean.relatorioOrdem.principal}" itemLabel="Default">
                                         <p:ajax event="change" update="@this" />
                                     </p:selectBooleanCheckbox>
-                                    <p:commandButton value="Adicionar"  action="#{relatorioBean.addRelatorioOrdem()}" update=":form_relatorio:" styleClass="margin-left-max"/>
+                                    <p:commandButton value="#{relatorioBean.relatorioOrdem.id eq null ? 'Adicionar' : 'Atualizar'}"  action="#{relatorioBean.addRelatorioOrdem()}" update=":form_relatorio:" styleClass="margin-left-max"/>
                                 </h:panelGrid>
                                 <p:dataTable value="#{relatorioBean.listRelatorioOrdem}" var="relatorioOrdem" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
                                     <p:column width="30" styleClass="text-center">

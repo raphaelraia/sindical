@@ -1,0 +1,218 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Sindical - Folha Empresa</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+
+        <f:metadata>
+            <f:viewParam name="cpf" value="false" />
+        </f:metadata>        
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Folha Empresa" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_folha_empresa">
+                            <c:set scope="request" var="object" value="${folhaEmpresaBean.folhaEmpresa}"/>
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <p:panel header="Folhas Empresas" id="id_folhas_empresa" styleClass="margin-top-max">
+                                <f:facet name="header">
+                                    <h:column>
+                                        <h:panelGrid columns="1" cellspacing="5" rendered="false">
+                                            <p:commandButton action="#{folhaEmpresaBean.newRegister}" update=":form_folha_empresa:i_empresa" onclick="PF('dlg_new_folha_empresa').show()" value="CADASTRAR" />                                            
+                                        </h:panelGrid>                                        
+                                    </h:column>
+                                    <h:panelGroup layout="block"  id="i_filters">
+                                        <h:panelGrid columns="2" cellspacing="5">
+                                            <p:selectOneMenu value="#{folhaEmpresaBean.by}">
+                                                <p:ajax event="change" update="@this i_filters" global="false"/>
+                                                <f:selectItem itemLabel="Todas Empresas" itemValue="todas"/>
+                                                <f:selectItem itemLabel="Empresa" itemValue="nome"/>
+                                                <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>
+                                                <f:selectItem itemLabel="CPF" itemValue="cpf"/>
+                                            </p:selectOneMenu>                                                                                
+                                            <p:inputMask mask="#{folhaEmpresaBean.by eq 'cnpj' ? '99.999.999/9999-99' : (folhaEmpresaBean.by eq 'cpf' ? '999.999.999-99' : '')}" value="#{folhaEmpresaBean.description}" size="50" rendered="#{folhaEmpresaBean.by ne 'todas'}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputMask>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="13" cellspacing="5">
+                                            <h:outputLabel value="VALOR: " />
+                                            <p:selectOneMenu value="#{folhaEmpresaBean.typeValue}">
+                                                <p:ajax event="change" update="@this i_filters" global="false"/>
+                                                <f:selectItem itemLabel="Todos" itemValue=""/>
+                                                <f:selectItem itemLabel="Com" itemValue="com"/>
+                                                <f:selectItem itemLabel="Sem" itemValue="sem"/>
+                                            </p:selectOneMenu> 
+                                            <h:outputLabel value="REFERÊNCA:" />
+                                            <p:inputMask mask="99/9999" value="#{folhaEmpresaBean.referencia}" converter="#{isDateReference}" size="5">
+                                                <p:ajax event="change" update="@this :form_folha_empresa:" listener="#{folhaEmpresaBean.loadListFolhaEmpresas}"/>
+                                            </p:inputMask>
+                                            <h:outputLabel value="SERVIÇOS:" />
+                                            <p:selectOneMenu value="#{folhaEmpresaBean.idServico}">
+                                                <p:ajax event="change" update="@this :form_folha_empresa:" listener="#{folhaEmpresaBean.loadListFolhaEmpresas}"/>
+                                                <f:selectItems value="#{folhaEmpresaBean.listServicos}" />
+                                            </p:selectOneMenu>                                        
+                                            <h:outputLabel value="TIPO DE SERVIÇO:" />
+                                            <p:selectOneMenu value="#{folhaEmpresaBean.idTipoServicoFilter}" disabled="true" style="color: black!important;">
+                                                <p:ajax event="change" update="@this" />
+                                                <f:selectItems value="#{folhaEmpresaBean.listTipoServicos}" />
+                                            </p:selectOneMenu>                                               
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="5" cellspacing="5">
+                                            <p:commandButton update=":form_folha_empresa:" action="#{folhaEmpresaBean.loadListFolhaEmpresas}" value="FILTRAR"/>
+                                            <h:column>
+                                                <ui:include src="templates/templateStatusLoader.xhtml"/>                                            
+                                            </h:column>
+                                            <p:commandButton  onclick="PF('dlg_captura_folha_anterior').show()" value="CAPTURAR FOLHA ANTERIOR" />
+                                        </h:panelGrid>
+                                    </h:panelGroup>
+                                </f:facet>
+                                <p:dataTable value="#{folhaEmpresaBean.listFolhaEmpresas}" var="folhaEmpresa" id="id_folhas_empresa_this" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
+                                    <p:column styleClass="text-center" width="30">
+                                        <p:commandButton icon="ui-icon-pencil" action="#{folhaEmpresaBean.edit(folhaEmpresa)}" update=":form_folha_empresa:i_empresa" disabled="#{controleAcessoBean.botaoSalvar}" oncomplete="PF('dlg_new_folha_empresa').show()" rendered="#{folhaEmpresa.id ne null}"/>
+                                        <p:commandButton icon="ui-icon-plus" action="#{folhaEmpresaBean.findByDocument(folhaEmpresa.documento)}" update=":form_folha_empresa:i_empresa" disabled="#{controleAcessoBean.botaoSalvar}" oncomplete="PF('dlg_new_folha_empresa').show()" rendered="#{folhaEmpresa.id eq null}"/>
+                                    </p:column>                                     
+                                    <p:column headerText="DOCUMENTO" styleClass="text-center">
+                                        #{folhaEmpresa.documento}
+                                    </p:column>
+                                    <p:column headerText="EMPRESA">
+                                        #{folhaEmpresa.nome}
+                                    </p:column>                  
+                                    <p:column headerText="VALOR DA FOLHA" styleClass="text-center" >
+                                        <p:outputLabel value="#{folhaEmpresa.valor_folha eq null ? '0,00' : folhaEmpresa.valor_folha}">
+                                            <f:convertNumber pattern="#0.00" />
+                                        </p:outputLabel>
+                                    </p:column>
+                                    <p:column headerText="VALOR DO BOLETO" filterMatchMode="global" styleClass="text-center" >
+                                        <p:outputLabel value="#{folhaEmpresa.valor_boleto eq null ? '0,00' : folhaEmpresa.valor_boleto}">
+                                            <f:convertNumber pattern="#0.00" />
+                                        </p:outputLabel>
+                                    </p:column>
+                                    <p:column headerText="QTDE FUNCIONÁRIOS" filterMatchMode="global" styleClass="text-center" >
+                                        <p:outputLabel value="#{folhaEmpresa.numero_funcionarios eq null ? '0' : folhaEmpresa.numero_funcionarios}" />
+                                    </p:column>
+                                    <p:column styleClass="text-center" width="30">
+                                        <p:commandButton icon="ui-icon-close" action="#{folhaEmpresaBean.delete(folhaEmpresa)}" update="id_folhas_empresa_this" disabled="#{controleAcessoBean.botaoExcluir}" rendered="#{folhaEmpresa.id ne null}"/>
+                                    </p:column>                                    
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-contact" update=":form_folha_empresa:i_pessoa_juridica_card" onclick="PF('dlg_pessoa_juridica_card').show()" action="#{pessoaCardBean.cardByIdJuridica(folhaEmpresa.juridica_id)}" title="Ver detalhes" />
+                                    </p:column>
+                                    <p:rowExpansion>
+
+                                    </p:rowExpansion>
+                                </p:dataTable>
+                            </p:panel>
+                            <p:dialog widgetVar="dlg_new_folha_empresa" modal="true" resizable="false" height="400" width="1000" header="Detalhes" visible="#{folhaEmpresaBean.visible}" closeOnEscape="true">
+                                <p:ajax event="close" listener="#{folhaEmpresaBean.close}" update=":form_folha_empresa:" global="false"/>
+                                <p:panel>
+                                    <h:panelGroup id="i_empresa" layout="block">
+                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('info', ('CÁLCULO REFERENTE AO SERVIÇO ').concat(folhaEmpresaBean.servicoNome.descricao.toUpperCase()))}" escape="false"/>                                        
+                                        <p:messages autoUpdate="true" showDetail="true" showSummary="true"  />
+                                        <h:panelGrid columns="2" cellspacing="5">
+                                            <p:commandButton value="EMPRESA" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" immediate="true" icon="ui-icon-search" disabled="#{folhaEmpresaBean.folhaEmpresa.juridica.id ne -1}"/>
+                                            <h:column>
+                                                <h:panelGrid columns="1" rendered="#{folhaEmpresaBean.folhaEmpresa.juridica.id eq -1}">
+                                                    <p:selectBooleanCheckbox value="#{cpf}" itemLabel="Máscara CPF">
+                                                        <p:ajax event="change" update="i_t_d" global="false"/>
+                                                    </p:selectBooleanCheckbox>                                                    
+                                                </h:panelGrid>
+                                                <h:panelGrid columns="2" cellspacing="5" id="i_t_d">
+                                                    <p:inputMask mask="#{cpf eq 'true' ? '999.999.999-99' : '99.999.999/9999-99'}" value="#{folhaEmpresaBean.folhaEmpresa.juridica.pessoa.documento}" rendered="#{folhaEmpresaBean.folhaEmpresa.juridica.id eq -1}" id="i_documento">
+                                                        <p:ajax event="change" update="@this :form_folha_empresa:i_empresa"  listener="#{folhaEmpresaBean.findByDocument()}" global="false"/>
+                                                    </p:inputMask>
+                                                    <p:outputLabel value="#{folhaEmpresaBean.folhaEmpresa.juridica.pessoa.documento} - #{folhaEmpresaBean.folhaEmpresa.juridica.pessoa.nome}" rendered="#{folhaEmpresaBean.folhaEmpresa.juridica.id ne -1}"/>
+                                                    <p:commandButton icon="ui-icon-close" update=":form_folha_empresa:i_empresa" action="#{folhaEmpresaBean.removeEmpresa}" rendered="#{folhaEmpresaBean.folhaEmpresa.juridica.id ne -1}" disabled="#{folhaEmpresa.id ne null}"/>
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <h:outputLabel value="TIPO DE SERVIÇO:" />
+                                            <p:selectOneMenu value="#{folhaEmpresaBean.idTipoServico}" disabled="true">
+                                                <p:ajax event="change" update="@this i_calc_value" />
+                                                <f:selectItems value="#{folhaEmpresaBean.listTipoServicos}" />
+                                            </p:selectOneMenu>                                    
+                                            <h:outputLabel value="REFERÊNCA:" />
+                                            <p:inputMask mask="99/9999" value="#{folhaEmpresaBean.folhaEmpresa.referencia}" converter="#{isDateReference}" size="5" readonly="true">
+                                                <p:ajax event="change" update="@this i_calc_value" />
+                                            </p:inputMask>                                  
+                                            <h:outputLabel value="NÚMERO DE FUNCIONÁRIOS:" />
+                                            <p:inputText value="#{folhaEmpresaBean.folhaEmpresa.numFuncionariosString}" converter="#{thisNumber}" size="5" styleClass="text-center">
+                                                <p:ajax event="change" update="@this :form_folha_empresa:i_calc_value"  listener="#{folhaEmpresaBean.changeValorBoletoEFolha}"/>
+                                            </p:inputText>                                    
+                                        </h:panelGrid>
+                                        <p:panel>
+                                            <h:panelGrid columns="4" cellspacing="5" id="i_calc_value">
+                                                <h:outputLabel value="VALOR DO BOLETO:" />
+                                                <p:inputText value="#{folhaEmpresaBean.valorBoletoString}" styleClass="text-center"  converter="#{toCurrency}">
+                                                    <p:ajax event="change" update="@this i_calc_value" listener="#{folhaEmpresaBean.changeValorFolha}"/>
+                                                </p:inputText>                                    
+                                                <h:outputLabel value="VALOR DA FOLHA:" />
+                                                <p:inputText value="#{folhaEmpresaBean.valorFolhaString}"  styleClass="text-center" converter="#{toCurrency}">
+                                                    <p:ajax event="change" update="@this i_calc_value"  listener="#{folhaEmpresaBean.changeValorBoleto}"/>
+                                                </p:inputText>  
+                                            </h:panelGrid>                                            
+                                        </p:panel>
+                                    </h:panelGroup>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="3">
+                                            <p:commandButton value="SALVAR" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show();" />                                        
+                                            <p:commandButton value="SAIR" update=":form_folha_empresa:" action="#{folhaEmpresaBean.close}" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </p:panel>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes" closeOnEscape="true">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_pessoa_juridica_card">
+                                    <ui:include src="templates/templatePessoaJuridicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog> 
+                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{folhaEmpresaBean.save()}" oncomplete="PF('dlg_save').hide();"  update=":form_folha_empresa:i_empresa"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" icon="ui-icon-close"/>                                                                            
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_captura_folha_anterior" header="Deseja capturar folha anterior a referência ?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{folhaEmpresaBean.capturaFolhaAnterior()}" oncomplete="PF('dlg_captura_folha_anterior').hide();"  update=":form_folha_empresa:i_empresa"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_captura_folha_anterior').hide()" icon="ui-icon-close"/>                                                                            
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                </f:facet>
+                            </p:dialog>                             
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->              
+        </f:view>
+    </h:body>
+</ui:composition>

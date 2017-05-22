@@ -17,6 +17,7 @@ public class RelatorioSociosDao extends DB {
 
     /**
      *
+     * 
      * @param in_tipo_cobranca
      * @param in_grupo_categoria
      * @param in_categoria
@@ -68,7 +69,7 @@ public class RelatorioSociosDao extends DB {
      * @param ref_validade_dependente_final
      * @return
      */
-    public List find(
+    public List find( 
             /**
              * IN
              */
@@ -988,6 +989,9 @@ public class RelatorioSociosDao extends DB {
                 case "filiacao":
                     ordem = " S.filiacao DESC, \n";
                     break;
+                case "empresa":
+                    ordem = " DE.empresa ASC, \n";
+                    break;
                 default:
                     break;
             }
@@ -1023,6 +1027,9 @@ public class RelatorioSociosDao extends DB {
                     break;
                 case "categoria":
                     ordem = " S.categoria, \n";
+                    break;
+                case "empresa":
+                    ordem = " DE.empresa, \n";
                     break;
                 default:
                     break;

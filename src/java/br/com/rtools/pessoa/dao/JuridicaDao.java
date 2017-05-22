@@ -488,6 +488,18 @@ public class JuridicaDao extends DB {
         }
     }
 
+    public Juridica findByDocumento(String documento) {
+        try {
+            String queryString = "SELECT J.* FROM pes_juridica AS J \n"
+                    + "INNER JOIN pes_pessoa AS P ON P.id = J.id_pessoa\n"
+                    + "WHERE P.ds_documento = '" + documento + "'";
+            Query query = getEntityManager().createNativeQuery(queryString, Juridica.class);
+            return (Juridica) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public List<Juridica> findByContabilidade(Integer contabilidade_id) {
         try {
             String queryString = ""
