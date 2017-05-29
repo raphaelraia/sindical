@@ -237,7 +237,7 @@ public class FolhaEmpresaBean implements Serializable {
         this.folhaEmpresa = folhaEmpresa;
     }
 
-    public List<FolhaEmpresaObject> getListFolhaEmpresas() {
+     public List<FolhaEmpresaObject> getListFolhaEmpresas() {
         return listFolhaEmpresas;
     }
 

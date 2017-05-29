@@ -2670,9 +2670,9 @@ public class ImprimirBoleto implements Serializable {
                     valor_boleto = Moeda.somaValores(valor_total, valor_total_atrasadas);
                 }
 
-                String mensagemAtrasadas = "Mens.Atrasadas (Corrigir na Próxima Fatura)";
+                String mensagemAtrasadas = "Mensalidade(s) Atrasada(s) Corrigida(s)";
                 if (!list_at.isEmpty()) {
-                    mensagemAtrasadas = "Mens.Atrasadas (Corrigir na Próxima Fatura) de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
+                    mensagemAtrasadas = "Mensalidade(s) Atrasada(s) Corrigida(s) de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
                 }
 
                 // 
