@@ -247,7 +247,7 @@ public class Jasper implements Serializable {
      */
     public void add(JasperReport jasperReport, Collection c) {
         add(jasperReport, null, c);
-    }
+    } 
 
     /**
      * Adiciona um jasper a Lista
