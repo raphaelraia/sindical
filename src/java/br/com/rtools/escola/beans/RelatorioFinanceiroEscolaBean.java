@@ -10,6 +10,7 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioFinanceiroEscolaDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -203,6 +204,10 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
 
         Jasper.EXPORT_TO = chkExcel;
         Jasper.IS_HEADER_PARAMS = true;
+        MacFilial mc = MacFilial.getAcessoFilial();
+        if(mc.getId() != -1) {            
+            Jasper.FILIAL = mc.getFilial();
+        }
 
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
     }
