@@ -4,6 +4,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.DateFilters;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +41,14 @@ public class RelatorioMovimentosDao extends DB {
             String in_cidades_base,
             String in_cnaes,
             String valor_baixa_inicial,
-            String valor_baixa_final) {
+            String valor_baixa_final,
+            List<DateFilters> listDateFilters) {
 
         if (relatorios == null) {
             return new ArrayList();
+        }
+        if (listDateFilters == null) {
+            listDateFilters = new ArrayList();
         }
         List listWhere = new ArrayList<>();
         String queryString
@@ -143,92 +148,120 @@ public class RelatorioMovimentosDao extends DB {
 
         String data_mes = "extract(month from lot.dt_baixa)", data_ano = "extract(year from lot.dt_baixa)";
         // DATA DO RELATORIO ---------------------------------------------------------
-        if (!por_data.isEmpty()) {
-            switch (por_data) {
-                case "importacao":
-                    listWhere.add("mov.id_baixa = lot.id ");
-                    if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
-                        switch (tipo_data) {
-                            case "igual":
-                                listWhere.add("lot.dt_importacao = '" + data_inicial + "'");
-                                break;
-                            case "apartir":
-                                listWhere.add("lot.dt_importacao >= '" + data_inicial + "'");
-                                break;
-                            case "ate":
-                                listWhere.add("lot.dt_importacao <= '" + data_inicial + "'");
-                                break;
-                            case "faixa":
-                                listWhere.add("lot.dt_importacao BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
-                                break;
-                            default:
-                                break;
-                        }
+        if (!listDateFilters.isEmpty()) {
+            DateFilters importacao = DateFilters.getDateFilters(listDateFilters, "importacao");
+            if (importacao != null) {
+                listWhere.add("mov.id_baixa = lot.id ");
+                if ((importacao.getDtStart() != null && !importacao.getStart().isEmpty()) || importacao.getType().equals("com") || importacao.getType().equals("sem")) {
+                    switch (importacao.getType()) {
+                        case "igual":
+                            listWhere.add(" lot.dt_importacao = '" + importacao.getStart() + "'");
+                            break;
+                        case "apartir":
+                            listWhere.add(" lot.dt_importacao >= '" + importacao.getStart() + "'");
+                            break;
+                        case "ate":
+                            listWhere.add(" lot.dt_importacao <= '" + importacao.getStart() + "'");
+                            break;
+                        case "faixa":
+                            if (!importacao.getStart().isEmpty()) {
+                                listWhere.add(" lot.dt_importacao BETWEEN '" + importacao.getStart() + "' AND '" + importacao.getFinish() + "'");
+                            }
+                            break;
+                        case "com":
+                            listWhere.add(" lot.dt_importacao IS NOT NULL ");
+                            break;
+                        case "null":
+                            listWhere.add(" lot.dt_importacao IS NULL ");
+                            break;
+                        default:
+                            break;
                     }
-                    data_mes = "extract(month from lot.dt_importacao)";
-                    data_ano = "extract(year from lot.dt_importacao)";
-                    break;
-                case "recebimento":
-                    listWhere.add("mov.id_baixa = lot.id ");
-                    if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
-                        switch (tipo_data) {
-                            case "igual":
-                                listWhere.add("lot.dt_baixa = '" + data_inicial + "'");
-                                break;
-                            case "apartir":
-                                listWhere.add("lot.dt_baixa >= '" + data_inicial + "'");
-                                break;
-                            case "ate":
-                                listWhere.add("lot.dt_baixa <= '" + data_inicial + "'");
-                                break;
-                            case "faixa":
-                                listWhere.add("lot.dt_baixa BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
-                                break;
-                            default:
-                                break;
-                        }
+                }
+                data_mes = "extract(month from lot.dt_importacao)";
+                data_ano = "extract(year from lot.dt_importacao)";
+            }
+            DateFilters recebimento = DateFilters.getDateFilters(listDateFilters, "recebimento");
+            if (recebimento != null) {
+                if ((recebimento.getDtStart() != null && !recebimento.getStart().isEmpty()) || recebimento.getType().equals("com") || recebimento.getType().equals("sem")) {
+                    switch (recebimento.getType()) {
+                        case "igual":
+                            listWhere.add(" lot.dt_baixa = '" + recebimento.getStart() + "'");
+                            break;
+                        case "apartir":
+                            listWhere.add(" lot.dt_baixa >= '" + recebimento.getStart() + "'");
+                            break;
+                        case "ate":
+                            listWhere.add(" lot.dt_baixa <= '" + recebimento.getStart() + "'");
+                            break;
+                        case "faixa":
+                            if (!recebimento.getFinish().isEmpty()) {
+                                listWhere.add(" lot.dt_baixa BETWEEN '" + recebimento.getStart() + "' AND '" + recebimento.getFinish() + "'");
+                            }
+                            break;
+                        case "com":
+                            listWhere.add(" lot.dt_baixa IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" lot.dt_baixa IS NULL");
+                            break;
+                        default:
+                            break;
                     }
                     data_mes = "extract(month from lot.dt_baixa)";
                     data_ano = "extract(year from lot.dt_baixa)";
-                    break;
-                case "vencimento":
-                    if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
-                        switch (tipo_data) {
-                            case "igual":
-                                listWhere.add("mov.dt_vencimento = '" + data_inicial + "'");
-                                break;
-                            case "apartir":
-                                listWhere.add("mov.dt_vencimento >= '" + data_inicial + "'");
-                                break;
-                            case "ate":
-                                listWhere.add("mov.dt_vencimento <= '" + data_inicial + "'");
-                                break;
-                            case "faixa":
-                                listWhere.add("mov.dt_vencimento BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
-                                break;
-                            default:
-                                break;
-                        }
+                }
+            }
+            DateFilters vencimento = DateFilters.getDateFilters(listDateFilters, "vencimento");
+            if (vencimento != null) {
+                if ((vencimento.getDtStart() != null && !vencimento.getStart().isEmpty()) || vencimento.getType().equals("com") || vencimento.getType().equals("sem")) {
+                    switch (vencimento.getType()) {
+                        case "igual":
+                            listWhere.add(" mov.dt_vencimento = '" + vencimento.getStart() + "'");
+                            break;
+                        case "apartir":
+                            listWhere.add(" mov.dt_vencimento >= '" + vencimento.getStart() + "'");
+                            break;
+                        case "ate":
+                            listWhere.add(" mov.dt_vencimento <= '" + vencimento.getStart() + "'");
+                            break;
+                        case "faixa":
+                            if (!vencimento.getFinish().isEmpty()) {
+                                listWhere.add(" mov.dt_vencimento BETWEEN '" + vencimento.getStart() + "' AND '" + vencimento.getFinish() + "'");
+                            }
+                            break;
+                        case "com":
+                            listWhere.add(" mov.dt_vencimento IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" mov.dt_vencimento IS NULL");
+                            break;
+                        default:
+                            break;
                     }
                     data_mes = "extract(month from mov.dt_vencimento)";
                     data_ano = "extract(year from mov.dt_vencimento)";
-                    break;
-                case "referencia":
+                }
+            }
+            DateFilters referencia = DateFilters.getDateFilters(listDateFilters, "referencia");
+            if (referencia != null) {
+                if ((referencia.getStart() != null && !referencia.getStart().isEmpty()) || referencia.getType().equals("com") || referencia.getType().equals("sem")) {
+
                     String ini = "";
                     try {
-                        ini = data_inicial.substring(3, 7) + data_inicial.substring(0, 2);
+                        ini = referencia.getStart().substring(3, 7) + referencia.getStart().substring(0, 2);
                     } catch (Exception e) {
 
                     }
                     String fin = "";
                     try {
-                        fin = data_final.substring(3, 7) + data_final.substring(0, 2);
+                        fin = referencia.getFinish().substring(3, 7) + referencia.getFinish().substring(0, 2);
                     } catch (Exception e) {
 
                     }
 
                     if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
-                        switch (tipo_data) {
+                        switch (referencia.getType()) {
                             case "igual":
                                 listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) = '" + ini + "'");
                                 break;
@@ -245,11 +278,119 @@ public class RelatorioMovimentosDao extends DB {
                                 break;
                         }
                     }
-//                    listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) >=  \'" + ini + "\'  "
-//                            + " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <=  \'" + fin + "\'");
-                    data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
-                    data_ano = "cast(substring(mov.ds_referencia, 4, 8) as double precision)";
-                    break;
+                }
+                data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
+                data_ano = "cast(substring(mov.ds_referencia, 4, 8) as double precision)";
+            }
+        }
+
+        if (!por_data.isEmpty()) {
+            switch (por_data) {
+//                case "importacao":
+//                    listWhere.add("mov.id_baixa = lot.id ");
+//                    if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
+//                        switch (tipo_data) {
+//                            case "igual":
+//                                listWhere.add("lot.dt_importacao = '" + data_inicial + "'");
+//                                break;
+//                            case "apartir":
+//                                listWhere.add("lot.dt_importacao >= '" + data_inicial + "'");
+//                                break;
+//                            case "ate":
+//                                listWhere.add("lot.dt_importacao <= '" + data_inicial + "'");
+//                                break;
+//                            case "faixa":
+//                                listWhere.add("lot.dt_importacao BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
+//                                break;
+//                            default:
+//                                break;
+//                        }
+//                    }
+//                    data_mes = "extract(month from lot.dt_importacao)";
+//                    data_ano = "extract(year from lot.dt_importacao)";
+//                    break;
+//                    case "recebimento":
+//                        listWhere.add("mov.id_baixa = lot.id ");
+//                        if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
+//                            switch (tipo_data) {
+//                                case "igual":
+//                                    listWhere.add("lot.dt_baixa = '" + data_inicial + "'");
+//                                    break;
+//                                case "apartir":
+//                                    listWhere.add("lot.dt_baixa >= '" + data_inicial + "'");
+//                                    break;
+//                                case "ate":
+//                                    listWhere.add("lot.dt_baixa <= '" + data_inicial + "'");
+//                                    break;
+//                                case "faixa":
+//                                    listWhere.add("lot.dt_baixa BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
+//                                    break;
+//                                default:
+//                                    break;
+//                            }
+//                        }
+//                        data_mes = "extract(month from lot.dt_baixa)";
+//                        data_ano = "extract(year from lot.dt_baixa)";
+//                        break;
+//                    case "vencimento":
+//                        if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
+//                            switch (tipo_data) {
+//                                case "igual":
+//                                    listWhere.add("mov.dt_vencimento = '" + data_inicial + "'");
+//                                    break;
+//                                case "apartir":
+//                                    listWhere.add("mov.dt_vencimento >= '" + data_inicial + "'");
+//                                    break;
+//                                case "ate":
+//                                    listWhere.add("mov.dt_vencimento <= '" + data_inicial + "'");
+//                                    break;
+//                                case "faixa":
+//                                    listWhere.add("mov.dt_vencimento BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
+//                                    break;
+//                                default:
+//                                    break;
+//                            }
+//                        }
+//                        data_mes = "extract(month from mov.dt_vencimento)";
+//                        data_ano = "extract(year from mov.dt_vencimento)";
+//                        break;
+//                case "referencia":
+//                    String ini = "";
+//                    try {
+//                        ini = data_inicial.substring(3, 7) + data_inicial.substring(0, 2);
+//                    } catch (Exception e) {
+//
+//                    }
+//                    String fin = "";
+//                    try {
+//                        fin = data_final.substring(3, 7) + data_final.substring(0, 2);
+//                    } catch (Exception e) {
+//
+//                    }
+//
+//                    if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
+//                        switch (tipo_data) {
+//                            case "igual":
+//                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) = '" + ini + "'");
+//                                break;
+//                            case "apartir":
+//                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) >= '" + ini + "'");
+//                                break;
+//                            case "ate":
+//                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <= '" + ini + "'");
+//                                break;
+//                            case "faixa":
+//                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) BETWEEN '" + ini + "' AND '" + fin + "'");
+//                                break;
+//                            default:
+//                                break;
+//                        }
+//                    }
+////                    listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) >=  \'" + ini + "\'  "
+////                            + " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <=  \'" + fin + "\'");
+//                    data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
+//                    data_ano = "cast(substring(mov.ds_referencia, 4, 8) as double precision)";
+//                    break;
             }
         }
 
