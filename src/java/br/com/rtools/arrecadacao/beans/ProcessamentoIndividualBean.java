@@ -228,7 +228,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
             GenericaMensagem.warn("Erro", "Não existe conta Cobrança para gerar!");
             return null;
         }
-        Movimento movim = new Movimento();
+        Movimento movim = null;
         MovimentoDao finDB = new MovimentoDao();
 
         List<Movimento> lm = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
@@ -236,7 +236,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         if (!lm.isEmpty() && lm.size() > 1) {
             GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
             return null;
-        } else {
+        } else if (!lm.isEmpty()){
             movim = lm.get(0);
         }
 
@@ -473,7 +473,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
     }
 
     public synchronized String gerarBoleto() {
-        Movimento movim = new Movimento();
+        Movimento movim = null;
         Lote lote = new Lote();
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
@@ -494,7 +494,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                 if (!lm.isEmpty() && lm.size() > 1) {
                     GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE O ADMINISTRADOR!");
                     return "";
-                } else {
+                } else if (!lm.isEmpty()) {
                     movim = lm.get(0);
                 }
 
@@ -583,7 +583,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     }
                 }
                 movimentoBefore = new Movimento();
-                movim = new Movimento();
+                movim = null;
                 lote = new Lote();
                 beforeUpdate = "";
             }
