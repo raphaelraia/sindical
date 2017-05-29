@@ -111,26 +111,26 @@ public class ImprimirRecibo {
 
         SociosDao dbs = new SociosDao();
 
-        List<Movimento> list_movimentos = db.pesquisaGuia(guia);
+        List<Object> list_ob = db.pesquisaGuiaParaEncaminhamento(guia.getLote().getId());
 
-        Socios socios_enc = dbs.pesquisaSocioPorPessoaAtivo(list_movimentos.get(0).getBeneficiario().getId());
+        Socios socios_enc = dbs.pesquisaSocioPorPessoaAtivo((Integer) ((List) list_ob.get(0)).get(3));
 
         String str_usuario, str_nome, str_validade;
 
         PessoaEndereco pe_empresa = dbp.pesquisaEndPorPessoaTipo(guia.getPessoa().getId(), 5);
-        
+
         String complemento = (pe_empresa.getComplemento().isEmpty()) ? "" : " ( " + pe_empresa.getComplemento() + " ) ";
-        
-        String endereco 
+
+        String endereco
                 = pe_empresa.getEndereco().getLogradouro().getDescricao() + " "
                 + pe_empresa.getEndereco().getDescricaoEndereco().getDescricao() + ", " + pe_empresa.getNumero() + " - " + complemento
                 + pe_empresa.getEndereco().getBairro().getDescricao() + ", "
                 + pe_empresa.getEndereco().getCidade().getCidade() + "  -  "
                 + pe_empresa.getEndereco().getCidade().getUf();
 
-        str_usuario = list_movimentos.get(0).getBaixa().getUsuario().getPessoa().getNome();
+        str_usuario = (String) ((List) list_ob.get(0)).get(7);
 
-        str_nome = list_movimentos.get(0).getBeneficiario().getNome();
+        str_nome = (String) ((List) list_ob.get(0)).get(4);
 
         Map<String, String> hash = new HashMap();
 
@@ -148,12 +148,21 @@ public class ImprimirRecibo {
 
             JasperReport jasper = (JasperReport) JRLoader.loadObject(fl_jasper);
 
-            for (Movimento movs : list_movimentos) {
+            for (Object list : list_ob) {
+                List linha = (List) list;
+
                 DataHoje dh = new DataHoje();
-                if (movs.getServicos().isValidadeGuiasVigente()) {
-                    str_validade = dh.ultimoDiaDoMes(guia.getLote().getEmissao());
+
+                if (linha.get(12) != null) { // SE FOR PRODUTO
+                    if ((Boolean) linha.get(14)) { // SE is_validade_guias_mes_vigente
+                        str_validade = dh.ultimoDiaDoMes(guia.getLote().getEmissao());
+                    } else {
+                        str_validade = dh.incrementarDias((Integer) linha.get(15), guia.getLote().getEmissao());
+                    }
+                } else if ((Boolean) linha.get(10)) { // SE FOR SERVIÇO
+                    str_validade = dh.ultimoDiaDoMes(guia.getLote().getEmissao()); // SE is_validade_guias_mes_vigente
                 } else {
-                    str_validade = dh.incrementarDias(movs.getServicos().getValidade(), guia.getLote().getEmissao());
+                    str_validade = dh.incrementarDias((Integer) linha.get(11), guia.getLote().getEmissao());
                 }
 
 //                if (hash.containsKey(str_validade)) {
@@ -161,7 +170,6 @@ public class ImprimirRecibo {
 //                } else {
 //                    hash.put(str_validade, movs.getServicos().getDescricao());
 //                }
-
                 vetor.add(new ParametroEncaminhamento(
                         ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
                         sindicato.getPessoa().getNome(),
@@ -184,7 +192,7 @@ public class ImprimirRecibo {
                         pe_empresa.getPessoa().getNome(), // EMPRESA CONVENIADA
                         endereco, // EMPRESA ENDERECO
                         pe_empresa.getPessoa().getTelefone1(), // EMPRESA TELEFONE
-                        movs.getServicos().getDescricao(),//str_servicos, // SERVICOS
+                        (String) (((Integer) linha.get(12)) != null ? linha.get(13) : linha.get(9)),//str_servicos, // SERVICOS
                         guia.getLote().getEmissao(), // EMISSAO
                         str_validade,//str_validade, // VALIDADE
                         str_usuario, // USUARIO
@@ -248,9 +256,9 @@ public class ImprimirRecibo {
 //
 //                vetor.clear();
 //            }
-            if (db.imprimeEncaminhamentoJunto(list_movimentos.get(0).getBaixa().getId())) {
+            if (db.imprimeEncaminhamentoJunto((Integer) ((List) list_ob.get(0)).get(5))) {
 
-                Boolean test = gerar_recibo(list_movimentos.get(0).getId());
+                Boolean test = gerar_recibo((Integer) ((List) list_ob.get(0)).get(0));
 
             }
 

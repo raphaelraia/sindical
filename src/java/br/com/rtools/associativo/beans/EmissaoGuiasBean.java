@@ -656,6 +656,7 @@ public class EmissaoGuiasBean implements Serializable {
                 return;
             }
         }
+        
         if (servicos.isProduto()) {
             for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
                 if (listaMovimento1.getMovimento().getServicos().isProduto()) {
@@ -664,6 +665,7 @@ public class EmissaoGuiasBean implements Serializable {
                 }
             }
         }
+        
         float descontox = Moeda.converteUS$(desconto);
         Pessoa pessoa_movimento = null;
 
@@ -676,6 +678,7 @@ public class EmissaoGuiasBean implements Serializable {
         } else {
             pessoa_movimento = pessoa;
         }
+        
         listaMovimento.add(
                 new ListMovimentoEmissaoGuias(
                         new Movimento(
@@ -716,10 +719,12 @@ public class EmissaoGuiasBean implements Serializable {
                 ));
 
         total = "0";
+        
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             String total_desconto = listaMovimento1.getTotal();
             total = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
         }
+        
         desconto = "0";
 
     }
@@ -738,6 +743,7 @@ public class EmissaoGuiasBean implements Serializable {
         }
 
         total = "0";
+        
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             String total_desconto = listaMovimento1.getTotal();
             total = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
@@ -1240,18 +1246,21 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void addItemPedido() {
-        pedido.setValorUnitario(Moeda.substituiVirgulaFloat(valorUnitarioPedido));
-        //pedido.setDescontoUnitario(Moeda.substituiVirgulaFloat(descontoUnitarioPedido));
-        pedido.setQuantidade(quantidadePedido);
         if (pedido.getProduto().getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquisar um produto!");
             return;
         }
+        
+        pedido.setValorUnitario(Moeda.substituiVirgulaFloat(valorUnitarioPedido));
+        pedido.setQuantidade(quantidadePedido);
+        
+        //pedido.setDescontoUnitario(Moeda.substituiVirgulaFloat(descontoUnitarioPedido));
+        
         if (pedido.getQuantidade() < 1) {
             GenericaMensagem.warn("Validação", "Adicionar quantidade!");
             return;
         }
-        if (pedido.getValorUnitario() < 1) {
+        if (pedido.getValorUnitario() < .1) {
             GenericaMensagem.warn("Validação", "Informar valor do produto!");
             return;
         }
@@ -1262,6 +1271,10 @@ public class EmissaoGuiasBean implements Serializable {
             }
         }
         Dao dao = new Dao();
+        Servicos serv = (Servicos) dao.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+
+        pedido.setServicos(serv);
+
         if (pedido.getId() == -1) {
             pedido.setEstoqueTipo((EstoqueTipo) dao.find(new EstoqueTipo(), 3));
             listPedidos.add(pedido);
@@ -1271,6 +1284,7 @@ public class EmissaoGuiasBean implements Serializable {
             dao.commit();
             listPedidos.add(pedido);
         }
+        
         pedido = new Pedido();
         estoque = new Estoque();
         valorUnitarioPedido = "";
@@ -1300,8 +1314,10 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void removeItemPedido(int index) {
         boolean erro = false;
+        
         Dao dao = new Dao();
         dao.openTransaction();
+        
         for (int i = 0; i < listPedidos.size(); i++) {
             if (i == index) {
                 if (listPedidos.get(i).getId() != -1) {
@@ -1315,6 +1331,7 @@ public class EmissaoGuiasBean implements Serializable {
                 break;
             }
         }
+        
         if (erro) {
             dao.rollback();
         } else {
@@ -1328,7 +1345,6 @@ public class EmissaoGuiasBean implements Serializable {
         descontoUnitarioPedido = "0,00";
         valorUnitarioPedido = "0,00";
         quantidadePedido = 1;
-
     }
 
     public void openModalPedido() {
@@ -1426,7 +1442,7 @@ public class EmissaoGuiasBean implements Serializable {
                 GenericaMensagem.warn("Validação", "Produto indisponível para esta filial!");
                 PF.update(":form_eg:i_message_pedido");
             } else if (estoque.getEstoqueTipo().getId() == 3) {
-                pedido.setProduto(estoque.getProduto());
+                pedido.setProduto(p);
                 if (estoque.getEstoque() == 0) {
                     GenericaMensagem.warn("Validação", "Quantidade indisponível!");
                 }

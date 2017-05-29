@@ -32,103 +32,190 @@
 
                             <h:outputText value="Produtos" styleClass="fonteHeader" />
                             <div class="clear"></div>
-                            <h:panelGrid columns="2">
-                                <p:outputLabel value="Descrição:" />
-                                <p:inputText value="#{produtoBean.produto.descricao}" converter="#{toUpperCase}" size="100">
-                                    <p:ajax event="change" update="@this" />
-                                </p:inputText>
-                                <h:column>
-                                    <h:panelGrid>
-                                        <p:outputLabel value="Grupo:" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid columns="7" id="i_panel_grid_1">
-                                        <h:column rendered="#{produtoBean.listaGrupos.size() > 0}">
+
+                            <p:panel styleClass="fundoCinza">
+
+                                <h:panelGrid columns="3" id="i_panel_grid_1">
+
+                                    <h:column>
+                                        <p:outputLabel value="Descrição" /><br />
+                                        <h:panelGrid columns="1">
+                                            <p:inputText value="#{produtoBean.produto.descricao}" converter="#{toUpperCase}" style="width: 300px" placeholder="Nome do Produto">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid> 
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Grupo" /><br />
+                                        <h:panelGrid columns="3"> 
                                             <p:selectOneMenu value="#{produtoBean.indices[0]}" >
                                                 <p:ajax event="change" update="i_panel_grid_1" listener="#{produtoBean.listaSubGrupos.clear()}" />
                                                 <f:selectItems value="#{produtoBean.listaGrupos}" />
                                             </p:selectOneMenu>
-                                        </h:column>
-                                        <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_grupo').show();" type="button" disabled="true"/>
-                                        <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoGrupo', 'Produto Grupo')}" actionListener="#{produtoBean.listaGrupos.clear()}" title="Cadastrar Grupos" />
-                                        <p:outputLabel value="SubGrupo:" />
-                                        <h:column rendered="#{produtoBean.listaSubGrupos.size() > 0}">
-                                            <p:selectOneMenu value="#{produtoBean.indices[1]}">
-                                                <f:selectItems value="#{produtoBean.listaSubGrupos}" />
-                                            </p:selectOneMenu>
-                                        </h:column>
-                                        <h:column rendered="#{produtoBean.listaGrupos.size() > 0}">
-                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_subgrupo').show();" type="button" disabled="true"/>
-                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.pagina('produtoSubGrupo')}" title="Cadastrar SubGrupos" actionListener="#{produtoBean.listaSubGrupos.clear()}"/>
-                                        </h:column>
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid>
-                                        <p:outputLabel value="Unidade:" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid columns="7" id="i_panel_grid_2">
-                                        <h:column rendered="#{produtoBean.listaUnidades.size() > 0}">
-                                            <p:selectOneMenu value="#{produtoBean.indices[2]}">
-                                                <f:selectItems value="#{produtoBean.listaUnidades}" />
-                                            </p:selectOneMenu>
-                                        </h:column>
-                                        <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_unidade').show();" type="button" disabled="true"/>
-                                        <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoUnidade', 'Unidade')}" title="Cadastrar Unidades" actionListener="#{produtoBean.listaUnidades.clear()}"/>
-                                        <p:outputLabel value="Cor:" />
-                                        <h:column rendered="#{produtoBean.listaCores.size() > 0}">
-                                            <p:selectOneMenu value="#{produtoBean.indices[3]}" >
-                                                <f:selectItems value="#{produtoBean.listaCores}" />
-                                            </p:selectOneMenu>
-                                        </h:column>
-                                        <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_nova_cor').show();" type="button" disabled="true"/>
-                                        <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('Cor', 'Cor')}" title="Cadastrar Cores" actionListener="#{produtoBean.listaCores.clear()}"/>
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid>
-                                        <p:outputLabel value="Marca:" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid columns="7">                                
-                                        <p:inputText value="#{produtoBean.produto.marca}" converter="#{toUpperCase}">
+                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_grupo').show();" type="button" disabled="true"/>
+                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoGrupo', 'Produto Grupo')}" actionListener="#{produtoBean.listaGrupos.clear()}" title="Cadastrar Grupos" />
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="SubGrupo" /><br />
+                                        <h:panelGrid columns="3"> 
+                                            <h:column rendered="#{produtoBean.listaSubGrupos.size() > 0}">
+                                                <p:selectOneMenu value="#{produtoBean.indices[1]}">
+                                                    <f:selectItems value="#{produtoBean.listaSubGrupos}" />
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                            <h:column rendered="#{produtoBean.listaGrupos.size() > 0}">
+                                                <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_subgrupo').show();" type="button" disabled="true"/>
+                                                <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.pagina('produtoSubGrupo')}" title="Cadastrar SubGrupos" actionListener="#{produtoBean.listaSubGrupos.clear()}"/>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                </h:panelGrid>
+
+                            </p:panel>
+
+                            <br />
+
+                            <p:panel header="Detalhes">
+                                <h:panelGrid columns="7" id="i_panel_grid_2">
+                                    <h:column>
+                                        <p:outputLabel value="Unidade" /><br />
+                                        <h:panelGrid columns="3">
+                                            <h:column rendered="#{produtoBean.listaUnidades.size() > 0}">
+                                                <p:selectOneMenu value="#{produtoBean.indices[2]}">
+                                                    <f:selectItems value="#{produtoBean.listaUnidades}" />
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_unidade').show();" type="button" disabled="true"/>
+                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoUnidade', 'Unidade')}" title="Cadastrar Unidades" actionListener="#{produtoBean.listaUnidades.clear()}"/>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Cor" />
+                                        <h:panelGrid columns="3">
+                                            <h:column rendered="#{produtoBean.listaCores.size() > 0}">
+                                                <p:selectOneMenu value="#{produtoBean.indices[3]}" >
+                                                    <f:selectItems value="#{produtoBean.listaCores}" />
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_nova_cor').show();" type="button" disabled="true"/>
+                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('Cor', 'Cor')}" title="Cadastrar Cores" actionListener="#{produtoBean.listaCores.clear()}"/>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Marca" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.produto.marca}" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Fabricante" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.produto.fabricante}" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Modelo" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.produto.modelo}" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Sabor" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.produto.sabor}" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Medida" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.produto.medida}" converter="#{toUpperCase}" style="width: 90px">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <br />
+
+                            <p:panel header="Valores">
+                                <h:panelGrid columns="3">
+                                    <h:column>
+                                        <p:outputLabel value="Valor (R$)" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.valor}" converter="#{toCurrency}" styleClass="text-right">
+                                                <p:ajax event="blur" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Margem (%)" /><br />
+                                        <h:panelGrid>
+                                            <p:inputText value="#{produtoBean.produto.margem}" styleClass="text-right">
+                                                <p:ajax event="blur" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Índice" /><br />
+                                        <h:panelGrid columns="2">
+                                            <h:panelGrid columns="2">
+                                                <p:selectOneMenu value="#{produtoBean.indexIndiceMoeda}" >
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItems value="#{produtoBean.listaIndiceMoeda}" />
+                                                </p:selectOneMenu>
+
+                                                <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlg_editar_indice_moeda').show()" action="#{produtoBean.editarIndiceMoeda()}" update="form_produto:panel_editar_indice_moeda"/>
+                                            </h:panelGrid>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <br />
+
+                            <p:panel header="Guias" id="panel_guias">
+
+                                <h:panelGrid columns="2">
+                                    
+                                    <h:column rendered="#{produtoBean.produto.validadeGuiasMesVigente eq false}">
+                                        <p:outputLabel value="Validade em dias a partir da Emissão" /><br />
+                                        <p:inputText value="#{produtoBean.produto.validadeGuiasDias}" styleClass="text-right" style="width: 220px; margin-right: 10px">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
-                                        <p:outputLabel value="Fabricante: " />
-                                        <p:inputText value="#{produtoBean.produto.fabricante}" converter="#{toUpperCase}">
-                                            <p:ajax event="change" update="@this" />
-                                        </p:inputText>
-                                        <p:outputLabel value="Modelo: " />
-                                        <p:inputText value="#{produtoBean.produto.modelo}" converter="#{toUpperCase}">
-                                            <p:ajax event="change" update="@this" />
-                                        </p:inputText>
-                                    </h:panelGrid>
-                                </h:column>                                  
-                                <h:column>
-                                    <h:panelGrid>
-                                        <p:outputLabel value="Sabor:" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid columns="5">
-                                        <p:inputText value="#{produtoBean.produto.sabor}" converter="#{toUpperCase}">
-                                            <p:ajax event="change" update="@this" />
-                                        </p:inputText>
-                                        <p:outputLabel value="Medida: " />
-                                        <p:inputText value="#{produtoBean.produto.medida}" converter="#{toUpperCase}">
-                                            <p:ajax event="change" update="@this" />
-                                        </p:inputText>
-                                    </h:panelGrid>
-                                </h:column>
-                                <p:outputLabel value="Valor (R$):" />
-                                <p:inputText value="#{produtoBean.valor}" converter="#{toCurrency}" styleClass="text-right">
-                                    <p:ajax event="blur" update="@this" />
-                                </p:inputText>
-                            </h:panelGrid>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{produtoBean.produto.validadeGuiasMesVigente}" itemLabel="Validade dentro do mês vigente">
+                                            <p:ajax event="change" update="panel_guias" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>
+
+                                </h:panelGrid>
+
+                            </p:panel>
 
                             <!-- // TELA CADASTRO -->
 
@@ -311,6 +398,51 @@
                             </p:dialog>
 
                             <!-- // CADASTROS COMPLEMENTARES -->
+
+                            <p:dialog widgetVar="dlg_editar_indice_moeda" modal="true" width="500" header="Índice da Moeda">
+                                <h:panelGrid id="panel_editar_indice_moeda" style="width: 100%">
+                                    <p:messages id="msg_indice_moeda" autoUpdate="true" showDetail="true" />
+
+                                    <h:panelGrid columns="2" style="width: 100%">
+
+                                        <h:column>
+                                            <p:outputLabel value="Descrição" /><br />
+                                            <p:inputText value="#{produtoBean.indiceMoeda.descricao}" style="width: 100%">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>                                        
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Valor %" /><br />
+                                            <p:inputText value="#{produtoBean.indiceMoeda.valor}" style="width: 80px; text-align: right">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>                                        
+                                        </h:column>
+
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="3" style="width: 100%">
+                                        <h:panelGrid columns="30">
+                                            <p:commandButton icon="ui-icon-check" value="#{(produtoBean.indiceMoeda.id eq -1) ? 'Adicionar' : 'Alterar'}" action="#{produtoBean.salvarIndiceMoeda()}" update="panel_editar_indice_moeda" />
+
+                                            <p:commandButton icon="ui-icon-document" value="Novo" action="#{produtoBean.novoIndiceMoeda()}" update="panel_editar_indice_moeda" global="false"/>
+
+                                            <p:commandButton icon="ui-icon-close" value="Cancelar" action="#{produtoBean.novoIndiceMoeda()}" update="@form" global="false"/>
+                                        </h:panelGrid>
+                                        <p:outputLabel value="|" />
+                                        <p:commandLink value="Excluir" action="#{produtoBean.excluirIndiceMoeda()}" update="panel_editar_indice_moeda" global="false" style="color: red; float: right" rendered="#{produtoBean.indiceMoeda.id ne -1}">
+                                            <p:confirm header="Excluir Índice de Moeda" message="Deseja Realmente EXCLUIR este Índice?" icon="ui-icon-alert" />
+                                        </p:commandLink>
+
+                                    </h:panelGrid>
+
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
 
                         </h:form>
                     </p:panel>

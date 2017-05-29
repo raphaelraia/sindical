@@ -1,10 +1,9 @@
 package br.com.rtools.estoque;
 
 import br.com.rtools.financeiro.Lote;
+import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
-import java.math.MathContext;
-import java.text.DecimalFormat;
 import javax.persistence.*;
 
 @Entity
@@ -31,6 +30,9 @@ public class Pedido implements Serializable {
     @JoinColumn(name = "id_tipo", referencedColumnName = "id", columnDefinition = "integer default 1")
     @OneToOne
     private EstoqueTipo estoqueTipo;
+    @JoinColumn(name = "id_servico", referencedColumnName = "id")
+    @ManyToOne
+    private Servicos servicos;
 
     public Pedido() {
         this.id = -1;
@@ -40,9 +42,10 @@ public class Pedido implements Serializable {
         this.lote = new Lote();
         this.produto = new Produto();
         this.estoqueTipo = new EstoqueTipo();
+        this.servicos = null;
     }
 
-    public Pedido(int id, int quantidade, float valorUnitario, float descontoUnitario, Lote lote, Produto produto, EstoqueTipo estoqueTipo) {
+    public Pedido(int id, int quantidade, float valorUnitario, float descontoUnitario, Lote lote, Produto produto, EstoqueTipo estoqueTipo, Servicos servicos) {
         this.id = id;
         this.quantidade = quantidade;
         this.valorUnitario = valorUnitario;
@@ -50,6 +53,7 @@ public class Pedido implements Serializable {
         this.lote = lote;
         this.produto = produto;
         this.estoqueTipo = estoqueTipo;
+        this.servicos = servicos;
     }
 
     public int getId() {
@@ -138,6 +142,14 @@ public class Pedido implements Serializable {
     @Override
     public String toString() {
         return "Pedido{" + "id=" + id + ", quantidade=" + quantidade + ", valorUnitario=" + valorUnitario + ", descontoUnitario=" + descontoUnitario + ", lote=" + lote + ", produto=" + produto + ", estoqueTipo=" + estoqueTipo + '}';
+    }
+
+    public Servicos getServicos() {
+        return servicos;
+    }
+
+    public void setServicos(Servicos servicos) {
+        this.servicos = servicos;
     }
 
 }

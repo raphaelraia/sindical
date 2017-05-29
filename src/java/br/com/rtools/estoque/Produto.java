@@ -1,5 +1,6 @@
 package br.com.rtools.estoque;
 
+import br.com.rtools.financeiro.IndiceMoeda;
 import br.com.rtools.sistema.Cor;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
@@ -51,6 +52,15 @@ public class Produto implements Serializable {
     private Cor cor;
     @Column(name = "nr_valor", columnDefinition = "double precision default 0", nullable = true)
     private float valor;
+    @JoinColumn(name = "id_indice_moeda", referencedColumnName = "id")
+    @ManyToOne
+    private IndiceMoeda indiceMoeda;
+    @Column(name = "nr_margem")
+    private float margem;
+    @Column(name = "nr_validade_guias_dias")
+    private Integer validadeGuiasDias;
+    @Column(name = "is_validade_guias_mes_vigente")
+    private Boolean validadeGuiasMesVigente;
 
     public Produto() {
         this.id = -1;
@@ -69,9 +79,13 @@ public class Produto implements Serializable {
         this.produtoUnidade = new ProdutoUnidade();
         this.cor = new Cor();
         this.valor = 0;
+        this.indiceMoeda = new IndiceMoeda();
+        this.margem = (float) 0;
+        this.validadeGuiasDias = 0;
+        this.validadeGuiasMesVigente = false;
     }
 
-    public Produto(int id, String descricao, String modelo, String marca, String fabricante, String sabor, String medida, String observacao, String barras, int quantidadeEmbalagem, String cadastro, ProdutoGrupo produtoGrupo, ProdutoSubGrupo produtoSubGrupo, ProdutoUnidade produtoUnidade, Cor cor, float valor) {
+    public Produto(int id, String descricao, String modelo, String marca, String fabricante, String sabor, String medida, String observacao, String barras, int quantidadeEmbalagem, String cadastro, ProdutoGrupo produtoGrupo, ProdutoSubGrupo produtoSubGrupo, ProdutoUnidade produtoUnidade, Cor cor, float valor, IndiceMoeda indiceMoeda, float margem, Integer validadeGuiasDias, Boolean validadeGuiasMesVigente) {
         this.id = id;
         this.descricao = descricao;
         this.modelo = modelo;
@@ -88,6 +102,10 @@ public class Produto implements Serializable {
         this.produtoUnidade = produtoUnidade;
         this.cor = cor;
         this.valor = valor;
+        this.indiceMoeda = indiceMoeda;
+        this.margem = margem;
+        this.validadeGuiasDias = validadeGuiasDias;
+        this.validadeGuiasMesVigente = validadeGuiasMesVigente;
     }
 
     public int getId() {
@@ -237,5 +255,37 @@ public class Produto implements Serializable {
 
     public void setValorString(String valor) {
         this.valor = Moeda.converteUS$(valor);
+    }
+
+    public IndiceMoeda getIndiceMoeda() {
+        return indiceMoeda;
+    }
+
+    public void setIndiceMoeda(IndiceMoeda indiceMoeda) {
+        this.indiceMoeda = indiceMoeda;
+    }
+
+    public float getMargem() {
+        return margem;
+    }
+
+    public void setMargem(float margem) {
+        this.margem = margem;
+    }
+
+    public Integer getValidadeGuiasDias() {
+        return validadeGuiasDias;
+    }
+
+    public void setValidadeGuiasDias(Integer validadeGuiasDias) {
+        this.validadeGuiasDias = validadeGuiasDias;
+    }
+
+    public Boolean getValidadeGuiasMesVigente() {
+        return validadeGuiasMesVigente;
+    }
+
+    public void setValidadeGuiasMesVigente(Boolean validadeGuiasMesVigente) {
+        this.validadeGuiasMesVigente = validadeGuiasMesVigente;
     }
 }

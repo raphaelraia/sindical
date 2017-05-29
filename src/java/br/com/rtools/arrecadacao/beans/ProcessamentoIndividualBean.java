@@ -230,7 +230,15 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         }
         Movimento movim = new Movimento();
         MovimentoDao finDB = new MovimentoDao();
-        movim = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
+
+        List<Movimento> lm = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
+
+        if (!lm.isEmpty() && lm.size() > 1) {
+            GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
+            return null;
+        } else {
+            movim = lm.get(0);
+        }
 
         if (movim != null) {
             movim.getHistorico();
@@ -239,6 +247,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                 return null;
             }
         }
+
         MensagemConvencao mensagemConvencao = menDB.retornaDiaString(
                 juridica.getId(),
                 strReferencia,
@@ -475,11 +484,20 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         if (!listMovimentos.isEmpty()) {
             for (int i = 0; i < listMovimentos.size(); i++) {
                 Boolean success = true;
-                movim = finDB.pesquisaMovimentos(
+
+                List<Movimento> lm = finDB.pesquisaMovimentos(
                         ((Movimento) listMovimentos.get(i).getArgumento1()).getPessoa().getId(),
                         ((Movimento) listMovimentos.get(i).getArgumento1()).getReferencia(),
                         ((Movimento) listMovimentos.get(i).getArgumento1()).getTipoServico().getId(),
                         ((Movimento) listMovimentos.get(i).getArgumento1()).getServicos().getId());
+
+                if (!lm.isEmpty() && lm.size() > 1) {
+                    GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE O ADMINISTRADOR!");
+                    return "";
+                } else {
+                    movim = lm.get(0);
+                }
+
                 if (movim != null) {
                     //movimentoBefore = (Movimento) dao.find((Movimento) listMovimentos.get(i).getArgumento1());
                     movimentoBefore = (Movimento) dao.find(movim);
@@ -527,12 +545,12 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     movim.setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
                     String vencto = ((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento();
 
-                    StatusRetorno sr = GerarMovimento.salvarUmMovimento(lote, movim); 
-                    
+                    StatusRetorno sr = GerarMovimento.salvarUmMovimento(lote, movim);
+
                     if (sr.getStatus()) {
-                        
+
                         movim.setVencimento(vencto);
-                        
+
                         novoLog.save(
                                 " Movimento: (" + movim.getId() + ") "
                                 + " - Referência: (" + movim.getReferencia()
@@ -542,17 +560,17 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                                 + " - Valor: " + movim.getValorString()
                                 + " - Vencimento: " + movim.getVencimento()
                         );
-                        
+
                         GenericaMensagem.info("Sucesso", "Gerado");
-                        
+
                     } else {
-                        
+
                         GenericaMensagem.warn("Erro", sr.getMensagem());
                         success = false;
-                        
+
                     }
                 }
-                
+
                 if (success) {
                     Historico h = ((Movimento) listMovimentos.get(i).getArgumento1()).getHistorico();
                     if (h != null) {

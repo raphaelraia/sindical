@@ -7,6 +7,7 @@ import br.com.rtools.estoque.ProdutoGrupo;
 import br.com.rtools.estoque.ProdutoSubGrupo;
 import br.com.rtools.estoque.ProdutoUnidade;
 import br.com.rtools.estoque.dao.ProdutoDao;
+import br.com.rtools.financeiro.IndiceMoeda;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -18,6 +19,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,10 @@ public class ProdutoBean implements Serializable {
     private String valor;
     private Boolean liberaAcessaFilial;
     private String type;
+
+    private Integer indexIndiceMoeda;
+    private List<SelectItem> listaIndiceMoeda;
+    private IndiceMoeda indiceMoeda;
 
     @PostConstruct
     public void init() {
@@ -89,7 +95,89 @@ public class ProdutoBean implements Serializable {
         valor = "0";
         liberaAcessaFilial = false;
         filial_id = 0;
+
+        indexIndiceMoeda = 0;
+        listaIndiceMoeda = new ArrayList();
+        indiceMoeda = new IndiceMoeda();
+
+        loadListaIndiceMoeda();
+
         loadLiberaAcessaFilial();
+    }
+
+    public void novoIndiceMoeda() {
+        indiceMoeda = new IndiceMoeda();
+    }
+
+    public void editarIndiceMoeda() {
+        indiceMoeda = (IndiceMoeda) new Dao().find(new IndiceMoeda(), Integer.parseInt(listaIndiceMoeda.get(indexIndiceMoeda).getDescription()));
+    }
+
+    public void excluirIndiceMoeda() {
+        Dao dao = new Dao();
+
+        if (indiceMoeda.getId() != -1) {
+            dao.openTransaction();
+
+            if (!dao.delete(indiceMoeda)) {
+                GenericaMensagem.fatal("Atenção", "Não foi possível excluir Índice!");
+                dao.rollback();
+                return;
+            }
+
+            GenericaMensagem.info("Sucesso", "Índice Excluído!");
+
+            dao.commit();
+        }
+
+        loadListaIndiceMoeda();
+
+        PF.update("form_produto");
+    }
+
+    public void salvarIndiceMoeda() {
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+
+        if (indiceMoeda.getId() == -1) {
+
+            if (!dao.save(indiceMoeda)) {
+                GenericaMensagem.fatal("Atenção", "Não foi possível salvar Índice!");
+                dao.rollback();
+                return;
+            }
+
+            GenericaMensagem.info("Sucesso", "Índice Adicionado!");
+
+        } else {
+
+            if (!dao.update(indiceMoeda)) {
+                GenericaMensagem.fatal("Atenção", "Não foi possível atualizar Índice!");
+                dao.rollback();
+                return;
+            }
+
+            GenericaMensagem.info("Sucesso", "Índice Atualizado!");
+
+        }
+
+        dao.commit();
+
+        loadListaIndiceMoeda();
+
+        PF.update("form_produto");
+    }
+
+    public final void loadListaIndiceMoeda() {
+        listaIndiceMoeda.clear();
+        indexIndiceMoeda = 0;
+
+        List<IndiceMoeda> result = new ProdutoDao().listaIndiceMoeda();
+
+        for (int i = 0; i < result.size(); i++) {
+            listaIndiceMoeda.add(new SelectItem(i, result.get(i).getDescricao(), Integer.toString(result.get(i).getId())));
+        }
     }
 
     public void loadLiberaAcessaFilial() {
@@ -137,6 +225,13 @@ public class ProdutoBean implements Serializable {
             produto.setCor((Cor) dao.find(new Cor(), Integer.parseInt(listaSelectItem[3].get(indices[3]).getDescription())));
         }
         produto.setValor(Moeda.converteUS$(valor));
+
+        produto.setIndiceMoeda((IndiceMoeda) dao.find(new IndiceMoeda(), Integer.parseInt(listaIndiceMoeda.get(indexIndiceMoeda).getDescription())));
+
+        if (produto.getValidadeGuiasMesVigente() || produto.getValidadeGuiasDias().equals("")) {
+            produto.setValidadeGuiasDias(0);
+        }
+
         if (produto.getId() == -1) {
             if (dao.save(produto)) {
                 dao.commit();
@@ -190,11 +285,24 @@ public class ProdutoBean implements Serializable {
                 break;
             }
         }
+
+        for (int i = 0; i < listaIndiceMoeda.size(); i++) {
+            if (produto.getIndiceMoeda().getId() == Integer.parseInt(listaIndiceMoeda.get(i).getDescription())) {
+                indexIndiceMoeda = i;
+                break;
+            }
+        }
+
         valor = Moeda.converteR$Float(produto.getValor());
         listaEstoque.clear();
         GenericaSessao.put("linkClicado", true);
         if (GenericaSessao.exists("urlRetorno")) {
+            float margem = (produto.getValor() * produto.getIndiceMoeda().getValor()) * produto.getMargem() / 100;
+
+            produto.setValor((produto.getValor() * produto.getIndiceMoeda().getValor()) + margem);
+
             GenericaSessao.put("produtoPesquisa", produto);
+
             return GenericaSessao.getString("urlRetorno");
         } else {
             return "produto";
@@ -779,5 +887,29 @@ public class ProdutoBean implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Integer getIndexIndiceMoeda() {
+        return indexIndiceMoeda;
+    }
+
+    public void setIndexIndiceMoeda(Integer indexIndiceMoeda) {
+        this.indexIndiceMoeda = indexIndiceMoeda;
+    }
+
+    public List<SelectItem> getListaIndiceMoeda() {
+        return listaIndiceMoeda;
+    }
+
+    public void setListaIndiceMoeda(List<SelectItem> listaIndiceMoeda) {
+        this.listaIndiceMoeda = listaIndiceMoeda;
+    }
+
+    public IndiceMoeda getIndiceMoeda() {
+        return indiceMoeda;
+    }
+
+    public void setIndiceMoeda(IndiceMoeda indiceMoeda) {
+        this.indiceMoeda = indiceMoeda;
     }
 }

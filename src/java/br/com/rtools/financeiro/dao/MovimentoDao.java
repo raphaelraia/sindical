@@ -1821,7 +1821,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public Movimento pesquisaMovimentos(int idPessoa, String idRef, int idTipoServ, int idServicos) {
+    public List<Movimento> pesquisaMovimentos(int idPessoa, String idRef, int idTipoServ, int idServicos) {
         int i = 0;
         String texto = "";
 
@@ -1833,15 +1833,18 @@ public class MovimentoDao extends DB {
                     + "   and mov.servicos.id = :s     "
                     + "   and mov.pessoa.id  = :p      "
                     + "   and mov.ativo = true";
+
             Query qry = getEntityManager().createQuery(texto);
             qry.setParameter("r", idRef);
             qry.setParameter("t", idTipoServ);
             qry.setParameter("s", idServicos);
             qry.setParameter("p", idPessoa);
-            return (Movimento) qry.getSingleResult();
-        } catch (Exception e) {
 
-            return null;
+            // DEVE RETORNAR APENAS UM RESULTADO, SENÃO ESTA COM ERRO POIS NÃO PODE DUPLICAR A CHAVE
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+            return new ArrayList();
         }
     }
 
@@ -1921,6 +1924,48 @@ public class MovimentoDao extends DB {
             result = new ArrayList();
         }
         return result;
+    }
+    
+    public List<Object> pesquisaGuiaParaEncaminhamento(Integer id_lote) {
+        try {
+            String textoQuery
+                    = "SELECT mov.id, \n "
+                    + "       lot.id, \n "
+                    + "       gui.id, \n "
+                    + "       ben.id, \n "
+                    + "       ben.ds_nome, \n "
+                    + "       bai.id, \n "
+                    + "       pes_usu.id, \n "
+                    + "       pes_usu.ds_nome, \n "
+                    + "       ser.id, \n "
+                    + "       ser.ds_descricao, \n "
+                    + "       ser.is_validade_guias_vigente, \n "
+                    + "       ser.nr_validade_guia_dias, \n "
+                    + "       pro.id, \n "
+                    + "       pro.ds_descricao, \n "
+                    + "       pro.is_validade_guias_mes_vigente, \n "
+                    + "       pro.nr_validade_guias_dias \n "
+                    + "  FROM fin_movimento mov \n "
+                    + " INNER JOIN fin_lote lot ON lot.id = mov.id_lote \n "
+                    + " INNER JOIN fin_guia gui ON gui.id_lote = lot.id \n "
+                    + " INNER JOIN pes_pessoa ben ON ben.id = mov.id_beneficiario \n "
+                    + " INNER JOIN fin_servicos ser ON ser.id = mov.id_servicos \n "
+                    + " INNER JOIN fin_baixa bai ON bai.id = mov.id_baixa \n "
+                    + " INNER JOIN seg_usuario usu_bai ON usu_bai.id = bai.id_usuario \n "
+                    + " INNER JOIN pes_pessoa pes_usu ON pes_usu.id = usu_bai.id_pessoa \n "
+                    + "  LEFT JOIN est_pedido ped ON ped.id_lote = mov.id_lote AND ped.id_servico = mov.id_servicos\n "
+                    + "  LEFT JOIN est_produto pro ON pro.id = ped.id_produto \n "
+                    + " WHERE mov.is_ativo = TRUE \n "
+                    + "   AND mov.id_lote = " + id_lote + " \n "
+                    + " ORDER BY ser.nr_validade_guia_dias ";
+
+            Query qry = getEntityManager().createNativeQuery(textoQuery);
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
     }
 
     public List<Movimento> pesquisaAcordoAberto(int idAcordo) {

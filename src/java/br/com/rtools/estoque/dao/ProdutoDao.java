@@ -3,6 +3,7 @@ package br.com.rtools.estoque.dao;
 import br.com.rtools.estoque.Estoque;
 import br.com.rtools.estoque.EstoqueSaidaConsumo;
 import br.com.rtools.estoque.Produto;
+import br.com.rtools.financeiro.IndiceMoeda;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
@@ -45,10 +46,10 @@ public class ProdutoDao extends DB {
                 }
             }
             queryString += " ORDER BY P.ds_descricao \n";
-            if(listWhere.isEmpty()) {
+            if (listWhere.isEmpty()) {
                 queryString += " LIMIT 250 \n";
-                
-            }   
+
+            }
             Query query;
             query = getEntityManager().createNativeQuery(queryString, Produto.class);
             List list = query.getResultList();
@@ -168,4 +169,19 @@ public class ProdutoDao extends DB {
         return new ArrayList();
     }
 
+    public List<IndiceMoeda> listaIndiceMoeda() {
+        try {
+            Query q = getEntityManager().createNativeQuery(
+                    " SELECT im.* \n "
+                    + " FROM fin_indice_moeda im \n "
+                    + "ORDER BY im.id", IndiceMoeda.class
+            );
+            
+            return q.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        
+        return new ArrayList();
+    }
 }
