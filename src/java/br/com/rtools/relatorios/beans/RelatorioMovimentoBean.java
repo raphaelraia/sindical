@@ -33,6 +33,7 @@ import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.DateFilters;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -84,6 +85,14 @@ public class RelatorioMovimentoBean implements Serializable {
     private String tipoData;
     private String dataInicial;
     private String dataFinal;
+
+    private List<DateFilters> listDateFilters;
+    private List<SelectItem> listDates;
+    private String selectedDate;
+    private String typeDate;
+    private String startDate;
+    private String finishDate;
+    private String selectedGroups;
 
     private Map<String, Integer> listServicos;
     private List selectedServicos;
@@ -137,6 +146,15 @@ public class RelatorioMovimentoBean implements Serializable {
         loadRelatorio();
         loadFilters();
         loadRelatorioOrdem();
+
+        listDateFilters = new ArrayList();
+        listDateFilters = new ArrayList();
+        listDates = new ArrayList();
+        selectedDate = "";
+        typeDate = "faixa";
+        startDate = "";
+        finishDate = "";
+        loadDates();
     }
 
     @PreDestroy
@@ -237,7 +255,8 @@ public class RelatorioMovimentoBean implements Serializable {
                 inIdCidadesBase(),
                 inIdCnaeConvencao(),
                 valorBaixaInicial, // V.I.
-                valorBaixaFinal // V.F.
+                valorBaixaFinal, // V.F.
+                listDateFilters
         );
 
         Collection listaParametro = new ArrayList<>();
@@ -708,17 +727,17 @@ public class RelatorioMovimentoBean implements Serializable {
                 }
                 break;
             case "data":
-                if (!filter.getActive()) {
-                    porData = "";
-                    tipoData = "";
-                    dataInicial = "";
-                    dataFinal = "";
-                } else {
-                    porData = "vencimento";
-                    tipoData = "faixa";
-                    dataInicial = "";
-                    dataFinal = "";
+                listDateFilters = new ArrayList();
+                listDateFilters = new ArrayList();
+                listDates = new ArrayList();
+                selectedDate = "";
+                typeDate = "faixa";
+                startDate = "";
+                finishDate = "";
+                if (filter.getActive()) {
+                    loadDates();
                 }
+
                 break;
             case "valor_baixa":
                 if (!filter.getActive()) {
@@ -1255,6 +1274,123 @@ public class RelatorioMovimentoBean implements Serializable {
             }
         }
         return false;
+    }
+
+    public List<DateFilters> getListDateFilters() {
+        return listDateFilters;
+    }
+
+    public void setListDateFilters(List<DateFilters> listDateFilters) {
+        this.listDateFilters = listDateFilters;
+    }
+
+    public List<SelectItem> getListDates() {
+        return listDates;
+    }
+
+    public void setListDates(List<SelectItem> listDates) {
+        this.listDates = listDates;
+    }
+
+    public String getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(String selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
+    public String getTypeDate() {
+        return typeDate;
+    }
+
+    public void setTypeDate(String typeDate) {
+        this.typeDate = typeDate;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(String finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public String getSelectedGroups() {
+        return selectedGroups;
+    }
+
+    public void setSelectedGroups(String selectedGroups) {
+        this.selectedGroups = selectedGroups;
+    }
+
+    public void loadDates() {
+        listDates = new ArrayList();
+        listDates.add(new SelectItem("importacao", "Importação"));
+        listDates.add(new SelectItem("recebimento", "Recebimento"));
+        listDates.add(new SelectItem("vencimento", "Vencimento"));
+        listDates.add(new SelectItem("referencia", "Referência"));
+
+        // RELOAD DATA
+        if (listDateFilters != null) {
+            for (int i = 0; i < listDateFilters.size(); i++) {
+                for (int x = 0; x < listDates.size(); x++) {
+                    if (listDateFilters.get(i).getTitle().equals(listDates.get(x).getValue().toString())) {
+                        listDates.get(x).setDisabled(true);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public String getDateItemDescription(String title) {
+        for (int x = 0; x < listDates.size(); x++) {
+            if (title.equals(listDates.get(x).getValue().toString())) {
+                return listDates.get(x).getLabel();
+            }
+        }
+        return "";
+    }
+
+    public void addFilterDate() {
+        if (selectedDate == null || selectedDate.isEmpty()) {
+            return;
+        }
+        if (typeDate.equals("igual") || typeDate.equals("apartir") || typeDate.equals("ate")) {
+            if (startDate.isEmpty()) {
+                GenericaMensagem.warn("Validação", "INFORMAR DATA INICIAL!");
+                return;
+            }
+        } else if (typeDate.equals("faixa")) {
+            if (startDate.isEmpty()) {
+                GenericaMensagem.warn("Validação", "INFORMAR DATA INICIAL!");
+                return;
+            }
+            if (finishDate.isEmpty()) {
+                GenericaMensagem.warn("Validação", "INFORMAR DATA FINAL!");
+                return;
+            }
+        }
+        listDateFilters.add(new DateFilters(true, selectedDate, typeDate, startDate, finishDate));
+        loadDates();
+        selectedDate = "";
+        typeDate = "faixa";
+        startDate = "";
+        finishDate = "";
+    }
+
+    public void removeFilterDate(DateFilters df) {
+        listDateFilters.remove(df);
+        loadDates();
     }
 
     public class ObjectMovimentosResumo {
