@@ -99,7 +99,7 @@ public class RelatorioFinanceiroEscolaDao extends DB {
                     list_where.add("M.id_baixa IS NOT NULL \n");
                     break;
                 case "atrasados":
-                    list_where.add("M.id_baixa IS NULL AND M.dt_vencimento < current_date \n");
+                    list_where.add("M.id_baixa IS NULL AND M.vencimento < current_date \n");
                     break;
                 default:
                     break;
