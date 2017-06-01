@@ -456,7 +456,7 @@
                                                     </h:panelGrid>
                                                 </h:column>     
                                                 <h:column rendered="#{recepcaoBean.registro.senhaHomologacao}">
-                                                    <h:panelGrid>
+                                                    <h:panelGrid rendered="#{recepcaoBean.agendamentoEdit.status.id ne 9}">
                                                         <h:outputLabel value="H. CHEGADA"  styleClass="font-color-red bold" />
                                                         <p:inputMask value="#{recepcaoBean.recepcao.horaInicialFuncionario}" size="8" mask="99:99" style="text-align: center" title="Horário de chegada" converter="#{isValidTimeString}">
                                                             <p:ajax event="change" update="@this" global="false"/>
@@ -497,9 +497,12 @@
                                             <h:panelGrid>
                                                 <h:outputLabel value="OBSERVAÇÃO" styleClass="font-color-red bold"/>
                                                 <p:inputTextarea rows="2" value="#{recepcaoBean.agendamentoEdit.observacao}" cols="100" styleClass="bold font-color-red" maxlength="2000" placeholder="Informe uma observação..."/>
+                                                <h:outputLabel value="MOTIVO RECUSA" styleClass="font-color-red bold" rendered="#{not empty recepcaoBean.agendamentoEdit.motivoRecusa}"/>
+                                                <p:inputTextarea rows="2" value="#{recepcaoBean.agendamentoEdit.motivoRecusa}" cols="100" styleClass="bold font-color-red" maxlength="2000" rendered="#{not empty recepcaoBean.agendamentoEdit.motivoRecusa}" readonly="true"/>
+                                                <h:outputLabel value="OPERADOR DA RECUSA: #{recepcaoBean.agendamentoEdit.operadorRecusa.pessoa.nome}" styleClass="bold" rendered="#{recepcaoBean.agendamentoEdit.operadorRecusa ne null}"/>
                                             </h:panelGrid>
                                             <f:facet name="footer" rendered="#{recepcaoBean.registro.senhaHomologacao}">
-                                                <h:panelGrid columns="2">
+                                                <h:panelGrid columns="2" rendered="#{recepcaoBean.agendamentoEdit.status.id ne 9}">
                                                     <h:column>
                                                         <h:panelGrid>
                                                             <h:outputLabel value="PREPOSTO" styleClass="font-color-red bold"/>
@@ -610,7 +613,7 @@
                                         </p:panel>
                                     </h:panelGrid>
                                     <f:facet name="footer">
-                                        <h:panelGrid columns="9">
+                                        <h:panelGrid columns="9" rendered="#{recepcaoBean.agendamentoEdit.status.id ne 9}">
                                             <p:commandButton value="Atualizar" action="#{recepcaoBean.salvar}" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" update="formRecepcao" />
                                             <p:commandButton value="Gerar Senha" onclick="PF('dlg_gerar_senha').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7 and recepcaoBean.registro.senhaHomologacao}" disabled="#{controleAcessoBean.botaoSalvar}" />
                                             <p:commandButton value="Cancelar Senha" onclick="PF('dlg_desfazer_senha').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7 and recepcaoBean.registro.senhaHomologacao and recepcaoBean.agendamentoEdit.senha.id != -1}"  disabled="#{controleAcessoBean.botaoExcluir}" />

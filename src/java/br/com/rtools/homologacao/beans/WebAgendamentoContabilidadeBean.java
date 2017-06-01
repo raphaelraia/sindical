@@ -27,18 +27,25 @@ import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
+import org.apache.commons.io.FileUtils;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -47,7 +54,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     private List<DataObject> listaHorarios = new ArrayList();
     private List listaEmDebito = new ArrayList();
     private List<SelectItem> listaEmpresas = new ArrayList<>();
-    private int idStatus = 0;
+    private int idStatus = 1;
     private int idMotivoDemissao = 0;
     private int idSelectRadio = 0;
     private String statusEmpresa = "";
@@ -80,8 +87,11 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     private Date polling;
     private List<SelectItem> listFilial = new ArrayList<>();
     private Integer idFilial = null;
+    private List listFiles;
+    private String uuidDir;
 
     public WebAgendamentoContabilidadeBean() {
+        uuidDir = "";
         Dao dao = new Dao();
         registro = (Registro) dao.find(new Registro(), 1);
         configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
@@ -93,6 +103,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             DataHoje dh = new DataHoje();
             data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(DataHoje.dataHoje())));
         }
+        getListaStatus();
+        listFiles = new ArrayList();
         this.loadListEmpresa();
         this.loadListFiliais();
         HorarioReservaDao horarioReservaDao = new HorarioReservaDao();
@@ -206,7 +218,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public final void clearHorariosStatus() {
-        if (idStatus == 0 && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+        if (idStatus == 1 && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
             DataHoje dh = new DataHoje();
             data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(data)));
         }
@@ -269,7 +281,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
         listaHorarios.clear();
 
-        if (!getMindate().isEmpty() && idStatus == 0) {
+        if (!getMindate().isEmpty() && idStatus == 1) {
             DataHoje dh = new DataHoje();
             if (!DataHoje.maiorData(data, DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento(), DataHoje.data())))) {
                 data = DataHoje.dataHoje();
@@ -293,9 +305,10 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         HomologacaoDao db = new HomologacaoDao();
         String agendador;
         String homologador;
-        switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
+        Integer status_id = idStatus;
+        switch (status_id) {
             //STATUS DISPONIVEL ----------------------------------------------------------------------------------------------
-            case 1: {
+            case 1:
                 if (lock()) {
                     return;
                 }
@@ -325,17 +338,19 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     }
                 }
                 break;
-            }
 
             // STATUS AGENDADO -----------------------------------------------------------------------------------------------
-            case 2: {
+            case 2:
+            case 8:
+            case 9:
+
                 if (filtraPor.equals("selecionado")) {
-                    ag = db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, empresa.getPessoa().getId());
+                    ag = db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, empresa.getPessoa().getId(), status_id);
                 } else {
                     WebContabilidadeDao dbw = new WebContabilidadeDao();
                     List<Juridica> result = dbw.listaEmpresasPertContabilidade(juridica.getId());
                     for (int w = 0; w < listaEmpresas.size(); w++) {
-                        ag.addAll(db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, result.get(w).getPessoa().getId()));
+                        ag.addAll(db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, result.get(w).getPessoa().getId(), status_id));
                     }
                 }
                 for (int i = 0; i < ag.size(); i++) {
@@ -364,7 +379,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     );
                 }
                 break;
-            }
+
         }
     }
 
@@ -389,14 +404,14 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()) {
             Dao dao = new Dao();
-            List select = new ArrayList();
+            List<Status> select = new ArrayList();
             select.add((Status) dao.find(new Status(), 1));
             select.add((Status) dao.find(new Status(), 2));
+            select.add((Status) dao.find(new Status(), 8));
+            select.add((Status) dao.find(new Status(), 9));
             if (!select.isEmpty()) {
                 for (int i = 0; i < select.size(); i++) {
-                    listaStatus.add(new SelectItem(new Integer(i),
-                            (String) ((Status) select.get(i)).getDescricao(),
-                            Integer.toString(((Status) select.get(i)).getId())));
+                    listaStatus.add(new SelectItem(select.get(i).getId(), select.get(i).getDescricao()));
                 }
             }
         }
@@ -437,8 +452,10 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void agendar(DataObject datao) {
+        UUID uuidX = UUID.randomUUID();
+        uuidDir = "_" + uuidX.toString().replace("-", "_");
         // CAPITURAR ENDEREÇO DA EMPRESA
-
+        listFiles = new ArrayList();
         empresa = new Juridica();
         enderecoEmpresa = new PessoaEndereco();
         // sindicatoFilial = new FilialCidade();
@@ -481,7 +498,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
         Filial f = (Filial) dao.find(new Filial(), idFilial);
 
-        switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
+        switch (idStatus) {
             case 1: {
                 HomologacaoDao db = new HomologacaoDao();
                 int nrDataHoje = DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()));
@@ -559,9 +576,23 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     hrd.reserve(((Horarios) datao.getArgumento0()).getId());
                     GlobalSync.load();
                 }
+                if (configuracaoHomologacao.getWebDocumentoObrigatorio()) {
+                    File f2 = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/validacao/" + empresa.getId() + "/"));
+                    if (f2.exists()) {
+                        try {
+                            FileUtils.deleteDirectory(f2);
+                        } catch (IOException ex) {
+                            GenericaMensagem.error("Erro", "Não foi possível anexar mover os anexos para validação!");
+                            dao.rollback();
+                            return;
+                        }
+                    }
+                }
                 break;
             }
-            case 2: {
+            case 2:
+            case 8:
+            case 9: {
                 PessoaEnderecoDao db = new PessoaEnderecoDao();
                 renderBtnAgendar = false;
                 agendamento = (Agendamento) datao.getArgumento9();
@@ -695,6 +726,12 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (!demissao.getMotivoWeb()) {
             GenericaMensagem.warn("Sistema", demissao.getMensagemMotivoWeb());
             return;
+        }
+        if (configuracaoHomologacao.getWebDocumentoObrigatorio()) {
+            if (getListFiles().isEmpty()) {
+                GenericaMensagem.warn("Validação", "OBRIGATÓRIO ANEXAR DOCUMENTOS DIGITALIZADOS NECESSÁRIOS PARA HOMOLOGAÇÃO!");
+                return;
+            }
         }
         if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
             if (null != demissao.getId()) {
@@ -879,15 +916,52 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 agendamento.setHomologador(null);
                 agendamento.setDtEmissao(DataHoje.dataHoje());
                 agendamento.setPessoaEmpresa(pessoaEmpresa);
-                agendamento.setStatus((Status) dao.find(new Status(), 2));
+                if (configuracaoHomologacao.getWebValidaAgendamento()) {
+                    agendamento.setStatus((Status) dao.find(new Status(), 8));
+                } else {
+                    agendamento.setStatus((Status) dao.find(new Status(), 2));
+                }
                 if (dao.save(agendamento)) {
                     agendamentoProtocolo = agendamento;
-                    GenericaMensagem.info("Sucesso", "Agendamento Salvo!");
+                    if (configuracaoHomologacao.getWebDocumentoObrigatorio()) {
+                        String s = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/validacao/" + empresa.getId() + "/" + uuidDir + "/");
+                        String d = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/" + agendamento.getId() + "/");
+                        File source = new File(s);
+                        if (source.exists()) {
+                            File destination = new File(d);
+                            if (!destination.exists()) {
+                                // destination.mkdirs();
+                            }
+                            boolean success = source.renameTo(destination);
+                            if (!success) {
+                                GenericaMensagem.error("Erro", "Não foi possível anexar mover os anexos para validação!");
+                                dao.rollback();
+                                return;
+                            }
+                            try {
+                                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/validacao/" + empresa.getId() + "/"));
+                                if(f.exists()) {
+                                    FileUtils.deleteDirectory(f);
+                                }
+                            } catch (IOException ex) {
+                                GenericaMensagem.error("Erro", "Não foi possível anexar mover os anexos para validação!");
+                                dao.rollback();
+                                return;
+                            }
+                        }
+                    }
+                    if (configuracaoHomologacao.getWebValidaAgendamento()) {
+                        GenericaMensagem.info("Validando, ", "aguarde confirmação do agendamento no seu e-mail. Caso não receba a confirmação em 48 horas entrar em contato com o Síndicato!");
+                    } else {
+                        GenericaMensagem.info("Sucesso", "Agendamento Salvo!");
+                    }
                     if (agendamento.isNoPrazo() == false) {
                         GenericaMensagem.warn("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
                     }
-                    listaHorarios.clear();
+
+                    listaHorarios = new ArrayList();
                     loadListHorarios();
+                    PF.openDialog("dlg_protocolo");
                 } else {
                     GenericaMensagem.error("Erro", "Não foi possível salvar protocolo!");
                     dao.rollback();
@@ -1343,7 +1417,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public String getMindate() {
-        if (idStatus == 0) {
+        if (idStatus == 1) {
             if (registro.getAgendamentoRetroativo() != null && (DataHoje.maiorData(registro.getAgendamentoRetroativo(), DataHoje.dataHoje()) || DataHoje.converteData(registro.getAgendamentoRetroativo()).equals(DataHoje.data()))) {
                 return "";
             }
@@ -1359,7 +1433,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public String getMaxdate() {
-        if (idStatus == 0) {
+        if (idStatus == 1) {
             if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
                 if (registro.getHomolocaoLimiteMeses() <= 0) {
                     return new DataHoje().incrementarMeses(3, DataHoje.data());
@@ -1380,4 +1454,79 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
         return "";
     }
+
+    // ARQUIVOS
+    public List getListFiles() {
+        listFiles = new ArrayList();
+        if (agendamento.getId() == -1) {
+            listFiles = Diretorio.listaArquivos("/Arquivos/homologacao/validacao/" + empresa.getId() + "/" + uuidDir);
+        } else {
+            listFiles = Diretorio.listaArquivos("Arquivos/homologacao/" + agendamento.getId());
+        }
+        return listFiles;
+    }
+
+    public void upload(FileUploadEvent event) {
+        ConfiguracaoUpload configuracaoUpload = new ConfiguracaoUpload();
+        configuracaoUpload.setArquivo(event.getFile().getFileName());
+        if (agendamento.getId() == -1) {
+            configuracaoUpload.setDiretorio("Arquivos/homologacao/validacao/" + empresa.getId() + "/" + uuidDir);
+        } else {
+            configuracaoUpload.setDiretorio("Arquivos/homologacao/" + agendamento.getId());
+        }
+        configuracaoUpload.setEvent(event);
+        if (Upload.enviar(configuracaoUpload, true)) {
+            listFiles.clear();
+        }
+        getListFiles();
+    }
+
+    public void deleteFiles(int index) {
+        String caminho = "";
+        if (agendamento.getId() == -1) {
+            caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/validacao/" + empresa.getId() + "/" + uuidDir + "/" + (String) ((DataObject) listFiles.get(index)).getArgumento1());
+        } else {
+            caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/" + agendamento.getId() + "/" + (String) ((DataObject) listFiles.get(index)).getArgumento1());
+        }
+        File fl = new File(caminho);
+        fl.delete();
+        listFiles.remove(index);
+        listFiles.clear();
+        getListFiles();
+        PF.update("formAgendamentoContabilidade:id_grid_uploads");
+        PF.update("formAgendamentoContabilidade:id_btn_anexo");
+    }
+
+    public List getListaEmDebito() {
+        return listaEmDebito;
+    }
+
+    public void setListaEmDebito(List listaEmDebito) {
+        this.listaEmDebito = listaEmDebito;
+    }
+
+    public ConfiguracaoArrecadacao getConfiguracaoArrecadacao() {
+        return configuracaoArrecadacao;
+    }
+
+    public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
+        this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
+
+    public Date getPolling() {
+        return polling;
+    }
+
+    public void setPolling(Date polling) {
+        this.polling = polling;
+    }
+
+    public String getUuidDir() {
+        return uuidDir;
+    }
+
+    public void setUuidDir(String uuidDir) {
+        this.uuidDir = uuidDir;
+    }
+
 }

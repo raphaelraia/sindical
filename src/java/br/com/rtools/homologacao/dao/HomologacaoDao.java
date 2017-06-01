@@ -156,17 +156,24 @@ public class HomologacaoDao extends DB {
     }
 
     public List pesquisaAgendadoPorEmpresaSemHorario(int id_filial, Date data, int idEmpresa) {
+        return pesquisaAgendadoPorEmpresaSemHorario(id_filial, data, idEmpresa, 2);
+    }
+
+    public List pesquisaAgendadoPorEmpresaSemHorario(Integer filial_id, Date data, Integer empresa_id, Integer status_id) {
         try {
-            Query qry = getEntityManager().createQuery("select a "
-                    + "  from Agendamento a where (a.dtData = :data or a.dtData is null)"
-                    + "   and a.status.id = 2"
-                    + "   and a.filial.id = :idFilial"
-                    + "   and a.pessoaEmpresa.juridica.pessoa.id = :idEmpresa"
-                    + "   order by a.id");
+            Query qry = getEntityManager().createQuery(""
+                    + "   SELECT A                                                \n"
+                    + "     FROM Agendamento A                                    \n"
+                    + "    WHERE (A.dtData = :data OR A.dtData IS NULL)           \n"
+                    + "      AND A.status.id = :status_id                         \n"
+                    + "      AND A.filial.id = :filial_id                         \n"
+                    + "      AND A.pessoaEmpresa.juridica.pessoa.id = :empresa_id \n"
+                    + " ORDER BY A.id");
 
             qry.setParameter("data", data);
-            qry.setParameter("idEmpresa", idEmpresa);
-            qry.setParameter("idFilial", id_filial);
+            qry.setParameter("empresa_id", empresa_id);
+            qry.setParameter("filial_id", filial_id);
+            qry.setParameter("status_id", status_id);
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -308,9 +315,14 @@ public class HomologacaoDao extends DB {
                     + statusCampo
                     + pessoaEmpresaCampo
                     + somenteAtivosString
-                    + "        AND age.id_filial = " + idFilial + " \n"
-                    + "      ORDER BY age.dt_data DESC, hor.ds_hora ASC      \n"
-                    + "      LIMIT 1000                                        \n";
+                    + "        AND age.id_filial = " + idFilial + " \n";
+            if(idStatus.equals(8)) {
+                textQuery += " ORDER BY age.dt_emissao ASC ";
+            }else {
+                textQuery += " ORDER BY age.dt_data DESC, hor.ds_hora ASC ";
+                
+            }
+            textQuery += " LIMIT 1000 ";
 
             Query qry = getEntityManager().createNativeQuery(textQuery, Agendamento.class);
 
@@ -455,7 +467,7 @@ public class HomologacaoDao extends DB {
                     + "             WHERE id_horario = " + horarios.getId() + " \n"
                     + "               AND id_filial = " + idFilial + "          \n"
                     + "               AND dt_data = '" + data + "'              \n"
-                    + "               AND id_status = 2                         \n"
+                    + "               AND id_status IN(2, 8)                    \n"
                     + "          )                                              \n"
                     + "     )                                                   \n"
                     + "     ) -                                                 \n"
@@ -1162,6 +1174,17 @@ public class HomologacaoDao extends DB {
         } catch (Exception e) {
             return new ArrayList();
         }
+    }
+
+    public Boolean existsPedidosAgendamento(Integer filial_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT count(*) FROM hom_agendamento WHERE dt_emissao < CURRENT_DATE AND id_status = 8 AND id_filial = " + filial_id);
+            return !query.getResultList().isEmpty();
+        } catch (Exception e) {
+            return false;
+
+        }
+
     }
 
 }

@@ -14,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -72,6 +73,12 @@ public class Agendamento implements Serializable {
     private Date dtEmissao;
     @Column(name = "is_no_prazo")
     private boolean noPrazo;
+    @Lob
+    @Column(name = "ds_motivo_recusa")
+    private String motivoRecusa;
+    @JoinColumn(name = "id_operador_recusa", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario operadorRecusa;
 
     public Agendamento() {
         this.id = -1;
@@ -90,9 +97,11 @@ public class Agendamento implements Serializable {
         this.observacao = "";
         this.dtEmissao = null;
         this.noPrazo = true;
+        this.motivoRecusa = "";
+        this.operadorRecusa = null;
     }
 
-    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo) {
+    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo, String motivoRecusa, Usuario operadorRecusa) {
         this.id = id;
         this.setData(data);
         this.horarios = horarios;
@@ -109,6 +118,8 @@ public class Agendamento implements Serializable {
         this.observacao = observacao;
         this.setEmissao(data);
         this.noPrazo = noPrazo;
+        this.motivoRecusa = motivoRecusa;
+        this.operadorRecusa = operadorRecusa;
     }
 
     public int getId() {
@@ -287,5 +298,21 @@ public class Agendamento implements Serializable {
             }
         }
         return senha;
+    }
+
+    public String getMotivoRecusa() {
+        return motivoRecusa;
+    }
+
+    public void setMotivoRecusa(String motivoRecusa) {
+        this.motivoRecusa = motivoRecusa;
+    }
+
+    public Usuario getOperadorRecusa() {
+        return operadorRecusa;
+    }
+
+    public void setOperadorRecusa(Usuario operadorRecusa) {
+        this.operadorRecusa = operadorRecusa;
     }
 }

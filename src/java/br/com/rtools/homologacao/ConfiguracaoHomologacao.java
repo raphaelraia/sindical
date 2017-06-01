@@ -121,6 +121,12 @@ public class ConfiguracaoHomologacao implements Serializable {
     @Column(name = "is_web_agendar_mesmo_horario_empresa", columnDefinition = "boolean default false", nullable = false)
     private Boolean webAgendarMesmoHorarioEmpresa;
 
+    @Column(name = "is_web_valida_agendamento", columnDefinition = "boolean default false", nullable = false)
+    private Boolean webValidaAgendamento;
+
+    @Column(name = "is_web_documento_obrigatorio", columnDefinition = "boolean default false", nullable = false)
+    private Boolean webDocumentoObrigatorio;
+
 //    @Transient
 //    // @Temporal(TemporalType.DATE)
 //    // @Column(name = "dt_atualiza")
@@ -689,6 +695,22 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     public void setWebAgendarMesmoHorarioEmpresa(Boolean webAgendarMesmoHorarioEmpresa) {
         this.webAgendarMesmoHorarioEmpresa = webAgendarMesmoHorarioEmpresa;
+    }
+
+    public Boolean getWebValidaAgendamento() {
+        return webValidaAgendamento;
+    }
+
+    public void setWebValidaAgendamento(Boolean webValidaAgendamento) {
+        this.webValidaAgendamento = webValidaAgendamento;
+    }
+
+    public Boolean getWebDocumentoObrigatorio() {
+        return webDocumentoObrigatorio;
+    }
+
+    public void setWebDocumentoObrigatorio(Boolean webDocumentoObrigatorio) {
+        this.webDocumentoObrigatorio = webDocumentoObrigatorio;
     }
 
 }

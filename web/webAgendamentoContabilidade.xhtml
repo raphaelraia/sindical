@@ -100,7 +100,7 @@
                         </p:column>
 
                         <p:column headerText="Imprimir Protocolo" style="text-align: center" width="80">
-                            <p:commandLink action="#{protocoloAgendamento.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento9.id}" rendered="#{webAgendamentoContabilidadeBean.idStatus == 1}" ajax="false"/>
+                            <p:commandLink action="#{protocoloAgendamento.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento9.id}" rendered="#{webAgendamentoContabilidadeBean.idStatus == 2}" ajax="false"/>
                         </p:column>
 
                         <p:rowExpansion>
@@ -418,18 +418,36 @@
 
                         <h:panelGrid columns="2" style="width: 100%">
                             <h:column>
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="5">
                                     <p:commandButton value="Agendar" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
                                     <p:commandButton value="Novo" action="#{webAgendamentoContabilidadeBean.limpar()}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
                                     <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContabilidadeBean.setVisibleModal(false)}" update=":formAgendamentoContabilidade:"/>                                    
+                                    <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1}"/>
+                                    <p:commandButton value="Anexos (#{webAgendamentoContabilidadeBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1}"/> 
                                 </h:panelGrid>
                             </h:column>
 
                             <h:column>
-                                <p:commandButton value="Imprimir Protocolo" action="#{protocoloAgendamento.imprimir(webAgendamentoContabilidadeBean.agendamento)}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id != -1}" style="float: right" ajax="false"/>
+                                <p:commandButton value="Imprimir Protocolo" action="#{protocoloAgendamento.imprimir(webAgendamentoContabilidadeBean.agendamento)}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id != -1}" style="float: right" ajax="false" />
                             </h:column>
                         </h:panelGrid>                        
                     </h:panelGrid>                
+                </p:dialog>
+
+                <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" >
+                    <h:panelGrid id="id_grid_uploads" style="width: 350px">
+                        <p:dataTable value="#{webAgendamentoContabilidadeBean.listFiles}" var="lista" emptyMessage="Nenhum arquivo encontrado">
+                            <f:facet name="header">Documentos anexados (#{webAgendamentoContabilidadeBean.listFiles.size()})</f:facet>
+                            <p:column headerText="Nome arquivo" width="300">
+                                <a href="#{facesContext.externalContext.requestContextPath}/Cliente/#{controleUsuarioBean.clienteString}/Arquivos/homologacao/#{(webAgendamentoContabilidadeBean.agendamento.id ne -1 ? webAgendamentoContabilidadeBean.agendamento.id : (('validacao/').concat(webAgendamentoContabilidadeBean.empresa.id).concat('/').concat(webAgendamentoContabilidadeBean.fisica.getId()).concat('/')))}#{lista.argumento1}" target="_blank"  style="float: right">
+                                    #{lista.argumento1}
+                                </a>
+                            </p:column>
+                            <p:column width="25">
+                                <p:commandButton action="#{webAgendamentoContabilidadeBean.deleteFiles(lista.argumento2)}" icon="ui-icon-trash" />
+                            </p:column>
+                        </p:dataTable>
+                    </h:panelGrid>
                 </p:dialog>
 
                 <p:dialog widgetVar="dlg_protocolo" header="Imprimir Protocolo de Homologação" resizable="false" modal="true" width="300">
@@ -522,6 +540,18 @@
                     </h:panelGrid>
                 </p:dialog>
             </h:form>
+            <h:form id="form_web_agendamento_files" enctype="multipart/form-data" acceptcharset="UTF-8">
+                <p:dialog id="id_dgl_anexos" widgetVar="dgl_upload" modal="true" width="500" height="400" header="Anexar arquivos" closable="true">
+                    <p:fileUpload label="Procurar"
+                                  cancelLabel="Cancelar"
+                                  uploadLabel="Anexar"
+                                  mode="advanced"                                          
+                                  dragDropSupport="true"
+                                  multiple="false"
+                                  fileUploadListener="#{webAgendamentoContabilidadeBean.upload}" update=":formAgendamentoContabilidade:id_grid_uploads :formAgendamentoContabilidade:id_btn_anexo"
+                                  oncomplete="PF('dgl_upload').hide()" />
+                </p:dialog>
+            </h:form>            
         </f:view>
     </h:body>
 </ui:composition>

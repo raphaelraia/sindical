@@ -422,7 +422,7 @@ public class RecepcaoBean implements Serializable {
 
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()) {
-            List<Status> list = (List<Status>) new Dao().find("Status", new int[]{2, 3, 4, 5, 7});
+            List<Status> list = (List<Status>) new Dao().find("Status", new int[]{2, 3, 4, 5, 7, 9});
             if (!list.isEmpty()) {
                 int i = 0;
                 for (i = 0; i < list.size(); i++) {
@@ -505,7 +505,8 @@ public class RecepcaoBean implements Serializable {
             case 2:
             case 3:
             case 4:
-            case 7: {
+            case 7: 
+            case 9: {
                 agendamentoEdit = (Agendamento) di.find(datao.getArgumento9());
                 profissao = ((PessoaEmpresa) datao.getArgumento7()).getFuncao();
                 for (int i = 0; i < getListaMotivoDemissao().size(); i++) {

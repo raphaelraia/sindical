@@ -299,7 +299,7 @@
 
                                 <h:column>
                                     <h:outputText value="Status" style="margin-left: 20px; font-weight: bold"/><br />
-                                    <h:outputText value="#{homologacaoBean.statusEmpresa}" style="margin-left: 20px; #{homologacaoBean.statusEmpresa.equals('EM DÉBITO') ? 'color: red; font-weight: bold' : 'font-weight: bold'}"/>
+                                    <h:outputText value="#{homologacaoBean.statusEmpresa}" style="margin-left: 20px; #{homologacaoBean.statusEmpresa eq 'EM DÉBITO' ? 'color: red; font-weight: bold' : 'font-weight: bold'}"/>
                                 </h:column>
                             </h:panelGrid>
 
@@ -311,12 +311,12 @@
                             </h:panelGrid>
 
                             <h:panelGrid columns="2">
-                                <h:column rendered="#{!homologacaoBean.juridica.contabilidade.pessoa.nome.equals('')}">
+                                <h:column rendered="#{not empty homologacaoBean.juridica.contabilidade.pessoa.nome}">
                                     <h:outputText value="Escritório" style="font-weight: bold"/><br />
                                     <h:outputText value="#{homologacaoBean.juridica.contabilidade.pessoa.nome}" />
                                 </h:column>
 
-                                <h:column rendered="#{!homologacaoBean.juridica.contabilidade.pessoa.telefone1.equals('') or !homologacaoBean.juridica.contabilidade.pessoa.telefone2.equals('')}">
+                                <h:column rendered="#{not empty homologacaoBean.juridica.contabilidade.pessoa.telefone1 or not empty homologacaoBean.juridica.contabilidade.pessoa.telefone2}">
                                     <h:outputText value="Telefone" style="font-weight: bold; margin-left: 20px;"/><br />
                                     <h:outputText value="#{homologacaoBean.juridica.contabilidade.pessoa.telefone1} / #{homologacaoBean.juridica.contabilidade.pessoa.telefone2}" style="margin-left: 20px;"/>
                                 </h:column>

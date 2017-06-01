@@ -26,6 +26,7 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
                         <h:outputScript name="tradutor_primefaces.js" library="js" />
                         <h:form id="form_relatorio">            
+                             <p:messages autoUpdate="true" closable="true" showDetail="true" />
                             <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
                             <h:outputText value="Relatório Movimentos" styleClass="fonteHeader" />
                             <div class="clear"></div>
@@ -228,32 +229,67 @@
                                             </p:panel>
                                         </p:column>
                                         <p:column>
-                                            <p:panel header="Data" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[6].active}">
-                                                <h:panelGrid columns="8" cellpadding="5" id="i_data">
-                                                    <p:selectOneMenu label="Por" value="#{relatorioMovimentoBean.porData}" filter="true" filterMatchMode="startsWith">
-                                                        <p:ajax event="change" global="false" update="@this i_data"/>
-                                                        <f:selectItem itemValue="importacao"  itemLabel="Importação"/>
-                                                        <f:selectItem itemValue="recebimento" itemLabel="Recebimento"/>
-                                                        <f:selectItem itemValue="vencimento"  itemLabel="Vencimento"/>
-                                                        <f:selectItem itemValue="referencia"  itemLabel="Referência"/>
-                                                    </p:selectOneMenu>
-                                                    <p:selectOneMenu label="Meses" value="#{relatorioMovimentoBean.tipoData}" filter="true" filterMatchMode="startsWith">
-                                                        <p:ajax event="change" global="false" update="@this i_data"/>
-                                                        <f:selectItem itemValue="todos" itemLabel="todos" />
-                                                        <f:selectItem itemValue="igual" itemLabel="igual à" />
-                                                        <f:selectItem itemValue="apartir" itemLabel="a partir de" />
-                                                        <f:selectItem itemValue="ate" itemLabel="até" />
-                                                        <f:selectItem itemValue="faixa" itemLabel="por faixa" />
-                                                    </p:selectOneMenu>
-                                                    <p:inputMask value="#{relatorioMovimentoBean.dataInicial}" rendered="#{relatorioMovimentoBean.tipoData eq 'igual' or relatorioMovimentoBean.tipoData eq 'apartir' or relatorioMovimentoBean.tipoData eq 'ate' or relatorioMovimentoBean.tipoData eq 'faixa'}" size="10" mask="#{relatorioMovimentoBean.porData eq 'referencia' ? '99/9999' : '99/99/9999'}" converter="#{relatorioMovimentoBean.porData eq 'referencia' ?  isDateReference : isDateString}" styleClass="text-center">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputMask>
-                                                    <p:outputLabel value="até" rendered="#{relatorioMovimentoBean.tipoData eq 'faixa'}"/>
-                                                    <p:inputMask value="#{relatorioMovimentoBean.dataFinal}" rendered="#{relatorioMovimentoBean.tipoData eq 'faixa'}" size="10" mask="#{relatorioMovimentoBean.porData eq 'referencia' ? '99/9999' : '99/99/9999'}" converter="#{relatorioMovimentoBean.porData eq 'referencia' ?  isDateReference : isDateString}" styleClass="text-center">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputMask>
+
+                                            <p:panel header="Datas"  style="width: 100%!important"  rendered="#{relatorioMovimentoBean.listFilters[6].active}">
+                                                <h:panelGroup layout="block" id="i_panel_datas">
+                                                    <h:panelGrid columns="6" cellspacing="5">
+                                                        <p:selectOneMenu value="#{relatorioMovimentoBean.selectedDate}">
+                                                            <p:ajax event="change" update="@this i_panel_datas" />
+                                                            <f:selectItems value="#{relatorioMovimentoBean.listDates}"/>
+                                                        </p:selectOneMenu>
+                                                        <p:selectOneMenu label="Data" value="#{relatorioMovimentoBean.typeDate}">
+                                                            <p:ajax event="change" update="@this i_panel_datas" />
+                                                            <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                            <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                            <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                            <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                            <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                            <f:selectItem itemValue="com" itemLabel="Com data" />
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem data" />
+                                                        </p:selectOneMenu>
+                                                        <p:inputMask mask="#{relatorioMovimentoBean.selectedDate eq 'referencia' ? '99/9999' : '99/99/9999'}" value="#{relatorioMovimentoBean.startDate}" converter="#{relatorioMovimentoBean.selectedDate eq 'referencia' ? isDateReference : isDateString}" rendered="#{relatorioMovimentoBean.typeDate ne 'todos' and relatorioMovimentoBean.typeDate ne 'com' and relatorioMovimentoBean.typeDate ne 'sem'}" size="10" styleClass="text-center">
+                                                            <p:ajax event="change" global="false" />
+                                                        </p:inputMask>
+                                                        <p:outputLabel value="até" rendered="#{relatorioMovimentoBean.typeDate eq 'faixa'}" styleClass="margin-left-max"/>
+                                                        <p:inputMask mask="#{relatorioMovimentoBean.selectedDate eq 'referencia' ? '99/9999' : '99/99/9999'}" value="#{relatorioMovimentoBean.finishDate}" converter="#{relatorioMovimentoBean.selectedDate eq 'referencia' ? isDateReference : isDateString}" rendered="#{relatorioMovimentoBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
+                                                            <p:ajax event="change" global="false" />
+                                                        </p:inputMask>
+                                                        <p:commandButton icon="ui-icon-plus" action="#{relatorioMovimentoBean.addFilterDate()}" title="Adicionar data" update="i_panel_datas"/>
+                                                    </h:panelGrid>
+                                                    <p:dataTable value="#{relatorioMovimentoBean.listDateFilters}" var="dateFilters" emptyMessage="Nenhuma data adicionada" styleClass="margin-top-max" id="i_tbl_data">
+                                                        <p:column headerText="Titulo" styleClass="text-center">
+                                                            #{relatorioMovimentoBean.getDateItemDescription(dateFilters.title)}
+                                                        </p:column>
+                                                        <p:column headerText="Tipo" styleClass="text-center">                                                                
+                                                            <p:selectOneMenu label="Data" value="#{dateFilters.type}">
+                                                                <p:ajax event="change" update="@this i_tbl_data" />
+                                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                                <f:selectItem itemValue="com" itemLabel="Com data" />
+                                                                <f:selectItem itemValue="sem" itemLabel="Sem data" />
+                                                            </p:selectOneMenu>                                                                
+                                                        </p:column>
+                                                        <p:column headerText="Inicial" styleClass="text-center">
+                                                            <p:inputMask mask="#{dateFilters.title eq 'referencia' ? '99/9999' : '99/99/9999'}" value="#{dateFilters.start}" converter="#{dateFilters.title eq 'referencia' ? isDateReference : isDateString}" rendered="#{dateFilters.type ne 'todos' and dateFilters.type ne 'sem' and dateFilters.type ne 'com'}" size="10" styleClass="text-center">
+                                                                <p:ajax event="change" update="@this" global="false" />
+                                                            </p:inputMask>                                                                
+                                                        </p:column>
+                                                        <p:column headerText="Final" styleClass="text-center">
+                                                            <p:inputMask mask="#{dateFilters.title eq 'referencia' ? '99/9999' : '99/99/9999'}" value="#{dateFilters.finish}" converter="#{dateFilters.title eq 'referencia' ? isDateReference : isDateString}" rendered="#{dateFilters.type eq 'faixa'}"  size="10" styleClass="text-center">
+                                                                <p:ajax event="change" update="@this" global="false" />
+                                                            </p:inputMask>
+                                                        </p:column>
+                                                        <p:column width="30" styleClass="text-center">
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.removeFilterDate(dateFilters)}" title="Remover filtro" update=":form_relatorio:i_panel_datas"/>
+                                                        </p:column>
+                                                    </p:dataTable>
+                                                </h:panelGroup>
+                                                <f:facet name="footer">
                                                     <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[6])}" title="Remover filtro" update="form_relatorio"/>
-                                                </h:panelGrid>                                        
+                                                </f:facet>
                                             </p:panel>
                                         </p:column>
                                         <p:column>
