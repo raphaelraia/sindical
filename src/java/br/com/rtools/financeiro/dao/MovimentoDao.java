@@ -1840,7 +1840,7 @@ public class MovimentoDao extends DB {
             qry.setParameter("s", idServicos);
             qry.setParameter("p", idPessoa);
 
-            // DEVE RETORNAR APENAS UM RESULTADO, SENÃO ESTA COM ERRO POIS NÃO PODE DUPLICAR A CHAVE
+            // DEVE RETORNAR APENAS UM RESULTADO OU ZERO, SE TRAZER MAIS DE UM ESTA COM ERRO POIS NÃO PODE DUPLICAR A CHAVE
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();
