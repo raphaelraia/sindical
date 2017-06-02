@@ -66,14 +66,14 @@
                                         <p:rowToggler />  
                                     </p:column> 
 
-                                    <p:column width="30" style="text-align: center" rendered="#{agendamentoBean.renderedDisponivel}">
+                                    <p:column width="30" style="text-align: center" rendered="#{agendamentoBean.idStatus ne 8}">
                                         <f:facet name="header">
                                             <h:graphicImage value="/Imagens/horario_pisca.gif" alt="Horário" title="Horário" width="20" />
                                         </f:facet>
                                         <p:commandLink action="#{agendamentoBean.agendar(objeto.agendamento)}" value="#{objeto.agendamento.horarios.hora}" update=":formConcluirAgendamento:"/>
                                     </p:column>
 
-                                    <p:column headerText="Emissão" rendered="#{!agendamentoBean.renderedDisponivel}" width="80">
+                                    <p:column headerText="Emissão" rendered="#{agendamentoBean.idStatus eq 8}" width="80">
                                         <p:commandLink action="#{agendamentoBean.agendar(objeto.agendamento)}" value="#{objeto.agendamento.emissao}" update=":formConcluirAgendamento:" />
                                     </p:column>
 
@@ -468,7 +468,7 @@
 
 
                             </p:panel>
-                            <p:panel rendered="#{agendamentoBean.validacao}" styleClass="margin-top-max" header="OBSERVAÇÃO">
+                            <p:panel styleClass="margin-top-max" header="OBSERVAÇÃO">
                                 <p:inputTextarea rows="2" value="#{agendamentoBean.agendamento.observacao}" style="width: 100%; color: red;" styleClass="bold" readonly="#{agendamentoBean.validacao}"/>
                             </p:panel>
                             <p:commandButton value="#{agendamentoBean.juridica.id == -1 ? 'Pesquisar Empresa' : 'Alterar Empresa'}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" rendered="#{!agendamentoBean.validacao}" styleClass="bold font-color-red margin-top-max"/>
