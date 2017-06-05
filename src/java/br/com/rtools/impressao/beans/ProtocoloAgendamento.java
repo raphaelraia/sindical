@@ -115,9 +115,9 @@ public class ProtocoloAgendamento implements Serializable {
                 List<File> fls = new ArrayList<>();
                 fls.add(new File(fileEnvioProtocolo));
                 mail.setFiles(fls);
-                email.setMensagem("<h5>Baixe seu protocolo que esta anexado neste email</5><br /><br />");
+                email.setMensagem("<h5>Baixe seu protocolo que esta anexado neste email</h5><br /><br />");
             } else {
-                email.setMensagem(" <h5>Visualize seu protocolo clicando no link abaixo</5><br /><br />    "
+                email.setMensagem(" <h5>Visualize seu protocolo clicando no link abaixo</h5><br /><br />    "
                         + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=envio_protocolo_" + a.getId() + ".pdf" + "' target='_blank'>Clique aqui para abrir seu protocolo</a><br />"
                 );
             }

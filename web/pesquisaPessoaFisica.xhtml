@@ -222,12 +222,13 @@
                                             <p:ajax event="change" update="@this" global="false"/>
                                         </p:inputTextarea>
                                     </h:panelGrid>
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="3">
                                         <h:outputLabel value="Serviço: " />
-                                        <p:selectOneMenu value="#{fisicaBean.idServicosAutorizados}" title="SERVIÇO/ROTINA: LIBERA EMISSÃO DE SERVIÇO COM DÉBITO (CADASTRO COM DÉBITO)">
+                                        <p:selectOneMenu value="#{fisicaBean.idServicosAutorizados}">
                                             <p:ajax event="change" update="@this" global="false" />
                                             <f:selectItems value="#{fisicaBean.listServicosAutorizados}"/>                                        
                                         </p:selectOneMenu>
+                                        <p:button icon="ui-icon-info" title="SERVIÇO/ROTINA: LIBERA EMISSÃO DE SERVIÇO COM DÉBITO (CADASTRO COM DÉBITO)"></p:button>
                                     </h:panelGrid>
                                 </h:panelGroup>
                                 <f:facet name="footer">
