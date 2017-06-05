@@ -31,7 +31,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
@@ -46,7 +48,12 @@ public class ProtocoloAgendamento implements Serializable {
             Jasper.PART_NAME = "" + a.getId();
             Jasper.PATH = "downloads";
             Jasper.IGNORE_UUID = true;
-            Jasper.printReports("PROTOCOLO.jasper", "protocolo", (Collection) parametroProtocolos(a));
+            Map map = new HashMap();
+            map.put("titulo", "CONFIRMAÇÃO DE AGENDAMENTO ELETRÔNICO DE HOMOLOGAÇÃO");
+            if (a.getStatus().getId() == 8) {
+                map.put("titulo", "SOLICITAÇÃO DE AGENDAMENTO ELETRÔNICO DE HOMOLOGAÇÃO");
+            }
+            Jasper.printReports("PROTOCOLO.jasper", "protocolo", (Collection) parametroProtocolos(a), map);
         } catch (Exception e) {
         }
     }
@@ -61,7 +68,12 @@ public class ProtocoloAgendamento implements Serializable {
             Jasper.PATH = "downloads";
             Jasper.IGNORE_UUID = true;
             Jasper.IS_DOWNLOAD = false;
-            Jasper.printReports("PROTOCOLO.jasper", "envio_protocolo", (Collection) parametroProtocolos(a));
+            Map map = new HashMap();
+            map.put("titulo", "CONFIRMAÇÃO DE AGENDAMENTO ELETRÔNICO DE HOMOLOGAÇÃO");
+            if (a.getStatus().getId() == 8) {
+                map.put("titulo", "SOLICITAÇÃO DE AGENDAMENTO ELETRÔNICO DE HOMOLOGAÇÃO");
+            }
+            Jasper.printReports("PROTOCOLO.jasper", "envio_protocolo", (Collection) parametroProtocolos(a), map);
             String fileEnvioProtocolo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/envio_protocolo/envio_protocolo_" + a.getId() + ".pdf");
             LinksDao db = new LinksDao();
             Links link = db.pesquisaNomeArquivo("envio_protocolo" + a.getId() + ".pdf");

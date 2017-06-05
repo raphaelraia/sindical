@@ -187,7 +187,7 @@
                                                         <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
                                                     </p:inputMask>
                                                 </h:panelGrid>
-                                            </h:column>
+                                            </h:column>                                            
                                         </h:panelGrid>
                                         <p:panel header="Mensagem de suspensão do período" rendered="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDesabilitaInicial ne null}" >
                                             <p:inputTextarea value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDesabilitaObs}" maxlength="1000" cols="110" rows="5" >
@@ -274,8 +274,18 @@
                                                     <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webImprimirPlanilhaDebito}" itemLabel="Bloqueia Planilha de débitos">
                                                         <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
                                                     </p:selectBooleanCheckbox>
+                                                </p:column>                                              
+                                                <p:column>
+                                                    <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webValidaAgendamento}" itemLabel="Processo de Validação Quando Agendar">
+                                                        <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </p:column>                                                    
+                                                <p:column>
+                                                    <p:selectBooleanCheckbox value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDocumentoObrigatorio}" itemLabel="Obriga digitalização de documentos">
+                                                        <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                                    </p:selectBooleanCheckbox>
                                                 </p:column>
-                                            </h:panelGrid>                                            
+                                            </h:panelGrid>
                                         </p:panel>
                                     </p:tab>
                                     <p:tab title="Recepção">

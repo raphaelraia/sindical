@@ -6,7 +6,6 @@ import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
-import br.com.rtools.arrecadacao.RelacaoEmpregados;
 import br.com.rtools.arrecadacao.dao.ConvencaoDao;
 import br.com.rtools.arrecadacao.dao.RelacaoEmpregadosDao;
 import br.com.rtools.atendimento.dao.AtendimentoDao;
@@ -61,7 +60,7 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class AgendamentoBean extends PesquisarProfissaoBean implements Serializable {
 
-    private int idStatus = 0;
+    private int idStatus = 1;
     private int idMotivoDemissao = 0;
     private int idHorarioTransferencia = 0;
     private int idHorarioAlternativo = 0;
@@ -102,6 +101,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     private Registro registro = new Registro();
     private boolean visibleModal = false;
+    private boolean validacao = false;
+
     private String tipoTelefone = "telefone";
     private Cancelamento cancelamento = new Cancelamento();
     private String documentoFisica = "";
@@ -109,6 +110,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private List<SelectItem> listFilial;
     private Integer idFilial;
     private Boolean renderedFilial;
+    private List listFiles;
 
     public AgendamentoBean() {
         if (configuracaoHomologacao.getId() == null) {
@@ -118,6 +120,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             DataHoje dh = new DataHoje();
             data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(data)));
         }
+        if (configuracaoHomologacao.getWebValidaAgendamento()) {
+            idStatus = 8;
+        }
+        listFiles = new ArrayList();
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         Dao dao = new Dao();
         registro = (Registro) dao.find(new Registro(), 1);
@@ -126,6 +132,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         horarioReservaDao.clear();
         if (macFilial != null) {
             this.loadListaHorarios();
+            if (listaHorarios.isEmpty()) {
+                data = DataHoje.dataHoje();
+                idStatus = 1;
+                this.loadListaHorarios();
+            }
             this.loadListaHorariosTransferencia();
         }
         renderedFilial = false;
@@ -249,7 +260,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public final void loadListaHorariosStatus(Boolean stop) {
-        if (configuracaoHomologacao.getInicioDiasAgendamento() > 0 && idStatus == 0) {
+        if (configuracaoHomologacao.getInicioDiasAgendamento() > 0 && idStatus == 1) {
             DataHoje dh = new DataHoje();
             data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.data()));
         }
@@ -268,7 +279,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
 
-        if (!getMindate().isEmpty() && idStatus == 0) {
+        if (!getMindate().isEmpty() && idStatus == 1) {
             if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
                 DataHoje dh = new DataHoje();
                 if (!DataHoje.maiorData(data, DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento(), DataHoje.data())))) {
@@ -279,9 +290,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
 
-        int idNrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
+        int idNrStatus = idStatus;
         int diaDaSemana = DataHoje.diaDaSemana(data);
-        renderedDisponivel = idNrStatus != 2 && idNrStatus != 3 && idNrStatus != 4 && idNrStatus != 5 && idNrStatus != 6 && idNrStatus != 7;
+        renderedDisponivel = idNrStatus != 2 && idNrStatus != 3 && idNrStatus != 4 && idNrStatus != 5 && idNrStatus != 6 && idNrStatus != 7 && idNrStatus != 8 && idNrStatus != 9;
         HomologacaoDao homologacaoDB = new HomologacaoDao();
         List<Agendamento> agendamentos;
         List<Horarios> horarios;
@@ -306,7 +317,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 }
             }
         } else {
-            agendamentos = homologacaoDB.pesquisaAgendamento(idNrStatus, macFilial.getFilial().getId(), getData(), null, 0, 0, 0, false, false);
+            Date d = getData();
+            if (idNrStatus == 8) {
+                d = null;
+            }
+            agendamentos = homologacaoDB.pesquisaAgendamento(idNrStatus, macFilial.getFilial().getId(), d, null, 0, 0, 0, false, false);
             for (Agendamento agenda : agendamentos) {
                 ListaAgendamento listaAgendamento = new ListaAgendamento();
                 Usuario u = new Usuario();
@@ -543,7 +558,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             Dao dao = new Dao();
             List<Status> list = (List<Status>) dao.list(new Status());
             for (int i = 0; i < list.size(); i++) {
-                listaStatus.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
+                listaStatus.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
         }
         return listaStatus;
@@ -585,6 +600,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void agendar(Agendamento a) {
+        listFiles = new ArrayList();
+        if (a.getId() != -1) {
+            getListFiles();
+        }
         limpar();
         loadListaHorariosTransferencia();
 
@@ -617,7 +636,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             profissao.setProfissao("");
         }
 
-        switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
+        switch (idStatus) {
             case 1: {
                 HorarioReservaDao hrd = new HorarioReservaDao();
                 HomologacaoDao dba = new HomologacaoDao();
@@ -657,7 +676,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 PF.openDialog("dlg_agendamento");
                 break;
             }
-            case 2: {
+            case 2:
+            case 8:
+            case 9:
                 PessoaEnderecoDao db = new PessoaEnderecoDao();
                 agendamento = a;
                 fisica = a.getPessoaEmpresa().getFisica();
@@ -678,11 +699,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 }
                 //tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
 
-                visibleModal = true;
                 WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+                if (idStatus == 8 || idStatus == 9) {
+                    validacao = true;
+                }
+                visibleModal = true;
                 PF.openDialog("dlg_agendamento");
+                PF.update(":formConcluirAgendamento:");
                 break;
-            }
             case 3: {
                 break;
             }
@@ -722,7 +746,25 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void save() {
+        save("");
+    }
+
+    public void save(String tcase) {
         NovoLog novoLog = new NovoLog();
+
+        if (tcase.equals("validar")) {
+            validar();
+            WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+            GenericaSessao.remove("menuPrincipalBean");
+            return;
+        }
+        if (tcase.equals("recusar")) {
+            recusar();
+            GenericaSessao.remove("menuPrincipalBean");
+            WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+            return;
+        }
+
         if (!validaAdmissao()) {
             return;
         }
@@ -947,7 +989,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
         // -------------------------------------------------------------
-        int idStatusI = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
+        int idStatusI = idStatus;
         if (profissao.getId() == -1) {
             profissao = (Profissao) new Dao().find(new Profissao(), 0);
             profissao.setProfissao("");
@@ -1036,7 +1078,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
 
             agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
-            if (idStatusI == 1) {
+            if (idStatusI == 2) {
                 if (!dba.existeHorarioDisponivel(agendamento.getDtData(), agendamento.getHorarios())) {
                     dao.rollback();
                     loadListaHorariosTransferencia();
@@ -1085,6 +1127,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
             if (dao.update(agendamento)) {
                 dao.commit();
+                GenericaMensagem.info("Sucesso", "Agendamento atualizado!");
                 novoLog.setTabela("hom_agendamento");
                 novoLog.setCodigo(agendamento.getId());
                 novoLog.update(
@@ -1103,7 +1146,6 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     //msgConfirma = "Agendamento atualizado com Sucesso! imprimir Protocolo clicando aqui! ";
                     styleDestaque = "";
                 }
-                GenericaMensagem.info("Sucesso", "Alteração de Agendamento Concluído!");
             } else {
                 GenericaMensagem.fatal("Atenção", "Erro ao atualizar Agendamento!");
                 dao.rollback();
@@ -1809,6 +1851,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
         }
         this.visibleModal = visibleModal;
+        this.validacao = false;
     }
 
     public String getTipoTelefone() {
@@ -1859,7 +1902,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getMindate() {
-        if (idStatus == 0) {
+        if (idStatus == 1) {
             if (registro.getAgendamentoRetroativo() != null && (DataHoje.maiorData(registro.getAgendamentoRetroativo(), DataHoje.dataHoje()) || DataHoje.converteData(registro.getAgendamentoRetroativo()).equals(DataHoje.data()))) {
                 return "";
             }
@@ -1875,7 +1918,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getMaxdate() {
-        if (idStatus == 0) {
+        if (idStatus == 1) {
             if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
                 if (registro.getHomolocaoLimiteMeses() <= 0) {
                     return new DataHoje().incrementarMeses(3, DataHoje.data());
@@ -1928,4 +1971,124 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     public void setRenderedFilial(Boolean renderedFilial) {
         this.renderedFilial = renderedFilial;
     }
+
+    // ARQUIVOS
+    public List getListFiles() {
+        listFiles.clear();
+        listFiles = Diretorio.listaArquivos("Arquivos/homologacao/" + agendamento.getId());
+        return listFiles;
+    }
+
+    private void validar() {
+        Dao dao = new Dao();
+        agendamento.setStatus((Status) dao.find(new Status(), 2));
+        if (agendamento.getId() != -1) {
+            if (dao.update(agendamento, true)) {
+                validacao = false;
+                GenericaMensagem.info("Sucesso", "Altorização de Agendamento Concluída!");
+                enviarEmailProtocolo();
+            } else {
+                GenericaMensagem.warn("Erro", "Erro ao validar agendamento!");
+            }
+        }
+    }
+
+    private void recusar() {
+        Dao dao = new Dao();
+        if (agendamento.getEmail().isEmpty()) {
+            GenericaMensagem.info("Validação", "Informar e-mail");
+            return;
+        }
+        if (agendamento.getMotivoRecusa().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informar motivo da recusa!");
+            return;
+        }
+        agendamento.setStatus((Status) dao.find(new Status(), 9));
+        if (agendamento.getId() != -1) {
+            agendamento.setOperadorRecusa(new Usuario().getUsuario());
+            if (dao.update(agendamento, true)) {
+                validacao = false;
+                GenericaMensagem.info("Sucesso", "Agendamento recusado!");
+                try {
+                    List<Pessoa> p = new ArrayList();
+                    agendamento.getPessoaEmpresa().getFisica().getPessoa().setEmail1(agendamento.getEmail());
+                    p.add(agendamento.getPessoaEmpresa().getFisica().getPessoa());
+                    Mail mail = new Mail();
+                    ConfiguracaoDepartamento configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(8, MacFilial.getAcessoFilial().getFilial().getId());
+                    Email email = new Email(
+                            -1,
+                            DataHoje.dataHoje(),
+                            DataHoje.livre(new Date(), "HH:mm"),
+                            (Usuario) GenericaSessao.getObject("sessaoUsuario"),
+                            (Rotina) dao.find(new Rotina(), 113),
+                            null,
+                            "Documentação incompleta protocolo n°" + agendamento.getId(),
+                            agendamento.getMotivoRecusa(),
+                            false,
+                            false
+                    );
+                    mail.setEmail(email);
+                    List<EmailPessoa> emailPessoas = new ArrayList<>();
+                    EmailPessoa emailPessoa = new EmailPessoa();
+                    List<Pessoa> pessoas = (List<Pessoa>) p;
+                    for (Pessoa p1 : pessoas) {
+                        emailPessoa.setDestinatario(p1.getEmail1());
+                        emailPessoa.setPessoa(p1);
+                        emailPessoa.setRecebimento(null);
+                        emailPessoas.add(emailPessoa);
+                        mail.setEmailPessoas(emailPessoas);
+                        emailPessoa = new EmailPessoa();
+                    }
+                    if (configuracaoDepartamento != null) {
+                        mail.setConfiguracaoDepartamento(configuracaoDepartamento);
+                    }
+                    String[] retorno = mail.send("personalizado");
+                    if (!retorno[1].isEmpty()) {
+                        GenericaMensagem.warn("E-mail", retorno[1]);
+                    } else {
+                        GenericaMensagem.info("E-mail", retorno[0]);
+                    }
+                } catch (Exception e) {
+                    NovoLog log = new NovoLog();
+                    log.live("Erro de envio de protocolo por e-mail: Mensagem: " + e.getMessage() + " - Causa: " + e.getCause() + " - Caminho: " + e.getStackTrace().toString());
+                }
+
+            } else {
+                GenericaMensagem.warn("Erro", "Erro ao validar agendamento!");
+            }
+        }
+    }
+
+    public MacFilial getMacFilial() {
+        return macFilial;
+    }
+
+    public void setMacFilial(MacFilial macFilial) {
+        this.macFilial = macFilial;
+    }
+
+    public int getId_protocolo() {
+        return id_protocolo;
+    }
+
+    public void setId_protocolo(int id_protocolo) {
+        this.id_protocolo = id_protocolo;
+    }
+
+    public boolean isValidacao() {
+        return validacao;
+    }
+
+    public void setValidacao(boolean validacao) {
+        this.validacao = validacao;
+    }
+
+    public Date getPolling() {
+        return polling;
+    }
+
+    public void setPolling(Date polling) {
+        this.polling = polling;
+    }
+
 }

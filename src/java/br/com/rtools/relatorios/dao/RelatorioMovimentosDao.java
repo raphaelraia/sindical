@@ -249,34 +249,32 @@ public class RelatorioMovimentosDao extends DB {
 
                     String ini = "";
                     try {
-                        ini = referencia.getStart().substring(3, 7) + referencia.getStart().substring(0, 2);
+                        ini = referencia.getStart();
                     } catch (Exception e) {
 
                     }
                     String fin = "";
                     try {
-                        fin = referencia.getFinish().substring(3, 7) + referencia.getFinish().substring(0, 2);
+                        fin = referencia.getFinish();
                     } catch (Exception e) {
 
                     }
 
-                    if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
-                        switch (referencia.getType()) {
-                            case "igual":
-                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) = '" + ini + "'");
-                                break;
-                            case "apartir":
-                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) >= '" + ini + "'");
-                                break;
-                            case "ate":
-                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <= '" + ini + "'");
-                                break;
-                            case "faixa":
-                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) BETWEEN '" + ini + "' AND '" + fin + "'");
-                                break;
-                            default:
-                                break;
-                        }
+                    switch (referencia.getType()) {
+                        case "igual":
+                            listWhere.add("mov.ds_referencia = '" + ini + "'");
+                            break;
+                        case "apartir":
+                            listWhere.add("mov.ds_referencia >= '" + ini + "'");
+                            break;
+                        case "ate":
+                            listWhere.add("mov.ds_referencia <= '" + ini + "'");
+                            break;
+                        case "faixa":
+                            listWhere.add("mov.ds_referencia BETWEEN '" + ini + "' AND '" + fin + "'");
+                            break;
+                        default:
+                            break;
                     }
                 }
                 data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
