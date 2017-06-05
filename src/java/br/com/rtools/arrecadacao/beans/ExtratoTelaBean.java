@@ -639,7 +639,7 @@ public class ExtratoTelaBean implements Serializable {
         return "extratoTela";
     }
 
-    public boolean getUltimaImpressão(int id_movimento) {
+    public boolean getUltimaImpressao(int id_movimento) {
         // ESTA CAUSANDO LENTIDÃO NA ROTINA
 //        MovimentoDao db = new MovimentoDao();
 //
