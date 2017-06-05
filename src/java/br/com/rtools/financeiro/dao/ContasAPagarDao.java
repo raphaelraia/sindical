@@ -21,6 +21,7 @@ public class ContasAPagarDao extends DB {
         List<String> list_where = new ArrayList();
 
         list_where.add("m.ds_es = 'S'");
+        list_where.add("m.is_ativo = TRUE");
 
         String WHERE = "";
 

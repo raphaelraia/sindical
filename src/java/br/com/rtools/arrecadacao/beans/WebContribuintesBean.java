@@ -400,7 +400,12 @@ public class WebContribuintesBean extends MovimentoValorBean {
 
             MovimentoDao dbm = new MovimentoDao();
 
-            if (dbm.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId()) != null) {
+            List<Movimento> lm = dbm.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId());
+                                
+            if (!lm.isEmpty() && lm.size() > 1) {
+                GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
+                return;
+            } else if (!lm.isEmpty()){
                 GenericaMensagem.error("Atenção", "Este boleto já existe!");
                 return;
             }

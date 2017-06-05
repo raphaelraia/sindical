@@ -345,5 +345,22 @@ public class FilialDao extends DB {
             return new ArrayList();
         }
     }
+    
+    public List<Filial> listaTodasFiliais() {
+        try {
+            String queryString 
+                    = "     SELECT F.*                                          \n"
+                    + "       FROM pes_filial F                                 \n"
+                    + " INNER JOIN pes_juridica J ON J.id = F.id_filial         \n"
+                    + " INNER JOIN pes_pessoa P ON P.id = J.id_pessoa           \n"
+                    + "   ORDER BY P.ds_nome ";
+            
+            Query query = getEntityManager().createNativeQuery(queryString, Filial.class);
+            
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 
 }

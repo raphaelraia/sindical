@@ -217,7 +217,13 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             if ((new DataHoje()).integridadeReferencia(strReferencia)) {
                 for (int i = 0; i < listaEmpresaSelecionada.size(); i++) {
                     juri = listaEmpresaSelecionada.get(i);
-                    if (dbm.pesquisaMovimentos(juri.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId()) != null) {
+
+                    List<Movimento> lm = dbm.pesquisaMovimentos(juri.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId());
+
+                    if (!lm.isEmpty() && lm.size() > 1) {
+                        GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
+                        continue;
+                    } else if (!lm.isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Este boleto já existe para " + juri.getPessoa().getNome());
                         continue;
                     }

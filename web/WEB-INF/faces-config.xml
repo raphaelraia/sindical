@@ -2433,6 +2433,12 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>relatorioMovimentoLocadora</from-outcome>
+            <to-view-id>/relatorioMovimentoLocadora.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

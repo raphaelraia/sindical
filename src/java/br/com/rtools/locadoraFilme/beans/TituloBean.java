@@ -279,7 +279,7 @@ public class TituloBean implements Serializable {
             GenericaSessao.put("tituloPesquisa", titulo);
             return "titulo";
         } else {
-            if (urlRetorno.equals("titulo")) {
+            if (urlRetorno.equals("titulo") || urlRetorno.equals("relatorioMovimentoLocadora")) {
                 idGenero = t.getGenero().getId();
             } else if (getQuantidadeDisponivel(t.getId()) == 0) {
                 GenericaMensagem.warn("Validação", "Não há quantidade disponível para locação!");

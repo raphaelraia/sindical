@@ -1,0 +1,194 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Relatório Movimentos Locadora</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+
+            .column01{
+                width: 300px;
+                vertical-align: top;
+            }
+
+            .column02{
+                vertical-align: top;
+            }     
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Relatório de Movimentos da Locadora" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+
+                        <h:form id="formRelMovLocadora">
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <h:column>
+                                        <h:outputLabel value="Relatório" /><br />
+                                        <p:selectOneMenu value="#{relatorioMovimentoLocadoraBean.indexListaRelatorio}">
+                                            <p:ajax event="change" update="@form" global="false" listener="#{relatorioMovimentoLocadoraBean.loadRelatoriosOrdem()}"/>
+                                            <f:selectItems value="#{relatorioMovimentoLocadoraBean.listaRelatorio}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <h:outputLabel value="Ordem" /><br />
+                                        <p:selectOneMenu value="#{relatorioMovimentoLocadoraBean.indexListaRelatorioOrdem}">
+                                            <p:ajax event="change" update="@this" global="false" />
+                                            <f:selectItems value="#{relatorioMovimentoLocadoraBean.listaRelatorioOrdem}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:messages autoUpdate="true" closable="true" showDetail="true" />
+                            
+                            <h:panelGrid columns="2" columnClasses="column01, column02" style="width: 100%!important">
+
+                                <h:column>
+                                    <p:panel header="Filtro">
+
+                                        <p:selectBooleanButton value="#{relatorioMovimentoLocadoraBean.filtro.chkFilial}" onLabel="Filial" offLabel="Filial" disabled="true" style="width: 100%">
+                                            <p:ajax event="change" update="@this @form" />
+                                        </p:selectBooleanButton>
+
+                                        <p:selectBooleanButton value="#{relatorioMovimentoLocadoraBean.filtro.chkCliente}" onLabel="Cliente" offLabel="Cliente" style="width: 100%">
+                                            <p:ajax event="change" update="@this @form" />
+                                        </p:selectBooleanButton>
+
+                                        <p:selectBooleanButton value="#{relatorioMovimentoLocadoraBean.filtro.chkFilme}" onLabel="Filme" offLabel="Filme" style="width: 100%">
+                                            <p:ajax event="change" update="@this @form" />
+                                        </p:selectBooleanButton>
+
+                                        <p:selectBooleanButton value="#{relatorioMovimentoLocadoraBean.filtro.chkData}" onLabel="Data" offLabel="Data" style="width: 100%">
+                                            <p:ajax event="change" update="@this @form" />
+                                        </p:selectBooleanButton>
+
+                                        <p:selectBooleanButton value="#{relatorioMovimentoLocadoraBean.filtro.chkStatus}" onLabel="Status" offLabel="Status" style="width: 100%">
+                                            <p:ajax event="change" update="@this @form" />
+                                        </p:selectBooleanButton>
+
+                                    </p:panel>
+
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton icon="ui-icon-print" value="Imprimir" action="#{relatorioMovimentoLocadoraBean.imprimir()}" ajax="false"/>
+
+                                        <p:commandButton icon="ui-icon-close" value="Limpar" action="#{relatorioMovimentoLocadoraBean.limparFiltro()}" update="@form"/>
+                                    </h:panelGrid>
+
+                                </h:column>
+
+                                <h:column>
+                                    <h:panelGrid columns="1" rendered="#{relatorioMovimentoLocadoraBean.filtro.chkFilial}" style="padding: 10px">
+                                        <h:column>
+                                            <p:outputLabel value="Filial" style="font-weight: bold"/><br />
+                                            <p:selectOneMenu value="#{relatorioMovimentoLocadoraBean.filtro.indexListaFilial}">
+                                                <p:ajax event="change" update="@this" global="false" />
+                                                <f:selectItems value="#{relatorioMovimentoLocadoraBean.filtro.listaFilial}" />
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                        <hr />
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1" rendered="#{relatorioMovimentoLocadoraBean.filtro.chkCliente}" style="padding: 10px">
+                                        <h:column>
+                                            <p:outputLabel value="Cliente" style="font-weight: bold"/><br />
+                                            <h:panelGrid columns="3">
+                                                <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoa()}" ajax="false"/>
+                                                <p:outputLabel value="#{relatorioMovimentoLocadoraBean.filtro.cliente.nome}" rendered="#{relatorioMovimentoLocadoraBean.filtro.cliente.id ne -1}" style="font-size: 12pt!important"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoLocadoraBean.filtro.removerCliente()}" update="@form" rendered="#{relatorioMovimentoLocadoraBean.filtro.cliente.id ne -1}" />
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <hr />
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1" rendered="#{relatorioMovimentoLocadoraBean.filtro.chkFilme}" style="padding: 10px">
+                                        <h:column>
+                                            <p:outputLabel value="Filme" style="font-weight: bold"/><br />
+                                            <h:panelGrid columns="3">
+                                                <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pagina('pesquisaTitulo')}" ajax="false"/>
+                                                <p:outputLabel value="#{relatorioMovimentoLocadoraBean.filtro.filme.descricao}" rendered="#{relatorioMovimentoLocadoraBean.filtro.filme.id ne -1}" style="font-size: 12pt!important"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoLocadoraBean.filtro.removerFilme()}" update="@form" rendered="#{relatorioMovimentoLocadoraBean.filtro.filme.id ne null}" />
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <hr />
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1" rendered="#{relatorioMovimentoLocadoraBean.filtro.chkData}" style="padding: 10px">
+                                        <h:column>
+                                            <p:outputLabel value="Data de" style="font-weight: bold"/><br />
+                                            <h:panelGrid columns="5">
+                                                <p:panel styleClass="fundoCinza">
+                                                    <p:outputLabel value="Locação" /><br />
+                                                    <p:inputMask value="#{relatorioMovimentoLocadoraBean.filtro.dtLocacaoInicial}" mask="99/99/9999" style="width: 80px; text-align: center"/> até
+                                                    <p:inputMask value="#{relatorioMovimentoLocadoraBean.filtro.dtLocacaoFinal}" mask="99/99/9999" style="width: 80px; text-align: center"/> 
+                                                </p:panel>
+
+                                                <p:panel styleClass="fundoCinza">
+                                                    <p:outputLabel value="Previsão" /><br />
+                                                    <p:inputMask value="#{relatorioMovimentoLocadoraBean.filtro.dtPrevisaoInicial}" mask="99/99/9999" style="width: 80px; text-align: center"/> até
+                                                    <p:inputMask value="#{relatorioMovimentoLocadoraBean.filtro.dtPrevisaoFinal}" mask="99/99/9999" style="width: 80px; text-align: center"/> 
+                                                </p:panel>
+
+                                                <p:panel styleClass="fundoCinza">
+                                                    <p:outputLabel value="Entrega" /><br />
+                                                    <p:inputMask value="#{relatorioMovimentoLocadoraBean.filtro.dtEntregaInicial}" mask="99/99/9999" style="width: 80px; text-align: center"/> até
+                                                    <p:inputMask value="#{relatorioMovimentoLocadoraBean.filtro.dtEntregaFinal}" mask="99/99/9999" style="width: 80px; text-align: center"/> 
+                                                </p:panel>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <hr />
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1" rendered="#{relatorioMovimentoLocadoraBean.filtro.chkStatus}" style="padding: 10px">
+                                        <h:column>
+                                            <p:outputLabel value="Status" style="font-weight: bold"/><br />
+                                            <p:selectOneMenu value="#{relatorioMovimentoLocadoraBean.filtro.status}">
+                                                <p:ajax event="change" update="@this"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="atrasados" itemLabel="Atrasados" />
+                                                <f:selectItem itemValue="nao_entregue" itemLabel="Não Entregue" />
+                                                <f:selectItem itemValue="entregue" itemLabel="Entregue" />
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                        <hr />
+                                    </h:panelGrid>
+                                </h:column>
+
+                            </h:panelGrid>
+                        </h:form>
+
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

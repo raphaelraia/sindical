@@ -22,7 +22,7 @@ public class LoteDao extends DB {
                 "l.id IN ( \n "
                 + "SELECT m.id_lote \n "
                 + "  FROM fin_movimento m \n "
-               // + " INNER JOIN fin_movimento_inativo mi ON mi.id_movimento = m.id \n "
+                // + " INNER JOIN fin_movimento_inativo mi ON mi.id_movimento = m.id \n "
                 + " WHERE m.is_ativo = true \n "
                 + "   AND m.id_lote = l.id \n "
                 + " ) "
@@ -290,6 +290,15 @@ public class LoteDao extends DB {
             return new ArrayList();
         }
 
+        /*
+                        "l.id IN ( \n "
+                + "SELECT m.id_lote \n "
+                + "  FROM fin_movimento m \n "
+               // + " INNER JOIN fin_movimento_inativo mi ON mi.id_movimento = m.id \n "
+                + " WHERE m.is_ativo = true \n "
+                + "   AND m.id_lote = l.id \n "
+                + " ) "
+         */
         try {
             Query query = getEntityManager().createNativeQuery(
                     " SELECT l.* \n "
@@ -297,7 +306,13 @@ public class LoteDao extends DB {
                     + "  WHERE l.id_pessoa = " + pessoa_id + " \n"
                     + "    AND l.ds_documento = '" + documento + "' \n"
                     + "    AND l.id_tipo_documento = " + tipo_documento_id + " \n"
-                    + "    AND CAST((l.nr_valor * 100) AS int) = " + Integer.valueOf(valor.toString().replaceAll(",", "").replace(".", "")),
+                    + "    AND CAST((l.nr_valor * 100) AS int) = " + Integer.valueOf(valor.toString().replaceAll(",", "").replace(".", ""))
+                    + "    AND l.id IN ( \n "
+                        + "SELECT m.id_lote \n "
+                        + "  FROM fin_movimento m \n "
+                        + " WHERE m.is_ativo = true \n "
+                        + "   AND m.id_lote = l.id \n "
+                    + " ) ",
                     Lote.class
             );
             return query.getResultList();
