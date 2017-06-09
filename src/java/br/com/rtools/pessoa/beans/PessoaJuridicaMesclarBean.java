@@ -445,8 +445,8 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 novoLog.save("ATUALIZAR RAIS: " + listRais.get(i).toString());
             }
         }
-        List<FolhaEmpresa> listFolhaEmpresamManter = new FolhaEmpresaDao().findByJuridica(manter.getPessoa().getId());
-        List<FolhaEmpresa> listFolhaEmpresamRemover = new FolhaEmpresaDao().findByJuridica(remover.getPessoa().getId());
+        List<FolhaEmpresa> listFolhaEmpresamManter = new FolhaEmpresaDao().findByJuridica(manter.getId());
+        List<FolhaEmpresa> listFolhaEmpresamRemover = new FolhaEmpresaDao().findByJuridica(remover.getId());
         if (listFolhaEmpresamManter.isEmpty()) {
             for (int i = 0; i < listFolhaEmpresamRemover.size(); i++) {
                 listFolhaEmpresamRemover.get(i).setJuridica(manter);
@@ -467,8 +467,8 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 novoLog.save("REMOVER FATURAMENTO FOLHA EMPRESA: " + listFolhaEmpresamRemover.get(i).toString());
             }
         }
-        List<Empregados> listEmpregadosManter = new EmpregadosDao().findByJuridica(manter.getPessoa().getId());
-        List<Empregados> listEmpregadosRemover = new EmpregadosDao().findByJuridica(remover.getPessoa().getId());
+        List<Empregados> listEmpregadosManter = new EmpregadosDao().findByJuridica(manter.getId());
+        List<Empregados> listEmpregadosRemover = new EmpregadosDao().findByJuridica(remover.getId());
         if (listEmpregadosManter.isEmpty()) {
             for (int i = 0; i < listEmpregadosRemover.size(); i++) {
                 listEmpregadosRemover.get(i).setJuridica(manter);
@@ -824,7 +824,7 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 novoLog.save("DELETAR RAIS: " + listRais.get(i).toString());
             }
         }
-        List<Empregados> listEmpregadosRemover = new EmpregadosDao().findByJuridica(remover.getPessoa().getId());
+        List<Empregados> listEmpregadosRemover = new EmpregadosDao().findByJuridica(remover.getId());
         for (int i = 0; i < listEmpregadosRemover.size(); i++) {
             if (!dao.delete(listEmpregadosRemover.get(i))) {
                 dao.rollback();
