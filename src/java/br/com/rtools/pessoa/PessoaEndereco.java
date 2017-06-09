@@ -110,6 +110,13 @@ public class PessoaEndereco implements java.io.Serializable {
 
         }
         try {
+            if (!this.endereco.getBairro().getDescricao().equals("")) {
+                enderecoString += ", " + this.endereco.getBairro().getDescricao();
+            }
+        } catch (Exception e) {
+
+        }
+        try {
             if (!numero.equals("")) {
                 enderecoString += ", nº " + numero + " ";
             }
@@ -150,15 +157,22 @@ public class PessoaEndereco implements java.io.Serializable {
     public String getEnderecoCompletoSemComplementoString() {
         String enderecoString = "";
         try {
-            if (!this.endereco.getLogradouro().getDescricao().equals("")) {
+            if (!this.endereco.getLogradouro().getDescricao().isEmpty()) {
                 enderecoString += this.endereco.getLogradouro().getDescricao();
             }
         } catch (Exception e) {
 
         }
         try {
-            if (!this.endereco.getDescricaoEndereco().getDescricao().equals("")) {
+            if (!this.endereco.getDescricaoEndereco().getDescricao().isEmpty()) {
                 enderecoString += " " + this.endereco.getDescricaoEndereco().getDescricao();
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (!this.endereco.getBairro().getDescricao().isEmpty()) {
+                enderecoString += ", " + this.endereco.getBairro().getDescricao();
             }
         } catch (Exception e) {
 
