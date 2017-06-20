@@ -15,30 +15,48 @@ import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
+import br.com.rtools.homologacao.Agendamento;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
+import br.com.rtools.sistema.Email;
+import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.Links;
+import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
+import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.EnviarEmail;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
 
 @ManagedBean
 @SessionScoped
@@ -136,7 +154,7 @@ public class AcordoBean implements Serializable {
             if (jur.getContabilidade() == null) {
                 GenericaMensagem.warn("Atenção", "Empresa sem contabilidade vinculada!");
                 pessoaEnvio = new Pessoa();
-                PF.openDialog("form_acordo");
+                PF.update("form_acordo");
                 return;
             }
 
@@ -156,7 +174,109 @@ public class AcordoBean implements Serializable {
         }
     }
 
-    public String send() {
+    public void send( ) {
+        if (pessoaEnvio.getEmail1().isEmpty()) {
+            GenericaMensagem.info("Validação", "Informar e-mail");
+            return;
+        }
+
+        // CARREGA A LISTAGEM DOS BOLETOS, VALORES E VENCIMENTOS
+        List<Movimento> listaImp = new ArrayList();
+        List<Float> listaValores = new ArrayList();
+        List<String> listaVencimentos = new ArrayList();
+        Registro registro = Registro.get();
+        for (int i = 0; i < listaOperado.size(); i++) {
+            listaImp.add(((Movimento) listaOperado.get(i).getArgumento2()));
+            listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
+            listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
+        }
+        if (listaImp.isEmpty() && pessoaEnvio.getId() == -1) {
+            return;
+        }
+        String filename = "";
+        String assunto = "";
+        String path = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
+        if (!new File(path + "/downloads/boletos").exists()) {
+            File file = new File(path + "/downloads/boletos");
+            file.mkdirs();
+        }
+        List<File> fls = new ArrayList<>();
+        for (int i = 0; i < listaImp.size(); i++) {
+            ImprimirBoleto imp = new ImprimirBoleto();
+            imp.imprimirBoleto(listaImp, listaValores, listaVencimentos, imprimeVerso);
+            filename = imp.criarLink(listaImp.get(i).getPessoa(), registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
+            if (listaImp.size() == 1) {
+                assunto = "Boleto " + listaImp.get(0).getServicos().getDescricao() + " N° " + listaImp.get(0).getDocumento();
+            } else {
+                assunto = "Boleto";
+            }
+            if (registro.isEnviarEmailAnexo()) {
+                fls.add(new File(imp.getPathPasta() + "/" + filename));
+            }
+            break;
+        }
+
+        try {
+            List<Pessoa> p = new ArrayList();
+            p.add(pessoaEnvio);
+            Mail mail = new Mail();
+            Email email = new Email(
+                    -1,
+                    DataHoje.dataHoje(),
+                    DataHoje.horaMinuto(),
+                    (Usuario) GenericaSessao.getObject("sessaoUsuario"),
+                    new Rotina().get(),
+                    null,
+                    assunto,
+                    "",
+                    false,
+                    false
+            );
+            if (registro.isEnviarEmailAnexo()) {
+                mail.setFiles(fls);
+                email.setMensagem("<h5>Baixe seu boleto anexado neste email</h5><br /><br />");
+            } else {
+                email.setMensagem(" <h5>Visualize seu boleto clicando no link abaixo</h5><br /><br />    "
+                        + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + filename + "" + "' target='_blank'>Clique aqui para abrir boleto</a><br />"
+                );
+            }
+            mail.setEmail(email);
+            List<EmailPessoa> emailPessoas = new ArrayList<>();
+            EmailPessoa emailPessoa = new EmailPessoa();
+            List<Pessoa> pessoas = (List<Pessoa>) p;
+            for (Pessoa p1 : pessoas) {
+                emailPessoa.setDestinatario(p1.getEmail1());
+                emailPessoa.setPessoa(p1);
+                emailPessoa.setRecebimento(null);
+                emailPessoas.add(emailPessoa);
+                mail.setEmailPessoas(emailPessoas);
+                emailPessoa = new EmailPessoa();
+            }
+            ConfiguracaoDepartamento configuracaoDepartamento;
+            if (MacFilial.getAcessoFilial().getId() != -1) {
+                configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(14, MacFilial.getAcessoFilial().getFilial().getId());
+                if (configuracaoDepartamento != null) {
+                    mail.setConfiguracaoDepartamento(configuracaoDepartamento);
+                }
+            }
+            String[] retorno = mail.send("personalizado");
+            if (!retorno[1].isEmpty()) {
+                GenericaMensagem.warn("E-mail", retorno[1]);
+            } else {
+                GenericaMensagem.info("E-mail", retorno[0]);
+            }
+            if (!mail.getEmailArquivos().isEmpty()) {
+                for(int i = 0; i < fls.size(); i++) {
+                    fls.get(i).delete();
+                }
+            }
+        } catch (Exception e) {
+            NovoLog log = new NovoLog();
+            log.live("Erro de envio de boleto acordo por e-mail: Mensagem: " + e.getMessage() + " - Causa: " + e.getCause() + " - Caminho: " + e.getStackTrace().toString());
+        }
+    }
+
+    public String sends() {
         List<Movimento> listaImp = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();

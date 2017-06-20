@@ -195,6 +195,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void loadListServicosAutorizados() {
         listServicosAutorizados = new ArrayList();
         ServicoRotinaDao srd = new ServicoRotinaDao();
+        // LIBERA EMISSÃO DE SERVIÇO COM DÉBITO (CADASTRO COM DÉBITO)
         List<Servicos> list = srd.pesquisaTodosServicosComRotinas(451);
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
