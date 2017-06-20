@@ -300,6 +300,10 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         String homologador;
         DataObject dtObj;
         Filial f = getFilialLocal();
+        if (f == null) {
+            GenericaMensagem.warn("Sistema", "Configurar filial agendamento web (Rotina Filial) e víncular as cidade das empresas.");
+            return;
+        }
         Integer status_id = idStatus;
         switch (status_id) {
             //STATUS DISPONIVEL ----------------------------------------------------------------------------------------------
@@ -386,6 +390,19 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public void salvar() {
+        Dao dao = new Dao();
+        if (agendamento.getId() != -1) {
+            if (agendamento.getDtEmissao() != null && agendamento.getDtRecusa2() == null && agendamento.getDtSolicitacao2() == null) {
+                Agendamento a = (Agendamento) dao.find(new Agendamento(), agendamento.getId());
+                a.setDtSolicitacao2(new Date());
+                dao.update(a, true);
+                agendamento = a;
+                GenericaMensagem.info("Sucesso", "Nova solicutação enviada, aguarde novamente a validação!");
+                return;
+            }
+            GenericaMensagem.warn("Sistema", "Não é possível atualizar este agendamento!");
+            return;
+        }
         registro = (Registro) new Dao().find(new Registro(), 1);
         if (!validaAdmissao()) {
             return;
@@ -394,7 +411,6 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (!validaDemissao()) {
             return;
         }
-        Dao dao = new Dao();
 
         if (listaMotivoDemissao.get(idMotivoDemissao).getDescription().equals("0")) {
             GenericaMensagem.warn("Validação", "Selecione um Motivo de Demissão!");
@@ -683,7 +699,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                             }
                             try {
                                 File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/validacao/" + juridica.getId() + "/"));
-                                if(f.exists()) {
+                                if (f.exists()) {
                                     FileUtils.deleteDirectory(f);
                                 }
                             } catch (IOException ex) {
@@ -864,7 +880,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 }
                 setAgendamentoProtocolo(agendamento);
                 tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
-                getListFiles();
+                loadListFiles();
                 break;
             }
         }
@@ -1413,13 +1429,16 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     // ARQUIVOS
-    public List getListFiles() {
+    public void loadListFiles() {
         listFiles = new ArrayList();
         if (agendamento.getId() == -1) {
             listFiles = Diretorio.listaArquivos("/Arquivos/homologacao/validacao/" + juridica.getId() + "/" + uuidDir);
         } else {
             listFiles = Diretorio.listaArquivos("Arquivos/homologacao/" + agendamento.getId());
         }
+    }
+
+    public List getListFiles() {
         return listFiles;
     }
 
@@ -1435,7 +1454,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (Upload.enviar(configuracaoUpload, true)) {
             listFiles.clear();
         }
-        getListFiles();
+        loadListFiles();
     }
 
     public void deleteFiles(int index) {
@@ -1449,7 +1468,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         fl.delete();
         listFiles.remove(index);
         listFiles.clear();
-        getListFiles();
+        loadListFiles();
         PF.update("formAgendamentoContribuinte:id_grid_uploads");
         PF.update("formAgendamentoContribuinte:id_btn_anexo");
     }

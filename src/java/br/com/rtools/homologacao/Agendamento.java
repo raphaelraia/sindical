@@ -79,6 +79,21 @@ public class Agendamento implements Serializable {
     @JoinColumn(name = "id_operador_recusa", referencedColumnName = "id")
     @ManyToOne
     private Usuario operadorRecusa;
+    @JoinColumn(name = "id_operador_recusa2", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario operadorRecusa2;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_solicitacao2")
+    private Date dtSolicitacao2;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_recusa1")
+    private Date dtRecusa1;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_recusa2")
+    private Date dtRecusa2;
+    @Lob
+    @Column(name = "ds_motivo_recusa2")
+    private String motivoRecusa2;
 
     public Agendamento() {
         this.id = -1;
@@ -99,9 +114,14 @@ public class Agendamento implements Serializable {
         this.noPrazo = true;
         this.motivoRecusa = "";
         this.operadorRecusa = null;
+        this.operadorRecusa2 = null;
+        this.dtRecusa1 = null;
+        this.dtRecusa2 = null;
+        this.dtSolicitacao2 = null;
+        this.motivoRecusa2 = "";
     }
 
-    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo, String motivoRecusa, Usuario operadorRecusa) {
+    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo, String motivoRecusa, Usuario operadorRecusa, Usuario operadorRecusa2, Date dtRecusa1, Date dtRecusa2, Date dtSolicitacao2, String motivoRecusa2) {
         this.id = id;
         this.setData(data);
         this.horarios = horarios;
@@ -120,6 +140,11 @@ public class Agendamento implements Serializable {
         this.noPrazo = noPrazo;
         this.motivoRecusa = motivoRecusa;
         this.operadorRecusa = operadorRecusa;
+        this.operadorRecusa2 = operadorRecusa2;
+        this.dtRecusa1 = dtRecusa1;
+        this.dtRecusa2 = dtRecusa2;
+        this.dtSolicitacao2 = dtSolicitacao2;
+        this.motivoRecusa2 = motivoRecusa2;
     }
 
     public int getId() {
@@ -314,5 +339,45 @@ public class Agendamento implements Serializable {
 
     public void setOperadorRecusa(Usuario operadorRecusa) {
         this.operadorRecusa = operadorRecusa;
+    }
+
+    public Usuario getOperadorRecusa2() {
+        return operadorRecusa2;
+    }
+
+    public void setOperadorRecusa2(Usuario operadorRecusa2) {
+        this.operadorRecusa2 = operadorRecusa2;
+    }
+
+    public Date getDtSolicitacao2() {
+        return dtSolicitacao2;
+    }
+
+    public void setDtSolicitacao2(Date dtSolicitacao2) {
+        this.dtSolicitacao2 = dtSolicitacao2;
+    }
+
+    public Date getDtRecusa1() {
+        return dtRecusa1;
+    }
+
+    public void setDtRecusa1(Date dtRecusa1) {
+        this.dtRecusa1 = dtRecusa1;
+    }
+
+    public Date getDtRecusa2() {
+        return dtRecusa2;
+    }
+
+    public void setDtRecusa2(Date dtRecusa2) {
+        this.dtRecusa2 = dtRecusa2;
+    }
+
+    public String getMotivoRecusa2() {
+        return motivoRecusa2;
+    }
+
+    public void setMotivoRecusa2(String motivoRecusa2) {
+        this.motivoRecusa2 = motivoRecusa2;
     }
 }

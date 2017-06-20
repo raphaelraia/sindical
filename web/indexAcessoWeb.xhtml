@@ -177,8 +177,9 @@
                         <p:messages id="i_msg_empregados" showDetail="true"/>
                     </h:panelGrid>
 
+                    <h:panelGroup id="i_p_c">
                     <h:panelGrid style="width: 100%">
-                        <p:outputLabel value="Quantidade de empregados para este mês" />
+                        <p:outputLabel value="Qtde de empregados para este mês" />
                         <p:inputMask id="i_quantidade" value="#{controleAcessoWebBean.empregados.quantidade}" style="text-align: right; width: 100%" mask="9?9999999999999" >
                             <p:ajax event="change" update="@this i_panel_quantidade" global="false"/>
                         </p:inputMask>
@@ -195,13 +196,18 @@
                     <br />
                     <h:panelGrid style="width: 100%">
                         <p:outputLabel value="Telefone da Empresa" />
-                        <p:inputText value="#{controleAcessoWebBean.pessoaContribuinte.telefone1}" style="width: 100%" styleClass="ddd_telefone">
+                        <p:inputMask value="#{controleAcessoWebBean.pessoaContribuinte.telefone1}" style="width: 100%" mask="(99) 9999-9999">
                             <p:ajax event="change" update="@this i_panel_quantidade" global="false"/>
-                        </p:inputText>
+                        </p:inputMask>
                     </h:panelGrid>
                     <br />
-                    <p:commandButton value="Salvar" update="i_msg_empregados" action="#{controleAcessoWebBean.validaEmpregados()}"/>
-                    <p:commandButton value="Cancelar" onclick="PF('dlg_empregados').hide()"/>
+                    </h:panelGroup>
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2">
+                            <p:commandButton value="Salvar" update="i_msg_empregados" action="#{controleAcessoWebBean.validaEmpregados()}"/>
+                            <p:commandButton value="Cancelar" onclick="PF('dlg_empregados').hide()"/>                            
+                        </h:panelGrid>
+                    </f:facet>
                 </p:dialog>
 
                 <p:dialog widgetVar="dlg_empregados_confirma" modal="true" header="Confirmação de Dados" resizable="false" style="width: 200px">

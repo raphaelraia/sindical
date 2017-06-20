@@ -132,7 +132,7 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:messages autoUpdate="true" id="i_msg" showDetail="true" closable="true" /> 
+                            <p:messages autoUpdate="true" id="i_msg" showDetail="true" closable="true" />
 
                             <p:panel>
                                 <h:panelGrid columns="2">
@@ -167,7 +167,7 @@
                                 <h:panelGrid id="i_panel_i_m" columns="2">
                                     <h:column>
                                         <h:outputLabel value="Tipo"/>
-                                        <p:selectOneRadio value="#{baileBean.eventoServico.mesa}">
+                                        <p:selectOneRadio value="#{baileBean.eventoServico.mesa}" disabled="#{baileBean.eventoServico.id ne -1}">
                                             <p:ajax event="change" update="formBaile" listener="#{baileBean.updateTela()}"/>
                                             <f:selectItem itemValue="false" itemLabel="Convite" />
                                             <f:selectItem itemValue="true" itemLabel="Mesa"/>
@@ -185,10 +185,10 @@
                                     </h:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid id="i_panel_tipo" columns="8">
+                                <h:panelGrid id="i_panel_tipo" columns="8">                                    
                                     <h:column>
                                         <h:outputLabel value="Serviços" /><br />
-                                        <p:selectOneMenu value="#{baileBean.idServicos}" style="padding-right: 20px">
+                                        <p:selectOneMenu value="#{baileBean.idServicos}" style="padding-right: 20px" disabled="#{baileBean.eventoServico.id ne -1}">
                                             <p:ajax event="change" update="formBaile" listener="#{baileBean.updateServicoCategoria()}"/>
                                             <f:selectItems value="#{baileBean.listaComboServicos}" />
                                         </p:selectOneMenu>
@@ -212,7 +212,7 @@
                                         </p:inputText>
                                     </h:column>
 
-                                    <h:column>
+                                    <h:column rendered="#{baileBean.eventoServicoValor.id eq -1}">
                                         <br />
                                         <p:selectBooleanCheckbox value="#{baileBean.eventoServico.socio}" itemLabel="Sócio" disabled="#{baileBean.servicos.id eq 13 or baileBean.servicos.id eq 15}">
                                             <p:ajax event="change" update="@this i_panel_tipo" listener="#{baileBean.loadCategoria()}"/>
@@ -221,19 +221,25 @@
 
                                     <h:column rendered="#{baileBean.eventoServico.socio}">
                                         <h:outputLabel value="Categoria"  style="margin-left: 20px"/><br />
-                                        <p:selectOneMenu value="#{baileBean.idCategoria}" style="margin-left: 20px; padding-right: 20px">
+                                        <p:selectOneMenu value="#{baileBean.idCategoria}" style="margin-left: 20px; padding-right: 20px" rendered="#{baileBean.eventoServicoValor.id eq -1}">
                                             <f:selectItems value="#{baileBean.listaCategoria}" />
                                         </p:selectOneMenu>
+                                        <h:outputLabel value="#{baileBean.eventoServicoValor.eventoServico.categoria.categoria}" style="margin-left: 20px" styleClass="bold"/>
                                     </h:column>
 
                                     <h:column>
                                         <br />
-                                        <p:commandButton value="Adicionar" action="#{baileBean.adicionarServico}" style="float: right; margin-left: 30px" update="i_panel_tipo tbl_s"/>
+                                        <p:commandButton value="#{baileBean.eventoServicoValor.id eq -1 ? 'Adicionar' : 'Atualizar'}" action="#{baileBean.adicionarServico}" style="float: right; margin-left: 30px" update="formBaile"/>
                                     </h:column>
                                 </h:panelGrid>
 
 
                                 <p:dataTable value="#{baileBean.listaEventoServicoValor}" var="linha" id="tbl_s" emptyMessage="Nenhum Serviço adicionado para este Baile">
+                                    
+                                    <p:column style="text-align: center; width: 40px">
+                                        <p:commandButton action="#{baileBean.editEventoServicoValor(linha)}" icon="ui-icon-pencil" update="formBaile"/>
+                                    </p:column> 
+                                    
                                     <p:column headerText="Serviços">
                                         <h:outputLabel value="#{linha.eventoServico.servicos.descricao}" />
                                     </p:column>

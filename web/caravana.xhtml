@@ -204,7 +204,7 @@
                                                     </h:panelGrid>
                                                     <h:panelGrid columns="4" cellpadding="5" rendered="#{caravanaBean.caravana.enderecoEmbarqueRetorno ne null}">
                                                         <p:outputLabel value="NÚMERO: " styleClass="bold"/>
-                                                        <p:inputText value="#{caravanaBean.caravana.numero}" size="5" styleClass="text-center">
+                                                        <p:inputText value="#{caravanaBean.caravana.numeroRetorno}" size="5" styleClass="text-center">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputText>
                                                         <p:outputLabel value="COMPLEMENTO: " styleClass="bold"/>

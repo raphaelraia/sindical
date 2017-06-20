@@ -54,6 +54,7 @@ import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.EnvioEmailsDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.JuridicaImportacaoDao;
+import br.com.rtools.pessoa.dao.JuridicaReceitaDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -266,6 +267,25 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 servicoPessoaLog += listServicoPessoaRemover.get(i).toString() + ";";
             }
         }
+        // JURÍDICA RECEITA
+        List<JuridicaReceita> listJuridicaReceita = new JuridicaReceitaDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listJuridicaReceita.size(); i++) {
+            if (!dao.delete(listJuridicaReceita.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER JURÍDICA RECEITA!");
+                return;
+            }
+        }
+        // CONTRIBUINTE INÁTIVO
+        List<ContribuintesInativos> listContribuintesInativos = new ContribuintesInativosDao().findByJuridica(remover.getId());
+        for (int i = 0; i < listContribuintesInativos.size(); i++) {
+            if (!dao.delete(listContribuintesInativos.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER CONTRIBUINTE INÁTIVO!");
+                return;
+            }
+        }
+
         // SERVIÇO PESSOA -> COBRANÇA
         listServicoPessoaRemover = new ServicoPessoaDao().listAllByCobranca(remover.getPessoa().getId());
         if (!listServicoPessoaRemover.isEmpty()) {

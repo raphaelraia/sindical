@@ -575,11 +575,24 @@
                                     </h:column>
                                 </h:panelGrid>                                 
                             </p:panel>
+                            <h:panelGrid styleClass="margin-top-max">
+                                <h:outputLabel value="PENDÊNCIAS SOLICITADAS: #{agendamentoBean.agendamento.motivoRecusa}" rendered="#{agendamentoBean.agendamento.dtRecusa1 ne null and agendamentoBean.agendamento.status.id eq 8}" styleClass="bold font-color-red"/>
+                                <h:column>
+                                    <h:outputLabel value="ENVIADA EM" rendered="#{agendamentoBean.agendamento.dtSolicitacao2 ne null}" />
+                                    <h:outputLabel value="#{agendamentoBean.agendamento.dtSolicitacao2}" rendered="#{agendamentoBean.agendamento.dtSolicitacao2 ne null}">
+                                        <f:convertDateTime />
+                                    </h:outputLabel>                                
+                                </h:column>                            
+                                <h:outputLabel value="MOTIVO RECUSA: #{agendamentoBean.agendamento.motivoRecusa}" rendered="#{agendamentoBean.agendamento.dtRecusa1 ne null and agendamentoBean.agendamento.dtRecusa2 eq null and agendamentoBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>
+                                <h:outputLabel value="MOTIVO RECUSA 2: #{agendamentoBean.agendamento.motivoRecusa2}" rendered="#{agendamentoBean.agendamento.dtRecusa2 ne null and agendamentoBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>
+                            </h:panelGrid>                            
                             <f:facet name="footer">
                                 <h:column rendered="#{agendamentoBean.agendamento.status.id eq 8}">
                                     <h:panelGrid columns="5">
                                         <p:commandButton value="VALIDAR" action="#{agendamentoBean.save('validar')}" disabled="#{controleAcessoBean.botaoSalvar}" update="formConcluirAgendamento" />
-                                        <p:commandButton value="RECUSAR" onclick="PF('dlg_recusar').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
+                                        <p:commandButton value="RECUSAR" onclick="PF('dlg_recusar').show()" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{agendamentoBean.agendamento.dtRecusa1 eq null and agendamentoBean.agendamento.dtRecusa2 eq null}"/>
+                                        <p:commandButton value="SOLICITAR PENDÊNCIAS" onclick="PF('dlg_solicitar_pendencias').show()" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{agendamentoBean.agendamento.dtRecusa1 eq null and agendamentoBean.agendamento.dtRecusa2 eq null}"/>
+                                        <p:commandButton value="RECUSAR" onclick="PF('dlg_segunda_recusa').show()" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{agendamentoBean.agendamento.dtRecusa1 ne null and agendamentoBean.agendamento.dtRecusa2 eq null}"/>
                                         <p:commandButton value="Anexos (#{agendamentoBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads"/> 
                                         <p:commandButton value="Voltar" actionListener="#{agendamentoBean.setVisibleModal(false)}" update="formConcluirAgendamento" onclick="PF('dlg_agendamento').hide()"/>
                                     </h:panelGrid>
@@ -625,12 +638,38 @@
                         <p:dialog widgetVar="dlg_recusar" header="Deseja realmente RECUSAR essa Homologação?" resizable="false" modal="true">
                             <h:panelGrid columns="1" style="width: 100%">
                                 <h:outputLabel value="Digite o motivo para a recusa" style="color: red"/>
-                                <p:inputTextarea value="#{agendamentoBean.agendamento.motivoRecusa}" rows="3" style="width: 100%"/>
+                                <p:inputTextarea value="#{agendamentoBean.motivoRecusaDireto}" rows="3" style="width: 100%"/>
                             </h:panelGrid>                                
                             <f:facet name="footer">
                                 <h:panelGrid columns="2">
                                     <p:commandButton value="CONFIRMAR" action="#{agendamentoBean.save('recusar')}" disabled="#{controleAcessoBean.botaoSalvar}" update="formConcluirAgendamento" />
                                     <p:commandButton value="Não" onclick="PF('dlg_recusar').hide()" icon="ui-icon-close"/>
+                                </h:panelGrid>                                
+                            </f:facet>
+                        </p:dialog>
+
+                        <p:dialog widgetVar="dlg_solicitar_pendencias" header="Solicitar pendências para essa Homologação?" resizable="false" modal="true">
+                            <h:panelGrid columns="1" style="width: 100%">
+                                <h:outputLabel value="Digite o motivo para a solicitação" style="color: red"/>
+                                <p:inputTextarea value="#{agendamentoBean.motivoRecusa1}" rows="3" style="width: 100%"/>
+                            </h:panelGrid>                                
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="CONFIRMAR" action="#{agendamentoBean.save('solicitar_pendencias')}" disabled="#{controleAcessoBean.botaoSalvar}" update="formConcluirAgendamento" />
+                                    <p:commandButton value="Não" onclick="PF('dlg_solicitar_pendencias').hide()" icon="ui-icon-close"/>
+                                </h:panelGrid>                                
+                            </f:facet>
+                        </p:dialog>   
+
+                        <p:dialog widgetVar="dlg_segunda_recusa" header="Deseja realmente RECUSAR essa Homologação?" resizable="false" modal="true">
+                            <h:panelGrid columns="1" style="width: 100%">
+                                <h:outputLabel value="Digite o motivo para a recusa" style="color: red"/>
+                                <p:inputTextarea value="#{agendamentoBean.motivoRecusa2}" rows="3" style="width: 100%"/>
+                            </h:panelGrid>                                
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="CONFIRMAR" action="#{agendamentoBean.save('segunda_recusa')}" disabled="#{controleAcessoBean.botaoSalvar}" update="formConcluirAgendamento" />
+                                    <p:commandButton value="Não" onclick="PF('dlg_segunda_recusa').hide()" icon="ui-icon-close"/>
                                 </h:panelGrid>                                
                             </f:facet>
                         </p:dialog>                        
