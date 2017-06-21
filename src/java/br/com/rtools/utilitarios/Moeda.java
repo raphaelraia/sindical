@@ -107,10 +107,10 @@ public final class Moeda {
         if ($dolar.length() >= 3) {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
             if (!wponto.equals(",")) {
-                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+                $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
             }
         } else {
-            $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+            $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
         }
         return converteR$($dolar, 0);
     }
@@ -126,18 +126,18 @@ public final class Moeda {
             if ($dolar.length() >= 3) {
                 String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
                 if (!wponto.equals(",")) {
-                    $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+                    $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), df);
                 }
             } else {
-                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+                $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), df);
             }
         } else if ($dolar.length() >= 3) {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
             if (!wponto.equals(",")) {
-                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+                $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
             }
         } else {
-            $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+            $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
         }
         return $dolar;
     }

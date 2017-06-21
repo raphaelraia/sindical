@@ -965,13 +965,13 @@ public class BaixaGeralBean implements Serializable {
             if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento") != null) {
                 listaMovimentos = (List) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento");
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("listaMovimento");
-                float valorTotal = 0;
+                double valorTotal = 0;
 
                 if (total.equals("0,00")) {
                     for (int i = 0; i < listaMovimentos.size(); i++) {
-                        valorTotal = Moeda.somaValores(valorTotal, listaMovimentos.get(i).getValorBaixa());
+                        valorTotal = Moeda.soma(valorTotal, listaMovimentos.get(i).getValorBaixa());
                     }
-                    total = Moeda.converteR$Float(valorTotal);
+                    total = Moeda.converteR$Double(valorTotal);
                     valor = total;
                 }
             }
