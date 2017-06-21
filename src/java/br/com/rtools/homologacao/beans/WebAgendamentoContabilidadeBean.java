@@ -279,7 +279,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (stop) {
             return;
         }
-        listaHorarios.clear();
+        listaHorarios = new ArrayList();
 
         if (!getMindate().isEmpty() && idStatus == 1) {
             DataHoje dh = new DataHoje();
@@ -610,6 +610,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 }
                 tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
                 visibleModal = true;
+                loadListFiles();
                 break;
             }
         }
@@ -643,6 +644,18 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void salvar() {
+        Dao dao = new Dao();
+        if (agendamento.getId() != -1) {
+            if (agendamento.getDtEmissao() != null && agendamento.getDtRecusa2() == null && agendamento.getDtSolicitacao2() == null) {
+                Agendamento a = (Agendamento) dao.find(new Agendamento(), agendamento.getId());
+                a.setDtSolicitacao2(new Date());
+                dao.update(a, true);
+                agendamento = a;
+                GenericaMensagem.info("Sucesso", "Nova solicutação enviada, aguarde novamente a validação!");
+            }
+            GenericaMensagem.warn("Sistema", "Não é possível atualizar este agendamento!");
+            return;
+        }
         if (!validaAdmissao()) {
             return;
         }
@@ -650,7 +663,6 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (!validaDemissao()) {
             return;
         }
-        Dao dao = new Dao();
 
         if (listaMotivoDemissao.get(idMotivoDemissao).getDescription().equals("0")) {
             GenericaMensagem.warn("Validação", "Selecione um Motivo de Demissão!");
@@ -940,7 +952,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                             }
                             try {
                                 File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/homologacao/validacao/" + empresa.getId() + "/"));
-                                if(f.exists()) {
+                                if (f.exists()) {
                                     FileUtils.deleteDirectory(f);
                                 }
                             } catch (IOException ex) {
@@ -1456,13 +1468,16 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     // ARQUIVOS
-    public List getListFiles() {
+    public void loadListFiles() {
         listFiles = new ArrayList();
         if (agendamento.getId() == -1) {
             listFiles = Diretorio.listaArquivos("/Arquivos/homologacao/validacao/" + empresa.getId() + "/" + uuidDir);
         } else {
             listFiles = Diretorio.listaArquivos("Arquivos/homologacao/" + agendamento.getId());
         }
+    }
+
+    public List getListFiles() {
         return listFiles;
     }
 
@@ -1478,7 +1493,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (Upload.enviar(configuracaoUpload, true)) {
             listFiles.clear();
         }
-        getListFiles();
+        loadListFiles();
     }
 
     public void deleteFiles(int index) {
@@ -1492,7 +1507,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         fl.delete();
         listFiles.remove(index);
         listFiles.clear();
-        getListFiles();
+        loadListFiles();
         PF.update("formAgendamentoContabilidade:id_grid_uploads");
         PF.update("formAgendamentoContabilidade:id_btn_anexo");
     }

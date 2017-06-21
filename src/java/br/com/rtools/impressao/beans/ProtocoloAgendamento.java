@@ -59,6 +59,10 @@ public class ProtocoloAgendamento implements Serializable {
     }
 
     public void enviar(Agendamento a) {
+        enviar(a, null);
+    }
+
+    public void enviar(Agendamento a, Integer status_id) {
         if (a.getEmail().isEmpty()) {
             GenericaMensagem.info("Validação", "Informar e-mail");
             return;
@@ -111,6 +115,7 @@ public class ProtocoloAgendamento implements Serializable {
                     false,
                     false
             );
+            mail.setEmail(email);
             if (registro.isEnviarEmailAnexo()) {
                 List<File> fls = new ArrayList<>();
                 fls.add(new File(fileEnvioProtocolo));
@@ -121,7 +126,23 @@ public class ProtocoloAgendamento implements Serializable {
                         + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=envio_protocolo_" + a.getId() + ".pdf" + "' target='_blank'>Clique aqui para abrir seu protocolo</a><br />"
                 );
             }
-            mail.setEmail(email);
+            if (status_id != null && status_id == 8) {
+                String htmlString = "";
+                htmlString = ""
+                        + "<html>"
+                        + "     <body style='background-color: white'>"
+                        + "         <p> <b>CONFIRMAÇÃO de solicitação de agendamento de homologação referente aos dados abaixo </b> </p>"
+                        + "         <p> <b>Razão Social</b>: " + a.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " </p>"
+                        + "         <p> <b>CNPJ</b>: " + a.getPessoaEmpresa().getJuridica().getPessoa().getDocumento() + " </p>"
+                        + "         <p> <b>Funcionário</b>: " + a.getPessoaEmpresa().getFisica().getPessoa().getNome() + " </p>"
+                        + "         <p> <b>CPF</b>: " + a.getPessoaEmpresa().getFisica().getPessoa().getDocumento() + " </p>"
+                        + "         <p> <b>Protocolo nº " + a.getId() + "</b> </p>"
+                        + "         <p> <b>A/C: </b>: " + a.getContato() + " </p>"
+                        + "         <br /><br />"
+                        + "     </body>"
+                        + "</html>";
+                mail.setHtml(htmlString);
+            }
             List<EmailPessoa> emailPessoas = new ArrayList<>();
             EmailPessoa emailPessoa = new EmailPessoa();
             List<Pessoa> pessoas = (List<Pessoa>) p;

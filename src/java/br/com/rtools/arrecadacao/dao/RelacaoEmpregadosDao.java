@@ -24,7 +24,7 @@ public class RelacaoEmpregadosDao extends DB {
                     + "     SELECT *                                            \n"
                     + "       FROM arr_pendencia_relacao_empregados_vw PRE      \n"
                     + "      WHERE PRE.id_pessoa = " + pessoa_id + "            \n"
-                    + "   ORDER BY ds_referncia DESC                            ";
+                    + "   ORDER BY ds_referencia DESC                           ";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

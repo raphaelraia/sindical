@@ -15,6 +15,9 @@
             .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
                 background: #ECF3FE;
             }
+            .tblNovaChance{
+                background-color: #ffde58!important;
+            }            
         </style>
 
         <script type="text/javascript">
@@ -37,7 +40,7 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid columns="2">
                             <h:panelGroup id="i_dates" layout="block"> 
-                                <p:calendar size="8" value="#{webAgendamentoContribuinteBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" mindate="#{webAgendamentoContribuinteBean.mindate}" maxdate="#{webAgendamentoContribuinteBean.maxdate}">
+                                <p:calendar size="8" value="#{webAgendamentoContribuinteBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" mindate="#{webAgendamentoContribuinteBean.mindate}" maxdate="#{webAgendamentoContribuinteBean.maxdate}" rendered="#{webAgendamentoContribuinteBean.idStatus ne 8}">
                                     <p:ajax event="dateSelect" update="@this tbl" listener="#{webAgendamentoContribuinteBean.clearHorarios}"/>
                                     <p:ajax event="change" update="@this tbl i_dates" listener="#{webAgendamentoContribuinteBean.clearHorarios}"/>
                                 </p:calendar>
@@ -63,16 +66,20 @@
                         <p:commandLink value="(Alterar)" onclick="PF('dlg_local').show()" update="i_filial" global="false" rendered="#{webAgendamentoContribuinteBean.listFilial.size() > 1}"/>
 
                     </h:panelGrid>
-                    <p:dataTable value="#{webAgendamentoContribuinteBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max">
+                    <p:dataTable value="#{webAgendamentoContribuinteBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max" rowStyleClass="#{(webAgendamentoContribuinteBean.idStatus eq 8 and linha.argumento9.dtRecusa1 ne null and linha.argumento9.dtSolicitacao2 eq null) ? 'tblNovaChance' : ''}">
                         <p:column width="15">  
                             <p:rowToggler />  
                         </p:column> 
 
-                        <p:column headerText="Horários" width="60" style="text-align: center">
+                        <p:column headerText="Horários" width="60" style="text-align: center" rendered="#{webAgendamentoContribuinteBean.idStatus ne 8}">
                             <p:commandLink action="#{webAgendamentoContribuinteBean.agendar(linha)}" value="#{linha.argumento0.hora}" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
                         </p:column>
 
-                        <p:column headerText="Quant." width="40" style="text-align: center" rendered="#{webAgendamentoContabilidadeBean.idStatus == 1}">
+                        <p:column headerText="Solicitação" width="70" style="text-align: center" rendered="#{webAgendamentoContribuinteBean.idStatus eq 8}">
+                            <p:commandLink action="#{webAgendamentoContribuinteBean.agendar(linha)}" value="#{linha.argumento9.emissao}" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
+                        </p:column>
+
+                        <p:column headerText="Quant." width="40" style="text-align: center" rendered="#{webAgendamentoContribuinteBean.idStatus eq 1}">
                             <h:outputText value="#{linha.argumento8}"/>
                         </p:column>
 
@@ -80,17 +87,19 @@
                             <h:outputText value="#{linha.argumento1}"/>
                         </p:column>
 
-                        <p:column headerText="Empresa" width="280">
+                        <p:column headerText="Empresa" width="200">
                             <h:outputText value="#{linha.argumento2}" style="font-size: 8pt!important"/>
                         </p:column>
 
                         <p:column headerText="Funcionário" width="200">
                             <h:outputText value="#{linha.argumento7.fisica.pessoa.nome}" style="font-size: 8pt!important"/>
                         </p:column>
-
+                        
                         <p:column headerText="Imprimir Protocolo" style="text-align: center" width="80" rendered="#{webAgendamentoContabilidadeBean.idStatus == 2}">
                             <p:commandLink action="#{protocoloAgendamento.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento9.id}" rendered="#{webAgendamentoContribuinteBean.idStatus == 2}" ajax="false"/>
                         </p:column>
+
+
 
                         <p:rowExpansion>
                             <h:panelGrid columns="5" styleClass="sbb">
@@ -415,17 +424,31 @@
                             </h:panelGrid>
                         </p:panel>
 
-                        <h:outputLabel value="** CONFIRA AS INFORMAÇÕES LANÇADAS. EM CASO DE ERRO ENTRAR EM CONTATO COM O SINDICATO **" style="color: red"/>
+                        <h:panelGrid>
+                            <h:outputLabel value="** CONFIRA AS INFORMAÇÕES LANÇADAS. EM CASO DE ERRO ENTRAR EM CONTATO COM O SINDICATO **" style="color: red"/>
+                            <br />
+                            <h:outputLabel value="PENDÊNCIAS SOLICITADAS: #{webAgendamentoContribuinteBean.agendamento.motivoRecusa}" rendered="#{webAgendamentoContribuinteBean.agendamento.dtRecusa1 ne null and webAgendamentoContribuinteBean.agendamento.status.id eq 8}" styleClass="bold font-color-red"/>
+                            <h:column>
+                                <h:outputLabel value="ENVIADA EM" rendered="#{webAgendamentoContribuinteBean.agendamento.dtSolicitacao2 ne null}" />
+                                <h:outputLabel value="#{webAgendamentoContribuinteBean.agendamento.dtSolicitacao2}" rendered="#{webAgendamentoContribuinteBean.agendamento.dtSolicitacao2 ne null}">
+                                    <f:convertDateTime />
+                                </h:outputLabel>                                
+                            </h:column>
+                            <h:outputLabel value="MOTIVO RECUSA: #{webAgendamentoContribuinteBean.agendamento.motivoRecusa}" rendered="#{webAgendamentoContribuinteBean.agendamento.dtRecusa1 ne null and webAgendamentoContribuinteBean.agendamento.dtRecusa2 eq null and webAgendamentoContribuinteBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>
+                            <h:outputLabel value="MOTIVO RECUSA 2: #{webAgendamentoContribuinteBean.agendamento.motivoRecusa2}" rendered="#{webAgendamentoContribuinteBean.agendamento.dtRecusa2 ne null and webAgendamentoContribuinteBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>                            
+                        </h:panelGrid>
+                        
 
                         <f:facet name="footer">
                             <h:panelGrid columns="2" style="width: 100%">
                                 <h:column>
-                                    <h:panelGrid columns="5">
+                                    <h:panelGrid columns="6">
                                         <p:commandButton value="Agendar" action="#{webAgendamentoContribuinteBean.salvar}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:tbl :formAgendamentoContribuinte:i_panel_agendamento"/>
+                                        <p:commandButton value="Reenviar Pendências" action="#{webAgendamentoContribuinteBean.salvar}" rendered="#{webAgendamentoContribuinteBean.agendamento.id != -1 and webAgendamentoContribuinteBean.agendamento.status.id eq 8 and webAgendamentoContribuinteBean.agendamento.dtRecusa1 ne null and webAgendamentoContribuinteBean.agendamento.dtSolicitacao2 eq null}" update=":formAgendamentoContribuinte:tbl :formAgendamentoContribuinte:i_panel_agendamento"/>
                                         <p:commandButton value="Novo" action="#{webAgendamentoContribuinteBean.limpar()}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
                                         <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContribuinteBean.setVisibleModal(false)}" global="false" update="formAgendamentoContribuinte"/>
-                                        <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" rendered="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContribuinteBean.agendamento.id ne -1}"/>
-                                        <p:commandButton value="Anexos (#{webAgendamentoContribuinteBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads" rendered="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContribuinteBean.agendamento.id ne -1}"/>                                         
+                                        <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" rendered="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContribuinteBean.agendamento.id ne -1 and webAgendamentoContribuinteBean.agendamento.status.id ne 8}"/>
+                                        <p:commandButton value="Anexos (#{webAgendamentoContribuinteBean.listFiles.size()})" action="#{webAgendamentoContribuinteBean.loadListFiles}" oncomplete="PF('dgl_anexos').show()" id="id_btn_anexo" update="id_grid_uploads" rendered="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContribuinteBean.agendamento.id ne -1 and webAgendamentoContribuinteBean.agendamento.status.id ne 8}"/>
                                     </h:panelGrid>                                    
                                 </h:column>
 
@@ -436,14 +459,14 @@
                         </f:facet>
                     </h:panelGrid>
                 </p:dialog>
-                
+
 
                 <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" >
                     <h:panelGrid id="id_grid_uploads" style="width: 350px">
                         <p:dataTable value="#{webAgendamentoContribuinteBean.listFiles}" var="lista" emptyMessage="Nenhum arquivo encontrado">
-                            <f:facet name="header">Documentos anexados (#{webAgendamentoContribuinteBean.listFiles.size()})</f:facet>
+                            <f:facet name="header">Documentos anexados (#{webAgendamentoContabilidadeBean.listFiles.size()})</f:facet>
                             <p:column headerText="Nome arquivo" width="300">
-                                <a href="#{facesContext.externalContext.requestContextPath}/Cliente/#{controleUsuarioBean.clienteString}/Arquivos/homologacao/#{(webAgendamentoContribuinteBean.agendamento.id ne -1 ? webAgendamentoContribuinteBean.agendamento.id : (('validacao/').concat(webAgendamentoContribuinteBean.juridica.id).concat('/').concat(webAgendamentoContribuinteBean.fisica.getId()).concat('/')))}#{lista.argumento1}" target="_blank"  style="float: right">
+                                <a href="#{facesContext.externalContext.requestContextPath}/Cliente/#{controleUsuarioBean.clienteString}Arquivos/homologacao/#{(webAgendamentoContribuinteBean.agendamento.id ne -1 ? webAgendamentoContribuinteBean.agendamento.id : (('validacao/').concat(webAgendamentoContribuinteBean.juridica.id).concat('/').concat(webAgendamentoContribuinteBean.fisica.getId()).concat('/')))}/#{lista.argumento1}" target="_blank"  style="float: right">
                                     #{lista.argumento1}
                                 </a>
                             </p:column>

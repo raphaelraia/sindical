@@ -125,8 +125,14 @@ public class BaileBean implements Serializable {
         if (eventoBaile.getId() == -1) {
             result = new Dao().list(new Categoria());
         } else {
+            Integer servico_id = null;
+            if (eventoServico.getId() == -1) {
+                servico_id = Integer.valueOf(listaComboServicos.get(idServicos).getDescription());
+            } else {
+                servico_id = eventoServico.getServicos().getId();
+            }
             result = new BaileDao().listaCategoriaPorEventoServico(
-                    Integer.valueOf(listaComboServicos.get(idServicos).getDescription()),
+                    servico_id,
                     eventoServicoValor.getSexo(),
                     eventoServicoValor.getIdadeInicial(),
                     eventoServicoValor.getIdadeFinal(),
@@ -559,15 +565,16 @@ public class BaileBean implements Serializable {
             return;
         }
 
-        if (eventoServico.isSocio() && listaCategoria.isEmpty()) {
-            GenericaMensagem.warn("Atenção", "Lista de Categoria Vazia!");
-            return;
-        }
-
-        if (Integer.parseInt(listaComboServicos.get(idServicos).getDescription()) == 0 || Integer.parseInt(listaComboServicos.get(idServicos).getDescription()) == -1) {
-            msgConfirma = "Escolha um serviço válido!";
-            GenericaMensagem.warn("Erro", msgConfirma);
-            return;
+        if (eventoServicoValor.getId() == -1) {
+            if (eventoServico.isSocio() && listaCategoria.isEmpty()) {
+                GenericaMensagem.warn("Atenção", "Lista de Categoria Vazia!");
+                return;
+            }
+            if (Integer.parseInt(listaComboServicos.get(idServicos).getDescription()) == 0 || Integer.parseInt(listaComboServicos.get(idServicos).getDescription()) == -1) {
+                msgConfirma = "Escolha um serviço válido!";
+                GenericaMensagem.warn("Erro", msgConfirma);
+                return;
+            }
         }
 
         if (eventoServicoValor.getValor() < 0) {
@@ -590,28 +597,42 @@ public class BaileBean implements Serializable {
 
         BaileDao baileDao = new BaileDao();
 
-        if (baileDao.pesquisaEventoServico(Integer.valueOf(listaComboServicos.get(idServicos).getDescription()),
-                (eventoServico.isSocio()) ? Integer.valueOf(listaCategoria.get(idCategoria).getDescription()) : null, evento.getId(),
-                eventoServicoValor.getIdadeInicial(),
-                eventoServicoValor.getIdadeFinal(),
-                eventoServicoValor.getSexo()
-        ) != null) {
-            GenericaMensagem.warn("Atenção", "Evento Serviço já adicionado!");
-            return;
-        }
+        Integer categoria_id = null;
+        Integer servicos_id = null;
 
+        if (eventoServicoValor.getId() == -1) {
+            categoria_id = Integer.valueOf(listaCategoria.get(idCategoria).getDescription());
+            servicos_id = Integer.valueOf(listaComboServicos.get(idServicos).getDescription());
+        } else {
+            categoria_id = eventoServicoValor.getEventoServico().getCategoria().getId();
+            servicos_id = eventoServicoValor.getEventoServico().getServicos().getId();
+
+        }
+        if (eventoServicoValor.getId() == -1) {
+            if (baileDao.pesquisaEventoServico(servicos_id,
+                    eventoServico.isSocio() ? categoria_id : null,
+                    evento.getId(),
+                    eventoServicoValor.getIdadeInicial(),
+                    eventoServicoValor.getIdadeFinal(),
+                    eventoServicoValor.getSexo()
+            ) != null) {
+                GenericaMensagem.warn("Atenção", "Evento Serviço já adicionado!");
+                return;
+            }
+        }
         Dao dao = new Dao();
 
-        eventoServico.setServicos(((Servicos) dao.find(new Servicos(), Integer.parseInt(listaComboServicos.get(idServicos).getDescription()))));
+        if (eventoServicoValor.getId() == -1) {
+            eventoServico.setServicos(((Servicos) dao.find(new Servicos(), Integer.parseInt(listaComboServicos.get(idServicos).getDescription()))));
+            if (eventoServico.isSocio()) {
+                eventoServico.setCategoria((Categoria) dao.find(new Categoria(), Integer.valueOf(listaCategoria.get(idCategoria).getDescription())));
+            } else {
+                eventoServico.setCategoria(null);
+            }
 
-        if (eventoServico.isSocio()) {
-            eventoServico.setCategoria((Categoria) dao.find(new Categoria(), Integer.valueOf(listaCategoria.get(idCategoria).getDescription())));
-        } else {
-            eventoServico.setCategoria(null);
+            eventoServicoValor.setId(-1);
+            eventoServico.setId(-1);
         }
-
-        eventoServicoValor.setId(-1);
-        eventoServico.setId(-1);
 
         if (eventoServicoValor.getId() == -1) {
             dao.openTransaction();
@@ -642,6 +663,38 @@ public class BaileBean implements Serializable {
 
             loadCategoria();
 
+        } else {
+            dao.openTransaction();
+            if (!dao.update(eventoServico)) {
+                msgConfirma = "Serviço não pode ser atualizado!";
+                GenericaMensagem.warn("Erro", msgConfirma);
+                dao.rollback();
+            }
+            if (!dao.update(eventoServicoValor)) {
+                msgConfirma = "Serviço Valor não pode ser atualizado!";
+                GenericaMensagem.warn("Erro", msgConfirma);
+                dao.rollback();
+            }
+            listaEventoServicoValor.clear();
+            msgConfirma = "Serviço atualizado!";
+            GenericaMensagem.info("Sucesso", msgConfirma);
+            dao.commit();
+
+            loadCategoria();
+
+        }
+        eventoServico = new EventoServico();
+        eventoServicoValor = new EventoServicoValor();
+    }
+
+    public void editEventoServicoValor(EventoServicoValor esv) {
+        eventoServicoValor = (EventoServicoValor) new Dao().rebind(esv);
+        eventoServico = eventoServicoValor.getEventoServico();
+        for (int i = 0; i < listaComboServicos.size(); i++) {
+            if (eventoServicoValor.getEventoServico().getServicos().getId() == Integer.parseInt(listaComboServicos.get(i).getDescription())) {
+                idServicos = eventoServicoValor.getEventoServico().getServicos().getId();
+                break;
+            }
         }
     }
 
@@ -651,12 +704,12 @@ public class BaileBean implements Serializable {
         if (excluirEventoServico(esv.getId(), dao)) {
             listaEventoServicoValor.clear();
             eventoServicoValor = new EventoServicoValor();
-            msgConfirma = "Serviço removida com sucesso";
+            GenericaMensagem.info("Sucesso", "Serviço removido com sucesso! Editar valores");
             dao.commit();
 
             loadCategoria();
         } else {
-            msgConfirma = "Serviço não pode ser removido!";
+            GenericaMensagem.warn("Atenção", "Serviço não pode ser removido!");
             dao.rollback();
         }
         return null;

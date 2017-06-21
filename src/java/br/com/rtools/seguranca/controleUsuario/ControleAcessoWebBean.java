@@ -171,7 +171,7 @@ public class ControleAcessoWebBean implements Serializable {
         }
 
         PF.openDialog("dlg_empregados_confirma");
-        PF.update("i_panel_quantidade");
+        PF.update("i_form_empregado:i_panel_quantidade");
     }
 
     public Pessoa getPessoaContribuinte() {
@@ -821,12 +821,13 @@ public class ControleAcessoWebBean implements Serializable {
             return null;
         }
 
-        empregados = db.pesquisaEmpregados(juridica.getId());
+        Empregados e = db.pesquisaEmpregados(juridica.getId());
 
-        if (empregados == null) {
+        if (e == null) {
             empregados = new Empregados();
-            PF.update(":i_form_empregado");
+            // PF.update(":i_form_empregado");
             PF.openDialog("dlg_empregados");
+            PF.update("i_form_empregado:i_p_c");
             return null;
         }
 

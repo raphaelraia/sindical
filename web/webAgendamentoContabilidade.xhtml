@@ -15,6 +15,9 @@
             .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
                 background: #ECF3FE;
             }
+            .tblNovaChance{
+                background-color: #ffde58!important;
+            } 
         </style>
 
         <script type="text/javascript">
@@ -36,8 +39,8 @@
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid columns="3">
-                            <h:panelGroup id="i_dates" layout="block">
-                                <p:calendar size="8" value="#{webAgendamentoContabilidadeBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" mindate="#{webAgendamentoContabilidadeBean.mindate}" maxdate="#{webAgendamentoContabilidadeBean.maxdate}">
+                            <h:panelGroup id="i_dates" layout="block">rendered="#{webAgendamentoContabilidadeBean.idStatus ne 8}"
+                                <p:calendar size="8" value="#{webAgendamentoContabilidadeBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" mindate="#{webAgendamentoContabilidadeBean.mindate}" maxdate="#{webAgendamentoContabilidadeBean.maxdate}" rendered="#{webAgendamentoContabilidadeBean.idStatus ne 8}">
                                     <p:ajax event="dateSelect" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                                     <p:ajax event="change" update="tbl id_msg_web i_dates" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                                 </p:calendar>
@@ -66,7 +69,7 @@
                     </h:panelGroup>
                 </h:panelGrid>
 
-                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false" stop="#{agendamentoBean.visibleModal}" autoStart="true" ignoreAutoUpdate="true" delay="10" />
+                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false" stop="#{webAgendamentoContabilidadeBean.visibleModal}" autoStart="true" ignoreAutoUpdate="true" delay="10" />
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <p:messages  id="id_msg_web" closable="true" showDetail="true"/>
@@ -74,16 +77,20 @@
 
                 <h:panelGroup style="margin: 0 auto; width: 1024px" id="tbl" layout="block" styleClass="margin-top-max">
                     <p:outputLabel value="LOCAL: #{webAgendamentoContabilidadeBean.filialLocal.filial.fantasia}" />
-                    <p:dataTable value="#{webAgendamentoContabilidadeBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max">
+                    <p:dataTable value="#{webAgendamentoContabilidadeBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max" rowStyleClass="#{(webAgendamentoContabilidadeBean.idStatus eq 8 and linha.argumento9.dtRecusa1 ne null and  linha.argumento9.dtSolicitacao2 eq null) ? 'tblNovaChance' : ''}">
                         <p:column width="15">  
                             <p:rowToggler />  
                         </p:column> 
 
-                        <p:column headerText="Horários" width="60" style="text-align: center">
+                        <p:column headerText="Horários" width="60" style="text-align: center" rendered="#{webAgendamentoContabilidadeBean.idStatus ne 8}">
                             <p:commandLink action="#{webAgendamentoContabilidadeBean.agendar(linha)}" value="#{linha.argumento0.hora}" update=":formAgendamentoContabilidade:i_panel_agendamento :formAgendamentoContabilidade:id_msg_web"/>
                         </p:column>
 
-                        <p:column width="70" style="text-align: center">
+                        <p:column headerText="Solicitação" width="60" style="text-align: center" rendered="#{webAgendamentoContabilidadeBean.idStatus eq 8}">
+                            <p:commandLink action="#{webAgendamentoContabilidadeBean.agendar(linha)}" value="#{linha.agendamento9.emissao}" update=":formAgendamentoContabilidade:i_panel_agendamento :formAgendamentoContabilidade:id_msg_web"/>
+                        </p:column>
+
+                        <p:column width="70" style="text-align: center" rendered="#{webAgendamentoContabilidadeBean.idStatus eq 1}">
                             <h:outputText value="#{linha.argumento8}"/>
                         </p:column>
 
@@ -99,9 +106,14 @@
                             <h:outputText value="#{linha.argumento7.fisica.pessoa.nome}" style="font-size: 8pt!important"/>
                         </p:column>
 
+                        <p:column headerText="Motivo da Recusa" rendered="#{(webAgendamentoContabilidadeBean.idStatus eq 8 and linha.argumento9.dtRecusa1 ne null)}">
+                            #{linha.argumento9.motivoRecusa}
+                        </p:column>  
+
                         <p:column headerText="Imprimir Protocolo" style="text-align: center" width="80">
                             <p:commandLink action="#{protocoloAgendamento.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento9.id}" rendered="#{webAgendamentoContabilidadeBean.idStatus == 2}" ajax="false"/>
                         </p:column>
+
 
                         <p:rowExpansion>
                             <h:panelGrid columns="5" styleClass="sbb">
@@ -414,16 +426,29 @@
                             </h:panelGrid>
                         </p:panel>
 
-                        <h:outputLabel value="** CONFIRA AS INFORMAÇÕES LANÇADAS. EM CASO DE ERRO ENTRAR EM CONTATO COM O SINDICATO **" style="color: red"/>
+                        <h:panelGrid>
+                            <h:outputLabel value="** CONFIRA AS INFORMAÇÕES LANÇADAS. EM CASO DE ERRO ENTRAR EM CONTATO COM O SINDICATO **" style="color: red"/>
+                            <br />
+                            <h:outputLabel value="PENDÊNCIAS SOLICITADAS: #{webAgendamentoContabilidadeBean.agendamento.motivoRecusa}" rendered="#{webAgendamentoContabilidadeBean.agendamento.dtRecusa1 ne null and webAgendamentoContabilidadeBean.agendamento.status.id eq 8}" styleClass="bold font-color-red"/>
+                            <h:column>
+                                <h:outputLabel value="ENVIADA EM" rendered="#{webAgendamentoContabilidadeBean.agendamento.dtSolicitacao2 ne null}" />
+                                <h:outputLabel value="#{webAgendamentoContabilidadeBean.agendamento.dtSolicitacao2}" rendered="#{webAgendamentoContabilidadeBean.agendamento.dtSolicitacao2 ne null}">
+                                    <f:convertDateTime />
+                                </h:outputLabel>                                
+                            </h:column>                            
+                            <h:outputLabel value="MOTIVO RECUSA: #{webAgendamentoContabilidadeBean.agendamento.motivoRecusa}" rendered="#{webAgendamentoContabilidadeBean.agendamento.dtRecusa1 ne null and webAgendamentoContabilidadeBean.agendamento.dtRecusa2 eq null and webAgendamentoContabilidadeBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>
+                            <h:outputLabel value="MOTIVO RECUSA 2: #{webAgendamentoContabilidadeBean.agendamento.motivoRecusa2}" rendered="#{webAgendamentoContabilidadeBean.agendamento.dtRecusa2 ne null and webAgendamentoContabilidadeBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>
+                        </h:panelGrid>
 
                         <h:panelGrid columns="2" style="width: 100%">
                             <h:column>
-                                <h:panelGrid columns="5">
+                                <h:panelGrid columns="6">
                                     <p:commandButton value="Agendar" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
+                                    <p:commandButton value="Reenviar Pendências" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id != -1 and webAgendamentoContabilidadeBean.agendamento.status.id eq 8 and webAgendamentoContabilidadeBean.agendamento.dtRecusa1 ne null and webAgendamentoContabilidadeBean.agendamento.dtSolicitacao2 eq null}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
                                     <p:commandButton value="Novo" action="#{webAgendamentoContabilidadeBean.limpar()}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
                                     <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContabilidadeBean.setVisibleModal(false)}" update=":formAgendamentoContabilidade:"/>                                    
-                                    <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1}"/>
-                                    <p:commandButton value="Anexos (#{webAgendamentoContabilidadeBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1}"/> 
+                                    <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1 and webAgendamentoContabilidadeBean.agendamento.status.id ne 8}"/>
+                                    <p:commandButton value="Anexos (#{webAgendamentoContabilidadeBean.listFiles.size()})" action="#{webAgendamentoContabilidadeBean.loadListFiles}" oncomplete="PF('dgl_anexos').show()" id="id_btn_anexo" update="id_grid_uploads" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentoObrigatorio}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1 and webAgendamentoContabilidadeBean.agendamento.status.id ne 8}"/> 
                                 </h:panelGrid>
                             </h:column>
 
@@ -439,7 +464,7 @@
                         <p:dataTable value="#{webAgendamentoContabilidadeBean.listFiles}" var="lista" emptyMessage="Nenhum arquivo encontrado">
                             <f:facet name="header">Documentos anexados (#{webAgendamentoContabilidadeBean.listFiles.size()})</f:facet>
                             <p:column headerText="Nome arquivo" width="300">
-                                <a href="#{facesContext.externalContext.requestContextPath}/Cliente/#{controleUsuarioBean.clienteString}/Arquivos/homologacao/#{(webAgendamentoContabilidadeBean.agendamento.id ne -1 ? webAgendamentoContabilidadeBean.agendamento.id : (('validacao/').concat(webAgendamentoContabilidadeBean.empresa.id).concat('/').concat(webAgendamentoContabilidadeBean.fisica.getId()).concat('/')))}#{lista.argumento1}" target="_blank"  style="float: right">
+                                <a href="#{facesContext.externalContext.requestContextPath}/Cliente/#{controleUsuarioBean.clienteString}Arquivos/homologacao/#{(webAgendamentoContabilidadeBean.agendamento.id ne -1 ? webAgendamentoContabilidadeBean.agendamento.id : (('validacao/').concat(webAgendamentoContabilidadeBean.empresa.id).concat('/').concat(webAgendamentoContabilidadeBean.fisica.getId()).concat('/')))}/#{lista.argumento1}" target="_blank"  style="float: right">
                                     #{lista.argumento1}
                                 </a>
                             </p:column>

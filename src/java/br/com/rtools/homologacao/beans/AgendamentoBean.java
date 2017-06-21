@@ -111,6 +111,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private Integer idFilial;
     private Boolean renderedFilial;
     private List listFiles;
+    private String motivoRecusaDireto;
+    private String motivoRecusa1;
+    private String motivoRecusa2;
 
     public AgendamentoBean() {
         if (configuracaoHomologacao.getId() == null) {
@@ -123,6 +126,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (configuracaoHomologacao.getWebValidaAgendamento()) {
             idStatus = 8;
         }
+        motivoRecusaDireto = "";
+        motivoRecusa1 = "";
+        motivoRecusa2 = "";
         listFiles = new ArrayList();
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         Dao dao = new Dao();
@@ -758,10 +764,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaSessao.remove("menuPrincipalBean");
             return;
         }
-        if (tcase.equals("recusar")) {
-            recusar();
+        if (tcase.equals("solicitar_pendencias") || tcase.equals("recusar") || tcase.equals("segunda_recusa")) {
+            recusar(tcase);
             GenericaSessao.remove("menuPrincipalBean");
             WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+            motivoRecusaDireto = "";
+            motivoRecusa1 = "";
+            motivoRecusa2 = "";
             return;
         }
 
@@ -1986,29 +1995,55 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             if (dao.update(agendamento, true)) {
                 validacao = false;
                 GenericaMensagem.info("Sucesso", "Altorização de Agendamento Concluída!");
-                enviarEmailProtocolo();
+                ProtocoloAgendamento protocoloAgendamento = new ProtocoloAgendamento();
+                protocoloAgendamento.enviar(agendamento, 8);
             } else {
                 GenericaMensagem.warn("Erro", "Erro ao validar agendamento!");
             }
         }
     }
 
-    private void recusar() {
+    private void recusar(String tcase) {
         Dao dao = new Dao();
         if (agendamento.getEmail().isEmpty()) {
             GenericaMensagem.info("Validação", "Informar e-mail");
             return;
         }
-        if (agendamento.getMotivoRecusa().isEmpty()) {
-            GenericaMensagem.warn("Validação", "Informar motivo da recusa!");
-            return;
-        }
-        agendamento.setStatus((Status) dao.find(new Status(), 9));
-        if (agendamento.getId() != -1) {
+        String titulo = "";
+        if (tcase.equals("recusar")) {
+            titulo = "Recusa de solicitação de agendamento de homologação referente aos dados abaixo";
+            if (motivoRecusaDireto.isEmpty()) {
+                GenericaMensagem.warn("Validação", "Informar motivo da recusa!");
+                return;
+            }
+            agendamento.setMotivoRecusa(motivoRecusaDireto);
+            agendamento.setStatus((Status) dao.find(new Status(), 9));
+            agendamento.setDtRecusa1(new Date());
             agendamento.setOperadorRecusa(new Usuario().getUsuario());
+        } else if (tcase.equals("solicitar_pendencias")) {
+            titulo = "Solicitação de documentos pendentes!";
+            if (motivoRecusa1.isEmpty()) {
+                GenericaMensagem.warn("Validação", "Informar motivo da recusa!");
+                return;
+            }
+            agendamento.setMotivoRecusa(motivoRecusa1);
+            agendamento.setStatus((Status) dao.find(new Status(), 8));
+            agendamento.setDtRecusa1(new Date());
+            agendamento.setOperadorRecusa(new Usuario().getUsuario());
+        } else if (tcase.equals("segunda_recusa")) {
+            titulo = "2ª Recusa de solicitação de agendamento de homologação referente aos dados abaixo";
+            if (motivoRecusa2.isEmpty()) {
+                GenericaMensagem.warn("Validação", "Informar motivo da recusa!");
+                return;
+            }
+            agendamento.setMotivoRecusa2(motivoRecusa2);
+            agendamento.setStatus((Status) dao.find(new Status(), 9));
+            agendamento.setDtRecusa2(new Date());
+            agendamento.setOperadorRecusa2(new Usuario().getUsuario());
+        }
+        if (agendamento.getId() != -1) {
             if (dao.update(agendamento, true)) {
                 validacao = false;
-                GenericaMensagem.info("Sucesso", "Agendamento recusado!");
                 try {
                     List<Pessoa> p = new ArrayList();
                     agendamento.getPessoaEmpresa().getFisica().getPessoa().setEmail1(agendamento.getEmail());
@@ -2023,11 +2058,28 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                             (Rotina) dao.find(new Rotina(), 113),
                             null,
                             "Documentação incompleta protocolo n°" + agendamento.getId(),
-                            agendamento.getMotivoRecusa(),
+                            "",
                             false,
                             false
                     );
                     mail.setEmail(email);
+                    String htmlString = "";
+                    htmlString = ""
+                            + "<html>"
+                            + "     <body style='background-color: white'>"
+                            + "         <p> <b> " + titulo + "</b> </p>"
+                            + "         <p> <b>Razão Social</b>: " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " </p>"
+                            + "         <p> <b>CNPJ</b>: " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getDocumento() + " </p>"
+                            + "         <p> <b>Funcionário</b>: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " </p>"
+                            + "         <p> <b>CPF</b>: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getDocumento() + " </p>"
+                            + "         <p> <b>Protocolo nº " + agendamento.getId() + "</b> </p>"
+                            + "         <p> <b>Motivo</b>: " + agendamento.getMotivoRecusa() + " </p>"
+                            + "         <p> <b>A/C: </b>: " + agendamento.getContato() + " </p>"
+                            + "         <p></p>"
+                            + "         <br /><br />"
+                            + "     </body>"
+                            + "</html>";
+                    mail.setHtml(htmlString);
                     List<EmailPessoa> emailPessoas = new ArrayList<>();
                     EmailPessoa emailPessoa = new EmailPessoa();
                     List<Pessoa> pessoas = (List<Pessoa>) p;
@@ -2052,6 +2104,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     NovoLog log = new NovoLog();
                     log.live("Erro de envio de protocolo por e-mail: Mensagem: " + e.getMessage() + " - Causa: " + e.getCause() + " - Caminho: " + e.getStackTrace().toString());
                 }
+                GenericaMensagem.info("Sucesso", "Agendamento recusado!");
 
             } else {
                 GenericaMensagem.warn("Erro", "Erro ao validar agendamento!");
@@ -2089,6 +2142,30 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setPolling(Date polling) {
         this.polling = polling;
+    }
+
+    public String getMotivoRecusaDireto() {
+        return motivoRecusaDireto;
+    }
+
+    public void setMotivoRecusaDireto(String motivoRecusaDireto) {
+        this.motivoRecusaDireto = motivoRecusaDireto;
+    }
+
+    public String getMotivoRecusa1() {
+        return motivoRecusa1;
+    }
+
+    public void setMotivoRecusa1(String motivoRecusa1) {
+        this.motivoRecusa1 = motivoRecusa1;
+    }
+
+    public String getMotivoRecusa2() {
+        return motivoRecusa2;
+    }
+
+    public void setMotivoRecusa2(String motivoRecusa2) {
+        this.motivoRecusa2 = motivoRecusa2;
     }
 
 }
