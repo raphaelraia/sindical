@@ -198,10 +198,17 @@ public class ContasAPagarBean implements Serializable {
         for (ListaContas lc : listaContasSelecionada) {
             Movimento movimento = (Movimento) dao.find(new Movimento(), lc.getMovimentoId());
 
-            movimento.setCorrecao(lc.getAcrescimoEditado());
-            movimento.setDesconto(lc.getDescontoEditado());
+            // setando STRING porque na conversão de valores EX. "187774.04" para FLOAT direto esta colocando "187774.05" fazer este teste abaixo
+            
+            // System.out.println(Float.parseFloat("187774.04"));
+            
+            // o ideal seria os campos FLOAT serem DOUBLE
+            
+            movimento.setCorrecaoString(lc.getAcrescimoEditadoString());
+            movimento.setDescontoString(lc.getDescontoEditadoString());
 
-            movimento.setValorBaixa(Moeda.subtracaoValores(Moeda.somaValores(lc.getValor(), lc.getAcrescimoEditado()), lc.getDescontoEditado()));
+            movimento.setValorBaixaString(Moeda.converteDoubleToString(Moeda.subtracao(Moeda.soma(lc.getValor(), lc.getAcrescimoEditado()), lc.getDescontoEditado())));
+            
             lista.add(movimento);
         }
 
@@ -234,8 +241,8 @@ public class ContasAPagarBean implements Serializable {
     }
 
     public void calculoAcrescimoDesconto(ListaContas lc) {
-        lc.setValorPagamento(Moeda.somaValores(lc.getValor(), lc.getAcrescimoEditado()));
-        lc.setValorPagamento(Moeda.subtracaoValores(lc.getValorPagamento(), lc.getDescontoEditado()));
+        lc.setValorPagamento(Moeda.soma(lc.getValor(), lc.getAcrescimoEditado()));
+        lc.setValorPagamento(Moeda.subtracao(lc.getValorPagamento(), lc.getDescontoEditado()));
     }
 
     public final void loadListaContas() {
@@ -259,10 +266,10 @@ public class ContasAPagarBean implements Serializable {
                             linha.get(0).toString(),
                             (Date) linha.get(1),
                             linha.get(2).toString(),
-                            Double.valueOf(linha.get(3).toString()).floatValue(),
-                            Double.valueOf(linha.get(4).toString()).floatValue(),
-                            Double.valueOf(linha.get(5).toString()).floatValue(),
-                            Double.valueOf(linha.get(6).toString()).floatValue(),
+                            Double.valueOf(linha.get(3).toString()),
+                            Double.valueOf(linha.get(4).toString()),
+                            Double.valueOf(linha.get(5).toString()),
+                            Double.valueOf(linha.get(6).toString()),
                             (Date) linha.get(7),
                             linha.get(8).toString(),
                             linha.get(9).toString(),
@@ -277,8 +284,8 @@ public class ContasAPagarBean implements Serializable {
                             (String) linha.get(18),
                             (String) linha.get(19),
                             (String) linha.get(20),
-                            new Float(0),
-                            new Float(0),
+                            new Double(0),
+                            new Double(0),
                             list_fp
                     )
             );
@@ -286,63 +293,72 @@ public class ContasAPagarBean implements Serializable {
     }
 
     public String getTotal() {
-        Float valor = new Float(0);
+        Double valor = new Double(0);
         for (ListaContas lc : listaContas) {
-            valor = Moeda.somaValores(valor, lc.getValor());
-            valor = Moeda.subtracaoValores(Moeda.somaValores(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
+            valor = Moeda.soma(valor, lc.getValor());
+            valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
         }
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteDoubleToString(valor);
     }
 
     public String getTotalEmAberto() {
-        Float valor = new Float(0);
+        Double valor = new Double(0);
         for (ListaContas lc : listaContas) {
+            
             if (lc.getBaixaId() == null) {
-                valor = Moeda.somaValores(valor, lc.getValor());
-                valor = Moeda.subtracaoValores(Moeda.somaValores(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
+//                if (lc.getValorString().equals("753,71")){
+//                    System.err.println("oi");
+//                    valor = Moeda.soma(valor, lc.getValor());
+//                    valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
+//                    
+//                    String x = Moeda.converteDoubleToString(valor);
+//                    float x2 = Moeda.converteUS$(x, 2);
+//                }
+                valor = Moeda.soma(valor, lc.getValor());
+                valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
             }
         }
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteDoubleToString(valor);
     }
 
     public String getTotalPago() {
-        Float valor = new Float(0);
+        Double valor = new Double(0);
         for (ListaContas lc : listaContas) {
             if (lc.getBaixaId() != null) {
-                valor = Moeda.somaValores(valor, lc.getValorPagamento());
+                valor = Moeda.soma(valor, lc.getValorPagamento());
             }
         }
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteDoubleToString(valor);
     }
 
     public String getTotalSelecionado() {
-        Float valor = new Float(0);
+        Double valor = new Double(0);
         for (ListaContas lc : listaContasSelecionada) {
-            valor = Moeda.somaValores(valor, lc.getValor());
-            valor = Moeda.subtracaoValores(Moeda.somaValores(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
+            valor = Moeda.soma(valor, lc.getValor());
+            valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
         }
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteDoubleToString(valor);
     }
 
     public String getTotalEmAbertoSelecionado() {
-        Float valor = new Float(0);
+        Double valor = new Double(0);
         for (ListaContas lc : listaContasSelecionada) {
             if (lc.getBaixaId() == null) {
-                valor = Moeda.somaValores(valor, lc.getValor());
-                valor = Moeda.subtracaoValores(Moeda.somaValores(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
+                valor = Moeda.soma(valor, lc.getValor());
+                valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
             }
         }
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteDoubleToString(valor);
     }
 
     public String getTotalPagoSelecionado() {
-        Float valor = new Float(0);
+        Double valor = new Double(0);
         for (ListaContas lc : listaContasSelecionada) {
             if (lc.getBaixaId() != null) {
-                valor = Moeda.somaValores(valor, lc.getValorPagamento());
+                valor = Moeda.soma(valor, lc.getValorPagamento());
             }
         }
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteDoubleToString(valor);
     }
 
     public List<ListaContas> getListaContas() {
@@ -526,10 +542,10 @@ public class ContasAPagarBean implements Serializable {
         private String nome;
         private Date vencimento;
         private String referencia;
-        private Float valor;
-        private Float acrescimo;
-        private Float desconto;
-        private Float valorPagamento;
+        private Double valor;
+        private Double acrescimo;
+        private Double desconto;
+        private Double valorPagamento;
         private Date baixa;
         private String tipoDocumento;
         private String documento;
@@ -547,12 +563,12 @@ public class ContasAPagarBean implements Serializable {
         private String historico;
 
         // EDITADO
-        private Float acrescimoEditado;
-        private Float descontoEditado;
+        private Double acrescimoEditado;
+        private Double descontoEditado;
 
         private List<FormaPagamento> listaFormaPagamento;
 
-        public ListaContas(String nome, Date vencimento, String referencia, Float valor, Float acrescimo, Float desconto, Float valorPagamento, Date baixa, String tipoDocumento, String documento, Date lancamento, Date emissao, String conta, Integer baixaId, Integer movimentoId, String operador, String caixa, String tipoDocumentoLote, String documentoLote, String descricao, String historico, Float acrescimoEditado, Float descontoEditado, List<FormaPagamento> listaFormaPagamento) {
+        public ListaContas(String nome, Date vencimento, String referencia, Double valor, Double acrescimo, Double desconto, Double valorPagamento, Date baixa, String tipoDocumento, String documento, Date lancamento, Date emissao, String conta, Integer baixaId, Integer movimentoId, String operador, String caixa, String tipoDocumentoLote, String documentoLote, String descricao, String historico, Double acrescimoEditado, Double descontoEditado, List<FormaPagamento> listaFormaPagamento) {
             this.nome = nome;
             this.vencimento = vencimento;
             this.referencia = referencia;
@@ -611,68 +627,68 @@ public class ContasAPagarBean implements Serializable {
             this.referencia = referencia;
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {
-            this.valor = Moeda.converteUS$(valorString);
+            this.valor = Moeda.converteStringToDouble(valorString);
         }
 
-        public Float getAcrescimo() {
+        public Double getAcrescimo() {
             return acrescimo;
         }
 
-        public void setAcrescimo(Float acrescimo) {
+        public void setAcrescimo(Double acrescimo) {
             this.acrescimo = acrescimo;
         }
 
         public String getAcrescimoString() {
-            return Moeda.converteR$Float(acrescimo);
+            return Moeda.converteDoubleToString(acrescimo);
         }
 
         public void setAcrescimoString(String acrescimoString) {
-            this.acrescimo = Moeda.converteUS$(acrescimoString);
+            this.acrescimo = Moeda.converteStringToDouble(acrescimoString);
         }
 
-        public Float getDesconto() {
+        public Double getDesconto() {
             return desconto;
         }
 
-        public void setDesconto(Float desconto) {
+        public void setDesconto(Double desconto) {
             this.desconto = desconto;
         }
 
         public String getDescontoString() {
-            return Moeda.converteR$Float(desconto);
+            return Moeda.converteDoubleToString(desconto);
         }
 
         public void setDescontoString(String descontoString) {
-            this.desconto = Moeda.converteUS$(descontoString);
+            this.desconto = Moeda.converteStringToDouble(descontoString);
         }
 
-        public Float getValorPagamento() {
+        public Double getValorPagamento() {
             return valorPagamento;
         }
 
-        public void setValorPagamento(Float valorPagamento) {
+        public void setValorPagamento(Double valorPagamento) {
             this.valorPagamento = valorPagamento;
         }
 
         public String getValorPagamentoString() {
-            return Moeda.converteR$Float(valorPagamento);
+            return Moeda.converteDoubleToString(valorPagamento);
         }
 
         public void setValorPagamentoString(String valorPagamentoString) {
-            this.valorPagamento = Moeda.converteUS$(valorPagamentoString);
+            this.valorPagamento = Moeda.converteStringToDouble(valorPagamentoString);
         }
 
         public Date getBaixa() {
@@ -811,36 +827,36 @@ public class ContasAPagarBean implements Serializable {
             this.historico = historico;
         }
 
-        public Float getAcrescimoEditado() {
+        public Double getAcrescimoEditado() {
             return acrescimoEditado;
         }
 
-        public void setAcrescimoEditado(Float acrescimoEditado) {
+        public void setAcrescimoEditado(Double acrescimoEditado) {
             this.acrescimoEditado = acrescimoEditado;
         }
 
         public String getAcrescimoEditadoString() {
-            return Moeda.converteR$Float(acrescimoEditado);
+            return Moeda.converteDoubleToString(acrescimoEditado);
         }
 
         public void setAcrescimoEditadoString(String acrescimoEditadoString) {
-            this.acrescimoEditado = Moeda.converteUS$(acrescimoEditadoString);
+            this.acrescimoEditado = Moeda.converteStringToDouble(acrescimoEditadoString);
         }
 
-        public Float getDescontoEditado() {
+        public Double getDescontoEditado() {
             return descontoEditado;
         }
 
-        public void setDescontoEditado(Float descontoEditado) {
+        public void setDescontoEditado(Double descontoEditado) {
             this.descontoEditado = descontoEditado;
         }
 
         public String getDescontoEditadoString() {
-            return Moeda.converteR$Float(descontoEditado);
+            return Moeda.converteDoubleToString(descontoEditado);
         }
 
         public void setDescontoEditadoString(String descontoEditadoString) {
-            this.descontoEditado = Moeda.converteUS$(descontoEditadoString);
+            this.descontoEditado = Moeda.converteStringToDouble(descontoEditadoString);
         }
 
         public List<FormaPagamento> getListaFormaPagamento() {

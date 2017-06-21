@@ -45,7 +45,7 @@ public final class Moeda {
      * Mascara de dinheiro para Real Brasileiro
      */
     public static final DecimalFormat DINHEIRO_REAL = new DecimalFormat("###,###,##0.00", REAL);
-  
+
     /**
      * Mascara texto com formatacao monetaria
      *
@@ -183,7 +183,7 @@ public final class Moeda {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
             if (!wponto.equals(",")) {
                 DecimalFormat moeda = new DecimalFormat("###,###,##0.00", REAL);
-                 // String d = moeda.format(Double.parseDouble($dolar), moeda);
+                // String d = moeda.format(Double.parseDouble($dolar), moeda);
                 $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
             }
         } else {
@@ -261,6 +261,67 @@ public final class Moeda {
         return result.toString().substring(1);
     }
 
+    // NOVOS METODOS CLAUDEMIR --------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
+    public static double soma(double a, double b) {
+        BigDecimal aBig = new BigDecimal(a);
+        BigDecimal bBig = new BigDecimal(b);
+        return aBig.add(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+    }
+
+    public static double subtracao(double a, double b) {
+        BigDecimal aBig = new BigDecimal(a);
+        BigDecimal bBig = new BigDecimal(b);
+//        BigDecimal aBig = new BigDecimal(753.71);
+//        BigDecimal bBig = new BigDecimal(0.02);
+        return aBig.subtract(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+    }
+
+    public static double multiplicar(double a, double b) {
+        BigDecimal aBig = new BigDecimal(a, new MathContext(2));
+        BigDecimal bBig = new BigDecimal(b, new MathContext(2));
+        return aBig.multiply(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+    }
+
+    public static double divisao(double a, double divisor) {
+        try {
+            BigDecimal aBig = new BigDecimal(a, new MathContext(2));
+            BigDecimal bBig = new BigDecimal(divisor, new MathContext(2));
+            return aBig.divide(bBig, new MathContext(100)).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public static String converteDoubleToString(Double d) {
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols(new Locale("pt", "BR"));
+//        // Formato com sinal de menos -5.000,00
+//        DecimalFormat df1 = new DecimalFormat ("#,##0.00", dfs);
+        // Formato com parêntese (5.000,00)
+        DecimalFormat df2 = new DecimalFormat("#,##0.00;#,##0.00", dfs);
+        //d = -5000.00;
+//        s = df1.format (d); 
+//        System.out.println (s); // imprime -5.000,00
+        String s = df2.format(d);
+        System.out.println(); // imprime (5.000,00)
+
+        return s;
+    }
+
+    public static Double converteStringToDouble(String s) {
+        try {
+            DecimalFormat df = new DecimalFormat();
+            DecimalFormatSymbols sfs = new DecimalFormatSymbols();
+            sfs.setDecimalSeparator(',');
+            df.setDecimalFormatSymbols(sfs);
+            return df.parse(s).doubleValue();
+        } catch (Exception e) {
+            return new Double(0);
+        }
+    }
+
+    // FIM NOVOS METODOS CLAUDEMIR --------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
     public static float subtracaoValores(float a, float b) {
         BigDecimal aBig = new BigDecimal(Float.toString(a));
         BigDecimal bBig = new BigDecimal(Float.toString(b));
