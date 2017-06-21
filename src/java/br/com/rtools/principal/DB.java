@@ -149,10 +149,9 @@ public class DB {
                     // -- ATUAL
                     cliente = "ComercioRP";
                     //configuracao.setHost("192.168.1.102");
-                     configuracao.setHost("192.168.1.100");
-                     configuracao.setHost("r#@tools");
-//                    configuracao.setHost("192.168.1.35");
-//                    configuracao.setSenha("*4qu4r10-");
+                    // configuracao.setHost("192.168.1.100");
+                    configuracao.setHost("192.168.1.35");
+                    configuracao.setSenha("*4qu4r10-");
                 }   //            } else {
 //                if (cliente.equals("ServidoresRP")) {
 //                    configuracao.setHost("localhost");
