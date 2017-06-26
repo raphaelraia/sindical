@@ -45,9 +45,9 @@ public class BVenda implements java.io.Serializable {
     @OneToOne
     private EventoServico eventoServico;
     @Column(name = "nr_valor_unitario")
-    private float valorUnitario;
+    private double valorUnitario;
     @Column(name = "nr_desconto_unitario")
-    private float descontoUnitario;
+    private double descontoUnitario;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_emissao", nullable = false)
     private Date dtEmissao;
@@ -135,11 +135,11 @@ public class BVenda implements java.io.Serializable {
         this.eventoServico = eventoServico;
     }
 
-    public float getValorUnitario() {
+    public double getValorUnitario() {
         return valorUnitario;
     }
 
-    public void setValorUnitario(float valorUnitario) {
+    public void setValorUnitario(double valorUnitario) {
         this.valorUnitario = valorUnitario;
     }
 
@@ -151,11 +151,11 @@ public class BVenda implements java.io.Serializable {
         this.valorUnitario = Moeda.converteUS$(valorUnitarioString);
     }
 
-    public float getDescontoUnitario() {
+    public double getDescontoUnitario() {
         return descontoUnitario;
     }
 
-    public void setDescontoUnitario(float descontoUnitario) {
+    public void setDescontoUnitario(double descontoUnitario) {
         this.descontoUnitario = descontoUnitario;
     }
 

@@ -29,7 +29,7 @@ public class FolhaEmpresa implements Serializable {
     @Column(name = "ds_referencia", length = 7, nullable = true)
     private String referencia;
     @Column(name = "nr_valor", nullable = true)
-    private float valorMes;
+    private double valorMes;
     @Column(name = "nr_num_funcionarios", nullable = true)
     private int numFuncionarios;
     @Column(name = "nr_alteracoes", nullable = false)
@@ -56,7 +56,7 @@ public class FolhaEmpresa implements Serializable {
         this.valorBoleto = null;
     }
 
-    public FolhaEmpresa(int id, Juridica juridica, TipoServico tipoServico, String referencia, float valorMes, int numFuncionarios, int alteracoes, Date dtLancamento) {
+    public FolhaEmpresa(int id, Juridica juridica, TipoServico tipoServico, String referencia, double valorMes, int numFuncionarios, int alteracoes, Date dtLancamento) {
         this.id = id;
         this.juridica = juridica;
         this.tipoServico = tipoServico;
@@ -93,11 +93,11 @@ public class FolhaEmpresa implements Serializable {
         this.referencia = referencia;
     }
 
-    public float getValorMes() {
+    public double getValorMes() {
         return valorMes;
     }
 
-    public void setValorMes(float valorMes) {
+    public void setValorMes(double valorMes) {
         this.valorMes = valorMes;
     }
 

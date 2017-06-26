@@ -86,7 +86,7 @@ public class Rais implements Serializable {
     @Column(name = "nr_carga_horaria", columnDefinition = "integer default 0")
     private int cargaHoraria;
     @Column(name = "nr_salario", columnDefinition = "double precision default 0")
-    private float salario;
+    private double salario;
     @Column(name = "ds_funcao", length = 255)
     private String funcao;
     @Column(name = "ds_carteira", length = 9)
@@ -135,7 +135,7 @@ public class Rais implements Serializable {
         this.pis = "";
     }
 
-    public Rais(int id, Date emissao, Nacionalidade nacionalidade, Raca raca, Juridica empresa, Escolaridade escolaridade, SisPessoa sisPessoa, ClassificacaoEconomica classificacaoEconomica, Profissao profissao, TipoRemuneracao tipoRemuneracao, Pessoa responsavelCadastro, TipoDeficiencia tipoDeficiencia, IndicadorAlvara indicadorAlvara, Date admissao, Date demissao, Date afastamento, String motivoAfastamento, String observacao, int cargaHoraria, float salario, String funcao, String carteira, String serie, int ctps, int anoBase, boolean alvara, boolean empregadoFiliado, String pis) {
+    public Rais(int id, Date emissao, Nacionalidade nacionalidade, Raca raca, Juridica empresa, Escolaridade escolaridade, SisPessoa sisPessoa, ClassificacaoEconomica classificacaoEconomica, Profissao profissao, TipoRemuneracao tipoRemuneracao, Pessoa responsavelCadastro, TipoDeficiencia tipoDeficiencia, IndicadorAlvara indicadorAlvara, Date admissao, Date demissao, Date afastamento, String motivoAfastamento, String observacao, int cargaHoraria, double salario, String funcao, String carteira, String serie, int ctps, int anoBase, boolean alvara, boolean empregadoFiliado, String pis) {
         this.id = id;
         this.emissao = emissao;
         this.nacionalidade = nacionalidade;
@@ -343,11 +343,11 @@ public class Rais implements Serializable {
         }
     }
 
-    public float getSalario() {
+    public double getSalario() {
         return salario;
     }
 
-    public void setSalario(float salario) {
+    public void setSalario(double salario) {
         this.salario = salario;
     }
 

@@ -34,7 +34,7 @@ public class BoletoNaoBaixado implements java.io.Serializable {
     @Column(name = "ds_motivo", length = 1000)
     private String motivo;
     @Column(name = "nr_valor_retorno")
-    private float valorRetorno;
+    private double valorRetorno;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_importacao")
     private Date dtImportacao;
@@ -51,7 +51,7 @@ public class BoletoNaoBaixado implements java.io.Serializable {
         this.dtBaixa = null;
     }
 
-    public BoletoNaoBaixado(int id, Boleto boleto, String motivo, float valorRetorno, Date dtImportacao, Date dtBaixa) {
+    public BoletoNaoBaixado(int id, Boleto boleto, String motivo, double valorRetorno, Date dtImportacao, Date dtBaixa) {
         this.id = id;
         this.boleto = boleto;
         this.motivo = motivo;
@@ -84,11 +84,11 @@ public class BoletoNaoBaixado implements java.io.Serializable {
         this.motivo = motivo;
     }
 
-    public float getValorRetorno() {
+    public double getValorRetorno() {
         return valorRetorno;
     }
 
-    public void setValorRetorno(float valorRetorno) {
+    public void setValorRetorno(double valorRetorno) {
         this.valorRetorno = valorRetorno;
     }
 

@@ -63,7 +63,7 @@ public class ConviteMovimento implements Serializable {
     @Column(name = "dt_entrada")
     private Date dtEntrada;
     @Column(name = "nr_desconto", nullable = true)
-    private float desconto;    
+    private double desconto;    
     
     public ConviteMovimento() {
         this.id = -1;
@@ -85,7 +85,7 @@ public class ConviteMovimento implements Serializable {
         this.desconto = 0;
     }
 
-    public ConviteMovimento(int id, String observacao, SisPessoa sisPessoa, Pessoa pessoa, Usuario usuario, Usuario usuarioInativacao, Evt evt, Departamento departamento, ConviteAutorizaCortesia autorizaCortesia, boolean cortesia, boolean ativo, String validade, String emissao, ConviteServico conviteServico, String controleCortesia, Date dtEntrada, float desconto) {
+    public ConviteMovimento(int id, String observacao, SisPessoa sisPessoa, Pessoa pessoa, Usuario usuario, Usuario usuarioInativacao, Evt evt, Departamento departamento, ConviteAutorizaCortesia autorizaCortesia, boolean cortesia, boolean ativo, String validade, String emissao, ConviteServico conviteServico, String controleCortesia, Date dtEntrada, double desconto) {
         this.id = id;
         this.observacao = observacao;
         this.sisPessoa = sisPessoa;
@@ -262,11 +262,11 @@ public class ConviteMovimento implements Serializable {
         this.dtEntrada = DataHoje.converte(entrada);
     }    
 
-    public float getDesconto() {
+    public double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(double desconto) {
         this.desconto = desconto;
     }
     

@@ -51,12 +51,12 @@ public class Produto implements Serializable {
     @OneToOne
     private Cor cor;
     @Column(name = "nr_valor", columnDefinition = "double precision default 0", nullable = true)
-    private float valor;
+    private double valor;
     @JoinColumn(name = "id_indice_moeda", referencedColumnName = "id")
     @ManyToOne
     private IndiceMoeda indiceMoeda;
     @Column(name = "nr_margem")
-    private float margem;
+    private double margem;
     @Column(name = "nr_validade_guias_dias")
     private Integer validadeGuiasDias;
     @Column(name = "is_validade_guias_mes_vigente")
@@ -85,7 +85,7 @@ public class Produto implements Serializable {
         this.validadeGuiasMesVigente = false;
     }
 
-    public Produto(int id, String descricao, String modelo, String marca, String fabricante, String sabor, String medida, String observacao, String barras, int quantidadeEmbalagem, String cadastro, ProdutoGrupo produtoGrupo, ProdutoSubGrupo produtoSubGrupo, ProdutoUnidade produtoUnidade, Cor cor, float valor, IndiceMoeda indiceMoeda, float margem, Integer validadeGuiasDias, Boolean validadeGuiasMesVigente) {
+    public Produto(int id, String descricao, String modelo, String marca, String fabricante, String sabor, String medida, String observacao, String barras, int quantidadeEmbalagem, String cadastro, ProdutoGrupo produtoGrupo, ProdutoSubGrupo produtoSubGrupo, ProdutoUnidade produtoUnidade, Cor cor, double valor, IndiceMoeda indiceMoeda, double margem, Integer validadeGuiasDias, Boolean validadeGuiasMesVigente) {
         this.id = id;
         this.descricao = descricao;
         this.modelo = modelo;
@@ -241,11 +241,11 @@ public class Produto implements Serializable {
         return "Produto{" + "id=" + id + ", descricao=" + descricao + ", modelo=" + modelo + ", marca=" + marca + ", fabricante=" + fabricante + ", sabor=" + sabor + ", medida=" + medida + ", barras=" + barras + ", observacao=" + observacao + ", quantidadeEmbalagem=" + quantidadeEmbalagem + ", dtCadastro=" + dtCadastro + ", produtoGrupo=" + produtoGrupo + ", produtoSubGrupo=" + produtoSubGrupo + ", produtoUnidade=" + produtoUnidade + ", cor=" + cor + '}';
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 
@@ -265,11 +265,11 @@ public class Produto implements Serializable {
         this.indiceMoeda = indiceMoeda;
     }
 
-    public float getMargem() {
+    public double getMargem() {
         return margem;
     }
 
-    public void setMargem(float margem) {
+    public void setMargem(double margem) {
         this.margem = margem;
     }
 

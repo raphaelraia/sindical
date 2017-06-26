@@ -24,7 +24,7 @@ public class EventoServicoValor implements java.io.Serializable {
     @OneToOne
     private EventoServico eventoServico;
     @Column(name = "nr_valor", nullable = true)
-    private float valor;
+    private double valor;
     @Column(name = "nr_idade_inicial", nullable = false)
     private int idadeInicial;
     @Column(name = "nr_idade_final", nullable = false)
@@ -41,7 +41,7 @@ public class EventoServicoValor implements java.io.Serializable {
         this.sexo = "A";
     }
 
-    public EventoServicoValor(int id, EventoServico eventoServico, float valor, int idadeInicial, int idadeFinal, String sexo) {
+    public EventoServicoValor(int id, EventoServico eventoServico, double valor, int idadeInicial, int idadeFinal, String sexo) {
         this.id = id;
         this.eventoServico = eventoServico;
         this.valor = valor;
@@ -66,11 +66,11 @@ public class EventoServicoValor implements java.io.Serializable {
         this.eventoServico = eventoServico;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 

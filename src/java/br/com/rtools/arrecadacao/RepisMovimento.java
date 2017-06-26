@@ -42,7 +42,7 @@ public class RepisMovimento implements Serializable {
     @Column(name = "dt_impressao")
     private Date dataImpressao;
     @Column(name = "nr_faturamento_bruto_anual", columnDefinition = "double precision 0")
-    private Float faturamentoBrutoAnual;
+    private Double faturamentoBrutoAnual;
 
     public RepisMovimento() {
         this.id = -1;
@@ -55,10 +55,10 @@ public class RepisMovimento implements Serializable {
         this.patronal = new Patronal();
         this.certidaoTipo = new CertidaoTipo();
         this.dataImpressao = null;
-        this.faturamentoBrutoAnual = new Float(0);
+        this.faturamentoBrutoAnual = new Double(0);
     }
 
-    public RepisMovimento(Integer id, Date dataEmissao, String contato, Pessoa pessoa, Date dataResposta, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, Date dataImpressao, Float faturamentoBrutoAnual) {
+    public RepisMovimento(Integer id, Date dataEmissao, String contato, Pessoa pessoa, Date dataResposta, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, Date dataImpressao, Double faturamentoBrutoAnual) {
         this.id = id;
         this.dataEmissao = dataEmissao;
         this.contato = contato;
@@ -176,11 +176,11 @@ public class RepisMovimento implements Serializable {
         this.dataImpressao = DataHoje.converte(dataImpressaoString);
     }
 
-    public Float getFaturamentoBrutoAnual() {
+    public Double getFaturamentoBrutoAnual() {
         return faturamentoBrutoAnual;
     }
 
-    public void setFaturamentoBrutoAnual(Float faturamentoBrutoAnual) {
+    public void setFaturamentoBrutoAnual(Double faturamentoBrutoAnual) {
         this.faturamentoBrutoAnual = faturamentoBrutoAnual;
     }
 

@@ -18,9 +18,9 @@ public class Pedido implements Serializable {
     @Column(name = "nr_quantidade", columnDefinition = "integer default 0")
     private int quantidade;
     @Column(name = "nr_valor_unitario", columnDefinition = "double precision default 0")
-    private float valorUnitario;
+    private double valorUnitario;
     @Column(name = "nr_desconto_unitario", columnDefinition = "double precision default 0")
-    private float descontoUnitario;
+    private double descontoUnitario;
     @JoinColumn(name = "id_lote", referencedColumnName = "id")
     @OneToOne
     private Lote lote;
@@ -45,7 +45,7 @@ public class Pedido implements Serializable {
         this.servicos = null;
     }
 
-    public Pedido(int id, int quantidade, float valorUnitario, float descontoUnitario, Lote lote, Produto produto, EstoqueTipo estoqueTipo, Servicos servicos) {
+    public Pedido(int id, int quantidade, double valorUnitario, double descontoUnitario, Lote lote, Produto produto, EstoqueTipo estoqueTipo, Servicos servicos) {
         this.id = id;
         this.quantidade = quantidade;
         this.valorUnitario = valorUnitario;
@@ -72,19 +72,19 @@ public class Pedido implements Serializable {
         this.quantidade = quantidade;
     }
 
-    public float getValorUnitario() {
+    public double getValorUnitario() {
         return valorUnitario;
     }
 
-    public void setValorUnitario(float valorUnitario) {
+    public void setValorUnitario(double valorUnitario) {
         this.valorUnitario = valorUnitario;
     }
 
-    public float getDescontoUnitario() {
+    public double getDescontoUnitario() {
         return descontoUnitario;
     }
 
-    public void setDescontoUnitario(float descontoUnitario) {
+    public void setDescontoUnitario(double descontoUnitario) {
         this.descontoUnitario = descontoUnitario;
     }
 
@@ -114,8 +114,8 @@ public class Pedido implements Serializable {
 
     public String getValorUnitarioString() {
         try {
-            Float f = valorUnitario;
-            String[] splitter = f.toString().split("\\.");
+            Double d = valorUnitario;
+            String[] splitter = d.toString().split("\\.");
             if (splitter[1].length() == 1 || splitter[1].length() == 2) {
                 return Moeda.converteR$Float(valorUnitario);
             } else {

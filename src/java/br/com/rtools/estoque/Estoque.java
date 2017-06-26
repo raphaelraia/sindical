@@ -23,7 +23,7 @@ public class Estoque implements Serializable {
     @Column(name = "nr_estoque_maximo", columnDefinition = "integer default 1")
     private int estoqueMaximo;
     @Column(name = "nr_custo_medio", columnDefinition = "double precision default 0")
-    private float custoMedio;
+    private double custoMedio;
     @JoinColumn(name = "id_produto", referencedColumnName = "id")
     @OneToOne
     private Produto produto;
@@ -48,7 +48,7 @@ public class Estoque implements Serializable {
         this.ativo = true;
     }
 
-    public Estoque(int id, int estoque, int estoqueMinimo, int estoqueMaximo, float custoMedio, Produto produto, Filial filial, EstoqueTipo estoqueTipo, boolean ativo) {
+    public Estoque(int id, int estoque, int estoqueMinimo, int estoqueMaximo, double custoMedio, Produto produto, Filial filial, EstoqueTipo estoqueTipo, boolean ativo) {
         this.id = id;
         this.estoque = estoque;
         this.estoqueMinimo = estoqueMinimo;
@@ -92,11 +92,11 @@ public class Estoque implements Serializable {
         this.estoqueMaximo = estoqueMaximo;
     }
 
-    public float getCustoMedio() {
+    public double getCustoMedio() {
         return custoMedio;
     }
 
-    public void setCustoMedio(float custoMedio) {
+    public void setCustoMedio(double custoMedio) {
         this.custoMedio = custoMedio;
     }
 
