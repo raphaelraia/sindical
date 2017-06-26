@@ -17,10 +17,10 @@ public class ListaDependentes implements Serializable {
     private Integer viaCarteirinha;
     private String validadeCarteirinha;
     private String validadeDependente;
-    private Float nrDesconto;
+    private Double nrDesconto;
     private List<SelectItem> listParentesco;
     private Boolean ativo;
-    private Float valor;
+    private Double valor;
     private ServicoPessoa servicoPessoa;
 
     public ListaDependentes() {
@@ -29,14 +29,14 @@ public class ListaDependentes implements Serializable {
         this.viaCarteirinha = 0;
         this.validadeCarteirinha = "";
         this.validadeDependente = "";
-        this.nrDesconto = new Float(0);
+        this.nrDesconto = new Double(0);
         this.listParentesco = new ArrayList<>();
         this.ativo = false;
-        this.valor = new Float(0);
+        this.valor = new Double(0);
         this.servicoPessoa = new ServicoPessoa();
     }
 
-    public ListaDependentes(Fisica fisica, Integer idParentesco, Integer viaCarteirinha, String validadeCarteirinha, String validadeDependente, Float nrDesconto, List listParentesco, Boolean ativo, Float valor, ServicoPessoa servidoPessoa) {
+    public ListaDependentes(Fisica fisica, Integer idParentesco, Integer viaCarteirinha, String validadeCarteirinha, String validadeDependente, Double nrDesconto, List listParentesco, Boolean ativo, Double valor, ServicoPessoa servidoPessoa) {
         this.fisica = fisica;
         this.idParentesco = idParentesco;
         this.viaCarteirinha = viaCarteirinha;
@@ -104,20 +104,20 @@ public class ListaDependentes implements Serializable {
         this.validadeDependente = validadeDependente;
     }
 
-    public Float getNrDesconto() {
+    public Double getNrDesconto() {
         return nrDesconto;
     }
 
-    public void setNrDesconto(Float nrDesconto) {
+    public void setNrDesconto(Double nrDesconto) {
         this.nrDesconto = nrDesconto;
     }
 
     public String getDescontoString() {
-        return Float.toString(nrDesconto);
+        return Double.toString(nrDesconto);
     }
 
     public void setDescontoString(String desconto) {
-        this.nrDesconto = Float.parseFloat(desconto);
+        this.nrDesconto = Double.parseDouble(desconto);
     }
 
     public List getListParentesco() {
@@ -136,16 +136,16 @@ public class ListaDependentes implements Serializable {
         this.ativo = ativo;
     }
 
-    public Float getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(Float valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {

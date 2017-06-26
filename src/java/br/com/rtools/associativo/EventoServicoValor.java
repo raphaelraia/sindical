@@ -75,11 +75,11 @@ public class EventoServicoValor implements java.io.Serializable {
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valor) {
-        this.valor = Moeda.substituiVirgulaFloat(valor);
+        this.valor = Moeda.substituiVirgulaDouble(valor);
     }
 
     public int getIdadeInicial() {

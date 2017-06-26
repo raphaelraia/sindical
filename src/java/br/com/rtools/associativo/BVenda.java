@@ -144,7 +144,7 @@ public class BVenda implements java.io.Serializable {
     }
 
     public String getValorUnitarioString() {
-        return Moeda.converteR$Float(valorUnitario);
+        return Moeda.converteR$Double(valorUnitario);
     }
 
     public void setValorUnitarioString(String valorUnitarioString) {
@@ -160,7 +160,7 @@ public class BVenda implements java.io.Serializable {
     }
 
     public String getDescontoUnitarioString() {
-        return Moeda.converteR$Float(descontoUnitario);
+        return Moeda.converteR$Double(descontoUnitario);
     }
 
     public void setDescontoUnitarioString(String descontoUnitarioString) {

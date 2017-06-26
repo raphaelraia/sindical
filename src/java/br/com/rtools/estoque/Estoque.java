@@ -133,7 +133,7 @@ public class Estoque implements Serializable {
     }
 
     public String getCustoMedioString() {
-        return Moeda.converteR$Float(custoMedio);
+        return Moeda.converteR$Double(custoMedio);
     }
 
     public void setCustoMedioString(String custoMedioString) {

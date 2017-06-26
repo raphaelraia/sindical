@@ -28,11 +28,11 @@ public class ToPercent implements Converter {
             if (value.isEmpty()) {
                 return null;
             }
-            Float f = Moeda.substituiVirgulaFloat(Moeda.converteR$(value, 4));
-            if (f <= 0 || f > 100) {
-                f = new Float(0);
+            Double d = Moeda.substituiVirgulaDouble(Moeda.converteR$(value, 4));
+            if (d <= 0 || d > 100) {
+                d = new Double(0);
             }
-            return "" + f;
+            return "" + d;
         }
         return null;
     }

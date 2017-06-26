@@ -271,7 +271,7 @@ public class ConviteMovimento implements Serializable {
     }
     
     public String getDescontoString() {
-        return Moeda.converteR$Float(desconto);
+        return Moeda.converteR$Double(desconto);
     }
 
     public void setDescontoString(String descontoString) {

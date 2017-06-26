@@ -250,7 +250,7 @@ public class Produto implements Serializable {
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valor) {

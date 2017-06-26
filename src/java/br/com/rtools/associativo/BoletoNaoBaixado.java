@@ -93,7 +93,7 @@ public class BoletoNaoBaixado implements java.io.Serializable {
     }
 
     public String getValorRetornoString() {
-        return Moeda.converteR$Float(valorRetorno);
+        return Moeda.converteR$Double(valorRetorno);
     }
 
     public void setValorRetornoString(String valorRetornoString) {

@@ -117,9 +117,9 @@ public class Pedido implements Serializable {
             Double d = valorUnitario;
             String[] splitter = d.toString().split("\\.");
             if (splitter[1].length() == 1 || splitter[1].length() == 2) {
-                return Moeda.converteR$Float(valorUnitario);
+                return Moeda.converteR$Double(valorUnitario);
             } else {
-                return Moeda.converteR$Float(valorUnitario, 4);
+                return Moeda.converteR$Double(valorUnitario, 4);
             }
         } catch (Exception e) {
 
@@ -128,15 +128,15 @@ public class Pedido implements Serializable {
     }
 
     public void setValorUnitarioString(String valorUnitarioString) {
-        this.valorUnitario = Moeda.substituiVirgulaFloat(valorUnitarioString);
+        this.valorUnitario = Moeda.substituiVirgulaDouble(valorUnitarioString);
     }
 
     public String getDescontoUnitarioString() {
-        return Moeda.converteR$Float(descontoUnitario);
+        return Moeda.converteR$Double(descontoUnitario);
     }
 
     public void setDescontoUnitarioString(String descontoUnitarioString) {
-        this.descontoUnitario = Moeda.substituiVirgulaFloat(descontoUnitarioString);
+        this.descontoUnitario = Moeda.substituiVirgulaDouble(descontoUnitarioString);
     }
 
     @Override
