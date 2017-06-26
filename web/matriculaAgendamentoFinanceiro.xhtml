@@ -91,7 +91,7 @@
                                 <h:column>
                                     <p:outputLabel value="Serviços" style="font-weight: bold"/><br />
                                     <p:selectOneMenu value="#{matriculaAgendamentoFinanceiroBean.indexServicos}" disabled="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.id ne -1}" style="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.id ne -1 ? 'opacity: 0.8' : ''}">
-                                        <p:ajax event="change" update="@form" />
+                                        <p:ajax event="change" update="@form" listener="#{matriculaAgendamentoFinanceiroBean.loadValorServico()}"/>
                                         <f:selectItems value="#{matriculaAgendamentoFinanceiroBean.listaServicos}"/>
                                     </p:selectOneMenu>
                                 </h:column>
@@ -105,21 +105,21 @@
 
                                 <p:column>
                                     <h:outputLabel value="Valor R$" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{matriculaAgendamentoFinanceiroBean.valorString}" style="text-align: right; width: 100px">
+                                    <p:inputText value="#{matriculaAgendamentoFinanceiroBean.valorString}" style="text-align: right; width: 100px; #{(matriculaAgendamentoFinanceiroBean.desabilitaValor) ? 'opacity: .8;' : ''} font-weight: bold" disabled="#{matriculaAgendamentoFinanceiroBean.desabilitaValor}">
                                         <p:ajax event="change" update="@this input_desconto_percentual input_total" listener="#{matriculaAgendamentoFinanceiroBean.calculoValorDesconto()}" global="false" />
                                     </p:inputText>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Desconto R$" style="font-weight: bold"/><br />
-                                    <p:inputText id="input_desconto_valor" value="#{matriculaAgendamentoFinanceiroBean.descontoString}" style="text-align: right; width: 85px">
+                                    <p:inputText id="input_desconto_valor" value="#{matriculaAgendamentoFinanceiroBean.descontoString}" style="text-align: right; width: 85px; #{(matriculaAgendamentoFinanceiroBean.desabilitaValor) ? 'opacity: .8;' : ''} font-weight: bold" disabled="#{matriculaAgendamentoFinanceiroBean.desabilitaValor}">
                                         <p:ajax event="change" update="@this input_desconto_percentual input_total" global="false" listener="#{matriculaAgendamentoFinanceiroBean.calculoValorDesconto()}"/>
                                     </p:inputText>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Desconto %" style="font-weight: bold"/><br />
-                                    <p:inputText id="input_desconto_percentual" value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.nrDescontoString}" style="text-align: right; width: 85px">
+                                    <p:inputText id="input_desconto_percentual" value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.nrDescontoString}" style="text-align: right; width: 85px; #{(matriculaAgendamentoFinanceiroBean.desabilitaValor) ? 'opacity: .8;' : ''} font-weight: bold" disabled="#{matriculaAgendamentoFinanceiroBean.desabilitaValor}">
                                         <p:ajax event="change" update="@this input_desconto_valor input_total" global="false"  listener="#{matriculaAgendamentoFinanceiroBean.calculoPercentualDesconto()}"/>
                                     </p:inputText>
                                 </p:column>

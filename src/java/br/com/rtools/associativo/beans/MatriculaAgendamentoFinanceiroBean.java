@@ -17,6 +17,7 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
@@ -44,26 +45,52 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
     private Float valorTotal = (float) 0;
     private List<LinhaServicoPessoa> listaServicoPessoa = new ArrayList();
 
+    private Boolean desabilitaValor = false;
+
     public MatriculaAgendamentoFinanceiroBean() {
         loadListaServicos();
 
         GenericaSessao.remove("fisicaPesquisa");
     }
 
+    public final void loadValorServico() {
+        desabilitaValor = false;
+        
+        valor = (float) 0;
+        valorTotal = (float) 0;
+        desconto = (float) 0;
+        
+        Servicos se = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(listaServicos.get(indexServicos).getDescription()));
+
+        if (se != null && matriculaAgendamento.getServicoPessoa().getPessoa().getId() != -1) {
+            if (matriculaAgendamento.getServicoPessoa().getPessoa().getSocios().getId() != -1) {
+                valor = new FunctionsDao().valorServico(matriculaAgendamento.getServicoPessoa().getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, matriculaAgendamento.getServicoPessoa().getPessoa().getSocios().getMatriculaSocios().getCategoria().getId());
+                valorTotal = valor;
+            } else {
+                valor = new FunctionsDao().valorServico(matriculaAgendamento.getServicoPessoa().getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null);
+                valorTotal = valor;
+            }
+        }
+
+        if (valor > 0) {
+            desabilitaValor = true;
+        }
+    }
+
     public final void loadListaServicoPessoa() {
         listaServicoPessoa.clear();
 
         List<Object> result = new MatriculaAgendamentoFinanceiroDao().listaServicoPessoaMatricula(matriculaAgendamento.getServicoPessoa().getPessoa().getId());
-        
+
         Dao dao = new Dao();
-        for (Object ob : result){
+        for (Object ob : result) {
             List linha = (List) ob;
             ServicoPessoa sp = (ServicoPessoa) dao.find(new ServicoPessoa(), Integer.valueOf(linha.get(0).toString()));
             MatriculaAgendamentoFinanceiro ma = (linha.get(1) != null) ? (MatriculaAgendamentoFinanceiro) dao.find(new MatriculaAgendamentoFinanceiro(), Integer.valueOf(linha.get(1).toString())) : null;
-            
+
             listaServicoPessoa.add(
                     new LinhaServicoPessoa(
-                            sp, 
+                            sp,
                             ma
                     )
             );
@@ -110,7 +137,11 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
         matriculaAgendamento.getServicoPessoa().setServicos((Servicos) dao.find(new Servicos(), Integer.valueOf(listaServicos.get(indexServicos).getDescription())));
         matriculaAgendamento.getServicoPessoa().setNrDiaVencimento(Registro.get().getFinDiaVencimentoCobranca());
-        matriculaAgendamento.getServicoPessoa().setNrValorFixo(valor);
+        if (!desabilitaValor) {
+            matriculaAgendamento.getServicoPessoa().setNrValorFixo(valor);
+        } else {
+            matriculaAgendamento.getServicoPessoa().setNrValorFixo(0);
+        }
         matriculaAgendamento.getServicoPessoa().setCobranca(pessoaCobranca);
 
         dao.openTransaction();
@@ -122,7 +153,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
             }
 
             matriculaAgendamento.getServicoPessoa().setTipoDocumento((FTipoDocumento) dao.find(new FTipoDocumento(), 13));
-            matriculaAgendamento.getServicoPessoa().setCobranca(null);
+            //matriculaAgendamento.getServicoPessoa().setCobranca(null);
             matriculaAgendamento.getServicoPessoa().setAtivo(true);
             matriculaAgendamento.getServicoPessoa().setBanco(true);
             matriculaAgendamento.getServicoPessoa().setDescontoSocial((DescontoSocial) dao.find(new DescontoSocial(), 1));
@@ -195,7 +226,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         }
 
         dao.commit();
-        
+
         novo();
         loadListaServicoPessoa();
     }
@@ -219,10 +250,10 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
             }
 
             dao.commit();
-            
+
             novo();
             loadListaServicoPessoa();
-            
+
             GenericaMensagem.info("Sucesso", "Agendamento Financeiro Excluído!");
         }
     }
@@ -235,7 +266,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         valor = (float) 0;
         desconto = (float) 0;
         valorTotal = (float) 0;
-        
+
         matriculaAgendamento.getServicoPessoa().setPessoa(p);
     }
 
@@ -358,6 +389,8 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         if (GenericaSessao.exists("fisicaPesquisa")) {
             matriculaAgendamento.getServicoPessoa().setPessoa(((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa());
             loadListaServicoPessoa();
+
+            loadValorServico();
         }
         return matriculaAgendamento;
     }
@@ -372,6 +405,14 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
     public void setListaServicoPessoa(List<LinhaServicoPessoa> listaServicoPessoa) {
         this.listaServicoPessoa = listaServicoPessoa;
+    }
+
+    public Boolean getDesabilitaValor() {
+        return desabilitaValor;
+    }
+
+    public void setDesabilitaValor(Boolean desabilitaValor) {
+        this.desabilitaValor = desabilitaValor;
     }
 
     public class LinhaServicoPessoa {

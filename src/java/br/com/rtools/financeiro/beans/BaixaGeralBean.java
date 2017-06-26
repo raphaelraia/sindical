@@ -46,11 +46,14 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.StatusRetorno;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -113,7 +116,7 @@ public class BaixaGeralBean implements Serializable {
     private String dataEmissaoRecibo;
 
     private Boolean visibleImprimirRecibo = false;
-    
+
     @PostConstruct
     public void init() {
         cfb.init();
@@ -412,12 +415,12 @@ public class BaixaGeralBean implements Serializable {
                     GenericaMensagem.error("Erro", "Nenhum Banco Encontrado!");
                     return;
                 }
-                
+
                 // PLANO DEFAULT
                 Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                 Plano5 pl_conciliacao = null;
                 Date dt_conciliacao = null;
-                
+
                 // QUANDO RECEBIMENTO TIPO
                 // 8;"Depósito Bancário" 9;"DOC / TED" 10;"Trans. Bancária"
                 if (!getEs().isEmpty() && getEs().equals("E")) {
@@ -439,7 +442,7 @@ public class BaixaGeralBean implements Serializable {
                         dt_conciliacao = dataConciliacao;
                     }
                 }
-                
+
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), null, pl_conciliacao, dt_conciliacao));
                 numero = "";
                 dataConciliacao = null;
@@ -622,7 +625,7 @@ public class BaixaGeralBean implements Serializable {
         float vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
 
         StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl);
-        
+
         if (!sr.getStatus()) {
             mensagem = "Erro ao baixar! " + sr.getMensagem();
             return null;
@@ -775,9 +778,9 @@ public class BaixaGeralBean implements Serializable {
             }
 
             ImprimirRecibo ir = new ImprimirRecibo();
-            
+
             Boolean stat = false;
-            
+
             if (!GenericaSessao.exists("tipo_recibo_imprimir")) {
                 stat = ir.gerar_recibo(listaMovimentos.get(0).getId(), map);
             } else if (((TipoRecibo) GenericaSessao.getObject("tipo_recibo_imprimir")).getId() == 1) {
@@ -785,11 +788,11 @@ public class BaixaGeralBean implements Serializable {
             } else {
                 stat = ir.gerar_recibo_generico(listaMovimentos, null);
             }
-            
-            if (stat){
+
+            if (stat) {
                 ir.imprimir();
             }
-            
+
         }
     }
 
@@ -887,13 +890,11 @@ public class BaixaGeralBean implements Serializable {
         if (tipo.equals("banco")) {
             desHabilitaQuitacao = false;
         } else // TRUE = não tem permissão
-        {
-            if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
+         if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
                 desHabilitaQuitacao = true;
             } else {
                 desHabilitaQuitacao = false;
             }
-        }
         return desHabilitaQuitacao;
     }
 
@@ -1377,8 +1378,8 @@ public class BaixaGeralBean implements Serializable {
             if (!dataEmissaoRecibo.isEmpty()) {
                 map.put("data_emissao", dataEmissaoRecibo);
             }
-            
-            if (ir.gerar_recibo(mov.getId(), map)){
+
+            if (ir.gerar_recibo(mov.getId(), map)) {
                 ir.imprimir();
             }
         }
