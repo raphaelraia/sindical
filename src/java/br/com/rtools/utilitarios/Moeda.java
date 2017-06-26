@@ -2,7 +2,6 @@ package br.com.rtools.utilitarios;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -59,43 +58,27 @@ public final class Moeda {
     }
 
     //Converte Campo Real para campo Dolar
-    public static float converteUS$(String $dolar) {
-        return converteUS$($dolar, null);
+    public static double converteUS$(String $dolar) {
+        return converteUS$($dolar, 2);
     }
 
-    public static float converteUS$(String $dolar, Integer decimal) {
+    public static double converteUS$(String $dolar, Integer decimal) {
+        BigDecimal num = new BigDecimal(converteStringToDouble($dolar));
         try {
             if ($dolar == null || $dolar.isEmpty()) {
                 $dolar = "0,00";
             }
-            if (decimal != null && decimal > 2) {
-                if ($dolar.length() >= 3) {
-                    String[] splitter = $dolar.split("\\.");
-                    if (splitter.length == 1) {
-                        splitter = $dolar.split("\\,");
-                    }
-                    String wponto = "";
-                    if (splitter[1].length() == 3) {
-                        wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
-                    } else {
-                        wponto = $dolar.substring($dolar.trim().length() - 5, $dolar.trim().length() - 4);
-                    }
-                    if (wponto.equals(",")) {
-                        $dolar = $dolar.replace(".", "");
-                        $dolar = $dolar.replace(",", ".");
-                    }
-                }
-            } else if ($dolar.length() >= 3) {
-                String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
-                if (wponto.equals(",")) {
-                    $dolar = $dolar.replace(".", "");
-                    $dolar = $dolar.replace(",", ".");
-                }
+            
+            
+            if (decimal == null){
+                decimal = 2;
             }
-            return Float.parseFloat($dolar);
+            
         } catch (Exception e) {
             return converteUS$($dolar, 4);
         }
+            
+        return num.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
     }
 
     public static String converteR$(String $dolar) {
@@ -159,12 +142,12 @@ public final class Moeda {
         return $dolar;
     }
 
-    public static String converteR$Float(float valor) {
+    public static String converteR$Float(double valor) {
         return converteR$Float(valor, null);
     }
 
-    public static String converteR$Float(float valor, Integer decimal) {
-        String $dolar = Float.toString(valor);
+    public static String converteR$Float(double valor, Integer decimal) {
+        String $dolar = Double.toString(valor);
         if ($dolar == null || $dolar.isEmpty()) {
             return "0,00";
         }
@@ -174,10 +157,10 @@ public final class Moeda {
             if ($dolar.length() >= 3) {
                 String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
                 if (!wponto.equals(",")) {
-                    $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+                    $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), df);
                 }
             } else {
-                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+                $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), df);
             }
         } else if ($dolar.length() >= 3) {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
@@ -187,24 +170,24 @@ public final class Moeda {
                 $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
             }
         } else {
-            $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+            $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
         }
         return $dolar;
     }
 
-    public static Float converteFloatR$Float(float valor) {
-        String $dolar = Float.toString(valor);
+    public static Double converteFloatR$Float(double valor) {
+        String $dolar = Double.toString(valor);
         if ($dolar == null || $dolar.isEmpty()) {
-            return (float) 0.0;
+            return (double) 0;
         }
         $dolar = Moeda.substituiVirgula($dolar);
         if ($dolar.length() >= 3) {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
             if (!wponto.equals(",")) {
-                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+                $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
             }
         } else {
-            $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+            $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
         }
         return Moeda.substituiVirgulaFloat($dolar);
     }
@@ -218,30 +201,24 @@ public final class Moeda {
         return v;
     }
 
-    public static float substituiVirgulaFloat(String v) {
+    public static double substituiVirgulaFloat(String v) {
         if (v.indexOf(",") == -1) {
-            return Float.parseFloat(v);
+            return Double.parseDouble(v);
         }
         v = v.replace(".", "");
         v = v.replace(",", ".");
-        return Float.parseFloat(v);
+        return Double.parseDouble(v);
     }
 
-    public static float somaValores(float a, float b) {
-        BigDecimal aBig = new BigDecimal(Float.toString(a));
-        BigDecimal bBig = new BigDecimal(Float.toString(b));
-        return (aBig.add(bBig)).floatValue();
-    }
-
-    public static Float somaValores(Float[] f) {
+    public static Double soma(Double[] d) {
         try {
-            float t = 0;
-            for (int i = 0; i < f.length; i++) {
-                t += (float) f[i];
+            double t = 0;
+            for (int i = 0; i < d.length; i++) {
+                t += (double) d[i];
             }
-            return new BigDecimal(Float.toString(t)).floatValue();
+            return t;
         } catch (Exception e) {
-            return (float) 0;
+            return (double) 0;
         }
     }
 
@@ -266,7 +243,8 @@ public final class Moeda {
     public static double soma(double a, double b) {
         BigDecimal aBig = new BigDecimal(a);
         BigDecimal bBig = new BigDecimal(b);
-        return aBig.add(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        //return aBig.add(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        return aBig.add(bBig).doubleValue();
     }
 
     public static double subtracao(double a, double b) {
@@ -274,20 +252,23 @@ public final class Moeda {
         BigDecimal bBig = new BigDecimal(b);
 //        BigDecimal aBig = new BigDecimal(753.71);
 //        BigDecimal bBig = new BigDecimal(0.02);
-        return aBig.subtract(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        //return aBig.subtract(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        return aBig.subtract(bBig).doubleValue();
     }
 
     public static double multiplicar(double a, double b) {
         BigDecimal aBig = new BigDecimal(a, new MathContext(2));
         BigDecimal bBig = new BigDecimal(b, new MathContext(2));
-        return aBig.multiply(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        //return aBig.multiply(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+        return aBig.multiply(bBig).doubleValue();
     }
 
     public static double divisao(double a, double divisor) {
         try {
             BigDecimal aBig = new BigDecimal(a, new MathContext(2));
             BigDecimal bBig = new BigDecimal(divisor, new MathContext(2));
-            return aBig.divide(bBig, new MathContext(100)).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+            //return aBig.divide(bBig, new MathContext(100)).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+            return aBig.divide(bBig, new MathContext(100)).doubleValue();
         } catch (Exception e) {
             return 0;
         }
@@ -303,8 +284,6 @@ public final class Moeda {
 //        s = df1.format (d); 
 //        System.out.println (s); // imprime -5.000,00
         String s = df2.format(d);
-        System.out.println(); // imprime (5.000,00)
-
         return s;
     }
 
@@ -322,29 +301,7 @@ public final class Moeda {
 
     // FIM NOVOS METODOS CLAUDEMIR --------------------------------------------------------------------
     // --------------------------------------------------------------------------------------------
-    public static float subtracaoValores(float a, float b) {
-        BigDecimal aBig = new BigDecimal(Float.toString(a));
-        BigDecimal bBig = new BigDecimal(Float.toString(b));
-        return (aBig.subtract(bBig)).floatValue();
-    }
-
-    public static float multiplicarValores(float a, float b) {
-        BigDecimal aBig = new BigDecimal(Float.toString(a));
-        BigDecimal bBig = new BigDecimal(Float.toString(b));
-        return (aBig.multiply(bBig)).floatValue();
-    }
-
-    public static float divisaoValores(float a, float divisor) {
-        try {
-            BigDecimal aBig = new BigDecimal(Float.toString(a));
-            BigDecimal bBig = new BigDecimal(Float.toString(divisor));
-            String result = aBig.divide(bBig, new MathContext(100)).toString();
-            return Float.parseFloat(result);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
+    
     public static String limparPonto(String valor) {
         valor = converteR$(valor);
         valor = substituiVirgula(valor);
@@ -377,11 +334,6 @@ public final class Moeda {
         return result;
     }
 
-//    public static String percentualDoValor(String valorFixo, String valorCalculo) {
-//        float v1 = Moeda.subtracaoValores(Moeda.converteUS$(valorFixo), Moeda.converteUS$(valorCalculo));
-//        float v2 = Moeda.multiplicarValores(Moeda.divisaoValores(v1, Moeda.converteUS$(valorFixo)), 100);
-//        return Moeda.converteR$Float(v2);
-//    }
     public static String percentualDoValor(String valorFixo, String valorCalculo) {
         double v1 = Moeda.converteUS$(valorFixo);
         double v2 = Moeda.converteUS$(valorCalculo);
@@ -389,19 +341,22 @@ public final class Moeda {
     }
 
     public static String valorDoPercentual(String valorFixo, String percentual) {
-        //v = servicoValorDetalhe.getValor() - (listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getDesconto() / 100) * servicoValorDetalhe.getValor();
-        float v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);
-        return Moeda.converteR$Float(v);
+        
+        double v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);
+        
+        return converteDoubleToString(v);
     }
 
-    public static Float percentualDoValor(Float valorFixo, Float valorCalculo) {
+    public static Double percentualDoValor(Double valorFixo, Double valorCalculo) {
         double v1 = valorFixo;
         double v2 = valorCalculo;
         return Moeda.converteUS$(Double.toString((v2 / v1) * 100));
     }
 
-    public static Float valorDoPercentual(Float valorFixo, Float percentual) {
-        float v = valorFixo - (percentual / 100) * valorFixo;
+    public static Double valorDoPercentual(Double valorFixo, Double percentual) {
+        
+        double v = valorFixo - (percentual / 100) * valorFixo;
+        
         return v;
     }
 
