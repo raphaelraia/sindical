@@ -28,11 +28,11 @@ public class ServicoValorHistorico implements Serializable {
     @Column(name = "nr_idade_fim", length = 18, nullable = false, columnDefinition = "integer default 500")
     private Integer idadeFim;
     @Column(name = "nr_valor", length = 18, nullable = false, columnDefinition = "double precision default 0")
-    private Float valor;
+    private Double valor;
     @Column(name = "nr_desconto_ate_vencimento", length = 18, nullable = false, columnDefinition = "double precision default 0")
-    private Float descontoAteVenc;
+    private Double descontoAteVenc;
     @Column(name = "nr_taxa", length = 18, nullable = true, columnDefinition = "double precision default 0")
-    private Float taxa;
+    private Double taxa;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_data")
     private Date dtData;
@@ -44,13 +44,13 @@ public class ServicoValorHistorico implements Serializable {
         this.usuario = null;
         this.idadeIni = null;
         this.idadeFim = null;
-        this.valor = new Float(0);
-        this.descontoAteVenc = new Float(0);
-        this.taxa = new Float(0);
+        this.valor = new Double(0);
+        this.descontoAteVenc = new Double(0);
+        this.taxa = new Double(0);
         this.dtData = null;
     }
 
-    public ServicoValorHistorico(Integer id, Servicos servico, ServicoValor servicoValor, Usuario usuario, Integer idadeIni, Integer idadeFim, Float valor, Float descontoAteVenc, Float taxa, Date dtData) {
+    public ServicoValorHistorico(Integer id, Servicos servico, ServicoValor servicoValor, Usuario usuario, Integer idadeIni, Integer idadeFim, Double valor, Double descontoAteVenc, Double taxa, Date dtData) {
         this.id = id;
         this.servico = servico;
         this.servicoValor = servicoValor;
@@ -111,27 +111,27 @@ public class ServicoValorHistorico implements Serializable {
         this.idadeFim = idadeFim;
     }
 
-    public Float getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(Float valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
-    public Float getDescontoAteVenc() {
+    public Double getDescontoAteVenc() {
         return descontoAteVenc;
     }
 
-    public void setDescontoAteVenc(Float descontoAteVenc) {
+    public void setDescontoAteVenc(Double descontoAteVenc) {
         this.descontoAteVenc = descontoAteVenc;
     }
 
-    public Float getTaxa() {
+    public Double getTaxa() {
         return taxa;
     }
 
-    public void setTaxa(Float taxa) {
+    public void setTaxa(Double taxa) {
         this.taxa = taxa;
     }
 

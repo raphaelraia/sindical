@@ -54,10 +54,10 @@ public class LocadoraMovimento implements Serializable {
     private Boolean selected;
 
     @Transient
-    private Float valorMultaDiaria;
+    private Double valorMultaDiaria;
 
     @Transient
-    private Float valorTotal;
+    private Double valorTotal;
 
     public LocadoraMovimento() {
         this.id = null;
@@ -176,26 +176,26 @@ public class LocadoraMovimento implements Serializable {
         return 0;
     }
 
-    public Float getValorMultaDiaria() {
+    public Double getValorMultaDiaria() {
         if (valorMultaDiaria == null) {
             this.valorMultaDiaria = new FunctionsDao().multaDiariaLocadora(this.locadoraLote.getFilial().getId(), this.locadoraLote.getDtLocacao());
         }
         return valorMultaDiaria;
     }
 
-    public void setValorMultaDiaria(Float valorMultaDiaria) {
+    public void setValorMultaDiaria(Double valorMultaDiaria) {
         this.valorMultaDiaria = valorMultaDiaria;
     }
 
     public String getValorMultaDiariaString() {
-        return Moeda.converteR$Float(getValorMultaDiaria());
+        return Moeda.converteR$Double(getValorMultaDiaria());
     }
 
     public void setValorMultaDiariaString(String valorMultaDiariaString) {
         this.valorMultaDiaria = Moeda.converteUS$(valorMultaDiariaString);
     }
 
-    public Float getValorTotal() {
+    public Double getValorTotal() {
         if (valorTotal == null) {
             if(movimento == null) {
                 valorTotal = getDiasAtraso() * valorMultaDiaria;                
@@ -206,12 +206,12 @@ public class LocadoraMovimento implements Serializable {
         return valorTotal;
     }
 
-    public void setValorTotal(Float valorTotal) {
+    public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
     }
 
     public String getValorTotalString() {
-        return Moeda.converteR$Float(getValorTotal());
+        return Moeda.converteR$Double(getValorTotal());
     }
 
     public void setValorTotalString(String valorTotalString) {
@@ -219,7 +219,7 @@ public class LocadoraMovimento implements Serializable {
     }
 
     public Double getValorTotalDouble() {
-        return Double.parseDouble(Moeda.converteR$Float(getValorTotal()));
+        return Double.parseDouble(Moeda.converteR$Double(getValorTotal()));
     }
 
     @Override

@@ -25,11 +25,11 @@ public class ServicoValor implements java.io.Serializable {
     @Column(name = "nr_idade_fim", length = 18, nullable = false, columnDefinition = "integer default 500")
     private int idadeFim;
     @Column(name = "nr_valor", length = 18, nullable = false, columnDefinition = "double precision default 0")
-    private float valor;
+    private double valor;
     @Column(name = "nr_desconto_ate_vencimento", length = 18, nullable = false, columnDefinition = "double precision default 0")
-    private float descontoAteVenc;
+    private double descontoAteVenc;
     @Column(name = "nr_taxa", length = 18, nullable = true, columnDefinition = "double precision default 0")
-    private float taxa;
+    private double taxa;
 
     public ServicoValor() {
         this.id = -1;
@@ -41,7 +41,7 @@ public class ServicoValor implements java.io.Serializable {
         this.taxa = 0;
     }
 
-    public ServicoValor(int id, Servicos servicos, int idadeIni, int idadeFim, float valor, float descontoAteVenc, float taxa) {
+    public ServicoValor(int id, Servicos servicos, int idadeIni, int idadeFim, double valor, double descontoAteVenc, double taxa) {
         this.id = id;
         this.servicos = servicos;
         this.idadeIni = idadeIni;
@@ -83,32 +83,32 @@ public class ServicoValor implements java.io.Serializable {
         this.idadeFim = idadeFim;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 
-    public float getDescontoAteVenc() {
+    public double getDescontoAteVenc() {
         return descontoAteVenc;
     }
 
-    public void setDescontoAteVenc(float descontoAteVenc) {
+    public void setDescontoAteVenc(double descontoAteVenc) {
         this.descontoAteVenc = descontoAteVenc;
     }
 
-    public float getTaxa() {
+    public double getTaxa() {
         return taxa;
     }
 
-    public void setTaxa(float taxa) {
+    public void setTaxa(double taxa) {
         this.taxa = taxa;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valor) {

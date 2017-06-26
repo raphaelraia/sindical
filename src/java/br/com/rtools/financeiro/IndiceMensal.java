@@ -16,7 +16,7 @@ public class IndiceMensal implements java.io.Serializable {
     @Column(name = "nr_mes", length = 2, nullable = false)
     private int mes;
     @Column(name = "nr_valor", nullable = false)
-    private float valor;
+    private double valor;
     @JoinColumn(name = "id_indice", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Indice indice;
@@ -28,7 +28,7 @@ public class IndiceMensal implements java.io.Serializable {
         this.valor = 0;
     }
 
-    public IndiceMensal(int id, int ano, int mes, float valor) {
+    public IndiceMensal(int id, int ano, int mes, double valor) {
         this.id = id;
         this.ano = ano;
         this.mes = mes;
@@ -59,11 +59,11 @@ public class IndiceMensal implements java.io.Serializable {
         this.mes = mes;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 

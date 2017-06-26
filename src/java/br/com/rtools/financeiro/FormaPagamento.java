@@ -24,9 +24,9 @@ public class FormaPagamento implements java.io.Serializable {
     @ManyToOne
     private ChequePag chequePag;
     @Column(name = "nr_valorp", length = 10)
-    private float valorP;
+    private double valorP;
     @Column(name = "nr_valor", length = 10)
-    private float valor;
+    private double valor;
     @JoinColumn(name = "id_filial", referencedColumnName = "id")
     @ManyToOne
     private Filial filial;
@@ -43,12 +43,12 @@ public class FormaPagamento implements java.io.Serializable {
     @ManyToOne
     private TipoPagamento tipoPagamento;
     @Column(name = "nr_valor_liquido", length = 10)
-    private float valorLiquido;
+    private double valorLiquido;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_credito")
     private Date dtCredito;
     @Column(name = "nr_taxa", length = 10)
-    private float taxa;
+    private double taxa;
     @JoinColumn(name = "id_status", referencedColumnName = "id")
     @ManyToOne
     private FStatus status;
@@ -90,16 +90,16 @@ public class FormaPagamento implements java.io.Serializable {
             Baixa baixa,
             ChequeRec chequeRec,
             ChequePag chequePag,
-            float valorP,
-            float valor,
+            double valorP,
+            double valor,
             Filial filial,
             Plano5 plano5,
             CartaoPag cartaoPag,
             CartaoRec cartaoRec,
             TipoPagamento tipoPagamento,
-            float valorLiquido,
+            double valorLiquido,
             Date dtCredito,
-            float taxa,
+            double taxa,
             FStatus status,
             Integer devolucao,
             Plano5 conciliacaoPlano5,
@@ -158,24 +158,24 @@ public class FormaPagamento implements java.io.Serializable {
         this.chequePag = chequePag;
     }
 
-    public float getValorP() {
+    public double getValorP() {
         return valorP;
     }
 
-    public void setValorP(float valorP) {
+    public void setValorP(double valorP) {
         this.valorP = valorP;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {
@@ -222,16 +222,16 @@ public class FormaPagamento implements java.io.Serializable {
         this.tipoPagamento = tipoPagamento;
     }
 
-    public float getValorLiquido() {
+    public double getValorLiquido() {
         return valorLiquido;
     }
 
-    public void setValorLiquido(float valorLiquido) {
+    public void setValorLiquido(double valorLiquido) {
         this.valorLiquido = valorLiquido;
     }
 
     public String getValorLiquidoString() {
-        return Moeda.converteR$Float(valorLiquido);
+        return Moeda.converteR$Double(valorLiquido);
     }
 
     public void setValorLiquidoString(String valorLiquidoString) {
@@ -246,11 +246,11 @@ public class FormaPagamento implements java.io.Serializable {
         this.dtCredito = dtCredito;
     }
 
-    public float getTaxa() {
+    public double getTaxa() {
         return taxa;
     }
 
-    public void setTaxa(float taxa) {
+    public void setTaxa(double taxa) {
         this.taxa = taxa;
     }
 

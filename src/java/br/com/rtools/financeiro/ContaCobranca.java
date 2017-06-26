@@ -19,7 +19,7 @@ public class ContaCobranca implements java.io.Serializable {
     @Column(name = "ds_local_pagamento", length = 100, nullable = false)
     private String localPagamento;
     @Column(name = "nr_repasse", length = 100, nullable = false)
-    private float repasse;
+    private double repasse;
     @Column(name = "ds_boleto_inicial", length = 100, nullable = false)
     private String boletoInicial;
     @Column(name = "ds_categoria_sindical", length = 1)
@@ -96,7 +96,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.cobrancaRegistrada = false;
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, float repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, boolean cobrancaRegistrada) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, boolean cobrancaRegistrada) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -158,11 +158,11 @@ public class ContaCobranca implements java.io.Serializable {
         this.localPagamento = localPagamento;
     }
 
-    public float getRepasse() {
+    public double getRepasse() {
         return repasse;
     }
 
-    public void setRepasse(float repasse) {
+    public void setRepasse(double repasse) {
         this.repasse = repasse;
     }
 

@@ -15,17 +15,17 @@ public class Correcao implements java.io.Serializable {
     @Column(name = "id")
     private int id;
     @Column(name = "nr_multa_primeiro_mes", nullable = false)
-    private float multaPriMes;
+    private double multaPriMes;
     @Column(name = "nr_multa_apartir_2mes", nullable = false)
-    private float multaApartir2Mes;
+    private double multaApartir2Mes;
     @Column(name = "nr_juros_pri_mes", nullable = false)
-    private float jurosPriMes;
+    private double jurosPriMes;
     @Column(name = "nr_juros_apartir_2mes", nullable = false)
-    private float jurosApartir2Mes;
+    private double jurosApartir2Mes;
     @Column(name = "nr_multa_por_funcionario", nullable = false)
-    private float multaPorFuncionario;
+    private double multaPorFuncionario;
     @Column(name = "nr_juros_diarios", nullable = false)
-    private float jurosDiarios;
+    private double jurosDiarios;
     @JoinColumn(name = "id_indice", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Indice indice;
@@ -51,7 +51,7 @@ public class Correcao implements java.io.Serializable {
         this.referenciaFinal = "";
     }
 
-    public Correcao(int id, float multaPriMes, float multaApartir2Mes, float jurosPriMes, float jurosApartir2Mes, float multaPorFuncionario, float jurosDiarios, Indice indice, Servicos servicos, String referenciaInicial, String referenciaFinal) {
+    public Correcao(int id, double multaPriMes, double multaApartir2Mes, double jurosPriMes, double jurosApartir2Mes, double multaPorFuncionario, double jurosDiarios, Indice indice, Servicos servicos, String referenciaInicial, String referenciaFinal) {
         this.id = id;
         this.multaPriMes = multaPriMes;
         this.multaApartir2Mes = multaApartir2Mes;
@@ -73,43 +73,43 @@ public class Correcao implements java.io.Serializable {
         this.id = id;
     }
 
-    public float getMultaPriMes() {
+    public double getMultaPriMes() {
         return multaPriMes;
     }
 
-    public void setMultaPriMes(float multaPriMes) {
+    public void setMultaPriMes(double multaPriMes) {
         this.multaPriMes = multaPriMes;
     }
 
-    public float getMultaApartir2Mes() {
+    public double getMultaApartir2Mes() {
         return multaApartir2Mes;
     }
 
-    public void setMultaApartir2Mes(float multaApartir2Mes) {
+    public void setMultaApartir2Mes(double multaApartir2Mes) {
         this.multaApartir2Mes = multaApartir2Mes;
     }
 
-    public float getJurosPriMes() {
+    public double getJurosPriMes() {
         return jurosPriMes;
     }
 
-    public void setJurosPriMes(float jurosPriMes) {
+    public void setJurosPriMes(double jurosPriMes) {
         this.jurosPriMes = jurosPriMes;
     }
 
-    public float getJurosApartir2Mes() {
+    public double getJurosApartir2Mes() {
         return jurosApartir2Mes;
     }
 
-    public void setJurosApartir2Mes(float jurosApartir2Mes) {
+    public void setJurosApartir2Mes(double jurosApartir2Mes) {
         this.jurosApartir2Mes = jurosApartir2Mes;
     }
 
-    public float getMultaPorFuncionario() {
+    public double getMultaPorFuncionario() {
         return multaPorFuncionario;
     }
 
-    public void setMultaPorFuncionario(float multaPorFuncionario) {
+    public void setMultaPorFuncionario(double multaPorFuncionario) {
         this.multaPorFuncionario = multaPorFuncionario;
     }
 
@@ -121,11 +121,11 @@ public class Correcao implements java.io.Serializable {
         this.servicos = servicos;
     }
 
-    public float getJurosDiarios() {
+    public double getJurosDiarios() {
         return jurosDiarios;
     }
 
-    public void setJurosDiarios(float jurosDiarios) {
+    public void setJurosDiarios(double jurosDiarios) {
         this.jurosDiarios = jurosDiarios;
     }
 

@@ -45,7 +45,7 @@ public class Movimento implements Serializable {
     @ManyToOne
     private Acordo acordo;
     @Column(name = "nr_valor", length = 10, nullable = false)
-    private float valor;
+    private double valor;
     @Column(name = "ds_referencia", length = 7)
     private String referencia;
     @Temporal(TemporalType.DATE)
@@ -73,21 +73,21 @@ public class Movimento implements Serializable {
     @Column(name = "dt_vencimento_original")
     private Date dtVencimentoOriginal;
     @Column(name = "nr_desconto_ate_vencimento", length = 10)
-    private float descontoAteVencimento;
+    private double descontoAteVencimento;
     @Column(name = "nr_correcao", length = 10)
-    private float correcao;
+    private double correcao;
     @Column(name = "nr_juros", length = 10)
-    private float juros;
+    private double juros;
     @Column(name = "nr_multa", length = 10)
-    private float multa;
+    private double multa;
     @Column(name = "nr_desconto", length = 10)
-    private float desconto;
+    private double desconto;
     @Column(name = "nr_taxa", length = 10)
-    private float taxa;
+    private double taxa;
     @Column(name = "nr_valor_baixa", length = 10)
-    private float valorBaixa;
+    private double valorBaixa;
     @Column(name = "nr_repasse_automatico", length = 10)
-    private float repasseAutomatico;
+    private double repasseAutomatico;
     @JoinColumn(name = "id_tipo_documento", referencedColumnName = "id")
     @ManyToOne
     private FTipoDocumento tipoDocumento;
@@ -193,7 +193,7 @@ public class Movimento implements Serializable {
             Baixa baixa,
             TipoServico tipoServico,
             Acordo acordo,
-            float valor,
+            double valor,
             String referencia,
             String vencimento,
             int quantidade,
@@ -205,15 +205,15 @@ public class Movimento implements Serializable {
             String documento,
             String nrCtrBoleto,
             String vencimentoOriginal,
-            float descontoAteVencimento,
-            float correcao,
-            float juros,
-            float multa,
-            float desconto,
-            float taxa,
-            float valorBaixa,
+            double descontoAteVencimento,
+            double correcao,
+            double juros,
+            double multa,
+            double desconto,
+            double taxa,
+            double valorBaixa,
             FTipoDocumento tipoDocumento,
-            float repasseAutomatico,
+            double repasseAutomatico,
             MatriculaSocios matriculaSocios) {
         this.id = id;
         this.lote = lote;
@@ -305,16 +305,16 @@ public class Movimento implements Serializable {
         this.tipoServico = tipoServico;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {
@@ -425,107 +425,107 @@ public class Movimento implements Serializable {
         this.acordo = acordo;
     }
 
-    public float getDescontoAteVencimento() {
+    public double getDescontoAteVencimento() {
         return descontoAteVencimento;
     }
 
-    public void setDescontoAteVencimento(float descontoAteVencimento) {
+    public void setDescontoAteVencimento(double descontoAteVencimento) {
         this.descontoAteVencimento = descontoAteVencimento;
     }
 
-    public float getCorrecao() {
+    public double getCorrecao() {
         return correcao;
     }
 
-    public void setCorrecao(float correcao) {
+    public void setCorrecao(double correcao) {
         this.correcao = correcao;
     }
 
     public String getCorrecaoString() {
-        return Moeda.converteR$Float(correcao);
+        return Moeda.converteR$Double(correcao);
     }
 
     public void setCorrecaoString(String correcaoString) {
         this.correcao = Moeda.converteUS$(correcaoString);
     }
 
-    public float getJuros() {
+    public double getJuros() {
         return juros;
     }
 
-    public void setJuros(float juros) {
+    public void setJuros(double juros) {
         this.juros = juros;
     }
 
     public String getJurosString() {
-        return Moeda.converteR$Float(juros);
+        return Moeda.converteR$Double(juros);
     }
 
     public void setJurosString(String jurosString) {
         this.juros = Moeda.converteUS$(jurosString);
     }
 
-    public float getMulta() {
+    public double getMulta() {
         return multa;
     }
 
-    public void setMulta(float multa) {
+    public void setMulta(double multa) {
         this.multa = multa;
     }
 
     public String getMultaString() {
-        return Moeda.converteR$Float(multa);
+        return Moeda.converteR$Double(multa);
     }
 
     public void setMultaString(String multaString) {
         this.juros = Moeda.converteUS$(multaString);
     }
 
-    public float getDesconto() {
+    public double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(double desconto) {
         this.desconto = desconto;
     }
 
     public String getDescontoString() {
-        return Moeda.converteR$Float(desconto);
+        return Moeda.converteR$Double(desconto);
     }
 
     public void setDescontoString(String descontoString) {
         this.desconto = Moeda.converteUS$(descontoString);
     }
 
-    public float getTaxa() {
+    public double getTaxa() {
         return taxa;
     }
 
-    public void setTaxa(float taxa) {
+    public void setTaxa(double taxa) {
         this.taxa = taxa;
     }
 
-    public float getValorBaixa() {
+    public double getValorBaixa() {
         return valorBaixa;
     }
 
-    public void setValorBaixa(float valorBaixa) {
+    public void setValorBaixa(double valorBaixa) {
         this.valorBaixa = valorBaixa;
     }
 
     public String getValorBaixaString() {
-        return Moeda.converteR$Float(valorBaixa);
+        return Moeda.converteR$Double(valorBaixa);
     }
 
     public void setValorBaixaString(String valorBaixaString) {
         this.valorBaixa = Moeda.converteUS$(valorBaixaString);
     }
 
-    public float getRepasseAutomatico() {
+    public double getRepasseAutomatico() {
         return repasseAutomatico;
     }
 
-    public void setRepasseAutomatico(float repasseAutomatico) {
+    public void setRepasseAutomatico(double repasseAutomatico) {
         this.repasseAutomatico = repasseAutomatico;
     }
 
@@ -545,15 +545,15 @@ public class Movimento implements Serializable {
         this.tipoDocumento = fTipoDocumento;
     }
 
-    public Float getTotal() {
+    public Double getTotal() {
         try {
             if (this.id == -1) {
-                return new Float(0);
+                return new Double(0);
             } else {
                 return this.valor + this.multa + this.juros + correcao - desconto;
             }
         } catch (Exception e) {
-            return new Float(0);
+            return new Double(0);
         }
     }
 
@@ -562,7 +562,7 @@ public class Movimento implements Serializable {
             if (this.id == -1) {
                 return "0,00";
             } else {
-                return Moeda.converteR$Float(this.valor + this.multa + this.juros + this.correcao - this.desconto);
+                return Moeda.converteR$Double(this.valor + this.multa + this.juros + this.correcao - this.desconto);
             }
         } catch (Exception e) {
             return "0,00";

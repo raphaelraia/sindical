@@ -29,7 +29,7 @@ public class Cartao implements Serializable {
     @Column(name = "nr_dias")
     private int dias;
     @Column(name = "nr_taxa")
-    private float taxa;
+    private double taxa;
     @Column(name = "ds_debito_credito")
     private String debitoCredito;
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
@@ -53,7 +53,7 @@ public class Cartao implements Serializable {
         this.plano5Despesa = new Plano5();
     }
 
-    public Cartao(int id, String descricao, int dias, float taxa, String debitoCredito, Plano5 plano5, Plano5 plano5Baixa, Plano5 plano5Despesa) {
+    public Cartao(int id, String descricao, int dias, double taxa, String debitoCredito, Plano5 plano5, Plano5 plano5Baixa, Plano5 plano5Despesa) {
         this.id = id;
         this.descricao = descricao;
         this.dias = dias;
@@ -88,11 +88,11 @@ public class Cartao implements Serializable {
         this.dias = dias;
     }
 
-    public float getTaxa() {
+    public double getTaxa() {
         return taxa;
     }
 
-    public void setTaxa(float taxa) {
+    public void setTaxa(double taxa) {
         this.taxa = taxa;
     }
 

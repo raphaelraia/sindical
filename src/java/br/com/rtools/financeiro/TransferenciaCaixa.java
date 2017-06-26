@@ -29,7 +29,7 @@ public class TransferenciaCaixa implements java.io.Serializable {
     @ManyToOne
     private Caixa caixaSaida;
     @Column(name = "nr_valor")
-    private float valor;
+    private double valor;
     @JoinColumn(name = "id_caixa_entrada", referencedColumnName = "id")
     @ManyToOne
     private Caixa caixaEntrada;
@@ -61,7 +61,7 @@ public class TransferenciaCaixa implements java.io.Serializable {
         this.usuario = null;
     }
 
-    public TransferenciaCaixa(int id, Caixa caixaSaida, float valor, Caixa caixaEntrada, Date dtLancamento, FStatus status, FechamentoCaixa fechamentoEntrada, FechamentoCaixa fechamentoSaida, Usuario usuario) {
+    public TransferenciaCaixa(int id, Caixa caixaSaida, double valor, Caixa caixaEntrada, Date dtLancamento, FStatus status, FechamentoCaixa fechamentoEntrada, FechamentoCaixa fechamentoSaida, Usuario usuario) {
         this.id = id;
         this.caixaSaida = caixaSaida;
         this.valor = valor;
@@ -89,17 +89,17 @@ public class TransferenciaCaixa implements java.io.Serializable {
         this.caixaSaida = caixaSaida;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
     
     
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {

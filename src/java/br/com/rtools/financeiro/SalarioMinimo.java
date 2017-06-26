@@ -24,11 +24,11 @@ public class SalarioMinimo implements Serializable {
     @Column(name = "dt_vigencia")
     private Date vigencia;
     @Column(name = "nr_valor_mensal", columnDefinition = "double precision default 0")
-    private float valorMensal;
+    private double valorMensal;
     @Column(name = "nr_valor_diario", columnDefinition = "double precision default 0")
-    private float valorDiario;
+    private double valorDiario;
     @Column(name = "nr_valor_hora", columnDefinition = "double precision default 0")
-    private float valorHora;
+    private double valorHora;
     @Column(name = "ds_norma")
     private String norma;
     @Temporal(TemporalType.DATE)
@@ -45,7 +45,7 @@ public class SalarioMinimo implements Serializable {
         this.publicacao = new Date();
     }
 
-    public SalarioMinimo(int id, Date vigencia, float valorMensal, float valorDiario, float valorHora, String norma, Date publicacao) {
+    public SalarioMinimo(int id, Date vigencia, double valorMensal, double valorDiario, double valorHora, String norma, Date publicacao) {
         this.id = id;
         this.vigencia = vigencia;
         this.valorMensal = valorMensal;
@@ -71,27 +71,27 @@ public class SalarioMinimo implements Serializable {
         this.vigencia = vigencia;
     }
 
-    public float getValorMensal() {
+    public double getValorMensal() {
         return valorMensal;
     }
 
-    public void setValorMensal(float valorMensal) {
+    public void setValorMensal(double valorMensal) {
         this.valorMensal = valorMensal;
     }
 
-    public float getValorDiario() {
+    public double getValorDiario() {
         return valorDiario;
     }
 
-    public void setValorDiario(float valorDiario) {
+    public void setValorDiario(double valorDiario) {
         this.valorDiario = valorDiario;
     }
 
-    public float getValorHora() {
+    public double getValorHora() {
         return valorHora;
     }
 
-    public void setValorHora(float valorHora) {
+    public void setValorHora(double valorHora) {
         this.valorHora = valorHora;
     }
 
@@ -128,7 +128,7 @@ public class SalarioMinimo implements Serializable {
     }
 
     public String getValorMensalString() {
-        return Moeda.converteR$Float(valorMensal);
+        return Moeda.converteR$Double(valorMensal);
     }
 
     public void setValorMensalString(String valorMensalString) {
@@ -136,7 +136,7 @@ public class SalarioMinimo implements Serializable {
     }
 
     public String getValorDiarioString() {
-        return Moeda.converteR$Float(valorDiario);
+        return Moeda.converteR$Double(valorDiario);
     }
 
     public void setValorDiarioString(String valorDiarioString) {
@@ -144,7 +144,7 @@ public class SalarioMinimo implements Serializable {
     }
 
     public String getValorHoraString() {
-        return Moeda.converteR$Float(valorHora);
+        return Moeda.converteR$Double(valorHora);
     }
 
     public void setValorHoraString(String valorHoraString) {

@@ -31,14 +31,14 @@ public class FechamentoCaixa implements java.io.Serializable {
     @Column(name = "ds_hora")
     private String hora;
     @Column(name = "nr_valor_informado")
-    private float valorInformado;
+    private double valorInformado;
     @JoinColumn(name = "id_usuario", referencedColumnName = "id")
     @ManyToOne
     private Usuario usuario;
     @Column(name = "nr_valor_fechamento")
-    private float valorFechamento;
+    private double valorFechamento;
     @Column(name = "nr_saldo_atual")
-    private float saldoAtual;
+    private double saldoAtual;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_fechamento_geral")
     private Date dtFechamentoGeral;    
@@ -54,7 +54,7 @@ public class FechamentoCaixa implements java.io.Serializable {
         this.dtFechamentoGeral = null;
     }
 
-    public FechamentoCaixa(int id, Date dtData, String hora, float valorInformado, Caixa caixa, Usuario usuario, Filial filial, float valorFechamento, float saldoAtual, Date dtFechamentoGeral) {
+    public FechamentoCaixa(int id, Date dtData, String hora, double valorInformado, Caixa caixa, Usuario usuario, Filial filial, double valorFechamento, double saldoAtual, Date dtFechamentoGeral) {
         this.id = id;
         this.dtData = dtData;
         this.hora = hora;
@@ -89,11 +89,11 @@ public class FechamentoCaixa implements java.io.Serializable {
         this.hora = hora;
     }
 
-    public float getValorInformado() {
+    public double getValorInformado() {
         return valorInformado;
     }
 
-    public void setValorInformado(float valorInformado) {
+    public void setValorInformado(double valorInformado) {
         this.valorInformado = valorInformado;
     }
 
@@ -119,19 +119,19 @@ public class FechamentoCaixa implements java.io.Serializable {
         }
     }
 
-    public float getValorFechamento() {
+    public double getValorFechamento() {
         return valorFechamento;
     }
 
-    public void setValorFechamento(float valorFechamento) {
+    public void setValorFechamento(double valorFechamento) {
         this.valorFechamento = valorFechamento;
     }
 
-    public float getSaldoAtual() {
+    public double getSaldoAtual() {
         return saldoAtual;
     }
 
-    public void setSaldoAtual(float saldoAtual) {
+    public void setSaldoAtual(double saldoAtual) {
         this.saldoAtual = saldoAtual;
     }
 

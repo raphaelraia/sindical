@@ -24,16 +24,16 @@ public class EstornoCaixa implements java.io.Serializable {
     @ManyToOne
     private Movimento movimento;
     @Column(name = "nr_valor_baixa", nullable = false)
-    private Float nrValorBaixa;
+    private Double nrValorBaixa;
 
     public EstornoCaixa() {
         this.id = -1;
         this.estornoCaixaLote = new EstornoCaixaLote();
         this.movimento = new Movimento();
-        this.nrValorBaixa = (float) 0;
+        this.nrValorBaixa = (double) 0;
     }
 
-    public EstornoCaixa(int id, EstornoCaixaLote estornoCaixaLote, Movimento movimento, Float nrValorBaixa) {
+    public EstornoCaixa(int id, EstornoCaixaLote estornoCaixaLote, Movimento movimento, Double nrValorBaixa) {
         this.id = id;
         this.estornoCaixaLote = estornoCaixaLote;
         this.movimento = movimento;
@@ -64,11 +64,11 @@ public class EstornoCaixa implements java.io.Serializable {
         this.movimento = movimento;
     }
 
-    public Float getNrValorBaixa() {
+    public Double getNrValorBaixa() {
         return nrValorBaixa;
     }
 
-    public void setNrValorBaixa(Float nrValorBaixa) {
+    public void setNrValorBaixa(Double nrValorBaixa) {
         this.nrValorBaixa = nrValorBaixa;
     }
 

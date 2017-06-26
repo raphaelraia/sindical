@@ -43,7 +43,7 @@ public class Lote implements java.io.Serializable {
     @Column(name = "ds_documento", length = 100)
     private String documento;
     @Column(name = "nr_valor", length = 10, nullable = false)
-    private float valor;
+    private double valor;
     @JoinColumn(name = "id_filial", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Filial filial;
@@ -70,7 +70,7 @@ public class Lote implements java.io.Serializable {
     @Column(name = "is_desconto_folha", columnDefinition = "boolean default false")
     private boolean descontoFolha;
     @Column(name = "nr_desconto", length = 10)
-    private float desconto;
+    private double desconto;
     @JoinColumn(name = "id_usuario", referencedColumnName = "id")
     @OneToOne
     private Usuario usuario;
@@ -120,7 +120,7 @@ public class Lote implements java.io.Serializable {
         this.historicoContabilPadrao = "";
     }
 
-    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa, String historicoContabil, Periodo periodoCobranca, String historicoContabilPadrao) {
+    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, double valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, double desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa, String historicoContabil, Periodo periodoCobranca, String historicoContabilPadrao) {
         this.id = id;
         this.rotina = rotina;
         this.pagRec = pagRec;
@@ -238,16 +238,16 @@ public class Lote implements java.io.Serializable {
         this.documento = documento;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {
@@ -326,16 +326,16 @@ public class Lote implements java.io.Serializable {
         this.descontoFolha = descontoFolha;
     }
 
-    public float getDesconto() {
+    public double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(double desconto) {
         this.desconto = desconto;
     }
     
     public String getDescontoString() {
-        return Moeda.converteR$Float(desconto);
+        return Moeda.converteR$Double(desconto);
     }
 
     public void setDescontoString(String descontoString) {

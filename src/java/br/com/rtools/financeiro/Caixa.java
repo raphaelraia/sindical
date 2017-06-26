@@ -50,7 +50,7 @@ public class Caixa implements Serializable {
     @ManyToOne
     private Filial filial;
     @Column(name = "nr_fundo_fixo")
-    private float fundoFixo;
+    private double fundoFixo;
     @JoinColumn(name = "id_usuario", referencedColumnName = "id")
     @ManyToOne
     private Usuario usuario;
@@ -65,7 +65,7 @@ public class Caixa implements Serializable {
     }
 
 
-    public Caixa(int id, int caixa, String descricao, Filial filial, float fundoFixo, Usuario usuario) {
+    public Caixa(int id, int caixa, String descricao, Filial filial, double fundoFixo, Usuario usuario) {
         this.id = id;
         this.caixa = caixa;
         this.descricao = descricao;
@@ -106,16 +106,16 @@ public class Caixa implements Serializable {
         this.filial = filial;
     }
 
-    public float getFundoFixo() {
+    public double getFundoFixo() {
         return fundoFixo;
     }
 
-    public void setFundoFixo(float fundoFixo) {
+    public void setFundoFixo(double fundoFixo) {
         this.fundoFixo = fundoFixo;
     }
     
     public String getFundoFixoString() {
-        return Moeda.converteR$Float(fundoFixo);
+        return Moeda.converteR$Double(fundoFixo);
     }
 
     public void setFundoFixoString(String fundoFixoString) {

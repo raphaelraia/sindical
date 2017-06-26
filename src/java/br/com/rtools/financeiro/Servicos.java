@@ -93,7 +93,7 @@ public class Servicos implements java.io.Serializable {
     private Boolean selected;
 
     @Transient
-    private Float valorCheio;
+    private Double valorCheio;
 
     public Servicos() {
         this.id = -1;
@@ -462,11 +462,11 @@ public class Servicos implements java.io.Serializable {
      * @param pessoa_id
      * @return
      */
-    public Float getValorCheio(Integer pessoa_id) {
+    public Double getValorCheio(Integer pessoa_id) {
         try {
             return new FunctionsDao().valorServicoCheio(pessoa_id, this.id, new Date());
         } catch (Exception e) {
-            return new Float(0);
+            return new Double(0);
         }
     }
 
@@ -478,7 +478,7 @@ public class Servicos implements java.io.Serializable {
      */
     public String getValorCheioString(Integer pessoa_id) {
         try {
-            return Moeda.converteR$Float(new FunctionsDao().valorServicoCheio(pessoa_id, this.id, new Date()));
+            return Moeda.converteR$Double(new FunctionsDao().valorServicoCheio(pessoa_id, this.id, new Date()));
         } catch (Exception e) {
             return "0,00";
         }
@@ -489,27 +489,27 @@ public class Servicos implements java.io.Serializable {
      *
      * @return
      */
-    public Float getValorCheio() {
+    public Double getValorCheio() {
         if (valorCheio == null) {
             try {
                 valorCheio = new FunctionsDao().valorServicoCheio(1, this.id, new Date());
                 return valorCheio;
             } catch (Exception e) {
-                return new Float(0);
+                return new Double(0);
             }
         }
-        return new Float(0);
+        return new Double(0);
     }
 
     public String getValorCheioString() {
-        return Moeda.converteR$Float(getValorCheio());
+        return Moeda.converteR$Double(getValorCheio());
     }
 
     public void setValorCheioString(String valorCheioString) {
         this.valorCheio = Moeda.converteUS$(valorCheioString);
     }
 
-    public void setValorCheio(Float valorCheio) {
+    public void setValorCheio(Double valorCheio) {
         this.valorCheio = valorCheio;
     }
 

@@ -21,7 +21,7 @@ public class ContaSaldo implements Serializable {
     @Column(name = "dt_data")
     private Date dtData;
     @Column(name = "nr_saldo", length = 10)
-    private float saldo;
+    private double saldo;
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
     @OneToOne
     private Plano5 plano5;
@@ -45,7 +45,7 @@ public class ContaSaldo implements Serializable {
         this.caixa = new Caixa();
     }
 
-    public ContaSaldo(int id, Date dtData, float saldo, Plano5 plano5, Usuario usuario, Filial filial, Caixa caixa) {
+    public ContaSaldo(int id, Date dtData, double saldo, Plano5 plano5, Usuario usuario, Filial filial, Caixa caixa) {
         this.id = id;
         this.dtData = dtData;
         this.saldo = saldo;
@@ -71,16 +71,16 @@ public class ContaSaldo implements Serializable {
         this.dtData = dtData;
     }
 
-    public float getSaldo() {
+    public double getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(float saldo) {
+    public void setSaldo(double saldo) {
         this.saldo = saldo;
     }
 
     public String getSaldoString() {
-        return Moeda.converteR$Float(saldo);
+        return Moeda.converteR$Double(saldo);
     }
 
     public void setSaldoString(String saldoString) {

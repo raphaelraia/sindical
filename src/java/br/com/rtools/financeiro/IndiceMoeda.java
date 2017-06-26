@@ -28,15 +28,15 @@ public class IndiceMoeda implements java.io.Serializable {
     @Column(name = "ds_descricao")
     private String descricao;
     @Column(name = "nr_valor")
-    private Float valor;
+    private Double valor;
 
     public IndiceMoeda() {
         this.id = -1;
         this.descricao = "";
-        this.valor = (float) 0;
+        this.valor = (double) 0;
     }
 
-    public IndiceMoeda(int id, String descricao, Float valor) {
+    public IndiceMoeda(int id, String descricao, Double valor) {
         this.id = id;
         this.descricao = descricao;
         this.valor = valor;
@@ -58,16 +58,16 @@ public class IndiceMoeda implements java.io.Serializable {
         this.descricao = descricao;
     }
 
-    public Float getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(Float valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {

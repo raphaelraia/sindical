@@ -37,7 +37,7 @@ public class Baixa implements java.io.Serializable {
     @ManyToOne
     private Usuario usuarioDesconto;
     @Column(name = "nr_troco")
-    private float troco;
+    private double troco;
 
     public Baixa() {
         this.id = -1;
@@ -61,7 +61,7 @@ public class Baixa implements java.io.Serializable {
             Caixa caixa,
             FechamentoCaixa fechamentoCaixa,
             Usuario usuarioDesconto,
-            float troco) {
+            double troco) {
         this.id = id;
         this.usuario = usuario;
         this.dtBaixa = dtBaixa;
@@ -162,11 +162,11 @@ public class Baixa implements java.io.Serializable {
         this.usuarioDesconto = usuarioDesconto;
     }
 
-    public float getTroco() {
+    public double getTroco() {
         return troco;
     }
 
-    public void setTroco(float troco) {
+    public void setTroco(double troco) {
         this.troco = troco;
     }
 }

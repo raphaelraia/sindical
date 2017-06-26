@@ -54,7 +54,7 @@ public class LocadoraStatus implements Serializable {
     private Boolean selected;
 
     @Transient
-    private Float valorMultaDiaria;
+    private Double valorMultaDiaria;
 
     public LocadoraStatus() {
         this.id = null;
@@ -67,7 +67,7 @@ public class LocadoraStatus implements Serializable {
         this.diasDevolucao = 0;
         this.selected = false;
         this.locacaoDependente = false;
-        this.valorMultaDiaria = new Float(0);
+        this.valorMultaDiaria = new Double(0);
         try {
             valorMultaDiaria = new FunctionsDao().multaDiariaLocadora(filial.getId(), data);
         } catch (Exception e) {
@@ -211,11 +211,11 @@ public class LocadoraStatus implements Serializable {
         this.locacaoDependente = locacaoDependente;
     }
 
-    public Float getValorMultaDiaria() {
+    public Double getValorMultaDiaria() {
         return valorMultaDiaria;
     }
 
-    public void setValorMultaDiaria(Float valorMultaDiaria) {
+    public void setValorMultaDiaria(Double valorMultaDiaria) {
         this.valorMultaDiaria = valorMultaDiaria;
     }
 

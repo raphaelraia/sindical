@@ -29,7 +29,7 @@ public class ServicoPessoa implements java.io.Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     private Servicos servicos;
     @Column(name = "nr_desconto", nullable = true)
-    private float nrDesconto;
+    private double nrDesconto;
     @Column(name = "ds_ref_vigoracao", length = 7, nullable = true)
     private String referenciaVigoracao;
     @Column(name = "ds_ref_validade", length = 7, nullable = true)
@@ -47,7 +47,7 @@ public class ServicoPessoa implements java.io.Serializable {
     @Column(name = "is_banco", nullable = true, columnDefinition = "boolean default false")
     private boolean banco;
     @Column(name = "nr_valor_fixo", length = 10, nullable = true)
-    private float nrValorFixo;
+    private double nrValorFixo;
     @JoinColumn(name = "id_desconto", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     private DescontoSocial descontoSocial;
@@ -93,8 +93,8 @@ public class ServicoPessoa implements java.io.Serializable {
         this.periodoCobranca = null;
     }
 
-    public ServicoPessoa(int id, String emissao, Pessoa pessoa, boolean descontoFolha, Servicos servicos, float nr_desconto, String referenciaVigoracao,
-            String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, float nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt, Pessoa parceiro,
+    public ServicoPessoa(int id, String emissao, Pessoa pessoa, boolean descontoFolha, Servicos servicos, double nr_desconto, String referenciaVigoracao,
+            String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, double nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt, Pessoa parceiro,
             Date dtInativacao, String motivoInativacao, Periodo periodoCobranca) {
         this.id = id;
         this.setEmissao(emissao);
@@ -159,21 +159,21 @@ public class ServicoPessoa implements java.io.Serializable {
         this.servicos = servicos;
     }
 
-    public float getNrDesconto() {
+    public double getNrDesconto() {
         return nrDesconto;
     }
 
-    public void setNrDesconto(float nrDesconto) {
+    public void setNrDesconto(double nrDesconto) {
         this.nrDesconto = nrDesconto;
     }
 
     public String getNrDescontoString() {
-        return Moeda.substituiVirgula(Moeda.converteR$Float(nrDesconto));
+        return Moeda.substituiVirgula(Moeda.converteR$Double(nrDesconto));
     }
 
     public void setNrDescontoString(String nrDescontoString) {
         try {
-            this.nrDesconto = Float.valueOf(nrDescontoString.replace(",", "."));
+            this.nrDesconto = Double.valueOf(nrDescontoString.replace(",", "."));
         } catch (Exception e) {
             this.nrDesconto = 0;
         }
@@ -249,16 +249,16 @@ public class ServicoPessoa implements java.io.Serializable {
         this.banco = banco;
     }
 
-    public float getNrValorFixo() {
+    public double getNrValorFixo() {
         return nrValorFixo;
     }
 
-    public void setNrValorFixo(float nrValorFixo) {
+    public void setNrValorFixo(double nrValorFixo) {
         this.nrValorFixo = nrValorFixo;
     }
 
     public String getNrValorFixoString() {
-        return Moeda.converteR$Float(nrValorFixo);
+        return Moeda.converteR$Double(nrValorFixo);
     }
 
     public void setNrValorFixoString(String nrValorFixoString) {

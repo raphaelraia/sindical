@@ -20,7 +20,7 @@ public class DescontoPromocional implements java.io.Serializable {
     @Column(name = "id")
     private Integer id;
     @Column(name = "nr_desconto")
-    private float desconto;
+    private double desconto;
     @Column(name = "ds_referencia_inicial")
     private String referenciaInicial;
     @Column(name = "ds_referencia_final")
@@ -44,7 +44,7 @@ public class DescontoPromocional implements java.io.Serializable {
         this.mensal = true;
     }
 
-    public DescontoPromocional(Integer id, float desconto, String referenciaInicial, String referenciaFinal, Servicos servico, Categoria categoria, Boolean mensal) {
+    public DescontoPromocional(Integer id, double desconto, String referenciaInicial, String referenciaFinal, Servicos servico, Categoria categoria, Boolean mensal) {
         this.id = id;
         this.desconto = desconto;
         this.referenciaInicial = referenciaInicial;
@@ -62,16 +62,16 @@ public class DescontoPromocional implements java.io.Serializable {
         this.id = id;
     }
 
-    public float getDesconto() {
+    public double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(double desconto) {
         this.desconto = desconto;
     }
 
     public String getDescontoString() {
-        return Moeda.converteR$Float(desconto);
+        return Moeda.converteR$Double(desconto);
     }
 
     public void setDescontoString(String descontoString) {
