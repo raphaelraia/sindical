@@ -3,6 +3,7 @@ package br.com.rtools.escola;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.BaseEntity;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.*;
 
 /**
@@ -76,14 +77,17 @@ public class Professor implements BaseEntity, Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 59 * hash + this.id;
-        hash = 59 * hash + (this.professor != null ? this.professor.hashCode() : 0);
-        hash = 59 * hash + Double.doubleToIntBits(this.nrComissao);
+        hash = 79 * hash + Objects.hashCode(this.id);
+        hash = 79 * hash + Objects.hashCode(this.professor);
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.nrComissao) ^ (Double.doubleToLongBits(this.nrComissao) >>> 32));
         return hash;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null) {
             return false;
         }
@@ -91,18 +95,18 @@ public class Professor implements BaseEntity, Serializable {
             return false;
         }
         final Professor other = (Professor) obj;
-        if (this.id != other.id) {
+        if (Double.doubleToLongBits(this.nrComissao) != Double.doubleToLongBits(other.nrComissao)) {
             return false;
         }
-        if (this.professor != other.professor && (this.professor == null || !this.professor.equals(other.professor))) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
-        if (Double.doubleToIntBits(this.nrComissao) != Double.doubleToIntBits(other.nrComissao)) {
+        if (!Objects.equals(this.professor, other.professor)) {
             return false;
         }
         return true;
     }
-
+    
     @Override
     public String toString() {
         return "Professor{" + "id=" + id + ", professor=" + professor + ", nrComissao=" + nrComissao + '}';
