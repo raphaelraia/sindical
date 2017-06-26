@@ -126,23 +126,6 @@ public final class Moeda {
     }
 
     public static String converteR$Double(double valor) {
-        String $dolar = Double.toString(valor);
-        if ($dolar == null || $dolar.isEmpty()) {
-            return "0,00";
-        }
-        $dolar = Moeda.substituiVirgula($dolar);
-        if ($dolar.length() >= 3) {
-            String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
-            if (!wponto.equals(",")) {
-                $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
-            }
-        } else {
-            $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
-        }
-        return $dolar;
-    }
-
-    public static String converteR$Double(double valor) {
         return converteR$Double(valor, null);
     }
 
