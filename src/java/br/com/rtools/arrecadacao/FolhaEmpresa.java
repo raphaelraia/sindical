@@ -102,7 +102,7 @@ public class FolhaEmpresa implements Serializable {
     }
 
     public String getValorMesString() {
-        return Moeda.converteR$Float(valorMes);
+        return Moeda.converteR$Double(valorMes);
     }
 
     public void setValorMesString(String valorMesString) {

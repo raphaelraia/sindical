@@ -185,7 +185,7 @@ public class RepisMovimento implements Serializable {
     }
 
     public String getFaturamentoBrutoAnualString() {
-        return Moeda.converteR$Float(faturamentoBrutoAnual);
+        return Moeda.converteR$Double(faturamentoBrutoAnual);
     }
 
     public void setFaturamentoBrutoAnualString(String faturamentoBrutoAnualString) {

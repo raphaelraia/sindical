@@ -352,7 +352,7 @@ public class Rais implements Serializable {
     }
 
     public String getSalarioString() {
-        return Moeda.converteR$Float(salario);
+        return Moeda.converteR$Double(salario);
     }
 
     public void setSalarioString(String salarioString) {
