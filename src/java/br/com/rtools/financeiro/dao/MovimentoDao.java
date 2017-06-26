@@ -1225,13 +1225,14 @@ public class MovimentoDao extends DB {
 
             if (email.equals("com")) {
                 email = " AND ( \n"
-                        + " (pj.is_email_escritorio = true  AND (length(rtrim(p_contabil.ds_email1)) > 10)) OR  \n"
+                        + " (pj.is_email_escritorio = true AND  pcomp.is_cobranca_email = true AND (length(rtrim(p_contabil.ds_email1)) > 10)) OR  \n"
                         + " (pj.is_email_escritorio = false AND (length(rtrim(p.ds_email1)) > 10))              \n"
-                        + " ) \n";
+                        + " )   \n";
             } else if (email.equals("sem")) {
                 email = " AND ( "
-                        + " (pj.is_email_escritorio = true  AND ((length(rtrim(p_contabil.ds_email1)) <= 10) OR p_contabil.ds_email1 IS NULL)) OR  \n"
-                        + " (pj.is_email_escritorio = false AND ((length(rtrim(p.ds_email1)) <= 10) OR p.ds_email1 IS NULL))                       \n"
+                        + " (pj.is_email_escritorio = true  AND ((length(rtrim(p_contabil.ds_email1)) <= 10) OR p_contabil.ds_email1 IS NULL OR pcomp.is_cobranca_email = false)) OR  \n"
+                        + " (pj.is_email_escritorio = false AND ((length(rtrim(p.ds_email1)) <= 10) OR p.ds_email1 IS NULL))                    \n"
+                        + "                                                                                      \n"
                         + ")  ";
             } else {
                 email = " ";
@@ -1283,6 +1284,7 @@ public class MovimentoDao extends DB {
                     + " INNER JOIN pes_pessoa_endereco          AS pce        ON pce.id_pessoa = contr.id_pessoa AND pce.id_tipo_endereco = 3 \n"
                     + "  LEFT JOIN pes_pessoa_endereco          AS pce2       ON pce2.id_pessoa = p_contabil.id AND pce2.id_tipo_endereco = 3 \n"
                     + "  LEFT JOIN fin_bloqueia_servico_pessoa  AS sp         ON sp.id_pessoa = m.id_pessoa AND sp.id_servicos = m.id_servicos AND m.dt_vencimento >= sp.dt_inicio AND m.dt_vencimento <= sp.dt_fim \n"
+                    + "  LEFT JOIN pes_pessoa_complemento       AS pcomp      ON pcomp.id_pessoa = p.id                                         \n"
                     // + "  30/09/2015 - LEFT JOIN ( SELECT CASE WHEN pj.is_cobranca_escritorio = true THEN p_contabil.id ELSE 0 END AS idContabilidade, count(*) qtde n"
                     + "  LEFT JOIN ( SELECT p_contabil.id AS idContabilidade, count(*) qtde                                         \n"
                     + "                FROM fin_movimento               AS m                                                        \n"
@@ -1925,7 +1927,7 @@ public class MovimentoDao extends DB {
         }
         return result;
     }
-    
+
     public List<Object> pesquisaGuiaParaEncaminhamento(Integer id_lote) {
         try {
             String textoQuery

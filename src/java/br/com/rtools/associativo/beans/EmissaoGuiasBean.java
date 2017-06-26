@@ -509,7 +509,8 @@ public class EmissaoGuiasBean implements Serializable {
                     false,
                     null,
                     false,
-                    ""
+                    "",
+                    null
             );
 
             if (!di.save(pc)) {

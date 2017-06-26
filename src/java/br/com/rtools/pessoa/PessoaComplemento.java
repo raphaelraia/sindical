@@ -25,6 +25,8 @@ public class PessoaComplemento implements java.io.Serializable {
     private Boolean bloqueiaObsAviso;
     @Column(name = "ds_obs_aviso")
     private String obsAviso;
+    @Column(name = "is_cobranca_email", columnDefinition = "BOOLEAN DEFAULT FALSE", nullable = false)
+    private Boolean cobrancaEmail;
 
     public PessoaComplemento() {
         this.id = -1;
@@ -34,9 +36,10 @@ public class PessoaComplemento implements java.io.Serializable {
         this.responsavel = null;
         this.bloqueiaObsAviso = false;
         this.obsAviso = "";
+        this.cobrancaEmail = false;
     }
 
-    public PessoaComplemento(Integer id, Pessoa pessoa, Integer nrDiaVencimento, Boolean cobrancaBancaria, Pessoa responsavel, Boolean bloqueiaObsAviso, String obsAviso) {
+    public PessoaComplemento(Integer id, Pessoa pessoa, Integer nrDiaVencimento, Boolean cobrancaBancaria, Pessoa responsavel, Boolean bloqueiaObsAviso, String obsAviso, Boolean cobrancaEmail) {
         this.id = id;
         this.pessoa = pessoa;
         this.nrDiaVencimento = nrDiaVencimento;
@@ -44,6 +47,7 @@ public class PessoaComplemento implements java.io.Serializable {
         this.responsavel = responsavel;
         this.bloqueiaObsAviso = bloqueiaObsAviso;
         this.obsAviso = obsAviso;
+        this.cobrancaEmail = cobrancaEmail;
     }
 
     public Integer getId() {
@@ -101,4 +105,13 @@ public class PessoaComplemento implements java.io.Serializable {
     public void setObsAviso(String obsAviso) {
         this.obsAviso = obsAviso.trim();
     }
+
+    public Boolean getCobrancaEmail() {
+        return cobrancaEmail;
+    }
+
+    public void setCobrancaEmail(Boolean cobrancaEmail) {
+        this.cobrancaEmail = cobrancaEmail;
+    }
+
 }

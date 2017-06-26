@@ -42,6 +42,11 @@
                     </p:selectBooleanCheckbox>
                 </p:column>
                 <p:column>
+                    <p:selectBooleanCheckbox value="#{pessoaComplementoBean.pessoaComplemento.cobrancaEmail}" itemLabel="Enviar cobrança por e-mail, caso tenha e-mail?">
+                        <p:ajax event="change" update="@this id_pg_b i_panel_complemento"  listener="#{pessoaComplementoBean.update(idPessoa)}" />
+                    </p:selectBooleanCheckbox>
+                </p:column>
+                <p:column>
                     <h:inputTextarea value="#{pessoaComplementoBean.pessoaComplemento.obsAviso}"  cols="150" rows="5">
                         <p:ajax event="change" update="@this"  />
                     </h:inputTextarea>

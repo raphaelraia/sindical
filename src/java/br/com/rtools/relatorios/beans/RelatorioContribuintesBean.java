@@ -16,6 +16,7 @@ import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
+import br.com.rtools.pessoa.dao.CentroComercialDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
@@ -666,14 +667,17 @@ public class RelatorioContribuintesBean implements Serializable {
 
         // CENTRO COMERCIAL -----------------------------------------------------------
         List idsEnderecos;
+        CentroComercialDao ccd = new CentroComercialDao();
         if (getShow("centro_comercial")) {
             if (selectedCentroComercial == null || selectedCentroComercial.isEmpty()) {
-                GenericaMensagem.warn("Sistema", "Selecione pelo menos um centro comercial.");
-                return;
+                if(tipoCentroComercial.equals("com")) {
+                    GenericaMensagem.warn("Sistema", "Selecione pelo menos um centro comercial.");
+                    return;                    
+                }
             }
             String in_centro_comercial = inIdCentroComercial();
             if (in_centro_comercial != null && !in_centro_comercial.isEmpty()) {
-                idsEnderecos = rcd.listaCentros(in_centro_comercial);
+                idsEnderecos = ccd.findEnderecoNumeroByPessoas(in_centro_comercial);
                 for (int i = 0; i < idsEnderecos.size(); i++) {
                     if (in_enderecos.length() > 0 && i != idsEnderecos.size()) {
                         in_enderecos += ",";
