@@ -142,11 +142,11 @@ public final class Moeda {
         return $dolar;
     }
 
-    public static String converteR$Float(double valor) {
-        return converteR$Float(valor, null);
+    public static String converteR$Double(double valor) {
+        return converteR$Double(valor, null);
     }
 
-    public static String converteR$Float(double valor, Integer decimal) {
+    public static String converteR$Double(double valor, Integer decimal) {
         String $dolar = Double.toString(valor);
         if ($dolar == null || $dolar.isEmpty()) {
             return "0,00";
@@ -175,7 +175,7 @@ public final class Moeda {
         return $dolar;
     }
 
-    public static Double converteFloatR$Float(double valor) {
+    public static Double converteDoubleR$Double(double valor) {
         String $dolar = Double.toString(valor);
         if ($dolar == null || $dolar.isEmpty()) {
             return (double) 0;
@@ -189,7 +189,7 @@ public final class Moeda {
         } else {
             $dolar = Moeda.mascaraDinheiro(Double.parseDouble($dolar), Moeda.DINHEIRO_REAL);
         }
-        return Moeda.substituiVirgulaFloat($dolar);
+        return Moeda.substituiVirgulaDouble($dolar);
     }
 
     public static String substituiVirgula(String v) {
@@ -201,7 +201,7 @@ public final class Moeda {
         return v;
     }
 
-    public static double substituiVirgulaFloat(String v) {
+    public static double substituiVirgulaDouble(String v) {
         if (v.indexOf(",") == -1) {
             return Double.parseDouble(v);
         }
