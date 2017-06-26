@@ -30,7 +30,7 @@ import javax.servlet.ServletContext;
 
 public class CaixaFederalSindical extends Cobranca {
 
-    public CaixaFederalSindical(Integer id_pessoa, float valor, Date vencimento, Boleto boleto) {
+    public CaixaFederalSindical(Integer id_pessoa, double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -56,12 +56,12 @@ public class CaixaFederalSindical extends Cobranca {
         codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
         int i = 0;
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
+        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
         while (i != (10 - tam)) { // zeros
             codigoBarras += "0";
             i++;
         }
-        codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
+        codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
         codigoBarras += "97";
         codigoBarras += boleto.getContaCobranca().getSicasSindical();
         codigoBarras += jurDB.pesquisaJuridicaPorPessoa(id_pessoa).getCnae().getNumero().substring(0, 1);
@@ -320,7 +320,7 @@ public class CaixaFederalSindical extends Cobranca {
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
-            Float valor_total_lote = (float) 0;
+            Double valor_total_lote = (double) 0;
 
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -489,7 +489,7 @@ public class CaixaFederalSindical extends Cobranca {
 
                 sequencial_registro_lote++;
 
-                valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
+                valor_total_lote = Moeda.soma(valor_total_lote, mov.getValor());
 
                 RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
 

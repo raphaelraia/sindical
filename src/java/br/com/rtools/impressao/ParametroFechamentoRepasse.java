@@ -8,9 +8,9 @@ public class ParametroFechamentoRepasse implements Serializable {
     private String nome;
     private String vencimento;
     private String baixa;
-    private float valorBaixa;
+    private double valorBaixa;
 
-    public ParametroFechamentoRepasse(String servico, Integer idPessoa, String nome, String vencimento, String baixa, float valorBaixa) {
+    public ParametroFechamentoRepasse(String servico, Integer idPessoa, String nome, String vencimento, String baixa, double valorBaixa) {
         this.servico = servico;
         this.idPessoa = idPessoa;
         this.nome = nome;
@@ -59,11 +59,11 @@ public class ParametroFechamentoRepasse implements Serializable {
         this.baixa = baixa;
     }
 
-    public float getValorBaixa() {
+    public double getValorBaixa() {
         return valorBaixa;
     }
 
-    public void setValorBaixa(float valorBaixa) {
+    public void setValorBaixa(double valorBaixa) {
         this.valorBaixa = valorBaixa;
     }
 }

@@ -246,8 +246,8 @@ public class MovimentosReceberSocialDao extends DB {
         return pessoa;
     }
 
-    public float[] pesquisaValorAcrescimo(int id_movimento) {
-        float[] valor = new float[2];
+    public double[] pesquisaValorAcrescimo(int id_movimento) {
+        double[] valor = new double[2];
         String textqry
                 = " SELECT func_multa_ass(m.id)+func_juros_ass(m.id)+func_correcao_ass(m.id) as acrescimo, "
                 + "        func_valor(m.id)+func_multa_ass(m.id)+func_juros_ass(m.id)+func_correcao_ass(m.id) as valor "

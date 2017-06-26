@@ -6,9 +6,9 @@ public class ParametroRelatorioFinanceiro {
     private String grupo;
     private String subgrupo;
     private String servico;
-    private float valor;
+    private double valor;
 
-    public ParametroRelatorioFinanceiro(String logo_sindicato, String grupo, String subgrupo, String servico, float valor) {
+    public ParametroRelatorioFinanceiro(String logo_sindicato, String grupo, String subgrupo, String servico, double valor) {
         this.logo_sindicato = logo_sindicato;
         this.grupo = grupo;
         this.subgrupo = subgrupo;
@@ -48,11 +48,11 @@ public class ParametroRelatorioFinanceiro {
         this.servico = servico;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 }

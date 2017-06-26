@@ -34,7 +34,7 @@ public class Professor implements BaseEntity, Serializable {
     @ManyToOne
     private Pessoa professor;
     @Column(name = "nr_comissao")
-    private float nrComissao;
+    private double nrComissao;
 
     public Professor() {
         this.id = -1;
@@ -42,7 +42,7 @@ public class Professor implements BaseEntity, Serializable {
         this.nrComissao = 0;
     }
 
-    public Professor(Integer id, Pessoa professor, float nrComissao) {
+    public Professor(Integer id, Pessoa professor, double nrComissao) {
         this.id = id;
         this.professor = professor;
         this.nrComissao = nrComissao;
@@ -65,11 +65,11 @@ public class Professor implements BaseEntity, Serializable {
         this.professor = professor;
     }
 
-    public float getNrComissao() {
+    public double getNrComissao() {
         return nrComissao;
     }
 
-    public void setNrComissao(float nrComissao) {
+    public void setNrComissao(double nrComissao) {
         this.nrComissao = nrComissao;
     }
 
@@ -78,7 +78,7 @@ public class Professor implements BaseEntity, Serializable {
         int hash = 7;
         hash = 59 * hash + this.id;
         hash = 59 * hash + (this.professor != null ? this.professor.hashCode() : 0);
-        hash = 59 * hash + Float.floatToIntBits(this.nrComissao);
+        hash = 59 * hash + Double.doubleToIntBits(this.nrComissao);
         return hash;
     }
 
@@ -97,7 +97,7 @@ public class Professor implements BaseEntity, Serializable {
         if (this.professor != other.professor && (this.professor == null || !this.professor.equals(other.professor))) {
             return false;
         }
-        if (Float.floatToIntBits(this.nrComissao) != Float.floatToIntBits(other.nrComissao)) {
+        if (Double.doubleToIntBits(this.nrComissao) != Double.doubleToIntBits(other.nrComissao)) {
             return false;
         }
         return true;

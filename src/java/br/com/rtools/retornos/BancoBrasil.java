@@ -83,9 +83,9 @@ public class BancoBrasil extends ArquivoRetorno {
                             dataPagamento = ((String) lista.get(i)).substring(137, 145);
                             valorDescontado = ((String) lista.get(i)).substring(196, 204).trim();
                             if (!valorDescontado.isEmpty()) {
-                                float valor_pago = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)), 100);
-                                float valor_descontado = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorDescontado)), 100);
-                                String calculo = Moeda.converteR$Float(Moeda.somaValores(valor_descontado, valor_pago));
+                                double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorPago)), 100);
+                                double valor_descontado = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorDescontado)), 100);
+                                String calculo = Moeda.converteR$Double(Moeda.soma(valor_descontado, valor_pago));
                                 String calculo_s = ("" + calculo).replace(",", "").replace(".", "");
                                 valorPago = "000000000000000".substring(0, 15 - calculo_s.length()) + calculo_s;
                             }

@@ -26,7 +26,7 @@ public class DescontoSocial implements java.io.Serializable {
     @Column(name = "id")
     private int id;
     @Column(name = "nr_desconto", nullable = true)
-    private float nrDesconto;
+    private double nrDesconto;
     @Column(name = "ds_descricao", length = 100)
     private String descricao;
     @JoinColumn(name = "id_categoria", referencedColumnName = "id", nullable = true)
@@ -44,7 +44,7 @@ public class DescontoSocial implements java.io.Serializable {
         this.selected = false;
     }
 
-    public DescontoSocial(int id, float nrDesconto, String descricao, Categoria categoria) {
+    public DescontoSocial(int id, double nrDesconto, String descricao, Categoria categoria) {
         this.id = id;
         this.nrDesconto = nrDesconto;
         this.descricao = descricao;
@@ -60,11 +60,11 @@ public class DescontoSocial implements java.io.Serializable {
         this.id = id;
     }
 
-    public float getNrDesconto() {
+    public double getNrDesconto() {
         return nrDesconto;
     }
 
-    public void setNrDesconto(float nrDesconto) {
+    public void setNrDesconto(double nrDesconto) {
         this.nrDesconto = nrDesconto;
     }
 
@@ -74,7 +74,7 @@ public class DescontoSocial implements java.io.Serializable {
 
     public void setNrDescontoString(String nrDescontoString) {
         try {
-            this.nrDesconto = Float.valueOf(nrDescontoString.replace(",", "."));
+            this.nrDesconto = Double.valueOf(nrDescontoString.replace(",", "."));
         } catch (Exception e) {
             this.nrDesconto = 0;
         }

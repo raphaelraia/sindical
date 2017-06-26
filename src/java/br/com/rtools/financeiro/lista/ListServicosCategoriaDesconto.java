@@ -6,14 +6,14 @@ import br.com.rtools.utilitarios.Moeda;
 public class ListServicosCategoriaDesconto {
 
     private CategoriaDesconto categoriaDesconto;
-    private float valorDesconto;
+    private double valorDesconto;
 
     public ListServicosCategoriaDesconto() {
         this.categoriaDesconto = new CategoriaDesconto();
         this.valorDesconto = 0;
     }
 
-    public ListServicosCategoriaDesconto(CategoriaDesconto categoriaDesconto, float valorDesconto) {
+    public ListServicosCategoriaDesconto(CategoriaDesconto categoriaDesconto, double valorDesconto) {
         this.categoriaDesconto = categoriaDesconto;
         this.valorDesconto = valorDesconto;
     }
@@ -26,16 +26,16 @@ public class ListServicosCategoriaDesconto {
         this.categoriaDesconto = categoriaDesconto;
     }
 
-    public float getValorDesconto() {
+    public double getValorDesconto() {
         return valorDesconto;
     }
 
-    public void setValorDesconto(float valorDesconto) {
+    public void setValorDesconto(double valorDesconto) {
         this.valorDesconto = valorDesconto;
     }
 
     public String getValorDescontoString() {
-        return Moeda.converteR$Float(valorDesconto);
+        return Moeda.converteR$Double(valorDesconto);
     }
 
     public void setValorDescontoString(String valorDescontoString) {

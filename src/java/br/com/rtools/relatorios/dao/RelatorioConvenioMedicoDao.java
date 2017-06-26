@@ -11,7 +11,7 @@ public class RelatorioConvenioMedicoDao extends DB {
 
     private String order = "";
 
-    public List find(Relatorios relatorio, Integer subgrupo, Integer convenio, Boolean isentos, Float faixaValorInicial, Float faixaValorFinal, String situacao) {
+    public List find(Relatorios relatorio, Integer subgrupo, Integer convenio, Boolean isentos, Double faixaValorInicial, Double faixaValorFinal, String situacao) {
         List listWhere = new ArrayList();
         String queryString = "     SELECT SB.ds_descricao                          AS grupo,                           " // 0 - SubGrupo
                 + "            SE.ds_descricao                          AS servico,                         " // 1 - Serviço

@@ -1083,7 +1083,7 @@ public class GerarMovimento extends DB {
                     }
                 }
                 for (int i = 0; i < lista.size(); i++) {
-                    Float valor_baixa = lista.get(i).getValorBaixa();
+                    Double valor_baixa = lista.get(i).getValorBaixa();
 
                     lista.get(i).setBaixa(null);
                     lista.get(i).setJuros(0);
@@ -1188,7 +1188,7 @@ public class GerarMovimento extends DB {
                     return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA LOTE!");
                 }
 
-                Float valor_baixa = movimento.getValorBaixa();
+                Double valor_baixa = movimento.getValorBaixa();
 
                 movimento.setBaixa(null);
                 movimento.setJuros(0);
@@ -1222,7 +1222,7 @@ public class GerarMovimento extends DB {
         }
     }
 
-    public static boolean baixarMovimento(Movimento movimento, Usuario usuario, String pagamento, float valor_liquido, Date dataCredito, String numeroComposto, int nrSequencia) {
+    public static boolean baixarMovimento(Movimento movimento, Usuario usuario, String pagamento, double valor_liquido, Date dataCredito, String numeroComposto, int nrSequencia) {
 
         Baixa baixa = new Baixa();
         baixa.setUsuario(usuario);
@@ -1241,8 +1241,8 @@ public class GerarMovimento extends DB {
         }
 
         // CALCULO PARA PORCENTAGEM DO VALOR PAGO -- NESSE CASO DE ARRECADACAO É 100%
-        //float calc = Moeda.multiplicarValores(Moeda.divisaoValores(fp.get(i).getValor(), valorTotal), 100);
-        //calc = Moeda.converteFloatR$Float(calc);
+        //double calc = Moeda.multiplicarValores(Moeda.divisaoValores(fp.get(i).getValor(), valorTotal), 100);
+        //calc = Moeda.converteDoubleR$Double(calc);
         MovimentoDao db = new MovimentoDao();
 
         Boleto bol = db.pesquisaBoletos(movimento.getNrCtrBoleto());
@@ -1306,7 +1306,7 @@ public class GerarMovimento extends DB {
         return true;
     }
 
-    public static StatusRetorno baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, float valorTotal, String pagamento, Caixa caixa, float valorTroco) {
+    public static StatusRetorno baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco) {
         // 15
         // 000003652580001
         // 8
@@ -1322,7 +1322,7 @@ public class GerarMovimento extends DB {
                     String documento = movimento.get(0).getDocumento();
                     documento = ("000000000000000").substring(0, 15 - documento.length()) + documento;
                     String d_pagamento = ("00000000").substring(0, 8 - pagamento.replace("/", "").length()) + pagamento.replace("/", "");
-                    String v_pago = ("0000000000").substring(0, 10 - Moeda.converteR$Float(valorTotal).replace(".", "").replace(",", "").length()) + Moeda.converteR$Float(valorTotal).replace(".", "").replace(",", "");
+                    String v_pago = ("0000000000").substring(0, 10 - Moeda.converteR$Double(valorTotal).replace(".", "").replace(",", "").length()) + Moeda.converteR$Double(valorTotal).replace(".", "").replace(",", "");
                     numeroComposto = documento + d_pagamento + v_pago;
                 }
 
@@ -1347,14 +1347,14 @@ public class GerarMovimento extends DB {
                 return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR BAIXA");
             }
 
-            float valor_forma_pagamento = 0;
+            double valor_forma_pagamento = 0;
             for (FormaPagamento fp1 : fp) {
                 fp1.setBaixa(baixa);
-                float calc = (fp1.getValor() == 0) ? 100 : Moeda.multiplicarValores(Moeda.divisaoValores(fp1.getValor(), valorTotal), 100);
+                double calc = (fp1.getValor() == 0) ? 100 : Moeda.multiplicar(Moeda.divisao(fp1.getValor(), valorTotal), 100);
                 // 13/06/2016 ( HORÁRIO DE BRASÍLIA: 16:41 ) TIREMOS A CONVERSÃO 
                 // ABAIXO PORQUE NÃO ESTAVA JOGANDO fin_forma_pagamento.nr_valorp 
                 // corretamente as decimais. (Rogério, eu que fiz isso e escrevi)
-                // calc = Moeda.converteFloatR$Float(calc);
+                // calc = Moeda.converteDoubleR$Double(calc);
                 fp1.setValorP(calc);
                 ChequeRec ch = new ChequeRec();
                 if (fp1.getChequeRec() != null) {
@@ -1423,10 +1423,10 @@ public class GerarMovimento extends DB {
                     return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR FORMA DE PAGAMENTO");
                 }
 
-                valor_forma_pagamento = Moeda.somaValores(valor_forma_pagamento, fp1.getValor());
+                valor_forma_pagamento = Moeda.soma(valor_forma_pagamento, fp1.getValor());
             }
 
-            float valor_movimento = 0;
+            double valor_movimento = 0;
             for (int i = 0; i < movimento.size(); i++) {
                 movimento.get(i).setBaixa(baixa);
 
@@ -1435,7 +1435,7 @@ public class GerarMovimento extends DB {
                     return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO");
                 }
 
-                valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValorBaixa());
+                valor_movimento = Moeda.soma(valor_movimento, movimento.get(i).getValorBaixa());
             }
 
             for (int i = 0; i < movimento.size(); i++) {
@@ -1462,7 +1462,7 @@ public class GerarMovimento extends DB {
         }
     }
 
-    public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, float valor_baixa, float valor_taxa) {
+    public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, double valor_baixa, double valor_taxa) {
         Dao dao = new Dao();
         Object[] lista_log = new Object[3];
         Baixa baixa = new Baixa();
@@ -1518,9 +1518,9 @@ public class GerarMovimento extends DB {
             return lista_log;
         }
 
-        float soma = 0;
+        double soma = 0;
         for (Movimento movimento : lista_movimento) {
-            soma = Moeda.somaValores(soma, movimento.getValor());
+            soma = Moeda.soma(soma, movimento.getValor());
 
             movimento.setBaixa(baixa);
             if (!dao.update(movimento)) {
@@ -1544,12 +1544,12 @@ public class GerarMovimento extends DB {
                 }
             }
         } else if (valor_baixa < (soma - 0.03)) {
-            float acrescimo = Moeda.subtracaoValores(soma, valor_baixa);
+            double acrescimo = Moeda.subtracao(soma, valor_baixa);
             // valor da baixa é menor que os boletos ( O CLIENTE PAGOU MENOS )
 
             // ROGÉRIO PEDIU PRA NÃO BAIXAR (CHAMADO 1095)
 //            for (Movimento movimento : lista_movimento) {
-//                float valor = 0, percentual = 0;
+//                double valor = 0, percentual = 0;
 //                percentual = Moeda.multiplicarValores(Moeda.divisaoValores(movimento.getValor(), soma), 100);
 //                valor = Moeda.divisaoValores(Moeda.multiplicarValores(acrescimo, percentual), 100);
 //
@@ -1567,7 +1567,7 @@ public class GerarMovimento extends DB {
 //            sv.comitarTransacao();
             dao.rollback();
 
-            String msg = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MENOR com défit de " + Moeda.converteR$Float(acrescimo);
+            String msg = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MENOR com défit de " + Moeda.converteR$Double(acrescimo);
             BoletoNaoBaixado bnb = new BoletoNaoBaixado(-1, bol, msg, valor_baixa, DataHoje.dataHoje(), DataHoje.dataHoje());
 
             dao.openTransaction();
@@ -1581,15 +1581,15 @@ public class GerarMovimento extends DB {
             lista_log[2] = msg;
             return lista_log;
         } else if (valor_baixa > soma) {
-            float acrescimo = Moeda.subtracaoValores(valor_baixa, soma);
+            double acrescimo = Moeda.subtracao(valor_baixa, soma);
             // valor da baixa é maior que os boletos ( O CLIENTE PAGOU MAIS ) 
             for (Movimento movimento : lista_movimento) {
-                float valor = 0, percentual = 0;
-                percentual = Moeda.multiplicarValores(Moeda.divisaoValores(movimento.getValor(), soma), 100);
-                valor = Moeda.divisaoValores(Moeda.multiplicarValores(acrescimo, percentual), 100);
+                double valor = 0, percentual = 0;
+                percentual = Moeda.multiplicar(Moeda.divisao(movimento.getValor(), soma), 100);
+                valor = Moeda.divisao(Moeda.multiplicar(acrescimo, percentual), 100);
 
                 movimento.setCorrecao(valor);
-                movimento.setValorBaixa(Moeda.somaValores(valor, movimento.getValor()));
+                movimento.setValorBaixa(Moeda.soma(valor, movimento.getValor()));
 
                 if (!dao.update(movimento)) {
                     dao.rollback();
@@ -1603,7 +1603,7 @@ public class GerarMovimento extends DB {
             //sv.desfazerTransacao();
             lista_log[0] = 7; // 7 - VALOR DO ARQUIVO MAIOR
             lista_log[1] = lista_movimento;
-            lista_log[2] = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MAIOR com acréscimo de " + Moeda.converteR$Float(acrescimo);
+            lista_log[2] = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MAIOR com acréscimo de " + Moeda.converteR$Double(acrescimo);
             return lista_log;
         }
         dao.commit();

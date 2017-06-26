@@ -343,10 +343,4 @@ public final class Moeda {
         return v;
     }
 
-//
-//    public static String valorDoPercentual(String valorFixo, String percentual) {
-//        //float v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);
-//        float v = Moeda.subtracaoValores(Moeda.converteUS$(valorFixo), Moeda.multiplicarValores((Moeda.divisaoValores(Moeda.converteUS$(percentual), 100)), Moeda.converteUS$(valorFixo)));
-//        return Moeda.converteR$Float(v);
-//    }
 }

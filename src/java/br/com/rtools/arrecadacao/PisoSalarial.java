@@ -18,7 +18,7 @@ public class PisoSalarial implements Serializable {
     @Column(name = "ds_descricao", length = 300, nullable = true)
     private String descricao;
     @Column(name = "nr_valor", nullable = false)
-    private float valor;
+    private double valor;
 
     public PisoSalarial() {
         this.id = -1;
@@ -27,7 +27,7 @@ public class PisoSalarial implements Serializable {
         this.valor = 0;
     }
 
-    public PisoSalarial(int id, PisoSalarialLote pisoLote, Porte porte, String descricao, float valor, int ano, String mensagem) {
+    public PisoSalarial(int id, PisoSalarialLote pisoLote, Porte porte, String descricao, double valor, int ano, String mensagem) {
         this.id = id;
         this.pisoLote = pisoLote;
         this.descricao = descricao;
@@ -58,11 +58,11 @@ public class PisoSalarial implements Serializable {
         this.descricao = descricao;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 }

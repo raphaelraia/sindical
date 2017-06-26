@@ -91,10 +91,10 @@ public class Sicoob400 extends ArquivoRetorno {
                             // TEMPORARIO ----------
                             List<Object> boletox = dao.xsicoob(nossoNumero);
                             if (!boletox.isEmpty()) {
-                                float valor_pago = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)), 100);
+                                double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorPago)), 100);
                                 List linhaX = ((List) boletox.get(0));
 
-                                if ((((Double) linhaX.get(1)).floatValue() - 0.05) < valor_pago && (((Double) linhaX.get(1)).floatValue() + 0.05) > valor_pago) {
+                                if ((((Double) linhaX.get(1)).doubleValue() - 0.05) < valor_pago && (((Double) linhaX.get(1)).doubleValue() + 0.05) > valor_pago) {
 
                                 } else {
                                     // UPDATE

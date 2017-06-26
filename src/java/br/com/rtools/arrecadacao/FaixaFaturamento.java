@@ -20,7 +20,7 @@ public class FaixaFaturamento implements Serializable {
     @Column(name = "nr_max", nullable = true)
     private double max;
     @Column(name = "nr_contribuicao", nullable = true)
-    private float contribuicao;
+    private double contribuicao;
     @Column(name = "ds_ref_inicial", length = 7, nullable = true)
     private String referenciaInicial;
     @Column(name = "ds_ref_final", length = 7, nullable = true)
@@ -36,7 +36,7 @@ public class FaixaFaturamento implements Serializable {
         this.referenciaFinal = "";
     }
 
-    public FaixaFaturamento(int id, Servicos servicos, double min, double max, float contribuicao, String referenciaInicial, String referenciaFinal) {
+    public FaixaFaturamento(int id, Servicos servicos, double min, double max, double contribuicao, String referenciaInicial, String referenciaFinal) {
         this.id = id;
         this.servicos = servicos;
         this.min = min;
@@ -78,11 +78,11 @@ public class FaixaFaturamento implements Serializable {
         this.max = max;
     }
 
-    public float getContribuicao() {
+    public double getContribuicao() {
         return contribuicao;
     }
 
-    public void setContribuicao(float contribuicao) {
+    public void setContribuicao(double contribuicao) {
         this.contribuicao = contribuicao;
     }
 

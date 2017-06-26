@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class Santander extends Cobranca {
 
-    public Santander(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public Santander(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -100,9 +100,9 @@ public class Santander extends Cobranca {
 
         fimCodigoBarras += fatorVencimento(vencimento);   // fator de vencimento
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
+        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
 
-        fimCodigoBarras += "0000000000".substring(0, 10 - tam) + Moeda.limparPonto(Moeda.converteR$Float(valor)); // valor
+        fimCodigoBarras += "0000000000".substring(0, 10 - tam) + Moeda.limparPonto(Moeda.converteR$Double(valor)); // valor
 
         fimCodigoBarras += "9";
 

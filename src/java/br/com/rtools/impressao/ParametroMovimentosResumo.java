@@ -15,12 +15,12 @@ public class ParametroMovimentosResumo {
     private String empresa_cnpj;
     private String empresa_nome;
     private String contribuicao;
-    private float valor;
-    private float taxa;
-    private float liquido;
+    private double valor;
+    private double taxa;
+    private double liquido;
     private String cidade;
 
-    public ParametroMovimentosResumo(String mes, String ano, String contribuicao, float valor, float taxa, float liquido) {
+    public ParametroMovimentosResumo(String mes, String ano, String contribuicao, double valor, double taxa, double liquido) {
         this.mes = mes;
         this.ano = ano;
         this.contribuicao = contribuicao;
@@ -29,7 +29,7 @@ public class ParametroMovimentosResumo {
         this.liquido = liquido;
     }
 
-    public ParametroMovimentosResumo(String mes, String ano, String empresa_cnpj, String empresa_nome, String contribuicao, float valor, float taxa, float liquido) {
+    public ParametroMovimentosResumo(String mes, String ano, String empresa_cnpj, String empresa_nome, String contribuicao, double valor, double taxa, double liquido) {
         this.mes = mes;
         this.ano = ano;
         this.empresa_cnpj = empresa_cnpj;
@@ -40,7 +40,7 @@ public class ParametroMovimentosResumo {
         this.liquido = liquido;
     }
     
-    public ParametroMovimentosResumo(String cidade, String mes, String ano, String contribuicao, float valor, float taxa, float liquido) {
+    public ParametroMovimentosResumo(String cidade, String mes, String ano, String contribuicao, double valor, double taxa, double liquido) {
         this.cidade = cidade;
         this.mes = mes;
         this.ano = ano;
@@ -90,27 +90,27 @@ public class ParametroMovimentosResumo {
         this.contribuicao = contribuicao;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 
-    public float getTaxa() {
+    public double getTaxa() {
         return taxa;
     }
 
-    public void setTaxa(float taxa) {
+    public void setTaxa(double taxa) {
         this.taxa = taxa;
     }
 
-    public float getLiquido() {
+    public double getLiquido() {
         return liquido;
     }
 
-    public void setLiquido(float liquido) {
+    public void setLiquido(double liquido) {
         this.liquido = liquido;
     }
 

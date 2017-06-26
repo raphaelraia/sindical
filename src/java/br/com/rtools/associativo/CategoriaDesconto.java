@@ -24,7 +24,7 @@ public class CategoriaDesconto implements java.io.Serializable {
     @ManyToOne
     private Categoria categoria;
     @Column(name = "nr_desconto", nullable = false)
-    private float desconto;
+    private double desconto;
     @JoinColumn(name = "id_servico_valor", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private ServicoValor servicoValor;
@@ -36,7 +36,7 @@ public class CategoriaDesconto implements java.io.Serializable {
         this.servicoValor = new ServicoValor();
     }
 
-    public CategoriaDesconto(int id, Categoria categoria, float desconto, ServicoValor servicoValor) {
+    public CategoriaDesconto(int id, Categoria categoria, double desconto, ServicoValor servicoValor) {
         this.id = id;
         this.categoria = categoria;
         this.desconto = desconto;
@@ -59,11 +59,11 @@ public class CategoriaDesconto implements java.io.Serializable {
         this.categoria = categoria;
     }
 
-    public float getDesconto() {
+    public double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(double desconto) {
         this.desconto = desconto;
     }
 

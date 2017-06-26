@@ -11,15 +11,6 @@ public class Types {
         return true;
     }
 
-    public static boolean isFloat(Object o) {
-        try {
-            Float.parseFloat(o.toString());
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
-    }
-
     public static boolean isDouble(Object o) {
         try {
             Double.parseDouble(o.toString());

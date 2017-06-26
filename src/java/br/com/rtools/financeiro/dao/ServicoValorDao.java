@@ -62,7 +62,7 @@ public class ServicoValorDao extends DB {
         return new ServicoValor();
     }
 
-    public float pesquisaMaiorResponsavel(int idPessoa) {
+    public double pesquisaMaiorResponsavel(int idPessoa) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "            SELECT extract(year from age(dt_nascimento))           "
@@ -76,7 +76,7 @@ public class ServicoValorDao extends DB {
                     + "               AND pe.id_tipo_endereco = 3                         "
                     + "               AND p.id = " + idPessoa + "                         ");
             Vector vector = (Vector) qry.getSingleResult();
-            return (new BigDecimal((Double) vector.get(0))).floatValue();
+            return (new BigDecimal((Double) vector.get(0))).doubleValue();
         } catch (Exception e) {
             e.getMessage();
         }

@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class CaixaFederalSicob extends Cobranca {
 
-    public CaixaFederalSicob(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public CaixaFederalSicob(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -73,12 +73,12 @@ public class CaixaFederalSicob extends Cobranca {
         codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
         int i = 0;
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
+        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
         while (i != (10 - tam)) { // zeros
             codigoBarras += "0";
             i++;
         }
-        codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
+        codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
         codigoBarras += boleto.getBoletoComposto();       // nosso numero
         codigoBarras += boleto.getContaCobranca().getContaBanco().getAgencia();
         codigoBarras += boleto.getContaCobranca().getCodCedente();        // codigo cedente

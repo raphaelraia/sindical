@@ -1395,7 +1395,7 @@ public class MovimentoDao extends DB {
             //valor = (Object[]) qry.getSingleResult();
             List resultado = (Vector) qry2.getSingleResult();
 
-            return new Object[]{(new BigDecimal((Double) resultado.get(0))).floatValue(), (new BigDecimal((Double) resultado.get(1))).floatValue()};
+            return new Object[]{(new BigDecimal((Double) resultado.get(0))).doubleValue(), (new BigDecimal((Double) resultado.get(1))).doubleValue()};
         } catch (Exception e) {
 
             return null;

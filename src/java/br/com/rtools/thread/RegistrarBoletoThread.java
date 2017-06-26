@@ -1,29 +1,16 @@
 package br.com.rtools.thread;
 
-import br.com.rtools.arrecadacao.ContribuintesInativos;
-import br.com.rtools.arrecadacao.MotivoInativacao;
 import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
-import br.com.rtools.cobranca.Cobranca;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
-import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
-import br.com.rtools.pessoa.Juridica;
-import br.com.rtools.pessoa.JuridicaReceitaAutomatica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.PessoaEmpresa;
-import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.FisicaDao;
-import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.dao.JuridicaDao;
-import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.ProcessoAutomaticoLog;
-import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.JuridicaReceitaJSON;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.Date;
@@ -147,16 +134,16 @@ public class RegistrarBoletoThread extends ThreadLocal<Object> {
             }
         }
         // SOMA VALOR DAS ATRASADAS
-        float valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;
+        double valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;
 
         for (Vector listax : lista_socio) {
             // SE vencimento_movimento FOR MENOR QUE vencimento_boleto_original
             if (DataHoje.menorData(DataHoje.converteData((Date) listax.get(38)), "01/" + DataHoje.converteData((Date) listax.get(40)).substring(3))) {
-                valor_total_atrasadas = Moeda.somaValores(valor_total_atrasadas, Moeda.converteUS$(listax.get(14).toString()));
+                valor_total_atrasadas = Moeda.soma(valor_total_atrasadas, Moeda.converteUS$(listax.get(14).toString()));
             } else {
-                valor_total = Moeda.somaValores(valor_total, Moeda.converteUS$(listax.get(14).toString()));
+                valor_total = Moeda.soma(valor_total, Moeda.converteUS$(listax.get(14).toString()));
             }
-            valor_boleto = Moeda.somaValores(valor_total, valor_total_atrasadas);
+            valor_boleto = Moeda.soma(valor_total, valor_total_atrasadas);
         }
 
         ImprimirBoleto imp = new ImprimirBoleto();

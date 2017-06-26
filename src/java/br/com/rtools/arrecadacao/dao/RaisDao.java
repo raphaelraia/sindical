@@ -140,14 +140,14 @@ public class RaisDao extends DB {
             listWhere.add("r.dt_emissao = '" + emissaoFinal + "'");
         }
         if (faixaSalarialInicial != null && faixaSalarialFinal != null) {
-            Float fsi = Moeda.converteUS$(faixaSalarialInicial);
-            Float fsf = Moeda.converteUS$(faixaSalarialFinal);
+            Double fsi = Moeda.converteUS$(faixaSalarialInicial);
+            Double fsf = Moeda.converteUS$(faixaSalarialFinal);
             listWhere.add("r.nr_salario BETWEEN " + fsi + " AND " + fsf + "");
         } else if (faixaSalarialInicial != null) {
-            Float fsi = Moeda.converteUS$(faixaSalarialInicial);
+            Double fsi = Moeda.converteUS$(faixaSalarialInicial);
             listWhere.add("r.nr_salario = '" + fsi + "'");
         } else if (faixaSalarialFinal != null) {
-            Float fsf = Moeda.converteUS$(faixaSalarialFinal);
+            Double fsf = Moeda.converteUS$(faixaSalarialFinal);
             listWhere.add("r.nr_salario = '" + fsf + "'");
         }
         if (idEmpresa != null) {

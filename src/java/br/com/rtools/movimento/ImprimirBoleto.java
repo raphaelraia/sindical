@@ -107,7 +107,7 @@ public class ImprimirBoleto implements Serializable {
         new Dao().update(boleto, true);
     }
 
-    public HashMap registrarMovimentosAss(Boleto boleto, Float valor, String vencimento) {
+    public HashMap registrarMovimentosAss(Boleto boleto, Double valor, String vencimento) {
         MovimentoDao dbm = new MovimentoDao();
         MovimentosReceberSocialDao db_social = new MovimentosReceberSocialDao();
 
@@ -292,7 +292,7 @@ public class ImprimirBoleto implements Serializable {
             //params.add(new BasicNameValuePair("data_vencimento", lista.get(i).getVencimento().substring(0, 2) +  lista.get(i).getVencimento().substring(3, 5) + lista.get(i).getVencimento().substring(6, 10)));
             params.add(new BasicNameValuePair("data_vencimento", vencimento.substring(0, 2) + vencimento.substring(3, 5) + vencimento.substring(6, 10)));
             params.add(new BasicNameValuePair("referencia", lista_movimento.get(0).getReferencia().replace("/", "")));
-            params.add(new BasicNameValuePair("valor", Moeda.converteR$Float(valor).replace(".", "").replace(",", ".")));
+            params.add(new BasicNameValuePair("valor", Moeda.converteR$Double(valor).replace(".", "").replace(",", ".")));
 
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 
@@ -372,7 +372,7 @@ public class ImprimirBoleto implements Serializable {
         }
     }
 
-    public HashMap registrarMovimentos(List<Movimento> lista, List<Float> listaValores, List<String> listaVencimentos) {
+    public HashMap registrarMovimentos(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos) {
         MovimentoDao dbm = new MovimentoDao();
         Registro reg = Registro.get();
         Dao dao = new Dao();
@@ -565,7 +565,7 @@ public class ImprimirBoleto implements Serializable {
                 //params.add(new BasicNameValuePair("data_vencimento", lista.get(i).getVencimento().substring(0, 2) +  lista.get(i).getVencimento().substring(3, 5) + lista.get(i).getVencimento().substring(6, 10)));
                 params.add(new BasicNameValuePair("data_vencimento", listaVencimentos.get(i).substring(0, 2) + listaVencimentos.get(i).substring(3, 5) + listaVencimentos.get(i).substring(6, 10)));
                 params.add(new BasicNameValuePair("referencia", lista.get(i).getReferencia().replace("/", "")));
-                params.add(new BasicNameValuePair("valor", Moeda.converteR$Float(listaValores.get(i)).replace(".", "").replace(",", ".")));
+                params.add(new BasicNameValuePair("valor", Moeda.converteR$Double(listaValores.get(i)).replace(".", "").replace(",", ".")));
 
                 httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 
@@ -756,7 +756,7 @@ public class ImprimirBoleto implements Serializable {
         }
     }
 
-    public byte[] imprimirBoleto(List<Movimento> lista, List<Float> listaValores, List<String> listaVencimentos, boolean imprimeVerso) {
+    public byte[] imprimirBoleto(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos, boolean imprimeVerso) {
         HashMap hash = registrarMovimentos(lista, listaValores, listaVencimentos);
 
         if (((ArrayList) hash.get("lista")).isEmpty() || ((ArrayList) hash.get("lista")).size() != listaValores.size()) {
@@ -808,10 +808,10 @@ public class ImprimirBoleto implements Serializable {
                 }
                 swap[43] = "";
                 swap[42] = "";
-                float vlOriginal = lista.get(i).getValor();
+                double vlOriginal = lista.get(i).getValor();
 
                 // ALTERA VALOR PARA SAIR NA REPRESENTAÇÃO NUMÉRICA
-                lista.get(i).setValor(new BigDecimal(listaValores.get(i)).floatValue());
+                lista.get(i).setValor(new BigDecimal(listaValores.get(i)).doubleValue());
 
                 // ALTERA O VENCIMENTO PARA SAIR NA REPRESENTAÇÃO NUMÉRICA
                 Movimento mov = lista.get(i);
@@ -1527,7 +1527,7 @@ public class ImprimirBoleto implements Serializable {
         return arquivo;
     }
 
-    public byte[] imprimirPlanilha(List<Movimento> lista, List<Float> listaValores, boolean calculo, boolean imprimirVerso) {
+    public byte[] imprimirPlanilha(List<Movimento> lista, List<Double> listaValores, boolean calculo, boolean imprimirVerso) {
         try {
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
@@ -1654,11 +1654,11 @@ public class ImprimirBoleto implements Serializable {
                         correcao = new BigDecimal(0);
                         desconto = new BigDecimal(0);
                     } else {
-                        valor = new BigDecimal(((Double) lAcres.get(0).get(0)).floatValue());
-                        multa = new BigDecimal(((Double) lAcres.get(0).get(1)).floatValue());
-                        juros = new BigDecimal(((Double) lAcres.get(0).get(2)).floatValue());
-                        correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).floatValue());
-                        desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).floatValue());
+                        valor = new BigDecimal(((Double) lAcres.get(0).get(0)).doubleValue());
+                        multa = new BigDecimal(((Double) lAcres.get(0).get(1)).doubleValue());
+                        juros = new BigDecimal(((Double) lAcres.get(0).get(2)).doubleValue());
+                        correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).doubleValue());
+                        desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).doubleValue());
                     }
                 } else {
                     valor = new BigDecimal(lista.get(i).getValorBaixa());
@@ -1884,20 +1884,20 @@ public class ImprimirBoleto implements Serializable {
                     correcao = new BigDecimal(0);
                     desconto = new BigDecimal(0);
                 } else {
-                    valor = new BigDecimal(((Double) lAcres.get(0).get(0)).floatValue());
-                    multa = new BigDecimal(((Double) lAcres.get(0).get(1)).floatValue());
-                    juros = new BigDecimal(((Double) lAcres.get(0).get(2)).floatValue());
-                    correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).floatValue());
-                    desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).floatValue());
+                    valor = new BigDecimal(((Double) lAcres.get(0).get(0)).doubleValue());
+                    multa = new BigDecimal(((Double) lAcres.get(0).get(1)).doubleValue());
+                    juros = new BigDecimal(((Double) lAcres.get(0).get(2)).doubleValue());
+                    correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).doubleValue());
+                    desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).doubleValue());
 
 //                    valor = new BigDecimal(Moeda.subtracaoValores(
-//                                    Moeda.somaValores(Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue()
+//                                    Moeda.somaValores(Moeda.somaValores(multa.doubleValue(), juros.doubleValue()), correcao.doubleValue()), desconto.doubleValue()
 //                                )
 //                    );
                 }
 
-                BigDecimal valor_calculado = new BigDecimal(Moeda.somaValores(lista.get(i).getValor(), Moeda.subtracaoValores(
-                        Moeda.somaValores(Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue())));
+                BigDecimal valor_calculado = new BigDecimal(Moeda.soma(lista.get(i).getValor(), Moeda.subtracao(
+                        Moeda.soma(Moeda.soma(multa.doubleValue(), juros.doubleValue()), correcao.doubleValue()), desconto.doubleValue())));
 
                 if (lista.get(i).getTipoServico().getId() == 4 && lista.get(i).isAtivo()) {
                     vetor1.add(new DemonstrativoAcordo(
@@ -2121,19 +2121,19 @@ public class ImprimirBoleto implements Serializable {
                     correcao = new BigDecimal(0);
                     desconto = new BigDecimal(0);
                 } else {
-                    valor = new BigDecimal(((Double) lAcres.get(0).get(0)).floatValue());
-                    multa = new BigDecimal(((Double) lAcres.get(0).get(1)).floatValue());
-                    juros = new BigDecimal(((Double) lAcres.get(0).get(2)).floatValue());
-                    correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).floatValue());
-                    desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).floatValue());
+                    valor = new BigDecimal((Double) lAcres.get(0).get(0));
+                    multa = new BigDecimal((Double) lAcres.get(0).get(1));
+                    juros = new BigDecimal((Double) lAcres.get(0).get(2));
+                    correcao = new BigDecimal((Double) lAcres.get(0).get(3));
+                    desconto = new BigDecimal((Double) lAcres.get(0).get(4));
                 }
 
                 BigDecimal valor_calculado
                         = new BigDecimal(
-                                Moeda.somaValores(
-                                        lista.get(i).getValor(), Moeda.subtracaoValores(
-                                        Moeda.somaValores(
-                                                Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue()
+                                Moeda.soma(
+                                        lista.get(i).getValor(), Moeda.subtracao(
+                                        Moeda.soma(
+                                                Moeda.soma(multa.doubleValue(), juros.doubleValue()), correcao.doubleValue()), desconto.doubleValue()
                                 )
                                 )
                         );
@@ -2399,15 +2399,15 @@ public class ImprimirBoleto implements Serializable {
                     correcao = new BigDecimal(0);
                     desconto = new BigDecimal(0);
                 } else {
-                    valor = new BigDecimal(((Double) lAcres.get(0).get(0)).floatValue());
-                    multa = new BigDecimal(((Double) lAcres.get(0).get(1)).floatValue());
-                    juros = new BigDecimal(((Double) lAcres.get(0).get(2)).floatValue());
-                    correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).floatValue());
-                    desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).floatValue());
+                    valor = new BigDecimal(((Double) lAcres.get(0).get(0)).doubleValue());
+                    multa = new BigDecimal(((Double) lAcres.get(0).get(1)).doubleValue());
+                    juros = new BigDecimal(((Double) lAcres.get(0).get(2)).doubleValue());
+                    correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).doubleValue());
+                    desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).doubleValue());
                 }
 
-                BigDecimal valor_calculado = new BigDecimal(Moeda.somaValores(lista.get(i).getValor(), Moeda.subtracaoValores(
-                        Moeda.somaValores(Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue())));
+                BigDecimal valor_calculado = new BigDecimal(Moeda.soma(lista.get(i).getValor(), Moeda.subtracao(
+                        Moeda.soma(Moeda.soma(multa.doubleValue(), juros.doubleValue()), correcao.doubleValue()), desconto.doubleValue())));
 
                 if (lista.get(i).getTipoServico().getId() == 4) {
                     vetor1.add(new DemonstrativoAcordo(
@@ -2657,17 +2657,17 @@ public class ImprimirBoleto implements Serializable {
                 }
                 Cobranca cobranca = null;
                 // SOMA VALOR DAS ATRASADAS
-                float valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;
+                double valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;
                 List<String> list_at = new ArrayList();
                 for (Vector listax : lista_socio) {
                     // SE vencimento_movimento FOR MENOR QUE vencimento_boleto_original
                     if (DataHoje.menorData(DataHoje.converteData((Date) listax.get(38)), "01/" + DataHoje.converteData((Date) listax.get(40)).substring(3))) {
-                        valor_total_atrasadas = Moeda.somaValores(valor_total_atrasadas, Moeda.converteUS$(listax.get(14).toString()));
+                        valor_total_atrasadas = Moeda.soma(valor_total_atrasadas, Moeda.converteUS$(listax.get(14).toString()));
                         list_at.add(DataHoje.converteData((Date) listax.get(38)));
                     } else {
-                        valor_total = Moeda.somaValores(valor_total, Moeda.converteUS$(listax.get(14).toString()));
+                        valor_total = Moeda.soma(valor_total, Moeda.converteUS$(listax.get(14).toString()));
                     }
-                    valor_boleto = Moeda.somaValores(valor_total, valor_total_atrasadas);
+                    valor_boleto = Moeda.soma(valor_total, valor_total_atrasadas);
                 }
 
                 String mensagemAtrasadas = "Mensalidade(s) Atrasada(s) Corrigida(s)";
@@ -2707,7 +2707,7 @@ public class ImprimirBoleto implements Serializable {
                     if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))
                             || DataHoje.igualdadeData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
                         qntItens++;
-                        float valor = Moeda.converteUS$(lista_socio.get(w).get(14).toString());
+                        double valor = Moeda.converteUS$(lista_socio.get(w).get(14).toString());
                         lista.add(new ParametroBoletoSocial(
                                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"), // LOGO SINDICATO
                                 filial.getFilial().getPessoa().getNome(),
@@ -2721,10 +2721,10 @@ public class ImprimirBoleto implements Serializable {
                                 lista_socio.get(w).get(13).toString(), // BENEFICIARIO
                                 lista_socio.get(w).get(11).toString(), // SERVICO
                                 valor, // VALOR
-                                Moeda.converteR$Float(valor_total), // VALOR TOTAL
+                                Moeda.converteR$Double(valor_total), // VALOR TOTAL
                                 //Moeda.converteR$(lista_socio.get(w).get(15).toString()), // VALOR ATRASADAS
-                                Moeda.converteR$Float(valor_total_atrasadas), // VALOR ATRASADAS
-                                Moeda.converteR$Float(Moeda.somaValores(valor_total, valor_total_atrasadas)), // VALOR ATÉ VENCIMENTO
+                                Moeda.converteR$Double(valor_total_atrasadas), // VALOR ATRASADAS
+                                Moeda.converteR$Double(Moeda.soma(valor_total, valor_total_atrasadas)), // VALOR ATÉ VENCIMENTO
                                 file_promo == null ? null : file_promo.getAbsolutePath(), // LOGO PROMOÇÃO
                                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(boleto.getContaCobranca().getContaBanco().getBanco().getLogo().trim()), // LOGO BANCO
                                 lista_socio.get(w).get(16).toString(), // MENSAGEM
@@ -2820,7 +2820,7 @@ public class ImprimirBoleto implements Serializable {
             List<Object> result = db.listaBoletoSocio(listaBoleto, view, tipo);
 
             // SOMA VALOR DAS ATRASADAS
-            float valor_total_mes = 0, valor_total_vencimento = 0, valor_boleto = 0;
+            double valor_total_mes = 0, valor_total_vencimento = 0, valor_boleto = 0;
 
             int qntItens = 0;
             Boleto boleto = null;
@@ -2835,7 +2835,7 @@ public class ImprimirBoleto implements Serializable {
                 List linha = (List) result.get(i);
                 String valor = "0,00";
                 if (e_fisica) {
-                    valor = Moeda.converteR$Float(Moeda.converteUS$(linha.get(14).toString()));
+                    valor = Moeda.converteR$Double(Moeda.converteUS$(linha.get(14).toString()));
                 } else {
                     m = (Movimento) movimentoDao.findByNrCtrBoletoTitular(linha.get(2).toString(), Integer.parseInt(linha.get(41).toString()));
                     valor = m.getValorString();
@@ -2851,12 +2851,12 @@ public class ImprimirBoleto implements Serializable {
                     }
 
                     if (linha.get(2).toString().equals(((List) result.get(i + 1)).get(2))) {
-                        valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(valor));
+                        valor_boleto = Moeda.soma(valor_boleto, Moeda.converteUS$(valor));
                         if ((Integer) linha.get(12) != 0) {
                             valor_total_mes = valor_boleto;
                         }
                     } else {
-                        valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(valor));
+                        valor_boleto = Moeda.soma(valor_boleto, Moeda.converteUS$(valor));
                         if ((Integer) linha.get(12) != 0) {
                             valor_total_mes = valor_boleto;
                         }
@@ -2887,7 +2887,7 @@ public class ImprimirBoleto implements Serializable {
                     }
                 } catch (Exception e) {
                     e.getMessage();
-                    valor_boleto = Moeda.somaValores(valor_boleto, Moeda.converteUS$(valor));
+                    valor_boleto = Moeda.soma(valor_boleto, Moeda.converteUS$(valor));
                     if ((Integer) linha.get(12) != 0) {
                         valor_total_mes = valor_boleto;
                     }
@@ -2934,9 +2934,9 @@ public class ImprimirBoleto implements Serializable {
                                     e_fisica ? linha.get(11).toString() : "", // SERVICO
                                     //                                    Moeda.converteUS$(linha.get(14).toString()), // VALOR
                                     Moeda.converteUS$(valor), // VALOR
-                                    Moeda.converteR$Float(valor_total_mes),//Moeda.converteR$Float(Moeda.converteUS$(linha.get(15).toString())), // VALOR TOTAL MÊS
+                                    Moeda.converteR$Double(valor_total_mes),//Moeda.converteR$Double(Moeda.converteUS$(linha.get(15).toString())), // VALOR TOTAL MÊS
                                     "0,00", // VALOR ATRASADAS
-                                    Moeda.converteR$Float(valor_total_vencimento), // VALOR ATÉ VENCIMENTO
+                                    Moeda.converteR$Double(valor_total_vencimento), // VALOR ATÉ VENCIMENTO
                                     file_promo == null ? null : file_promo.getAbsolutePath(), // LOGO PROMOÇÃO
                                     ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(boleto.getContaCobranca().getContaBanco().getBanco().getLogo().trim()), // LOGO BANCO
                                     linha.get(16).toString(), // MENSAGEM

@@ -66,7 +66,7 @@ public class MovimentoReceberDao extends DB {
         return new ArrayList();
     }
 
-    public List pesquisaListaMovimentosDesconto(int id_juridica, float desconto, float total) {
+    public List pesquisaListaMovimentosDesconto(int id_juridica, double desconto, double total) {
         try {
             String textoQuery = "select m.ds_documento Boleto, "
                     + "       se.ds_descricao as Servico, "

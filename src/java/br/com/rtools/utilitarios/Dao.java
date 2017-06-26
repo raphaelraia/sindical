@@ -791,8 +791,6 @@ public class Dao extends DB implements DaoInterface {
                     } catch (Exception e) {
                         query.setParameter("p" + y, param);
                     }
-                } else if (Types.isFloat(param)) {
-                    query.setParameter("p" + y, Float.parseFloat((String) param));
                 } else if (Types.isDouble(param)) {
                     query.setParameter("p" + y, Double.parseDouble((String) param));
                 } else {

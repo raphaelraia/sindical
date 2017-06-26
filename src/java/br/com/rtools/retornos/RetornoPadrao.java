@@ -51,8 +51,8 @@ public class RetornoPadrao extends ArquivoRetorno {
         List<String> errors = new ArrayList();
         boolean moverArquivo = true;
         List<String> listaDtPagamentos = new ArrayList();
-        List<Float> listaTaxa = new ArrayList();
-        List<Float> listaValor = new ArrayList();
+        List<Double> listaTaxa = new ArrayList();
+        List<Double> listaValor = new ArrayList();
         File fl = new File(caminho);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
@@ -82,7 +82,7 @@ public class RetornoPadrao extends ArquivoRetorno {
                             if (movimento.size() > 1) {
                                 movimento = new ArrayList();
                                 listaDtPagamentos = new ArrayList<String>();
-                                listaTaxa = new ArrayList<Float>();
+                                listaTaxa = new ArrayList<Double>();
                                 listaValor = new ArrayList();
                                 continue;
                             } else {
@@ -91,14 +91,14 @@ public class RetornoPadrao extends ArquivoRetorno {
 
                             Movimento movi = movimento.get(0);
 
-                            movi.setValor(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)) / 100);
-                            movi.setTaxa(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorTaxa)) / 100);
+                            movi.setValor(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorPago)) / 100);
+                            movi.setTaxa(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorTaxa)) / 100);
 
                             GerarMovimento.salvarUmMovimento(null, movi);
                         }
                         movimento = new ArrayList();
                         listaDtPagamentos = new ArrayList<String>();
-                        listaTaxa = new ArrayList<Float>();
+                        listaTaxa = new ArrayList<Double>();
                         listaValor = new ArrayList();
                         //contaCobranca = new ContaCobranca();
                     }

@@ -25,7 +25,7 @@ public class CategoriaDescontoDependente implements java.io.Serializable {
     @ManyToOne
     private Parentesco parentesco;
     @Column(name = "nr_desconto")
-    private float desconto;
+    private double desconto;
 
     public CategoriaDescontoDependente() {
         this.id = -1;
@@ -34,7 +34,7 @@ public class CategoriaDescontoDependente implements java.io.Serializable {
         this.desconto = 0;
     }
     
-    public CategoriaDescontoDependente(int id, CategoriaDesconto categoriaDesconto, Parentesco parentesco, float desconto) {
+    public CategoriaDescontoDependente(int id, CategoriaDesconto categoriaDesconto, Parentesco parentesco, double desconto) {
         this.id = id;
         this.categoriaDesconto = categoriaDesconto;
         this.parentesco = parentesco;
@@ -65,11 +65,11 @@ public class CategoriaDescontoDependente implements java.io.Serializable {
         this.parentesco = parentesco;
     }
 
-    public float getDesconto() {
+    public double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(double desconto) {
         this.desconto = desconto;
     }
 }

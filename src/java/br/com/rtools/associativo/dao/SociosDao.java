@@ -387,7 +387,7 @@ public class SociosDao extends DB {
         }
     }
 
-    public float descontoSocioEve(int idPessoa, int idServico) {
+    public double descontoSocioEve(int idPessoa, int idServico) {
         Query qry = null;
         DataHoje dh = new DataHoje();
         Socios socios = new Socios();
@@ -457,8 +457,8 @@ public class SociosDao extends DB {
             return 0;
         }
 
-        float soma = Moeda.multiplicarValores(eveServicoValor.getValor(), (Moeda.divisaoValores(categoriaDesconto.getDesconto(), 100)));
-        soma = Moeda.subtracaoValores(eveServicoValor.getValor(), soma);
+        double soma = Moeda.multiplicar(eveServicoValor.getValor(), (Moeda.divisao(categoriaDesconto.getDesconto(), 100)));
+        soma = Moeda.subtracao(eveServicoValor.getValor(), soma);
         return soma;
     }
 

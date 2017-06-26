@@ -20,7 +20,7 @@ public class ServicoTipoEmpresa implements Serializable {
     @ManyToOne
     private Porte porte;
     @Column(name = "nr_valor", nullable = true)
-    private float valor;
+    private double valor;
     @Column(name = "ds_ref_inicial", length = 7, nullable = true)
     private String referenciaInicial;
     @Column(name = "ds_ref_final", length = 7, nullable = true)
@@ -35,7 +35,7 @@ public class ServicoTipoEmpresa implements Serializable {
         this.referenciaFinal = "";
     }
 
-    public ServicoTipoEmpresa(int id, Servicos servicos, Porte porte, float valor, String referenciaInicial, String referenciaFinal) {
+    public ServicoTipoEmpresa(int id, Servicos servicos, Porte porte, double valor, String referenciaInicial, String referenciaFinal) {
         this.id = id;
         this.servicos = servicos;
         this.porte = porte;
@@ -68,11 +68,11 @@ public class ServicoTipoEmpresa implements Serializable {
         this.porte = porte;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 

@@ -12,9 +12,9 @@ public class ParametroRelatorioEstorno {
     private String caixa;
     private String motivoEstorno;
     private String vencimento;
-    private float valor;
+    private double valor;
     
-    public ParametroRelatorioEstorno(String dataLancamento, String dataBaixa, String responsavel, String titular, String beneficiario, String nrIdBaixa, String usuario, String operador, String caixa, String motivoEstorno, String vencimento, float valor) {
+    public ParametroRelatorioEstorno(String dataLancamento, String dataBaixa, String responsavel, String titular, String beneficiario, String nrIdBaixa, String usuario, String operador, String caixa, String motivoEstorno, String vencimento, double valor) {
         this.dataLancamento = dataLancamento;
         this.dataBaixa = dataBaixa;
         this.responsavel = responsavel;
@@ -77,11 +77,11 @@ public class ParametroRelatorioEstorno {
         this.vencimento = vencimento;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 

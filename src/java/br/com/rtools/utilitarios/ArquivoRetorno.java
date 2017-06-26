@@ -196,15 +196,15 @@ public abstract class ArquivoRetorno {
                                 "",
                                 dataVencto,
                                 0, 0, 0, 0, 0,
-                                Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
-                                Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
+                                Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
+                                Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
                                 (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                                 0, null);
 
                         StatusRetorno sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
 
                         if (sr.getStatus()) {
-                            float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
+                            double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
                             GerarMovimento.baixarMovimento(
                                     movi,
                                     usuario,
@@ -237,10 +237,10 @@ public abstract class ArquivoRetorno {
                 movimento = db.pesquisaMovPorNumDocumentoListSindical(listaParametros.get(u).getNossoNumero(), this.getContaCobranca().getId());
                 if (!movimento.isEmpty()) {
                     // ENCONTROU O BOLETO PRA BAIXAR
-                    movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
-                    movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
+                    movimento.get(0).setValorBaixa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
+                    movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
-                    float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
+                    double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
                     GerarMovimento.baixarMovimento(
                             movimento.get(0),
                             usuario,
@@ -272,10 +272,10 @@ public abstract class ArquivoRetorno {
                     movimento = db.pesquisaMovimentoChaveValor(listJuridica.get(0).getPessoa().getId(), referencia, this.getContaCobranca().getId(), tipoServico.getId());
 
                     if (!movimento.isEmpty()) {
-                        movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
-                        movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
+                        movimento.get(0).setValorBaixa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
+                        movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
-                        float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
+                        double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
                         GerarMovimento.baixarMovimento(
                                 movimento.get(0),
                                 usuario,
@@ -315,8 +315,8 @@ public abstract class ArquivoRetorno {
                             "",
                             dataVencto,
                             0, 0, 0, 0, 0,
-                            Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
-                            Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
+                            Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
+                            Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
                             (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                             0,
                             null
@@ -325,7 +325,7 @@ public abstract class ArquivoRetorno {
                     StatusRetorno sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
 
                     if (sr.getStatus()) {
-                        float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
+                        double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
                         GerarMovimento.baixarMovimento(
                                 movi,
                                 usuario,
@@ -365,8 +365,8 @@ public abstract class ArquivoRetorno {
                             "",
                             dataVencto,
                             0, 0, 0, 0, 0,
-                            Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
-                            Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
+                            Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
+                            Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
                             (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                             0,
                             null
@@ -375,7 +375,7 @@ public abstract class ArquivoRetorno {
                     StatusRetorno sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
 
                     if (sr.getStatus()) {
-                        float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
+                        double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
 
                         DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
                         List<DocumentoInvalido> listaDI = dbDocInv.pesquisaNumeroBoleto(listaParametros.get(u).getNossoNumero());
@@ -425,8 +425,8 @@ public abstract class ArquivoRetorno {
                             this.getContaCobranca().getId());
                     if (!movimento.isEmpty()) {
                         if (movimento.size() == 1) {
-                            movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
-                            movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
+                            movimento.get(0).setValorBaixa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
+                            movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
                             GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), 0, null, "", 0);
 
@@ -436,7 +436,7 @@ public abstract class ArquivoRetorno {
                         String xt = "Boleto não Encontrado - " + listaParametros.get(u).getNossoNumero()
                                 + " - Data de Vencimento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())
                                 + " - Data de Pagamento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento())
-                                + " - Valor Pago: " + Moeda.converteR$Float(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
+                                + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
                         lista_detalhe.add(new ObjectDetalheRetorno(null, 7, xt));
                     }
                 } else {
@@ -513,8 +513,8 @@ public abstract class ArquivoRetorno {
                 if (lista_movimento.isEmpty()) {
                     lista_movimento = db.pesquisaMovPorNumDocumentoListAss(listaParametros.get(u).getNossoNumero(), this.getContaCobranca().getId());
                     if (!lista_movimento.isEmpty()) {
-                        //movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
-                        //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
+                        //movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
+                        //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
                         // logs de mensagens ---
                         // 0 - ERRO AO INSERIR BAIXA - [1] obj Baixa
@@ -531,8 +531,8 @@ public abstract class ArquivoRetorno {
                                 lista_movimento, // lista de movimentos
                                 usuario, // usuario que esta baixando
                                 DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), // data do pagamento
-                                Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100), // valor liquido ( total pago )
-                                Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100) // valor taxa
+                                Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100), // valor liquido ( total pago )
+                                Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100) // valor taxa
                         );
 
                         lista_logs.add(log);
@@ -544,7 +544,7 @@ public abstract class ArquivoRetorno {
                         log[2] = "Boleto não Encontrado - " + listaParametros.get(u).getNossoNumero()
                                 + " - Data de Vencimento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())
                                 + " - Data de Pagamento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento())
-                                + " - Valor Pago: " + Moeda.converteR$Float(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
+                                + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
                         lista_logs.add(log);
                     }
                 }

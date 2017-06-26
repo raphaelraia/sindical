@@ -135,8 +135,8 @@ public class AcordoComissaoDao extends DB {
                     + "            M.dt_vencimento  AS data_vencimento,         \n" // 11
                     + "            ACC.dt_inicio    AS data_inicio,             \n" // 12
                     + "            L.dt_emissao     AS data_emissao,            \n" // 13
-                    + "            cast(0 AS float) AS comissao,                \n" // 14
-                    + "            cast(0 AS float) AS liquido,                 \n" // 15
+                    + "            cast(0 AS double precision) AS comissao,                \n" // 14
+                    + "            cast(0 AS double precision) AS liquido,                 \n" // 15
                     + "            PU.ds_nome       AS usuario_nome             \n" // 16
                     + "       FROM fin_movimento    AS M                        \n"
                     + " INNER JOIN pes_pessoa       AS P  ON P.id   = M.id_pessoa   \n"

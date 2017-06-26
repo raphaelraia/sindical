@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class Real extends Cobranca {
 
-    public Real(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public Real(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -72,12 +72,12 @@ public class Real extends Cobranca {
         codigoBarras = boleto.getContaCobranca().getContaBanco().getBanco().getNumero() + boleto.getContaCobranca().getMoeda(); // banco + moeda
         codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
         int i = 0;
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
+        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
         while (i != (10 - tam)) { // zeros
             codigoBarras += "0";
             i++;
         }
-        codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
+        codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
         codigoBarras += boleto.getContaCobranca().getContaBanco().getAgencia();
         codigoBarras += boleto.getContaCobranca().getCodCedente();        // codigo cedente
         codigoBarras += moduloDez(boleto.getBoletoComposto()

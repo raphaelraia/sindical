@@ -49,7 +49,7 @@ public class RelatorioAcademiaDao extends DB {
      * @param empresa
      * @return
      */
-    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order, String tipoValor, String valorInicial, String valorFinal, Juridica empresa) {
+    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Double desconto, Double desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order, String tipoValor, String valorInicial, String valorFinal, Juridica empresa) {
         List listWhere = new ArrayList();
         String queryString = "";
         if (relatorios.getId().equals(31)) {
@@ -170,8 +170,8 @@ public class RelatorioAcademiaDao extends DB {
         if (!valorInicial.isEmpty() || !valorFinal.isEmpty()) {
             String subquery = "";
             subquery += " ( ";
-            valorInicial = Float.toString(Moeda.converteUS$(valorInicial));
-            valorFinal = Float.toString(Moeda.converteUS$(valorFinal));
+            valorInicial = Double.toString(Moeda.converteUS$(valorInicial));
+            valorFinal = Double.toString(Moeda.converteUS$(valorFinal));
             switch (tipoValor) {
                 case "igual":
                     if (!valorInicial.isEmpty()) {

@@ -14,7 +14,7 @@ public class EFinanceiro implements Serializable {
     @Column(name = "id")
     private int id;
     @Column(name = "nr_multa_cancelamento")
-    private float nrMultaCancelamento;
+    private double nrMultaCancelamento;
     @JoinColumn(name = "id_multa", referencedColumnName = "id")
     @ManyToOne
     private Servicos multa;
@@ -25,7 +25,7 @@ public class EFinanceiro implements Serializable {
         this.multa = new Servicos();
     }
 
-    public EFinanceiro(int id, float nrMultaCancelamento, Servicos multa) {
+    public EFinanceiro(int id, double nrMultaCancelamento, Servicos multa) {
         this.id = id;
         this.nrMultaCancelamento = nrMultaCancelamento;
         this.multa = multa;
@@ -39,11 +39,11 @@ public class EFinanceiro implements Serializable {
         this.id = id;
     }
 
-    public float getNrMultaCancelamento() {
+    public double getNrMultaCancelamento() {
         return nrMultaCancelamento;
     }
 
-    public void setNrMultaCancelamento(float nrMultaCancelamento) {
+    public void setNrMultaCancelamento(double nrMultaCancelamento) {
         this.nrMultaCancelamento = nrMultaCancelamento;
     }
 

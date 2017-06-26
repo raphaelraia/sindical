@@ -20,7 +20,7 @@ import javax.persistence.Query;
  */
 public class RelatorioFinanceiroEscolaDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(String id_servicos, String data_vencimento, String data_vencimento_final, String data_quitacao, String data_quitacao_final, String tipo_pessoa, Integer id_pessoa, String order, Relatorios relatorio, Float desconto, Float desconto_final, String in_turmas, String status) {
+    public List<Object> listaRelatorioFinanceiro(String id_servicos, String data_vencimento, String data_vencimento_final, String data_quitacao, String data_quitacao_final, String tipo_pessoa, Integer id_pessoa, String order, Relatorios relatorio, Double desconto, Double desconto_final, String in_turmas, String status) {
         String select
                 = " SELECT ";
 

@@ -284,7 +284,7 @@ public class LoteDao extends DB {
         return pesquisaLotesPorEvt(new Evt(evt));
     }
 
-    public List<Lote> pesquisaLoteDocumento(Integer pessoa_id, Integer tipo_documento_id, String documento, Float valor) {
+    public List<Lote> pesquisaLoteDocumento(Integer pessoa_id, Integer tipo_documento_id, String documento, Double valor) {
 
         if (documento.equals("S/N")) {
             return new ArrayList();

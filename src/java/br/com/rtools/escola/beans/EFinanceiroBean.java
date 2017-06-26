@@ -42,7 +42,7 @@ public class EFinanceiroBean implements java.io.Serializable {
         }
 
         eFinanceiro.setMulta(serv);
-        eFinanceiro.setNrMultaCancelamento(Moeda.substituiVirgulaFloat(valorMulta));
+        eFinanceiro.setNrMultaCancelamento(Moeda.substituiVirgulaDouble(valorMulta));
         if (dao.save(eFinanceiro, true)) {
             GenericaMensagem.info("Sucesso", "Multa Salva!");
         } else {

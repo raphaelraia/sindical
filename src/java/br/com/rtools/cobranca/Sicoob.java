@@ -28,7 +28,7 @@ import javax.servlet.ServletContext;
 
 public class Sicoob extends Cobranca {
 
-    public Sicoob(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public Sicoob(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -98,9 +98,9 @@ public class Sicoob extends Cobranca {
         //fimCodigoBarras += fatorVencimento(movimento.getDtVencimento());   // fator de vencimento
         fimCodigoBarras += fatorVencimentoSicoob(vencimento);   // fator de vencimento
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
+        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
 
-        fimCodigoBarras += "0000000000".substring(0, 10 - tam) + Moeda.limparPonto(Moeda.converteR$Float(valor)); // valor
+        fimCodigoBarras += "0000000000".substring(0, 10 - tam) + Moeda.limparPonto(Moeda.converteR$Double(valor)); // valor
 
         fimCodigoBarras += boleto.getContaCobranca().getCarteira();       // carteira
 
@@ -382,7 +382,7 @@ public class Sicoob extends Cobranca {
 
             CONTEUDO_REMESSA = "";
 
-            Float valor_total_lote = (float) 0;
+            Double valor_total_lote = (double) 0;
 
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -512,7 +512,7 @@ public class Sicoob extends Cobranca {
 
                 sequencial_registro_lote++;
 
-                valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
+                valor_total_lote = Moeda.soma(valor_total_lote, mov.getValor());
 
                 RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
 

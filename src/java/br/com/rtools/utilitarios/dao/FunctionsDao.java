@@ -49,9 +49,9 @@ public class FunctionsDao extends DB {
      * @param tipo (0 -> Valor (já calculado) - ), (1 -> Valor até o vencimento
      * (já calculado)), (2 -> Taxa até o vencimento (já calculado))
      * @param id_categoria
-     * @return float valor
+     * @return double valor
      */
-    public float valorServico(int idPessoa, int idServico, Date date, int tipo, Integer id_categoria) {
+    public double valorServico(int idPessoa, int idServico, Date date, int tipo, Integer id_categoria) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico(" + idPessoa + ", " + idServico + ", '" + dataString + "', " + tipo + ", " + id_categoria + ") ";
         try {
@@ -59,7 +59,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                float valor = Float.parseFloat(list.get(0).toString());
+                double valor = Double.parseDouble(list.get(0).toString());
                 return valor;
             }
         } catch (Exception e) {
@@ -68,7 +68,7 @@ public class FunctionsDao extends DB {
         return 0;
     }
 
-    public float valorServicoCheio(int idPessoa, int idServico, Date date) {
+    public double valorServicoCheio(int idPessoa, int idServico, Date date) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico_cheio(" + idPessoa + ", " + idServico + ", '" + dataString + "') ";
         try {
@@ -76,7 +76,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                float valor = Float.parseFloat(list.get(0).toString());
+                double valor = Double.parseDouble(list.get(0).toString());
                 return valor;
             }
         } catch (Exception e) {
@@ -85,7 +85,7 @@ public class FunctionsDao extends DB {
         return 0;
     }
 
-    public float valorServicoCheio(Integer servico_id, Date date) {
+    public double valorServicoCheio(Integer servico_id, Date date) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico_cheio(" + 1 + ", " + servico_id + ", '" + dataString + "') ";
         try {
@@ -93,7 +93,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                float valor = Float.parseFloat(list.get(0).toString());
+                double valor = Double.parseDouble(list.get(0).toString());
                 return valor;
             }
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class FunctionsDao extends DB {
         return 0;
     }
 
-    public float multaDiariaLocadora(Integer filial_id, Date dtDevolucao) {
+    public double multaDiariaLocadora(Integer filial_id, Date dtDevolucao) {
         String devolucao = DataHoje.converteData(dtDevolucao);
         String queryString = "SELECT func_multa_diaria_locadora(" + filial_id + ", '" + devolucao + "') ";
         try {
@@ -110,7 +110,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                float valor = Float.parseFloat(list.get(0).toString());
+                double valor = Double.parseDouble(list.get(0).toString());
                 return valor;
             }
         } catch (Exception e) {

@@ -53,18 +53,6 @@
 //        return objeto;
 //    }
 //
-//    public Float getFloat() {
-//        Float objeto = new Float(0);
-//        try {
-//            if (object != null) {
-//                objeto = (Float) object;
-//            }
-//        } catch (Exception e) {
-//            objeto = new Float(0);
-//        }
-//        return objeto;
-//    }
-//
 //    public Double getDouble() {
 //        Double objeto = new Double(0);
 //        try {

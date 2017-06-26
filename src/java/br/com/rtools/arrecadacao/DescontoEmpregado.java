@@ -16,7 +16,7 @@ public class DescontoEmpregado implements Serializable {
     @ManyToOne
     private Servicos servicos;
     @Column(name = "nr_percentual", nullable = true)
-    private float percentual;
+    private double percentual;
     @Column(name = "ds_ref_inicial", length = 7, nullable = true)
     private String referenciaInicial;
     @Column(name = "ds_ref_final", length = 7, nullable = true)
@@ -28,7 +28,7 @@ public class DescontoEmpregado implements Serializable {
     @ManyToOne
     private Convencao convencao;
     @Column(name = "nr_valor_por_empregado", nullable = false)
-    private float valorEmpregado;
+    private double valorEmpregado;
 
     public DescontoEmpregado() {
         this.id = -1;
@@ -41,7 +41,7 @@ public class DescontoEmpregado implements Serializable {
         this.valorEmpregado = 0;
     }
 
-    public DescontoEmpregado(int id, Servicos servicos, float percentual, String referenciaInicial, String referenciaFinal, GrupoCidade grupoCidade, Convencao convencao, float valorEmpregado) {
+    public DescontoEmpregado(int id, Servicos servicos, double percentual, String referenciaInicial, String referenciaFinal, GrupoCidade grupoCidade, Convencao convencao, double valorEmpregado) {
         this.id = id;
         this.servicos = servicos;
         this.percentual = percentual;
@@ -84,11 +84,11 @@ public class DescontoEmpregado implements Serializable {
         this.referenciaFinal = referenciaFinal;
     }
 
-    public float getPercentual() {
+    public double getPercentual() {
         return percentual;
     }
 
-    public void setPercentual(float percentual) {
+    public void setPercentual(double percentual) {
         this.percentual = percentual;
     }
 
@@ -108,11 +108,11 @@ public class DescontoEmpregado implements Serializable {
         this.convencao = convencao;
     }
 
-    public float getValorEmpregado() {
+    public double getValorEmpregado() {
         return valorEmpregado;
     }
 
-    public void setValorEmpregado(float valorEmpregado) {
+    public void setValorEmpregado(double valorEmpregado) {
         this.valorEmpregado = valorEmpregado;
     }
 }

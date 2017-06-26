@@ -104,7 +104,7 @@ public class WebServiceCNPJ {
 //            //params.add(new BasicNameValuePair("data_vencimento", lista.get(i).getVencimento().substring(0, 2) +  lista.get(i).getVencimento().substring(3, 5) + lista.get(i).getVencimento().substring(6, 10)));
 //            params.add(new BasicNameValuePair("data_vencimento", listaVencimentos.get(i).substring(0, 2) + listaVencimentos.get(i).substring(3, 5) + listaVencimentos.get(i).substring(6, 10)));
 //            params.add(new BasicNameValuePair("referencia", lista.get(i).getReferencia().replace("/", "")));
-//            params.add(new BasicNameValuePair("valor", Moeda.converteR$Float(listaValores.get(i)).replace(".", "").replace(",", ".")));
+//            params.add(new BasicNameValuePair("valor", Moeda.converteR$Double(listaValores.get(i)).replace(".", "").replace(",", ".")));
 
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 

@@ -314,8 +314,8 @@ public class ImprimirRecibo {
                             (Date) linha.get(3), // DATA BAIXA
                             linha.get(4).toString(), // HISTORICO CONTABIL + HISTORICO PADRAO
                             linha.get(5).toString(), // ES
-                            ((Double) linha.get(6)).floatValue(), // VALOR BAIXADO
-                            Moeda.converteR$Float(((Double) linha.get(6)).floatValue()) + " ( " + new ValorExtenso(((Double) linha.get(6)).floatValue()).toString() + " ) ",
+                            ((Double) linha.get(6)).doubleValue(), // VALOR BAIXADO
+                            Moeda.converteR$Double(((Double) linha.get(6)).doubleValue()) + " ( " + new ValorExtenso(((Double) linha.get(6)).doubleValue()).toString() + " ) ",
                             pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.converteData((Date) linha.get(3)), 3),
                             (Integer) linha.get(7),
                             (Integer) linha.get(8),
@@ -371,20 +371,20 @@ public class ImprimirRecibo {
             // PESQUISA FORMA DE PAGAMENTO
             List<FormaPagamento> fp = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
             String formas[] = new String[10];
-            float soma_dinheiro = 0, soma_outros = 0;
+            double soma_dinheiro = 0, soma_outros = 0;
             for (int i = 0; i < fp.size(); i++) {
                 switch (fp.get(i).getTipoPagamento().getId()) {
                     // 4 - CHEQUE
                     case 4:
-                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Float(fp.get(i).getValor()) + " (B: " + fp.get(i).getChequeRec().getBanco().getNumero() + " Ag: " + fp.get(i).getChequeRec().getAgencia() + " C: " + fp.get(i).getChequeRec().getConta() + " CH: " + fp.get(i).getChequeRec().getCheque() + ")";
+                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor()) + " (B: " + fp.get(i).getChequeRec().getBanco().getNumero() + " Ag: " + fp.get(i).getChequeRec().getAgencia() + " C: " + fp.get(i).getChequeRec().getConta() + " CH: " + fp.get(i).getChequeRec().getCheque() + ")";
                         break;
                     // 5 - CHEQUE PRÉ
                     case 5:
-                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Float(fp.get(i).getValor()) + " (B: " + fp.get(i).getChequeRec().getBanco().getNumero() + " Ag: " + fp.get(i).getChequeRec().getAgencia() + " C: " + fp.get(i).getChequeRec().getConta() + " CH: " + fp.get(i).getChequeRec().getCheque() + " P: " + fp.get(i).getChequeRec().getVencimento() + ")";
+                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor()) + " (B: " + fp.get(i).getChequeRec().getBanco().getNumero() + " Ag: " + fp.get(i).getChequeRec().getAgencia() + " C: " + fp.get(i).getChequeRec().getConta() + " CH: " + fp.get(i).getChequeRec().getCheque() + " P: " + fp.get(i).getChequeRec().getVencimento() + ")";
                         break;
                     // QUALQUER OUTRO    
                     default:
-                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Float(fp.get(i).getValor());
+                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor());
                         if (fp.get(i).getTipoPagamento().getId() == 3) {
                             soma_dinheiro = soma_dinheiro + fp.get(i).getValor();
                         }
@@ -478,9 +478,9 @@ public class ImprimirRecibo {
                                 lblVencimento,
                                 mensagemConvenio,
                                 lista.get(i).getPessoa().getDocumento(),
-                                Moeda.converteR$Float(soma_dinheiro + lista.get(i).getBaixa().getTroco()),
-                                Moeda.converteR$Float(lista.get(i).getBaixa().getTroco()),
-                                Moeda.converteR$Float(soma_outros)
+                                Moeda.converteR$Double(soma_dinheiro + lista.get(i).getBaixa().getTroco()),
+                                Moeda.converteR$Double(lista.get(i).getBaixa().getTroco()),
+                                Moeda.converteR$Double(soma_outros)
                         )
                 );
             }

@@ -28,7 +28,7 @@ import javax.servlet.ServletContext;
 
 public class BancoDoBrasil extends Cobranca {
 
-    public BancoDoBrasil(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public BancoDoBrasil(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -127,17 +127,17 @@ public class BancoDoBrasil extends Cobranca {
         codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
         int i = 0;
 
-        String v_string = Moeda.limparPonto(Moeda.converteR$Float(valor));
+        String v_string = Moeda.limparPonto(Moeda.converteR$Double(valor));
         codigoBarras += "0000000000".substring(0, 10 - v_string.length()) + v_string;
 
-//        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();        
+//        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();        
 //        while (i != (10 - tam)) { // zeros
 //            codigoBarras += "0";
 //            i++;
 //        }
 // COBRANÇA CONVÊNIO DE 7 POSIÇÕES
         if (boleto.getBoletoComposto().length() == 17) {
-            //codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
+            //codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
             codigoBarras += "000000";
             codigoBarras += boleto.getBoletoComposto();       // nosso numero
             codigoBarras += boleto.getContaCobranca().getCarteira();        // carteira
@@ -350,7 +350,7 @@ public class BancoDoBrasil extends Cobranca {
 
                 CONTEUDO_REMESSA += data_vencimento[0] + data_vencimento[1] + data_vencimento[2].substring(2, 4); // 121 a 126 9(006) Data de Vencimento 
 
-                String valor_titulo = Moeda.converteR$Float(mov.getValor()).replace(".", "").replace(",", "");
+                String valor_titulo = Moeda.converteR$Double(mov.getValor()).replace(".", "").replace(",", "");
 
                 CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - valor_titulo.length()) + valor_titulo; // 127 a 139 9(011)v99 Valor do Título 
                 CONTEUDO_REMESSA += "001"; // 140 a 142 9(003) Número do Banco: “001”

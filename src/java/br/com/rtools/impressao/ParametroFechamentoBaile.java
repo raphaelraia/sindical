@@ -10,11 +10,11 @@ public class ParametroFechamentoBaile {
     private String convite;
     private String vencimento; 
     private String pagamento;
-    private float valor;
+    private double valor;
     private String caixa;
     private String obs;
 
-    public ParametroFechamentoBaile(String emissao, String operador, String codigo, String convidado, String status, String mesa, String convite, String vencimento, String pagamento, float valor, String caixa, String obs) {
+    public ParametroFechamentoBaile(String emissao, String operador, String codigo, String convidado, String status, String mesa, String convite, String vencimento, String pagamento, double valor, String caixa, String obs) {
         this.emissao = emissao;
         this.operador = operador;
         this.codigo = codigo;
@@ -101,11 +101,11 @@ public class ParametroFechamentoBaile {
         this.pagamento = pagamento;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
 

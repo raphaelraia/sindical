@@ -3,11 +3,11 @@ package br.com.rtools.utilitarios;
 public class ComparaMovimentos {
 
     private String arqBoleto;
-    private float arqValorPago;
+    private double arqValorPago;
     private String arqDataPagamento;
     private String arqDataVencimento;
     private String movBoleto;
-    private float movValorPago;
+    private double movValorPago;
     private String movDataPagamento;
     private String movDataVencimento;
     private String movCnpj;
@@ -18,11 +18,11 @@ public class ComparaMovimentos {
     private String nomeArquivo;
 
     public ComparaMovimentos(String arqBoleto,
-            float arqValorPago,
+            double arqValorPago,
             String arqDataPagamento,
             String arqDataVencimento,
             String movBoleto,
-            float movValorPago,
+            double movValorPago,
             String movDataPagamento,
             String movDataVencimento,
             String movCnpj,
@@ -72,11 +72,11 @@ public class ComparaMovimentos {
         this.arqBoleto = arqBoleto;
     }
 
-    public float getArqValorPago() {
+    public double getArqValorPago() {
         return arqValorPago;
     }
 
-    public void setArqValorPago(float arqValorPago) {
+    public void setArqValorPago(double arqValorPago) {
         this.arqValorPago = arqValorPago;
     }
 
@@ -104,11 +104,11 @@ public class ComparaMovimentos {
         this.movBoleto = movBoleto;
     }
 
-    public float getMovValorPago() {
+    public double getMovValorPago() {
         return movValorPago;
     }
 
-    public void setMovValorPago(float movValorPago) {
+    public void setMovValorPago(double movValorPago) {
         this.movValorPago = movValorPago;
     }
 

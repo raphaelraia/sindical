@@ -11,7 +11,7 @@ public abstract class Cobranca {
 
     //protected Movimento movimento;
     protected Integer id_pessoa;
-    protected Float valor;
+    protected Double valor;
     protected Date vencimento;
     protected Boleto boleto;
     public final static String bancoDoBrasil = "001";
@@ -31,7 +31,7 @@ public abstract class Cobranca {
 //        setMovimento(movimento);
 //        setBoleto(boleto);
 //    }
-    public Cobranca(Integer id_pessoa, float valor, Date vencimento, Boleto boleto) {
+    public Cobranca(Integer id_pessoa, double valor, Date vencimento, Boleto boleto) {
         this.id_pessoa = id_pessoa;
         this.valor = valor;
         this.vencimento = vencimento;
@@ -94,7 +94,7 @@ public abstract class Cobranca {
         }
     }
 
-    public static Cobranca retornaCobranca(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public static Cobranca retornaCobranca(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         Cobranca cobranca = null;
         if (boleto.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
             // ÚNICO CASO QUE UTILIZA O id_pessoa

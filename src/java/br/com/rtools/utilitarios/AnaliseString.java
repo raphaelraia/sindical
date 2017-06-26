@@ -275,17 +275,17 @@ public class AnaliseString {
         return true;
     }
 
-    public static boolean isFloat(String s) {
+    public static boolean isDouble(String s) {
         boolean retorno = false;
         try {
-            Float.parseFloat(s);
+            Double.parseDouble(s);
             retorno = true;
         } catch (NumberFormatException e) {
             retorno = false;
         }
         if (!retorno) {
             try {
-                float numero = Moeda.substituiVirgulaFloat(s);
+                double numero = Moeda.substituiVirgulaDouble(s);
                 retorno = true;
             } catch (NumberFormatException e) {
                 retorno = false;

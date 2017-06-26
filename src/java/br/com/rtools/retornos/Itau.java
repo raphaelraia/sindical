@@ -72,9 +72,9 @@ public class Itau extends ArquivoRetorno {
                             }
                             
                             valorPago = ((String) lista.get(i)).substring(253, 266); //ok VALOR PAGO + TAXA segundo o arquivo
-                            float valorx = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorPago)), 100);
-                            float taxax = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorTaxa)), 100);
-                            String valorlenght = Moeda.converteR$Float(Moeda.somaValores(valorx, taxax)).replace(".", "").replace(",", "");
+                            double valorx = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorPago)), 100);
+                            double taxax = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(valorTaxa)), 100);
+                            String valorlenght = Moeda.converteR$Double(Moeda.soma(valorx, taxax)).replace(".", "").replace(",", "");
                             valorPago = "0000000000000".substring(0, 13 - valorlenght.length()) + valorlenght;
                             
                             dataPagamento = ((String) lista.get(i)).substring(295, 301);//ok

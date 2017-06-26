@@ -97,7 +97,7 @@ public class ConciliacaoDao extends DB {
         }
     }
 
-    public List<Object> listaParaConciliar(Integer id_plano5_baixa, String data_conciliacao, Float valor) {
+    public List<Object> listaParaConciliar(Integer id_plano5_baixa, String data_conciliacao, Double valor) {
         String query
                 = "SELECT m.baixa AS baixa,\n"
                 + "       (ROUND(CAST(m.valor_baixa * 100 AS numeric), 2) / 100)::double precision AS valor_baixa, \n"

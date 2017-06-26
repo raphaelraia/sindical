@@ -80,7 +80,7 @@ public class Produto implements Serializable {
         this.cor = new Cor();
         this.valor = 0;
         this.indiceMoeda = new IndiceMoeda();
-        this.margem = (float) 0;
+        this.margem = (double) 0;
         this.validadeGuiasDias = 0;
         this.validadeGuiasMesVigente = false;
     }

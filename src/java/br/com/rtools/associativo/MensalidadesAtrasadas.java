@@ -24,7 +24,7 @@ public class MensalidadesAtrasadas implements Serializable {
     @Column(name = "ds_descricao")
     private String descricao;
     @Column(name = "nr_valor")
-    private float valor;
+    private double valor;
 
     public MensalidadesAtrasadas() {
         this.id = -1;
@@ -33,7 +33,7 @@ public class MensalidadesAtrasadas implements Serializable {
         this.valor = 0;
     }
     
-    public MensalidadesAtrasadas(int id, Pessoa pessoa, String descricao, float valor) {
+    public MensalidadesAtrasadas(int id, Pessoa pessoa, String descricao, double valor) {
         this.id = id;
         this.pessoa = pessoa;
         this.descricao = descricao;
@@ -64,11 +64,11 @@ public class MensalidadesAtrasadas implements Serializable {
         this.descricao = descricao;
     }
 
-    public float getValor() {
+    public double getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(double valor) {
         this.valor = valor;
     }
     

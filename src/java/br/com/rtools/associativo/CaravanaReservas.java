@@ -24,7 +24,7 @@ public class CaravanaReservas implements Serializable {
     @Column(name = "nr_poltrona", nullable = true)
     private Integer poltrona;
     @Column(name = "nr_desconto", nullable = true)
-    private Float desconto;
+    private Double desconto;
     @JoinColumn(name = "id_evento_servico", referencedColumnName = "id")
     @OneToOne
     private EventoServico eventoServico;
@@ -48,7 +48,7 @@ public class CaravanaReservas implements Serializable {
         this.venda = new CaravanaVenda();
         this.pessoa = new Pessoa();
         this.poltrona = 0;
-        this.desconto = new Float(0);
+        this.desconto = new Double(0);
         this.eventoServico = new EventoServico();
         this.operador = new Usuario();
         this.dtReserva = new Date();
@@ -57,7 +57,7 @@ public class CaravanaReservas implements Serializable {
         this.motivoCancelamento = "";
     }
 
-    public CaravanaReservas(Integer id, CaravanaVenda venda, Pessoa pessoa, Integer poltrona, Float desconto, EventoServico eventoServico, Usuario operador, Date dtReserva, Usuario operadorCancelamento, Date dtCancelamento, String motivoCancelamento) {
+    public CaravanaReservas(Integer id, CaravanaVenda venda, Pessoa pessoa, Integer poltrona, Double desconto, EventoServico eventoServico, Usuario operador, Date dtReserva, Usuario operadorCancelamento, Date dtCancelamento, String motivoCancelamento) {
         this.id = id;
         this.venda = venda;
         this.pessoa = pessoa;
@@ -103,11 +103,11 @@ public class CaravanaReservas implements Serializable {
         this.poltrona = poltrona;
     }
 
-    public Float getDesconto() {
+    public Double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(Float desconto) {
+    public void setDesconto(Double desconto) {
         this.desconto = desconto;
     }
 

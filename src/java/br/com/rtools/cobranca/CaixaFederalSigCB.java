@@ -28,7 +28,7 @@ import javax.servlet.ServletContext;
 
 public class CaixaFederalSigCB extends Cobranca {
 
-    public CaixaFederalSigCB(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
+    public CaixaFederalSigCB(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
@@ -97,13 +97,13 @@ public class CaixaFederalSigCB extends Cobranca {
         codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
         int i = 0;
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
+        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
         while (i != (10 - tam)) { // zeros
             codigoBarras += "0";
             i++;
         }
         String campoLivre = "";
-        codigoBarras += Moeda.limparPonto(Float.toString(valor)); // valor
+        codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
         codigoBarras += (boleto.getContaCobranca().getCodCedente() + moduloOnze(boleto.getContaCobranca().getCodCedente()));        // codigo cedente
         campoLivre = boleto.getBoletoComposto().substring(2, 5)
                 + boleto.getBoletoComposto().substring(0, 1)
@@ -306,7 +306,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             CONTEUDO_REMESSA = "";
 
-            Float valor_total_lote = (float) 0;
+            Double valor_total_lote = (double) 0;
 
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -469,7 +469,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 sequencial_registro_lote++;
 
-                valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
+                valor_total_lote = Moeda.soma(valor_total_lote, mov.getValor());
 
                 RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
 
@@ -700,7 +700,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
             CONTEUDO_REMESSA = "";
 
-            Float valor_total_lote = (float) 0;
+            Double valor_total_lote = (double) 0;
 
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -859,7 +859,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 sequencial_registro_lote++;
 
-                valor_total_lote = Moeda.somaValores(valor_total_lote, mov.getValor());
+                valor_total_lote = Moeda.soma(valor_total_lote, mov.getValor());
 
                 RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
 
