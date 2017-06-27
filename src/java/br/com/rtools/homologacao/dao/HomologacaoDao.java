@@ -13,6 +13,8 @@ import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
@@ -831,54 +833,62 @@ public class HomologacaoDao extends DB {
 
     public boolean verificaNaoAtendidosSegRegistroAgendamento() {
         try {
-            Query qry = getEntityManager().createNativeQuery(
-                    " SELECT *                                              "
+            int result = -1;
+            String queryString = "";
+            queryString = " "
+                    + " SELECT *                                            "
                     + "   FROM seg_registro                                 "
-                    + "  WHERE (CURRENT_DATE - 1) = dt_atualiza_homologacao ");
-            if (qry.getResultList().isEmpty()) {
+                    + "  WHERE (CURRENT_DATE - 1) = dt_atualiza_homologacao ";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            result = query.getResultList().size();
+            if (result == 0) {
                 getEntityManager().getTransaction().begin();
-                Query qryUpdateAgendamento = getEntityManager().createNativeQuery(
-                        "UPDATE hom_agendamento             \n"
+                queryString = "UPDATE hom_agendamento       \n"
                         + "   SET id_status = 7             \n"
                         + " WHERE dt_data < CURRENT_DATE    \n"
-                        + "   AND id_status = 2             \n"
-                );
-                if (qryUpdateAgendamento.executeUpdate() == 0) {
+                        + "   AND id_status = 2             \n";
+                query = getEntityManager().createNativeQuery(queryString);
+                result = query.executeUpdate();
+                if (result < 0) {
                     getEntityManager().getTransaction().rollback();
                     return false;
                 }
-                qryUpdateAgendamento = getEntityManager().createNativeQuery(
-                        "  UPDATE hom_agendamento                                                   \n"
+                queryString = "  "
+                        + "UPDATE hom_agendamento                                                   \n"
                         + "   SET id_status = 9,                                                    \n"
                         + "       dt_recusa1 = current_date,                                        \n"
                         + "       ds_motivo_recusa = 'PRAZO EXPIROU, CANCELADO PELO SISTEMA!'       \n"
                         + " WHERE dt_data < CURRENT_DATE                                            \n"
                         + "   AND id_status = 8                                                     \n"
                         + "   AND dt_recusa1 IS NULL                                                \n"
-                        + "   AND dt_solicitacao2 IS NULL                                           \n"
-                );
-                if (qryUpdateAgendamento.executeUpdate() == 0) {
+                        + "   AND dt_solicitacao2 IS NULL                                           \n";
+                query = getEntityManager().createNativeQuery(queryString);
+                result = query.executeUpdate();
+                if (result < 0) {
                     getEntityManager().getTransaction().rollback();
                     return false;
                 }
-                qryUpdateAgendamento = getEntityManager().createNativeQuery(
-                        "  UPDATE hom_agendamento                                                   \n"
+                queryString = "  "
+                        + "UPDATE hom_agendamento                                                   \n"
                         + "   SET id_status = 9,                                                    \n"
                         + "       dt_recusa2 = current_date,                                        \n"
                         + "       ds_motivo_recusa2 = '2º PRAZO EXPIROU, CANCELADO PELO SISTEMA!'   \n"
                         + " WHERE dt_data < CURRENT_DATE                                            \n"
                         + "   AND id_status = 8                                                     \n"
                         + "   AND dt_recusa1 IS NOT NULL                                            \n"
-                        + "   AND dt_solicitacao2 IS NOT NULL                                       \n"
-                );
-                if (qryUpdateAgendamento.executeUpdate() == 0) {
+                        + "   AND dt_solicitacao2 IS NOT NULL                                       \n";
+                query = getEntityManager().createNativeQuery(queryString);
+                result = query.executeUpdate();
+                if (result < 0) {
                     getEntityManager().getTransaction().rollback();
                     return false;
                 }
-                Query qryUpdateRegistro = getEntityManager().createNativeQuery(
-                        " UPDATE seg_registro                              "
-                        + "    SET dt_atualiza_homologacao = CURRENT_DATE - 1");
-                if (qryUpdateRegistro.executeUpdate() == 0) {
+                queryString = " "
+                        + " UPDATE seg_registro                              "
+                        + "    SET dt_atualiza_homologacao = CURRENT_DATE - 1";
+                query = getEntityManager().createNativeQuery(queryString);
+                result = query.executeUpdate();
+                if (result < 0) {
                     getEntityManager().getTransaction().rollback();
                     return false;
                 }
