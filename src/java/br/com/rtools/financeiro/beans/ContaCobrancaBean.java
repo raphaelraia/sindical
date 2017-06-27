@@ -39,7 +39,6 @@ public class ContaCobrancaBean {
         contaCobranca.setSicasSindical(sicas);
         contaCobranca.setCodigoSindical(codigoCedente);
         contaCobranca.setLayout(la);
-        //contaCobranca.setRepasse( Moeda.substituiVirgulaFloat(repasse) );
 
         if (contaCobranca.getContaBanco().getBanco().getBanco().isEmpty()) {
             msgConfirma = "Atenção, é preciso pesquisar um Banco!";

@@ -134,8 +134,8 @@ public class MenuLocadoraBean implements Serializable {
         return receber;
     }
 
-    public Float getValorTotalMultaDiaria() {
-        Float total = new Float(0);
+    public Double getValorTotalMultaDiaria() {
+        Double total = new Double(0);
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (listLocadoraMovimento.get(i).getSelected()) {
                 Integer dias = DataHoje.calculoDosDiasInt(listLocadoraMovimento.get(i).getDtDevolucaoPrevisao(), new Date());
@@ -149,14 +149,14 @@ public class MenuLocadoraBean implements Serializable {
 
     public String getValorTotalMultaDiariaString() {
         try {
-            return Moeda.converteR$Float(getValorTotalMultaDiaria());
+            return Moeda.converteR$Double(getValorTotalMultaDiaria());
         } catch (Exception e) {
             return "0,00";
         }
     }
 
-    public Float getValorTotalReceber() {
-        Float total = new Float(0);
+    public Double getValorTotalReceber() {
+        Double total = new Double(0);
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (listLocadoraMovimento.get(i).getDtDevolucao() != null && listLocadoraMovimento.get(i).getMovimento().getBaixa() == null) {
                 total += listLocadoraMovimento.get(i).getMovimento().getValor();
@@ -167,7 +167,7 @@ public class MenuLocadoraBean implements Serializable {
 
     public String getValorTotalReceberString() {
         try {
-            return Moeda.converteR$Float(getValorTotalReceber());
+            return Moeda.converteR$Double(getValorTotalReceber());
         } catch (Exception e) {
             return "0,00";
         }

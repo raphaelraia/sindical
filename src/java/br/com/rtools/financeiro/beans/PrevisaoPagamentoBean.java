@@ -164,14 +164,12 @@ public class PrevisaoPagamentoBean implements Serializable {
                         err = true;
                         break;
                     }
+                } else if (dao.update(ps)) {
+                    message = "Registro(s) atualizado(s) com sucesso";
                 } else {
-                    if (dao.update(ps)) {
-                        message = "Registro(s) atualizado(s) com sucesso";
-                    } else {
-                        message = "Erro ao atualizar registro(s)!";
-                        err = true;
-                        break;
-                    }
+                    message = "Erro ao atualizar registro(s)!";
+                    err = true;
+                    break;
                 }
             }
         }
@@ -357,56 +355,64 @@ public class PrevisaoPagamentoBean implements Serializable {
         this.movimentoSelecionado = movimentoSelecionado;
     }
 
-    public String valorC(float valor, float juros, float multa, float correcao, float desconto) {
-        float total = valor + ((juros + multa + correcao) - desconto);
-        return Moeda.converteR$Float(total);
+    public String valorC(double valor, double juros, double multa, double correcao, double desconto) {
+        double total = valor + ((juros + multa + correcao) - desconto);
+        return Moeda.converteR$Double(total);
     }
 
-    public float valorF(float valor, float juros, float multa, float correcao, float desconto) {
-        float total = valor + ((juros + multa + correcao) - desconto);
+    public double valorF(double valor, double juros, double multa, double correcao, double desconto) {
+        double total = valor + ((juros + multa + correcao) - desconto);
         return total;
     }
 
     public String[] getValor() {
-        float total = 0;
-        float dinheiro = 0;
-        float outros = 0;
-        float cheque = 0;
+        double total = 0;
+        double dinheiro = 0;
+        double outros = 0;
+        double cheque = 0;
         if (!getListPrevisaoPagamentos().isEmpty()) {
             for (int i = 0; i < listPrevisaoPagamentos.size(); i++) {
-                float v = listPrevisaoPagamentos.get(i).getMovimento().getValor();
-                float f = listPrevisaoPagamentos.get(i).getMovimento().getJuros();
-                float m = listPrevisaoPagamentos.get(i).getMovimento().getMulta();
-                float c = listPrevisaoPagamentos.get(i).getMovimento().getCorrecao();
-                float d = listPrevisaoPagamentos.get(i).getMovimento().getDesconto();
-                if (listPrevisaoPagamentos.get(i).getTipoPagamento().getId() == 3) {
-                    float dn = valorF(v, f, m, c, d);
-                    dinheiro += dn;
-                    total += dn;
-                    dn = 0;
-                } else if (listPrevisaoPagamentos.get(i).getTipoPagamento().getId() == 4) {
-                    float cn = valorF(v, f, m, c, d);
-                    cheque += cn;
-                    total += cn;
-                    cn = 0;
-                } else if (listPrevisaoPagamentos.get(i).getTipoPagamento().getId() == 8
-                        || listPrevisaoPagamentos.get(i).getTipoPagamento().getId() == 9
-                        || listPrevisaoPagamentos.get(i).getTipoPagamento().getId() == 10
-                        || listPrevisaoPagamentos.get(i).getTipoPagamento().getId() == 13) {
-                    float db = valorF(v, f, m, c, d);
-                    outros += db;
-                    total += db;
-                    db = 0;
-                } else {
-                    float db = valorF(v, f, m, c, d);
-                    total += db;
-                    db = 0;
+                double v = listPrevisaoPagamentos.get(i).getMovimento().getValor();
+                double f = listPrevisaoPagamentos.get(i).getMovimento().getJuros();
+                double m = listPrevisaoPagamentos.get(i).getMovimento().getMulta();
+                double c = listPrevisaoPagamentos.get(i).getMovimento().getCorrecao();
+                double d = listPrevisaoPagamentos.get(i).getMovimento().getDesconto();
+
+                switch (listPrevisaoPagamentos.get(i).getTipoPagamento().getId()) {
+                    case 3:
+                        double dn = valorF(v, f, m, c, d);
+                        dinheiro += dn;
+                        total += dn;
+                        dn = 0;
+                        break;
+                    case 4:
+                        double cn = valorF(v, f, m, c, d);
+                        cheque += cn;
+                        total += cn;
+                        cn = 0;
+                        break;
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 13: {
+                        double db = valorF(v, f, m, c, d);
+                        outros += db;
+                        total += db;
+                        db = 0;
+                        break;
+                    }
+                    default: {
+                        double db = valorF(v, f, m, c, d);
+                        total += db;
+                        db = 0;
+                        break;
+                    }
                 }
             }
-            valor[0] = Moeda.converteR$Float(total);
-            valor[1] = Moeda.converteR$Float(dinheiro);
-            valor[2] = Moeda.converteR$Float(cheque);
-            valor[3] = Moeda.converteR$Float(outros);
+            valor[0] = Moeda.converteR$Double(total);
+            valor[1] = Moeda.converteR$Double(dinheiro);
+            valor[2] = Moeda.converteR$Double(cheque);
+            valor[3] = Moeda.converteR$Double(outros);
         } else {
             valor[0] = "0,00";
             valor[1] = "0,00";
@@ -437,13 +443,13 @@ public class PrevisaoPagamentoBean implements Serializable {
             return;
         }
         Collection<ParametroPrevisaoPagto> previsaoPagtos = new ArrayList<ParametroPrevisaoPagto>();
-        float dinheiro = 0;
-        float outros = 0;
-        float cheque = 0;
-        float valor;
+        double dinheiro = 0;
+        double outros = 0;
+        double cheque = 0;
+        double valor;
         int tipo;
         for (int i = 0; i < list.size(); i++) {
-            valor = Float.parseFloat(GenericaString.converterNullToString((((List) list.get(i)).get(6))));
+            valor = Double.parseDouble(GenericaString.converterNullToString((((List) list.get(i)).get(6))));
             tipo = Integer.parseInt(GenericaString.converterNullToString((((List) list.get(i)).get(8))));
             if (tipo == 3) {
                 dinheiro += valor;
@@ -458,7 +464,7 @@ public class PrevisaoPagamentoBean implements Serializable {
             previsaoPagtos.add(
                     new ParametroPrevisaoPagto(
                             GenericaString.converterNullToString(((List) list.get(i)).get(0)), // 0 - fin_lote_dt_emissao
-                            new BigDecimal(Float.parseFloat(GenericaString.converterNullToString((((List) list.get(i)).get(1))))), // 1 - fin_lote_nr_valor
+                            new BigDecimal(Double.parseDouble(GenericaString.converterNullToString((((List) list.get(i)).get(1))))), // 1 - fin_lote_nr_valor
                             GenericaString.converterNullToString(((List) list.get(i)).get(2)), // 2 - pes_ds_nome
                             GenericaString.converterNullToString(((List) list.get(i)).get(3)), // 3 - fin_plano_5
                             GenericaString.converterNullToString(((List) list.get(i)).get(4)), // 4 - fin_lote_ds_documento
@@ -475,9 +481,9 @@ public class PrevisaoPagamentoBean implements Serializable {
             Map parametros = new HashMap();
             parametros.put("filtro_data_inicial", dataIncial);
             parametros.put("filtro_data_final", dataFinal);
-            parametros.put("total_dinheiro", Moeda.converteR$Float(dinheiro));
-            parametros.put("total_cheque", Moeda.converteR$Float(cheque));
-            parametros.put("total_outros", Moeda.converteR$Float(outros));
+            parametros.put("total_dinheiro", Moeda.converteR$Double(dinheiro));
+            parametros.put("total_cheque", Moeda.converteR$Double(cheque));
+            parametros.put("total_outros", Moeda.converteR$Double(outros));
             byte[] arquivo = JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parametros, new JRBeanCollectionDataSource(previsaoPagtos)));
             String nomeDownload = "imp_previsao_pagto_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
             String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/previsao_pagto");
@@ -490,7 +496,7 @@ public class PrevisaoPagamentoBean implements Serializable {
             System.err.println("Erro: " + e.getMessage());
         }
     }
-    
+
     public void process() {
         listPrevisaoPagamentos.clear();
         PrevisaoPagamentoDao ppd = new PrevisaoPagamentoDao();

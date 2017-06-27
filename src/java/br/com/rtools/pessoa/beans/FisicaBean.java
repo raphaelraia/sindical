@@ -2176,13 +2176,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             for (Vector linha : result) {
                 try {
                     listaServicoPessoa.add(new DataObject(linha, null));
-                    float f = 0;
+                    double f = 0;
                     try {
-                        f = ((Double) linha.get(8)).floatValue();
+                        f = ((Double) linha.get(8)).doubleValue();
                     } catch (Exception e) {
 
                     }
-                    somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), f));
+                    somaValoresHistorico = Moeda.converteR$Double(Moeda.soma(Moeda.converteUS$(somaValoresHistorico), f));
                 } catch (Exception e) {
                     listaServicoPessoa = new ArrayList();
                     break;

@@ -24,7 +24,7 @@ public class PlanilhaDebitoBean {
 
     public void print(List<ListMovimentoReceber> listMovimentoReceber) {
         List<Movimento> listaC = new ArrayList<>();
-        List<Float> listaValores = new ArrayList<>();
+        List<Double> listaValores = new ArrayList<>();
         Dao dao = new Dao();
         for (int i = 0; i < listMovimentoReceber.size(); i++) {
             if (listMovimentoReceber.get(i).getSelected()) {

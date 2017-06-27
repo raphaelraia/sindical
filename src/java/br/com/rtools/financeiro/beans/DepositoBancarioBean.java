@@ -38,12 +38,12 @@ public class DepositoBancarioBean implements Serializable {
     private List<SelectItem> listaConta = new ArrayList();
     private final List<ObjectCheque> listaCheques = new ArrayList();
     private List<ObjectCheque> listaSelecionado = new ArrayList();
-    private Float valorTotal = (float) 0;
-    private Float valorTotalSelecionado = (float) 0;
+    private Double valorTotal = new Double(0);
+    private Double valorTotalSelecionado = new Double(0);
 
     private Integer indexListaFTipoDocumento = 0;
     private List<SelectItem> listaFTipoDocumento = new ArrayList();
-    private Float valorDeposito = new Float(0);
+    private Double valorDeposito = new Double(0);
 
     public DepositoBancarioBean() {
         loadListaCheques();
@@ -81,7 +81,7 @@ public class DepositoBancarioBean implements Serializable {
     public void refreshTipo() {
         loadListaCheques();
 
-        valorDeposito = new Float(0);
+        valorDeposito = new Double(0);
     }
 
     public final void loadListaFTipoDocumento() {
@@ -100,8 +100,8 @@ public class DepositoBancarioBean implements Serializable {
     public final void loadListaCheques() {
         listaCheques.clear();
         listaSelecionado.clear();
-        valorTotal = new Float(0);
-        valorTotalSelecionado = new Float(0);
+        valorTotal = new Double(0);
+        valorTotalSelecionado = new Double(0);
 
         FinanceiroDao db = new FinanceiroDao();
 
@@ -119,16 +119,16 @@ public class DepositoBancarioBean implements Serializable {
                     new ObjectCheque(cheque, forma_pagamento, baixa)
             );
 
-            valorTotal = Moeda.somaValores(valorTotal, forma_pagamento.getValor());
+            valorTotal = Moeda.soma(valorTotal, forma_pagamento.getValor());
         }
 
     }
 
     public void calculoValores() {
-        valorTotalSelecionado = (float) 0;
+        valorTotalSelecionado = new Double(0);
 
         for (ObjectCheque oc : listaSelecionado) {
-            valorTotalSelecionado = Moeda.somaValores(valorTotalSelecionado, oc.getFormaPagamento().getValor());
+            valorTotalSelecionado = Moeda.soma(valorTotalSelecionado, oc.getFormaPagamento().getValor());
         }
     }
 
@@ -238,7 +238,7 @@ public class DepositoBancarioBean implements Serializable {
         dao.commit();
 
         loadListaCheques();
-        valorDeposito = new Float(0);
+        valorDeposito = new Double(0);
         GenericaMensagem.info("Sucesso", "Dinheiro Depositado com Sucesso!");
     }
 
@@ -288,7 +288,7 @@ public class DepositoBancarioBean implements Serializable {
                 }
             }
 
-            float valor = listaSelecionado.get(i).getFormaPagamento().getValor();
+            double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
 
             if (lote_saida == null) {
                 lote_saida = novoLote(dao, "P", plano_combo, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
@@ -330,7 +330,7 @@ public class DepositoBancarioBean implements Serializable {
                 }
             }
 
-            float valor = listaSelecionado.get(i).getFormaPagamento().getValor();
+            double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
 
             Plano5 plano = plano_caixa;
 
@@ -370,7 +370,7 @@ public class DepositoBancarioBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Cheques depositados com Sucesso!");
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, float valor, FStatus fstatus, String historico_contabil, FTipoDocumento tipoDocumento) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, double valor, FStatus fstatus, String historico_contabil, FTipoDocumento tipoDocumento) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 224), // ROTINA
@@ -451,7 +451,7 @@ public class DepositoBancarioBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequeRec cheque, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequeRec cheque, FStatus fstatus, Integer devolucao) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -537,32 +537,32 @@ public class DepositoBancarioBean implements Serializable {
         this.listaSelecionado = listaSelecionado;
     }
 
-    public Float getValorTotal() {
+    public Double getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Float valorTotal) {
+    public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
     }
 
     public String getValorTotalString() {
-        return Moeda.converteR$Float(valorTotal);
+        return Moeda.converteR$Double(valorTotal);
     }
 
     public void setValorTotalString(String valorTotalString) {
         this.valorTotal = Moeda.converteUS$(valorTotalString);
     }
 
-    public Float getValorTotalSelecionado() {
+    public Double getValorTotalSelecionado() {
         return valorTotalSelecionado;
     }
 
-    public void setValorTotalSelecionado(Float valorTotalSelecionado) {
+    public void setValorTotalSelecionado(Double valorTotalSelecionado) {
         this.valorTotalSelecionado = valorTotalSelecionado;
     }
 
     public String getValorTotalSelecionadoString() {
-        return Moeda.converteR$Float(valorTotalSelecionado);
+        return Moeda.converteR$Double(valorTotalSelecionado);
     }
 
     public void setValorTotalSelecionadoString(String valorTotalSelecionadoString) {
@@ -585,16 +585,16 @@ public class DepositoBancarioBean implements Serializable {
         this.indexListaFTipoDocumento = indexListaFTipoDocumento;
     }
 
-    public Float getValorDeposito() {
+    public Double getValorDeposito() {
         return valorDeposito;
     }
 
-    public void setValorDeposito(Float valorDeposito) {
+    public void setValorDeposito(Double valorDeposito) {
         this.valorDeposito = valorDeposito;
     }
 
     public String getValorDepositoString() {
-        return Moeda.converteR$Float(valorDeposito);
+        return Moeda.converteR$Double(valorDeposito);
     }
 
     public void setValorDepositoString(String valorDepositoString) {

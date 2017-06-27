@@ -138,8 +138,8 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
             return;
         }
         Map parameters = new LinkedHashMap();
-        float valor_total_1 = 0;
-        float valor_total_2 = 0;
+        double valor_total_1 = 0;
+        double valor_total_2 = 0;
         String detalheRelatorio = "";
         if (parametroComparativoArrecadacaos.isEmpty()) {
             RelatorioComparativoArrecadacaoDao relatorioComparativoArrecadacaoDao = new RelatorioComparativoArrecadacaoDao();
@@ -192,12 +192,12 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
                 String valor1 = GenericaString.converterNullToString(((List) list1).get(4));
                 String valor2 = GenericaString.converterNullToString(((List) list1).get(6));
                 if (valor1 != null && !valor1.isEmpty()) {
-                    valor_total_1 += Float.parseFloat(valor1);
-                    valor1 = Moeda.converteR$Float(Float.parseFloat(valor1));
+                    valor_total_1 += Double.parseDouble(valor1);
+                    valor1 = Moeda.converteR$Double(Double.parseDouble(valor1));
                 }
                 if (valor2 != null && !valor2.isEmpty()) {
-                    valor_total_2 += Float.parseFloat(valor2);
-                    valor2 = Moeda.converteR$Float(Float.parseFloat(valor2));
+                    valor_total_2 += Double.parseDouble(valor2);
+                    valor2 = Moeda.converteR$Double(Double.parseDouble(valor2));
                 }
                 ParametroComparativoArrecadacao pca
                         = new ParametroComparativoArrecadacao(
@@ -213,8 +213,8 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
                         );
                 parametroComparativoArrecadacaos.add(pca);
             }
-            parameters.put("valor_total_1", "R$ " + Moeda.converteR$Float(valor_total_1));
-            parameters.put("valor_total_2", "R$ " + Moeda.converteR$Float(valor_total_2));
+            parameters.put("valor_total_1", "R$ " + Moeda.converteR$Double(valor_total_1));
+            parameters.put("valor_total_2", "R$ " + Moeda.converteR$Double(valor_total_2));
 
         }
         if (parametroComparativoArrecadacaos.isEmpty()) {

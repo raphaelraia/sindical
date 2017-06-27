@@ -213,7 +213,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
             for (Object list1 : list) {
                 BigDecimal valor = new BigDecimal(0);
                 try {
-                    valor = new BigDecimal(Float.parseFloat(AnaliseString.converteNullString(((List) list1).get(8))));
+                    valor = new BigDecimal(Double.parseDouble(AnaliseString.converteNullString(((List) list1).get(8))));
                 } catch (NumberFormatException e) {
 
                 }

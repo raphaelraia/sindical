@@ -59,8 +59,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                double valor = Double.parseDouble(list.get(0).toString());
-                return valor;
+                return (Double) list.get(0);
             }
         } catch (Exception e) {
             return 0;
@@ -76,8 +75,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                double valor = Double.parseDouble(list.get(0).toString());
-                return valor;
+                return (Double) list.get(0);
             }
         } catch (Exception e) {
             return 0;
@@ -93,8 +91,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                double valor = Double.parseDouble(list.get(0).toString());
-                return valor;
+                return (Double) list.get(0);
             }
         } catch (Exception e) {
             return 0;
@@ -110,8 +107,7 @@ public class FunctionsDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 list = (List) qry.getSingleResult();
-                double valor = Double.parseDouble(list.get(0).toString());
-                return valor;
+                return (Double) list.get(0);
             }
         } catch (Exception e) {
             return 0;

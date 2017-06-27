@@ -68,8 +68,8 @@ public class RelatorioAcademiaBean implements Serializable {
     private List selectedConvenioEmpresa;
     private Map<String, Integer> listCategoria;
     private Map<String, Integer> listGrupoCategoria;
-    private Float desconto;
-    private Float descontoFinal;
+    private Double desconto;
+    private Double descontoFinal;
     private Boolean situacao;
     private String situacaoString;
     private String situacaoFinanceira;
@@ -134,8 +134,8 @@ public class RelatorioAcademiaBean implements Serializable {
         selectedConvenioEmpresa = null;
         listCategoria = null;
         listGrupoCategoria = null;
-        desconto = new Float(0);
-        descontoFinal = new Float(0);
+        desconto = new Double(0);
+        descontoFinal = new Double(0);
         situacaoString = null;
         situacaoFinanceira = null;
         situacao = false;
@@ -261,8 +261,8 @@ public class RelatorioAcademiaBean implements Serializable {
                 in_categoria = null;
             }
         }
-        Float desconto_inicial = null;
-        Float desconto_final = null;
+        Double desconto_inicial = null;
+        Double desconto_final = null;
         if (filtro[12]) {
             desconto_inicial = desconto;
             desconto_final = descontoFinal;
@@ -1000,36 +1000,36 @@ public class RelatorioAcademiaBean implements Serializable {
         this.periodo = periodo;
     }
 
-    public Float getDesconto() {
+    public Double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(Float desconto) {
+    public void setDesconto(Double desconto) {
         this.desconto = desconto;
     }
 
-    public Float getDescontoFinal() {
+    public Double getDescontoFinal() {
         return descontoFinal;
     }
 
-    public void setDescontoFinal(Float descontoFinal) {
+    public void setDescontoFinal(Double descontoFinal) {
         this.descontoFinal = descontoFinal;
     }
 
     public String getDescontoString() {
-        return Float.toString(desconto);
+        return Double.toString(desconto);
     }
 
     public void setDescontoString(String descontoString) {
-        this.desconto = Float.parseFloat(descontoString);
+        this.desconto = Double.parseDouble(descontoString);
     }
 
     public String getDescontoFinalString() {
-        return Float.toString(descontoFinal);
+        return Double.toString(descontoFinal);
     }
 
     public void setDescontoFinalString(String descontoFinalString) {
-        this.descontoFinal = Float.parseFloat(descontoFinalString);
+        this.descontoFinal = Double.parseDouble(descontoFinalString);
     }
 
     public Boolean getSituacao() {

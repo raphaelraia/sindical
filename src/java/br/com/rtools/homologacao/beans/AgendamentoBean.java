@@ -419,13 +419,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (listaMovimento.isEmpty()) {
             return null;
         }
-//        ImprimirBoleto imp = new ImprimirBoleto();
-//        List<Movimento> lista = new ArrayList();
-//        List<Float> listaValores = new ArrayList<>();
-//        for (int i = 0; i < listaMovimento.size(); i++) {
-//            lista.add(listaMovimento.get(i));
-//            listaValores.add(listaMovimento.get(i).getValor());
-//        }
+        
         List<ListMovimentoReceber> listMovimentoReceber = PlanilhaDebitoBean.find(juridica.getPessoa().getId());
         for (int i = 0; i < listaMovimento.size(); i++) {
             for (int x = 0; x < listMovimentoReceber.size(); x++) {
@@ -444,7 +438,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         ImprimirBoleto imp = new ImprimirBoleto();
         List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList<>();
+        List<Double> listaValores = new ArrayList<>();
         Dao dao = new Dao();
         for (Movimento listaMovimento1 : listaMovimento) {
             lista.add(listaMovimento1);

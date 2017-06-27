@@ -162,7 +162,7 @@ public class DevolucaoFilmeBean implements Serializable {
         }
         Dao dao = new Dao();
         Lote lote = new Lote();
-        Float valorTotal = new Float(0);
+        Double valorTotal = new Double(0);
         FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), 3);
         Departamento departamento = (Departamento) dao.find(new Departamento(), 19);
         dao.openTransaction();
@@ -611,8 +611,8 @@ public class DevolucaoFilmeBean implements Serializable {
         return receber;
     }
 
-    public Float getValorTotalMultaDiaria() {
-        Float total = new Float(0);
+    public Double getValorTotalMultaDiaria() {
+        Double total = new Double(0);
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (listLocadoraMovimento.get(i).getSelected()) {
                 Integer dias = DataHoje.calculoDosDiasInt(listLocadoraMovimento.get(i).getDtDevolucaoPrevisao(), new Date());
@@ -626,14 +626,14 @@ public class DevolucaoFilmeBean implements Serializable {
 
     public String getValorTotalMultaDiariaString() {
         try {
-            return Moeda.converteR$Float(getValorTotalMultaDiaria());
+            return Moeda.converteR$Double(getValorTotalMultaDiaria());
         } catch (Exception e) {
             return "0,00";
         }
     }
 
-    public Float getValorTotalReceber() {
-        Float total = new Float(0);
+    public Double getValorTotalReceber() {
+        Double total = new Double(0);
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (listLocadoraMovimento.get(i).getDtDevolucao() != null && listLocadoraMovimento.get(i).getMovimento().getBaixa() == null) {
                 total += listLocadoraMovimento.get(i).getMovimento().getValor();
@@ -644,7 +644,7 @@ public class DevolucaoFilmeBean implements Serializable {
 
     public String getValorTotalReceberString() {
         try {
-            return Moeda.converteR$Float(getValorTotalReceber());
+            return Moeda.converteR$Double(getValorTotalReceber());
         } catch (Exception e) {
             return "0,00";
         }

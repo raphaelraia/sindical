@@ -248,7 +248,6 @@ public class DescontoPromocionalBean implements Serializable {
             listServicos.add(new SelectItem(i, result.get(i).getDescricao(), "" + result.get(i).getId()));
         }
 
-//        atualizaValor();
     }
     
     public void loadCategoria() {
@@ -276,21 +275,21 @@ public class DescontoPromocionalBean implements Serializable {
         
         for (Vector vect : result) {
             DescontoPromocional dp = (DescontoPromocional) new Dao().find(new DescontoPromocional(), vect.get(0));
-            ServicoValorDao db = new ServicoValorDao();
-            ServicoValor sv = db.pesquisaServicoValorPorIdade(dp.getServico().getId(), 0);
+            // ServicoValorDao db = new ServicoValorDao();
+            // ServicoValor sv = db.pesquisaServicoValorPorIdade(dp.getServico().getId(), 0);
+            // String valorx = sv.getValorString();
             
-            String valorx = sv.getValorString();
             listDataObject.add(new DataObject(
                     dp,
                     vect,
-                    Moeda.valorDoPercentual(vect.get(3).toString(), Moeda.converteR$Float(dp.getDesconto())) // VALOR FINAL
+                    Moeda.valorDoPercentual(vect.get(3).toString(), Moeda.converteR$Double(dp.getDesconto())) // VALOR FINAL
             )
             );
         }
     }
     
-    public String converteMoeda(float valor) {
-        return Moeda.converteR$Float(valor);
+    public String converteMoeda(Double valor) {
+        return Moeda.converteR$Double(valor);
     }
     
     public List<SelectItem> getListGrupoFinanceiro() {
@@ -340,14 +339,7 @@ public class DescontoPromocionalBean implements Serializable {
     public void setIdServicos(Integer idServicos) {
         this.idServicos = idServicos;
     }
-
-//    public String getValor() {
-//        return Moeda.converteR$(valor);
-//    }
-//
-//    public void setValor(String valor) {
-//        this.valor = Moeda.converteR$(valor);
-//    }
+    
     public List<SelectItem> getListCategoria() {
         return listCategoria;
     }

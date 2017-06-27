@@ -203,7 +203,7 @@ public class FechamentoDiarioBean implements Serializable {
                                 (Plano5) dao.find(new Plano5(), (Integer) linha_detalhe.get(1)),
                                 (Date) linha_detalhe.get(2),
                                 (String) linha_detalhe.get(3),
-                                ((Double) linha_detalhe.get(4)).floatValue(),
+                                (Double) linha_detalhe.get(4),
                                 (String) linha_detalhe.get(5),
                                 linha_detalhe.get(6)
                         )
@@ -213,7 +213,7 @@ public class FechamentoDiarioBean implements Serializable {
             listaFechamentoDiario.add(
                     new ObjectFechamentoDiario(
                             (Date) linha.get(0),
-                            ((Double) linha.get(1)).floatValue(),
+                            (Double) linha.get(1),
                             list_obj_detalhe,
                             (result.size() == 1) ? false : est
                     )
@@ -258,11 +258,11 @@ public class FechamentoDiarioBean implements Serializable {
     public class ObjectFechamentoDiario {
 
         private Date data;
-        private Float saldo;
+        private Double saldo;
         private List<ObjectFechamentoDiarioDetalhe> listObjectFechamentoDiarioDetalhe;
         private Boolean estornar;
 
-        public ObjectFechamentoDiario(Date data, Float saldo, List<ObjectFechamentoDiarioDetalhe> listObjectFechamentoDiarioDetalhe, Boolean estornar) {
+        public ObjectFechamentoDiario(Date data, Double saldo, List<ObjectFechamentoDiarioDetalhe> listObjectFechamentoDiarioDetalhe, Boolean estornar) {
             this.data = data;
             this.saldo = saldo;
             this.listObjectFechamentoDiarioDetalhe = listObjectFechamentoDiarioDetalhe;
@@ -285,16 +285,16 @@ public class FechamentoDiarioBean implements Serializable {
             this.data = DataHoje.converte(dataString);
         }
 
-        public Float getSaldo() {
+        public Double getSaldo() {
             return saldo;
         }
 
-        public void setSaldo(Float saldo) {
+        public void setSaldo(Double saldo) {
             this.saldo = saldo;
         }
 
         public String getSaldoString() {
-            return Moeda.converteR$Float(saldo);
+            return Moeda.converteR$Double(saldo);
         }
 
         public void setSaldoString(String saldoString) {
@@ -325,11 +325,11 @@ public class FechamentoDiarioBean implements Serializable {
         private Plano5 plano5;
         private Date data;
         private String conta;
-        private Float saldo;
+        private Double saldo;
         private String classificador;
         private Object caixaBanco;
 
-        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Float saldo, String classificador, Object caixaBanco) {
+        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Double saldo, String classificador, Object caixaBanco) {
             this.contaSaldo = contaSaldo;
             this.plano5 = plano5;
             this.data = data;
@@ -364,16 +364,16 @@ public class FechamentoDiarioBean implements Serializable {
             this.conta = conta;
         }
 
-        public Float getSaldo() {
+        public Double getSaldo() {
             return saldo;
         }
 
-        public void setSaldo(Float saldo) {
+        public void setSaldo(Double saldo) {
             this.saldo = saldo;
         }
 
         public String getSaldoString() {
-            return Moeda.converteR$Float(saldo);
+            return Moeda.converteR$Double(saldo);
         }
 
         public void setSaldoString(String saldoString) {

@@ -40,7 +40,7 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class TransferenciaEntreContasBean implements Serializable {
 
-    private Float valor = (float) 0;
+    private Double valor = new Double(0);
     private Integer indexContaEntrada = 0;
     private List<SelectItem> listaContaEntrada = new ArrayList();
     private Integer indexContaSaida = 0;
@@ -53,7 +53,7 @@ public class TransferenciaEntreContasBean implements Serializable {
     public void novo() {
         indexContaSaida = 0;
         indexContaEntrada = 0;
-        valor = (float) 0;
+        valor = new Double(0);
     }
 
     public final void loadListaContaSaida() {
@@ -177,7 +177,7 @@ public class TransferenciaEntreContasBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Transferência entre Contas Concluída!");
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus, String historico_contabil) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historico_contabil) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 225), // ROTINA
@@ -243,7 +243,7 @@ public class TransferenciaEntreContasBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -282,16 +282,16 @@ public class TransferenciaEntreContasBean implements Serializable {
         );
     }
 
-    public Float getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(Float valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {

@@ -954,7 +954,7 @@ public class RelatorioSociosBean implements Serializable {
             BigDecimal nrDesconto = new BigDecimal(0);
             if (list.get(i).get(58) != null) {
                 try {
-                    nrDesconto = new BigDecimal(Float.parseFloat(getConverteNullString(list.get(i).get(58))));
+                    nrDesconto = new BigDecimal(Double.parseDouble(getConverteNullString(list.get(i).get(58))));
                 } catch (Exception e) {
 
                 }

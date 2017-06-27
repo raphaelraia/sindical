@@ -894,7 +894,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         Dao dao = new Dao();
         ImprimirBoleto imp = new ImprimirBoleto();
         List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         for (int i = 0; i < listaEmDebito.size(); i++) {
             Movimento m = (Movimento) dao.find(new Movimento(), (Integer) ((List) listaEmDebito.get(i)).get(0));
             lista.add(m);

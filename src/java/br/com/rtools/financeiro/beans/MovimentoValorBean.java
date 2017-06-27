@@ -40,9 +40,9 @@ public abstract class MovimentoValorBean {
 
     public abstract void atualizaValorGrid(String tipo);
 
-    public synchronized float carregarValor(int idServico, int idTipo, String ref, int idPessoa) {
+    public synchronized double carregarValor(int idServico, int idTipo, String ref, int idPessoa) {
         MovimentoDao movDB = new MovimentoDao();
-        Object[] valorFloat = movDB.pesquisaValorFolha(idServico, idTipo, ref, idPessoa);
+        Object[] valorDouble = movDB.pesquisaValorFolha(idServico, idTipo, ref, idPessoa);
         this.idTipoServico = idTipo;
         FolhaEmpresa folha = null;
         DescontoEmpregadoDao desDB = new DescontoEmpregadoDao();
@@ -55,20 +55,20 @@ public abstract class MovimentoValorBean {
                 idPessoa,
                 idTipo,
                 ref);
-        if (valorFloat == null) {
-            valorFloat = new Float[]{new Float(0), new Float(0)};
+        if (valorDouble == null) {
+            valorDouble = new Double[]{new Double(0), new Double(0)};
         }
-        if (((Float) valorFloat[0]) != 0) {
-            return Moeda.converteFloatR$Float(
-                    Moeda.somaValores(
-                            Moeda.multiplicarValores(
-                                    ((Float) valorFloat[0]),
-                                    (((Float) valorFloat[1]) / 100)),
-                            Moeda.multiplicarValores(
+        if (((Double) valorDouble[0]) != 0) {
+            return Moeda.converteDoubleR$Double(
+                    Moeda.soma(
+                            Moeda.multiplicar(
+                                    ((Double) valorDouble[0]),
+                                    (((Double) valorDouble[1]) / 100)),
+                            Moeda.multiplicar(
                                     folha.getNumFuncionarios(),
                                     desEmpregado.getValorEmpregado())));
         } else {
-            return (float) 0.0;
+            return new Double(0);
         }
     }
 
@@ -105,7 +105,7 @@ public abstract class MovimentoValorBean {
                     movimento.getReferencia());
 
             if (folhaEmpresa.getId() != -1) {
-                String valorFolha = Float.toString(folhaEmpresa.getValorMes());
+                String valorFolha = Double.toString(folhaEmpresa.getValorMes());
                 setValor(valorFolha);
                 setQtdFuncionario(folhaEmpresa.getNumFuncionarios());
             } else {
@@ -114,7 +114,7 @@ public abstract class MovimentoValorBean {
             }
         }
 
-        setValorBoleto(Moeda.converteR$Float(movimento.getValor()));
+        setValorBoleto(Moeda.converteR$Double(movimento.getValor()));
         return true;
     }
 
@@ -153,8 +153,8 @@ public abstract class MovimentoValorBean {
             return "";
         }
         try {
-            float valorMes = Float.parseFloat(valor);
-            float valorGuia = Float.parseFloat(valorBoleto);
+            double valorMes = Moeda.converteStringToDouble(valor);
+            double valorGuia = Moeda.converteStringToDouble(valorBoleto);
 
             if (tipo.equals("valor")) {
                 JuridicaDao jurDB = new JuridicaDao();
@@ -163,12 +163,12 @@ public abstract class MovimentoValorBean {
 
                 if (descontoEmpregado != null && descontoEmpregado.getId() != -1) {
                     valorMes
-                            = Moeda.converteFloatR$Float(
-                                    Moeda.somaValores(
-                                            Moeda.divisaoValores(
+                            = Moeda.converteDoubleR$Double(
+                                    Moeda.soma(
+                                            Moeda.divisao(
                                                     valorGuia,
                                                     (descontoEmpregado.getPercentual() / 100)),
-                                            Moeda.divisaoValores(
+                                            Moeda.divisao(
                                                     folhaEmpresa.getNumFuncionarios(),
                                                     descontoEmpregado.getValorEmpregado())));
                 } else {
@@ -234,12 +234,12 @@ public abstract class MovimentoValorBean {
                     return "";
                 }
                 movimento.setValor(
-                        Moeda.converteFloatR$Float(
-                                Moeda.somaValores(
-                                        Moeda.multiplicarValores(
+                        Moeda.converteDoubleR$Double(
+                                Moeda.soma(
+                                        Moeda.multiplicar(
                                                 valorMes,
                                                 (descontoEmpregado.getPercentual() / 100)),
-                                        Moeda.multiplicarValores(
+                                        Moeda.multiplicar(
                                                 folhaEmpresa.getNumFuncionarios(),
                                                 descontoEmpregado.getValorEmpregado()))));
                 if (salvar) {
@@ -269,7 +269,7 @@ public abstract class MovimentoValorBean {
             }
 
             esconder();
-            return Moeda.converteR$Float(movimento.getValor());
+            return Moeda.converteR$Double(movimento.getValor());
         } catch (Exception e) {
             String a = e.getMessage();
             esconder();

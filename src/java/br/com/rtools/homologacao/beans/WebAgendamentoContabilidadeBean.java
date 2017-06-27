@@ -389,7 +389,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
         ImprimirBoleto imp = new ImprimirBoleto();
         List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         Dao dao = new Dao();
         for (int i = 0; i < listaEmDebito.size(); i++) {
             Movimento m = (Movimento) dao.find(new Movimento(), (Integer) ((List) listaEmDebito.get(i)).get(0));

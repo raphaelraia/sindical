@@ -79,7 +79,7 @@ public class ServicosBean implements Serializable {
     private int idPeriodo;
     private Integer idModeloCarteirinha;
     private Integer idAdministradora;
-    private float descontoCategoria;
+    private double descontoCategoria;
     private List<SelectItem> listaParentesco;
     private int id_categoria;
     private Integer indexParentesco;
@@ -603,7 +603,7 @@ public class ServicosBean implements Serializable {
             listServicoValor = new ArrayList<>();
         } else if (!listServicoValor.isEmpty()) {
             //    servicoValorDetalhe = listServicoValor.get(0);
-            //valorCategoriaDesconto = Moeda.converteR$Float(servicoValorDetalhe.getValor());
+            //valorCategoriaDesconto = Moeda.converteR$Double(servicoValorDetalhe.getValor());
         }
         return listServicoValor;
     }
@@ -621,9 +621,9 @@ public class ServicosBean implements Serializable {
         ServicoValorHistorico servicoValorHistorico = new ServicoValorHistorico();
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
-        servicoValor.setValor(Moeda.substituiVirgulaFloat(valorf));
-        servicoValor.setTaxa(Moeda.substituiVirgulaFloat(taxa));
-        servicoValor.setDescontoAteVenc(Moeda.substituiVirgulaFloat(desconto));
+        servicoValor.setValor(Moeda.substituiVirgulaDouble(valorf));
+        servicoValor.setTaxa(Moeda.substituiVirgulaDouble(taxa));
+        servicoValor.setDescontoAteVenc(Moeda.substituiVirgulaDouble(desconto));
         boolean existeValor = true;
         if (existeValor) {
             di.openTransaction();
@@ -736,9 +736,9 @@ public class ServicosBean implements Serializable {
 
     public void editServicoValor(ServicoValor sv) {
         servicoValor = (ServicoValor) new Dao().rebind(sv);
-        valorf = Moeda.converteR$Float(servicoValor.getValor());
-        desconto = Moeda.converteR$Float(servicoValor.getDescontoAteVenc());
-        taxa = Moeda.converteR$Float(servicoValor.getTaxa());
+        valorf = Moeda.converteR$Double(servicoValor.getValor());
+        desconto = Moeda.converteR$Double(servicoValor.getDescontoAteVenc());
+        taxa = Moeda.converteR$Double(servicoValor.getTaxa());
         textoBtnServico = "Atualizar";
         setActiveIndex(1);
     }
@@ -829,7 +829,7 @@ public class ServicosBean implements Serializable {
         if (!valorf.isEmpty()) {
             if (AnaliseString.isInteger(valorf)) {
                 this.valorf = Moeda.substituiVirgula(valorf);
-            } else if (AnaliseString.isFloat(valorf)) {
+            } else if (AnaliseString.isDouble(valorf)) {
                 this.valorf = Moeda.substituiVirgula(valorf);
             } else {
                 this.valorf = Moeda.substituiVirgula("0");
@@ -850,7 +850,7 @@ public class ServicosBean implements Serializable {
         if (!desconto.isEmpty()) {
             if (AnaliseString.isInteger(desconto)) {
                 this.desconto = Moeda.substituiVirgula(desconto);
-            } else if (AnaliseString.isFloat(desconto)) {
+            } else if (AnaliseString.isDouble(desconto)) {
                 this.desconto = Moeda.substituiVirgula(desconto);
             } else {
                 this.desconto = Moeda.substituiVirgula("0");
@@ -858,7 +858,7 @@ public class ServicosBean implements Serializable {
         } else {
             this.desconto = Moeda.substituiVirgula("0");
         }
-        if (Float.parseFloat(this.desconto) > 100) {
+        if (Double.parseDouble(this.desconto) > 100) {
             this.desconto = "100,00";
         }
     }
@@ -874,7 +874,7 @@ public class ServicosBean implements Serializable {
         if (!taxa.isEmpty()) {
             if (AnaliseString.isInteger(taxa)) {
                 this.taxa = Moeda.substituiVirgula(taxa);
-            } else if (AnaliseString.isFloat(taxa)) {
+            } else if (AnaliseString.isDouble(taxa)) {
                 this.taxa = Moeda.substituiVirgula(taxa);
             } else {
                 this.taxa = Moeda.substituiVirgula("0");
@@ -892,11 +892,11 @@ public class ServicosBean implements Serializable {
         this.indice = indice;
     }
 
-    public float getDescontoCategoria() {
+    public double getDescontoCategoria() {
         return descontoCategoria;
     }
 
-    public void setDescontoCategoria(float descontoCategoria) {
+    public void setDescontoCategoria(double descontoCategoria) {
         this.descontoCategoria = descontoCategoria;
     }
 
@@ -920,14 +920,14 @@ public class ServicosBean implements Serializable {
     }
 
     public void updateDescontoCategoriaPercentual(ListServicosCategoriaDesconto lscd) {
-        float v = 0;
+        double v = 0;
         for (int i = 0; i < listServicosCategoriaDesconto.size(); i++) {
             if (listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getId() == lscd.getCategoriaDesconto().getId()) {
                 if (listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getDesconto() > 100) {
                     listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(100);
                 }
                 v = listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor() - (listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getDesconto() / 100) * listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor();
-                listServicosCategoriaDesconto.get(i).setValorDesconto(Moeda.converteFloatR$Float(v));
+                listServicosCategoriaDesconto.get(i).setValorDesconto(Moeda.converteDoubleR$Double(v));
             }
         }
 //        for (int i = 0; i < listServicosCategoriaDesconto.size(); i++) {
@@ -936,15 +936,15 @@ public class ServicosBean implements Serializable {
 //                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(100);
 //                }
 //                v = servicoValorDetalhe.getValor() - (listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getDesconto() / 100) * servicoValorDetalhe.getValor();
-//                listServicosCategoriaDesconto.get(i).setValorDesconto(Moeda.converteFloatR$Float(v));
+//                listServicosCategoriaDesconto.get(i).setValorDesconto(Moeda.converteDoubleR$Double(v));
 //            }
 //        }
     }
 
     public void updateDescontoCategoriaValor(ListServicosCategoriaDesconto lscd) {
-        //float v = 0;
-        float v1 = 0;
-        float v2 = 0;
+        //double v = 0;
+        double v1 = 0;
+        double v2 = 0;
 //        200 + 200 * p/100 = 300 
 //        200 * p/100 = 100 
 //        p/100 = 100/200 
@@ -954,9 +954,9 @@ public class ServicosBean implements Serializable {
         for (int i = 0; i < listServicosCategoriaDesconto.size(); i++) {
             if (listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getId() == lscd.getCategoriaDesconto().getId()) {
                 if (listServicosCategoriaDesconto.get(i).getValorDesconto() <= listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor()) {
-                    v1 = Moeda.subtracaoValores(listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor(), listServicosCategoriaDesconto.get(i).getValorDesconto());
-                    v2 = Moeda.multiplicarValores(Moeda.divisaoValores(v1, listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor()), 100);
-                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(Moeda.converteFloatR$Float(v2));
+                    v1 = Moeda.subtracao(listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor(), listServicosCategoriaDesconto.get(i).getValorDesconto());
+                    v2 = Moeda.multiplicar(Moeda.divisao(v1, listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor()), 100);
+                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(Moeda.converteDoubleR$Double(v2));
                 } else {
                     updateDescontoCategoriaPercentual(lscd);
                 }
@@ -970,7 +970,7 @@ public class ServicosBean implements Serializable {
 //                if (listServicosCategoriaDesconto.get(i).getValorDesconto() <= servicoValorDetalhe.getValor()) {
 //                    v1 = Moeda.subtracaoValores(servicoValorDetalhe.getValor(), listServicosCategoriaDesconto.get(i).getValorDesconto());
 //                    v2 = Moeda.multiplicarValores(Moeda.divisaoValores(v1, servicoValorDetalhe.getValor()), 100);
-//                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(Moeda.converteFloatR$Float(v2));
+//                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(Moeda.converteDoubleR$Double(v2));
 //                } else {
 //                    updateDescontoCategoriaPercentual(lscd);
 //                }
@@ -1068,11 +1068,11 @@ public class ServicosBean implements Serializable {
         // Quanto é 50% de 1000?
         // É 0,5 multiplicado por 1000 => 0,5  x 1000 = 500
         // Y = 1000 + 0,2  x 1000
-        float v = 0;
+        double v = 0;
         if (cd.getServicoValor().getId() != -1) {
             //v = servicoValorDetalhe.getValor() + (cd.getDesconto() / 100) * servicoValorDetalhe.getValor();
             v = cd.getServicoValor().getValor() + (cd.getDesconto() / 100) * cd.getServicoValor().getValor();
-            return Moeda.converteR$Float(v);
+            return Moeda.converteR$Double(v);
         }
         return "0,00";
     }
@@ -1081,7 +1081,7 @@ public class ServicosBean implements Serializable {
         if (listServicosCategoriaDesconto.isEmpty()) {
             List<CategoriaDesconto> cds = getListCategoriaDesconto();
             ListServicosCategoriaDesconto lscd = new ListServicosCategoriaDesconto();
-            float v = 0;
+            double v = 0;
             for (CategoriaDesconto cd : cds) {
                 lscd.setCategoriaDesconto(cd);
                 //v = servicoValorDetalhe.getValor() - (cd.getDesconto() / 100) * servicoValorDetalhe.getValor();
@@ -1173,32 +1173,32 @@ public class ServicosBean implements Serializable {
     }
 
     public void updateDescontoCategoriaDependentePercentual() {
-        float v = 0;
+        double v = 0;
 
         if (descontoDepentende.getDesconto() > 100) {
             descontoDepentende.setDesconto(100);
         }
         //v = servicoValorDetalhe.getValor() - (descontoDepentende.getDesconto() / 100) * servicoValorDetalhe.getValor();
         v = categoriaDesconto.getServicoValor().getValor() - (descontoDepentende.getDesconto() / 100) * categoriaDesconto.getServicoValor().getValor();
-        //descontoDepentende.setDesconto(Moeda.converteFloatR$Float(v));
-        valorDependente = Moeda.converteR$Float(v);
+        //descontoDepentende.setDesconto(Moeda.converteDoubleR$Double(v));
+        valorDependente = Moeda.converteR$Double(v);
     }
 
-    public String linhaDescontoCategoriaDependentePercentual(float desconto) {
-        float v = 0;
+    public String linhaDescontoCategoriaDependentePercentual(double desconto) {
+        double v = 0;
         //v = servicoValorDetalhe.getValor() - (desconto / 100) * servicoValorDetalhe.getValor();
         v = categoriaDesconto.getServicoValor().getValor() - (desconto / 100) * categoriaDesconto.getServicoValor().getValor();
-        return Moeda.converteR$Float(v);
+        return Moeda.converteR$Double(v);
     }
 
     public void updateDescontoCategoriaDependenteValor() {
-        float v = 0;
-        float v1 = 0;
-        float v2 = 0;
+        double v = 0;
+        double v1 = 0;
+        double v2 = 0;
         if (Moeda.converteUS$(valorDependente) <= categoriaDesconto.getServicoValor().getValor()) {
-            v1 = Moeda.subtracaoValores(categoriaDesconto.getServicoValor().getValor(), Moeda.converteUS$(valorDependente));
-            v2 = Moeda.multiplicarValores(Moeda.divisaoValores(v1, categoriaDesconto.getServicoValor().getValor()), 100);
-            descontoDepentende.setDesconto(Moeda.converteFloatR$Float(v2));
+            v1 = Moeda.subtracao(categoriaDesconto.getServicoValor().getValor(), Moeda.converteUS$(valorDependente));
+            v2 = Moeda.multiplicar(Moeda.divisao(v1, categoriaDesconto.getServicoValor().getValor()), 100);
+            descontoDepentende.setDesconto(Moeda.converteDoubleR$Double(v2));
         } else {
             updateDescontoCategoriaDependentePercentual();
         }
@@ -1247,8 +1247,8 @@ public class ServicosBean implements Serializable {
         }
 
         di.openTransaction();
-        float descontox = descontoDepentende.getDesconto();
-        //float valorx = descontoDepentende.getDesconto();
+        double descontox = descontoDepentende.getDesconto();
+        //double valorx = descontoDepentende.getDesconto();
         for (SelectItem si : listaParentesco) {
             Parentesco par = (Parentesco) di.find(new Parentesco(), Integer.valueOf(si.getDescription()));
             if (par != null) {

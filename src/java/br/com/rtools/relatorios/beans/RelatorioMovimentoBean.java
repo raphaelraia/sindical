@@ -318,7 +318,7 @@ public class RelatorioMovimentoBean implements Serializable {
                     Integer codigo_pessoa = null;
                     for (Object l : list) {
                         List o = (List) l;
-                        float valor = Float.parseFloat(getConverteNullString(o.get(6))); // VALOR ORIGINAL
+                        double valor = Double.parseDouble(getConverteNullString(o.get(6))); // VALOR ORIGINAL
 
                         String quitacao = "", importacao = "", usuario = "";
 
@@ -329,14 +329,14 @@ public class RelatorioMovimentoBean implements Serializable {
                         }
 
                         String srepasse = getConverteNullString(o.get(48));
-                        float repasse = 0;
+                        double repasse = 0;
                         if (srepasse.isEmpty()) {
-                            repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(o.get(47))), Moeda.divisaoValores(0, 100));
+                            repasse = Moeda.multiplicar(Double.parseDouble(getConverteNullString(o.get(47))), Moeda.divisao(0, 100));
                         } else {
-                            repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(o.get(47))), Moeda.divisaoValores(Float.parseFloat(srepasse), 100));
+                            repasse = Moeda.multiplicar(Double.parseDouble(getConverteNullString(o.get(47))), Moeda.divisao(Double.parseDouble(srepasse), 100));
                         }
 
-                        float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(o.get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(o.get(43))))), repasse);
+                        double valorLiquido = Moeda.subtracao(Moeda.subtracao(Double.parseDouble(getConverteNullString(o.get(47))), Double.parseDouble(getConverteNullString(o.get(43)))), repasse);
                         if (getRelatorios().getNome().toUpperCase().contains(("Etiqueta por Empresa").toUpperCase())) {
                             if (codigo_pessoa == null || codigo_pessoa != getConverteNullInt(o.get(41))) {
                                 codigo_pessoa = getConverteNullInt(o.get(41));
@@ -425,13 +425,13 @@ public class RelatorioMovimentoBean implements Serializable {
                                             getConverteNullString(o.get(4)), // REFERENCIA
                                             DataHoje.converteData((Date) o.get(5)), // VENCIMENTO
                                             quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
-                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(47)))), // VALOR BAIXA
-                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(43)))),// TAXA
+                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(47)))), // VALOR BAIXA
+                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(43)))),// TAXA
                                             importacao, //result.get(i).getLoteBaixa().getImportacao(),
                                             usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
-                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(44)))),// MULTA,
-                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(45)))),// JUROS,
-                                            new BigDecimal(Float.parseFloat(getConverteNullString(o.get(46)))),// CORRECAO,
+                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(44)))),// MULTA,
+                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(45)))),// JUROS,
+                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(46)))),// CORRECAO,
                                             new BigDecimal(valor), // VALOR TOTAL
                                             new BigDecimal(repasse), // REPASSE
                                             new BigDecimal(valorLiquido), // VALOR LIQUIDO

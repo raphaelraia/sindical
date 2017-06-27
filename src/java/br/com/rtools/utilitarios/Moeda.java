@@ -63,19 +63,18 @@ public final class Moeda {
     }
 
     public static double converteUS$(String $dolar, Integer decimal) {
+        if ($dolar == null || $dolar.isEmpty()) {
+            $dolar = "0,00";
+        }
+        
         BigDecimal num = new BigDecimal(converteStringToDouble($dolar));
         try {
-            if ($dolar == null || $dolar.isEmpty()) {
-                $dolar = "0,00";
-            }
-            
-            
             if (decimal == null){
                 decimal = 2;
             }
             
         } catch (Exception e) {
-            return converteUS$($dolar, 4);
+            return new Double(0);
         }
             
         return num.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();

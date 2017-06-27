@@ -132,23 +132,9 @@ public class CaixaFechadoBean implements Serializable {
         List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "E");
         List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "S");
 
-        //float dinheiro_transferencia = 0, outros = 0;
-        //float dinheiro_pagamento = 0, outros_pagamento = 0;
-//        
-//        float transferencia_entrada = 0, transferencia_saida = 0, dinheiro_baixa = 0, cheque = 0, cheque_pre = 0, cartao_cre = 0, cartao_deb = 0, saldo_atual = 0;
-//        float deposito_bancario = 0, doc_bancario = 0, transferencia_bancaria = 0, ticket = 0, debito = 0, boleto = 0;
-        float valor_caixa = 0, outros = 0;
-        float valor_saida = 0;
+        double valor_caixa = 0, outros = 0;
+        double valor_saida = 0;
 
-//        for (int i = 0; i < lista_tc.size(); i++){
-//            dinheiro_transferencia = Moeda.somaValores(dinheiro_transferencia, lista_tc.get(i).getValor());
-//        }
-        // TOTAL DINHEIRO
-//        for (int i = 0; i < lista_fp_entrada.size(); i++){
-//            if (lista_fp_entrada.get(i).getTipoPagamento().getId() == 3){
-//                dinheiro_baixa = Moeda.somaValores(dinheiro_baixa, lista_fp_entrada.get(i).getValor());
-//            }
-//        }
         // TOTAL SAIDA
         for (int i = 0; i < lista_fp_saida.size(); i++) {
             // EM 24/04/2017 ROGÉRIO, MOVIMENTO DE SAIDA SOMAVA TODOS OS TIPOS DE PAGAMENTO
@@ -158,7 +144,7 @@ public class CaixaFechadoBean implements Serializable {
             // valor_saida = Moeda.somaValores(valor_saida, lista_fp_saida.get(i).getValor());
             
             if (lista_fp_saida.get(i).getTipoPagamento().getId() == 3) {
-                valor_saida = Moeda.somaValores(valor_saida, lista_fp_saida.get(i).getValor());
+                valor_saida = Moeda.soma(valor_saida, lista_fp_saida.get(i).getValor());
             }
 //            if (lista_fp_saida.get(i).getTipoPagamento().getId() == 3){
 //                dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
@@ -170,61 +156,42 @@ public class CaixaFechadoBean implements Serializable {
         // VALOR DO CAIXA
         for (int i = 0; i < lista_fp_entrada.size(); i++) {
             if (lista_fp_entrada.get(i).getPlano5() != null && lista_fp_entrada.get(i).getPlano5().getId() == 1) {
-                valor_caixa = Moeda.somaValores(valor_caixa, lista_fp_entrada.get(i).getValor());
+                valor_caixa = Moeda.soma(valor_caixa, lista_fp_entrada.get(i).getValor());
             } else {
-                outros = Moeda.somaValores(outros, lista_fp_entrada.get(i).getValor());
+                outros = Moeda.soma(outros, lista_fp_entrada.get(i).getValor());
             }
         }
         List<Vector> lista = db.pesquisaSaldoAtualRelatorio(caixa.getId(), fc.getId());
-        float valor_saldo_atual = 0;
+        double valor_saldo_atual = 0;
         if (!lista.isEmpty()) {
             valor_saldo_atual = Moeda.converteUS$(Moeda.converteR$(lista.get(0).get(1).toString()));
         }
-        valor_caixa = Moeda.somaValores(valor_caixa, valor_saldo_atual);
-        valor_caixa = Moeda.subtracaoValores(valor_caixa, valor_saida);
+        valor_caixa = Moeda.soma(valor_caixa, valor_saldo_atual);
+        valor_caixa = Moeda.subtracao(valor_caixa, valor_saida);
 
         // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
         if (valor_caixa < 0) {
             valor_caixa = 0;
         }
-
-        //float total_dinheiro = Moeda.somaValores(Moeda.somaValores(dinheiro_transferencia, dinheiro_baixa), valor_saldo_atual);
-        //float soma = Moeda.somaValores(total_dinheiro, outros);
-//        float soma_pagamento = Moeda.somaValores(dinheiro_pagamento, outros_pagamento);
-//        float valor_minimo = Moeda.subtracaoValores(outros, soma_pagamento);
+        
         if (valor_caixa != Moeda.converteUS$(valort)) {
             if (Moeda.converteUS$(valort) > valor_caixa) {
-                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÁXIMO R$ " + Moeda.converteR$Float(valor_caixa));
+                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÁXIMO R$ " + Moeda.converteR$Double(valor_caixa));
                 return;
             }
 
             if (Moeda.converteUS$(valort) < outros) {
-                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÍNIMO R$ " + Moeda.converteR$Float(outros));
+                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÍNIMO R$ " + Moeda.converteR$Double(outros));
                 return;
             }
 
-            float saldo_atual = 0;
+            double saldo_atual = 0;
             if (Moeda.converteUS$(valort) >= outros) {
-                saldo_atual = Moeda.subtracaoValores(valor_caixa, Moeda.converteUS$(valort));
+                saldo_atual = Moeda.subtracao(valor_caixa, Moeda.converteUS$(valort));
             }
             fc.setSaldoAtual(saldo_atual);
         }
 
-//        if (Moeda.converteUS$(valort) != soma){
-//            if (Moeda.converteUS$(valort) > fc.getValorFechamento()){
-//                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÁXIMO R$ " + Moeda.converteR$Float(fc.getValorFechamento()));
-//                return;
-//            }
-//
-//            if (Moeda.converteUS$(valort) < outros){
-//                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÍNIMO R$ " + Moeda.converteR$Float(outros));
-//                return;
-//            }else if (Moeda.converteUS$(valort) >= outros){
-//                saldo_atual = Moeda.subtracaoValores(fc.getValorFechamento(),Moeda.converteUS$(valort));
-//            }
-//            fc.setSaldoAtual(saldo_atual);
-//        
-//        }
         Dao dao = new Dao();
         dao.openTransaction();
 
@@ -269,12 +236,12 @@ public class CaixaFechadoBean implements Serializable {
 
         List<TransferenciaCaixa> lista_tc = db.listaTransferenciaDinheiro(fc.getId(), c.getId());
 
-        float dinheiro_transferencia = 0;
-        float total_transferencia = 0;
-        float total_saida = 0;
+        double dinheiro_transferencia = 0;
+        double total_transferencia = 0;
+        double total_saida = 0;
 
         for (int i = 0; i < lista_tc.size(); i++) {
-            dinheiro_transferencia = Moeda.somaValores(dinheiro_transferencia, lista_tc.get(i).getValor());
+            dinheiro_transferencia = Moeda.soma(dinheiro_transferencia, lista_tc.get(i).getValor());
         }
 
         for (int i = 0; i < lista_fp_entrada.size(); i++) {
@@ -282,33 +249,33 @@ public class CaixaFechadoBean implements Serializable {
                     || lista_fp_entrada.get(i).getTipoPagamento().getId() == 4
                     || lista_fp_entrada.get(i).getTipoPagamento().getId() == 5
                     || lista_fp_entrada.get(i).getTipoPagamento().getId() == 11) {
-                total_transferencia = Moeda.somaValores(total_transferencia, lista_fp_entrada.get(i).getValor());
+                total_transferencia = Moeda.soma(total_transferencia, lista_fp_entrada.get(i).getValor());
             }
         }
 
         for (int i = 0; i < lista_fp_saida.size(); i++) {
-            total_saida = Moeda.somaValores(total_saida, lista_fp_saida.get(i).getValor());
+            total_saida = Moeda.soma(total_saida, lista_fp_saida.get(i).getValor());
         }
 
-        total_transferencia = Moeda.somaValores(total_transferencia, dinheiro_transferencia);
+        total_transferencia = Moeda.soma(total_transferencia, dinheiro_transferencia);
 
         List<Vector> lista = db.pesquisaSaldoAtualRelatorio(c.getId(), fc.getId());
-        float valor_saldo_atual;
+        double valor_saldo_atual;
 
-        total_transferencia = Moeda.subtracaoValores(total_transferencia, total_saida);
+        total_transferencia = Moeda.subtracao(total_transferencia, total_saida);
 
         if (!lista.isEmpty()) {
             valor_saldo_atual = Moeda.converteUS$(Moeda.converteR$(lista.get(0).get(1).toString()));
-            total_transferencia = Moeda.somaValores(valor_saldo_atual, total_transferencia);
+            total_transferencia = Moeda.soma(valor_saldo_atual, total_transferencia);
         }
 
         if (total_transferencia <= c.getFundoFixo()) {
             total_transferencia = 0;
         } else {
-            total_transferencia = Moeda.subtracaoValores(total_transferencia, c.getFundoFixo());
+            total_transferencia = Moeda.subtracao(total_transferencia, c.getFundoFixo());
         }
 
-        return Moeda.converteR$Float(total_transferencia);
+        return Moeda.converteR$Double(total_transferencia);
     }
 
     public List<DataObject> getListaFechamento() {
@@ -320,16 +287,15 @@ public class CaixaFechadoBean implements Serializable {
             for (int i = 0; i < lista.size(); i++) {
                 String valor_d = "0,00";
                 int status = 0;
-                float vl_fechado = Moeda.converteUS$(lista.get(i).get(2).toString()),
-                        vl_informado = Moeda.converteUS$(lista.get(i).get(3).toString());
+                double vl_fechado = Moeda.converteUS$(lista.get(i).get(2).toString()), vl_informado = Moeda.converteUS$(lista.get(i).get(3).toString());
 
                 if (vl_fechado > vl_informado) {
                     // EM FALTA
                     status = 1;
-                    valor_d = Moeda.converteR$Float(Moeda.subtracaoValores(vl_fechado, vl_informado));
+                    valor_d = Moeda.converteR$Double(Moeda.subtracao(vl_fechado, vl_informado));
                 } else if (vl_fechado < vl_informado) {
                     // EM SOBRA
-                    valor_d = Moeda.converteR$Float(Moeda.subtracaoValores(vl_informado, vl_fechado));
+                    valor_d = Moeda.converteR$Double(Moeda.subtracao(vl_informado, vl_fechado));
                     status = 2;
                 }
 

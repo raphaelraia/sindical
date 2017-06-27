@@ -43,8 +43,8 @@ public class RelatorioConvenioMedicoBean implements Serializable {
     private List<SelectItem> listRelatorioOrdem;
     private List<SelectItem> listSubgrupo;
     private List<SelectItem> listServicos;
-    private Float faixaValorInicial;
-    private Float faixaValorFinal;
+    private Double faixaValorInicial;
+    private Double faixaValorFinal;
     private List<ParametroConvenioMedico> parametroConvenioMedico;
     private String situacao;
 
@@ -68,8 +68,8 @@ public class RelatorioConvenioMedicoBean implements Serializable {
         listRelatorioOrdem = new ArrayList();
         listSubgrupo = new ArrayList<>();
         listServicos = new ArrayList<>();
-        faixaValorInicial = new Float(0);
-        faixaValorFinal = new Float(0);
+        faixaValorInicial = new Double(0);
+        faixaValorFinal = new Double(0);
         parametroConvenioMedico = new ArrayList<>();
         situacao = "";
     }
@@ -138,7 +138,7 @@ public class RelatorioConvenioMedicoBean implements Serializable {
                 }
                 BigDecimal valor = new BigDecimal(0);
                 try {
-                    valor = new BigDecimal(Float.parseFloat(AnaliseString.converteNullString(((List) list1).get(6))));
+                    valor = new BigDecimal(Double.parseDouble(AnaliseString.converteNullString(((List) list1).get(6))));
                 } catch (NumberFormatException e) {
 
                 }
@@ -189,8 +189,8 @@ public class RelatorioConvenioMedicoBean implements Serializable {
 
         }
         if (!filtro[3]) {
-            faixaValorInicial = new Float(0);
-            faixaValorFinal = new Float(0);
+            faixaValorInicial = new Double(0);
+            faixaValorFinal = new Double(0);
         }
         if (!filtro[4]) {
             situacao = "A";
@@ -216,8 +216,8 @@ public class RelatorioConvenioMedicoBean implements Serializable {
                 break;
             case "valor":
                 filtro[3] = false;
-                faixaValorInicial = new Float(0);
-                faixaValorFinal = new Float(0);
+                faixaValorInicial = new Double(0);
+                faixaValorFinal = new Double(0);
                 break;
             case "situacao":
                 filtro[4] = false;
@@ -379,24 +379,24 @@ public class RelatorioConvenioMedicoBean implements Serializable {
         this.situacao = situacao;
     }
 
-    public Float getFaixaValorInicial() {
+    public Double getFaixaValorInicial() {
         return faixaValorInicial;
     }
 
-    public void setFaixaValorInicial(Float faixaValorInicial) {
+    public void setFaixaValorInicial(Double faixaValorInicial) {
         this.faixaValorInicial = faixaValorInicial;
     }
 
-    public Float getFaixaValorFinal() {
+    public Double getFaixaValorFinal() {
         return faixaValorFinal;
     }
 
-    public void setFaixaValorFinal(Float faixaValorFinal) {
+    public void setFaixaValorFinal(Double faixaValorFinal) {
         this.faixaValorFinal = faixaValorFinal;
     }
 
     public String getFaixaValorInicialString() {
-        return Moeda.converteR$Float(faixaValorInicial);
+        return Moeda.converteR$Double(faixaValorInicial);
     }
 
     public void setFaixaValorInicialString(String faixaValorInicialString) {
@@ -404,7 +404,7 @@ public class RelatorioConvenioMedicoBean implements Serializable {
     }
 
     public String getFaixaValorFinalString() {
-        return Moeda.converteR$Float(faixaValorFinal);
+        return Moeda.converteR$Double(faixaValorFinal);
     }
 
     public void setFaixaValorFinalString(String faixaValorFinalString) {
