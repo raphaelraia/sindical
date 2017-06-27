@@ -413,7 +413,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 
     public String getAcrescimo() {
         if (!listMovimentoReceber.isEmpty()) {
-            return acrescimo = Moeda.converteR$Double(Moeda.soma(Moeda.soma(Moeda.converteUS$(juros), Moeda.converteUS$(correcao)), Moeda.converteUS$(multa)));
+            return acrescimo = Moeda.converteDoubleToString(Moeda.soma(Moeda.soma(Moeda.converteUS$(juros), Moeda.converteUS$(correcao)), Moeda.converteUS$(multa)));
         } else {
             return "0";
         }

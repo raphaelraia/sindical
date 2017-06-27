@@ -153,8 +153,8 @@ public abstract class MovimentoValorBean {
             return "";
         }
         try {
-            double valorMes = Double.parseDouble(valor);
-            double valorGuia = Double.parseDouble(valorBoleto);
+            double valorMes = Moeda.converteStringToDouble(valor);
+            double valorGuia = Moeda.converteStringToDouble(valorBoleto);
 
             if (tipo.equals("valor")) {
                 JuridicaDao jurDB = new JuridicaDao();
@@ -164,6 +164,7 @@ public abstract class MovimentoValorBean {
                 if (descontoEmpregado != null && descontoEmpregado.getId() != -1) {
                     valorMes
                             = Moeda.converteDoubleR$Double(
+                                    Moeda.soma(
                                             Moeda.divisao(
                                                     valorGuia,
                                                     (descontoEmpregado.getPercentual() / 100)),
@@ -235,7 +236,7 @@ public abstract class MovimentoValorBean {
                 movimento.setValor(
                         Moeda.converteDoubleR$Double(
                                 Moeda.soma(
-                                    Moeda.soma(
+                                        Moeda.multiplicar(
                                                 valorMes,
                                                 (descontoEmpregado.getPercentual() / 100)),
                                         Moeda.multiplicar(
@@ -356,4 +357,3 @@ public abstract class MovimentoValorBean {
         this.labelLink = labelLink;
     }
 }
-                                        Moeda.multiplicar(
