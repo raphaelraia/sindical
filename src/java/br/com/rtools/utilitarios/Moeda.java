@@ -1,7 +1,6 @@
 package br.com.rtools.utilitarios;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -284,6 +283,10 @@ public final class Moeda {
 
     public static Double converteStringToDouble(String s) {
         try {
+            if(Types.isDouble(s)) {
+                BigDecimal bigDecimal = new BigDecimal(s);
+                return bigDecimal.doubleValue();                
+            }
             DecimalFormat df = new DecimalFormat();
             DecimalFormatSymbols sfs = new DecimalFormatSymbols();
             sfs.setDecimalSeparator(',');

@@ -33,16 +33,7 @@ public class TestFloat {
 //        bd2.subtract(bd);
 //        bd2.divide(bd);
 //        bd2.multiply(bd);
-        System.out.println(2.00 - 1.1);
-        System.out.println(2.00 - 1.2);
-        System.out.println(2.00 - 1.3);
-        System.out.println(2.00 - 1.4);
-        System.out.println(2.00 - 1.5);
-        System.out.println(2.00 - 1.6);
-        System.out.println(2.00 - 1.7);
-        System.out.println(2.00 - 1.8);
-        System.out.println(2.00 - 1.9);
-        System.out.println(2.00 - 2);
+          System.err.println(Moeda.converteStringToDouble("1.000.000,326574"));
 
     }
 
