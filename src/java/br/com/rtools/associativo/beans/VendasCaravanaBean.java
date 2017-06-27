@@ -206,7 +206,7 @@ public class VendasCaravanaBean implements Serializable {
         Object tipo[] = new Object[6];
         Object quantidade[] = new Object[6];
         Object valor[] = new Object[6];
-        Float total = (float) 0;
+        Double total = (double) 0;
         VendasCaravanaDao db = new VendasCaravanaDao();
 
         List<Object> result = db.listaTipoAgrupado(vendas.getId());
@@ -216,7 +216,7 @@ public class VendasCaravanaBean implements Serializable {
             tipo[i] = linha.get(0);
             quantidade[i] = linha.get(1);
             //valor[i] = linha.get(2);
-            float desconto = 0;
+            double desconto = 0;
             for (ListaReservas lr : listaReservas) {
                 CaravanaReservas r = (CaravanaReservas) lr.getReservas();
                 if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
@@ -226,9 +226,9 @@ public class VendasCaravanaBean implements Serializable {
             for (ListaReservas lr : listaReservas) {
                 CaravanaReservas r = (CaravanaReservas) lr.getReservas();
                 if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
-                    if ((Float) valor[i] == null) {
+                    if ((Double) valor[i] == null) {
                         valor[i] = (Moeda.converteUS$(lr.getValor()) * Integer.parseInt(linha.get(1).toString())) - desconto;
-                        total = total + (Float) valor[i];
+                        total = total + (Double) valor[i];
                     }
                 }
             }
@@ -481,7 +481,7 @@ public class VendasCaravanaBean implements Serializable {
 
     public void loadListReservas() {
         listaReservas = new ArrayList();
-        float valor = 0;
+        double valor = 0;
         List<CaravanaReservas> lr = new CaravanaReservasDao().findByCaravanaVenda(vendas.getId(), true);
         FisicaDao dbf = new FisicaDao();
         EventoServicoValorDao dbe = new EventoServicoValorDao();
@@ -490,9 +490,9 @@ public class VendasCaravanaBean implements Serializable {
             valor = dbs.descontoSocioEve(lr1.getPessoa().getId(), lr1.getEventoServico().getServicos().getId());
             if (valor == 0) {
                 valor = dbe.pesquisaEventoServicoValor(lr1.getEventoServico().getId()).getValor();
-                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), lr1.getPoltrona(), Moeda.converteR$Float(valor), Moeda.converteR$Float(lr1.getDesconto()), lr1, null, new ArrayList()));
+                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), lr1.getPoltrona(), Moeda.converteR$Double(valor), Moeda.converteR$Double(lr1.getDesconto()), lr1, null, new ArrayList()));
             } else {
-                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), lr1.getPoltrona(), Moeda.converteR$Float(valor), Moeda.converteR$Float(lr1.getDesconto()), lr1, null, new ArrayList()));
+                listaReservas.add(new ListaReservas(dbf.pesquisaFisicaPorPessoa(lr1.getPessoa().getId()), lr1.getPoltrona(), Moeda.converteR$Double(valor), Moeda.converteR$Double(lr1.getDesconto()), lr1, null, new ArrayList()));
             }
         }
     }
@@ -586,9 +586,9 @@ public class VendasCaravanaBean implements Serializable {
         listaParcelas = new ArrayList();
         for (Movimento listaMovimento1 : listMovimento) {
             if (listaMovimento1.getBaixa() == null) {
-                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), false, listaMovimento1, listaMovimento1.isAtivo()));
+                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Double(listaMovimento1.getValor()), false, listaMovimento1, listaMovimento1.isAtivo()));
             } else {
-                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Float(listaMovimento1.getValor()), true, listaMovimento1, listaMovimento1.isAtivo()));
+                listaParcelas.add(new Parcelas(listaMovimento1.getVencimento(), Moeda.converteR$Double(listaMovimento1.getValor()), true, listaMovimento1, listaMovimento1.isAtivo()));
             }
         }
     }
@@ -700,10 +700,10 @@ public class VendasCaravanaBean implements Serializable {
             GenericaMensagem.warn("Validação", "Não é possivel concluir sem parcelas!");
             return;
         }
-        float soma = 0;
+        double soma = 0;
 
         for (Parcelas listaParcela : listaParcelas) {
-            soma = Moeda.somaValores(soma, Moeda.converteUS$(String.valueOf(listaParcela.getValor())));
+            soma = Moeda.soma(soma, Moeda.converteUS$(String.valueOf(listaParcela.getValor())));
         }
 
         if (soma < Moeda.converteUS$(valorTotal)) {
@@ -940,7 +940,7 @@ public class VendasCaravanaBean implements Serializable {
         loadListParcelas();
         loadListReservasCanceladas();
         if (lote != null) {
-            float vlTotal = 0;
+            double vlTotal = 0;
             for (int i = 0; i < listMovimento.size(); i++) {
                 vlTotal += listMovimento.get(i).getValor();
             }
@@ -977,7 +977,7 @@ public class VendasCaravanaBean implements Serializable {
 
         String vencs = dataEntrada;
         String vlEnt = valorEntrada;
-        float vE = Moeda.substituiVirgulaFloat(valorEntrada);
+        double vE = Moeda.substituiVirgulaDouble(valorEntrada);
         DataHoje dh = new DataHoje();
         String vencimento = dataVencimento();
         vencimento = dataVencimento();
@@ -987,10 +987,10 @@ public class VendasCaravanaBean implements Serializable {
             listaParcelas.add(new Parcelas(vencs, Moeda.converteR$(valorTotal), false, new Movimento(), true));
         } else if (vE > 0) {
             listaParcelas.add(new Parcelas(dataEntrada, Moeda.converteR$(valorEntrada), false, new Movimento(), true));
-            vlEnt = Moeda.converteR$Float(
-                    Moeda.divisaoValores(
-                            Moeda.subtracaoValores(Moeda.substituiVirgulaFloat(valorTotal), Moeda.substituiVirgulaFloat(vlEnt)
-                            //Moeda.substituiVirgulaFloat(valorAPagar), Moeda.substituiVirgulaFloat(vlEnt)
+            vlEnt = Moeda.converteR$Double(
+                    Moeda.divisao(
+                            Moeda.subtracao(Moeda.substituiVirgulaDouble(valorTotal), Moeda.substituiVirgulaDouble(vlEnt)
+                            //Moeda.substituiVirgulaDouble(valorAPagar), Moeda.substituiVirgulaDouble(vlEnt)
                             ),
                             parcelas - 1
                     ));
@@ -1001,12 +1001,12 @@ public class VendasCaravanaBean implements Serializable {
                 listaParcelas.add(new Parcelas(vencimento, Moeda.converteR$(vlEnt), false, new Movimento(), false));
             }
         } else {
-            float vParcela = 0;
-            float qtdeParcelas = parcelas;
-            float vTotal = Moeda.substituiVirgulaFloat(valorTotal);
+            double vParcela = 0;
+            double qtdeParcelas = parcelas;
+            double vTotal = Moeda.substituiVirgulaDouble(valorTotal);
             if (vendas.getId() != null) {
                 int qtdeBaixada = 0;
-                vTotal = Moeda.substituiVirgulaFloat(valorTotal) - Moeda.substituiVirgulaFloat(valorPago);
+                vTotal = Moeda.substituiVirgulaDouble(valorTotal) - Moeda.substituiVirgulaDouble(valorPago);
                 for (int i = 0; i < listMovimento.size(); i++) {
                     if (listMovimento.get(i).getBaixa() != null) {
                         qtdeBaixada++;
@@ -1357,15 +1357,15 @@ public class VendasCaravanaBean implements Serializable {
             listaReservas.get(idAdicionar).setFisica(fis);
 
             SociosDao db = new SociosDao();
-            float valor;
+            double valor;
             //valor = db.descontoSocioEve(fis.getPessoa().getId() , eventoServico.getServicos().getId() );
             valor = db.descontoSocioEve(fis.getPessoa().getId(), ((CaravanaReservas) listaReservas.get(idAdicionar).getReservas()).getEventoServico().getId());
             if (valor == 0) {
-                listaReservas.get(idAdicionar).setValor(Moeda.converteR$Float(((EventoServicoValor) listaReservas.get(idAdicionar).getEventoServicoValor()).getValor()));
-                //listaReserva.get(idAdicionar).setArgumento3(Moeda.converteR$Float( Moeda.subtracaoValores(eventoServicoValor.getValor(), 0)));// NA VERDADE SUBTRAI PELO DESCONTO
+                listaReservas.get(idAdicionar).setValor(Moeda.converteR$Double(((EventoServicoValor) listaReservas.get(idAdicionar).getEventoServicoValor()).getValor()));
+                //listaReserva.get(idAdicionar).setArgumento3(Moeda.converteR$Double( Moeda.subtracao(eventoServicoValor.getValor(), 0)));// NA VERDADE SUBTRAI PELO DESCONTO
             } else {
-                listaReservas.get(idAdicionar).setValor(Moeda.converteR$Float(valor));
-                //listaReserva.get(idAdicionar).setArgumento3(Moeda.converteR$Float( Moeda.subtracaoValores(valor, 0)));// NA VERDADE SUBTRAI PELO DESCONTO
+                listaReservas.get(idAdicionar).setValor(Moeda.converteR$Double(valor));
+                //listaReserva.get(idAdicionar).setArgumento3(Moeda.converteR$Double( Moeda.subtracao(valor, 0)));// NA VERDADE SUBTRAI PELO DESCONTO
             }
             idAdicionar = -1;
         }
@@ -1443,15 +1443,15 @@ public class VendasCaravanaBean implements Serializable {
 
     public String getValorTotal() {
         if (!listaReservas.isEmpty()) {
-            float valor = 0;
-            float desconto = 0;
+            double valor = 0;
+            double desconto = 0;
             for (ListaReservas lr : listaReservas) {
                 if (lr.getFisica().getId() != -1 && lr.getReservas().getDtCancelamento() == null) {
-                    valor = Moeda.somaValores(valor, Moeda.substituiVirgulaFloat(lr.getValor()));
-                    desconto = Moeda.somaValores(desconto, Moeda.substituiVirgulaFloat(lr.getDesconto()));
+                    valor = Moeda.soma(valor, Moeda.substituiVirgulaDouble(lr.getValor()));
+                    desconto = Moeda.soma(desconto, Moeda.substituiVirgulaDouble(lr.getDesconto()));
                 }
             }
-            valorTotal = Moeda.converteR$Float(Moeda.subtracaoValores(valor, desconto));
+            valorTotal = Moeda.converteR$Double(Moeda.subtracao(valor, desconto));
         } else {
             valorTotal = "0,00";
         }
@@ -1464,13 +1464,13 @@ public class VendasCaravanaBean implements Serializable {
 
     public String getValorPago() {
         if (!listaParcelas.isEmpty()) {
-            float valor = 0;
+            double valor = 0;
             for (Parcelas listaParcela : listaParcelas) {
                 if (listaParcela.getBaixado()) {
-                    valor = Moeda.somaValores(valor, Moeda.substituiVirgulaFloat(String.valueOf(listaParcela.getValor())));
+                    valor = Moeda.soma(valor, Moeda.substituiVirgulaDouble(String.valueOf(listaParcela.getValor())));
                 }
             }
-            valorPago = Moeda.converteR$Float(valor);
+            valorPago = Moeda.converteR$Double(valor);
         } else {
             valorPago = "0,00";
         }
@@ -1483,13 +1483,13 @@ public class VendasCaravanaBean implements Serializable {
 
     public String getValorOutras() {
         if (!listaParcelas.isEmpty()) {
-            float valor = 0;
+            double valor = 0;
             for (Parcelas listaParcela : listaParcelas) {
                 if (!listaParcela.getBaixado()) {
-                    valor = Moeda.somaValores(valor, Moeda.substituiVirgulaFloat(String.valueOf(listaParcela.getValor())));
+                    valor = Moeda.soma (valor, Moeda.substituiVirgulaDouble(String.valueOf(listaParcela.getValor())));
                 }
             }
-            valorOutras = Moeda.converteR$Float(valor);
+            valorOutras = Moeda.converteR$Double(valor);
         } else {
             valorOutras = "0,00";
         }
@@ -1570,7 +1570,7 @@ public class VendasCaravanaBean implements Serializable {
     }
 
     public List<SelectItem> getListaDataEntrada() {
-        float vE = Moeda.substituiVirgulaFloat(valorEntrada);
+        double vE = Moeda.substituiVirgulaDouble(valorEntrada);
         if (vE > 0) {
             if (listaDataEntrada.isEmpty()) {
                 idDataEntrada = 0;
@@ -1601,7 +1601,7 @@ public class VendasCaravanaBean implements Serializable {
             data = DataHoje.data();
             int dH = DataHoje.converteDataParaInteger(data);
             int dtVecto = 0;
-            float vE = Moeda.substituiVirgulaFloat(valorEntrada);
+            double vE = Moeda.substituiVirgulaDouble(valorEntrada);
             if (vE > 0) {
                 //dtVecto = Integer.parseInt(dataEntrada.substring(0, 2));
                 data = dh.incrementarMeses(1, data);
@@ -1731,21 +1731,21 @@ public class VendasCaravanaBean implements Serializable {
                 for (int i = 0; i < listaParcelas.size(); i++) {
                     vc = vc.add(new BigDecimal(Moeda.converteUS$(listaParcelas.get(i).getValor())));
                 }
-                Float v = Float.parseFloat(vc.toString());
-                Float vn = v;
+                Double v = Double.parseDouble(vc.toString());
+                Double vn = v;
                 if (!v.equals(Moeda.converteUS$(valorTotal))) {
                     disabledSave = true;
                     if (vn > 0) {
                         if (vn > Moeda.converteUS$(valorTotal)) {
-                            Float diff = vn - Moeda.converteUS$(valorTotal);
-                            return "Existe uma difereça na soma das parcelas: Remover R$ " + Moeda.converteR$Float(diff) + ". Corrigir para concluir.";
+                            Double diff = vn - Moeda.converteUS$(valorTotal);
+                            return "Existe uma difereça na soma das parcelas: Remover R$ " + Moeda.converteR$Double(diff) + ". Corrigir para concluir.";
                         } else {
-                            Float diff = Moeda.converteUS$(valorTotal) - vn;
-                            return "Existe uma difereça na soma das parcelas: Acrescentar R$ " + Moeda.converteR$Float(diff) + ". Corrigir para concluir.";
+                            Double diff = Moeda.converteUS$(valorTotal) - vn;
+                            return "Existe uma difereça na soma das parcelas: Acrescentar R$ " + Moeda.converteR$Double(diff) + ". Corrigir para concluir.";
                         }
                     } else if (vn < 0) {
                         if (!listaParcelas.isEmpty()) {
-                            return "Existe uma difereça na soma das parcelas: Remover R$ " + Moeda.converteR$Float(vn) + ". Corrigir para concluir.";
+                            return "Existe uma difereça na soma das parcelas: Remover R$ " + Moeda.converteR$Double(vn) + ". Corrigir para concluir.";
                         }
                     } else {
                         return "";

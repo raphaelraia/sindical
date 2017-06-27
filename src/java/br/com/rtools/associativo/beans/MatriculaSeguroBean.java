@@ -38,9 +38,9 @@ public class MatriculaSeguroBean implements Serializable {
     private MatriculaSeguro matriculaSeguro = new MatriculaSeguro();
     private Integer indexServicos = 0;
     private List<SelectItem> listaServicos = new ArrayList();
-    private Float valor = (float) 0;
-    private Float desconto = (float) 0;
-    private Float valorTotal = (float) 0;
+    private Double valor = (double) 0;
+    private Double desconto = (double) 0;
+    private Double valorTotal = (double) 0;
     private List<MatriculaSeguro> listaMatriculaSeguro = new ArrayList();
 
     private String descricaoPesquisa = "";
@@ -152,7 +152,7 @@ public class MatriculaSeguroBean implements Serializable {
                     = "ID Seguro: " + matriculaSeguro.getId() + " \n "
                     + "Pessoa: " + matriculaSeguro.getServicoPessoa().getPessoa().getDocumento() + " : " + matriculaSeguro.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + matriculaSeguro.getServicoPessoa().getNrDiaVencimento() + " \n "
-                    + "Valor: " + Moeda.converteR$Float(matriculaSeguro.getServicoPessoa().getNrValorFixo()) + " \n "
+                    + "Valor: " + Moeda.converteR$Double(matriculaSeguro.getServicoPessoa().getNrValorFixo()) + " \n "
                     + "Desconto R$: " + getDescontoString() + " \n "
                     + "Desconto %: " + matriculaSeguro.getServicoPessoa().getNrDescontoString() + " \n "
                     + "Dia Vencimento: " + matriculaSeguro.getServicoPessoa().getNrDiaVencimento() + " \n "
@@ -180,7 +180,7 @@ public class MatriculaSeguroBean implements Serializable {
                     = "ID Seguro: " + matriculaSeguro.getId() + " \n "
                     + "Pessoa: " + matriculaSeguro.getServicoPessoa().getPessoa().getDocumento() + " : " + matriculaSeguro.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + matriculaSeguro.getServicoPessoa().getNrDiaVencimento() + " \n "
-                    + "Valor: " + Moeda.converteR$Float(matriculaSeguro.getServicoPessoa().getNrValorFixo()) + " \n "
+                    + "Valor: " + Moeda.converteR$Double(matriculaSeguro.getServicoPessoa().getNrValorFixo()) + " \n "
                     + "Desconto R$: " + getDescontoString() + " \n "
                     + "Desconto %: " + matriculaSeguro.getServicoPessoa().getNrDescontoString() + " \n "
                     + "Dia Vencimento: " + matriculaSeguro.getServicoPessoa().getNrDiaVencimento() + " \n "
@@ -190,7 +190,7 @@ public class MatriculaSeguroBean implements Serializable {
                     = "ID Seguro: " + ms.getId() + " \n "
                     + "Pessoa: " + ms.getServicoPessoa().getPessoa().getDocumento() + " : " + ms.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + ms.getServicoPessoa().getNrDiaVencimento() + " \n "
-                    + "Valor: " + Moeda.converteR$Float(ms.getServicoPessoa().getNrValorFixo()) + " \n "
+                    + "Valor: " + Moeda.converteR$Double(ms.getServicoPessoa().getNrValorFixo()) + " \n "
                     + "Desconto R$: " + getDescontoString() + " \n "
                     + "Desconto %: " + ms.getServicoPessoa().getNrDescontoString() + " \n "
                     + "Dia Vencimento: " + ms.getServicoPessoa().getNrDiaVencimento() + " \n "
@@ -256,11 +256,11 @@ public class MatriculaSeguroBean implements Serializable {
                 matriculaSeguro.getServicoPessoa().setNrDesconto(100);
             }
             desconto = valor - Moeda.valorDoPercentual(valor, matriculaSeguro.getServicoPessoa().getNrDesconto());
-            valorTotal = Moeda.subtracaoValores(valor, desconto);
+            valorTotal = Moeda.subtracao(valor, desconto);
         } else {
-            valor = (float) 0;
-            desconto = (float) 0;
-            valorTotal = (float) 0;
+            valor = (double) 0;
+            desconto = (double) 0;
+            valorTotal = (double) 0;
             matriculaSeguro.getServicoPessoa().setNrDesconto(0);
         }
     }
@@ -272,11 +272,11 @@ public class MatriculaSeguroBean implements Serializable {
             } else {
                 calculoPercentualDesconto();
             }
-            valorTotal = Moeda.subtracaoValores(valor, desconto);
+            valorTotal = Moeda.subtracao(valor, desconto);
         } else {
-            valor = (float) 0;
-            desconto = (float) 0;
-            valorTotal = (float) 0;
+            valor = (double) 0;
+            desconto = (double) 0;
+            valorTotal = (double) 0;
             matriculaSeguro.getServicoPessoa().setNrDesconto(0);
         }
     }
@@ -312,48 +312,48 @@ public class MatriculaSeguroBean implements Serializable {
         this.listaServicos = listaServicos;
     }
 
-    public Float getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(Float valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {
         this.valor = Moeda.converteUS$(valorString);
     }
 
-    public Float getDesconto() {
+    public Double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(Float desconto) {
+    public void setDesconto(Double desconto) {
         this.desconto = desconto;
     }
 
     public String getDescontoString() {
-        return Moeda.converteR$Float(desconto);
+        return Moeda.converteR$Double(desconto);
     }
 
     public void setDescontoString(String descontoString) {
         this.desconto = Moeda.converteUS$(descontoString);
     }
 
-    public Float getValorTotal() {
+    public Double getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Float valorTotal) {
+    public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
     }
 
     public String getValorTotalString() {
-        return Moeda.converteR$Float(valorTotal);
+        return Moeda.converteR$Double(valorTotal);
     }
 
     public void setValorTotalString(String valorTotalString) {

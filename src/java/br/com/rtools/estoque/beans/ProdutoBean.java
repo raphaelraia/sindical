@@ -293,11 +293,11 @@ public class ProdutoBean implements Serializable {
             }
         }
 
-        valor = Moeda.converteR$Float(produto.getValor());
+        valor = Moeda.converteR$Double(produto.getValor());
         listaEstoque.clear();
         GenericaSessao.put("linkClicado", true);
         if (GenericaSessao.exists("urlRetorno")) {
-            float margem = (produto.getValor() * produto.getIndiceMoeda().getValor()) * produto.getMargem() / 100;
+            double margem = (produto.getValor() * produto.getIndiceMoeda().getValor()) * produto.getMargem() / 100;
 
             produto.setValor((produto.getValor() * produto.getIndiceMoeda().getValor()) + margem);
 
@@ -566,7 +566,7 @@ public class ProdutoBean implements Serializable {
                 break;
             }
         }
-        custoMedio = Moeda.converteR$Float(estoque.getCustoMedio());
+        custoMedio = Moeda.converteR$Double(estoque.getCustoMedio());
     }
 
     public void deleteEstoque(Estoque e) {

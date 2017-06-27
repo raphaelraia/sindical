@@ -86,13 +86,13 @@ public class AcordoSocialBean implements Serializable {
     public void loadListaVisualizado() {
         if (listaVizualizado.isEmpty() && !listaMovs.isEmpty() && pessoa.getId() != -1) {
             historico.setHistorico("ACORDO CORRESPONDENTE A: ");
-            float soma = 0;
+            double soma = 0;
 
             Map<Integer, DataObject> hash = new LinkedHashMap();
 
             for (Movimento listaMov : listaMovs) {
-                soma = Moeda.somaValores(soma, listaMov.getValorBaixa());
-                Float valor_linha;
+                soma = Moeda.soma(soma, listaMov.getValorBaixa());
+                Double valor_linha;
                 String s_historico;
 
                 if (hash.get(listaMov.getServicos().getId()) == null) {
@@ -100,10 +100,10 @@ public class AcordoSocialBean implements Serializable {
                     valor_linha = listaMov.getValorBaixa();
                 } else {
                     s_historico = hash.get(listaMov.getServicos().getId()).getArgumento2().toString();
-                    valor_linha = Moeda.somaValores(Moeda.converteUS$(hash.get(listaMov.getServicos().getId()).getArgumento1().toString()), listaMov.getValorBaixa());
+                    valor_linha = Moeda.soma(Moeda.converteUS$(hash.get(listaMov.getServicos().getId()).getArgumento1().toString()), listaMov.getValorBaixa());
                 }
 
-                hash.put(listaMov.getServicos().getId(), new DataObject(listaMov.getServicos(), Moeda.converteR$Float(valor_linha), s_historico));
+                hash.put(listaMov.getServicos().getId(), new DataObject(listaMov.getServicos(), Moeda.converteR$Double(valor_linha), s_historico));
             }
 
             for (Map.Entry<Integer, DataObject> entry : hash.entrySet()) {
@@ -111,7 +111,7 @@ public class AcordoSocialBean implements Serializable {
                 historico.setHistorico(historico.getHistorico() + "" + entry.getValue().getArgumento2() + ", ");
             }
 
-            total = Moeda.converteR$Float(soma);
+            total = Moeda.converteR$Double(soma);
         }
     }
 
@@ -126,20 +126,20 @@ public class AcordoSocialBean implements Serializable {
             ContaCobranca contaCobranca;
             listaOperado.clear();
             //String ultimoVencimento = getListaVencimento().get(idVencimento).getLabel();
-            float valorTotalOutras = 0;
-            float valorSwap = Moeda.substituiVirgulaFloat(valorEntrada);
-            float valorTotal = Moeda.converteFloatR$Float(Moeda.substituiVirgulaFloat(total));
-            float[] vetorEntrada = new float[listaVizualizado.size()];
-            float pdE = Moeda.divisaoValores(valorSwap, valorTotal);
-            float valorParcela = 0;
+            double valorTotalOutras = 0;
+            double valorSwap = Moeda.substituiVirgulaDouble(valorEntrada);
+            double valorTotal = Moeda.converteDoubleR$Double(Moeda.substituiVirgulaDouble(total));
+            double[] vetorEntrada = new double[listaVizualizado.size()];
+            double pdE = Moeda.divisao(valorSwap, valorTotal);
+            double valorParcela = 0;
 
             Integer dia = retornaDiaVencimentoPessoa(pessoa.getId());
             String dia_vencimento = (dia < 10) ? "0" + dia : "" + dia;
 
             for (int i = 0; i < listaVizualizado.size(); i++) {
-                vetorEntrada[i] = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1());
+                vetorEntrada[i] = Moeda.substituiVirgulaDouble((String) listaVizualizado.get(i).getArgumento1());
                 if (listaVizualizado.size() > 1) {
-                    vetorEntrada[i] = Moeda.converteFloatR$Float(Moeda.multiplicarValores(vetorEntrada[i], pdE));
+                    vetorEntrada[i] = Moeda.converteDoubleR$Double(Moeda.multiplicar(vetorEntrada[i], pdE));
                 } else {
                     vetorEntrada[i] = valorSwap;
                 }
@@ -153,19 +153,19 @@ public class AcordoSocialBean implements Serializable {
                     String ultimoVencimento = getListaVencimento().get(idVencimento).getLabel();
                     j = 0;
                     if (parcela > 1) {
-                        valorTotalOutras = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1());
-                        valorTotalOutras = Moeda.subtracaoValores(valorTotalOutras, vetorEntrada[i]);
+                        valorTotalOutras = Moeda.substituiVirgulaDouble((String) listaVizualizado.get(i).getArgumento1());
+                        valorTotalOutras = Moeda.subtracao(valorTotalOutras, vetorEntrada[i]);
                         valorSwap = vetorEntrada[i];
-                        valorParcela = Moeda.converteFloatR$Float(Moeda.divisaoValores(valorTotalOutras, parcela - 1));
+                        valorParcela = Moeda.converteDoubleR$Double(Moeda.divisao(valorTotalOutras, parcela - 1));
                     } else {
-                        valorSwap = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getArgumento1());
+                        valorSwap = Moeda.substituiVirgulaDouble((String) listaVizualizado.get(i).getArgumento1());
                     }
                     while (j < parcela) {
                         if (j != 0) {
-                            if ((Moeda.subtracaoValores(valorTotalOutras, valorParcela) != 0) && ((j + 1) == parcela)) {
+                            if ((Moeda.subtracao(valorTotalOutras, valorParcela) != 0) && ((j + 1) == parcela)) {
                                 valorParcela = valorTotalOutras;
                             } else {
-                                valorTotalOutras = Moeda.subtracaoValores(valorTotalOutras, valorParcela);
+                                valorTotalOutras = Moeda.subtracao(valorTotalOutras, valorParcela);
                             }
                             valorSwap = valorParcela;
                         }
@@ -454,20 +454,7 @@ public class AcordoSocialBean implements Serializable {
     }
 
     public void imprimirBoletos() {
-//        ImprimirBoleto imp = new ImprimirBoleto();
-//        List<Float> listaValores = new ArrayList<Float>();
-//        List<String> listaVencimentos = new ArrayList<String>();
-//        List listaImp = new ArrayList();
-//        for (int i = 0; i < listaOperado.size(); i++) {
-//            listaImp.add(((Movimento) listaOperado.get(i).getArgumento2()));
-//            listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
-//            listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
-//
-//        }
-//        if (!listaImp.isEmpty()) {
-//            imp.imprimirBoleto(listaImp, listaValores, listaVencimentos, false);
-//            imp.visualizar(null);
-//        }
+ 
     }
 
     public void imprimirPlanilha() {
@@ -587,22 +574,22 @@ public class AcordoSocialBean implements Serializable {
     }
 
     public String getValorEntrada() {
-        float valorTmp = Moeda.substituiVirgulaFloat(valorEntrada);
-        float totalOutra = Moeda.substituiVirgulaFloat(total);
+        double valorTmp = Moeda.substituiVirgulaDouble(valorEntrada);
+        double totalOutra = Moeda.substituiVirgulaDouble(total);
 
         if (valorEntrada.equals("0") || valorEntrada.equals("0,00")) {
-            float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
+            double valorTmp2 = Moeda.divisao(totalOutra, parcela);
             if (parcela > 1) {
-                valorEntrada = Moeda.converteR$Float(valorTmp2);
+                valorEntrada = Moeda.converteR$Double(valorTmp2);
                 return valorEntrada;
             }
-        } else if (valorTmp > (Moeda.multiplicarValores(totalOutra, (float) 0.05))
-                && valorTmp < (Moeda.multiplicarValores(totalOutra, (float) 0.8))) {
+        } else if (valorTmp > (Moeda.multiplicar(totalOutra, (double) 0.05))
+                && valorTmp < (Moeda.multiplicar(totalOutra, (double) 0.8))) {
             return Moeda.converteR$(valorEntrada);
         } else {
-            float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
+            double valorTmp2 = Moeda.divisao(totalOutra, parcela);
             if (parcela > 1) {
-                valorEntrada = Moeda.converteR$Float(valorTmp2);
+                valorEntrada = Moeda.converteR$Double(valorTmp2);
             }
         }
         return Moeda.converteR$(valorEntrada);

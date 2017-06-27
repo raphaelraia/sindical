@@ -275,7 +275,7 @@ public class RescisaoContratoBean implements Serializable {
             // ------------------
 
             // VALOR RESTANTE
-            float valor_parcela;
+            double valor_parcela;
             if (matriculaEscola.getServicoPessoa().getNrDesconto() == 0) {
                 if (matriculaEscola.getServicoPessoa().getPessoa().getSocios().getId() != -1) {
                     valor_parcela = new FunctionsDao().valorServico(matriculaEscola.getServicoPessoa().getPessoa().getId(), matriculaEscola.getServicoPessoa().getServicos().getId(), DataHoje.dataHoje(), 0, matriculaEscola.getServicoPessoa().getPessoa().getSocios().getMatriculaSocios().getCategoria().getId());
@@ -287,7 +287,7 @@ public class RescisaoContratoBean implements Serializable {
                 valor_parcela = valor_parcela - (matriculaEscola.getServicoPessoa().getNrDesconto() * valor_parcela) / 100;
             }
 
-            valor = Moeda.converteR$Float(parcelasRestantes * valor_parcela);
+            valor = Moeda.converteR$Double(parcelasRestantes * valor_parcela);
         }
     }
 
@@ -403,7 +403,7 @@ public class RescisaoContratoBean implements Serializable {
 //                vencimento = diaSwap + "/" + mes + "/" + ano;
 //            }
 
-            float valorParcelaF;
+            double valorParcelaF;
             String nrCtrBoletoResp = "";
             String vencimentoString = "";
             TipoServico tipoServico = (TipoServico) dao.find(new TipoServico(), 6);
@@ -413,9 +413,9 @@ public class RescisaoContratoBean implements Serializable {
             }
             nrCtrBoletoResp += matriculaEscola.getServicoPessoa().getCobranca().getId();
             if (numeroParcelas > 0) {
-                valorParcelaF = Moeda.substituiVirgulaFloat(valorMulta) / numeroParcelas;
+                valorParcelaF = Moeda.substituiVirgulaDouble(valorMulta) / numeroParcelas;
             } else {
-                valorParcelaF = Moeda.substituiVirgulaFloat(valorMulta);
+                valorParcelaF = Moeda.substituiVirgulaDouble(valorMulta);
             }
             int nr = numeroParcelas;
             if (numeroParcelas < 1) {
@@ -437,7 +437,7 @@ public class RescisaoContratoBean implements Serializable {
                     matriculaEscola.getServicoPessoa().getServicos().getPlano5(),
                     false,
                     "",
-                    Moeda.substituiVirgulaFloat(valorMulta),
+                    Moeda.substituiVirgulaDouble(valorMulta),
                     matriculaEscola.getServicoPessoa().getServicos().getFilial(),
                     null,
                     matriculaEscola.getServicoPessoa().getEvt(),
@@ -654,7 +654,7 @@ public class RescisaoContratoBean implements Serializable {
     }
 
     public String getValorTotal() {
-        float valorT = 0;
+        double valorT = 0;
         if (numeroParcelas > 0) {
             if (Moeda.converteUS$(valorMulta) > 0) {
                 valorT = Moeda.converteUS$(valorMulta) / numeroParcelas;
@@ -663,7 +663,7 @@ public class RescisaoContratoBean implements Serializable {
         if (numeroParcelas < 2) {
             valorTotal = "O valor da multa será pago em parcela única no valor de R$" + valorMulta;
         } else {
-            valorTotal = "O valor da multa será pago em " + numeroParcelas + " parcelas de R$" + Moeda.converteR$Float(valorT);
+            valorTotal = "O valor da multa será pago em " + numeroParcelas + " parcelas de R$" + Moeda.converteR$Double(valorT);
         }
         return valorTotal;
     }

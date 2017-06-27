@@ -105,7 +105,7 @@ public class ConviteMovimentoBean implements Serializable {
     private String dataFinal = "";
 
     private ConfiguracaoSocial configuracaoSocial;
-    //private float desconto = 0;
+    //private double desconto = 0;
 
     private Integer indexTipoDocumento = 0;
     private List<SelectItem> listTipoDocumento = new ArrayList();
@@ -134,20 +134,20 @@ public class ConviteMovimentoBean implements Serializable {
         // DEVOLVE O DESCONTO DIGITADO DEPOIS DE TER SIDO APAGADO NO loadValor()
         //conviteMovimento.setDesconto(Moeda.converteUS$(ds));
 
-        float p_desconto = Moeda.converteUS$(Moeda.percentualDoValor(valorString, conviteMovimento.getDescontoString()));
+        double p_desconto = Moeda.converteUS$(Moeda.percentualDoValor(valorString, conviteMovimento.getDescontoString()));
         // DESCONTO NÃO PODE SER MAIOR QUE 80%, desconto setado igual a 20% onde 80 - 100 = 20
         // SE DESCONTO NÃO PODE SER MAIOR QUE 70%, desconto setado igual a 30% onde 70 - 100 = 30
-        float p_valor = Moeda.converteUS$(Moeda.valorDoPercentual(valorString, "20"));
+        double p_valor = Moeda.converteUS$(Moeda.valorDoPercentual(valorString, "20"));
 
         if (p_desconto > 80) {
-            GenericaMensagem.warn("ATENÇÃO", "VALOR DO DESCONTO NÃO PODE ULTRAPASSAR 80% ( R$ " + Moeda.converteR$Float(p_valor) + " ).");
+            GenericaMensagem.warn("ATENÇÃO", "VALOR DO DESCONTO NÃO PODE ULTRAPASSAR 80% ( R$ " + Moeda.converteR$Double(p_valor) + " ).");
             PF.update("form_convite:out_mensagem");
             PF.openDialog("dgl_panel_mensagem");
             conviteMovimento.setDesconto(0);
             return;
         }
 
-        valorString = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
+        valorString = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
         // MENSAGEM COM O VALOR DO DESCONTO APLICADO
         //GenericaMensagem.info("DESCONTO DE R$ ", conviteMovimento.getDescontoString() + " APLICADO!");
     }
@@ -201,7 +201,7 @@ public class ConviteMovimentoBean implements Serializable {
         try {
             DataHoje dh = new DataHoje();
             ServicoValor sv = (ServicoValor) svdb.pesquisaServicoValorPorIdade(((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription()))).getServicos().getId(), dh.calcularIdade(conviteMovimento.getSisPessoa().getNascimento()));
-            valorString = Moeda.converteR$(Float.toString((sv.getValor())));
+            valorString = Moeda.converteR$(Double.toString((sv.getValor())));
 
             if (sv.getServicos().isAlterarValor()) {
                 disabledValor = false;
@@ -501,7 +501,7 @@ public class ConviteMovimentoBean implements Serializable {
                         + (conviteMovimento.getConviteServico() != null ? " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao() : " - Convite Serviço: (null)")
                 );
             } else {
-                float valor = Moeda.substituiVirgulaFloat(valorString);
+                double valor = Moeda.substituiVirgulaDouble(valorString);
                 if (valor > 0) {
                     try {
                         if (!gerarMovimento(dao)) {
@@ -825,7 +825,7 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         atualizaDescontoValor();
-        //valorString = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
+        //valorString = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
 
         visibility = true;
     }
@@ -1130,7 +1130,7 @@ public class ConviteMovimentoBean implements Serializable {
             String referencia;
             Plano5 plano5 = conviteMovimento.getConviteServico().getServicos().getPlano5();
             FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), 13);
-            float valor = Moeda.substituiVirgulaFloat(valorString);
+            double valor = Moeda.substituiVirgulaDouble(valorString);
             Lote lote = new Lote(
                     -1,
                     (Rotina) dao.find(new Rotina(), 215),

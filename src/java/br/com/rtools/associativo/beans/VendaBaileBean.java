@@ -537,14 +537,14 @@ public class VendaBaileBean implements Serializable {
             desconto = "0,00";
         }
 
-        valorLiquido = Moeda.converteR$Float(Moeda.converteUS$(valor) - Moeda.converteUS$(desconto));
+        valorLiquido = Moeda.converteR$Double(Moeda.converteUS$(valor) - Moeda.converteUS$(desconto));
 
-        total = Moeda.converteR$Float(Moeda.converteUS$(valorLiquido) * getQuantidade());
+        total = Moeda.converteR$Double(Moeda.converteUS$(valorLiquido) * getQuantidade());
     }
 
     public void somaValor() {
         if (eventoServicoValor != null) {
-            valor = Moeda.converteR$Float(eventoServicoValor.getValor());
+            valor = Moeda.converteR$Double(eventoServicoValor.getValor());
             if (venda.getId() != -1) {
                 desconto = venda.getDescontoUnitarioString();
             }
@@ -1305,8 +1305,8 @@ public class VendaBaileBean implements Serializable {
         loadListaServicos();
     }
 
-    public String converteMoeda(float valorx) {
-        return Moeda.converteR$Float(valorx);
+    public String converteMoeda(double valorx) {
+        return Moeda.converteR$Double(valorx);
     }
 
     public String converteData(Date datax) {

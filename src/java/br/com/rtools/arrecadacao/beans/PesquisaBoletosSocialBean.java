@@ -173,7 +173,7 @@ public class PesquisaBoletosSocialBean {
         private String nome_beneficiario;
         private Integer id_servico;
         private String nome_servico;
-        private float valor;
+        private double valor;
         private String vencimento;
         private String boleto_atual;
         private String boleto_anterior;
@@ -182,7 +182,7 @@ public class PesquisaBoletosSocialBean {
         private Integer id_boleto;
         private ContaCobranca contaCobranca;
 
-        public LinhaBoleto(Integer id_titular, String nome_titular, Integer id_beneficiario, String nome_beneficiario, Integer id_servico, String nome_servico, float valor, String vencimento, String boleto_atual, String boleto_anterior, String quitacao, Integer id_movimento, Integer id_boleto, ContaCobranca contaCobranca) {
+        public LinhaBoleto(Integer id_titular, String nome_titular, Integer id_beneficiario, String nome_beneficiario, Integer id_servico, String nome_servico, double valor, String vencimento, String boleto_atual, String boleto_anterior, String quitacao, Integer id_movimento, Integer id_boleto, ContaCobranca contaCobranca) {
             this.id_titular = id_titular;
             this.nome_titular = nome_titular;
             this.id_beneficiario = id_beneficiario;
@@ -247,16 +247,16 @@ public class PesquisaBoletosSocialBean {
             this.nome_servico = nome_servico;
         }
 
-        public float getValor() {
+        public double getValor() {
             return valor;
         }
 
-        public void setValor(float valor) {
+        public void setValor(double valor) {
             this.valor = valor;
         }
         
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValor(String valorString) {

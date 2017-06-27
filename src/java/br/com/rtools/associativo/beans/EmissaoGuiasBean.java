@@ -568,7 +568,7 @@ public class EmissaoGuiasBean implements Serializable {
         String vencto_ini = DataHoje.data();
         Dao di = new Dao();
         FTipoDocumento fTipoDocumento = (FTipoDocumento) di.find(new FTipoDocumento(), 2); // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
-        float valorx = Moeda.converteUS$(valor);
+        double valorx = Moeda.converteUS$(valor);
         Servicos servicos = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
         if (servicos.getGuiaSomenteSocio()) {
             if (pessoa.getSocios().getId() == -1) {
@@ -667,7 +667,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
         }
         
-        float descontox = Moeda.converteUS$(desconto);
+        double descontox = Moeda.converteUS$(desconto);
         Pessoa pessoa_movimento = null;
 
         // Se o beneficiário for sócio então id_titular e id_pessoa do movimento será o titular.
@@ -709,21 +709,21 @@ public class EmissaoGuiasBean implements Serializable {
                                 0, // MULTA
                                 0,//descontox, // DESCONTO
                                 0, // TAXA
-                                0,//Moeda.multiplicarValores(quantidade, Moeda.subtracaoValores(valorx, descontox)), // VALOR BAIXA
+                                0,//Moeda.multiplicar(quantidade, Moeda.subtracao(valorx, descontox)), // VALOR BAIXA
                                 fTipoDocumento, // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
                                 0, // REPASSE AUTOMATICO
                                 new MatriculaSocios()
                         ),
-                        Moeda.converteR$Float(Moeda.converteFloatR$Float(valorx)), // VALOR COM MASCARA
-                        Moeda.converteR$Float(Moeda.converteFloatR$Float(descontox)), // DESCONTO COM MASCARA
-                        Moeda.converteR$Float(Moeda.multiplicarValores(quantidade, Moeda.subtracaoValores(valorx, descontox))) // VALOR TOTAL QUANTIDADE * (VALOR-DESCONTO)
+                        Moeda.converteR$Double(Moeda.converteDoubleR$Double(valorx)), // VALOR COM MASCARA
+                        Moeda.converteR$Double(Moeda.converteDoubleR$Double(descontox)), // DESCONTO COM MASCARA
+                        Moeda.converteR$Double(Moeda.multiplicar(quantidade, Moeda.subtracao(valorx, descontox))) // VALOR TOTAL QUANTIDADE * (VALOR-DESCONTO)
                 ));
 
         total = "0";
         
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             String total_desconto = listaMovimento1.getTotal();
-            total = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
+            total = Moeda.converteR$Double(Moeda.soma(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
         }
         
         desconto = "0";
@@ -747,7 +747,7 @@ public class EmissaoGuiasBean implements Serializable {
         
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             String total_desconto = listaMovimento1.getTotal();
-            total = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
+            total = Moeda.converteR$Double(Moeda.soma(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
         }
     }
 
@@ -886,7 +886,7 @@ public class EmissaoGuiasBean implements Serializable {
         di.commit();
 
         //List<Movimento> listaaux = new ArrayList();
-        float valorx = 0, descontox = 0, valor_soma = 0;
+        double valorx = 0, descontox = 0, valor_soma = 0;
         //Moeda.converteUS$(desconto);
 
         Movimento movimento = new Movimento();
@@ -895,23 +895,17 @@ public class EmissaoGuiasBean implements Serializable {
             HistoricoEmissaoGuias heg = new HistoricoEmissaoGuias();
             movimento = (Movimento) di.find(new Movimento(), listaMovimento.get(i).getMovimento().getId());
 
-            descontox = Moeda.multiplicarValores(listaMovimento.get(i).getMovimento().getQuantidade(), Moeda.converteUS$(listaMovimento.get(i).getDesconto()));
-            valorx = Moeda.multiplicarValores(listaMovimento.get(i).getMovimento().getQuantidade(), Moeda.converteUS$(listaMovimento.get(i).getValor()));
+            descontox = Moeda.multiplicar(listaMovimento.get(i).getMovimento().getQuantidade(), Moeda.converteUS$(listaMovimento.get(i).getDesconto()));
+            valorx = Moeda.multiplicar(listaMovimento.get(i).getMovimento().getQuantidade(), Moeda.converteUS$(listaMovimento.get(i).getValor()));
 
-            valor_soma = Moeda.somaValores(valor_soma, valorx);
-            //valor_soma = Moeda.subtracaoValores(valor_soma, descontox);
-
+            valor_soma = Moeda.soma(valor_soma, valorx);
             movimento.setMulta(listaMovimento.get(i).getMovimento().getMulta());
             movimento.setJuros(listaMovimento.get(i).getMovimento().getJuros());
             movimento.setCorrecao((listaMovimento.get(i).getMovimento()).getCorrecao());
             movimento.setDesconto(descontox);
+            movimento.setValor(Moeda.multiplicar(listaMovimento.get(i).getMovimento().getQuantidade(), listaMovimento.get(i).getMovimento().getValor()));
 
-            //movimento.setValor( Float.valueOf( listaMovimento.get(i).getArgumento9().toString() ) );
-            movimento.setValor(Moeda.multiplicarValores(listaMovimento.get(i).getMovimento().getQuantidade(), listaMovimento.get(i).getMovimento().getValor()));
-
-            movimento.setValorBaixa(Moeda.subtracaoValores(movimento.getValor(), movimento.getDesconto()));
-            //movimento.setValorBaixa(valorx);
-
+            movimento.setValorBaixa(Moeda.subtracao(movimento.getValor(), movimento.getDesconto()));            
             listaMovimentoAuxiliar.add(movimento);
             heg.setMovimento(movimento);
             heg.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
@@ -1252,10 +1246,10 @@ public class EmissaoGuiasBean implements Serializable {
             return;
         }
         
-        pedido.setValorUnitario(Moeda.substituiVirgulaFloat(valorUnitarioPedido));
+        pedido.setValorUnitario(Moeda.substituiVirgulaDouble(valorUnitarioPedido));
         pedido.setQuantidade(quantidadePedido);
         
-        //pedido.setDescontoUnitario(Moeda.substituiVirgulaFloat(descontoUnitarioPedido));
+        //pedido.setDescontoUnitario(Moeda.substituiVirgulaDouble(descontoUnitarioPedido));
         
         if (pedido.getQuantidade() < 1) {
             GenericaMensagem.warn("Validação", "Adicionar quantidade!");
@@ -1364,21 +1358,21 @@ public class EmissaoGuiasBean implements Serializable {
 
     public String valorTotalPedido(Pedido p) {
         if (p != null) {
-            float value = Moeda.subtracaoValores(p.getValorUnitario(), p.getDescontoUnitario());
-            value = Moeda.multiplicarValores(value, p.getQuantidade());
-            return Moeda.converteR$Float(value);
+            double value = Moeda.subtracao(p.getValorUnitario(), p.getDescontoUnitario());
+            value = Moeda.multiplicar(value, p.getQuantidade());
+            return Moeda.converteR$Double(value);
         } else {
-            return Moeda.converteR$Float(0);
+            return Moeda.converteR$Double(0);
         }
 
     }
 
     public String getValorTotal() {
-        float v = 0;
+        double v = 0;
         for (Pedido p : listPedidos) {
-            v = Moeda.somaValores(v, Moeda.converteUS$(valorTotalPedido(p)));
+            v = Moeda.soma(v, Moeda.converteUS$(valorTotalPedido(p)));
         }
-        valorTotal = Moeda.converteR$Float(v);
+        valorTotal = Moeda.converteR$Double(v);
         return valorTotal;
     }
 
@@ -1486,13 +1480,13 @@ public class EmissaoGuiasBean implements Serializable {
                     LancamentoIndividualDao db = new LancamentoIndividualDao();
                     List<Vector> valorx = db.pesquisaServicoValor(pessoa.getId(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
                     if (!valorx.isEmpty()) {
-                        float vl = Float.valueOf(((Double) valorx.get(0).get(0)).toString());
-                        valor = Moeda.converteR$Float(vl);
+                        double vl = Double.valueOf(((Double) valorx.get(0).get(0)).toString());
+                        valor = Moeda.converteR$Double(vl);
                         if (idParceiro != null && idParceiro != -1) {
                             DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
                             DescontoServicoEmpresa dse = dsed.findByGrupo(2, Integer.parseInt(getListServicos().get(index[2]).getDescription()), idParceiro);
                             if (dse != null) {
-                                valor = Moeda.converteR$Float(Moeda.converteUS$(Moeda.valorDoPercentual(valor, dse.getDescontoString())));
+                                valor = Moeda.converteR$Double(Moeda.converteUS$(Moeda.valorDoPercentual(valor, dse.getDescontoString())));
                             }
                         }
                     } else {
@@ -1500,10 +1494,10 @@ public class EmissaoGuiasBean implements Serializable {
                         GenericaMensagem.fatal("Atenção", "Valor do Serviço não encontrado");
                     }
                 } else {
-                    float v = 0;
+                    double v = 0;
                     if (!listPedidos.isEmpty()) {
                         for (Pedido p : listPedidos) {
-                            v = Moeda.somaValores(v, Moeda.converteUS$(valorTotalPedido(p)));
+                            v = Moeda.soma(v, Moeda.converteUS$(valorTotalPedido(p)));
                         }
                     }
                     valor = "" + v;

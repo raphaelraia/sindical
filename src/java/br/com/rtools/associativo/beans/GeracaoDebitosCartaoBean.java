@@ -205,7 +205,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
         Movimento movimento;
         for (int i = 0; i < selected.size(); i++) {
-            float valor = functionsDao.valorServico(selected.get(i).getServicoPessoa().getPessoa().getId(), serv.getId(), DataHoje.dataHoje(), 0, null);
+            double valor = functionsDao.valorServico(selected.get(i).getServicoPessoa().getPessoa().getId(), serv.getId(), DataHoje.dataHoje(), 0, null);
             movimento = new Movimento();
             movimento.setLote(lote);
             movimento.setValor(valor);

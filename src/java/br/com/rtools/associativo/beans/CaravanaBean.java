@@ -259,7 +259,7 @@ public class CaravanaBean implements Serializable {
         dao.openTransaction();
         servicos = new Servicos();
         servicos = (Servicos) dao.find(new Servicos(), idServicos);
-        float vl = 0;
+        double vl = 0;
         eventoServico.setServicos(servicos);
         if (eventoServico.getId() == -1) {
             eventoServico.setEvento(caravana.getEvento());
@@ -274,7 +274,7 @@ public class CaravanaBean implements Serializable {
             return null;
         }
         eventoServicoValor.setEventoServico(eventoServico);
-        vl = Float.valueOf(valor);
+        vl = Double.valueOf(valor);
         eventoServicoValor.setValor(vl);
         if (eventoServicoValor.getId() == -1) {
             if (!dao.save(eventoServicoValor)) {
@@ -418,9 +418,9 @@ public class CaravanaBean implements Serializable {
             for (int i = 0; i < evs.size(); i++) {
                 ev = dbEv.pesquisaEventoServicoValor(evs.get(i).getId());
                 if (evs.get(i).isIndividual()) {
-                    listaServicosAdd.add(new DataObject(evs.get(i).getServicos(), evs.get(i), ev, evs.get(i).isIndividual(), Moeda.converteR$Float(ev.getValor()), "<< Sim >>"));
+                    listaServicosAdd.add(new DataObject(evs.get(i).getServicos(), evs.get(i), ev, evs.get(i).isIndividual(), Moeda.converteR$Double(ev.getValor()), "<< Sim >>"));
                 } else {
-                    listaServicosAdd.add(new DataObject(evs.get(i).getServicos(), evs.get(i), ev, evs.get(i).isIndividual(), Moeda.converteR$Float(ev.getValor()), "<< Não >>"));
+                    listaServicosAdd.add(new DataObject(evs.get(i).getServicos(), evs.get(i), ev, evs.get(i).isIndividual(), Moeda.converteR$Double(ev.getValor()), "<< Não >>"));
                 }
             }
         }

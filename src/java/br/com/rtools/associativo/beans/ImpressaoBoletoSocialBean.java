@@ -131,15 +131,15 @@ public class ImpressaoBoletoSocialBean {
     }
 
     public void atualizaValores() {
-        float soma_valor = 0;
+        double soma_valor = 0;
         qntPessoasSelecionadas = 0;
         for (DataObject ldo : listaGrid) {
             if ((Boolean) ldo.getArgumento1()) {
-                soma_valor = Moeda.somaValores(soma_valor, Moeda.converteUS$(ldo.getArgumento3().toString()));
+                soma_valor = Moeda.soma(soma_valor, Moeda.converteUS$(ldo.getArgumento3().toString()));
                 qntPessoasSelecionadas++;
             }
         }
-        valorTotal = Moeda.converteR$Float(soma_valor);
+        valorTotal = Moeda.converteR$Double(soma_valor);
     }
 
     public String editarPessoaSemEndereco(Pessoa pessoa) {
@@ -229,7 +229,7 @@ public class ImpressaoBoletoSocialBean {
     }
 
     public int calculoDePaginas(int quantidade) {
-        float soma = Moeda.divisaoValores(quantidade, 25);
+        double soma = Moeda.divisao(quantidade, 25);
         // return ((int) Math.ceil(soma) == 0) ? 1 : (int) Math.ceil(soma); // CALCULO
         return (int) Math.ceil(soma);
     }

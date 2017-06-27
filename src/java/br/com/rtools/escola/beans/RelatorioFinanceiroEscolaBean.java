@@ -50,8 +50,8 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
     private String dataVencimentoFinal = "";
     private String dataQuitacao = "";
     private String dataQuitacaoFinal = "";
-    private Float desconto = new Float(0);
-    private Float descontoFinal = new Float(0);
+    private Double desconto = new Double(0);
+    private Double descontoFinal = new Double(0);
 
     private boolean chkExcel = false;
     private boolean chkTodosServicos = false;
@@ -152,8 +152,8 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
             }
         }
         // FAIXA DE DESCONTO
-        Float desconto_inicial = null;
-        Float desconto_final = null;
+        Double desconto_inicial = null;
+        Double desconto_final = null;
         if (listaFiltros.get(3).ativo) {
             desconto_inicial = desconto;
             desconto_final = descontoFinal;
@@ -205,7 +205,7 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
         Jasper.EXPORT_TO = chkExcel;
         Jasper.IS_HEADER_PARAMS = true;
         MacFilial mc = MacFilial.getAcessoFilial();
-        if(mc.getId() != -1) {            
+        if (mc.getId() != -1) {
             Jasper.FILIAL = mc.getFilial();
         }
 
@@ -225,8 +225,8 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
                 loadListaServicos();
                 break;
             case "faixa_desconto":
-                desconto = new Float(0);
-                descontoFinal = new Float(0);
+                desconto = new Double(0);
+                descontoFinal = new Double(0);
                 break;
             case "turma":
                 turma = new Turma();
@@ -415,36 +415,36 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
         this.pessoa = pessoa;
     }
 
-    public Float getDesconto() {
+    public Double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(Float desconto) {
+    public void setDesconto(Double desconto) {
         this.desconto = desconto;
     }
 
-    public Float getDescontoFinal() {
+    public Double getDescontoFinal() {
         return descontoFinal;
     }
 
-    public void setDescontoFinal(Float descontoFinal) {
+    public void setDescontoFinal(Double descontoFinal) {
         this.descontoFinal = descontoFinal;
     }
 
     public String getDescontoString() {
-        return Float.toString(desconto);
+        return Double.toString(desconto);
     }
 
     public void setDescontoString(String descontoString) {
-        this.desconto = Float.parseFloat(descontoString);
+        this.desconto = Double.parseDouble(descontoString);
     }
 
     public String getDescontoFinalString() {
-        return Float.toString(descontoFinal);
+        return Double.toString(descontoFinal);
     }
 
     public void setDescontoFinalString(String descontoFinalString) {
-        this.descontoFinal = Float.parseFloat(descontoFinalString);
+        this.descontoFinal = Double.parseDouble(descontoFinalString);
     }
 
     public void add(String tcase) {

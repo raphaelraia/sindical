@@ -64,16 +64,16 @@ public class BaixaBoletoBean {
 
             dt = new DataObject(pesquisado,
                     listaQuery.get(i),
-                    Moeda.converteR$(Float.toString(listaQuery.get(i).getValor())), // valor
-                    Moeda.converteR$(Float.toString(listaQuery.get(i).getMulta())), // multa
-                    Moeda.converteR$(Float.toString(listaQuery.get(i).getJuros())), // juros
-                    Moeda.converteR$(Float.toString(listaQuery.get(i).getCorrecao())), // correcao
-                    Moeda.converteR$(Float.toString(listaQuery.get(i).getDesconto())), // desconto
-                    Moeda.converteR$(somarValorRecebido(Float.toString(listaQuery.get(i).getValor()),
-                            Float.toString(listaQuery.get(i).getMulta()),
-                            Float.toString(listaQuery.get(i).getJuros()),
-                            Float.toString(listaQuery.get(i).getCorrecao()),
-                            Float.toString(listaQuery.get(i).getDesconto()))), // valor pago
+                    Moeda.converteR$(Double.toString(listaQuery.get(i).getValor())), // valor
+                    Moeda.converteR$(Double.toString(listaQuery.get(i).getMulta())), // multa
+                    Moeda.converteR$(Double.toString(listaQuery.get(i).getJuros())), // juros
+                    Moeda.converteR$(Double.toString(listaQuery.get(i).getCorrecao())), // correcao
+                    Moeda.converteR$(Double.toString(listaQuery.get(i).getDesconto())), // desconto
+                    Moeda.converteR$(somarValorRecebido(Double.toString(listaQuery.get(i).getValor()),
+                            Double.toString(listaQuery.get(i).getMulta()),
+                            Double.toString(listaQuery.get(i).getJuros()),
+                            Double.toString(listaQuery.get(i).getCorrecao()),
+                            Double.toString(listaQuery.get(i).getDesconto()))), // valor pago
                     false,
                     null);
             getListBoletos().add(dt);
@@ -130,11 +130,11 @@ public class BaixaBoletoBean {
             for (DataObject listBoleto : getListBoletos()) {
                 if ((Boolean) listBoleto.getArgumento8() == true) {
                     mov = (Movimento) listBoleto.getArgumento1();
-                    mov.setValorBaixa(Float.parseFloat(Moeda.substituiVirgula((String) listBoleto.getArgumento7())));
-                    mov.setMulta(Float.parseFloat(Moeda.substituiVirgula((String) listBoleto.getArgumento3())));
-                    mov.setJuros(Float.parseFloat(Moeda.substituiVirgula((String) listBoleto.getArgumento4())));
-                    mov.setCorrecao(Float.parseFloat(Moeda.substituiVirgula((String) listBoleto.getArgumento5())));
-                    mov.setDesconto(Float.parseFloat(Moeda.substituiVirgula((String) listBoleto.getArgumento6())));
+                    mov.setValorBaixa(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento7())));
+                    mov.setMulta(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento3())));
+                    mov.setJuros(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento4())));
+                    mov.setCorrecao(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento5())));
+                    mov.setDesconto(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento6())));
 
                     if (mov.getValorBaixa() <= 0) {
                         GenericaMensagem.warn("Atençao", "Nenhum valor não pode estar zerado!");
@@ -159,12 +159,12 @@ public class BaixaBoletoBean {
             }
         } else {
             mov = (Movimento) dob.getArgumento1();
-            mov.setValorBaixa(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento7().toString())));
+            mov.setValorBaixa(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento7().toString())));
 
-            mov.setMulta(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento3().toString())));
-            mov.setJuros(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento4().toString())));
-            mov.setCorrecao(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento5().toString())));
-            mov.setDesconto(Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento6().toString())));
+            mov.setMulta(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento3().toString())));
+            mov.setJuros(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento4().toString())));
+            mov.setCorrecao(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento5().toString())));
+            mov.setDesconto(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento6().toString())));
 
             if (mov.getValorBaixa() <= 0) {
                 GenericaMensagem.warn("Atençao", "Nenhum valor não pode estar zerado!");
@@ -202,12 +202,12 @@ public class BaixaBoletoBean {
 //                for (int i = 0; i < listBoletos.size(); i++) {
 //                    if ((Boolean) listBoletos.get(i).getArgumento8() == true) {
 //                        mov = (Movimento) listBoletos.get(i).getArgumento1();
-//                        mov.setValorBaixa(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento7()))));
+//                        mov.setValorBaixa(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento7()))));
 //
-//                        mov.setMulta(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento3()))));
-//                        mov.setJuros(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento4()))));
-//                        mov.setCorrecao(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento5()))));
-//                        mov.setDesconto(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento6()))));
+//                        mov.setMulta(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento3()))));
+//                        mov.setJuros(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento4()))));
+//                        mov.setCorrecao(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento5()))));
+//                        mov.setDesconto(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(i).getArgumento6()))));
 //
 //                        if (mov.getValorBaixa() <= 0) {
 //                            msgConfirma = "Valor não pode ser zerado";
@@ -218,12 +218,12 @@ public class BaixaBoletoBean {
 //                }
 //            } else {
 //                mov = (Movimento) listBoletos.get(index).getArgumento1();
-//                mov.setValorBaixa(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento7()))));
+//                mov.setValorBaixa(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento7()))));
 //
-//                mov.setMulta(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento3()))));
-//                mov.setJuros(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento4()))));
-//                mov.setCorrecao(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento5()))));
-//                mov.setDesconto(Float.parseFloat(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento6()))));
+//                mov.setMulta(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento3()))));
+//                mov.setJuros(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento4()))));
+//                mov.setCorrecao(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento5()))));
+//                mov.setDesconto(Double.parseDouble(Moeda.substituiVirgula(((String) listBoletos.get(index).getArgumento6()))));
 //
 //                if (mov.getValorBaixa() <= 0) {
 //                    msgConfirma = "Valor não pode ser zerado";
@@ -266,19 +266,19 @@ public class BaixaBoletoBean {
     }
 
     public String somarValorRecebido(String valor, String multa, String juros, String correcao, String desconto) {
-        float v = Float.parseFloat(Moeda.substituiVirgula(valor));
-        float m = Float.parseFloat(Moeda.substituiVirgula(multa));
-        float j = Float.parseFloat(Moeda.substituiVirgula(juros));
-        float c = Float.parseFloat(Moeda.substituiVirgula(correcao));
-        float d = Float.parseFloat(Moeda.substituiVirgula(desconto));
-        float soma = Moeda.somaValores(
-                Moeda.somaValores(j, c),
-                Moeda.somaValores(v, m));
+        double v = Double.parseDouble(Moeda.substituiVirgula(valor));
+        double m = Double.parseDouble(Moeda.substituiVirgula(multa));
+        double j = Double.parseDouble(Moeda.substituiVirgula(juros));
+        double c = Double.parseDouble(Moeda.substituiVirgula(correcao));
+        double d = Double.parseDouble(Moeda.substituiVirgula(desconto));
+        double soma = Moeda.soma(
+                Moeda.soma(j, c),
+                Moeda.soma(v, m));
         if (d > soma) {
             d = 0;
         }
 
-        float subtracao = Moeda.subtracaoValores(soma, d);
+        double subtracao = Moeda.subtracao(soma, d);
 
         return Moeda.converteR$(String.valueOf(subtracao));
     }
@@ -307,7 +307,7 @@ public class BaixaBoletoBean {
     }
 
     public void converteDesconto(DataObject dob) {
-        if (Float.parseFloat(Moeda.substituiVirgula(Moeda.converteR$(dob.getArgumento6().toString()))) > Float.parseFloat(Moeda.substituiVirgula(dob.getArgumento7().toString()))) {
+        if (Double.parseDouble(Moeda.substituiVirgula(Moeda.converteR$(dob.getArgumento6().toString()))) > Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento7().toString()))) {
             dob.setArgumento6(Moeda.converteR$("0.0"));
         } else {
             dob.setArgumento6(Moeda.converteR$(dob.getArgumento6().toString()));
@@ -316,7 +316,7 @@ public class BaixaBoletoBean {
 
     public void converteDescontoFora(int index, String soma) {
         try {
-            if (Float.parseFloat(Moeda.substituiVirgula(Moeda.converteR$((String) getListBoletos().get(index).getArgumento6()))) > Float.parseFloat(Moeda.substituiVirgula(soma))) {
+            if (Double.parseDouble(Moeda.substituiVirgula(Moeda.converteR$((String) getListBoletos().get(index).getArgumento6()))) > Double.parseDouble(Moeda.substituiVirgula(soma))) {
                 getListBoletos().get(index).setArgumento6(Moeda.converteR$("0.0"));
             } else {
                 getListBoletos().get(index).setArgumento6(Moeda.converteR$((String) getListBoletos().get(index).getArgumento6()));

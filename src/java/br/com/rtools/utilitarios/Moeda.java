@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -68,16 +69,15 @@ public final class Moeda {
             if ($dolar == null || $dolar.isEmpty()) {
                 $dolar = "0,00";
             }
-            
-            
-            if (decimal == null){
+
+            if (decimal == null) {
                 decimal = 2;
             }
-            
+
         } catch (Exception e) {
             return converteUS$($dolar, 4);
         }
-            
+
         return num.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
     }
 
@@ -221,6 +221,18 @@ public final class Moeda {
         return result.toString().substring(1);
     }
 
+    public static double subtracao(String... values) {
+        try {
+            BigDecimal first = new BigDecimal(values[0]);
+            for (int i = 1; i < values.length; i++) {
+                first.subtract(new BigDecimal(values[i]));
+            }
+            return first.doubleValue();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     // NOVOS METODOS CLAUDEMIR --------------------------------------------------------------------
     // --------------------------------------------------------------------------------------------
     public static double soma(double a, double b) {
@@ -284,7 +296,6 @@ public final class Moeda {
 
     // FIM NOVOS METODOS CLAUDEMIR --------------------------------------------------------------------
     // --------------------------------------------------------------------------------------------
-    
     public static String limparPonto(String valor) {
         valor = converteR$(valor);
         valor = substituiVirgula(valor);
@@ -324,9 +335,9 @@ public final class Moeda {
     }
 
     public static String valorDoPercentual(String valorFixo, String percentual) {
-        
+
         double v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);
-        
+
         return converteDoubleToString(v);
     }
 
@@ -337,9 +348,9 @@ public final class Moeda {
     }
 
     public static Double valorDoPercentual(Double valorFixo, Double percentual) {
-        
+
         double v = valorFixo - (percentual / 100) * valorFixo;
-        
+
         return v;
     }
 

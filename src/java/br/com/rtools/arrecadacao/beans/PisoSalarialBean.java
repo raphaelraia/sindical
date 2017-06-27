@@ -143,7 +143,7 @@ public class PisoSalarialBean implements Serializable {
                 return;
             }
             pisoSalarial.setPisoSalarialLote(pisoSalarialLote);
-            pisoSalarial.setValor(Moeda.substituiVirgulaFloat(valor));
+            pisoSalarial.setValor(Moeda.substituiVirgulaDouble(valor));
             pisoSalarial.setDescricao(descricao);
             if (di.save(pisoSalarial)) {
                 di.commit();
@@ -179,7 +179,7 @@ public class PisoSalarialBean implements Serializable {
             }
 
             pisoSalarial.setDescricao(descricao);
-            pisoSalarial.setValor(Moeda.substituiVirgulaFloat(valor));
+            pisoSalarial.setValor(Moeda.substituiVirgulaDouble(valor));
             boolean err = false;
             if(pisoSalarial.getId() != -1) {
                 if (!di.update(pisoSalarial)) {
@@ -214,7 +214,7 @@ public class PisoSalarialBean implements Serializable {
         pisoSalarial = new PisoSalarial();
         pisoSalarial.setPisoSalarialLote(pisoSalarialLote);
         pisoSalarial.setDescricao(descricao);
-        pisoSalarial.setValor(Moeda.substituiVirgulaFloat(valor));
+        pisoSalarial.setValor(Moeda.substituiVirgulaDouble(valor));
         for (int i = 0; i < listPisoSalarial.size(); i++) {
             if (listPisoSalarial.get(i).getDescricao().equals(pisoSalarial.getDescricao())
                     && listPisoSalarial.get(i).getValor() == pisoSalarial.getValor()
@@ -310,7 +310,7 @@ public class PisoSalarialBean implements Serializable {
         for (int i = 0; i < listPisoSalarial.size(); i++) {
             if (listPisoSalarial.get(i).getId() == ps.getId()) {
                 pisoSalarial = listPisoSalarial.get(i);
-                valor = Moeda.converteR$Float(listPisoSalarial.get(i).getValor());
+                valor = Moeda.converteR$Double(listPisoSalarial.get(i).getValor());
                 descricao = listPisoSalarial.get(i).getDescricao();
                 break;
             }

@@ -254,7 +254,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                                 null,
                                 tipoServico,
                                 null,
-                                Moeda.converteFloatR$Float(super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
+                                Moeda.converteDoubleR$Double(super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
                                 strReferencia,
                                 strVencimento,
                                 1,
@@ -303,7 +303,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
 
     public String imprimirBoleto() {
         List<Movimento> lista = new ArrayList<Movimento>();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         List<String> listaVencimentos = new ArrayList<String>();
         Movimento movimento;
         for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
@@ -361,7 +361,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
 //    }
     public String imprimirComValorCalculado() {
         List<Movimento> lista = new ArrayList<Movimento>();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         List<String> listaVencimentos = new ArrayList<String>();
 
         ImpressaoWeb impressaoWeb;
@@ -395,15 +395,15 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
             movimento = ((Movimento) dao.find(new Movimento(), (Integer) listaMovimentoSelecionado.get(i).getArgumento16()));
             // COM VALOR ALTERADO ---------
-            if (Moeda.substituiVirgulaFloat((String) listaMovimentoSelecionado.get(i).getArgumento12()) != 0) {
-                listaValores.add(Moeda.substituiVirgulaFloat((String) listaMovimentoSelecionado.get(i).getArgumento12()));
+            if (Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento12()) != 0) {
+                listaValores.add(Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento12()));
             } else {
-                if (Moeda.substituiVirgulaFloat((String) listaMovimentoSelecionado.get(i).getArgumento6()) <= 0) {
+                if (Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento6()) <= 0) {
                     GenericaMensagem.warn("Atenção", "Valor não pode ser zerado!");
                     return null;
                 }
 
-                listaValores.add(Moeda.substituiVirgulaFloat((String) listaMovimentoSelecionado.get(i).getArgumento6()));
+                listaValores.add(Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento6()));
             }
 
             //COM DATA ALTERADA ---------

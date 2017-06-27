@@ -121,16 +121,16 @@ public class LancamentoIndividualBean implements Serializable {
         Servicos serv = (Servicos) dao.find(new Servicos(), Integer.parseInt(listaServicos.get(idServico).getDescription()));
         TipoServico tipo_serv = (TipoServico) dao.find(new TipoServico(), Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()));
 
-        float totalpagar = Moeda.converteUS$(totalPagar);
-        float valor = Moeda.converteFloatR$Float(Moeda.divisaoValores(totalpagar, parcelas));
+        double totalpagar = Moeda.converteUS$(totalPagar);
+        double valor = Moeda.converteDoubleR$Double(Moeda.divisao(totalpagar, parcelas));
 
         for (int i = 0; i < parcelas; i++) {
-            float valorswap = 0;
-            //if ((Moeda.subtracaoValores(totalpagar, valor) != 0) && ( (i+1) == parcelas)) {
+            double valorswap = 0;
+            //if ((Moeda.subtracao(totalpagar, valor) != 0) && ( (i+1) == parcelas)) {
             if ((i + 1) == parcelas) {
                 valor = totalpagar;
             } else {
-                totalpagar = Moeda.subtracaoValores(totalpagar, valor);
+                totalpagar = Moeda.subtracao(totalpagar, valor);
             }
 
             listaMovimento.add(new DataObject(
@@ -166,7 +166,7 @@ public class LancamentoIndividualBean implements Serializable {
                             0, // REPASSE AUTOMATICO
                             null // MATRICULA SÓCIO
                     ),
-                    Moeda.converteR$Float(Moeda.converteFloatR$Float(valor))
+                    Moeda.converteR$Double(Moeda.converteDoubleR$Double(valor))
             ));
             if (cobrancaBancaria.equals("sim")) {
                 vencto_ini = (idDia < 10) ? "0" + idDia + dh.incrementarMeses(1, vencto_ini).substring(2) : idDia + dh.incrementarMeses(1, vencto_ini).substring(2);
@@ -178,9 +178,9 @@ public class LancamentoIndividualBean implements Serializable {
 
     public String salvar() {
         // VERIFICA SE OS VALORES ESTÃO BATENDO
-        float valor = 0;
+        double valor = 0;
         for (int i = 0; i < listaMovimento.size(); i++) {
-            valor = Moeda.somaValores(valor, Moeda.converteUS$(listaMovimento.get(i).getArgumento1().toString()));
+            valor = Moeda.soma(valor, Moeda.converteUS$(listaMovimento.get(i).getArgumento1().toString()));
         }
 
         // VERIFICA VENCIMENTO  
@@ -191,12 +191,12 @@ public class LancamentoIndividualBean implements Serializable {
             }
         }
 
-        if (Moeda.converteFloatR$Float(valor) != Moeda.converteUS$(totalPagar)) {
-            float valordif1 = Moeda.converteFloatR$Float(valor), valordif2 = Moeda.converteUS$(totalPagar);
+        if (Moeda.converteDoubleR$Double(valor) != Moeda.converteUS$(totalPagar)) {
+            double valordif1 = Moeda.converteDoubleR$Double(valor), valordif2 = Moeda.converteUS$(totalPagar);
             if (valordif1 > valordif2) {
-                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MAIOR em R$ " + Moeda.converteR$Float(Moeda.subtracaoValores(valordif1, valordif2)));
+                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MAIOR em R$ " + Moeda.converteR$Double(Moeda.subtracao(valordif1, valordif2)));
             } else {
-                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MENOR em R$ " + Moeda.converteR$Float(Moeda.subtracaoValores(valordif2, valordif1)));
+                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MENOR em R$ " + Moeda.converteR$Double(Moeda.subtracao(valordif2, valordif1)));
             }
 
             //GenericaMensagem.warn("Atenção", "Os valores da parcela não corresponde ao Total do Serviço, verifique!");
@@ -754,10 +754,10 @@ public class LancamentoIndividualBean implements Serializable {
                 Servicos se = (Servicos) (new Dao().find(new Servicos(), Integer.parseInt(listaServicos.get(idServico).getDescription())));
 
                 List<Vector> valor = db.pesquisaServicoValor(fisica.getPessoa().getId(), se.getId());
-                float vl = Float.valueOf(((Double) valor.get(0).get(0)).toString());
+                double vl = Double.valueOf(((Double) valor.get(0).get(0)).toString());
 
                 if (!se.isAlterarValor()) {
-                    totalPagar = Moeda.converteR$Float(vl);
+                    totalPagar = Moeda.converteR$Double(vl);
                 }
             }
         }

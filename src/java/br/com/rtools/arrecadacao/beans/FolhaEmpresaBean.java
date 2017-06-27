@@ -115,7 +115,7 @@ public class FolhaEmpresaBean implements Serializable {
             GenericaMensagem.warn("Validação", "INFORMAR REFERÊNCIA!");
             return;
         }
-        folhaEmpresa.setValorMes(new Float(valorFolha.toString()));
+        folhaEmpresa.setValorMes(new Double(valorFolha.toString()));
         if (folhaEmpresa.getValorMes() <= 0) {
             GenericaMensagem.warn("Validação", "INFORMAR VALORES DO BOLETO OU FOLHA!");
             return;

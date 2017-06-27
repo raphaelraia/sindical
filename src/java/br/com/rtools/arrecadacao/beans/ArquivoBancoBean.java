@@ -90,7 +90,7 @@ public final class ArquivoBancoBean implements Serializable {
     private List<ObjectDetalheRetorno> listaDetalheRetornoBanco = new ArrayList();
 
     private String tipo = "";
-    
+
     public ArquivoBancoBean() {
         this.getListaServicos();
         this.loadListaArquivosBaixar();
@@ -492,7 +492,7 @@ public final class ArquivoBancoBean implements Serializable {
                 conteudoRemessa += movs.get(i).getVencimento().replace("/", "");
 
                 // Valor Nominal do Titulo                    
-                String valor = Moeda.converteR$Float(movs.get(i).getValor()).replace(".", "");
+                String valor = Moeda.converteR$Double(movs.get(i).getValor()).replace(".", "");
                 valor = valor.replace(",", "");
                 conteudoRemessa += ("000000000000000").substring(0, 15 - valor.length()) + valor;
 
@@ -509,7 +509,7 @@ public final class ArquivoBancoBean implements Serializable {
                 conteudoRemessa += "00000000";
                 // Valor Juros Mora
                 String juros = "0";
-                juros = Moeda.converteR$Float(movs.get(i).getJuros()).replace(".", "");
+                juros = Moeda.converteR$Double(movs.get(i).getJuros()).replace(".", "");
                 juros = juros.replace(",", "");
                 conteudoRemessa += ("000000000000000").substring(0, 15 - juros.length()) + juros;
 
@@ -518,7 +518,7 @@ public final class ArquivoBancoBean implements Serializable {
                 // Data Desconto
                 conteudoRemessa += "00000000";
                 String desconto = "0";
-                desconto = Moeda.converteR$Float(movs.get(i).getDesconto()).replace(".", "");
+                desconto = Moeda.converteR$Double(movs.get(i).getDesconto()).replace(".", "");
                 desconto = desconto.replace(",", "");
                 conteudoRemessa += ("000000000000000").substring(0, 15 - desconto.length()) + desconto;
 
@@ -593,7 +593,7 @@ public final class ArquivoBancoBean implements Serializable {
                 // Data da Multa
                 conteudoRemessa += "00000000";
                 String multa = "0";
-                multa = Moeda.converteR$Float(movs.get(i).getMulta()).replace(".", "");
+                multa = Moeda.converteR$Double(movs.get(i).getMulta()).replace(".", "");
                 multa = multa.replace(",", "");
                 conteudoRemessa += ("000000000000000").substring(0, 15 - multa.length()) + multa;
 
@@ -1097,7 +1097,7 @@ public final class ArquivoBancoBean implements Serializable {
                             vencimento = "00000000";
                         }
                         compara = new ComparaMovimentos(arqNumero.substring(arqNumero.length() - movNumero.length(), arqNumero.length()),
-                                Moeda.converteUS$(String.valueOf(Moeda.divisaoValores(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
+                                Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
                                 DataHoje.colocarBarras(genericaRetorno.get(i).getDataPagamento()),
                                 DataHoje.colocarBarras(vencimento),
                                 movNumero,
@@ -1121,7 +1121,7 @@ public final class ArquivoBancoBean implements Serializable {
                                 vencimento = "00000000";
                             }
                             compara = new ComparaMovimentos(arqNumero.substring(arqNumero.length() - movNumero.length(), arqNumero.length()),
-                                    Moeda.converteUS$(String.valueOf(Moeda.divisaoValores(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
+                                    Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
                                     DataHoje.colocarBarras(genericaRetorno.get(i).getDataPagamento()),
                                     DataHoje.colocarBarras(vencimento),
                                     boleto.getBoletoComposto(),
@@ -1141,7 +1141,7 @@ public final class ArquivoBancoBean implements Serializable {
                                 vencimento = "00000000";
                             }
                             compara = new ComparaMovimentos(genericaRetorno.get(i).getNossoNumero(),
-                                    Moeda.converteUS$(String.valueOf(Moeda.divisaoValores(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
+                                    Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
                                     DataHoje.colocarBarras(genericaRetorno.get(i).getDataPagamento()),
                                     DataHoje.colocarBarras(vencimento),
                                     "",
@@ -1539,7 +1539,7 @@ public final class ArquivoBancoBean implements Serializable {
                 // BANCO DO BRASIL ------------------------------------------------------------------------------
             } else if (ArquivoRetorno.BANCO_BRASIL == scc.getContaBanco().getBanco().getId()) {
                 if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
-                    if (linha.substring(64, 70).equals(scc.getCodCedente()) || linha.substring(65, 70).equals(scc.getCodCedente())  || linha.substring(66, 70).equals(scc.getCodCedente())) {
+                    if (linha.substring(64, 70).equals(scc.getCodCedente()) || linha.substring(65, 70).equals(scc.getCodCedente()) || linha.substring(66, 70).equals(scc.getCodCedente())) {
                         return true;
                     } else {
                         return false;

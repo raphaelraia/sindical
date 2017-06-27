@@ -72,15 +72,15 @@ public class ServicoPessoaBean implements Serializable {
         Servicos se = (Servicos) new Dao().find(new Servicos(), Integer.parseInt(getListaServicos().get(idServico).getDescription()));
         if (servicoPessoa.getNrDesconto() == 0) {
             if (socio.getId() != -1) {
-                valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, socio.getMatriculaSocios().getCategoria().getId()));
+                valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, socio.getMatriculaSocios().getCategoria().getId()));
             } else {
-                valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
+                valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
             }
         } else {
-            float valorx_c = new FunctionsDao().valorServicoCheio(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje());
+            double valorx_c = new FunctionsDao().valorServicoCheio(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje());
 
-            float calculo = Moeda.divisaoValores(Moeda.multiplicarValores(servicoPessoa.getNrDesconto(), valorx_c), 100);
-            valorx = Moeda.converteR$Float(Moeda.subtracaoValores(valorx_c, calculo));
+            double calculo = Moeda.divisao(Moeda.multiplicar(servicoPessoa.getNrDesconto(), valorx_c), 100);
+            valorx = Moeda.converteR$Double(Moeda.subtracao(valorx_c, calculo));
         }
 
         valorServicoPessoa = Moeda.converteR$(valorx);
@@ -90,19 +90,19 @@ public class ServicoPessoaBean implements Serializable {
         String valorx;
         Servicos se = (Servicos) new Dao().find(new Servicos(), Integer.parseInt(getListaServicos().get(idServico).getDescription()));
         if (socio.getId() != -1) {
-            valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, socio.getMatriculaSocios().getCategoria().getId()));
+            valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, socio.getMatriculaSocios().getCategoria().getId()));
         } else {
-            valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
+            valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
         }
 
-        String valorx_cheio = Moeda.converteR$Float(new FunctionsDao().valorServicoCheio(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje()));
+        String valorx_cheio = Moeda.converteR$Double(new FunctionsDao().valorServicoCheio(servicoPessoa.getPessoa().getId(), se.getId(), DataHoje.dataHoje()));
 
         if (Moeda.converteUS$(valorServicoPessoa) == Moeda.converteUS$(valorx)) {
             servicoPessoa.setNrDescontoString("0.0");
         } else {
-            float valorx_c = Moeda.subtracaoValores(Moeda.converteUS$(valorx_cheio), Moeda.converteUS$(valorServicoPessoa));
-            valorx_c = Moeda.multiplicarValores(Moeda.divisaoValores(valorx_c, Moeda.converteUS$(valorx_cheio)), 100);
-            servicoPessoa.setNrDescontoString(Moeda.converteR$Float(valorx_c));
+            double valorx_c = Moeda.subtracao(Moeda.converteUS$(valorx_cheio), Moeda.converteUS$(valorServicoPessoa));
+            valorx_c = Moeda.multiplicar(Moeda.divisao(valorx_c, Moeda.converteUS$(valorx_cheio)), 100);
+            servicoPessoa.setNrDescontoString(Moeda.converteR$Double(valorx_c));
         }
     }
 

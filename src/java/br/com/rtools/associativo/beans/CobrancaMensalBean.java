@@ -31,7 +31,7 @@ public class CobrancaMensalBean {
     private final List<SelectItem> listaServicos = new ArrayList<SelectItem>();
     private int idServicos = 0;
     private List<ServicoPessoa> listaCobrancaMensal = new ArrayList<ServicoPessoa>();
-    private float valorCorrige = 0;
+    private double valorCorrige = 0;
     private String valorFixo = "0,00";
     private Servicos servicos = new Servicos();
     private String descFiltro = "";
@@ -117,7 +117,7 @@ public class CobrancaMensalBean {
                 idServicos = i;
             }
         }
-        valorFixo = Moeda.converteR$Float(servicoPessoa.getNrValorFixo());
+        valorFixo = Moeda.converteR$Double(servicoPessoa.getNrValorFixo());
     }
 
     public void atualizarGrid() {
@@ -125,11 +125,11 @@ public class CobrancaMensalBean {
 
         dao.openTransaction();
         for (int i = 0; i < listaCobrancaMensal.size(); i++) {
-            float calculo = 0;
+            double calculo = 0;
 
-            calculo = Moeda.divisaoValores(Moeda.multiplicarValores(listaCobrancaMensal.get(i).getNrValorFixo(), valorCorrige), 100);
+            calculo = Moeda.divisao(Moeda.multiplicar(listaCobrancaMensal.get(i).getNrValorFixo(), valorCorrige), 100);
 
-            calculo = Moeda.subtracaoValores(listaCobrancaMensal.get(i).getNrValorFixo(), calculo);
+            calculo = Moeda.subtracao(listaCobrancaMensal.get(i).getNrValorFixo(), calculo);
 
             listaCobrancaMensal.get(i).setNrValorFixo(calculo);
 
@@ -287,8 +287,8 @@ public class CobrancaMensalBean {
         this.listaCobrancaMensal = listaCobrancaMensal;
     }
 
-    public String valor(float valorx) {
-        return Moeda.converteR$Float(valorx);
+    public String valor(double valorx) {
+        return Moeda.converteR$Double(valorx);
     }
 
     public Servicos getServicos() {
@@ -299,11 +299,11 @@ public class CobrancaMensalBean {
         this.servicos = servicos;
     }
 
-    public float getValorCorrige() {
+    public double getValorCorrige() {
         return valorCorrige;
     }
 
-    public void setValorCorrige(float valorCorrige) {
+    public void setValorCorrige(double valorCorrige) {
         this.valorCorrige = valorCorrige;
     }
 

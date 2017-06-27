@@ -172,19 +172,19 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                 String multa = "0,00";
                 String correcao = "0,00";
                 if (m) {
-                    juros = Moeda.converteR$Float(Float.valueOf(Double.toString(db.funcaoJuros(id_pessoa, id_servico, id_tipo_servico, referencia))));
-                    multa = Moeda.converteR$Float(Float.valueOf(Double.toString(db.funcaoMulta(id_pessoa, id_servico, id_tipo_servico, referencia))));
-                    correcao = Moeda.converteR$Float(Float.valueOf(Double.toString(db.funcaoCorrecao(id_pessoa, id_servico, id_tipo_servico, referencia))));
+                    juros = Moeda.converteR$Double(Double.valueOf(Double.toString(db.funcaoJuros(id_pessoa, id_servico, id_tipo_servico, referencia))));
+                    multa = Moeda.converteR$Double(Double.valueOf(Double.toString(db.funcaoMulta(id_pessoa, id_servico, id_tipo_servico, referencia))));
+                    correcao = Moeda.converteR$Double(Double.valueOf(Double.toString(db.funcaoCorrecao(id_pessoa, id_servico, id_tipo_servico, referencia))));
                 }
 
-                String valor_calculado = Moeda.converteR$Float(Moeda.somaValores(
-                        Moeda.somaValores(Moeda.somaValores(Moeda.converteUS$(juros), Moeda.converteUS$(multa)), Moeda.converteUS$(correcao)),
+                String valor_calculado = Moeda.converteR$Double(Moeda.soma(
+                        Moeda.soma(Moeda.soma(Moeda.converteUS$(juros), Moeda.converteUS$(multa)), Moeda.converteUS$(correcao)),
                         ((Movimento) (listaMovAdd.get(i))).getValor()));
 
                 dtObject = new DataObject(new Boolean(m),
                         ((Movimento) (listaMovAdd.get(i))),
                         jur_lista.getContabilidade(),
-                        Moeda.converteR$Float(((Movimento) (listaMovAdd.get(i))).getValor()),
+                        Moeda.converteR$Double(((Movimento) (listaMovAdd.get(i))).getValor()),
                         juros, // JUROS
                         multa, // MULTA
                         correcao, // CORRECAO
@@ -236,7 +236,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         if (!lm.isEmpty() && lm.size() > 1) {
             GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
             return null;
-        } else if (!lm.isEmpty()){
+        } else if (!lm.isEmpty()) {
             movim = lm.get(0);
         }
 
@@ -274,7 +274,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                             null,
                             tipoServico,
                             null,
-                            movim != null ? movim.getValor() : Moeda.converteFloatR$Float(super.carregarValor(servicos.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
+                            movim != null ? movim.getValor() : Moeda.converteDoubleR$Double(super.carregarValor(servicos.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
                             strReferencia,
                             vencimento,
                             1,
@@ -314,7 +314,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                                 null,
                                 tipoServico,
                                 null,
-                                movim != null ? movim.getValor() : Moeda.converteFloatR$Float(super.carregarValor(servicos.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
+                                movim != null ? movim.getValor() : Moeda.converteDoubleR$Double(super.carregarValor(servicos.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
                                 strReferencia,
                                 vencimento,
                                 1,
@@ -426,7 +426,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         }
         Movimento movi = (Movimento) linha.getArgumento1();
         super.carregarFolha(movi);
-        dataObject.setArgumento3(Moeda.converteR$Float(movi.getValor()));
+        dataObject.setArgumento3(Moeda.converteR$Double(movi.getValor()));
     }
 
     @Override
@@ -478,9 +478,8 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         String beforeUpdate = "";
-        Movimento movimentoBefore = new Movimento();
+        Movimento movimentoBefore;
         MovimentoDao finDB = new MovimentoDao();
-        HistoricoDao historicoDao = new HistoricoDao();
         if (!listMovimentos.isEmpty()) {
             for (int i = 0; i < listMovimentos.size(); i++) {
                 Boolean success = true;
@@ -510,7 +509,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                             + " - Valor: " + movimentoBefore.getValorString()
                             + " - Vencimento: " + movimentoBefore.getVencimento();
 
-                    movim.setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
+                    movim.setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                     // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
                     if (!movimentoBefore.getVencimento().equals(movim.getVencimento())) {
                         Boleto bol = finDB.pesquisaBoletos(movim.getNrCtrBoleto());
@@ -542,7 +541,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     ((DataObject) listMovimentos.get(i)).setArgumento1(movim);
                 } else {
                     movim = (Movimento) listMovimentos.get(i).getArgumento1();
-                    movim.setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
+                    movim.setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                     String vencto = ((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento();
 
                     StatusRetorno sr = GerarMovimento.salvarUmMovimento(lote, movim);
@@ -594,7 +593,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
 
     public String imprimirBoleto() {
         List<Movimento> movs = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
 
         Movimento movi = null;
@@ -606,7 +605,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
             for (int i = 0; i < listMovimentos.size(); i++) {
                 movi = (Movimento) listMovimentos.get(i).getArgumento1();
                 movs.add(movi);
-                listaValores.add(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento7()));
+                listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento7()));
                 //listaValores.add(movi.getValor());
                 listaVencimentos.add(movi.getVencimento());
 
@@ -667,15 +666,15 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     return null;
                 }
 
-                List<Float> listaValores = new ArrayList<Float>();
+                List<Double> listaValores = new ArrayList<Double>();
                 List<String> listaVencimentos = new ArrayList<String>();
                 String mensagem = "";
                 List<File> fls = new ArrayList<File>();
 
                 for (int i = 0; i < listMovimentos.size(); i++) {
-                    ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
+                    ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                     movs.add((Movimento) listMovimentos.get(i).getArgumento1());
-                    listaValores.add(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento7())); // IMPRIMIR COM O VALOR CALCULADO
+                    listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento7())); // IMPRIMIR COM O VALOR CALCULADO
                     //listaValores.add(movs.get(i).getValor());
                     listaVencimentos.add(movs.get(0).getVencimento());
 
@@ -749,12 +748,12 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         } else {
             if (!listMovimentos.isEmpty()) {
                 for (int i = 0; i < listMovimentos.size(); i++) {
-                    ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento7()));
+                    ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento7()));
                     movs.add((Movimento) listMovimentos.get(i).getArgumento1());
                 }
 
                 List<Movimento> m = new ArrayList();
-                List<Float> listaValores = new ArrayList<Float>();
+                List<Double> listaValores = new ArrayList<Double>();
                 List<String> listaVencimentos = new ArrayList<String>();
                 List<File> fls = new ArrayList<File>();
                 String mensagem = "";
@@ -927,16 +926,16 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
 
     public void enviarEmailPraUma(Juridica juridica) {
         List<Movimento> movs = new ArrayList<Movimento>();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         List<String> listaVencimentos = new ArrayList<String>();
 
         if (!listMovimentos.isEmpty()) {
             Registro reg = new Registro();
             reg = Registro.get();
             for (int i = 0; i < listMovimentos.size(); i++) {
-                ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
+                ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                 movs.add((Movimento) listMovimentos.get(i).getArgumento1());
-                listaValores.add(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento7())); // IMPRIMIR COM VALOR CALCULADO
+                listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento7())); // IMPRIMIR COM VALOR CALCULADO
                 //listaValores.add(( (Movimento) listMovimentos.get(i).getArgumento1()).getValor());
                 listaVencimentos.add(((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento());
             }

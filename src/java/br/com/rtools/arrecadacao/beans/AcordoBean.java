@@ -182,7 +182,7 @@ public class AcordoBean implements Serializable {
 
         // CARREGA A LISTAGEM DOS BOLETOS, VALORES E VENCIMENTOS
         List<Movimento> listaImp = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
         Registro registro = Registro.get();
         for (int i = 0; i < listaOperado.size(); i++) {
@@ -278,7 +278,7 @@ public class AcordoBean implements Serializable {
 
     public String sends() {
         List<Movimento> listaImp = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
         Registro reg = new Registro();
 
@@ -393,7 +393,7 @@ public class AcordoBean implements Serializable {
                 boolean next2 = true;
                 if (srd.existeServicoRotina(listaMovs.get(i).getServicos().getId(), rotina_id)) {
                     if (listaMovs.get(i).getServicos().getId() == 1) {
-                        valorEntradaSind += Moeda.converteR$Float(listaMovs.get(i).getValorBaixa());
+                        valorEntradaSind += Moeda.converteR$Double(listaMovs.get(i).getValorBaixa());
                     } else {
                         for (int x = 0; x < listaVizualizado.size(); x++) {
                             if (listaVizualizado.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
@@ -439,11 +439,11 @@ public class AcordoBean implements Serializable {
     }
 
     public synchronized void efetuarAcordo() {
-        Float totalAcordo = new Float(0);
+        Double totalAcordo = new Double(0);
         for (int i = 0; i < listaOperado.size(); i++) {
             totalAcordo += ((Movimento) listaOperado.get(i).getArgumento2()).getValor();
         }
-        if (Moeda.converteFloatR$Float(totalAcordo) != Moeda.converteUS$(getTotal())) {
+        if (Moeda.converteDoubleR$Double(totalAcordo) != Moeda.converteUS$(getTotal())) {
             GenericaMensagem.warn("Atenção", "VALOR TOTAL NÃO CONFERE COM OS VALORES DAS PARCELAS!");
             return;
         }
@@ -734,17 +734,17 @@ public class AcordoBean implements Serializable {
             listaOperado = new ArrayList();
             String ultimoVencimento = getListaVencimento().get(idVencimento).getLabel();
             String ultimoVencimentoSind = getListaVencimento().get(idVencimentoSind).getLabel();
-            float valorTotalOutras = 0;
-            float valorSwap = Moeda.substituiVirgulaFloat(valorEntrada);
-            float valorTotal = Moeda.converteFloatR$Float(Moeda.substituiVirgulaFloat(getTotalOutras()));
-            float[] vetorEntrada = new float[listaVizualizado.size()];
-            float pdE = Moeda.divisaoValores(valorSwap, valorTotal);
-            float valorParcela = 0;
+            double valorTotalOutras = 0;
+            double valorSwap = Moeda.substituiVirgulaDouble(valorEntrada);
+            double valorTotal = Moeda.converteDoubleR$Double(Moeda.substituiVirgulaDouble(getTotalOutras()));
+            double[] vetorEntrada = new double[listaVizualizado.size()];
+            double pdE = Moeda.divisao(valorSwap, valorTotal);
+            double valorParcela = 0;
             for (int i = 0; i < listaVizualizado.size(); i++) {
                 if (listaVizualizado.get(i).getServicos().getId() != 1) {
-                    vetorEntrada[i] = Moeda.substituiVirgulaFloat(listaVizualizado.get(i).getValorBaixaString());
+                    vetorEntrada[i] = Moeda.substituiVirgulaDouble(listaVizualizado.get(i).getValorBaixaString());
                     if (listaVizualizado.size() > 1) {
-                        vetorEntrada[i] = Moeda.converteFloatR$Float(Moeda.multiplicarValores(vetorEntrada[i], pdE));
+                        vetorEntrada[i] = Moeda.converteDoubleR$Double(Moeda.multiplicar(vetorEntrada[i], pdE));
                     } else {
                         vetorEntrada[i] = valorSwap;
                     }
@@ -762,12 +762,12 @@ public class AcordoBean implements Serializable {
                         ultimoVencimento = getListaVencimento().get(idVencimento).getLabel();
                         j = 0;
                         if (parcela > 1) {
-                            valorTotalOutras = Moeda.substituiVirgulaFloat(listaVizualizado.get(i).getValorBaixaString());
-                            valorTotalOutras = Moeda.subtracaoValores(valorTotalOutras, vetorEntrada[i]);
+                            valorTotalOutras = Moeda.substituiVirgulaDouble(listaVizualizado.get(i).getValorBaixaString());
+                            valorTotalOutras = Moeda.subtracao(valorTotalOutras, vetorEntrada[i]);
                             valorSwap = vetorEntrada[i];
-                            valorParcela = Moeda.converteFloatR$Float(Moeda.divisaoValores(valorTotalOutras, parcela - 1));
+                            valorParcela = Moeda.converteDoubleR$Double(Moeda.divisao(valorTotalOutras, parcela - 1));
                         } else {
-                            valorSwap = Moeda.substituiVirgulaFloat((String) listaVizualizado.get(i).getValorBaixaString());
+                            valorSwap = Moeda.substituiVirgulaDouble((String) listaVizualizado.get(i).getValorBaixaString());
                         }
                         while (j < parcela) {
 //                            if (ultimoVencimentoTemp != null) {
@@ -779,10 +779,10 @@ public class AcordoBean implements Serializable {
 //                                }
 //                            }
                             if (j != 0) {
-                                if ((Moeda.subtracaoValores(valorTotalOutras, valorParcela) != 0) && ((j + 1) == parcela)) {
+                                if ((Moeda.subtracao(valorTotalOutras, valorParcela) != 0) && ((j + 1) == parcela)) {
                                     valorParcela = valorTotalOutras;
                                 } else {
-                                    valorTotalOutras = Moeda.subtracaoValores(valorTotalOutras, valorParcela);
+                                    valorTotalOutras = Moeda.subtracao(valorTotalOutras, valorParcela);
                                 }
                                 valorSwap = valorParcela;
                             }
@@ -861,7 +861,7 @@ public class AcordoBean implements Serializable {
                                 null,
                                 tipoServico,
                                 null,
-                                Moeda.substituiVirgulaFloat(listaVizualizado.get(i).getValorBaixaString()),
+                                Moeda.substituiVirgulaDouble(listaVizualizado.get(i).getValorBaixaString()),
                                 (String) listaVizualizado.get(i).getReferencia(),
                                 //referencia(ultimoVencimentoSind), 
                                 ultimoVencimentoSind,
@@ -903,7 +903,7 @@ public class AcordoBean implements Serializable {
 
     public void imprimirBoletos() {
         ImprimirBoleto imp = new ImprimirBoleto();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         List<String> listaVencimentos = new ArrayList<String>();
         List listaImp = new ArrayList();
         for (int i = 0; i < listaOperado.size(); i++) {
@@ -986,7 +986,7 @@ public class AcordoBean implements Serializable {
     }
 
     public String getTotal() {
-        return Moeda.converteR$Float(Moeda.converteUS$(getTotalSindical()) + Moeda.converteUS$(getTotalOutras()));
+        return Moeda.converteR$Double(Moeda.converteUS$(getTotalSindical()) + Moeda.converteUS$(getTotalOutras()));
     }
 
     public void limparEntrada() {
@@ -994,21 +994,21 @@ public class AcordoBean implements Serializable {
     }
 
     public String getValorEntrada() {
-        float valorTmp = Moeda.substituiVirgulaFloat(valorEntrada);
-        float totalOutra = Moeda.substituiVirgulaFloat(getTotalOutras());
+        double valorTmp = Moeda.substituiVirgulaDouble(valorEntrada);
+        double totalOutra = Moeda.substituiVirgulaDouble(getTotalOutras());
         if (valorEntrada.equals("0") || valorEntrada.equals("0,00")) {
-            float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
+            double valorTmp2 = Moeda.divisao(totalOutra, parcela);
             if (parcela > 1) {
-                valorEntrada = Moeda.converteR$Float(valorTmp2);
+                valorEntrada = Moeda.converteR$Double(valorTmp2);
                 return valorEntrada;
             }
-        } else if (valorTmp > (Moeda.multiplicarValores(totalOutra, (float) 0.05))
-                && valorTmp < (Moeda.multiplicarValores(totalOutra, (float) 0.8))) {
+        } else if (valorTmp > (Moeda.multiplicar(totalOutra, (double) 0.05))
+                && valorTmp < (Moeda.multiplicar(totalOutra, (double) 0.8))) {
             return Moeda.converteR$(valorEntrada);
         } else {
-            float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
+            double valorTmp2 = Moeda.divisao(totalOutra, parcela);
             if (parcela > 1) {
-                valorEntrada = Moeda.converteR$Float(valorTmp2);
+                valorEntrada = Moeda.converteR$Double(valorTmp2);
 //                    return Moeda.converteR$(valorEntrada);
             }
         }
@@ -1056,7 +1056,7 @@ public class AcordoBean implements Serializable {
             if (quantidade.get(i)[0] == 1) { // 1 ref. id sindical
                 for (int j = 0; j < listaVizualizado.size(); j++) {
                     if (listaVizualizado.get(j).getServicos().getId() == 1) {
-                        if (Moeda.substituiVirgulaFloat(valorEntradaSind) != (Float) listaVizualizado.get(j).getValorBaixa()) {
+                        if (Moeda.substituiVirgulaDouble(valorEntradaSind) != (Double) listaVizualizado.get(j).getValorBaixa()) {
                             valorEntradaSind = getListaVizualizado().get(j).getValorBaixaString();
                         }
                     }
@@ -1072,23 +1072,23 @@ public class AcordoBean implements Serializable {
     }
 
     public String getTotalSindical() {
-        Float v = new Float(0);
+        Double v = new Double(0);
         for (int i = 0; i < listaVizualizado.size(); i++) {
             if (listaVizualizado.get(i).getServicos().getId() == 1) {
                 v += listaVizualizado.get(i).getValorBaixa();
             }
         }
-        return Moeda.converteR$Float(v);
+        return Moeda.converteR$Double(v);
     }
 
     public String getTotalOutras() {
-        Float v = new Float(0);
+        Double v = new Double(0);
         for (int i = 0; i < listaVizualizado.size(); i++) {
             if (listaVizualizado.get(i).getServicos().getId() != 1) {
                 v += listaVizualizado.get(i).getValorBaixa();
             }
         }
-        return Moeda.converteR$Float(v);
+        return Moeda.converteR$Double(v);
     }
 
     public synchronized void ordernarPorServico() {
@@ -1296,7 +1296,7 @@ public class AcordoBean implements Serializable {
     public class GridAcordo {
 
         private Servicos servicos;
-        private float valorBaixa;
+        private double valorBaixa;
         private String referencia;
         private String historico;
 
@@ -1307,7 +1307,7 @@ public class AcordoBean implements Serializable {
             this.historico = "";
         }
 
-        public GridAcordo(Servicos servicos, float valorBaixa, String referencia, String historico) {
+        public GridAcordo(Servicos servicos, double valorBaixa, String referencia, String historico) {
             this.servicos = servicos;
             this.valorBaixa = valorBaixa;
             this.referencia = referencia;
@@ -1322,16 +1322,16 @@ public class AcordoBean implements Serializable {
             this.servicos = servicos;
         }
 
-        public float getValorBaixa() {
+        public double getValorBaixa() {
             return valorBaixa;
         }
 
-        public void setValorBaixa(float valorBaixa) {
+        public void setValorBaixa(double valorBaixa) {
             this.valorBaixa = valorBaixa;
         }
 
         public String getValorBaixaString() {
-            return Moeda.converteR$Float(valorBaixa);
+            return Moeda.converteR$Double(valorBaixa);
         }
 
         public void setValorBaixaString(String valorBaixaString) {

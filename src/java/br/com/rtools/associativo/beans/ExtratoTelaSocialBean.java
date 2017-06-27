@@ -111,7 +111,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                 porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription())
         );
 
-        float valor = 0, valor_baixa = 0, valor_taxa = 0;
+        double valor = 0, valor_baixa = 0, valor_taxa = 0;
         for (Vector vector : result) {
             listaMovimento.add(
                     new DataObject(
@@ -124,20 +124,20 @@ public class ExtratoTelaSocialBean implements Serializable {
             // SE id_baixa FOR DIFERENTE DE NULL
             if (vector.get(14) != null) {
 
-                valor_baixa = Float.parseFloat(Double.toString((Double) vector.get(12)));
-                valor_taxa = Float.parseFloat(Double.toString((Double) vector.get(13)));
+                valor_baixa = Double.parseDouble(Double.toString((Double) vector.get(12)));
+                valor_taxa = Double.parseDouble(Double.toString((Double) vector.get(13)));
 
-                vlRecebido = Moeda.converteR$Float(Moeda.somaValores(valor_baixa, Moeda.converteUS$(vlRecebido)));
-                vlTaxa = Moeda.converteR$Float(Moeda.somaValores(valor_taxa, Moeda.converteUS$(vlTaxa)));
+                vlRecebido = Moeda.converteR$Double(Moeda.soma(valor_baixa, Moeda.converteUS$(vlRecebido)));
+                vlTaxa = Moeda.converteR$Double(Moeda.soma(valor_taxa, Moeda.converteUS$(vlTaxa)));
             } else {
-                valor = Float.parseFloat(Double.toString((Double) vector.get(10)));
-                vlNaoRecebido = Moeda.converteR$Float(Moeda.somaValores(valor, Moeda.converteUS$(vlNaoRecebido)));
+                valor = Double.parseDouble(Double.toString((Double) vector.get(10)));
+                vlNaoRecebido = Moeda.converteR$Double(Moeda.soma(valor, Moeda.converteUS$(vlNaoRecebido)));
             }
 
-            vlTotal = Moeda.converteR$Float(Moeda.somaValores(valor_baixa, Moeda.converteUS$(vlTotal)));
+            vlTotal = Moeda.converteR$Double(Moeda.soma(valor_baixa, Moeda.converteUS$(vlTotal)));
 
-            float contaLiquido = Moeda.subtracaoValores(valor_baixa, valor_taxa);
-            vlLiquido = Moeda.converteR$Float(Moeda.somaValores(contaLiquido, Moeda.converteUS$(vlLiquido)));
+            double contaLiquido = Moeda.subtracao(valor_baixa, valor_taxa);
+            vlLiquido = Moeda.converteR$Double(Moeda.soma(contaLiquido, Moeda.converteUS$(vlLiquido)));
         }
 
     }

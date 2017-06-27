@@ -264,9 +264,9 @@ public class WebContribuintesBean extends MovimentoValorBean {
     }
 
     public void imprimirComValorCalculado() {
-        List<Movimento> lista = new ArrayList<Movimento>();
-        List<Float> listaValores = new ArrayList<Float>();
-        List<String> listaVencimentos = new ArrayList<String>();
+        List<Movimento> lista = new ArrayList();
+        List<Double> listaValores = new ArrayList();
+        List<String> listaVencimentos = new ArrayList();
 
         ImpressaoWeb impressaoWeb;
         Movimento movimento;
@@ -298,14 +298,14 @@ public class WebContribuintesBean extends MovimentoValorBean {
         for (DataObject listMovimento : listaMovimentoSelecionado) {
             movimento = ((Movimento) dao.find(new Movimento(), (Integer) listMovimento.getArgumento16()));
             // COM VALOR ALTERADO ---------
-            if (Moeda.substituiVirgulaFloat((String) listMovimento.getArgumento12()) != 0) {
-                listaValores.add(Moeda.substituiVirgulaFloat((String) listMovimento.getArgumento12()));
+            if (Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento12()) != 0) {
+                listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento12()));
             } else {
-                if (Moeda.substituiVirgulaFloat((String) listMovimento.getArgumento6()) <= 0) {
+                if (Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento6()) <= 0) {
                     GenericaMensagem.warn("Atenção", "Valor não pode ser zerado!");
                     return;
                 }
-                listaValores.add(Moeda.substituiVirgulaFloat((String) listMovimento.getArgumento6()));
+                listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento6()));
             }
             //COM DATA ALTERADA ---------
             if (movimento.getDtVencimento().before(DataHoje.dataHoje()) && !movimento.getVencimento().equals(DataHoje.data())) {
@@ -353,7 +353,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
     public String imprimirBoleto() {
         Movimento movimento;
         List<Movimento> lista = new ArrayList<Movimento>();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         List<String> listaVencimentos = new ArrayList<String>();
         for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
             movimento = (Movimento) listaMovimentoSelecionado.get(i).getArgumento1();
@@ -444,7 +444,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
                             null,
                             tipoServico,
                             null,
-                            Moeda.converteFloatR$Float(super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
+                            Moeda.converteDoubleR$Double(super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
                             strReferencia,
                             strVencimento,
                             1,

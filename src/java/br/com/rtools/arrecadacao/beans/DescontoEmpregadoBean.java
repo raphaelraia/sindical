@@ -99,11 +99,11 @@ public class DescontoEmpregadoBean implements Serializable {
         if (percentual.isEmpty()) {
             percentual = "0.0";
         }
-        descontoEmpregado.setPercentual(Moeda.substituiVirgulaFloat(percentual));
+        descontoEmpregado.setPercentual(Moeda.substituiVirgulaDouble(percentual));
         if (valor.isEmpty()) {
             valor = "0";
         }
-        descontoEmpregado.setValorEmpregado(Moeda.substituiVirgulaFloat(valor));
+        descontoEmpregado.setValorEmpregado(Moeda.substituiVirgulaDouble(valor));
 
         if (descontoEmpregado.getPercentual() <= 0 && descontoEmpregado.getValorEmpregado() <= 0) {
             msgConfirma = "Digite um Percentual ou Valor de empregado!";
@@ -217,8 +217,8 @@ public class DescontoEmpregadoBean implements Serializable {
                     }
                 }
             }
-            percentual = Float.toString(descontoEmpregado.getPercentual());
-            valor = Float.toString(descontoEmpregado.getValorEmpregado());
+            percentual = Double.toString(descontoEmpregado.getPercentual());
+            valor = Double.toString(descontoEmpregado.getValorEmpregado());
         }
         return "descontoEmpregado";
     }

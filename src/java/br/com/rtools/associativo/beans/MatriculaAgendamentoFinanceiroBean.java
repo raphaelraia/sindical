@@ -40,9 +40,9 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
     private MatriculaAgendamentoFinanceiro matriculaAgendamento = new MatriculaAgendamentoFinanceiro();
     private Integer indexServicos = 0;
     private List<SelectItem> listaServicos = new ArrayList();
-    private Float valor = (float) 0;
-    private Float desconto = (float) 0;
-    private Float valorTotal = (float) 0;
+    private Double valor = (double) 0;
+    private Double desconto = (double) 0;
+    private Double valorTotal = (double) 0;
     private List<LinhaServicoPessoa> listaServicoPessoa = new ArrayList();
 
     private Boolean desabilitaValor = false;
@@ -56,9 +56,9 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
     public final void loadValorServico() {
         desabilitaValor = false;
         
-        valor = (float) 0;
-        valorTotal = (float) 0;
-        desconto = (float) 0;
+        valor = (double) 0;
+        valorTotal = (double) 0;
+        desconto = (double) 0;
         
         Servicos se = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(listaServicos.get(indexServicos).getDescription()));
 
@@ -176,7 +176,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
                     = "ID Agendamento Financeiro: " + matriculaAgendamento.getId() + " \n "
                     + "Pessoa: " + matriculaAgendamento.getServicoPessoa().getPessoa().getDocumento() + " : " + matriculaAgendamento.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + matriculaAgendamento.getServicoPessoa().getNrDiaVencimento() + " \n "
-                    + "Valor: " + Moeda.converteR$Float(matriculaAgendamento.getServicoPessoa().getNrValorFixo()) + " \n "
+                    + "Valor: " + Moeda.converteR$Double(matriculaAgendamento.getServicoPessoa().getNrValorFixo()) + " \n "
                     + "Desconto R$: " + getDescontoString() + " \n "
                     + "Desconto %: " + matriculaAgendamento.getServicoPessoa().getNrDescontoString() + " \n "
                     + "Dia Vencimento: " + matriculaAgendamento.getServicoPessoa().getNrDiaVencimento() + " \n "
@@ -204,7 +204,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
                     = "ID Agendamento: " + matriculaAgendamento.getId() + " \n "
                     + "Pessoa: " + matriculaAgendamento.getServicoPessoa().getPessoa().getDocumento() + " : " + matriculaAgendamento.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + matriculaAgendamento.getServicoPessoa().getNrDiaVencimento() + " \n "
-                    + "Valor: " + Moeda.converteR$Float(matriculaAgendamento.getServicoPessoa().getNrValorFixo()) + " \n "
+                    + "Valor: " + Moeda.converteR$Double(matriculaAgendamento.getServicoPessoa().getNrValorFixo()) + " \n "
                     + "Desconto R$: " + getDescontoString() + " \n "
                     + "Desconto %: " + matriculaAgendamento.getServicoPessoa().getNrDescontoString() + " \n "
                     + "Dia Vencimento: " + matriculaAgendamento.getServicoPessoa().getNrDiaVencimento() + " \n "
@@ -214,7 +214,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
                     = "ID Agendamento: " + ma.getId() + " \n "
                     + "Pessoa: " + ma.getServicoPessoa().getPessoa().getDocumento() + " : " + ma.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + ma.getServicoPessoa().getNrDiaVencimento() + " \n "
-                    + "Valor: " + Moeda.converteR$Float(ma.getServicoPessoa().getNrValorFixo()) + " \n "
+                    + "Valor: " + Moeda.converteR$Double(ma.getServicoPessoa().getNrValorFixo()) + " \n "
                     + "Desconto R$: " + getDescontoString() + " \n "
                     + "Desconto %: " + ma.getServicoPessoa().getNrDescontoString() + " \n "
                     + "Dia Vencimento: " + ma.getServicoPessoa().getNrDiaVencimento() + " \n "
@@ -263,9 +263,9 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         Pessoa p = matriculaAgendamento.getServicoPessoa().getPessoa();
         matriculaAgendamento = new MatriculaAgendamentoFinanceiro();
         indexServicos = 0;
-        valor = (float) 0;
-        desconto = (float) 0;
-        valorTotal = (float) 0;
+        valor = (double) 0;
+        desconto = (double) 0;
+        valorTotal = (double) 0;
 
         matriculaAgendamento.getServicoPessoa().setPessoa(p);
     }
@@ -289,11 +289,11 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
                 matriculaAgendamento.getServicoPessoa().setNrDesconto(100);
             }
             desconto = valor - Moeda.valorDoPercentual(valor, matriculaAgendamento.getServicoPessoa().getNrDesconto());
-            valorTotal = Moeda.subtracaoValores(valor, desconto);
+            valorTotal = Moeda.subtracao(valor, desconto);
         } else {
-            valor = (float) 0;
-            desconto = (float) 0;
-            valorTotal = (float) 0;
+            valor = (double) 0;
+            desconto = (double) 0;
+            valorTotal = (double) 0;
             matriculaAgendamento.getServicoPessoa().setNrDesconto(0);
         }
     }
@@ -305,11 +305,11 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
             } else {
                 calculoPercentualDesconto();
             }
-            valorTotal = Moeda.subtracaoValores(valor, desconto);
+            valorTotal = Moeda.subtracao(valor, desconto);
         } else {
-            valor = (float) 0;
-            desconto = (float) 0;
-            valorTotal = (float) 0;
+            valor = (double) 0;
+            desconto = (double) 0;
+            valorTotal = (double) 0;
             matriculaAgendamento.getServicoPessoa().setNrDesconto(0);
         }
     }
@@ -337,48 +337,48 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         this.listaServicos = listaServicos;
     }
 
-    public Float getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(Float valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
     public String getValorString() {
-        return Moeda.converteR$Float(valor);
+        return Moeda.converteR$Double(valor);
     }
 
     public void setValorString(String valorString) {
         this.valor = Moeda.converteUS$(valorString);
     }
 
-    public Float getDesconto() {
+    public Double getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(Float desconto) {
+    public void setDesconto(Double desconto) {
         this.desconto = desconto;
     }
 
     public String getDescontoString() {
-        return Moeda.converteR$Float(desconto);
+        return Moeda.converteR$Double(desconto);
     }
 
     public void setDescontoString(String descontoString) {
         this.desconto = Moeda.converteUS$(descontoString);
     }
 
-    public Float getValorTotal() {
+    public Double getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Float valorTotal) {
+    public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
     }
 
     public String getValorTotalString() {
-        return Moeda.converteR$Float(valorTotal);
+        return Moeda.converteR$Double(valorTotal);
     }
 
     public void setValorTotalString(String valorTotalString) {

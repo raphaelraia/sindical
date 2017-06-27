@@ -787,8 +787,8 @@ public class BaileBean implements Serializable {
         return false;
     }
 
-    public String converteMoeda(float v) {
-        return Moeda.converteR$Float(v);
+    public String converteMoeda(double v) {
+        return Moeda.converteR$Double(v);
     }
 
     public EventoServico getEventoServico() {

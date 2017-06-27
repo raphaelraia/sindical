@@ -30,7 +30,7 @@ public class PedidoBean implements Serializable {
     private String valorUnitarioPedido;
     private String quantidadePedido;
     private boolean modalPedido;
-    private float valorTotal;
+    private double valorTotal;
 
     @PostConstruct
     public void init() {
@@ -109,8 +109,8 @@ public class PedidoBean implements Serializable {
     }
 
     public void addItemPedido() {
-        pedido.setValorUnitario(Moeda.substituiVirgulaFloat(valorUnitarioPedido));
-        pedido.setDescontoUnitario(Moeda.substituiVirgulaFloat(descontoUnitarioPedido));
+        pedido.setValorUnitario(Moeda.substituiVirgulaDouble(valorUnitarioPedido));
+        pedido.setDescontoUnitario(Moeda.substituiVirgulaDouble(descontoUnitarioPedido));
         pedido.setQuantidade(Integer.parseInt(quantidadePedido));
         if (pedido.getProduto().getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquisar um produto!");
@@ -237,8 +237,8 @@ public class PedidoBean implements Serializable {
         this.modalPedido = modalPedido;
     }
 
-    public float getValorTotal() {
-        float valor = 0;
+    public double getValorTotal() {
+        double valor = 0;
         for (Pedido listaPedido : listaPedidos) {
             valor += listaPedido.getValorUnitario();
         }
@@ -246,7 +246,7 @@ public class PedidoBean implements Serializable {
         return valorTotal;
     }
 
-    public void setValorTotal(float valorTotal) {
+    public void setValorTotal(double valorTotal) {
         this.valorTotal = valorTotal;
     }
 }

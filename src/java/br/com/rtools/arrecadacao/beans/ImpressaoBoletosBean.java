@@ -146,7 +146,7 @@ public class ImpressaoBoletosBean implements Serializable {
     public void registrarBoletos() {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
         Dao dao = new Dao();
         if (!selected.isEmpty()) {
@@ -826,7 +826,7 @@ public class ImpressaoBoletosBean implements Serializable {
             return null;
         }
         List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
 
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
@@ -1069,7 +1069,7 @@ public class ImpressaoBoletosBean implements Serializable {
         // MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
 
         boolean enviar = false;
@@ -1128,7 +1128,7 @@ public class ImpressaoBoletosBean implements Serializable {
         }
     }
 
-    public void enviar(List<Movimento> mov, List<Float> listaValores, List<String> listaVencimentos, Juridica jur) {
+    public void enviar(List<Movimento> mov, List<Double> listaValores, List<String> listaVencimentos, Juridica jur) {
         try {
 
             Registro reg = new Registro();

@@ -174,7 +174,7 @@ public class ExtratoTelaBean implements Serializable {
             return;
         }
         boolean habData = false;
-        float somaValores = 0, somaRepasse = 0;
+        double soma = 0, somaRepasse = 0;
         String classTbl = "";
 
         vlRecebido = "0,00";
@@ -252,30 +252,30 @@ public class ExtratoTelaBean implements Serializable {
             if ((linha_list.get(17)) == null) {
                 linha_list.set(17, 0.0);
             }
-            float valor_baixa = Float.parseFloat(Double.toString((Double) linha_list.get(21))),
-                    valor = Float.parseFloat(Double.toString((Double) linha_list.get(8))),
-                    taxa = Float.parseFloat(Double.toString((Double) linha_list.get(9)));
+            double valor_baixa = Double.parseDouble(Double.toString((Double) linha_list.get(21))),
+                    valor = Double.parseDouble(Double.toString((Double) linha_list.get(8))),
+                    taxa = Double.parseDouble(Double.toString((Double) linha_list.get(9)));
 
-            somaValores = Moeda.subtracaoValores(Moeda.somaValores(
-                    Moeda.somaValores(
-                            Moeda.somaValores(
-                                    Float.parseFloat(Double.toString((Double) linha_list.get(21))),//valor
-                                    Float.parseFloat(Double.toString((Double) linha_list.get(14)))//juros
+            soma = Moeda.subtracao(Moeda.soma(
+                    Moeda.soma(
+                            Moeda.soma(
+                                    Double.parseDouble(Double.toString((Double) linha_list.get(21))),//valor
+                                    Double.parseDouble(Double.toString((Double) linha_list.get(14)))//juros
                             ),
-                            Float.parseFloat(Double.toString((Double) linha_list.get(15)))//correcao
-                    ), Float.parseFloat(Double.toString((Double) linha_list.get(13))) //multa
-            ), Float.parseFloat(Double.toString((Double) linha_list.get(16))));// desconto
+                            Double.parseDouble(Double.toString((Double) linha_list.get(15)))//correcao
+                    ), Double.parseDouble(Double.toString((Double) linha_list.get(13))) //multa
+            ), Double.parseDouble(Double.toString((Double) linha_list.get(16))));// desconto
 
-            // ROGÉRIO PEDIU PARA ESSE CALCULO SER PELO VALOR BAIXA, SENDO QUE EM UM CASO DE TESTE NÃO BATEU, APENAS COM O VALOR (somaValores)
-            somaRepasse = Moeda.multiplicarValores(valor_baixa,
-                    Moeda.divisaoValores(
-                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
+            // ROGÉRIO PEDIU PARA ESSE CALCULO SER PELO VALOR BAIXA, SENDO QUE EM UM CASO DE TESTE NÃO BATEU, APENAS COM O VALOR (soma)
+            somaRepasse = Moeda.multiplicar(valor_baixa,
+                    Moeda.divisao(
+                            Double.parseDouble(Double.toString((Double) linha_list.get(17))), 100));
 
 // ALTERADO PARA BATER COM O RELATÓRIO RESUMO DE CONTRIBUIÇÕES > Menu Financeiro > Relatório > Movimento
-//            somaRepasse = Moeda.multiplicarValores(
-//                    somaValores,
-//                    Moeda.divisaoValores(
-//                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100)
+//            somaRepasse = Moeda.multiplicar(
+//                    soma,
+//                    Moeda.divisao(
+//                            Double.parseDouble(Double.toString((Double) linha_list.get(17))), 100)
 //            );
             if (linha_list.get(12) == null
                     && ((String) linha_list.get(11)).equals("Acordo")) {
@@ -302,7 +302,7 @@ public class ExtratoTelaBean implements Serializable {
                     false,
                     ((Integer) linha_list.get(0)), //ARG 1 id
                     linha_list.get(13), // ARG 2 multa
-                    somaValores, // ARG 3 somaValores
+                    soma, // ARG 3 soma
                     linha_list.get(1), // ARG 4 documento
                     linha_list.get(2), // ARG 5 nome
                     linha_list.get(3), // ARG 6 boleto
@@ -310,8 +310,8 @@ public class ExtratoTelaBean implements Serializable {
                     linha_list.get(5), // ARG 8 referencia
                     DataHoje.converteData((Date) linha_list.get(6)), // ARG 9 vencimento
                     DataHoje.converteData((Date) linha_list.get(7)), // ARG 10 importacao
-                    Moeda.converteR$Float(valor), // ARG 11 valor
-                    Moeda.converteR$Float(taxa), // ARG 12 taxa
+                    Moeda.converteR$Double(valor), // ARG 11 valor
+                    Moeda.converteR$Double(taxa), // ARG 12 taxa
                     linha_list.get(10), // ARG 13 nomeUsuario
                     linha_list.get(11), // ARG 14 tipo
                     DataHoje.converteData((Date) linha_list.get(12)),// ARG 15 quitacao
@@ -324,7 +324,7 @@ public class ExtratoTelaBean implements Serializable {
                     linha_list.get(18), // ARG 22 lote baixa
                     linha_list.get(19), // ARG 23 beneficiario
                     linha_list.get(20), // ARG 24 filial
-                    Moeda.converteR$Float(valor_baixa), // ARG 25 valor_baixa
+                    Moeda.converteR$Double(valor_baixa), // ARG 25 valor_baixa
                     classTbl, // ARG 26 null
                     listMovimentoAcordo, // ARG 27 MOVIMENTOS ACORDO
                     linha_list.get(22), // ARG 28 null
@@ -341,19 +341,19 @@ public class ExtratoTelaBean implements Serializable {
 
             vlTotal = somarValores(valor_baixa, vlTotal);
 
-            float contaLiquido = Moeda.subtracaoValores(valor_baixa, taxa);
+            double contaLiquido = Moeda.subtracao(valor_baixa, taxa);
             vlLiquido = somarValores(contaLiquido, vlLiquido);
 
             vlRepasse = somarValores(somaRepasse, vlRepasse);
         }
-        vlRepasse = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(vlLiquido), Moeda.converteUS$(vlRepasse)));
+        vlRepasse = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(vlLiquido), Moeda.converteUS$(vlRepasse)));
     }
 
     public void loadList() {
         loadListaEmpresasPertencentes();
         listaMovimentos.clear();
         boolean habData = false;
-        float somaValores = 0, somaRepasse = 0;
+        double soma = 0, somaRepasse = 0;
         String classTbl = "";
 
         vlRecebido = "0,00";
@@ -470,18 +470,18 @@ public class ExtratoTelaBean implements Serializable {
                 linha_list.set(17, 0.0);
             }
 
-            somaValores = Moeda.subtracaoValores(Moeda.somaValores(
-                    Moeda.somaValores(
-                            Moeda.somaValores(
-                                    Float.parseFloat(Double.toString((Double) linha_list.get(21))),//valor
-                                    Float.parseFloat(Double.toString((Double) linha_list.get(14)))//juros
+            soma = Moeda.subtracao(Moeda.soma(
+                    Moeda.soma(
+                            Moeda.soma(
+                                    Double.parseDouble(Double.toString((Double) linha_list.get(21))),//valor
+                                    Double.parseDouble(Double.toString((Double) linha_list.get(14)))//juros
                             ),
-                            Float.parseFloat(Double.toString((Double) linha_list.get(15)))//correcao
-                    ), Float.parseFloat(Double.toString((Double) linha_list.get(13))) //multa
-            ), Float.parseFloat(Double.toString((Double) linha_list.get(16))));// desconto
-            somaRepasse = Moeda.multiplicarValores(somaValores,
-                    Moeda.divisaoValores(
-                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
+                            Double.parseDouble(Double.toString((Double) linha_list.get(15)))//correcao
+                    ), Double.parseDouble(Double.toString((Double) linha_list.get(13))) //multa
+            ), Double.parseDouble(Double.toString((Double) linha_list.get(16))));// desconto
+            somaRepasse = Moeda.multiplicar(soma,
+                    Moeda.divisao(
+                            Double.parseDouble(Double.toString((Double) linha_list.get(17))), 100));
 
             if (linha_list.get(12) == null
                     && ((String) linha_list.get(11)).equals("Acordo")) {
@@ -495,15 +495,15 @@ public class ExtratoTelaBean implements Serializable {
             } else {
                 classTbl = "";
             }
-            float valor_baixa = Float.parseFloat(Double.toString((Double) linha_list.get(21))),
-                    valor = Float.parseFloat(Double.toString((Double) linha_list.get(8))),
-                    taxa = Float.parseFloat(Double.toString((Double) linha_list.get(9)));
+            double valor_baixa = Double.parseDouble(Double.toString((Double) linha_list.get(21))),
+                    valor = Double.parseDouble(Double.toString((Double) linha_list.get(8))),
+                    taxa = Double.parseDouble(Double.toString((Double) linha_list.get(9)));
 
             listaMovimentos.add(new DataObject(
                     false,
                     ((Integer) linha_list.get(0)), //ARG 1 id
                     linha_list.get(13), // ARG 2 multa
-                    somaValores, // ARG 3 somaValores
+                    soma, // ARG 3 soma
                     linha_list.get(1), // ARG 4 documento
                     linha_list.get(2), // ARG 5 nome
                     linha_list.get(3), // ARG 6 boleto
@@ -511,8 +511,8 @@ public class ExtratoTelaBean implements Serializable {
                     linha_list.get(5), // ARG 8 referencia
                     DataHoje.converteData((Date) linha_list.get(6)), // ARG 9 vencimento
                     DataHoje.converteData((Date) linha_list.get(7)), // ARG 10 importacao
-                    Moeda.converteR$Float(valor), // ARG 11 valor
-                    Moeda.converteR$Float(taxa), // ARG 12 taxa
+                    Moeda.converteR$Double(valor), // ARG 11 valor
+                    Moeda.converteR$Double(taxa), // ARG 12 taxa
                     linha_list.get(10), // ARG 13 nomeUsuario
                     linha_list.get(11), // ARG 14 tipo
                     DataHoje.converteData((Date) linha_list.get(12)),// ARG 15 quitacao
@@ -525,7 +525,7 @@ public class ExtratoTelaBean implements Serializable {
                     linha_list.get(18), // ARG 22 lote baixa
                     linha_list.get(19), // ARG 23 beneficiario
                     linha_list.get(20), // ARG 24 filial
-                    Moeda.converteR$Float(valor_baixa), // ARG 25 valor_baixa
+                    Moeda.converteR$Double(valor_baixa), // ARG 25 valor_baixa
                     classTbl, // ARG 26 null
                     null, // ARG 27 null
                     null // ARG 28 null
@@ -540,12 +540,12 @@ public class ExtratoTelaBean implements Serializable {
             vlNaoRecebido = somarValores(valor, vlNaoRecebido);
             vlTotal = somarValores(valor_baixa, vlTotal);
 
-            float contaLiquido = Moeda.subtracaoValores(valor_baixa, taxa);
+            double contaLiquido = Moeda.subtracao(valor_baixa, taxa);
             vlLiquido = somarValores(contaLiquido, vlLiquido);
 
             vlRepasse = somarValores(somaRepasse, vlRepasse);
         }
-        vlRepasse = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(vlLiquido), Moeda.converteUS$(vlRepasse)));
+        vlRepasse = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(vlLiquido), Moeda.converteUS$(vlRepasse)));
 
         dataRefInicial = "";
         dataRefFinal = "";
@@ -568,9 +568,9 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     // SOMA DOS VALORES //
-    public String somarValores(float valor, String valorString) {
-        float somaFloat = Moeda.somaValores(valor, Moeda.converteUS$(valorString));
-        return Moeda.converteR$Float(somaFloat);
+    public String somarValores(double valor, String valorString) {
+        Double somaFloat = Moeda.soma(valor, Moeda.converteUS$(valorString));
+        return Moeda.converteR$Double(somaFloat);
     }
 
     public String getVlRecebido() {
@@ -699,9 +699,9 @@ public class ExtratoTelaBean implements Serializable {
             msgConfirma = "Boletos do tipo acordo não podem ser Excluídos";
             return null;
         }
-        
+
         boolean exc = true;
-        
+
         for (int i = 0; i < listaMovimentos.size(); i++) {
             if (((Boolean) listaMovimentos.get(i).getArgumento0())) {
                 StatusRetorno sr = GerarMovimento.excluirUmMovimento(db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1()));
@@ -710,7 +710,7 @@ public class ExtratoTelaBean implements Serializable {
                 }
             }
         }
-        
+
         if (!exc) {
             msgConfirma = "Ocorreu um erro em uma das exclusões, verifique o log!";
         } else {
@@ -718,7 +718,7 @@ public class ExtratoTelaBean implements Serializable {
         }
 
         loadListBeta();
-        
+
         return null;
     }
 
@@ -780,31 +780,6 @@ public class ExtratoTelaBean implements Serializable {
         return null;
     }
 
-//    public String getSomarBoletoSelecionados() {
-//        String soma = "";
-//        float somaFloat = 0;
-//        int i = 0;
-//        String result = "R$ ";
-//        String r = "";
-//        if (!listaMovimentos.isEmpty()) {
-//            while (i < listaMovimentos.size()) {
-//                if (bltSelecionados() == true) {
-//                    if ((Boolean) listaMovimentos.get(i).getArgumento0()) {
-//                        soma = Float.toString(((Float) listaMovimentos.get(i).getArgumento3()));
-//                        somaFloat = Moeda.somaValores(somaFloat, Float.valueOf(soma));
-//                    }
-//                } else {
-//                    break;
-//                }
-//                i++;
-//            }
-//            r = Moeda.converteR$(String.valueOf(somaFloat));
-//            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("valorTotalExtrato", result + r);
-//            return result + r;
-//        } else {
-//            return result;
-//        }
-//    }
     public boolean bltQuitados() {
         boolean result = false;
         if (!listaMovimentos.isEmpty()) {
@@ -911,7 +886,7 @@ public class ExtratoTelaBean implements Serializable {
         }
 
         GenericaMensagem.info("OK", "Boletos estornados com sucesso!");
-        
+
         loadListBeta();
 
         PF.update("formExtratoTela:i_msg");
@@ -920,7 +895,7 @@ public class ExtratoTelaBean implements Serializable {
         PF.closeDialog("dlg_estornar");
         return null;
     }
-    
+
     public String imprimirPromissoria() {
         List<Movimento> listaC = new ArrayList();
         MovimentoDao db = new MovimentoDao();
@@ -1071,7 +1046,7 @@ public class ExtratoTelaBean implements Serializable {
     public String imprimir() {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> listaC = new ArrayList();
-        List<Float> listaValores = new ArrayList();
+        List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
 
         if (!validaImprimir()) {
@@ -1086,13 +1061,13 @@ public class ExtratoTelaBean implements Serializable {
                 listaVencimentos.add(mov.getVencimento());
             }
         }
-        
+
         ImprimirBoleto imp = new ImprimirBoleto();
 
         listaC = imp.atualizaContaCobrancaMovimento(listaC);
 
         imp.imprimirBoleto(listaC, listaValores, listaVencimentos, imprimirVerso);
-        
+
         imp.visualizar(null);
 
         loadListBeta(0);
@@ -1115,7 +1090,7 @@ public class ExtratoTelaBean implements Serializable {
         MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Double> listaValores = new ArrayList<Double>();
         List<String> listaVencimentos = new ArrayList<String>();
 
         //List<Linha> select  = new ArrayList();
@@ -1213,7 +1188,7 @@ public class ExtratoTelaBean implements Serializable {
         return null;
     }
 
-    public void enviar(List<Movimento> mov, List<Float> listaValores, List<String> listaVencimentos, Juridica jur) {
+    public void enviar(List<Movimento> mov, List<Double> listaValores, List<String> listaVencimentos, Juridica jur) {
         try {
 
             Registro reg = new Registro();
@@ -1523,7 +1498,7 @@ public class ExtratoTelaBean implements Serializable {
     public String getValorExtenso() {
         if (!listaMovimentos.isEmpty() && !vlLiquido.isEmpty()) {
             ValorExtenso ve = new ValorExtenso();
-            ve.setNumber(Double.valueOf(Float.toString(Moeda.substituiVirgulaFloat(vlLiquido))));
+            ve.setNumber(Double.valueOf(Double.toString(Moeda.substituiVirgulaDouble(vlLiquido))));
             return valorExtenso = ve.toString();
         } else {
             return valorExtenso = "";
