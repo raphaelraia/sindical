@@ -69,7 +69,7 @@ public class RelatorioEstornoBean implements Serializable {
                                 (v.get(8) != null ? v.get(8).toString() : ""),  // CAIXA
                                 v.get(9).toString(),  // MOTIVO ESTORNO
                                 DataHoje.converteData((Date) v.get(10)),  // VENCIMENTO
-                                ((Double) v.get(11)).floatValue() // VALOR
+                                (Double) v.get(11) // VALOR
                         )
                 );
             }

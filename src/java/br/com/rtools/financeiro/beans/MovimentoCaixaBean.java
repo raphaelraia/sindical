@@ -57,7 +57,7 @@ public class MovimentoCaixaBean implements Serializable {
                             (Date) linha.get(0),
                             linha.get(1).toString(),
                             linha.get(2).toString(),
-                            ((Double) linha.get(3)).floatValue(),
+                            (Double) linha.get(3),
                             linha.get(4).toString(),
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(5)),
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(6)),
@@ -105,21 +105,21 @@ public class MovimentoCaixaBean implements Serializable {
 
         List<Object> result = new MovimentoCaixaDao().listaSaldo(listaData.get(indexData).getLabel());
 
-        Float valor_saldo_atual;
+        Double valor_saldo_atual;
         for (int i = 0; i < result.size(); i++) {
             List linha = (List) result.get(i);
             if (listaSaldo.isEmpty()) {
-                Float valor_saldo_anterior = contaSaldo.getSaldo();
-                valor_saldo_atual = Moeda.somaValores(valor_saldo_anterior, ((Double) linha.get(1)).floatValue());
+                Double valor_saldo_anterior = contaSaldo.getSaldo();
+                valor_saldo_atual = Moeda.soma(valor_saldo_anterior, (Double) linha.get(1));
             } else {
-                Float valor_saldo_anterior = listaSaldo.get(i - 1).getSaldoAtual();
-                valor_saldo_atual = Moeda.somaValores(valor_saldo_anterior, ((Double) linha.get(1)).floatValue());
+                Double valor_saldo_anterior = listaSaldo.get(i - 1).getSaldoAtual();
+                valor_saldo_atual = Moeda.soma(valor_saldo_anterior, (Double) linha.get(1));
             }
 
             listaSaldo.add(
                     new ObjectSaldo(
                             (Date) linha.get(0),
-                            ((Double) linha.get(1)).floatValue(),
+                            (Double) linha.get(1),
                             valor_saldo_atual
                     )
             );
@@ -177,16 +177,16 @@ public class MovimentoCaixaBean implements Serializable {
     public class ObjectSaldo {
 
         private Date data;
-        private Float valor;
-        private Float saldoAtual;
+        private Double valor;
+        private Double saldoAtual;
 
         public ObjectSaldo() {
             this.data = null;
-            this.valor = (float) 0;
-            this.saldoAtual = (float) 0;
+            this.valor = new Double(0);
+            this.saldoAtual = new Double(0);
         }
 
-        public ObjectSaldo(Date data, Float valor, Float saldoAtual) {
+        public ObjectSaldo(Date data, Double valor, Double saldoAtual) {
             this.data = data;
             this.valor = valor;
             this.saldoAtual = saldoAtual;
@@ -208,32 +208,32 @@ public class MovimentoCaixaBean implements Serializable {
             this.data = DataHoje.converte(dataString);
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {
             this.valor = Moeda.converteUS$(valorString);
         }
 
-        public Float getSaldoAtual() {
+        public Double getSaldoAtual() {
             return saldoAtual;
         }
 
-        public void setSaldoAtual(Float saldoAtual) {
+        public void setSaldoAtual(Double saldoAtual) {
             this.saldoAtual = saldoAtual;
         }
 
         public String getSaldoAtualString() {
-            return Moeda.converteR$Float(saldoAtual);
+            return Moeda.converteR$Double(saldoAtual);
         }
 
         public void setSaldoAtualString(String saldoAtualString) {
@@ -246,7 +246,7 @@ public class MovimentoCaixaBean implements Serializable {
         private Date data;
         private String operacao;
         private String es;
-        private Float valor;
+        private Double valor;
         private String historico;
         private Pessoa responsavel;
         private Pessoa titular;
@@ -256,14 +256,14 @@ public class MovimentoCaixaBean implements Serializable {
             this.data = null;
             this.operacao = "";
             this.es = "";
-            this.valor = (float) 0;
+            this.valor = new Double(0);
             this.historico = "";
             this.responsavel = new Pessoa();
             this.titular = new Pessoa();
             this.beneficiario = new Pessoa();
         }
 
-        public ObjectSaldoDetalhe(Date data, String operacao, String es, Float valor, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario) {
+        public ObjectSaldoDetalhe(Date data, String operacao, String es, Double valor, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario) {
             this.data = data;
             this.operacao = operacao;
             this.es = es;
@@ -290,16 +290,16 @@ public class MovimentoCaixaBean implements Serializable {
             this.data = DataHoje.converte(dataString);
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {

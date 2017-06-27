@@ -305,8 +305,8 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void addItemPedido() {
-        pedido.setValorUnitario(Moeda.substituiVirgulaFloat(valorUnitarioPedido));
-        pedido.setDescontoUnitario(Moeda.substituiVirgulaFloat(descontoUnitarioPedido));
+        pedido.setValorUnitario(Moeda.converteStringToDouble(valorUnitarioPedido));
+        pedido.setDescontoUnitario(Moeda.converteStringToDouble(descontoUnitarioPedido));
         pedido.setQuantidade(quantidadePedido);
         if (pedido.getProduto().getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquisar um produto!");
@@ -402,21 +402,21 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public String valorTotalGrid(Pedido linha) {
         if (linha != null) {
-            float value = Moeda.subtracaoValores(linha.getValorUnitario(), linha.getDescontoUnitario());
-            value = Moeda.multiplicarValores(value, linha.getQuantidade());
-            return Moeda.converteR$Float(value);
+            double value = Moeda.subtracao(linha.getValorUnitario(), linha.getDescontoUnitario());
+            value = Moeda.multiplicar(value, linha.getQuantidade());
+            return Moeda.converteR$Double(value);
         } else {
-            return Moeda.converteR$Float(0);
+            return Moeda.converteR$Double(0);
         }
 
     }
 
     public String getValorTotal() {
-        float valorx = 0;
+        double valorx = 0;
         for (Pedido pedidox : listaPedidos) {
-            valorx = Moeda.somaValores(valorx, Moeda.converteUS$(valorTotalGrid(pedidox)));
+            valorx = Moeda.soma(valorx, Moeda.converteUS$(valorTotalGrid(pedidox)));
         }
-        valorTotal = Moeda.converteR$Float(valorx);
+        valorTotal = Moeda.converteR$Double(valorx);
         return valorTotal;
     }
 
@@ -670,8 +670,8 @@ public class LancamentoFinanceiroBean implements Serializable {
             movimento.setCorrecao(Moeda.converteUS$(p.getCorrecao()));
             movimento.setDesconto(Moeda.converteUS$(p.getDesconto()));
 
-            float valor_baixa = Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(p.getAcrescimo()));
-            valor_baixa = Moeda.subtracaoValores(valor_baixa, movimento.getDesconto());
+            double valor_baixa = Moeda.soma(movimento.getValor(), Moeda.converteUS$(p.getAcrescimo()));
+            valor_baixa = Moeda.subtracao(valor_baixa, movimento.getDesconto());
 
             movimento.setValorBaixa(valor_baixa);
 
@@ -695,7 +695,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         pessoa = lote.getPessoa();
         descricao = pessoa.getDocumento();
         modalVisivel = true;
-        total = Moeda.converteR$Float(lote.getValor());
+        total = Moeda.converteR$Double(lote.getValor());
 
         // FILIAL --
         idFilial = lote.getFilial().getId();
@@ -746,13 +746,13 @@ public class LancamentoFinanceiroBean implements Serializable {
             esLancamento = selectMovimento.get(0).getEs();
         }
 
-        float acre, valor_quitado = 0;
+        double acre, valor_quitado = 0;
 
         for (Movimento mov : selectMovimento) {
             String data_quitacao = "";
             String caixa = "NÃO BAIXADO";
             String loteBaixa = "NÃO BAIXADO";
-            acre = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
+            acre = Moeda.soma(Moeda.soma(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
 
             if (mov.getBaixa() != null) {
                 valor_quitado = mov.getValorBaixa();
@@ -766,10 +766,10 @@ public class LancamentoFinanceiroBean implements Serializable {
                     mov,
                     DataHoje.converteData(mov.getDtVencimento()),
                     mov.getReferencia(),
-                    Moeda.converteR$Float(mov.getValor()),
-                    Moeda.converteR$Float(acre),
-                    Moeda.converteR$Float(mov.getDesconto()),
-                    Moeda.converteR$Float(valor_quitado),
+                    Moeda.converteR$Double(mov.getValor()),
+                    Moeda.converteR$Double(acre),
+                    Moeda.converteR$Double(mov.getDesconto()),
+                    Moeda.converteR$Double(valor_quitado),
                     data_quitacao,
                     lote.getUsuario().getPessoa().getNome().length() >= 30 ? lote.getUsuario().getPessoa().getNome().substring(0, 30) + "..." : lote.getUsuario().getPessoa().getNome(),
                     caixa,
@@ -804,9 +804,9 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
 
-            float soma = 0;
+            double soma = 0;
             for (Parcela p : listaParcela) {
-                soma = Moeda.somaValores(soma, p.getMovimento().getValor());
+                soma = Moeda.soma(soma, p.getMovimento().getValor());
             }
 
             if (soma < Moeda.converteUS$(total)) {
@@ -1127,7 +1127,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         );
 
         Usuario user = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-        float valor_t = Moeda.subtracaoValores(Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(acrescimo)), movimento.getDesconto());
+        double valor_t = Moeda.subtracao(Moeda.soma(movimento.getValor(), Moeda.converteUS$(acrescimo)), movimento.getDesconto());
         if (condicao.equals("vista")) {
             if (listaParcela.size() == 1 && !chkImposto) {
                 GenericaMensagem.warn("Validação", "Condição a vista, só é possível adicionar uma parcela!");
@@ -1139,17 +1139,17 @@ public class LancamentoFinanceiroBean implements Serializable {
                 movimento,
                 DataHoje.converteData(movimento.getDtVencimento()),
                 movimento.getReferencia(),
-                Moeda.converteR$Float(movimento.getValor()),
+                Moeda.converteR$Double(movimento.getValor()),
                 Moeda.converteR$(acrescimo), // ACRESCIMO
-                Moeda.converteR$Float(movimento.getDesconto()), // DESCONTO
-                Moeda.converteR$Float(valor_t), // VALOR PAGAMENTO
+                Moeda.converteR$Double(movimento.getDesconto()), // DESCONTO
+                Moeda.converteR$Double(valor_t), // VALOR PAGAMENTO
                 "", // DATA PAGAMENTO
                 user.getPessoa().getNome().length() >= 30 ? user.getPessoa().getNome().substring(0, 30) + "..." : user.getPessoa().getNome(),
                 "NÃO BAIXADO",
                 "NÃO BAIXADO",
-                Moeda.converteR$Float(movimento.getMulta()),
-                Moeda.converteR$Float(movimento.getJuros()),
-                Moeda.converteR$Float(movimento.getCorrecao()),
+                Moeda.converteR$Double(movimento.getMulta()),
+                Moeda.converteR$Double(movimento.getJuros()),
+                Moeda.converteR$Double(movimento.getCorrecao()),
                 false
         ));
 
@@ -1386,9 +1386,9 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
 
-        float soma = 0;
+        double soma = 0;
         for (Parcela p : listaParcela) {
-            soma = Moeda.somaValores(soma, p.getMovimento().getValor());
+            soma = Moeda.soma(soma, p.getMovimento().getValor());
         }
 
         if (soma < Moeda.converteUS$(total)) {
@@ -1440,13 +1440,13 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String alterarDesconto(int index) {
-        float acre = Moeda.converteUS$(listaParcela.get(index).getAcrescimo());
-        float desc = Moeda.converteUS$(listaParcela.get(index).getDesconto());
-        float valor_p = Moeda.converteUS$(listaParcela.get(index).getValor());
-        float soma = Moeda.subtracaoValores(Moeda.somaValores(acre, valor_p), desc);
+        double acre = Moeda.converteUS$(listaParcela.get(index).getAcrescimo());
+        double desc = Moeda.converteUS$(listaParcela.get(index).getDesconto());
+        double valor_p = Moeda.converteUS$(listaParcela.get(index).getValor());
+        double soma = Moeda.subtracao(Moeda.soma(acre, valor_p), desc);
 
         listaParcela.get(index).setDesconto(Moeda.converteR$(String.valueOf(listaParcela.get(index).getDesconto())));
-        listaParcela.get(index).setValorQuitado(Moeda.converteR$Float(soma));
+        listaParcela.get(index).setValorQuitado(Moeda.converteR$Double(soma));
 
         telaSalva = false;
         return null;
@@ -1462,20 +1462,20 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String adicionarAcrescimo() {
-        float acre = Moeda.somaValores(Moeda.somaValores(Moeda.converteUS$(multa), Moeda.converteUS$(juros)), Moeda.converteUS$(correcao));
+        double acre = Moeda.soma(Moeda.soma(Moeda.converteUS$(multa), Moeda.converteUS$(juros)), Moeda.converteUS$(correcao));
 
         if (indexAcrescimo == -1) {
-            acrescimo = Moeda.converteR$Float(acre);
+            acrescimo = Moeda.converteR$Double(acre);
         } else {
-            listaParcela.get(indexAcrescimo).setAcrescimo(Moeda.converteR$Float(acre));
+            listaParcela.get(indexAcrescimo).setAcrescimo(Moeda.converteR$Double(acre));
             listaParcela.get(indexAcrescimo).setMulta(Moeda.converteR$(multa));
             listaParcela.get(indexAcrescimo).setJuros(Moeda.converteR$(juros));
             listaParcela.get(indexAcrescimo).setCorrecao(Moeda.converteR$(correcao));
 
-            float desc = Moeda.converteUS$(listaParcela.get(indexAcrescimo).getDesconto());
-            float valor_p = Moeda.somaValores(Moeda.converteUS$(listaParcela.get(indexAcrescimo).getValor()), acre);
+            double desc = Moeda.converteUS$(listaParcela.get(indexAcrescimo).getDesconto());
+            double valor_p = Moeda.soma(Moeda.converteUS$(listaParcela.get(indexAcrescimo).getValor()), acre);
 
-            listaParcela.get(indexAcrescimo).setValorQuitado(Moeda.converteR$Float(Moeda.subtracaoValores(valor_p, desc)));
+            listaParcela.get(indexAcrescimo).setValorQuitado(Moeda.converteR$Double(Moeda.subtracao(valor_p, desc)));
         }
 
         telaSalva = false;
@@ -1846,12 +1846,12 @@ public class LancamentoFinanceiroBean implements Serializable {
     public List<Parcela> getListaParcela() {
         if (listaParcela.isEmpty() && lote.getId() != -1) {
             List<Movimento> selectMovimento = new MovimentoDao().listaMovimentosDoLote(lote.getId());
-            float acre, desc, valor_quitado;
+            double acre, desc, valor_quitado;
             String data_quitacao;
             String caixa;
             String loteBaixa;
             for (Movimento mov : selectMovimento) {
-                acre = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
+                acre = Moeda.soma(Moeda.soma(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
                 desc = mov.getDesconto();
 
                 if (mov.getBaixa() != null) {
@@ -1860,7 +1860,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                     caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getDescricao() + "" : "NÃO BAIXADO";
                     loteBaixa = mov.getBaixa() != null ? mov.getBaixa().getId() + "" : "NÃO BAIXADO";
                 } else {
-                    valor_quitado = Moeda.subtracaoValores(Moeda.somaValores(mov.getValor(), acre), desc);
+                    valor_quitado = Moeda.subtracao(Moeda.soma(mov.getValor(), acre), desc);
                     data_quitacao = "";
                     caixa = "NÃO BAIXADO";
                     loteBaixa = "NÃO BAIXADO";
@@ -1870,17 +1870,17 @@ public class LancamentoFinanceiroBean implements Serializable {
                         mov,
                         DataHoje.converteData(mov.getDtVencimento()),
                         mov.getReferencia(),
-                        Moeda.converteR$Float(mov.getValor()),
-                        Moeda.converteR$Float(acre),
-                        Moeda.converteR$Float(mov.getDesconto()),
-                        Moeda.converteR$Float(valor_quitado),
+                        Moeda.converteR$Double(mov.getValor()),
+                        Moeda.converteR$Double(acre),
+                        Moeda.converteR$Double(mov.getDesconto()),
+                        Moeda.converteR$Double(valor_quitado),
                         data_quitacao,
                         lote.getUsuario().getPessoa().getNome().length() >= 30 ? lote.getUsuario().getPessoa().getNome().substring(0, 30) + "..." : lote.getUsuario().getPessoa().getNome(),
                         caixa,
                         loteBaixa,
-                        Moeda.converteR$Float(mov.getMulta()),
-                        Moeda.converteR$Float(mov.getJuros()),
-                        Moeda.converteR$Float(mov.getCorrecao()),
+                        Moeda.converteR$Double(mov.getMulta()),
+                        Moeda.converteR$Double(mov.getJuros()),
+                        Moeda.converteR$Double(mov.getCorrecao()),
                         false
                 ));
 
@@ -2708,17 +2708,17 @@ public class LancamentoFinanceiroBean implements Serializable {
 //                0 - listaParcela.size(),
 //                1 - movimento,
 //                2 - DataHoje.converteData(movimento.getDtVencimento()),
-//                3 - Moeda.converteR$Float(movimento.getValor()),
+//                3 - Moeda.converteR$Double(movimento.getValor()),
 //                4 - Moeda.converteR$(acrescimo), // ACRESCIMO
-//                5 - Moeda.converteR$Float(movimento.getDesconto()), // DESCONTO
-//                6 - Moeda.converteR$Float(valor_t), // VALOR PAGAMENTO
+//                5 - Moeda.converteR$Double(movimento.getDesconto()), // DESCONTO
+//                6 - Moeda.converteR$Double(valor_t), // VALOR PAGAMENTO
 //                7 - "", // DATA PAGAMENTO
 //                8 - new FiltroLancamento(),
 //                9 - user.getPessoa().getNome().length() >= 30 ? user.getPessoa().getNome().substring(0, 30) + "..." : user.getPessoa().getNome(),
 //                10 - "NÃO BAIXADO",
 //                11 - "NÃO BAIXADO",
-//                12 - Moeda.converteR$Float(movimento.getMulta()),
-//                13 - Moeda.converteR$Float(movimento.getJuros()),
-//                14 - Moeda.converteR$Float(movimento.getCorrecao()),
+//                12 - Moeda.converteR$Double(movimento.getMulta()),
+//                13 - Moeda.converteR$Double(movimento.getJuros()),
+//                14 - Moeda.converteR$Double(movimento.getCorrecao()),
 //                15 - null.   
 }

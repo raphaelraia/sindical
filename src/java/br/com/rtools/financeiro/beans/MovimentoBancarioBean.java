@@ -69,10 +69,10 @@ public class MovimentoBancarioBean implements Serializable {
     private Integer indexStatus = 0;
 
     private ContaSaldo contaSaldo = new ContaSaldo();
-    private Float saldoFinal = (float) 0;
-    private Float saldoEntradaBloqueado = (float) 0;
-    private Float saldoSaidaBloqueado = (float) 0;
-    private Float saldoDisponivel = (float) 0;
+    private Double saldoFinal = new Double(0);
+    private Double saldoEntradaBloqueado = new Double(0);
+    private Double saldoSaidaBloqueado = new Double(0);
+    private Double saldoDisponivel = new Double(0);
     private String historico = "";
 
     private List<SelectItem> listaHistoricoBancario = new ArrayList();
@@ -114,10 +114,10 @@ public class MovimentoBancarioBean implements Serializable {
         indexStatus = 0;
 
         contaSaldo = new ContaSaldo();
-        saldoFinal = (float) 0;
-        saldoEntradaBloqueado = (float) 0;
-        saldoSaidaBloqueado = (float) 0;
-        saldoDisponivel = (float) 0;
+        saldoFinal = new Double(0);
+        saldoEntradaBloqueado = new Double(0);
+        saldoSaidaBloqueado = new Double(0);
+        saldoDisponivel = new Double(0);
         historico = "";
 
         listaHistoricoBancario = new ArrayList();
@@ -256,10 +256,10 @@ public class MovimentoBancarioBean implements Serializable {
     public final void loadListaMovimento() {
         listaMovimento.clear();
         contaSaldo = new ContaSaldo();
-        saldoFinal = (float) 0;
-        saldoEntradaBloqueado = (float) 0;
-        saldoSaidaBloqueado = (float) 0;
-        saldoDisponivel = (float) 0;
+        saldoFinal = new Double(0);
+        saldoEntradaBloqueado = new Double(0);
+        saldoSaidaBloqueado = new Double(0);
+        saldoDisponivel = new Double(0);
 
         MovimentoBancarioDao mdao = new MovimentoBancarioDao();
         Dao dao = new Dao();
@@ -313,7 +313,7 @@ public class MovimentoBancarioBean implements Serializable {
                     list_detalhe.add(new ObjectDetalheMovimentoBancario((String) list.get(0), Moeda.converteUS$(Moeda.converteR$Double((Double) list.get(1)))));
                 }
 
-                Float valor_saldo_anterior, valor_saldo;
+                Double valor_saldo_anterior, valor_saldo;
                 if (comeca_conta_saldo && !temFiltro()) {
                     DataHoje dh = new DataHoje();
 
@@ -323,7 +323,7 @@ public class MovimentoBancarioBean implements Serializable {
                     valor_saldo = fp.getValor();
                 } else {
                     if (listaMovimento.isEmpty()) {
-                        valor_saldo_anterior = (float) 0;
+                        valor_saldo_anterior = new Double(0);
                     } else {
                         valor_saldo_anterior = listaMovimento.get(i - 1).getSaldo();
                     }
@@ -337,7 +337,7 @@ public class MovimentoBancarioBean implements Serializable {
                                 (String) result_object.get(2), // DOCUMENTO
                                 (String) result_object.get(3), // HISTORICO 
                                 m, // ID BAIXA
-                                (m.getEs().equals("E") ? Moeda.somaValores(valor_saldo_anterior, valor_saldo) : Moeda.subtracaoValores(valor_saldo_anterior, valor_saldo)), // SALDO
+                                (m.getEs().equals("E") ? Moeda.soma(valor_saldo_anterior, valor_saldo) : Moeda.subtracao(valor_saldo_anterior, valor_saldo)), // SALDO
                                 (TipoPagamento) dao.find(new TipoPagamento(), (Integer) result_object.get(6)), // ID TIPO PAGAMENTO
                                 cheque_rec,
                                 cheque_pag,
@@ -362,7 +362,7 @@ public class MovimentoBancarioBean implements Serializable {
             // NÃO SUBTRAI A SAIDA BLOQUEADA PARA NÃO CONTAR COM O DISPONIVEL COM SALDO COMPROMETIDO
             // MESMO SABENDO QUE NO BANCO ESSA SAIDA BLOQUEADA ESTARÁ DISPONÍVEL
             // JÁ RECEITA BLOQUEADA, LITERALMENTE NÃO ESTARÁ DISPONÍVEL
-            saldoDisponivel = Moeda.subtracaoValores(saldoFinal, saldoEntradaBloqueado);
+            saldoDisponivel = Moeda.subtracao(saldoFinal, saldoEntradaBloqueado);
         } else {
             saldoFinal = contaSaldo.getSaldo();
             saldoDisponivel = contaSaldo.getSaldo();
@@ -373,36 +373,36 @@ public class MovimentoBancarioBean implements Serializable {
         if (cheque_rec != null || cheque_pag != null || cartao_rec != null || cartao_pag != null) {
             if (cheque_rec != null) {
                 if (fp.getStatus().getId() == 8 && m.getEs().equals("E")) {
-                    saldoEntradaBloqueado = Moeda.somaValores(saldoEntradaBloqueado, fp.getValor());
+                    saldoEntradaBloqueado = Moeda.soma(saldoEntradaBloqueado, fp.getValor());
                 } else {
-                    saldoDisponivel = Moeda.somaValores(saldoDisponivel, fp.getValor());
+                    saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
                 }
                 if (fp.getStatus().getId() == 8 && m.getEs().equals("S")) {
-                    saldoSaidaBloqueado = Moeda.somaValores(saldoSaidaBloqueado, fp.getValor());
+                    saldoSaidaBloqueado = Moeda.soma(saldoSaidaBloqueado, fp.getValor());
                 } else {
-                    saldoDisponivel = Moeda.somaValores(saldoDisponivel, fp.getValor());
+                    saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
                 }
             }
 
             if (cheque_pag != null) {
                 if (fp.getStatus().getId() == 8 && m.getEs().equals("E")) {
-                    saldoSaidaBloqueado = Moeda.somaValores(saldoEntradaBloqueado, fp.getValor());
+                    saldoSaidaBloqueado = Moeda.soma(saldoEntradaBloqueado, fp.getValor());
                 }
                 if (fp.getStatus().getId() == 8 && m.getEs().equals("S")) {
-                    saldoSaidaBloqueado = Moeda.somaValores(saldoSaidaBloqueado, fp.getValor());
+                    saldoSaidaBloqueado = Moeda.soma(saldoSaidaBloqueado, fp.getValor());
                 }
             }
 
             if (cartao_rec != null) {
                 if (fp.getStatus().getId() == 8 && m.getEs().equals("E")) {
-                    saldoEntradaBloqueado = Moeda.somaValores(saldoEntradaBloqueado, fp.getValor());
+                    saldoEntradaBloqueado = Moeda.soma(saldoEntradaBloqueado, fp.getValor());
                 } else {
-                    saldoDisponivel = Moeda.somaValores(saldoDisponivel, fp.getValor());
+                    saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
                 }
                 if (fp.getStatus().getId() == 8 && m.getEs().equals("S")) {
-                    saldoSaidaBloqueado = Moeda.somaValores(saldoSaidaBloqueado, fp.getValor());
+                    saldoSaidaBloqueado = Moeda.soma(saldoSaidaBloqueado, fp.getValor());
                 } else {
-                    saldoDisponivel = Moeda.somaValores(saldoDisponivel, fp.getValor());
+                    saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
                 }
             }
 
@@ -663,7 +663,7 @@ public class MovimentoBancarioBean implements Serializable {
         novaClass();
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus, String historicox) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historicox) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 225), // ROTINA
@@ -730,31 +730,31 @@ public class MovimentoBancarioBean implements Serializable {
     }
 
     // NORMAL
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, TipoPagamento tipoPagamento) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, TipoPagamento tipoPagamento) {
         return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, null, null, tipoPagamento, null, 0);
     }
 
     // CHEQUE PAGAMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequePag chequePag, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequePag chequePag, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
         return this.novaFormaPagamento(dao, baixa, valor, plano, chequePag, null, null, null, tipoPagamento, fstatus, devolucao);
     }
 
     // CHEQUE RECEBIMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequeRec chequeRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequeRec chequeRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
         return this.novaFormaPagamento(dao, baixa, valor, plano, null, chequeRec, null, null, tipoPagamento, fstatus, devolucao);
     }
 
     // CARTÃO PAGAMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, CartaoPag cartaoPag, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, CartaoPag cartaoPag, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
         return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, cartaoPag, null, tipoPagamento, fstatus, devolucao);
     }
 
     // CARTÃO RECEBIMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
         return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, null, cartaoRec, tipoPagamento, fstatus, devolucao);
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequePag chequePag, ChequeRec chequeRec, CartaoPag cartaoPag, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequePag chequePag, ChequeRec chequeRec, CartaoPag cartaoPag, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -1184,7 +1184,7 @@ public class MovimentoBancarioBean implements Serializable {
         return true;
     }
 
-    public Baixa criarLoteMovimentoSaida(Dao dao, Float valor, String historicox) {
+    public Baixa criarLoteMovimentoSaida(Dao dao, Double valor, String historicox) {
         Baixa baixa_saida = novaBaixa(DataHoje.dataHoje());
         if (!dao.save(baixa_saida)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
@@ -1208,7 +1208,7 @@ public class MovimentoBancarioBean implements Serializable {
         return baixa_saida;
     }
 
-    public Baixa criarLoteMovimentoEntrada(Dao dao, Float valor, String historicox) {
+    public Baixa criarLoteMovimentoEntrada(Dao dao, Double valor, String historicox) {
         Baixa baixa_entrada = novaBaixa(DataHoje.dataHoje());
         if (!dao.save(baixa_entrada)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
@@ -1355,64 +1355,64 @@ public class MovimentoBancarioBean implements Serializable {
         this.contaSaldo = contaSaldo;
     }
 
-    public Float getSaldoFinal() {
+    public Double getSaldoFinal() {
         return saldoFinal;
     }
 
-    public void setSaldoFinal(Float saldoFinal) {
+    public void setSaldoFinal(Double saldoFinal) {
         this.saldoFinal = saldoFinal;
     }
 
     public String getSaldoFinalString() {
-        return Moeda.converteR$Float(saldoFinal);
+        return Moeda.converteR$Double(saldoFinal);
     }
 
     public void setSaldoFinalString(String saldoFinalString) {
         this.saldoFinal = Moeda.converteUS$(saldoFinalString);
     }
 
-    public Float getSaldoEntradaBloqueado() {
+    public Double getSaldoEntradaBloqueado() {
         return saldoEntradaBloqueado;
     }
 
-    public void setSaldoEntradaBloqueado(Float saldoEntradaBloqueado) {
+    public void setSaldoEntradaBloqueado(Double saldoEntradaBloqueado) {
         this.saldoEntradaBloqueado = saldoEntradaBloqueado;
     }
 
     public String getSaldoEntradaBloqueadoString() {
-        return Moeda.converteR$Float(saldoEntradaBloqueado);
+        return Moeda.converteR$Double(saldoEntradaBloqueado);
     }
 
     public void setSaldoEntradaBloqueadoString(String saldoEntradaBloqueadoString) {
         this.saldoEntradaBloqueado = Moeda.converteUS$(saldoEntradaBloqueadoString);
     }
 
-    public Float getSaldoSaidaBloqueado() {
+    public Double getSaldoSaidaBloqueado() {
         return saldoSaidaBloqueado;
     }
 
-    public void setSaldoSaidaBloqueado(Float saldoSaidaBloqueado) {
+    public void setSaldoSaidaBloqueado(Double saldoSaidaBloqueado) {
         this.saldoSaidaBloqueado = saldoSaidaBloqueado;
     }
 
     public String getSaldoSaidaBloqueadoString() {
-        return Moeda.converteR$Float(saldoSaidaBloqueado);
+        return Moeda.converteR$Double(saldoSaidaBloqueado);
     }
 
     public void setSaldoSaidaBloqueadoString(String saldoSaidaBloqueadoString) {
         this.saldoSaidaBloqueado = Moeda.converteUS$(saldoSaidaBloqueadoString);
     }
 
-    public Float getSaldoDisponivel() {
+    public Double getSaldoDisponivel() {
         return saldoDisponivel;
     }
 
-    public void setSaldoDisponivel(Float saldoDisponivel) {
+    public void setSaldoDisponivel(Double saldoDisponivel) {
         this.saldoDisponivel = saldoDisponivel;
     }
 
     public String getSaldoDisponivelString() {
-        return Moeda.converteR$Float(saldoDisponivel);
+        return Moeda.converteR$Double(saldoDisponivel);
     }
 
     public void setSaldoDisponivelString(String saldoDisponivelString) {
@@ -1494,7 +1494,7 @@ public class MovimentoBancarioBean implements Serializable {
         private String documento;
         private String historico;
         private Movimento movimento;
-        private Float saldo;
+        private Double saldo;
         private TipoPagamento tipoPagamento;
         private ChequeRec chequeRec;
         private ChequePag chequePag;
@@ -1502,7 +1502,7 @@ public class MovimentoBancarioBean implements Serializable {
         private CartaoRec cartaoRec;
         private CartaoPag cartaoPag;
 
-        public ObjectMovimentoBancario(FormaPagamento formaPagamento, Baixa baixa, String documento, String historico, Movimento movimento, Float saldo, TipoPagamento tipoPagamento, ChequeRec chequeRec, ChequePag chequePag, List<ObjectDetalheMovimentoBancario> listDetalheMovimento, CartaoRec cartaoRec, CartaoPag cartaoPag) {
+        public ObjectMovimentoBancario(FormaPagamento formaPagamento, Baixa baixa, String documento, String historico, Movimento movimento, Double saldo, TipoPagamento tipoPagamento, ChequeRec chequeRec, ChequePag chequePag, List<ObjectDetalheMovimentoBancario> listDetalheMovimento, CartaoRec cartaoRec, CartaoPag cartaoPag) {
             this.formaPagamento = formaPagamento;
             this.baixa = baixa;
             this.documento = documento;
@@ -1557,16 +1557,16 @@ public class MovimentoBancarioBean implements Serializable {
             this.movimento = movimento;
         }
 
-        public Float getSaldo() {
+        public Double getSaldo() {
             return saldo;
         }
 
-        public void setSaldo(Float saldo) {
+        public void setSaldo(Double saldo) {
             this.saldo = saldo;
         }
 
         public String getSaldoString() {
-            return Moeda.converteR$Float(saldo);
+            return Moeda.converteR$Double(saldo);
         }
 
         public void setSaldoString(String saldoString) {
@@ -1625,9 +1625,9 @@ public class MovimentoBancarioBean implements Serializable {
     public class ObjectDetalheMovimentoBancario {
 
         private String conta;
-        private Float valor;
+        private Double valor;
 
-        public ObjectDetalheMovimentoBancario(String conta, Float valor) {
+        public ObjectDetalheMovimentoBancario(String conta, Double valor) {
             this.conta = conta;
             this.valor = valor;
         }
@@ -1640,16 +1640,16 @@ public class MovimentoBancarioBean implements Serializable {
             this.conta = conta;
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {

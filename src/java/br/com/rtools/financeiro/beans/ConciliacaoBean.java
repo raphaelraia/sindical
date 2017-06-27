@@ -142,7 +142,7 @@ public class ConciliacaoBean implements Serializable {
                     new ObjectConciliacao(
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(0)),
                             (TipoPagamento) dao.find(new TipoPagamento(), (Integer) linha.get(1)),
-                            ((Double) linha.get(2)).floatValue(),
+                            ((Double) linha.get(2)),
                             (Date) linha.get(3),
                             (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(4)),
                             (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(5))
@@ -167,7 +167,7 @@ public class ConciliacaoBean implements Serializable {
             listaObjectParaConciliar.add(
                     new SelectItem(
                             i,
-                            DataHoje.converteData((Date) linha.get(0)) + " - " + Moeda.converteR$Float(((Double) linha.get(1)).floatValue()),
+                            DataHoje.converteData((Date) linha.get(0)) + " - " + Moeda.converteR$Double((Double) linha.get(1)),
                             "" + linha.get(2)
                     )
             );
@@ -201,7 +201,7 @@ public class ConciliacaoBean implements Serializable {
         }
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus, String historico_contabil) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historico_contabil) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 225), // ROTINA
@@ -267,7 +267,7 @@ public class ConciliacaoBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -366,7 +366,7 @@ public class ConciliacaoBean implements Serializable {
 
         private Pessoa pessoa;
         private TipoPagamento tipoPagamento;
-        private Float valor;
+        private Double valor;
         private Date dataConciliacao;
         private FormaPagamento formaPagamento;
         private FormaPagamento conciliado;
@@ -374,13 +374,13 @@ public class ConciliacaoBean implements Serializable {
         public ObjectConciliacao() {
             this.pessoa = new Pessoa();
             this.tipoPagamento = new TipoPagamento();
-            this.valor = (float) 0;
+            this.valor = new Double(0);
             this.dataConciliacao = DataHoje.dataHoje();
             this.formaPagamento = new FormaPagamento();
             this.conciliado = new FormaPagamento();
         }
 
-        public ObjectConciliacao(Pessoa pessoa, TipoPagamento tipoPagamento, Float valor, Date dataConciliacao, FormaPagamento formaPagamento, FormaPagamento conciliado) {
+        public ObjectConciliacao(Pessoa pessoa, TipoPagamento tipoPagamento, Double valor, Date dataConciliacao, FormaPagamento formaPagamento, FormaPagamento conciliado) {
             this.pessoa = pessoa;
             this.tipoPagamento = tipoPagamento;
             this.valor = valor;
@@ -405,16 +405,16 @@ public class ConciliacaoBean implements Serializable {
             this.tipoPagamento = tipoPagamento;
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {
@@ -457,14 +457,14 @@ public class ConciliacaoBean implements Serializable {
     public class ObjectParaConciliar {
 
         private Date baixa;
-        private Float valorBaixa;
+        private Double valorBaixa;
 
         public ObjectParaConciliar() {
             this.baixa = null;
             this.valorBaixa = null;
         }
 
-        public ObjectParaConciliar(Date baixa, Float valorBaixa) {
+        public ObjectParaConciliar(Date baixa, Double valorBaixa) {
             this.baixa = baixa;
             this.valorBaixa = valorBaixa;
         }
@@ -485,11 +485,11 @@ public class ConciliacaoBean implements Serializable {
             this.baixa = DataHoje.converte(baixaString);
         }
 
-        public Float getValorBaixa() {
+        public Double getValorBaixa() {
             return valorBaixa;
         }
 
-        public void setValorBaixa(Float valorBaixa) {
+        public void setValorBaixa(Double valorBaixa) {
             this.valorBaixa = valorBaixa;
         }
 

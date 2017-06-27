@@ -380,7 +380,7 @@ public class ImpressaoChequeBean implements Serializable {
 
         private String codigo_banco;
         private String banco;
-        private Float valor;
+        private Double valor;
         private String favorecido;
         private String data;
         private Integer cheque_id;
@@ -392,7 +392,7 @@ public class ImpressaoChequeBean implements Serializable {
         private String impressao;
         private ChequePag chequePag;
 
-        public ObjectListaCheque(String codigo_banco, String banco, Float valor, String favorecido, String data, Integer cheque_id, String emissao, String vencimento, String cancelamento, String cheque_numero, String cidade, String impressao, ChequePag chequePag) {
+        public ObjectListaCheque(String codigo_banco, String banco, Double valor, String favorecido, String data, Integer cheque_id, String emissao, String vencimento, String cancelamento, String cheque_numero, String cidade, String impressao, ChequePag chequePag) {
             this.codigo_banco = codigo_banco;
             this.banco = banco;
             this.valor = valor;
@@ -424,16 +424,16 @@ public class ImpressaoChequeBean implements Serializable {
             this.banco = banco;
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public String getFavorecido() {

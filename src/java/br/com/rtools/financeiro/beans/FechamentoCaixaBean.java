@@ -72,13 +72,13 @@ public final class FechamentoCaixaBean implements Serializable {
 
             for (int i = 0; i < lista.size(); i++) {
                 int status = 0;
-                float soma = 0;
+                double soma = 0;
                 if (Moeda.converteUS$(lista.get(i).get(2).toString()) > Moeda.converteUS$(lista.get(i).get(3).toString())) {
                     status = 1;
-                    soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(2).toString()), Moeda.converteUS$(lista.get(i).get(3).toString()));
+                    soma = Moeda.subtracao(Moeda.converteUS$(lista.get(i).get(2).toString()), Moeda.converteUS$(lista.get(i).get(3).toString()));
                 } else if (Moeda.converteUS$(lista.get(i).get(2).toString()) < Moeda.converteUS$(lista.get(i).get(3).toString())) {
                     status = 2;
-                    soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(3).toString()), Moeda.converteUS$(lista.get(i).get(2).toString()));
+                    soma = Moeda.subtracao(Moeda.converteUS$(lista.get(i).get(3).toString()), Moeda.converteUS$(lista.get(i).get(2).toString()));
                 } else if (lista.get(i).get(5).toString() == null || lista.get(i).get(5).toString().isEmpty()) {
                     status = 3;
                 }
@@ -89,7 +89,7 @@ public final class FechamentoCaixaBean implements Serializable {
                         Moeda.converteR$(lista.get(i).get(2).toString()), // VALOR FECHAMENTO
                         Moeda.converteR$(lista.get(i).get(3).toString()), // VALOR INFORMADO
                         status,// STATUS
-                        Moeda.converteR$Float(soma),
+                        Moeda.converteR$Double(soma),
                         null,
                         null,
                         null
@@ -419,12 +419,12 @@ public final class FechamentoCaixaBean implements Serializable {
         }
 
         if (!result_entrada.isEmpty()) {
-            float valorx = 0;
+            double valorx = 0;
             for (int i = 0; i < result_entrada.size(); i++) {
                 Baixa ba = (Baixa) dao.find(new Baixa(), (Integer) result_entrada.get(i).get(8));
                 ba.setFechamentoCaixa(fechamento);
 
-                valorx = Moeda.somaValores(valorx, Float.parseFloat(Double.toString((Double) result_entrada.get(i).get(6))));
+                valorx = Moeda.soma(valorx, (Double) result_entrada.get(i).get(6));
                 if (!dao.update(ba)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel alterar a Baixa!");
                     dao.rollback();
@@ -437,12 +437,12 @@ public final class FechamentoCaixaBean implements Serializable {
         }
 
         if (!result_saida.isEmpty()) {
-            float valorx = 0;
+            double valorx = 0;
             for (int i = 0; i < result_saida.size(); i++) {
                 Baixa ba = (Baixa) dao.find(new Baixa(), (Integer) result_saida.get(i).get(8));
                 ba.setFechamentoCaixa(fechamento);
 
-                valorx = Moeda.somaValores(valorx, Float.parseFloat(Double.toString((Double) result_saida.get(i).get(6))));
+                valorx = Moeda.soma(valorx, (Double) result_saida.get(i).get(6));
                 if (!dao.update(ba)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel alterar a Baixa!");
                     dao.rollback();
@@ -450,18 +450,18 @@ public final class FechamentoCaixaBean implements Serializable {
                     return;
                 }
             }
-            //fechamento.setValorFechamento(valorx);
-            fechamento.setValorFechamento(Moeda.subtracaoValores(fechamento.getValorFechamento(), valorx));
+            
+            fechamento.setValorFechamento(Moeda.subtracao(fechamento.getValorFechamento(), valorx));
             dao.update(fechamento);
         }
 
         if (!lEntrada.isEmpty()) {
-            float valorx = 0;
+            double valorx = 0;
             for (int i = 0; i < lEntrada.size(); i++) {
                 TransferenciaCaixa tc = (TransferenciaCaixa) dao.find(new TransferenciaCaixa(), lEntrada.get(i).getId());
                 tc.setFechamentoEntrada(fechamento);
 
-                valorx = Moeda.somaValores(valorx, tc.getValor());
+                valorx = Moeda.soma(valorx, tc.getValor());
                 if (!dao.update(tc)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel alterar a entrada de Transferência entre Caixas!");
                     dao.rollback();
@@ -469,17 +469,17 @@ public final class FechamentoCaixaBean implements Serializable {
                     return;
                 }
             }
-            fechamento.setValorFechamento(Moeda.somaValores(fechamento.getValorFechamento(), valorx));
+            fechamento.setValorFechamento(Moeda.soma(fechamento.getValorFechamento(), valorx));
             dao.update(fechamento);
         }
 
         if (!lSaida.isEmpty()) {
-            float valorx = 0;//fechamento.getValorFechamento();
+            double valorx = 0;//fechamento.getValorFechamento();
             for (int i = 0; i < lSaida.size(); i++) {
                 TransferenciaCaixa tc = (TransferenciaCaixa) dao.find(new TransferenciaCaixa(), lSaida.get(i).getId());
                 tc.setFechamentoSaida(fechamento);
 
-                valorx = Moeda.somaValores(valorx, tc.getValor());
+                valorx = Moeda.soma(valorx, tc.getValor());
                 if (!dao.update(tc)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel alterar a saída de Transferência entre Caixas!");
                     dao.rollback();
@@ -487,7 +487,7 @@ public final class FechamentoCaixaBean implements Serializable {
                     return;
                 }
             }
-            fechamento.setValorFechamento(Moeda.subtracaoValores(fechamento.getValorFechamento(), valorx));
+            fechamento.setValorFechamento(Moeda.subtracao(fechamento.getValorFechamento(), valorx));
             dao.update(fechamento);
         }
 
@@ -503,7 +503,7 @@ public final class FechamentoCaixaBean implements Serializable {
             }
         }
 
-        fechamento.setValorFechamento(Moeda.somaValores(fechamento.getValorFechamento(), Moeda.converteUS$(saldoAtual)));
+        fechamento.setValorFechamento(Moeda.soma(fechamento.getValorFechamento(), Moeda.converteUS$(saldoAtual)));
 
         // CALCULO PARA SOMAR OS VALORES DA QUERY
         if (cfb.getConfiguracaoFinanceiro().isAlterarValorFechamento()) {
@@ -523,11 +523,10 @@ public final class FechamentoCaixaBean implements Serializable {
             CaixaFechadoBean cf = new CaixaFechadoBean();
             if (cfb.getConfiguracaoFinanceiro().isTransferenciaAutomaticaCaixa()) {
                 if (cfb.getConfiguracaoFinanceiro().isModalTransferencia()) {
-                    //valorTransferencia = Moeda.converteR$Float(Moeda.subtracaoValores(fechamento.getValorFechamento(), caixa.getFundoFixo()));
 
                     // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
                     if (fechamento.getValorInformado() < 0) {
-                        valorTransferencia = Moeda.converteR$Float(0);
+                        valorTransferencia = Moeda.converteR$Double(0);
                     } else {
                         valorTransferencia = cf.somaValorTransferencia(fechamento, caixa);
                     }
@@ -535,10 +534,10 @@ public final class FechamentoCaixaBean implements Serializable {
                     PF.openDialog("i_dlg_transferir");
                     PF.update(":i_panel_transferencia");
                 } else {
-                    //valorTransferencia = Moeda.converteR$Float(Moeda.subtracaoValores(fechamento.getValorFechamento(), caixa.getFundoFixo()));
+                    
                     // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
                     if (fechamento.getValorInformado() < 0) {
-                        valorTransferencia = Moeda.converteR$Float(0);
+                        valorTransferencia = Moeda.converteR$Double(0);
                     } else {
                         valorTransferencia = cf.somaValorTransferencia(fechamento, caixa);
                     }
@@ -548,8 +547,6 @@ public final class FechamentoCaixaBean implements Serializable {
             }
         }
 
-        //fechamento = new FechamentoCaixa();
-        //listaFechamento.clear();
         loadListaFechamento();
         valor = "0,00";
     }

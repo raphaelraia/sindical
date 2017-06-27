@@ -163,7 +163,7 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public void verificaValorDigitado() {
-        float valor_troco = 0;
+        double valor_troco = 0;
         boolean dinheiro = false;
         for (int i = 0; i < listaValores.size(); i++) {
             if (listaValores.get(i).getTipoPagamento().getId() == 3) {
@@ -174,11 +174,11 @@ public class BaixaGeralBean implements Serializable {
         if (dinheiro) {
             for (int i = 0; i < listaValores.size(); i++) {
                 if (listaValores.get(i).getTipoPagamento().getId() == 3) {
-                    float valorx = Moeda.converteUS$(listaValores.get(i).getValor());
-                    float valordigitado = Moeda.converteUS$(listaValores.get(i).getValorDigitado());
+                    double valorx = Moeda.converteUS$(listaValores.get(i).getValor());
+                    double valordigitado = Moeda.converteUS$(listaValores.get(i).getValorDigitado());
                     if (valorx < valordigitado) {
-                        valor_troco = Moeda.subtracaoValores(valordigitado, valorx);
-                        valorTroco = Moeda.converteR$Float(valor_troco);
+                        valor_troco = Moeda.subtracao(valordigitado, valorx);
+                        valorTroco = Moeda.converteR$Double(valor_troco);
                     }
                 }
             }
@@ -274,12 +274,10 @@ public class BaixaGeralBean implements Serializable {
         }
     }
 
-    private float somaValoresGrid() {
-        float soma = 0;
+    private double somaValoresGrid() {
+        double soma = 0;
         for (ListValoresBaixaGeral listaValore : listaValores) {
-            soma = Moeda.somaValores(soma,
-                    Float.parseFloat(Moeda.substituiVirgula(String.valueOf(listaValore.getValor())))
-            );
+            soma = Moeda.soma(soma, Moeda.converteStringToDouble(listaValore.getValor()));
         }
         return soma;
     }
@@ -290,12 +288,10 @@ public class BaixaGeralBean implements Serializable {
             return;
         }
 
-        float valorGrid = 0;
+        double valorGrid = 0;
         int tipo_dinheiro = 0;
         for (ListValoresBaixaGeral listaValore : listaValores) {
-            valorGrid = Moeda.somaValores(valorGrid,
-                    Float.parseFloat(Moeda.substituiVirgula(String.valueOf(listaValore.getValor())))
-            );
+            valorGrid = Moeda.soma(valorGrid, Moeda.converteStringToDouble(listaValore.getValor()));
 
             if (listaValore.getTipoPagamento().getId() == 3) {
                 tipo_dinheiro++;
@@ -312,8 +308,8 @@ public class BaixaGeralBean implements Serializable {
             return;
         }
 
-        float valorDigitado = 0;
-        valorEditavel = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(total), valorGrid));
+        double valorDigitado = 0;
+        valorEditavel = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(total), valorGrid));
 
         if (Moeda.converteUS$(valor) > Moeda.converteUS$(valorEditavel)) {
             valorDigitado = Moeda.converteUS$(valor);
@@ -355,7 +351,7 @@ public class BaixaGeralBean implements Serializable {
                     ch_p.setPlano5(pl);
                     ch_p.setDtVencimentoString(vencimento);
 
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
                 } else {
                     if (numero.isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
@@ -379,7 +375,7 @@ public class BaixaGeralBean implements Serializable {
                         GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
                         return;
                     }
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null));
                 }
                 numero = "";
                 numeroChequePag = "";
@@ -396,10 +392,10 @@ public class BaixaGeralBean implements Serializable {
                 Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
                 if (!getEs().isEmpty() && getEs().equals("S")) {
                     CartaoPag cartao_pag = null;
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Float(valorDigitado), null, null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null));
                 } else {
                     CartaoRec cartao_rec = new CartaoRec(-1, null, cart);
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
                 }
                 if (!listaCartao.get(0).getDescription().isEmpty()) {
                 }
@@ -443,7 +439,7 @@ public class BaixaGeralBean implements Serializable {
                     }
                 }
 
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), null, pl_conciliacao, dt_conciliacao));
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), null, pl_conciliacao, dt_conciliacao));
                 numero = "";
                 dataConciliacao = null;
                 break;
@@ -452,27 +448,27 @@ public class BaixaGeralBean implements Serializable {
                     GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
                     return;
                 }
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Float(valorDigitado), null, null, null));
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), null, null, null));
                 break;
         }
         desHabilitaConta = true;
         desHabilitaQuitacao = true;
 
         verificaValorDigitado();
-        valor = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(total), somaValoresGrid()));
+        valor = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(total), somaValoresGrid()));
     }
 
     public String remover(int index) {
         listaValores.remove(index);
-        float soma = somaValoresGrid();
-        float valorF = Float.parseFloat(Moeda.substituiVirgula(valor));
-        float totalF = Float.parseFloat(Moeda.substituiVirgula(total));
-        if ((Moeda.somaValores(soma, valorF) < totalF) || (soma == 0)) {
-            valorF = Moeda.subtracaoValores(totalF, soma);
+        double soma = somaValoresGrid();
+        double valorF = Moeda.converteStringToDouble(valor);
+        double totalF = Moeda.converteStringToDouble(total);
+        if ((Moeda.soma(soma, valorF) < totalF) || (soma == 0)) {
+            valorF = Moeda.subtracao(totalF, soma);
         } else {
             valorF = 0;
         }
-        setValor(Moeda.converteR$Float(valorF));
+        setValor(Moeda.converteR$Double(valorF));
 
         verificaValorDigitado();
         return null;
@@ -591,7 +587,7 @@ public class BaixaGeralBean implements Serializable {
         List<FormaPagamento> lfp = new ArrayList();
 
         for (int i = 0; i < listaValores.size(); i++) {
-            float valor_baixa = Moeda.converteUS$(String.valueOf(listaValores.get(i).getValor()));
+            double valor_baixa = Moeda.converteUS$(String.valueOf(listaValores.get(i).getValor()));
             // CHEQUE
             if (listaValores.get(i).getTipoPagamento().getId() == 4 || listaValores.get(i).getTipoPagamento().getId() == 5) {
                 if (!getEs().isEmpty() && getEs().equals("S")) {
@@ -605,9 +601,9 @@ public class BaixaGeralBean implements Serializable {
                 DataHoje dh = new DataHoje();
 
                 if (!getEs().isEmpty() && getEs().equals("S")) {
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisaoValores(Moeda.multiplicarValores(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
                 } else {
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisaoValores(Moeda.multiplicarValores(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
                 }
             } else if (listaValores.get(i).getTipoPagamento().getId() == 8 || listaValores.get(i).getTipoPagamento().getId() == 9 || listaValores.get(i).getTipoPagamento().getId() == 10) {
                 // DOC BANCARIO    
@@ -622,9 +618,9 @@ public class BaixaGeralBean implements Serializable {
             listaMovimentos.get(i).setTaxa(Moeda.converteUS$(taxa));
         }
 
-        float vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
+        double vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
 
-        StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl);
+        StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.converteStringToDouble(total), quitacao, caixa, vl);
 
         if (!sr.getStatus()) {
             mensagem = "Erro ao baixar! " + sr.getMensagem();

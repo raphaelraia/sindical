@@ -47,11 +47,11 @@ public class MovimentoCartaoBean implements Serializable {
     private List<ObjectListaCartoes> listaCartoes = new ArrayList();
     private List<ObjectListaCartoes> listaCartoesSelecionado = new ArrayList();
 
-    private Float valorTotal = (float) 0;
-    private Float valorTotalSelecionado = (float) 0;
+    private Double valorTotal = new Double(0);
+    private Double valorTotalSelecionado = new Double(0);
 
-    private Float valorTotalLiquido = (float) 0;
-    private Float valorTotalLiquidoSelecionado = (float) 0;
+    private Double valorTotalLiquido = new Double(0);
+    private Double valorTotalLiquidoSelecionado = new Double(0);
 
     public MovimentoCartaoBean() {
         loadListaCartaoCombo();
@@ -59,23 +59,23 @@ public class MovimentoCartaoBean implements Serializable {
     }
 
     public String calculoSomaValores(ObjectListaCartoes linha_oc) {
-        Float somaValores = (float) 0;
+        Double somaValores = new Double(0);
         for (ObjectListaCartoes oc : listaCartoes) {
             if (oc.getFormaPagamento().getBaixa().getBaixa().equals(linha_oc.getFormaPagamento().getBaixa().getBaixa())) {
-                somaValores = Moeda.somaValores(somaValores, oc.getValor());
+                somaValores = Moeda.soma(somaValores, oc.getValor());
             }
         }
-        return Moeda.converteR$Float(somaValores);
+        return Moeda.converteR$Double(somaValores);
     }
 
     public String calculoSomaLiquidos(ObjectListaCartoes linha_oc) {
-        Float somaLiquidos = (float) 0;
+        Double somaLiquidos = new Double(0);
         for (ObjectListaCartoes oc : listaCartoes) {
             if (oc.getFormaPagamento().getBaixa().getBaixa().equals(linha_oc.getFormaPagamento().getBaixa().getBaixa())) {
-                somaLiquidos = Moeda.somaValores(somaLiquidos, oc.getLiquido());
+                somaLiquidos = Moeda.soma(somaLiquidos, oc.getLiquido());
             }
         }
-        return Moeda.converteR$Float(somaLiquidos);
+        return Moeda.converteR$Double(somaLiquidos);
     }
 
     public void transferirCartao() {
@@ -111,7 +111,7 @@ public class MovimentoCartaoBean implements Serializable {
         Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 14), historico_entrada);
 
         String historico_saida_despesa = "Referente ao pagamento de despesa financeira do repasse de recebimento de cartões";
-        Lote lote_saida_despesa = novoLote(dao, "P", plano_saida_despesa, Moeda.subtracaoValores(valorTotalSelecionado, valorTotalLiquidoSelecionado), (FStatus) dao.find(new FStatus(), 1), historico_saida_despesa);
+        Lote lote_saida_despesa = novoLote(dao, "P", plano_saida_despesa, Moeda.subtracao(valorTotalSelecionado, valorTotalLiquidoSelecionado), (FStatus) dao.find(new FStatus(), 1), historico_saida_despesa);
 
         if (!dao.save(lote_saida) || !dao.save(lote_entrada) || !dao.save(lote_saida_despesa)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Lote");
@@ -156,12 +156,12 @@ public class MovimentoCartaoBean implements Serializable {
     }
 
     public void calculoValores() {
-        valorTotalSelecionado = (float) 0;
-        valorTotalLiquidoSelecionado = (float) 0;
+        valorTotalSelecionado = new Double(0);
+        valorTotalLiquidoSelecionado = new Double(0);
 
         for (ObjectListaCartoes oc : listaCartoesSelecionado) {
-            valorTotalSelecionado = Moeda.somaValores(valorTotalSelecionado, oc.getValor());
-            valorTotalLiquidoSelecionado = Moeda.somaValores(valorTotalLiquidoSelecionado, oc.getLiquido());
+            valorTotalSelecionado = Moeda.soma(valorTotalSelecionado, oc.getValor());
+            valorTotalLiquidoSelecionado = Moeda.soma(valorTotalLiquidoSelecionado, oc.getLiquido());
         }
     }
 
@@ -188,11 +188,11 @@ public class MovimentoCartaoBean implements Serializable {
         listaCartoes.clear();
         listaCartoesSelecionado.clear();
 
-        valorTotal = (float) 0;
-        valorTotalSelecionado = (float) 0;
+        valorTotal = new Double(0);
+        valorTotalSelecionado = new Double(0);
 
-        valorTotalLiquido = (float) 0;
-        valorTotalLiquidoSelecionado = (float) 0;
+        valorTotalLiquido = new Double(0);
+        valorTotalLiquidoSelecionado = new Double(0);
 
         MovimentoCartaoDao mdao = new MovimentoCartaoDao();
 
@@ -208,9 +208,9 @@ public class MovimentoCartaoBean implements Serializable {
                             (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(0)),
                             (Date) linha.get(1),
                             linha.get(2).toString(),
-                            ((Double) linha.get(3)).floatValue(),
-                            ((Double) linha.get(4)).floatValue(),
-                            ((Double) linha.get(5)).floatValue(),
+                            (Double) linha.get(3),
+                            (Double) linha.get(4),
+                            (Double) linha.get(5),
                             linha.get(6).toString(),
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(7)),
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(8)),
@@ -218,12 +218,12 @@ public class MovimentoCartaoBean implements Serializable {
                     )
             );
 
-            valorTotal = Moeda.somaValores(valorTotal, ((Double) linha.get(3)).floatValue());
-            valorTotalLiquido = Moeda.somaValores(valorTotalLiquido, ((Double) linha.get(5)).floatValue());
+            valorTotal = Moeda.soma(valorTotal, (Double) linha.get(3));
+            valorTotalLiquido = Moeda.soma(valorTotalLiquido, (Double) linha.get(5));
         }
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus, String historico_contabil) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historico_contabil) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 225), // ROTINA
@@ -289,7 +289,7 @@ public class MovimentoCartaoBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -360,64 +360,64 @@ public class MovimentoCartaoBean implements Serializable {
         this.listaCartoesSelecionado = listaCartoesSelecionado;
     }
 
-    public Float getValorTotal() {
+    public Double getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Float valorTotal) {
+    public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
     }
 
     public String getValorTotalString() {
-        return Moeda.converteR$Float(valorTotal);
+        return Moeda.converteR$Double(valorTotal);
     }
 
     public void setValorTotalString(String valorTotalString) {
         this.valorTotal = Moeda.converteUS$(valorTotalString);
     }
 
-    public Float getValorTotalSelecionado() {
+    public Double getValorTotalSelecionado() {
         return valorTotalSelecionado;
     }
 
-    public void setValorTotalSelecionado(Float valorTotalSelecionado) {
+    public void setValorTotalSelecionado(Double valorTotalSelecionado) {
         this.valorTotalSelecionado = valorTotalSelecionado;
     }
 
     public String getValorTotalSelecionadoString() {
-        return Moeda.converteR$Float(valorTotalSelecionado);
+        return Moeda.converteR$Double(valorTotalSelecionado);
     }
 
     public void setValorTotalSelecionadoString(String valorTotalSelecionadoString) {
         this.valorTotalSelecionado = Moeda.converteUS$(valorTotalSelecionadoString);
     }
 
-    public Float getValorTotalLiquido() {
+    public Double getValorTotalLiquido() {
         return valorTotalLiquido;
     }
 
-    public void setValorTotalLiquido(Float valorTotalLiquido) {
+    public void setValorTotalLiquido(Double valorTotalLiquido) {
         this.valorTotalLiquido = valorTotalLiquido;
     }
 
     public String getValorTotalLiquidoString() {
-        return Moeda.converteR$Float(valorTotalLiquido);
+        return Moeda.converteR$Double(valorTotalLiquido);
     }
 
     public void setValorTotalLiquidoString(String valorTotalLiquidoString) {
         this.valorTotalLiquido = Moeda.converteUS$(valorTotalLiquidoString);
     }
 
-    public Float getValorTotalLiquidoSelecionado() {
+    public Double getValorTotalLiquidoSelecionado() {
         return valorTotalLiquidoSelecionado;
     }
 
-    public void setValorTotalLiquidoSelecionado(Float valorTotalLiquidoSelecionado) {
+    public void setValorTotalLiquidoSelecionado(Double valorTotalLiquidoSelecionado) {
         this.valorTotalLiquidoSelecionado = valorTotalLiquidoSelecionado;
     }
 
     public String getValorTotalLiquidoSelecionadoString() {
-        return Moeda.converteR$Float(valorTotalLiquidoSelecionado);
+        return Moeda.converteR$Double(valorTotalLiquidoSelecionado);
     }
 
     public void setValorTotalLiquidoSelecionadoString(String valorTotalLiquidoSelecionadoString) {
@@ -429,15 +429,15 @@ public class MovimentoCartaoBean implements Serializable {
         private FormaPagamento formaPagamento;
         private Date data;
         private String operacao;
-        private Float valor;
-        private Float taxa;
-        private Float liquido;
+        private Double valor;
+        private Double taxa;
+        private Double liquido;
         private String historico;
         private Pessoa responsavel;
         private Pessoa titular;
         private Pessoa beneficiario;
 
-        public ObjectListaCartoes(FormaPagamento formaPagamento, Date data, String operacao, Float valor, Float taxa, Float liquido, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario) {
+        public ObjectListaCartoes(FormaPagamento formaPagamento, Date data, String operacao, Double valor, Double taxa, Double liquido, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario) {
             this.formaPagamento = formaPagamento;
             this.data = data;
             this.operacao = operacao;
@@ -482,16 +482,16 @@ public class MovimentoCartaoBean implements Serializable {
             this.operacao = operacao;
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
 
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {
@@ -530,32 +530,32 @@ public class MovimentoCartaoBean implements Serializable {
             this.beneficiario = beneficiario;
         }
 
-        public Float getTaxa() {
+        public Double getTaxa() {
             return taxa;
         }
 
-        public void setTaxa(Float taxa) {
+        public void setTaxa(Double taxa) {
             this.taxa = taxa;
         }
 
         public String getTaxaString() {
-            return Moeda.converteR$Float(taxa);
+            return Moeda.converteR$Double(taxa);
         }
 
         public void setTaxaString(String taxaString) {
             this.taxa = Moeda.converteUS$(taxaString);
         }
 
-        public Float getLiquido() {
+        public Double getLiquido() {
             return liquido;
         }
 
-        public void setLiquido(Float liquido) {
+        public void setLiquido(Double liquido) {
             this.liquido = liquido;
         }
 
         public String getLiquidoString() {
-            return Moeda.converteR$Float(liquido);
+            return Moeda.converteR$Double(liquido);
         }
 
         public void setLiquidoString(String liquidoString) {

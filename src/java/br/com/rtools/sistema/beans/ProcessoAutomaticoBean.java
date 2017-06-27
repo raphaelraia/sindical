@@ -53,7 +53,8 @@ public class ProcessoAutomaticoBean implements Serializable {
                     //concluiuProcessamento();
 
                     // INCREMENTA A PROGRESSÃO DA BARRA DE STATUS
-                    Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
+                    //Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
+                    Integer progress = Math.round((processoAutomatico.getNrProgresso() / processoAutomatico.getNrProgressoFinal()) * 100);
                     progressValue = progress;
                     progressLabel = progressValue;
                 } else {

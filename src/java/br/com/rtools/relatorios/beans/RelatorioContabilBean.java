@@ -71,7 +71,7 @@ public class RelatorioContabilBean implements Serializable {
         
         for (Object obj : result) {
             List linha = (List) obj;
-            lista.add(new ObjectListaRelatorio((Date) linha.get(0), linha.get(1).toString(), linha.get(2).toString(), linha.get(3).toString(), linha.get(4).toString(), ((Double) linha.get(5)).floatValue(), ((Double) linha.get(6)).floatValue()));
+            lista.add(new ObjectListaRelatorio((Date) linha.get(0), linha.get(1).toString(), linha.get(2).toString(), linha.get(3).toString(), linha.get(4).toString(), (Double) linha.get(5), (Double) linha.get(6)));
         }
         
         
@@ -218,10 +218,10 @@ public class RelatorioContabilBean implements Serializable {
         private String conta_contabil;
         private String partida;
         private String historico;
-        private Float debito;
-        private Float credito;
+        private Double debito;
+        private Double credito;
 
-        public ObjectListaRelatorio(Date baixa, String conta, String conta_contabil, String partida, String historico, Float debito, Float credito) {
+        public ObjectListaRelatorio(Date baixa, String conta, String conta_contabil, String partida, String historico, Double debito, Double credito) {
             this.baixa = baixa;
             this.conta = conta;
             this.conta_contabil = conta_contabil;
@@ -271,19 +271,19 @@ public class RelatorioContabilBean implements Serializable {
             this.historico = historico;
         }
 
-        public Float getDebito() {
+        public Double getDebito() {
             return debito;
         }
 
-        public void setDebito(Float debito) {
+        public void setDebito(Double debito) {
             this.debito = debito;
         }
 
-        public Float getCredito() {
+        public Double getCredito() {
             return credito;
         }
 
-        public void setCredito(Float credito) {
+        public void setCredito(Double credito) {
             this.credito = credito;
         }
 

@@ -105,7 +105,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
                             (linha.get(1) != null) ? (Date) linha.get(1) : null,
                             (linha.get(1) != null) ? linha.get(2).toString() : "",
                             (linha.get(3) != null) ? (Date) linha.get(3) : null,
-                            ((Double) linha.get(4)).floatValue(),
+                            (Double) linha.get(4),
                             (linha.get(1) != null) ? (Integer) linha.get(5) : null,
                             (Integer) linha.get(6),
                             (Date) linha.get(7),
@@ -121,10 +121,10 @@ public class FechamentoCaixaGeralBean implements Serializable {
 
             Dao di = new Dao();
 
-            float valor = Moeda.substituiVirgulaFloat(valorFechamento), soma = 0;
+            double valor = Moeda.converteStringToDouble(valorFechamento), soma = 0;
 
             for (ListaCaixaGeral linha : listaFechamentoCaixa) {
-                soma = Moeda.somaValores(soma, linha.getValor());
+                soma = Moeda.soma(soma, linha.getValor());
                 if (linha.getDataFechamento() == null) {
                     GenericaMensagem.warn("Atenção", "Caixa " + linha.getNomeCaixa() + " não tem Data de FECHAMENTO!");
                     return;
@@ -135,13 +135,13 @@ public class FechamentoCaixaGeralBean implements Serializable {
                 }
             }
 
-            if (valor != Moeda.converteFloatR$Float(soma)) {
+            if (valor != soma) {
                 GenericaMensagem.warn("Atenção", "Total Incorreto!");
                 return;
             }
 
             di.openTransaction();
-            
+
             for (ListaCaixaGeral linha : listaFechamentoCaixa) {
                 FechamentoCaixa fc = (FechamentoCaixa) di.find(new FechamentoCaixa(), linha.getIdFechamentoCaixa());
 
@@ -153,11 +153,11 @@ public class FechamentoCaixaGeralBean implements Serializable {
                     return;
                 }
             }
-            
+
             di.commit();
 
             GenericaMensagem.info("Sucesso", "Fechamento Geral Concluído!");
-            
+
             loadListaFechamentoCaixa();
         }
     }
@@ -216,7 +216,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
         private Date dataFechamento;
         private String horaFechamento;
         private Date dataTransferencia;
-        private Float valor;
+        private Double valor;
         private Integer idFechamentoCaixa;
         private Integer idCaixa;
         private Date dataBaixa;
@@ -227,14 +227,14 @@ public class FechamentoCaixaGeralBean implements Serializable {
             this.dataFechamento = null;
             this.horaFechamento = "";
             this.dataTransferencia = null;
-            this.valor = new Float(0);
+            this.valor = new Double(0);
             this.idFechamentoCaixa = null;
             this.idCaixa = null;
             this.dataBaixa = null;
             this.caixa = null;
         }
 
-        public ListaCaixaGeral(String nomeCaixa, Date dataFechamento, String horaFechamento, Date dataTransferencia, Float valor, Integer idFechamentoCaixa, Integer idCaixa, Date dataBaixa, Caixa caixa) {
+        public ListaCaixaGeral(String nomeCaixa, Date dataFechamento, String horaFechamento, Date dataTransferencia, Double valor, Integer idFechamentoCaixa, Integer idCaixa, Date dataBaixa, Caixa caixa) {
             this.nomeCaixa = nomeCaixa;
             this.dataFechamento = dataFechamento;
             this.horaFechamento = horaFechamento;
@@ -294,16 +294,16 @@ public class FechamentoCaixaGeralBean implements Serializable {
             this.dataTransferencia = DataHoje.converte(dataTransferenciaString);
         }
 
-        public Float getValor() {
+        public Double getValor() {
             return valor;
         }
 
-        public void setValor(Float valor) {
+        public void setValor(Double valor) {
             this.valor = valor;
         }
-        
+
         public String getValorString() {
-            return Moeda.converteR$Float(valor);
+            return Moeda.converteR$Double(valor);
         }
 
         public void setValorString(String valorString) {
@@ -333,7 +333,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
         public void setDataBaixa(Date dataBaixa) {
             this.dataBaixa = dataBaixa;
         }
-        
+
         public String getDataBaixaString() {
             return DataHoje.converteData(dataBaixa);
         }

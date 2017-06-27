@@ -67,11 +67,11 @@ public class ContasAPagarBean implements Serializable {
         MovimentoDao db = new MovimentoDao();
 
         listaMovimentoEstorno = db.movimentoIdbaixa(mes.getMovimento().getBaixa().getId());
-        
-        for(Movimento m : listaMovimentoEstorno){
-            mes.setTotalBaixa(Moeda.somaValores(mes.getTotalBaixa(), m.getValorBaixa()));
+
+        for (Movimento m : listaMovimentoEstorno) {
+            mes.setTotalBaixa(Moeda.soma(mes.getTotalBaixa(), m.getValorBaixa()));
         }
-        
+
         PF.update("formContasAPagar:dlg_estornar_conta");
 
         PF.openDialog("dlg_estornar_conta");
@@ -198,17 +198,14 @@ public class ContasAPagarBean implements Serializable {
         for (ListaContas lc : listaContasSelecionada) {
             Movimento movimento = (Movimento) dao.find(new Movimento(), lc.getMovimentoId());
 
-            // setando STRING porque na conversão de valores EX. "187774.04" para FLOAT direto esta colocando "187774.05" fazer este teste abaixo
-            
-            // System.out.println(Float.parseFloat("187774.04"));
-            
-            // o ideal seria os campos FLOAT serem DOUBLE
-            
+            // setando STRING porque na conversão de valores EX. "187774.04" para F L O A T direto esta colocando "187774.05" fazer este teste abaixo
+            // System.out.println(F l o a t.parseF l o a t("187774.04"));
+            // o ideal seria os campos F L O A T serem DOUBLE
             movimento.setCorrecaoString(lc.getAcrescimoEditadoString());
             movimento.setDescontoString(lc.getDescontoEditadoString());
 
             movimento.setValorBaixaString(Moeda.converteDoubleToString(Moeda.subtracao(Moeda.soma(lc.getValor(), lc.getAcrescimoEditado()), lc.getDescontoEditado())));
-            
+
             lista.add(movimento);
         }
 
@@ -235,7 +232,7 @@ public class ContasAPagarBean implements Serializable {
 
         ImprimirRecibo ir = new ImprimirRecibo();
 
-        if (ir.gerar_recibo_generico(l_movimento, null)){
+        if (ir.gerar_recibo_generico(l_movimento, null)) {
             ir.imprimir();
         }
     }
@@ -304,16 +301,8 @@ public class ContasAPagarBean implements Serializable {
     public String getTotalEmAberto() {
         Double valor = new Double(0);
         for (ListaContas lc : listaContas) {
-            
+
             if (lc.getBaixaId() == null) {
-//                if (lc.getValorString().equals("753,71")){
-//                    System.err.println("oi");
-//                    valor = Moeda.soma(valor, lc.getValor());
-//                    valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
-//                    
-//                    String x = Moeda.converteDoubleToString(valor);
-//                    float x2 = Moeda.converteUS$(x, 2);
-//                }
                 valor = Moeda.soma(valor, lc.getValor());
                 valor = Moeda.subtracao(Moeda.soma(valor, lc.getAcrescimoEditado()), lc.getDescontoEditado());
             }
@@ -872,14 +861,14 @@ public class ContasAPagarBean implements Serializable {
     public class MovimentoEstornoSelecionado {
 
         private Movimento movimento;
-        private Float totalBaixa;
+        private Double totalBaixa;
 
         public MovimentoEstornoSelecionado() {
             this.movimento = new Movimento();
-            this.totalBaixa = new Float(0);
+            this.totalBaixa = new Double(0);
         }
 
-        public MovimentoEstornoSelecionado(Movimento movimento, Float totalBaixa) {
+        public MovimentoEstornoSelecionado(Movimento movimento, Double totalBaixa) {
             this.movimento = movimento;
             this.totalBaixa = totalBaixa;
         }
@@ -892,16 +881,16 @@ public class ContasAPagarBean implements Serializable {
             this.movimento = movimento;
         }
 
-        public Float getTotalBaixa() {
+        public Double getTotalBaixa() {
             return totalBaixa;
         }
 
-        public void setTotalBaixa(Float totalBaixa) {
+        public void setTotalBaixa(Double totalBaixa) {
             this.totalBaixa = totalBaixa;
         }
-        
+
         public String getTotalBaixaString() {
-            return Moeda.converteR$Float(totalBaixa);
+            return Moeda.converteR$Double(totalBaixa);
         }
 
         public void setTotalBaixa(String totalBaixaString) {

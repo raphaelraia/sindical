@@ -158,12 +158,12 @@ public class RelatorioBalanceteBean implements Serializable {
                 // RESUMO
                 List list_resumo = new RelatorioBalanceteDao().find("faixa", dataInicial, dataFinal);
                 List<ObjectJasper> oj_resumo = new ArrayList();
-                Float valor_diferenca = (float) 0;
+                Double valor_diferenca = (double) 0;
                 for (int i = 0; i < list_resumo.size(); i++) {
                     List o = (List) list_resumo.get(i);
                     oj_resumo.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6)));
                     
-                    valor_diferenca = o.get(6).toString().equals("D") ? Moeda.subtracaoValores(valor_diferenca, ((Double) o.get(5)).floatValue()) : Moeda.somaValores(valor_diferenca, ((Double) o.get(5)).floatValue());
+                    valor_diferenca = o.get(6).toString().equals("D") ? Moeda.subtracao(valor_diferenca, (Double) o.get(5)) : Moeda.soma(valor_diferenca, (Double) o.get(5));
                 }
                 Map map_resumo = new HashMap();
                 map_resumo.put("valor_diferenca", valor_diferenca);

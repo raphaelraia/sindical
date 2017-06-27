@@ -68,7 +68,7 @@ public class IndiceMensalBean implements Serializable {
         DaoInterface di = new Dao();
         indiceMensal.setAno(Integer.valueOf(getListaAnos().get(ano).getDescription()));
         indiceMensal.setMes(numMes);
-        indiceMensal.setValor(Moeda.substituiVirgulaFloat(valor));
+        indiceMensal.setValor(Moeda.converteStringToDouble(valor));
         indiceMensal.setIndice((Indice) di.find(new Indice(), Integer.parseInt(getListaIndices().get(idIndice).getDescription())));
         if (imdb.pesquisaIndMensalExistente(indiceMensal.getIndice().getId(), indiceMensal.getAno(), indiceMensal.getMes()).isEmpty()) {
             if (di.save(indiceMensal, true)) {

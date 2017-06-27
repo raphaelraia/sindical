@@ -68,7 +68,7 @@ public abstract class MovimentoValorBean {
                                     folha.getNumFuncionarios(),
                                     desEmpregado.getValorEmpregado())));
         } else {
-            return (double) 0.0;
+            return new Double(0);
         }
     }
 
@@ -164,7 +164,6 @@ public abstract class MovimentoValorBean {
                 if (descontoEmpregado != null && descontoEmpregado.getId() != -1) {
                     valorMes
                             = Moeda.converteDoubleR$Double(
-                                    Moeda.soma (
                                             Moeda.divisao(
                                                     valorGuia,
                                                     (descontoEmpregado.getPercentual() / 100)),
@@ -236,10 +235,10 @@ public abstract class MovimentoValorBean {
                 movimento.setValor(
                         Moeda.converteDoubleR$Double(
                                 Moeda.soma(
-                                        Moeda.multiplicar (
+                                    Moeda.soma(
                                                 valorMes,
                                                 (descontoEmpregado.getPercentual() / 100)),
-                                        Moeda.multiplicar (
+                                        Moeda.multiplicar(
                                                 folhaEmpresa.getNumFuncionarios(),
                                                 descontoEmpregado.getValorEmpregado()))));
                 if (salvar) {
@@ -357,3 +356,4 @@ public abstract class MovimentoValorBean {
         this.labelLink = labelLink;
     }
 }
+                                        Moeda.multiplicar(
