@@ -602,4 +602,5 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         }
         return false;
     }
+    
 }
