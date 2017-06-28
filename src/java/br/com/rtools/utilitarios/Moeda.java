@@ -57,6 +57,14 @@ public final class Moeda {
         return moeda.format(valor);
     }
 
+    public static String convertPercentToString(Double percent){
+        return Moeda.substituiVirgula(Moeda.converteDoubleToString(percent));
+    }
+    
+    public static String convertPercentToString(String percent){
+        return Moeda.substituiVirgula(percent);
+    }
+    
     //Converte Campo Real para campo Dolar
     public static double converteUS$(String $dolar) {
         return converteUS$($dolar, 2);
@@ -125,7 +133,7 @@ public final class Moeda {
     }
 
     public static String converteR$Double(double valor) {
-        return converteR$Double(valor, null);
+        return converteR$Double(valor, 2);
     }
 
     public static String converteR$Double(double valor, Integer decimal) {
@@ -251,16 +259,16 @@ public final class Moeda {
     }
 
     public static double multiplicar(double a, double b) {
-        BigDecimal aBig = new BigDecimal(a, new MathContext(2));
-        BigDecimal bBig = new BigDecimal(b, new MathContext(2));
+        BigDecimal aBig = new BigDecimal(a);
+        BigDecimal bBig = new BigDecimal(b);
         //return aBig.multiply(bBig).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
         return aBig.multiply(bBig).doubleValue();
     }
 
     public static double divisao(double a, double divisor) {
         try {
-            BigDecimal aBig = new BigDecimal(a, new MathContext(2));
-            BigDecimal bBig = new BigDecimal(divisor, new MathContext(2));
+            BigDecimal aBig = new BigDecimal(a);
+            BigDecimal bBig = new BigDecimal(divisor);
             //return aBig.divide(bBig, new MathContext(100)).setScale(2, BigDecimal.ROUND_HALF_EVEN).doubleValue();
             return aBig.divide(bBig, new MathContext(100)).doubleValue();
         } catch (Exception e) {

@@ -364,7 +364,7 @@
                                                 </p:column>
                                                 <p:column headerText="Desconto (%)" width="100" styleClass="text-center">
                                                     <p:column>
-                                                        <p:spinner value="#{listServicosCategoriaDesconto.categoriaDesconto.desconto}" stepFactor="0.1" min="0" max="100" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}" size="8" disabled="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.id == -1}">
+                                                        <p:spinner value="#{listServicosCategoriaDesconto.categoriaDesconto.descontoString}" stepFactor="0.1" min="0" max="100" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}" size="8" disabled="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.id == -1}">
                                                             <p:ajax event="change" update=":form_servicos:id_tab_view:tblDesconto" listener="#{servicosBean.updateDescontoCategoriaPercentual(listServicosCategoriaDesconto)}" global="false"/>
                                                         </p:spinner>
                                                     </p:column>

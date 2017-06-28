@@ -2,6 +2,7 @@ package br.com.rtools.associativo;
 
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.utilitarios.Moeda;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -65,6 +66,15 @@ public class CategoriaDesconto implements java.io.Serializable {
 
     public void setDesconto(double desconto) {
         this.desconto = desconto;
+    }
+    
+    
+    public String getDescontoString() {
+        return Moeda.convertPercentToString(desconto);
+    }
+
+    public void setDescontoString(String desconto) {
+        this.desconto = Moeda.converteStringToDouble(desconto);
     }
 
     public ServicoValor getServicoValor() {

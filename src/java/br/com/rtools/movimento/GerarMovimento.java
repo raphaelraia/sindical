@@ -1449,7 +1449,7 @@ public class GerarMovimento extends DB {
                 }
             }
 
-            if (valor_forma_pagamento == valor_movimento) {
+            if (Moeda.converteDoubleR$Double(valor_forma_pagamento).equals(Moeda.converteDoubleR$Double(valor_movimento))) {
                 dao.commit();
                 return new StatusRetorno(Boolean.TRUE, "MOVIMENTO BAIXADO");
             } else {
