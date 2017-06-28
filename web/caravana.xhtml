@@ -68,15 +68,15 @@
                                                 </h:column>
                                                 <h:column>
                                                     <h:panelGrid>
-                                                        <h:outputLabel value="GUIA DE ROCLIMENTO" styleClass="bold"/>
+                                                        <h:outputLabel value="GUIA DE RECOLHIMENTO" styleClass="bold"/>
                                                         <p:inputText value="#{caravanaBean.caravana.guiaRecolhimentoString}" size="20" converter="#{thisNumber}" styleClass="text-center bold font-size-10">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputText>                                                        
                                                     </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>                                        
-
                                         </p:panel>
+
                                         <f:facet name="footer">
                                             <h:panelGrid>
                                                 <p:inputTextarea value="#{caravanaBean.caravana.observacao}"  rows="5" cols="70"  maxlength="255" autoResize="false" addLine="false" placeholder="OBSERVAÇÕES"/>
