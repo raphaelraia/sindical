@@ -431,6 +431,19 @@ public abstract class ArquivoRetorno {
                             GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), 0, null, "", 0);
 
                             lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
+                        } else {
+                            String xt = "";
+
+                            for (Movimento m : movimento) {
+                                if (xt.isEmpty()){
+                                    xt = "||BOLETO - DUPLICADO||";
+                                }
+                                xt += "</br></br>";
+                                xt += "ID Movimento: " + m.getId() + " </br> ";
+                                xt += "Data de Vencimento: " + m.getVencimento();
+                            }
+                            
+                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 7, xt));
                         }
                     } else {
                         String xt = "Boleto não Encontrado - " + listaParametros.get(u).getNossoNumero()
