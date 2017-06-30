@@ -2,6 +2,7 @@ package br.com.rtools.associativo;
 
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.Evt;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -91,6 +92,14 @@ public class Caravana implements Serializable {
     private String numeroRetorno;
     @Column(name = "ds_complemento_embarque_retorno", length = 300)
     private String complementoEmbarqueRetorno;
+    @Column(name = "dt_inativacao")
+    @Temporal(TemporalType.DATE)
+    private Date dtInativacao;
+    @JoinColumn(name = "id_usuario_inativacao", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario usuarioInativacao;
+    @Column(name = "ds_motivo_inativacao")
+    private String motivoInativacao;
 
     public Caravana() {
         this.id = null;
@@ -121,9 +130,12 @@ public class Caravana implements Serializable {
         this.enderecoEmbarqueRetorno = null;
         this.numeroRetorno = "";
         this.complementoEmbarqueRetorno = "";
+        this.dtInativacao = null;
+        this.usuarioInativacao = null;
+        this.motivoInativacao = "";
     }
 
-    public Caravana(Integer id, AEvento evento, String tituloComplemento, Date dtEmbarqueIda, String horaEmbarqueIda, Date dtEmbarqueRetorno, String horaEmbarqueRetorno, Date dtEstadiaInicio, String horaEstadiaInicio, Date dtEstadiaFim, String horaEstadiaFim, String duracaoViagem, Boolean cafe, Boolean almoco, Boolean jantar, Integer quantidadePoltronas, Integer guiaRecolhimento, String observacao, Evt evt, String relatorio, String localEmbarqueIda, Endereco enderecoEmbarqueIda, String numero, String complementoEmbarqueIda, String localEmbarqueRetorno, Endereco enderecoEmbarqueRetorno, String numeroRetorno, String complementoEmbarqueRetorno) {
+    public Caravana(Integer id, AEvento evento, String tituloComplemento, Date dtEmbarqueIda, String horaEmbarqueIda, Date dtEmbarqueRetorno, String horaEmbarqueRetorno, Date dtEstadiaInicio, String horaEstadiaInicio, Date dtEstadiaFim, String horaEstadiaFim, String duracaoViagem, Boolean cafe, Boolean almoco, Boolean jantar, Integer quantidadePoltronas, Integer guiaRecolhimento, String observacao, Evt evt, String relatorio, String localEmbarqueIda, Endereco enderecoEmbarqueIda, String numero, String complementoEmbarqueIda, String localEmbarqueRetorno, Endereco enderecoEmbarqueRetorno, String numeroRetorno, String complementoEmbarqueRetorno, Date dtInativacao, Usuario usuarioInativacao, String motivoInativacao) {
         this.id = id;
         this.evento = evento;
         this.tituloComplemento = tituloComplemento;
@@ -152,6 +164,9 @@ public class Caravana implements Serializable {
         this.enderecoEmbarqueRetorno = enderecoEmbarqueRetorno;
         this.numeroRetorno = numeroRetorno;
         this.complementoEmbarqueRetorno = complementoEmbarqueRetorno;
+        this.dtInativacao = dtInativacao;
+        this.usuarioInativacao = usuarioInativacao;
+        this.motivoInativacao = "";
     }
 
     public Integer getId() {
@@ -442,6 +457,30 @@ public class Caravana implements Serializable {
 
     public void setComplementoEmbarqueRetorno(String complementoEmbarqueRetorno) {
         this.complementoEmbarqueRetorno = complementoEmbarqueRetorno;
+    }
+
+    public Date getDtInativacao() {
+        return dtInativacao;
+    }
+
+    public void setDtInativacao(Date dtInativacao) {
+        this.dtInativacao = dtInativacao;
+    }
+
+    public Usuario getUsuarioInativacao() {
+        return usuarioInativacao;
+    }
+
+    public void setUsuarioInativacao(Usuario usuarioInativacao) {
+        this.usuarioInativacao = usuarioInativacao;
+    }
+
+    public String getMotivoInativacao() {
+        return motivoInativacao;
+    }
+
+    public void setMotivoInativacao(String motivoInativacao) {
+        this.motivoInativacao = motivoInativacao;
     }
 
 }

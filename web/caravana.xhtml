@@ -246,10 +246,12 @@
                                 <p:inputTextarea value="#{caravanaBean.caravana.relatorio}"  rows="4" maxlength="1000" style="width: 100%"/>
                             </p:panel>
 
-                            <h:panelGrid columns="8" styleClass="margin-top-max margin-bottom-max">
+                            <h:panelGrid columns="10" styleClass="margin-top-max margin-bottom-max">
                                 <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()"/>
                                 <p:commandButton ajax="false" value="Novo" action="#{caravanaBean.novo}"/>
                                 <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()"/>
+                                <p:commandButton value="Inativar" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_inativar').show()" rendered="#{caravanaBean.caravana.id ne null and caravanaBean.caravana.dtInativacao eq null}"/>
+                                <p:commandButton value="Reativar" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_reativar').show()" rendered="#{caravanaBean.caravana.id ne null and caravanaBean.caravana.dtInativacao ne null}"/>
                                 <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisaCaravana}" />                        
                                 <p:commandButton value="Anexar documentos" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" rendered="#{caravanaBean.caravana.id != null}"/>
                                 <p:commandButton value="Anexos (#{caravanaBean.listFiles.size()})" type="button" onclick="PF('dlg_anexos').show();" id="id_btn_anexo" update="id_grid_uploads" rendered="#{caravanaBean.caravana.id != null}"/>
@@ -367,6 +369,23 @@
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.delete()}" update="form_caravana" onclick="PF('dlg_delete').hide()" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()"  icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_inativar" header="Deseja inativar esta Caravana" resizable="false" width="400" modal="true">
+                                <p:inputTextarea value="#{caravanaBean.caravana.motivoInativacao}" />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.inativar()}" update="form_caravana" onclick="PF('dlg_inativar').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_inativar').hide()"  icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_reativar" header="Deseja reativar esta Caravana" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.reativar()}" update="form_caravana" onclick="PF('dlg_reativar').hide()" icon="ui-icon-check"/>
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_reativar').hide()"  icon="ui-icon-close"/>       
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
