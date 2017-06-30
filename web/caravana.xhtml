@@ -79,6 +79,12 @@
 
                                         <f:facet name="footer">
                                             <h:panelGrid>
+                                                <h:column>
+                                                    <h:panelGrid rendered="#{caravanaBean.caravana.dtInativacao ne null}">
+                                                        <h:column><span class="font-color-red">Inativado por: #{caravanaBean.caravana.usuarioInativacao.pessoa.nome}</span></h:column>
+                                                        <h:column><span class="font-color-red">Motivo: #{caravanaBean.caravana.motivoInativacao}</span></h:column>
+                                                    </h:panelGrid>                                                    
+                                                </h:column>
                                                 <p:inputTextarea value="#{caravanaBean.caravana.observacao}"  rows="5" cols="70"  maxlength="255" autoResize="false" addLine="false" placeholder="OBSERVAÇÕES"/>
                                                 <h:outputLabel value="EVT: #{caravanaBean.caravana.evt == null ? 'NENHUM' : caravanaBean.caravana.evt.id}" styleClass="font-size-14 font-color-red margin-top-max" rendered="#{caravanaBean.caravana.evt ne null}"/>
                                             </h:panelGrid>
@@ -247,18 +253,22 @@
                             </p:panel>
 
                             <h:panelGrid columns="10" styleClass="margin-top-max margin-bottom-max">
-                                <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()"/>
+                                <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" rendered="#{caravanaBean.caravana.dtInativacao eq null}"/>
                                 <p:commandButton ajax="false" value="Novo" action="#{caravanaBean.novo}"/>
-                                <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()"/>
+                                <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" rendered="#{caravanaBean.caravana.dtInativacao eq null}"/>
                                 <p:commandButton value="Inativar" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_inativar').show()" rendered="#{caravanaBean.caravana.id ne null and caravanaBean.caravana.dtInativacao eq null}"/>
                                 <p:commandButton value="Reativar" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_reativar').show()" rendered="#{caravanaBean.caravana.id ne null and caravanaBean.caravana.dtInativacao ne null}"/>
                                 <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisaCaravana}" />                        
-                                <p:commandButton value="Anexar documentos" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" rendered="#{caravanaBean.caravana.id != null}"/>
-                                <p:commandButton value="Anexos (#{caravanaBean.listFiles.size()})" type="button" onclick="PF('dlg_anexos').show();" id="id_btn_anexo" update="id_grid_uploads" rendered="#{caravanaBean.caravana.id != null}"/>
+                                <h:column rendered="#{caravanaBean.caravana.dtInativacao eq null}">
+                                    <p:commandButton value="Anexar documentos" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" rendered="#{caravanaBean.caravana.id != null}" />
+                                </h:column>
+                                <h:column rendered="#{caravanaBean.caravana.dtInativacao eq null}">
+                                    <p:commandButton value="Anexos (#{caravanaBean.listFiles.size()})" type="button" onclick="PF('dlg_anexos').show();" id="id_btn_anexo" update="id_grid_uploads" rendered="#{caravanaBean.caravana.id != null}"/>
+                                </h:column>
                             </h:panelGrid> 
 
                             <p:messages id="i_msg" showDetail="true" closable="true" autoUpdate="true"/>
-                            <p:panel styleClass="margin-top-med" >
+                            <p:panel styleClass="margin-top-med" rendered="#{caravanaBean.caravana.dtInativacao eq null}">
                                 <f:facet name="header">
                                     <h:panelGrid columns="1" columnClasses="verticalAlignTop, verticalAlignTop">
                                         <p:column>
@@ -314,14 +324,14 @@
 
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="#{caravanaBean.eventoServico.id == -1 ? 'Adicionar ' : 'Atualizar'} Serviço" action="#{caravanaBean.adicionarServico}" style="margin-left: 20px" update="form_caravana" disabled="#{controleAcessoBean.botaoSalvar}" />   
+                                        <p:commandButton value="#{caravanaBean.eventoServico.id == -1 ? 'Adicionar ' : 'Atualizar'} Serviço" action="#{caravanaBean.adicionarServico}" style="margin-left: 20px" update="form_caravana" disabled="#{controleAcessoBean.botaoSalvar}"/>   
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
 
                             <p:dataTable value="#{caravanaBean.listaServicosAdd}" var="servicos" id="tbl" emptyMessage="Nenhum serviço foi adicionado!" styleClass="margin-top-max">
 
-                                <p:column width="30">
+                                <p:column width="30" rendered="#{caravanaBean.caravana.dtInativacao eq null}">
                                     <p:commandButton icon="ui-icon-pencil" action="#{caravanaBean.editEventoServicoValor(servicos)}" disabled="#{controleAcessoBean.botaoAlterar}" update=":form_caravana:" />
                                 </p:column>                                  
 
@@ -349,7 +359,7 @@
                                     <h:outputLabel value="#{servicos.argumento5}" />
                                 </p:column>
 
-                                <p:column width="30">
+                                <p:column width="30" rendered="#{caravanaBean.caravana.dtInativacao eq null}">
                                     <p:commandButton icon="ui-icon-trash" action="#{caravanaBean.excluirServicos(servicos)}" disabled="#{controleAcessoBean.botaoExcluir}" update="tbl :form_caravana:i_msg" />
                                 </p:column>                                
                             </p:dataTable>
@@ -376,16 +386,16 @@
                                 <p:inputTextarea value="#{caravanaBean.caravana.motivoInativacao}" />
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.inativar()}" update="form_caravana" onclick="PF('dlg_inativar').hide()" icon="ui-icon-check"/>  
-                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_inativar').hide()"  icon="ui-icon-close"/>       
+                                        <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.inativar()}" update="form_caravana" onclick="PF('dlg_inativar').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Desfazer" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_inativar').hide()"  icon="ui-icon-close"/>       
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_reativar" header="Deseja reativar esta Caravana" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.reativar()}" update="form_caravana" onclick="PF('dlg_reativar').hide()" icon="ui-icon-check"/>
-                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_reativar').hide()"  icon="ui-icon-close"/>       
+                                        <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.reativar()}" update="form_caravana" onclick="PF('dlg_reativar').hide()" icon="ui-icon-check"/>
+                                        <p:commandButton value="Desfazer" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_reativar').hide()"  icon="ui-icon-close"/>       
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>

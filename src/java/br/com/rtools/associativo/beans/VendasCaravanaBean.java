@@ -1164,15 +1164,24 @@ public class VendasCaravanaBean implements Serializable {
     public void loadListaCaravanaSelect() {
         listaCaravanaSelect = new ArrayList();
         listaCaravana = new ArrayList();
+        caravana = null;
         List<Caravana> list = new CaravanaDao().findAll((old ? "old" : "current"));
         if (!list.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idCaravanaSelect = list.get(i).getId();
-                    caravana = list.get(i);
-                    vendas.setEvento(list.get(i).getEvento());
+                Boolean cancelada = false;
+                String caravanaString = list.get(i).getDataEmbarqueIda() + " - " + list.get(i).getHoraEmbarqueIda() + " - " + list.get(i).getEvento().getDescricaoEvento().getDescricao() + "  " + list.get(i).getTituloComplemento();
+                if(list.get(i).getDtInativacao() != null) {
+                    cancelada = true;
+                    caravanaString += " (CANCELADA) ";
                 }
-                listaCaravanaSelect.add(new SelectItem(list.get(i).getId(), list.get(i).getDataEmbarqueIda() + " - " + list.get(i).getHoraEmbarqueIda() + " - " + list.get(i).getEvento().getDescricaoEvento().getDescricao() + "  " + list.get(i).getTituloComplemento(), Integer.toString(i)));
+                if (caravana == null) {
+                    if(!cancelada) {
+                        idCaravanaSelect = list.get(i).getId();
+                        caravana = list.get(i);
+                        vendas.setEvento(list.get(i).getEvento());                        
+                    }
+                }
+                listaCaravanaSelect.add(new SelectItem(list.get(i).getId(), caravanaString, Integer.toString(i), cancelada));
                 listaCaravana.add(list.get(i));
 
             }
