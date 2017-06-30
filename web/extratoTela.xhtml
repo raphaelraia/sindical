@@ -316,22 +316,27 @@
                                             <p:outputLabel value="Acordo" style="font-weight: bold" rendered="#{not empty movimentos.argumento27}" /><br />
                                             <p:commandLink value="#{movimentos.argumento27[0].acordo.id} (Visualizar)" rendered="#{not empty movimentos.argumento27}"  action="#{extratoTelaBean.setListMovimentosAcordo(movimentos.argumento27)}" onclick="PF('dlg_acordos').show()" update=":formExtratoTelaOpcoes:i_m_a" styleClass="bold font-color-blue" title="Visualizar esta lista"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{extratoTelaBean.porPesquisa == 'recebidas'}">
                                                 <h:commandLink target="#{baixaGeralBean.targetImprimeRecibo(movimentos.argumento1)}" action="#{baixaGeralBean.recibo2Via(movimentos.argumento1)}" rendered="#{movimentos.argumento28 eq 'CAIXA'}" title="Imprimir este Recibo">
                                                     <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo" value="2ª Via de Recibo"/>
                                                 </h:commandLink>
                                             </p:column>
-                                        </p:column>                                       
+                                        </p:column>
                                     </h:panelGrid>
-                                    
+
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                        <p:commandButton value="FORMAS DE PAGTO" update=":formExtratoTela:i_forma_pagto_baixa" onclick="PF('dlg_forma_pagto_baixa').show()" action="#{financeiroCardBean.cardFormaPagamentoBaixa(movimentos.argumento22)}" title="Ver detalhes" rendered="#{movimentos.argumento22 ne 0}"/>
+                                    </h:panelGrid>
+
                                     <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">                                        
                                         <p:column>
                                             <p:outputLabel value="Vencto Original" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento1.vencimentoOriginal}"/>
                                         </p:column>
                                     </h:panelGrid>
+
                                 </p:rowExpansion>                                
                             </p:dataTable>
 
@@ -455,7 +460,12 @@
                                     </h:panelGrid>                                    
                                 </f:facet>
                             </p:dialog>                               
-
+                            <p:dialog widgetVar="dlg_forma_pagto_baixa" modal="true" resizable="false" height="400" width="600" header="FORMAS DE PAGAMENTO DA BAIXA">
+                                <p:ajax event="close" listener="#{financeiroCardBean.close}"/>  
+                                <h:panelGroup layout="block" id="i_forma_pagto_baixa">
+                                    <ui:include src="templates/templateFormaPagtoBaixa.xhtml" />
+                                </h:panelGroup>
+                            </p:dialog>
                         </h:form>
 
                         <h:form id="formExtratoTelaOpcoes">
@@ -643,7 +653,8 @@
 
                                 <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{extratoTelaBean.reativarMovimentos()}" update=":formExtratoTelaOpcoes: :formExtratoTela:" onclick="PF('i_dlg_reativar').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                 <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_reativar').hide()" style="float: left" icon="ui-icon-close"/>       
-                            </p:dialog>                            
+                            </p:dialog>
+
                         </h:form>
 
                     </p:panel>
@@ -677,6 +688,7 @@
                                 </h:panelGrid>
                             </f:facet>
                         </p:dialog>
+
                     </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

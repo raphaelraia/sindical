@@ -175,8 +175,7 @@ public class RelatorioContribuintesDao extends DB {
                     + "   LEFT JOIN end_logradouro         AS lcon  on lcon.id = econ.id_logradouro \n"
                     + "   LEFT JOIN end_descricao_endereco AS decon on decon.id = econ.id_descricao_endereco \n"
                     + "   LEFT JOIN end_bairro             AS bcon  on bcon.id = econ.id_bairro     \n"
-                    + "   LEFT JOIN pes_centro_comercial   AS CECOM ON CECOM.id_juridica = j.id     \n"
-                    + "   LEFT JOIN pes_centro_comercial   AS PCECOM ON PCECOM.id = j.id_pessoa     \n";
+                    + "   LEFT JOIN pes_centro_comercial   AS CECOM ON CECOM.id_juridica = j.id     \n";
 
             // CONVENCAO GRUPO --------------------------------------------
             String cg_where = "", cg_and = "";
@@ -260,9 +259,10 @@ public class RelatorioContribuintesDao extends DB {
                         + "    SELECT PCCPE.id_endereco, PCCPE.ds_numero        \n"
                         + "      FROM pes_centro_comercial PCC                  \n"
                         + "INNER JOIN pes_juridica PCCJ ON PCCJ.id = PCC.id_juridica                \n"
-                        + "INNER JOIN pes_pessoa_endereco PCCPE ON PCCPE.id_pessoa = PCCJ.id_pessoa \n";
+                        + "INNER JOIN pes_pessoa_endereco PCCPE ON PCCPE.id_pessoa = PCCJ.id_pessoa \n"
+                        + "     WHERE PCCPE.id_tipo_endereco = 5                                    \n";
                 if (in_centro_comercial != null && !in_centro_comercial.isEmpty()) {
-                    subqueryString += " WHERE PCCJ.id_pessoa IN (" + in_centro_comercial + ") \n";
+                    subqueryString += " AND PCCJ.id_pessoa IN (" + in_centro_comercial + ") \n";
                 }
                 subqueryString += "  "
                         + " GROUP BY PCCPE.id_endereco, PCCPE.ds_numero         \n"
@@ -270,6 +270,7 @@ public class RelatorioContribuintesDao extends DB {
                         + " ";
 
                 listWhere.add(subqueryString);
+                listWhere.add("PE.id_tipo_endereco = " + tipo_endereco_id + " ");
 //                if (in_centro_comercial != null && !in_centro_comercial.isEmpty()) {
 //                    listWhere.add("PCECOM.id IN (" + in_centro_comercial + ") ");
 //                    if (endereco_id != null && !endereco_id.isEmpty()) {
@@ -283,15 +284,17 @@ public class RelatorioContribuintesDao extends DB {
                         + "    SELECT PCCPE.id_endereco, PCCPE.ds_numero        \n"
                         + "      FROM pes_centro_comercial PCC                  \n"
                         + "INNER JOIN pes_juridica PCCJ ON PCCJ.id = PCC.id_juridica                \n"
-                        + "INNER JOIN pes_pessoa_endereco PCCPE ON PCCPE.id_pessoa = PCCJ.id_pessoa \n";
+                        + "INNER JOIN pes_pessoa_endereco PCCPE ON PCCPE.id_pessoa = PCCJ.id_pessoa \n"
+                        + "     WHERE PCCPE.id_tipo_endereco = 5                                    \n";
                 if (in_centro_comercial != null && !in_centro_comercial.isEmpty()) {
-                    subqueryString += " WHERE PCCJ.id_pessoa IN (" + in_centro_comercial + ") \n";
+                    // subqueryString += " AND PCCJ.id_pessoa IN (" + in_centro_comercial + ") \n";
                 }
                 subqueryString += "  "
                         + " GROUP BY PCCPE.id_endereco, PCCPE.ds_numero         \n"
                         + " )                                                   \n"
                         + " ";
                 listWhere.add(subqueryString);
+                listWhere.add("PE.id_tipo_endereco = " + tipo_endereco_id + " ");
             }
             if (in_bairros != null && !in_bairros.isEmpty()) {
                 listWhere.add("b.id in (" + in_bairros + ")");

@@ -106,7 +106,7 @@
 
                                     <p:column>
                                         <h:outputLabel value="Estou visualizando"/>
-                                        <p:commandLink value="#{lancamentoFinanceiroBean.strVisualizando}" onclick="PF('i_dlg_visualizar').show()" style="font-weight: bold; margin-left: 5px" update="i_visualizar_lancamentos"/>
+                                        <p:commandLink value="#{lancamentoFinanceiroBean.strVisualizando}" onclick="PF('i_dlg_visualizar').show()" style="font-weight: bold; margin-left: 5px" update="i_visualizar_lancamentos" disabled="#{controleAcessoBean.verificarPermissao('consulta_lancamentos_financeiros_outros', 4)}"/>
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
