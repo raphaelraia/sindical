@@ -1042,7 +1042,7 @@ public class ChamadaPaginaBean implements Serializable {
     public synchronized String conviteSuspencao() {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaPesquisa");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("conviteSuspencaoBean");
-        return metodoGenerico(2, "conviteSuspencao");
+        return metodoGenerico(2, "conviteSuspensao");
     }
 
     public synchronized String conviteAutorizaCortesia() {
@@ -1363,7 +1363,7 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public synchronized String pesquisaSuspencao() {
-        return metodoGenerico(1, "pesquisaSuspencao");
+        return metodoGenerico(1, "pesquisaSuspensao");
     }
 
     public synchronized String pesquisaCategoria() {

@@ -679,7 +679,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     listaVencimentos.add(movs.get(0).getVencimento());
 
                     ImprimirBoleto imp = new ImprimirBoleto();
+                    
+                    movs = imp.atualizaContaCobrancaMovimento(movs);
+                        
                     imp.imprimirBoleto(movs, listaValores, listaVencimentos, imprimeVerso);
+                    
                     String nome = imp.criarLink(movs.get(0).getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
                     List<Pessoa> pessoas = new ArrayList();
 
@@ -774,7 +778,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         listaVencimentos.add(movs.get(i).getVencimento());
 
                         ImprimirBoleto imp = new ImprimirBoleto();
+                        
+                        m = imp.atualizaContaCobrancaMovimento(m);
+                        
                         imp.imprimirBoleto(m, listaValores, listaVencimentos, imprimeVerso);
+                        
                         String nome = imp.criarLink(jur.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
                         List<Pessoa> pessoas = new ArrayList();
                         pessoas.add(jur.getPessoa());
@@ -851,7 +859,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         listaVencimentos.add(movs.get(i).getVencimento());
 
                         ImprimirBoleto imp = new ImprimirBoleto();
+                        
+                        m = imp.atualizaContaCobrancaMovimento(m);
+                        
                         imp.imprimirBoleto(m, listaValores, listaVencimentos, imprimeVerso);
+                        
                         String nome = imp.criarLink(jur.getContabilidade().getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
                         List<Pessoa> pessoas = new ArrayList();
                         pessoas.add(jur.getContabilidade().getPessoa());
@@ -943,7 +955,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
             String path = request.getQueryString();
 
             ImprimirBoleto imp = new ImprimirBoleto();
+            
+            movs = imp.atualizaContaCobrancaMovimento(movs);
+            
             imp.imprimirBoleto(movs, listaValores, listaVencimentos, imprimeVerso);
+            
             String nome = imp.criarLink(juridica.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
             List<Pessoa> pessoas = new ArrayList();
             pessoas.add(juridica.getPessoa());

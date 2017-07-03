@@ -1,6 +1,7 @@
 package br.com.rtools.arrecadacao;
 
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.utilitarios.Moeda;
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -115,4 +116,9 @@ public class DescontoEmpregado implements Serializable {
     public void setValorEmpregado(double valorEmpregado) {
         this.valorEmpregado = valorEmpregado;
     }
+    
+    public String getValorEmpregadoString() {
+        return Moeda.converteDoubleToString(valorEmpregado);
+    }
+
 }

@@ -1,0 +1,52 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Suspensão</title>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="form_pesquisa_suspencao">
+                            <p:outputLabel value="Pesquisa Suspensão" styleClass="fonteHEader"/>
+                            <div class="clear"></div>
+                            <p:dataTable value="#{suspencaoBean.listSuspencao}" var="suspencao" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado">
+                                <p:column width="25" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-link" title="Editar registro nº #{suspencao.id}" action="#{suspencaoBean.edit(suspencao)}" />
+                                </p:column>
+                                <p:column headerText="Nome">
+                                    #{suspencao.pessoa.nome}
+                                </p:column>
+                                <p:column headerText="Data Inicial" width="100" styleClass="text-center">
+                                    #{suspencao.dataInicial}
+                                </p:column>
+                                <p:column headerText="Data Final" width="100" styleClass="text-center">
+                                    #{suspencao.dataFinal}
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>  
+    </h:body>
+</ui:composition>

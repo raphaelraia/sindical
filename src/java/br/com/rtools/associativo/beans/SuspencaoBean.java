@@ -129,7 +129,7 @@ public class SuspencaoBean {
         suspencao = (Suspencao) di.rebind(s);
         GenericaSessao.put("pessoaPesquisa", suspencao.getPessoa());
         GenericaSessao.put("linkClicado", true);
-        return "suspencao";
+        return "suspensao";
     }
 
     public List<Suspencao> getListSuspencao() {

@@ -27,7 +27,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Desconto Empregado" styleClass="fonteHeader" />
                         <h:form id="formDescontoEmpregado">
                             <c:set scope="request" var="object" value="${descontoEmpregadoBean.descontoEmpregado}"/>
@@ -56,7 +56,7 @@
                                         </p:selectOneMenu>
                                     </p:column>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="6" style="margin-top: 15px">
                                     <p:column>
                                         <h:outputLabel value="Percentual"/><br />
@@ -79,7 +79,7 @@
                                         <h:outputLabel value="Ref. Final" /><br />
                                         <p:inputMask id="idRefFim" value="#{descontoEmpregadoBean.descontoEmpregado.referenciaFinal}" size="5" mask="99/9999" style="margin-right: 10px"/>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <br />
                                         <p:commandButton value="Salvar" action="#{descontoEmpregadoBean.salvar}" update="formDescontoEmpregado" disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar/Atualizar"/>
@@ -90,37 +90,39 @@
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
+
                             <p:messages id="i_msg" showDetail="true" closable="true" /> 
+
                             <p:dataTable var="linha" value="#{descontoEmpregadoBean.listaDescontoEmpregado}" id="tbl">
-                                <p:column headerText="Contribuição">
+                                <p:column headerText="Contribuição" style="width: 110px">
                                     <p:commandLink value="#{linha.servicos.descricao}" action="#{descontoEmpregadoBean.editar(linha)}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Convenção">
                                     <p:commandLink value="#{linha.convencao.descricao}" action="#{descontoEmpregadoBean.editar(linha)}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Grupo Cidade">
                                     <h:outputText value="#{linha.grupoCidade.descricao}" />
                                 </p:column>
-                                
-                                <p:column headerText="Percentual">
+
+                                <p:column headerText="Percentual" style="text-align: center; width: 80px">
                                     <h:outputText value="#{linha.percentual}" />
                                 </p:column>
-                                
-                                <p:column headerText="Vl. Empregado (R$)">
-                                    <h:outputText value="#{linha.valorEmpregado}" />
+
+                                <p:column headerText="Vl. Emp. (R$)" style="text-align: right; width: 90px">
+                                    <h:outputText value="#{linha.valorEmpregadoString}" />
                                 </p:column>
-                                    
-                                <p:column headerText="Ref. Inicial">
+
+                                <p:column headerText="Ref. Inicial" style="text-align: center; width: 80px">
                                     <h:outputText value="#{linha.referenciaInicial}" />
                                 </p:column>
-                                
-                                <p:column headerText="Ref. Final">
+
+                                <p:column headerText="Ref. Final" style="text-align: center; width: 80px">
                                     <h:outputText value="#{linha.referenciaFinal}" />
                                 </p:column>
-                                
-                                <p:column headerText="Excluir" style="text-align: center">
+
+                                <p:column headerText="Excluir" style="text-align: center; width: 50px">
                                     <p:commandButton icon="ui-icon-trash" action="#{descontoEmpregadoBean.btnExcluir(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":formDescontoEmpregado" />
                                 </p:column>
                             </p:dataTable>

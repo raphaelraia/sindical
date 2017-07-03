@@ -314,8 +314,8 @@ public class ImprimirRecibo {
                             (Date) linha.get(3), // DATA BAIXA
                             linha.get(4).toString(), // HISTORICO CONTABIL + HISTORICO PADRAO
                             linha.get(5).toString(), // ES
-                            ((Double) linha.get(6)).doubleValue(), // VALOR BAIXADO
-                            Moeda.converteR$Double(((Double) linha.get(6)).doubleValue()) + " ( " + new ValorExtenso(((Double) linha.get(6)).doubleValue()).toString() + " ) ",
+                            (Double) linha.get(6), // VALOR BAIXADO
+                            Moeda.converteR$Double((Double) linha.get(6)) + " ( " + new ValorExtenso((Double) linha.get(6)).toString() + " ) ",
                             pe.getEndereco().getCidade().getCidade() + " - " + pe.getEndereco().getCidade().getUf() + ", " + DataHoje.dataExtenso(DataHoje.converteData((Date) linha.get(3)), 3),
                             (Integer) linha.get(7),
                             (Integer) linha.get(8),
