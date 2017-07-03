@@ -9,6 +9,7 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -21,6 +22,7 @@ import br.com.rtools.utilitarios.Upload;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -339,6 +341,34 @@ public class CaravanaBean implements Serializable {
         }
     }
 
+    public void reativar() {
+        Caravana c = (Caravana) new Dao().find(caravana);
+        c.setUsuarioInativacao(null);
+        c.setDtInativacao(null);
+        c.setMotivoInativacao("");
+        new Dao().update(c, true);
+        GenericaMensagem.info("Sucesso", "CARAVANA REATIVADA!");
+        caravana.setUsuarioInativacao(null);
+        caravana.setDtInativacao(null);
+        caravana.setMotivoInativacao("");
+    }
+
+    public void inativar() {
+        Dao dao = new Dao();
+        if (caravana.getMotivoInativacao().isEmpty()) {
+            GenericaMensagem.warn("Erro", "INFORMAR MOTIVO DA INATIVAÇÃO!");
+            return;
+        }
+        Caravana c = (Caravana) dao.find(caravana);
+        c.setUsuarioInativacao(Usuario.getUsuario());
+        c.setDtInativacao(new Date());
+        caravana.setDtInativacao(new Date());
+        c.setMotivoInativacao(caravana.getMotivoInativacao());
+        caravana.setUsuarioInativacao(Usuario.getUsuario());
+        dao.update(c, true);
+        GenericaMensagem.info("Sucesso", "CARAVANA INATIVADA!");
+    }
+
     public String excluirServicos(DataObject dob) {
         Dao dao = new Dao();
         dao.openTransaction();
@@ -436,9 +466,9 @@ public class CaravanaBean implements Serializable {
 
     public Caravana getCaravana() {
         if (GenericaSessao.exists("enderecoPesquisa")) {
-            if(GenericaSessao.exists("pesquisaEnderecoIda", true)) {
+            if (GenericaSessao.exists("pesquisaEnderecoIda", true)) {
                 caravana.setEnderecoEmbarqueIda((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
-            } else if(GenericaSessao.exists("pesquisaEnderecoRetorno", true)) {
+            } else if (GenericaSessao.exists("pesquisaEnderecoRetorno", true)) {
                 caravana.setEnderecoEmbarqueRetorno((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
             }
         }

@@ -1,20 +1,21 @@
 package br.com.rtools.impressao;
 
 public class ParametroFechamentoBaile {
-    private String emissao;
-    private String operador;
-    private String codigo; 
-    private String convidado; 
-    private String status;
-    private String mesa;
-    private String convite;
-    private String vencimento; 
-    private String pagamento;
-    private double valor;
-    private String caixa;
-    private String obs;
+    private Object emissao;
+    private Object operador;
+    private Object codigo; 
+    private Object convidado; 
+    private Object status;
+    private Object mesa;
+    private Object convite;
+    private Object vencimento; 
+    private Object pagamento;
+    private Object valor;
+    private Object caixa;
+    private Object obs;
+    private Object servico_id;
 
-    public ParametroFechamentoBaile(String emissao, String operador, String codigo, String convidado, String status, String mesa, String convite, String vencimento, String pagamento, double valor, String caixa, String obs) {
+    public ParametroFechamentoBaile(Object emissao, Object operador, Object codigo, Object convidado, Object status, Object mesa, Object convite, Object vencimento, Object pagamento, Object valor, Object caixa, Object obs, Object servico_id) {
         this.emissao = emissao;
         this.operador = operador;
         this.codigo = codigo;
@@ -27,101 +28,110 @@ public class ParametroFechamentoBaile {
         this.valor = valor;
         this.caixa = caixa;
         this.obs = obs;
+        this.servico_id = servico_id;
     }
     
-    public String getEmissao() {
+    public Object getEmissao() {
         return emissao;
     }
 
-    public void setEmissao(String emissao) {
+    public void setEmissao(Object emissao) {
         this.emissao = emissao;
     }
 
-    public String getOperador() {
+    public Object getOperador() {
         return operador;
     }
 
-    public void setOperador(String operador) {
+    public void setOperador(Object operador) {
         this.operador = operador;
     }
 
-    public String getCodigo() {
+    public Object getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
+    public void setCodigo(Object codigo) {
         this.codigo = codigo;
     }
 
-    public String getConvidado() {
+    public Object getConvidado() {
         return convidado;
     }
 
-    public void setConvidado(String convidado) {
+    public void setConvidado(Object convidado) {
         this.convidado = convidado;
     }
 
-    public String getStatus() {
+    public Object getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Object status) {
         this.status = status;
     }
 
-    public String getMesa() {
+    public Object getMesa() {
         return mesa;
     }
 
-    public void setMesa(String mesa) {
+    public void setMesa(Object mesa) {
         this.mesa = mesa;
     }
 
-    public String getConvite() {
+    public Object getConvite() {
         return convite;
     }
 
-    public void setConvite(String convite) {
+    public void setConvite(Object convite) {
         this.convite = convite;
     }
 
-    public String getVencimento() {
+    public Object getVencimento() {
         return vencimento;
     }
 
-    public void setVencimento(String vencimento) {
+    public void setVencimento(Object vencimento) {
         this.vencimento = vencimento;
     }
 
-    public String getPagamento() {
+    public Object getPagamento() {
         return pagamento;
     }
 
-    public void setPagamento(String pagamento) {
+    public void setPagamento(Object pagamento) {
         this.pagamento = pagamento;
     }
 
-    public double getValor() {
+    public Object getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(Object valor) {
         this.valor = valor;
     }
 
-    public String getCaixa() {
+    public Object getCaixa() {
         return caixa;
     }
 
-    public void setCaixa(String caixa) {
+    public void setCaixa(Object caixa) {
         this.caixa = caixa;
     }
 
-    public String getObs() {
+    public Object getObs() {
         return obs;
     }
 
-    public void setObs(String obs) {
+    public void setObs(Object obs) {
         this.obs = obs;
+    }
+
+    public Object getServico_id() {
+        return servico_id;
+    }
+
+    public void setServico_id(Object servico_id) {
+        this.servico_id = servico_id;
     }
 }

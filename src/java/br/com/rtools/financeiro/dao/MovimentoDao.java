@@ -591,7 +591,7 @@ public class MovimentoDao extends DB {
                 + "       m.nr_correcao   as correcao, \n "//15
                 + "       m.nr_desconto   as desconto, \n "//16
                 + "       cc.nr_repasse   as repasse, \n "//17
-                + "       case when l.id = null              then 0 else l.id end   as id_baixa, \n "
+                + "        case when ba.id = null              then 0 else ba.id end   as id_baixa,  \n "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, \n "
                 + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, \n "
                 + "       m.nr_valor_baixa as valor_baixa,\n "
@@ -617,6 +617,29 @@ public class MovimentoDao extends DB {
                 + "   and m.id_pessoa = p.id \n "
                 + "   and m.id_servicos = s.id \n "
                 + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao
+                + "     group by m.id, \n"
+                + "        p.ds_documento, \n"
+                + "        p.ds_nome, \n"
+                + "        m.ds_documento, \n"
+                + "        s.ds_descricao, \n"
+                + "        m.ds_referencia, \n"
+                + "        m.dt_vencimento, \n"
+                + "        ba.dt_importacao, \n"
+                + "        m.nr_valor, \n"
+                + "        m.nr_taxa, \n"
+                + "        pu.ds_nome, \n"
+                + "        t.ds_descricao, \n"
+                + "        ba.dt_baixa, \n"
+                + "        m.nr_multa, \n"
+                + "        m.nr_juros, \n"
+                + "        m.nr_correcao, \n"
+                + "        m.nr_desconto, \n"
+                + "        cc.nr_repasse, \n"
+                + "        ba.id, \n"
+                + "        pb.ds_nome, \n"
+                + "        pf.ds_nome, \n"
+                + "        m.nr_valor_baixa, \n"
+                + "        P5.ds_conta "
                 + " order by " + ordem + ", nome";
 
         try {

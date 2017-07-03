@@ -342,7 +342,11 @@ public class Mail extends MailTemplate implements Serializable {
                         strings[1] = "Email de destinatário inválido!";
                         strings[1] += " - " + returnExceptionText(e.getMessage());
                     } catch (MessagingException e) {
-                        strings[1] = "" + returnExceptionText(e.getMessage());
+                        if(e.getCause().toString().contains("PKIX")) {
+                            strings[1] = "" + e.getCause().toString();                            
+                        } else {
+                            strings[1] = "" + returnExceptionText(e.getMessage());                            
+                        }
                     } catch (UnsupportedEncodingException ex) {
                         strings[1] = "Erro ";
                         strings[1] += " - " + returnExceptionText(ex.getMessage());
@@ -459,6 +463,7 @@ public class Mail extends MailTemplate implements Serializable {
     public String returnExceptionText(String e) {
         try {
             if (e.contains("Could not convert socket to TLS")) {
+                
                 return "Não foi possível converter socket para TLS";
             } else if (e.contains("504 Invalid Username or Password")) {
                 return "Login (Email) ou senha inválida";

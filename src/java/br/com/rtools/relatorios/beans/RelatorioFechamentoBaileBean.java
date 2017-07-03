@@ -6,6 +6,7 @@ import br.com.rtools.impressao.ParametroFechamentoBaile;
 import br.com.rtools.relatorios.dao.RelatorioFechamentoBaileDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -50,23 +51,44 @@ public class RelatorioFechamentoBaileBean implements Serializable {
         RelatorioFechamentoBaileDao dao = new RelatorioFechamentoBaileDao();
 
         List list = dao.listaEventoBaile(Integer.valueOf(listaEventoBaile.get(idEventoBaile).getDescription()));
+        if (list.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Nenhum registro encontrado!");
+            return;
+        }
         List<ParametroFechamentoBaile> lista = new ArrayList();
         for (int i = 0; i < list.size(); i++) {
             List object = (List) list.get(i);
+            String status = "";
+            if (object.get(0) == null) {
+                GenericaMensagem.warn("Erro", "Esta baile esta com registro vazios/nulos!");
+                return;
+            }
+            try {
+                if (object.get(4) != null) {
+                    status = object.get(4).toString();
+                    if (((Integer) object.get(12) == 13 || (Integer) object.get(12) == 15)) {
+                        status = "Cortesia";
+                    }
+
+                }
+            } catch (Exception e) {
+            }
+            Double valor = (object.get(9) != null ? (Double) object.get(9) : 0);
             lista.add(
                     new ParametroFechamentoBaile(
-                            DataHoje.converteData((Date) object.get(0)), // EMISSAO
-                            object.get(1).toString(), // OPERADOR
-                            object.get(2).toString(), // CODIGO
-                            object.get(3).toString(), // CONVIDADO
-                            ((Integer) object.get(12) == 13 || (Integer) object.get(12) == 15) ? "Cortesia" : object.get(4).toString(), // STATUS
-                            (object.get(5) != null ? object.get(5).toString() : ""), // MESA
-                            (object.get(6) != null ? object.get(6).toString() : ""), // CONVITE
-                            DataHoje.converteData((Date) object.get(7)), // VENCIMENTO
-                            DataHoje.converteData((Date) object.get(8)), // PAGAMENTO
-                            (object.get(9) != null ? (Double) object.get(9) : 0), // VALOR
-                            (object.get(10) != null ? object.get(10).toString() : ""), // CAIXA
-                            object.get(11).toString() // OBS
+                            object.get(0), // EMISSAO
+                            object.get(1), // OPERADOR
+                            object.get(2), // CODIGO
+                            object.get(3), // CONVIDADO
+                            status, // STATUS
+                            object.get(5), // MESA
+                            object.get(6), // CONVITE
+                            object.get(7), // VENCIMENTO
+                            object.get(8), // PAGAMENTO
+                            valor, // VALOR
+                            object.get(10), // CAIXA
+                            object.get(11), // OBS
+                            null
                     )
             );
         }

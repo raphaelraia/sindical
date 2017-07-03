@@ -24,7 +24,7 @@ public class RelatorioFechamentoBaileDao extends DB {
                 + "	mv.nr_valor_baixa as valor, \n "
                 + "	pu.ds_nome as caixa, \n "
                 + "	v.ds_obs as obs, \n "
-                + "	ese.id_servicos as servico \n "
+                + "	ese.id_servicos as servico_id \n "
                 + " FROM eve_evento_baile AS eb \n "
                 + "INNER JOIN eve_evento AS e ON e.id = eb.id_evento \n "
                 + "INNER JOIN eve_desc_evento AS de ON de.id = e.id_descricao_evento \n "
