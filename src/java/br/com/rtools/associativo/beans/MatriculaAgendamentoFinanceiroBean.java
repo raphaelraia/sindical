@@ -60,6 +60,11 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         valorTotal = (double) 0;
         desconto = (double) 0;
         
+        if (listaServicos.get(indexServicos).getDescription() == null){
+            GenericaMensagem.error("ATENÇÃO", "CADASTRE SERVIÇOS PARA ESTA ROTINA!");
+            return;
+        }
+        
         Servicos se = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(listaServicos.get(indexServicos).getDescription()));
 
         if (se != null && matriculaAgendamento.getServicoPessoa().getPessoa().getId() != -1) {
@@ -103,20 +108,29 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
         ServicosDao db = new ServicosDao();
         List<Servicos> select = db.pesquisaTodos(427);
-        for (int i = 0; i < select.size(); i++) {
-            listaServicos.add(
-                    new SelectItem(
-                            i,
-                            select.get(i).getDescricao(),
-                            Integer.toString(select.get(i).getId())
-                    )
-            );
+        if (!select.isEmpty()){
+            for (int i = 0; i < select.size(); i++) {
+                listaServicos.add(
+                        new SelectItem(
+                                i,
+                                select.get(i).getDescricao(),
+                                Integer.toString(select.get(i).getId())
+                        )
+                );
+            }
+        }else{
+            listaServicos.add(new SelectItem(0, "NENHUM SERVIÇO ADICIONADO PARA ESTA ROTINA", null));
         }
     }
 
     public void salvar() {
         if (matriculaAgendamento.getServicoPessoa().getPessoa().getId() == -1) {
             GenericaMensagem.error("ATENÇÃO", "PESQUISE UMA PESSOA PARA SALVAR!");
+            return;
+        }
+        
+        if (listaServicos.get(indexServicos).getDescription() == null) {
+            GenericaMensagem.error("ATENÇÃO", "ADICIONE SERVIÇOS PARA ESTA ROTINA!");
             return;
         }
 

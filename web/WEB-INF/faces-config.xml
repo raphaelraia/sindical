@@ -727,8 +727,8 @@
         </navigation-case>
 
         <navigation-case>
-            <from-outcome>suspencao</from-outcome>
-            <to-view-id>/suspencao.jsf</to-view-id>
+            <from-outcome>suspensao</from-outcome>
+            <to-view-id>/suspensao.jsf</to-view-id>
             <redirect/>
         </navigation-case>
 
@@ -745,8 +745,8 @@
         </navigation-case>
 
         <navigation-case>
-            <from-outcome>pesquisaSuspencao</from-outcome>
-            <to-view-id>/pesquisaSuspencao.jsp</to-view-id>
+            <from-outcome>pesquisaSuspensao</from-outcome>
+            <to-view-id>/pesquisaSuspensao.jsp</to-view-id>
             <redirect/>
         </navigation-case>
 
@@ -1333,8 +1333,8 @@
         </navigation-case>
         
         <navigation-case>
-            <from-outcome>conviteSuspencao</from-outcome>
-            <to-view-id>/conviteSuspencao.jsf</to-view-id>
+            <from-outcome>conviteSuspensao</from-outcome>
+            <to-view-id>/conviteSuspensao.jsf</to-view-id>
             <redirect/>
         </navigation-case>
         
