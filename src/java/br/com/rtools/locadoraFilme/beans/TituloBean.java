@@ -72,9 +72,11 @@ public class TituloBean implements Serializable {
     private Boolean habilitaPesquisaFilial;
     private String idTitulo;
     private Boolean liberaAcessaFilial;
+    private Boolean liberaAlterarTitulo;
 
     @PostConstruct
     public void init() {
+        liberaAlterarTitulo = true;
         titulo = new Titulo();
         idTitulo = "";
         catalogo = new Catalogo();
@@ -270,6 +272,7 @@ public class TituloBean implements Serializable {
         String urlRetorno = (String) GenericaSessao.getString("urlRetorno");
         GenericaSessao.put("linkClicado", true);
         showImagem();
+        liberaAlterarTitulo = true;
         listFilial = new ArrayList();
         listCatalogo = new ArrayList();
         idFilial = null;
@@ -277,6 +280,7 @@ public class TituloBean implements Serializable {
             titulo = t;
             idGenero = t.getGenero().getId();
             GenericaSessao.put("tituloPesquisa", titulo);
+            liberaAlterarTitulo = new TituloDao().findTituloJaLocado(titulo.getId());
             return "titulo";
         } else {
             if (urlRetorno.equals("titulo") || urlRetorno.equals("relatorioMovimentoLocadora")) {
@@ -286,6 +290,7 @@ public class TituloBean implements Serializable {
                 return null;
             }
             titulo = t;
+            liberaAlterarTitulo = new TituloDao().findTituloJaLocado(titulo.getId());
             GenericaSessao.put("tituloPesquisa", titulo);
             return (String) GenericaSessao.getString("urlRetorno");
         }
@@ -857,6 +862,7 @@ public class TituloBean implements Serializable {
                             titulo.setBarras(null);
                         }
                         titulo = t;
+                        liberaAlterarTitulo = new TituloDao().findTituloJaLocado(titulo.getId());
                         listCatalogo.clear();
                         getListCatalogo();
                         idGenero = titulo.getGenero().getId();
@@ -876,6 +882,7 @@ public class TituloBean implements Serializable {
                             titulo.setId(null);
                         }
                         titulo = t;
+                        liberaAlterarTitulo = new TituloDao().findTituloJaLocado(titulo.getId());
                         idGenero = titulo.getGenero().getId();
                         listCatalogo.clear();
                         getListCatalogo();
@@ -925,6 +932,14 @@ public class TituloBean implements Serializable {
 
     public void setLiberaAcessaFilial(Boolean liberaAcessaFilial) {
         this.liberaAcessaFilial = liberaAcessaFilial;
+    }
+
+    public Boolean getLiberaAlterarTitulo() {
+        return liberaAlterarTitulo;
+    }
+
+    public void setLiberaAlterarTitulo(Boolean liberaAlterarTitulo) {
+        this.liberaAlterarTitulo = liberaAlterarTitulo;
     }
 
 }

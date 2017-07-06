@@ -42,7 +42,7 @@
                                                 <p:ajax event="change" update="@this :form_titulo:" listener="#{tituloBean.listener(2)}"/>
                                             </p:inputText>
                                             <p:outputLabel value="Código de Barras:" />
-                                            <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16">
+                                            <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16" readonly="#{!tituloBean.liberaAlterarTitulo and segurancaUtilitariosBean.sessaoUsuario.id ne 1}">
                                                 <p:ajax event="change" update="@this :form_titulo:" listener="#{tituloBean.listener(1)}"/>                                            
                                             </p:inputText>                                            
                                             <p:outputLabel value="Data Cadastro:" />
@@ -50,7 +50,7 @@
                                                 <p:ajax update="@this" event="change" />
                                             </p:inputMask>
                                             <p:outputLabel value="Titulo:" />
-                                            <p:inputText value="#{tituloBean.titulo.descricao}"  maxlength="100" size="80" converter="#{toUpperCase}">
+                                            <p:inputText value="#{tituloBean.titulo.descricao}"  maxlength="100" size="80" converter="#{toUpperCase}" readonly="#{!tituloBean.liberaAlterarTitulo and segurancaUtilitariosBean.sessaoUsuario.id ne 1}">
                                                 <p:ajax update="@this" event="change" />
                                             </p:inputText>
                                             <p:outputLabel value="Autor:"/>
@@ -183,7 +183,7 @@
                                 <f:facet name="footer">
                                     <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
                                 </f:facet>
-                            </p:dialog>                            
+                            </p:dialog>                                                       
                         </h:form>
                         <h:form id="form_titulo_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
                             <p:dialog id="id_dgl_anexos" widgetVar="dlg_upload" modal="true"  header="Anexar Foto" >

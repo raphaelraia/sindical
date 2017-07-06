@@ -38,14 +38,15 @@
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', locacaoFilmeBean.locatario.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty locacaoFilmeBean.locatario.pessoa.pessoaComplemento.obsAviso}" />
                             <p:panel>
                                 <f:facet name="header">
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="3">
                                         <p:outputLabel value="Data da locação" />
                                         <p:inputMask maxlength="10" size="6" value="#{locacaoFilmeBean.locadoraLote.dataLocacaoString}" readonly="readonly" mask="99/99/9999" converter="#{isDateString}">
                                             <p:ajax update="@this" event="change" />
                                         </p:inputMask>
+                                        <p:commandButton type="button" icon="ui-icon-info" onclick="PF('dlg_detalhes_status').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_status" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
                                     </h:panelGrid>
                                 </f:facet>
-                                <p:panel header="Locatário" id="i_panel_locatario">
+                                <p:panel header="Locatário" id="i_panel_locatario"> 
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <h:panelGrid columns="4">
@@ -194,6 +195,37 @@
                                     <p:column>Gênero:</p:column>
                                     <p:column>#{locacaoFilmeBean.titulo.genero.descricao}</p:column>
                                 </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid>
+                                        <p:commandButton value="Sair"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_detalhes_filme').hide()" style="float: left;" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_detalhes_status" width="600" modal="true" resizable="false" header="Detalhes sobre o status da locação na data de hoje">
+                                <h:panelGroup id="i_detalhes_status" >
+                                    <h:panelGrid columns="2" columnClasses="bold dsd" >
+                                        <p:column>Dia da semana:</p:column>
+                                        <p:column>#{locacaoFilmeBean.locadoraStatus.semana.descricao}</p:column>
+                                        <p:column>Dias de devolução:</p:column>
+                                        <p:column>#{locacaoFilmeBean.locadoraStatus.diasDevolucao} (Hoje + 3)</p:column>
+                                        <p:column>Permite depentende?</p:column>
+                                        <p:column>#{locacaoFilmeBean.locadoraStatus.locacaoDependente ? 'SIM' : 'NÃO'}</p:column>
+                                        <p:column>Qtde de locação:</p:column>
+                                        <p:column>#{locacaoFilmeBean.locadoraStatus.qtdeLocacao}</p:column>
+                                        <p:column>Qtde de lançamentos:</p:column>
+                                        <p:column>#{locacaoFilmeBean.locadoraStatus.qtdeLancamentos}</p:column>
+                                    </h:panelGrid>
+                                    <br />
+                                    <br />
+                                    <h:panelGrid columns="1" columnClasses="bold dsd">
+                                        <h:column>
+                                            <label style="color: red;">*Obs: se a quantidade de locação para o dia permitida é 
+                                                #{locacaoFilmeBean.locadoraStatus.qtdeLocacao} só poderá então locar essa quantidade, mesmo que haja filmes como lançamento, 
+                                                no movimento o total permitido é #{locacaoFilmeBean.locadoraStatus.qtdeLocacao} para esta pessoa.
+                                            </label> 
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:panelGroup>
                                 <f:facet name="footer">
                                     <h:panelGrid>
                                         <p:commandButton value="Sair"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_detalhes_filme').hide()" style="float: left;" icon="ui-icon-close"/>

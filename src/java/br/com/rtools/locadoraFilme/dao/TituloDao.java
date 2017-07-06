@@ -115,7 +115,7 @@ public class TituloDao extends DB {
             return new ArrayList<>();
         }
     }
-    
+
     public Titulo findBarras(String barras) {
         try {
             List list = find(null, "barras", "T", barras, null, 0, 0);
@@ -179,6 +179,15 @@ public class TituloDao extends DB {
 
     public void setLimit(Integer limit) {
         this.limit = limit;
+    }
+
+    public Boolean findTituloJaLocado(Integer titulo_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT count(*) FROM loc_movimento WHERE id_titulo = " + titulo_id + " HAVING COUNT(*) > 0 LIMIT 1");
+            return query.getResultList().isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
