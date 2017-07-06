@@ -52,4 +52,13 @@ public class FisicaImportacaoDao extends DB {
             return new ArrayList();
         }
     }
+    
+    public FisicaImportacao findByFisica(Integer fisica_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT I.* FROM pes_fisica_importacao AS I WHERE I.id_fisica = " + fisica_id, FisicaImportacao.class);
+            return (FisicaImportacao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

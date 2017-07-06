@@ -60,6 +60,13 @@
                                     <p:submenu label="Viagens">
                                         <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
                                     </p:submenu>
+                                    
+                                    <p:submenu label="Campeonatos">
+                                        <p:menuitem value="Campeonato"              action="#{chamadaPaginaBean.pagina('campeonato')}" />
+                                        <p:menuitem value="Equipes"                 action="#{chamadaPaginaBean.pagina('equipe')}" />
+                                        <p:menuitem value="Equipes do Campeonato"   action="#{chamadaPaginaBean.pagina('campeonatoEquipe')}" />
+                                        <p:menuitem value="Modalidades"             action="#{chamadaPaginaBean.paginaSimples('CampeonatoModalidade', 'CAMPEONATO MODALIDADE')}" />
+                                    </p:submenu>
 
                                     <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" />
 

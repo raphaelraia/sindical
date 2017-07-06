@@ -41,6 +41,7 @@ import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.homologacao.dao.SenhaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
+import br.com.rtools.pessoa.dao.FisicaImportacaoDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -217,6 +218,14 @@ public class PessoaFisicaMesclarBean implements Serializable {
             if (!dao.update(listCatracaFrequencia.get(i))) {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA CATRACA FREQUÊNCIA!");
+                return;
+            }
+        }
+        FisicaImportacao fisicaImportacao = new FisicaImportacaoDao().findByFisica(remover.getId());
+        if (fisicaImportacao != null) {
+            if (!dao.delete(fisicaImportacao)) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER FÍSICA IMPORTAÇÃO!");
                 return;
             }
         }

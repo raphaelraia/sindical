@@ -1,0 +1,73 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Pesquisa Campeonato</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }            
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Pesquisa Campeonato" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="form_pesquisa_campeonato">
+                            <p:dataTable value="#{campeonatoBean.listCampeonatos}" var="campeonato" id="tbl" emptyMessage="Nenhuma registro encontrado!" rows="10" paginator="true">
+                                <p:column width="30">
+                                    <p:commandButton ajax="false" icon="ui-icon-arrowreturnthick-1-w" action="#{campeonatoBean.edit(campeonato)}" title="Editar registro nº#{campeonato.id}"/>
+                                </p:column>
+
+                                <p:column headerText="Descrição">
+                                    <p:commandLink ajax="false" action="#{campeonatoBean.edit(campeonato)}" value="#{campeonato.evento.descricaoEvento.descricao} #{campeonato.tituloComplemento}"/>
+                                </p:column>
+
+                                <p:column headerText="Grupo">
+                                    <p:commandLink ajax="false" action="#{campeonatoBean.edit(campeonato)}" value="#{campeonato.evento.descricaoEvento.grupoEvento.descricao}"/>
+                                </p:column>
+
+                                <p:column headerText="Modalidade">
+                                    <p:commandLink ajax="false" action="#{campeonatoBean.edit(campeonato)}" value="#{campeonato.modalidade.descricao}"/>
+                                </p:column>
+
+                                <p:column headerText="Inicio" width="80" styleClass="text-center">
+                                    <h:outputText value="#{campeonato.inicio}"/>
+                                </p:column>
+                                <p:column headerText="Fim" width="80" styleClass="text-center">
+                                    <h:outputText value="#{campeonato.fim}"/>
+                                </p:column>
+
+                            </p:dataTable>                            
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

@@ -2439,6 +2439,30 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>campeonato</from-outcome>
+            <to-view-id>/campeonato.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>campeonatoEquipe</from-outcome>
+            <to-view-id>/campeonatoEquipe.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>equipe</from-outcome>
+            <to-view-id>/equipe.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>pesquisaCampeonato</from-outcome>
+            <to-view-id>/pesquisaCampeonato.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

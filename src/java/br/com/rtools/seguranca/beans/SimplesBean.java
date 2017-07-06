@@ -6,6 +6,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MotivoInativacao;
 import br.com.rtools.associativo.Banda;
+import br.com.rtools.associativo.CampeonatoModalidade;
 import br.com.rtools.associativo.ConviteMotivoSuspencao;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.GrupoEvento;
@@ -399,6 +400,9 @@ public class SimplesBean implements Serializable {
             case "Convencao":
                 o = (Convencao) new Convencao(id, descricao, true);
                 break;
+            case "CampeonatoModalidade":
+                o = (CampeonatoModalidade) new CampeonatoModalidade(id, descricao);
+                break;
         }
         return o;
     }
@@ -510,6 +514,9 @@ public class SimplesBean implements Serializable {
             case "Convencao":
                 ((Convencao) objeto).setDescricao(descricao);
                 ((Convencao) objeto).setAtivo(ativo);
+                break;
+            case "CampeonatoModalidade":
+                ((CampeonatoModalidade) objeto).setDescricao(descricao);
                 break;
         }
     }
@@ -659,6 +666,10 @@ public class SimplesBean implements Serializable {
                 descricao = ((Convencao) obj).getDescricao();
                 id = ((Convencao) objeto).getId();
                 ativo = ((Convencao) objeto).getAtivo();
+                break;
+            case "CampeonatoModalidade":
+                descricao = ((CampeonatoModalidade) obj).getDescricao();
+                id = ((CampeonatoModalidade) objeto).getId();
                 break;
         }
         Dao dao = new Dao();
@@ -838,6 +849,11 @@ public class SimplesBean implements Serializable {
                 }
             case "Convencao":
                 if (((Convencao) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "CampeonatoModalidade":
+                if (((CampeonatoModalidade) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
                 }
                 break;
