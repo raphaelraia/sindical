@@ -53,9 +53,10 @@ public class RelatorioMovimentosDao extends DB {
         List listWhere = new ArrayList<>();
         String queryString
                 = "    FROM fin_movimento                AS mov                   \n "
+                + " INNER JOIN fin_lote                AS lot              ON lot.id               = mov.id_lote                                \n "
                 + " INNER JOIN fin_servicos            AS se               ON se.id                = mov.id_servicos                            \n "
                 + " INNER JOIN fin_servico_rotina      AS ser              ON ser.id_servicos      = se.id AND ser.id_rotina = 4                \n "
-                + "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                               \n "
+                + "  LEFT JOIN fin_baixa               AS bai              ON bai.id               = mov.id_baixa                               \n "
                 + " INNER JOIN pes_pessoa              AS pes              ON pes.id               = mov.id_pessoa                              \n "
                 + "  LEFT JOIN pes_juridica            AS jur              ON jur.id_pessoa        = pes.id                                     \n "
                 + "  LEFT JOIN pes_juridica            AS esc              ON esc.id               = jur.id_contabilidade                       \n "
@@ -78,7 +79,7 @@ public class RelatorioMovimentosDao extends DB {
                 + "  LEFT JOIN end_descricao_endereco  AS esc_endereco     ON esc_endereco.id      = esc_end.id_descricao_endereco                                                      \n "
                 + "  LEFT JOIN end_bairro              AS esc_bairro       ON esc_bairro.id        = esc_end.id_bairro                                                                  \n "
                 + "  LEFT JOIN end_cidade              AS esc_cidade       ON esc_cidade.id        = esc_end.id_cidade                                                                  \n "
-                + "  LEFT JOIN seg_usuario             AS us               ON us.id                = lot.id_usuario                                                                     \n "
+                + "  LEFT JOIN seg_usuario             AS us               ON us.id                = bai.id_usuario                                                                     \n "
                 + "  LEFT JOIN pes_pessoa              AS upes             ON upes.id              = us.id_pessoa ";
         // CONDICAO -----------------------------------------------------
         listWhere.add("mov.is_ativo = true");
@@ -142,74 +143,103 @@ public class RelatorioMovimentosDao extends DB {
                 listWhere.add("mov.id_baixa IS NULL AND mov.dt_vencimento < '" + DataHoje.data() + "'");
                 break;
             case "atrasadas_quitadas":
-                listWhere.add("mov.id_baixa > 0 AND lot.dt_baixa > mov.dt_vencimento");
+                listWhere.add("mov.id_baixa > 0 AND bai.dt_baixa > mov.dt_vencimento");
                 break;
         }
 
-        String data_mes = "extract(month from lot.dt_baixa)", data_ano = "extract(year from lot.dt_baixa)";
+        String data_mes = "extract(month from bai.dt_baixa)", data_ano = "extract(year from bai.dt_baixa)";
         // DATA DO RELATORIO ---------------------------------------------------------
         if (!listDateFilters.isEmpty()) {
             DateFilters importacao = DateFilters.getDateFilters(listDateFilters, "importacao");
             if (importacao != null) {
-                listWhere.add("mov.id_baixa = lot.id ");
+                listWhere.add("mov.id_baixa = bai.id ");
                 if ((importacao.getDtStart() != null && !importacao.getStart().isEmpty()) || importacao.getType().equals("com") || importacao.getType().equals("sem")) {
                     switch (importacao.getType()) {
                         case "igual":
-                            listWhere.add(" lot.dt_importacao = '" + importacao.getStart() + "'");
+                            listWhere.add(" bai.dt_importacao = '" + importacao.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" lot.dt_importacao >= '" + importacao.getStart() + "'");
+                            listWhere.add(" bai.dt_importacao >= '" + importacao.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" lot.dt_importacao <= '" + importacao.getStart() + "'");
+                            listWhere.add(" bai.dt_importacao <= '" + importacao.getStart() + "'");
                             break;
                         case "faixa":
                             if (!importacao.getStart().isEmpty()) {
-                                listWhere.add(" lot.dt_importacao BETWEEN '" + importacao.getStart() + "' AND '" + importacao.getFinish() + "'");
+                                listWhere.add(" bai.dt_importacao BETWEEN '" + importacao.getStart() + "' AND '" + importacao.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" lot.dt_importacao IS NOT NULL ");
+                            listWhere.add(" bai.dt_importacao IS NOT NULL ");
                             break;
                         case "null":
-                            listWhere.add(" lot.dt_importacao IS NULL ");
+                            listWhere.add(" bai.dt_importacao IS NULL ");
                             break;
                         default:
                             break;
                     }
                 }
-                data_mes = "extract(month from lot.dt_importacao)";
-                data_ano = "extract(year from lot.dt_importacao)";
+                data_mes = "extract(month from bai.dt_importacao)";
+                data_ano = "extract(year from bai.dt_importacao)";
             }
             DateFilters recebimento = DateFilters.getDateFilters(listDateFilters, "recebimento");
             if (recebimento != null) {
                 if ((recebimento.getDtStart() != null && !recebimento.getStart().isEmpty()) || recebimento.getType().equals("com") || recebimento.getType().equals("sem")) {
                     switch (recebimento.getType()) {
                         case "igual":
-                            listWhere.add(" lot.dt_baixa = '" + recebimento.getStart() + "'");
+                            listWhere.add(" bai.dt_baixa = '" + recebimento.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" lot.dt_baixa >= '" + recebimento.getStart() + "'");
+                            listWhere.add(" bai.dt_baixa >= '" + recebimento.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" lot.dt_baixa <= '" + recebimento.getStart() + "'");
+                            listWhere.add(" bai.dt_baixa <= '" + recebimento.getStart() + "'");
                             break;
                         case "faixa":
                             if (!recebimento.getFinish().isEmpty()) {
-                                listWhere.add(" lot.dt_baixa BETWEEN '" + recebimento.getStart() + "' AND '" + recebimento.getFinish() + "'");
+                                listWhere.add(" bai.dt_baixa BETWEEN '" + recebimento.getStart() + "' AND '" + recebimento.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" lot.dt_baixa IS NOT NULL");
+                            listWhere.add(" bai.dt_baixa IS NOT NULL");
                             break;
                         case "sem":
-                            listWhere.add(" lot.dt_baixa IS NULL");
+                            listWhere.add(" bai.dt_baixa IS NULL");
                             break;
                         default:
                             break;
                     }
-                    data_mes = "extract(month from lot.dt_baixa)";
-                    data_ano = "extract(year from lot.dt_baixa)";
+                    data_mes = "extract(month from bai.dt_baixa)";
+                    data_ano = "extract(year from bai.dt_baixa)";
+                }
+            }
+            DateFilters lancamento = DateFilters.getDateFilters(listDateFilters, "lancamento");
+            if (lancamento != null) {
+                if ((lancamento.getDtStart() != null && !lancamento.getStart().isEmpty()) || lancamento.getType().equals("com") || lancamento.getType().equals("sem")) {
+                    switch (lancamento.getType()) {
+                        case "igual":
+                            listWhere.add(" lot.dt_lancamento = '" + lancamento.getStart() + "'");
+                            break;
+                        case "apartir":
+                            listWhere.add(" lot.dt_lancamento >= '" + lancamento.getStart() + "'");
+                            break;
+                        case "ate":
+                            listWhere.add(" lot.dt_lancamento <= '" + lancamento.getStart() + "'");
+                            break;
+                        case "faixa":
+                            if (!lancamento.getFinish().isEmpty()) {
+                                listWhere.add(" lot.dt_lancamento BETWEEN '" + lancamento.getStart() + "' AND '" + lancamento.getFinish() + "'");
+                            }
+                            break;
+                        case "com":
+                            listWhere.add(" lot.dt_lancamento IS NOT NULL");
+                            break;
+                        case "sem":
+                            listWhere.add(" lot.dt_lancamento IS NULL");
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             DateFilters vencimento = DateFilters.getDateFilters(listDateFilters, "vencimento");
@@ -452,10 +482,10 @@ public class RelatorioMovimentosDao extends DB {
                         queryString += " mov.dt_vencimento \n ";
                         break;
                     case "-2":
-                        queryString += " lot.dt_baixa \n ";
+                        queryString += " bai.dt_baixa \n ";
                         break;
                     case "-3":
-                        queryString += " lot.dt_importacao \n ";
+                        queryString += " bai.dt_importacao \n ";
                         break;
                     case "-4":
                         queryString += " concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) \n ";
@@ -468,10 +498,10 @@ public class RelatorioMovimentosDao extends DB {
                         queryString += " mov.dt_vencimento \n ";
                         break;
                     case "-2":
-                        queryString += " lot.dt_baixa \n ";
+                        queryString += " bai.dt_baixa \n ";
                         break;
                     case "-3":
-                        queryString += " lot.dt_importacao \n ";
+                        queryString += " bai.dt_importacao \n ";
                         break;
                     case "-4":
                         queryString += " concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) \n ";
@@ -595,9 +625,9 @@ public class RelatorioMovimentosDao extends DB {
                     + "       esc_cidade.ds_uf             AS ufCidade,             \n "
                     + "       pesc.ds_telefone1            AS telefoneContabil,     \n "
                     + "       pesc.ds_email1               AS emailContabil,        \n "
-                    + "       lot.id                       AS idLote,               \n "
-                    + "       lot.dt_baixa                 AS quitacaoLote,         \n "
-                    + "       lot.dt_importacao            AS importacaoLote,       \n "
+                    + "       bai.id                       AS idBaixa,              \n "
+                    + "       bai.dt_baixa                 AS quitacaoLote,         \n "
+                    + "       bai.dt_importacao            AS importacaoLote,       \n "
                     + "       jur.id                       AS idJuridica,           \n "
                     + "       upes.ds_nome                 AS usuario,              \n "
                     + "       mov.nr_taxa                  AS taxa,                 \n "
