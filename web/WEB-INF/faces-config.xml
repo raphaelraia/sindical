@@ -2463,6 +2463,12 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>certidaoDisponivel</from-outcome>
+            <to-view-id>/certidaoDisponivel.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>    
+        
     </navigation-rule>
     
     <lifecycle>

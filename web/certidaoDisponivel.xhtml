@@ -1,0 +1,205 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Certidão Disponível</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Certidão Disponível" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formCertidaoDisponivel">
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="5">
+                                    <h:column>
+                                        <p:outputLabel value="UF" /><br />
+                                        <p:selectOneMenu value="#{certidaoDisponivelBean.uf}">
+                                            <p:ajax event="change" update="@form" listener="#{certidaoDisponivelBean.loadListaCidade()}"/>
+                                            <f:selectItem itemValue="AC" itemLabel="AC"/>
+                                            <f:selectItem itemValue="AL" itemLabel="AL"/>
+                                            <f:selectItem itemValue="AP" itemLabel="AP"/>
+                                            <f:selectItem itemValue="AM" itemLabel="AM"/>
+                                            <f:selectItem itemValue="BA" itemLabel="BA"/>
+                                            <f:selectItem itemValue="CE" itemLabel="CE"/>
+                                            <f:selectItem itemValue="DF" itemLabel="DF"/>
+                                            <f:selectItem itemValue="ES" itemLabel="ES"/>
+                                            <f:selectItem itemValue="GO" itemLabel="GO"/>
+                                            <f:selectItem itemValue="MA" itemLabel="MA"/>
+                                            <f:selectItem itemValue="MT" itemLabel="MT"/>
+                                            <f:selectItem itemValue="MS" itemLabel="MS"/>
+                                            <f:selectItem itemValue="MG" itemLabel="MG"/>
+                                            <f:selectItem itemValue="PA" itemLabel="PA"/>
+                                            <f:selectItem itemValue="PB" itemLabel="PB"/>
+                                            <f:selectItem itemValue="PR" itemLabel="PR"/>
+                                            <f:selectItem itemValue="PE" itemLabel="PE"/>
+                                            <f:selectItem itemValue="PI" itemLabel="PI"/>
+                                            <f:selectItem itemValue="RJ" itemLabel="RJ"/>
+                                            <f:selectItem itemValue="RN" itemLabel="RN"/>
+                                            <f:selectItem itemValue="RS" itemLabel="RS"/>
+                                            <f:selectItem itemValue="RO" itemLabel="RO"/>
+                                            <f:selectItem itemValue="RR" itemLabel="RR"/>
+                                            <f:selectItem itemValue="SC" itemLabel="SC"/>
+                                            <f:selectItem itemValue="SP" itemLabel="SP"/>
+                                            <f:selectItem itemValue="SE" itemLabel="SE"/>
+                                            <f:selectItem itemValue="TO" itemLabel="TO"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Cidade" /><br />
+                                        <p:selectOneMenu value="#{certidaoDisponivelBean.indexListaCidade}">
+                                            <f:selectItems value="#{certidaoDisponivelBean.listaCidade}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Convenção" /><br />
+                                        <p:selectOneMenu value="#{certidaoDisponivelBean.indexListaConvencao}">
+                                            <f:selectItems value="#{certidaoDisponivelBean.listaConvencao}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Tipo Certidão" /><br />
+                                        <p:selectOneMenu value="#{certidaoDisponivelBean.indexListaCertidaoTipo}">
+                                            <f:selectItems value="#{certidaoDisponivelBean.listaCertidaoTipo}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{certidaoDisponivelBean.certidaoDisponivel.periodoConvencao}" itemLabel="Período Convenção"/>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <p:separator />
+
+                                <h:panelGrid columns="4" style="width: 100%">
+                                    <h:panelGrid columns="4">
+                                        <p:commandButton value="#{certidaoDisponivelBean.certidaoDisponivel.id eq -1 ? 'Salvar' : 'Alterar'}" icon="ui-icon-disk" action="#{certidaoDisponivelBean.salvar()}" update="@form">
+                                            <p:confirm header="Salvar Registro" message="Deseja Realmente #{certidaoDisponivelBean.certidaoDisponivel.id eq -1 ? 'SALVAR' : 'ALTERAR'} esta Certidão?" icon="ui-icon-alert" />
+                                        </p:commandButton>
+
+                                        <p:commandButton value="Novo" action="#{certidaoDisponivelBean.novo()}" update="@form" icon="ui-icon-document"/>
+
+                                        <p:commandButton value="Excluir" icon="ui-icon-close" action="#{certidaoDisponivelBean.excluir()}" update="@form" rendered="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}">
+                                            <p:confirm header="Excluir Registro" message="Deseja Realmente EXCLUIR esta Certidão?" icon="ui-icon-alert" />
+                                        </p:commandButton>
+
+                                        <p:outputLabel value="Editando Certidão Disponível" style="color: red; font-size: 12pt!important; padding-top: 5px" rendered="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" />
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="2" style="float: right">
+                                        <p:commandButton value="Alterar Logo" action="#{certidaoDisponivelBean.loadLogoCertidao()}" oncomplete="PF('dlg_logo').show()" style="padding: 20px; float: right" rendered="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" update=":formUploadLogo:panel_logo" icon="ui-icon-image"/>
+                                        <p:commandButton value="Alterar Fundo" action="#{certidaoDisponivelBean.loadFundoCertidao()}" oncomplete="PF('dlg_fundo').show()" style="padding: 20px; float: right" rendered="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" update=":formUploadFundo:panel_fundo" icon="ui-icon-image"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:messages closable="true" showDetail="true" />
+
+                            <br />
+
+                            <p:dataTable value="#{certidaoDisponivelBean.listaCertidaoDisponivel}" var="linha" emptyMessage="Nenhuma Certidão Encontrada.">
+
+                                <p:column headerText="#" style="width: 50px; text-align: center">
+                                    <p:commandLink value="#{linha.id}" action="#{certidaoDisponivelBean.editar(linha)}" disabled="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Convenção">
+                                    <p:commandLink value="#{linha.convencao.descricao}" action="#{certidaoDisponivelBean.editar(linha)}" disabled="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Cidade">
+                                    <p:commandLink value="#{linha.cidade.cidadeToString}" action="#{certidaoDisponivelBean.editar(linha)}" disabled="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Tipo Certidão">
+                                    <p:commandLink value="#{linha.certidaoTipo.descricao}" action="#{certidaoDisponivelBean.editar(linha)}" disabled="#{certidaoDisponivelBean.certidaoDisponivel.id ne -1}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Período Convenção" style="text-align: center; width: 80px">
+                                    <p:selectBooleanCheckbox value="#{linha.periodoConvencao}" disabled="true"/>
+                                </p:column>
+
+                            </p:dataTable>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </h:form>
+
+
+                        <h:form id="formUploadLogo" enctype="multipart/form-data" acceptcharset="UTF-8">
+                            <p:dialog id="dlg_logo" widgetVar="dlg_logo" header="Imagem do Logo" resizable="false" modal="true">
+                                <h:panelGrid id="panel_logo">
+                                    <p:graphicImage value="#{certidaoDisponivelBean.caminhoLogo}" style="max-width: 500px" cache="false"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="3">
+                                    <p:fileUpload label ="Alterar Logo" 
+                                                  mode="advanced" 
+                                                  fileUploadListener="#{certidaoDisponivelBean.uploadLogo}" 
+                                                  multiple="false" 
+                                                  auto="true" 
+                                                  allowTypes="/(\.|\/)(gif|jpe?g|png)$/" 
+                                                  update=":formUploadLogo:panel_logo"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>    
+
+                        <h:form id="formUploadFundo" enctype="multipart/form-data" acceptcharset="UTF-8">
+                            <p:dialog id="dlg_fundo" widgetVar="dlg_fundo" header="Imagem do Fundo" resizable="false" modal="true">
+                                <h:panelGrid id="panel_fundo">
+                                    <p:graphicImage value="#{certidaoDisponivelBean.caminhoFundo}" style="max-width: 500px" cache="false"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="3">
+                                    <p:fileUpload label ="Alterar Fundo" 
+                                                  mode="advanced" 
+                                                  fileUploadListener="#{certidaoDisponivelBean.uploadFundo}" 
+                                                  multiple="false" 
+                                                  auto="true" 
+                                                  allowTypes="/(\.|\/)(gif|jpe?g|png)$/" 
+                                                  update=":formUploadFundo:panel_fundo"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>    
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

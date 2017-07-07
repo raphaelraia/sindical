@@ -13,54 +13,64 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-
 @Entity
 @Table(name = "arr_certidao_disponivel")
 @NamedQuery(name = "CertidaoDisponivel.pesquisaID", query = "select cd from CertidaoDisponivel cd where cd.id = :pid")
 public class CertidaoDisponivel implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @JoinColumn(name = "id_cidade", referencedColumnName = "id")
     @ManyToOne
-    private Cidade cidade;    
+    private Cidade cidade;
     @JoinColumn(name = "id_convencao", referencedColumnName = "id")
     @ManyToOne
-    private Convencao convencao;    
+    private Convencao convencao;
     @JoinColumn(name = "id_certidao_tipo", referencedColumnName = "id")
     @ManyToOne
-    private CertidaoTipo certidaoTipo;    
+    private CertidaoTipo certidaoTipo;
     @Column(name = "is_periodo_convencao", columnDefinition = "boolean default false")
-    private boolean periodoConvencao;    
+    private boolean periodoConvencao;
+    @Column(name = "ds_logo")
+    private String logo;
+    @Column(name = "ds_fundo")
+    private String fundo;
 
     @Transient
     private Boolean selected;
-    
+
     public CertidaoDisponivel() {
         this.id = -1;
         this.cidade = new Cidade();
         this.convencao = new Convencao();
         this.certidaoTipo = new CertidaoTipo();
         this.periodoConvencao = true;
+        this.logo = "";
+        this.fundo = "";
         this.selected = false;
     }
-    
-    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao) {
+
+    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, String logo, String fundo) {
         this.id = id;
         this.cidade = cidade;
         this.convencao = convencao;
         this.certidaoTipo = certidaoTipo;
         this.periodoConvencao = periodoConvencao;
+        this.logo = logo;
+        this.fundo = fundo;
         this.selected = false;
     }
-    
-    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, Boolean selected) {
+
+    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, String logo, String fundo, Boolean selected) {
         this.id = id;
         this.cidade = cidade;
         this.convencao = convencao;
         this.certidaoTipo = certidaoTipo;
         this.periodoConvencao = periodoConvencao;
+        this.logo = logo;
+        this.fundo = fundo;
         this.selected = selected;
     }
 
@@ -111,5 +121,21 @@ public class CertidaoDisponivel implements Serializable {
     public void setSelected(Boolean selected) {
         this.selected = selected;
     }
-    
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public String getFundo() {
+        return fundo;
+    }
+
+    public void setFundo(String fundo) {
+        this.fundo = fundo;
+    }
+
 }
