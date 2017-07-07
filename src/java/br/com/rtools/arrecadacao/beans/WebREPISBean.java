@@ -11,6 +11,7 @@ import br.com.rtools.arrecadacao.PisoSalarial;
 import br.com.rtools.arrecadacao.PisoSalarialLote;
 import br.com.rtools.arrecadacao.RepisMovimento;
 import br.com.rtools.arrecadacao.RepisStatus;
+import br.com.rtools.arrecadacao.dao.CertidaoDisponivelDao;
 import br.com.rtools.arrecadacao.dao.CertificadoArquivosDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoPeriodoDao;
 import br.com.rtools.arrecadacao.dao.EmpregadosDao;
@@ -656,6 +657,27 @@ public class WebREPISBean implements Serializable {
 
                     JasperReport jasper = (JasperReport) JRLoader.loadObject(file);
 
+                    String caminho_logo_certidao = logoCaminho;//((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                    String caminho_fundo_certidao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoFundo.png");
+
+                    CertidaoDisponivel cd = new CertidaoDisponivelDao().pesquisaCertidaoDisponivel(ee.getEndereco().getCidade().getId(), id_convencao, repis.getCertidaoTipo().getId());
+
+                    if (cd != null) {
+                        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/logocertidao/" + cd.getId() + "/" + cd.getLogo()));
+                        if (f.exists()) {
+                            // LOGO
+                            caminho_logo_certidao = f.getPath();
+                            logoCaminho = caminho_logo_certidao;
+                        }
+
+                        f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/logocertidao/" + cd.getId() + "/" + cd.getFundo()));
+
+                        if (f.exists()) {
+                            // MARCA D'ÁGUA
+                            caminho_fundo_certidao = f.getPath();
+                        }
+                    }
+
                     for (PisoSalarial piso : listapiso) {
                         BigDecimal valor = new BigDecimal(piso.getValor());
                         if (valor.toString().equals("0")) {
@@ -668,7 +690,7 @@ public class WebREPISBean implements Serializable {
                                         logoCaminho,
                                         repis.getPatronal().getBaseTerritorial(),
                                         sindicato.getPessoa().getNome(),
-                                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                                        caminho_logo_certidao,
                                         repis.getPessoa().getNome(),
                                         repis.getPessoa().getDocumento(),
                                         juridica.getPorte().getDescricao(),
@@ -679,7 +701,7 @@ public class WebREPISBean implements Serializable {
                                         sindicato_endereco.getEndereco().getCidade().getCidade() + " - " + sindicato_endereco.getEndereco().getCidade().getUf(),
                                         piso.getPisoSalarialLote().getAno(),
                                         ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Imagens/LogoSelo.png"),
-                                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoFundo.png"),
+                                        caminho_fundo_certidao,
                                         String.valueOf(repis.getId()),
                                         "0000000000".substring(0, 10 - String.valueOf(repis.getId()).length()) + String.valueOf(repis.getId()),
                                         DataHoje.dataExtenso(repis.getDataEmissaoString(), 3),
