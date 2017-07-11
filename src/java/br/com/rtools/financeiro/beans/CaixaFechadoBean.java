@@ -169,6 +169,7 @@ public class CaixaFechadoBean implements Serializable {
         valor_caixa = Moeda.soma(valor_caixa, valor_saldo_atual);
         valor_caixa = Moeda.subtracao(valor_caixa, valor_saida);
 
+        valor_caixa = Moeda.converteDoubleR$Double(valor_caixa);
         // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
         if (valor_caixa < 0) {
             valor_caixa = 0;

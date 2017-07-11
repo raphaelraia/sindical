@@ -809,6 +809,8 @@ public class LancamentoFinanceiroBean implements Serializable {
                 soma = Moeda.soma(soma, p.getMovimento().getValor());
             }
 
+            soma = Moeda.converteDoubleR$Double(soma);
+            
             if (soma < Moeda.converteUS$(total)) {
                 GenericaMensagem.warn("Erro", "Valor das Parcelas é MENOR que soma Total!");
                 return;
@@ -1391,6 +1393,8 @@ public class LancamentoFinanceiroBean implements Serializable {
             soma = Moeda.soma(soma, p.getMovimento().getValor());
         }
 
+        soma = Moeda.converteDoubleR$Double(soma);
+        
         if (soma < Moeda.converteUS$(total)) {
             GenericaMensagem.warn("Erro", "Valor das Parcelas é MENOR que soma Total!");
             modalVisivel = true;
