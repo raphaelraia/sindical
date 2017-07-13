@@ -97,13 +97,18 @@ public class ExtratoTelaBean implements Serializable {
     private Integer index;
     private String motivoReativacao;
 
+    private ControleAcessoBean cab = new ControleAcessoBean();
+    
     public ExtratoTelaBean() {
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
-        ControleAcessoBean controx = new ControleAcessoBean();
-        controx.setModulo((Modulo) new Dao().find(new Modulo(), 3));
+        
+        cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
+        
+        cab.setModulo((Modulo) new Dao().find(new Modulo(), 3));
+        
         motivoReativacao = "";
 
-        if (controx.getListaExtratoTela(false)) {
+        if (cab.getListaExtratoTela(false)) {
             porPesquisa = "todos";
         } else {
             porPesquisa = "naoRecebidas";
@@ -1956,6 +1961,14 @@ public class ExtratoTelaBean implements Serializable {
             }
         }
         return false;
+    }
+
+    public ControleAcessoBean getCab() {
+        return cab;
+    }
+
+    public void setCab(ControleAcessoBean cab) {
+        this.cab = cab;
     }
 
 }

@@ -63,7 +63,13 @@ public class Sicoob400 extends ArquivoRetorno {
                             continue;
                         }
 
+                        
                         if ((i + 1) != lista.size()) {
+                            
+                            if (!((String) lista.get(i)).substring(108, 110).equals("06")){
+                                i++;
+                                continue; 
+                            }
                             cnpj = ((String) lista.get(i)).substring(3, 17);
 
                             if ((((String) lista.get(i)).substring(82, 84)).equals("OU")) {

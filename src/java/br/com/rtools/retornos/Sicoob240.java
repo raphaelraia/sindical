@@ -12,19 +12,20 @@ import java.util.List;
 import java.util.Vector;
 
 public class Sicoob240 extends ArquivoRetorno {
-    private String linha = "", 
-                   pasta = "", 
-                   cnpj = "", 
-                   codigoCedente = "", 
-                   nossoNumero = "", 
-                   dataVencimento = "", 
-                   valorTaxa = "",
-                   valorPago = "",
-                   valorCredito = "",
-                   valorRepasse = "",
-                   dataPagamento = "",
-                   dataCredito = "";
-    
+
+    private String linha = "",
+            pasta = "",
+            cnpj = "",
+            codigoCedente = "",
+            nossoNumero = "",
+            dataVencimento = "",
+            valorTaxa = "",
+            valorPago = "",
+            valorCredito = "",
+            valorRepasse = "",
+            dataPagamento = "",
+            dataCredito = "";
+
     public Sicoob240(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
@@ -33,7 +34,7 @@ public class Sicoob240 extends ArquivoRetorno {
     public List<GenericaRetorno> sicob(boolean baixar, String host) {
         host = host + "/pendentes/";
         pasta = host;
-        
+
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
@@ -66,12 +67,18 @@ public class Sicoob240 extends ArquivoRetorno {
                             if (con == 0) {
                                 dataVencimento = "11111111";
                             }
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                         i++;
                         if (i < lista.size() && ((String) lista.get(i)).substring(13, 14).equals("U")) {
                             valorPago = ((String) lista.get(i)).substring(77, 92);
                             dataPagamento = ((String) lista.get(i)).substring(137, 145);
 
+                            if (!((String) lista.get(i)).substring(15, 17).equals("06")) {
+                                i++;
+                                continue;
+                            }
+                            
                             listaRetorno.add(new GenericaRetorno(
                                     cnpj, //1 ENTIDADE
                                     codigoCedente, //2 NESTE CASO SICAS
@@ -122,7 +129,7 @@ public class Sicoob240 extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSigCBSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
@@ -134,7 +141,7 @@ public class Sicoob240 extends ArquivoRetorno {
         String mensagem = super.baixarArquivo(this.sicob(true, caminho), caminho, usuario);
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSicobSocial(String caminho, Usuario usuario) {
         String mensagem = super.baixarArquivoSocial(this.sicob(true, caminho), caminho, usuario);

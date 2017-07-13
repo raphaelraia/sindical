@@ -133,7 +133,7 @@
                                             <h:panelGrid columns="3">
                                                 <h:column>
                                                     <p:outputLabel value="Serviços" style="font-weight: bold"/><br />
-                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.idServicos}" style="width: 300px">
+                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.idServicos}" style="width: 350px" autoWidth="false">
                                                         <p:ajax event="change" update="@this" global="false"/>
                                                         <f:selectItems value="#{extratoTelaSocialBean.listaServicos}"/>
                                                     </p:selectOneMenu>
@@ -141,7 +141,7 @@
 
                                                 <h:column>
                                                     <p:outputLabel value="Tipo" style="font-weight: bold"/><br />
-                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.idTipoServico}" style="width: 150px">
+                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.idTipoServico}" style="width: 100px" autoWidth="false">
                                                         <p:ajax event="change" update="@this" global="false"/>
                                                         <f:selectItems value="#{extratoTelaSocialBean.listaTipoServico}"/>
                                                     </p:selectOneMenu>
@@ -149,7 +149,7 @@
 
                                                 <h:column>
                                                     <p:outputLabel value="Tipo de Pessoa" style="font-weight: bold"/><br />
-                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.tipoPessoa}" style="width: 100px">
+                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.tipoPessoa}" style="width: 100px" autoWidth="false">
                                                         <p:ajax event="change" update="@this formExtratoTelaSocial" listener="#{extratoTelaSocialBean.loadLista()}" />
                                                         <f:selectItem itemValue="nenhum"  itemLabel="-- Selecione o tipo de Pessoa --" />
                                                         <f:selectItem itemValue="responsavel"  itemLabel="Responsável"/>

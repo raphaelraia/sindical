@@ -27,6 +27,7 @@ import br.com.rtools.relatorios.dao.RelatorioProdutosDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
@@ -126,8 +127,13 @@ public class RelatorioMovimentoBean implements Serializable {
     private String valorBaixaInicial;
     private String valorBaixaFinal;
 
+    private ControleAcessoBean controlAcesso = new ControleAcessoBean();
+
     @PostConstruct
     public void init() {
+
+        controlAcesso = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
+
         new Jasper().init();
         situacao = "A";
         listFilters = new ArrayList();
@@ -155,6 +161,7 @@ public class RelatorioMovimentoBean implements Serializable {
         startDate = "";
         finishDate = "";
         loadDates();
+
     }
 
     @PreDestroy
@@ -216,7 +223,10 @@ public class RelatorioMovimentoBean implements Serializable {
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
         Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
-        //Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
+
+        Boolean temPermissaoValor = !controlAcesso.verificaPermissao("visualizar_valor", 3),
+                temPermissaoValorBaixa = !controlAcesso.verificaPermissao("visualizar_valor_baixa", 3);
+
         PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
 
         String contabilidades = "";
@@ -269,12 +279,12 @@ public class RelatorioMovimentoBean implements Serializable {
                         List o = (List) l;
                         listaParametro.add(
                                 new ObjectMovimentosResumo(
-                                        o.get(0),
-                                        o.get(1),
+                                        o.get(0) != null ? ((Double)o.get(0)).intValue() : null,
+                                        o.get(1) != null ? ((Double)o.get(1)).intValue() : null,
                                         o.get(2),
-                                        o.get(3),
-                                        o.get(4),
-                                        o.get(5)
+                                        temPermissaoValor ? o.get(3): 0,
+                                        temPermissaoValorBaixa ? o.get(4) : 0,
+                                        temPermissaoValorBaixa ? o.get(5) : 0
                                 )
                         );
                     }
@@ -285,14 +295,14 @@ public class RelatorioMovimentoBean implements Serializable {
                         List o = (List) l;
                         listaParametro.add(
                                 new ObjectMovimentosResumo(
-                                        o.get(0),
-                                        o.get(1),
+                                        o.get(0) != null ? ((Double)o.get(0)).intValue() : null,
+                                        o.get(1) != null ? ((Double)o.get(1)).intValue() : null,
                                         o.get(2),
                                         o.get(3),
                                         o.get(4),
-                                        o.get(5),
-                                        o.get(6),
-                                        o.get(7)
+                                        temPermissaoValor ? o.get(5) : 0,
+                                        temPermissaoValorBaixa ? o.get(6) : 0,
+                                        temPermissaoValorBaixa ? o.get(7) : 0
                                 )
                         );
                     }
@@ -304,12 +314,12 @@ public class RelatorioMovimentoBean implements Serializable {
                         listaParametro.add(
                                 new ObjectMovimentosResumo(
                                         o.get(0),
-                                        o.get(1),
-                                        o.get(2),
+                                        o.get(1) != null ? ((Double)o.get(1)).intValue() : null,
+                                        o.get(2) != null ? ((Double)o.get(2)).intValue() : null,
                                         o.get(3),
-                                        o.get(4),
-                                        o.get(5),
-                                        o.get(6)
+                                        temPermissaoValor ? o.get(4) : 0,
+                                        temPermissaoValorBaixa ? o.get(5) : 0,
+                                        temPermissaoValorBaixa ? o.get(6) : 0
                                 )
                         );
                     }
@@ -425,16 +435,16 @@ public class RelatorioMovimentoBean implements Serializable {
                                             getConverteNullString(o.get(4)), // REFERENCIA
                                             DataHoje.converteData((Date) o.get(5)), // VENCIMENTO
                                             quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
-                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(47)))), // VALOR BAIXA
-                                            new BigDecimal(Double.parseDouble(getConverteNullString(o.get(43)))),// TAXA
+                                            temPermissaoValorBaixa ? new BigDecimal(Double.parseDouble(getConverteNullString(o.get(47)))) : new BigDecimal(0), // VALOR BAIXA
+                                            temPermissaoValorBaixa ? new BigDecimal(Double.parseDouble(getConverteNullString(o.get(43)))) : new BigDecimal(0),// TAXA
                                             importacao, //result.get(i).getLoteBaixa().getImportacao(),
                                             usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
                                             new BigDecimal(Double.parseDouble(getConverteNullString(o.get(44)))),// MULTA,
                                             new BigDecimal(Double.parseDouble(getConverteNullString(o.get(45)))),// JUROS,
                                             new BigDecimal(Double.parseDouble(getConverteNullString(o.get(46)))),// CORRECAO,
-                                            new BigDecimal(valor), // VALOR TOTAL
+                                            temPermissaoValor ? new BigDecimal(valor) : new BigDecimal(0), // VALOR TOTAL
                                             new BigDecimal(repasse), // REPASSE
-                                            new BigDecimal(valorLiquido), // VALOR LIQUIDO
+                                            temPermissaoValor ? new BigDecimal(valorLiquido) : new BigDecimal(0), // VALOR LIQUIDO
                                             totaliza
                                     )
                             );

@@ -17,6 +17,7 @@ import br.com.rtools.pessoa.dao.EnviarArquivosDao;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioComparativoArrecadacaoDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -66,8 +67,13 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
     private String indexAccordion;
     private String order;
 
+    private ControleAcessoBean controlAcesso = new ControleAcessoBean();
+
     @PostConstruct
     public void init() {
+
+        controlAcesso = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
+
         juridica = new Juridica();
         contabilidade = new Juridica();
         filtro = new Boolean[9];
@@ -109,7 +115,6 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
         order = "";
     }
 
-    
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("relatorioComparativoArrecadacaoBean");
@@ -137,10 +142,15 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar referência 2!");
             return;
         }
+        
         Map parameters = new LinkedHashMap();
         double valor_total_1 = 0;
         double valor_total_2 = 0;
         String detalheRelatorio = "";
+
+        Boolean temPermissaoValor = !controlAcesso.verificaPermissao("visualizar_valor", 3);
+        //        temPermissaoValorBaixa = !controlAcesso.verificaPermissao("visualizar_valor_baixa", 3);
+
         if (parametroComparativoArrecadacaos.isEmpty()) {
             RelatorioComparativoArrecadacaoDao relatorioComparativoArrecadacaoDao = new RelatorioComparativoArrecadacaoDao();
             Integer pEmpresa = null;
@@ -170,7 +180,7 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
                     servicos = Integer.parseInt(getListServicos().get(index[1]).getDescription());
                 }
             }
-            if(!filtro[8]) {
+            if (!filtro[8]) {
                 percentual = null;
             }
             List list = relatorioComparativoArrecadacaoDao.find(relatorios, pEmpresa, pContabilidade, servicos, 1, referencia[0], tipo[0], referencia[1], tipo[1], inConvencao, inGrupoCidade, inCnaes, inCidadeBase, percentual);
@@ -186,9 +196,9 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
                     }
                 }
             }
-            String dt = "";
+            
             for (Object list1 : list) {
-                dt = GenericaString.converterNullToString(((List) list1).get(0));
+                //String dt = GenericaString.converterNullToString(((List) list1).get(0));
                 String valor1 = GenericaString.converterNullToString(((List) list1).get(4));
                 String valor2 = GenericaString.converterNullToString(((List) list1).get(6));
                 if (valor1 != null && !valor1.isEmpty()) {
@@ -206,9 +216,9 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
                                 GenericaString.converterNullToString(((List) list1).get(1)), // Nome
                                 GenericaString.converterNullToString(((List) list1).get(2)), // Contribuição
                                 GenericaString.converterNullToString(((List) list1).get(3)), // Referência 1
-                                valor1, // Valor 1
+                                temPermissaoValor ? valor1 : "0,00", // Valor 1
                                 GenericaString.converterNullToString(((List) list1).get(5)), // Referência 2
-                                valor2, // Valor 2                                
+                                temPermissaoValor ? valor2 : "0,00", // Valor 2                                
                                 GenericaString.converterNullToString(((List) list1).get(7)) // Percentual
                         );
                 parametroComparativoArrecadacaos.add(pca);

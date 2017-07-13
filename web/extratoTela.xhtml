@@ -247,7 +247,7 @@
                                     </h:column>
                                 </p:column>
 
-                                <p:column headerText="Valor" style="width: 60px">
+                                <p:column headerText="Valor" style="width: 60px" rendered="#{!controleAcessoBean.verificarPermissao('visualizar_valor', 3)}">
                                     <p:outputLabel value="#{movimentos.argumento11}" style="float: right"/>
                                 </p:column>
 
@@ -255,11 +255,11 @@
                                     <p:outputLabel value="#{movimentos.argumento15}"/>
                                 </p:column>
 
-                                <p:column headerText="Vlr Baixa" style="width: 60px">
+                                <p:column headerText="Vlr Baixa" style="width: 60px" rendered="#{!controleAcessoBean.verificarPermissao('visualizar_valor_baixa', 3)}">
                                     <p:outputLabel value="#{movimentos.argumento25}" style="float: right"/>
                                 </p:column>
 
-                                <p:column headerText="Taxa" style="width: 30px">
+                                <p:column headerText="Taxa" style="width: 30px" rendered="#{!controleAcessoBean.verificarPermissao('visualizar_valor_baixa', 3)}">
                                     <p:outputLabel value="#{movimentos.argumento12}" style="float: right"/>
                                 </p:column>
 
