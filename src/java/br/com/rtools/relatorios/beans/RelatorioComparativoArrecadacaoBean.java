@@ -148,8 +148,8 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
         double valor_total_2 = 0;
         String detalheRelatorio = "";
 
-        Boolean temPermissaoValor = !controlAcesso.verificaPermissao("visualizar_valor", 3);
-        //        temPermissaoValorBaixa = !controlAcesso.verificaPermissao("visualizar_valor_baixa", 3);
+        Boolean temPermissaoValor = !controlAcesso.verificaPermissao("visualizar_valor", 4);
+        //        temPermissaoValorBaixa = !controlAcesso.verificaPermissao("visualizar_valor_baixa", 4);
 
         if (parametroComparativoArrecadacaos.isEmpty()) {
             RelatorioComparativoArrecadacaoDao relatorioComparativoArrecadacaoDao = new RelatorioComparativoArrecadacaoDao();

@@ -223,8 +223,8 @@ public class RelatorioMovimentoBean implements Serializable {
         cab.init();
         Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
 
-        Boolean temPermissaoValor = !controlAcesso.verificaPermissao("visualizar_valor", 3),
-                temPermissaoValorBaixa = !controlAcesso.verificaPermissao("visualizar_valor_baixa", 3);
+        Boolean temPermissaoValor = !controlAcesso.verificaPermissao("visualizar_valor", 4),
+                temPermissaoValorBaixa = !controlAcesso.verificaPermissao("visualizar_valor_baixa", 4);
 
         PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
 
