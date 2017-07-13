@@ -108,6 +108,15 @@
                                         <p:column headerText="Membro">
                                             #{campeonatoEquipePessoa.pessoa.nome}
                                         </p:column>                                     
+                                        <p:column headerText="CPF">
+                                            #{campeonatoEquipePessoa.pessoa.documento}
+                                        </p:column>                                     
+                                        <p:column headerText="Nascimento">
+                                            #{campeonatoEquipePessoa.pessoa.fisica.nascimento}
+                                        </p:column>
+                                        <p:column headerText="Categoria">
+                                            #{campeonatoEquipePessoa.pessoa.socios.matriculaSocios.categoria.categoria}
+                                        </p:column>
                                         <p:column width="30">
                                             <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(campeonatoEquipePessoa)}" title="Remover registro nº#{campeonatoEquipePessoa.id}" update=":form_campeonato_equipe:"/>
                                         </p:column> 

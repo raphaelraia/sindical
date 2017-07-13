@@ -10,6 +10,7 @@ import br.com.rtools.financeiro.dao.RemessaBancoDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.JuridicaDao;
@@ -41,6 +42,7 @@ public class ExtratoTelaBean implements Serializable {
     private Pessoa pessoa = new Pessoa();
     private Movimento mov = new Movimento();
     private List<DataObject> listaMovimentos = new ArrayList();
+    private List<ExtratoTelaObject> listMovimentos;
     //private List listMov = new Vector();
     private boolean chkData = false;
     private boolean chkContribuicao = false;
@@ -52,6 +54,7 @@ public class ExtratoTelaBean implements Serializable {
     private String tipoPesquisa = "data";
     private String porPesquisa = "";
     private String geraPesquisa = "naoVerificar";
+    private String tipoData = "faixa";
     private String tipoDataPesquisa = "vencimento";
     private String ordenacao = "referencia";
     private String dataInicial = "";
@@ -67,6 +70,7 @@ public class ExtratoTelaBean implements Serializable {
     private String vlTaxa = "0,00";
     private String vlLiquido = "0,00";
     private String vlRepasse = "0,00";
+    private String pessoa_documento = "";
 
     private String msgConfirma = "";
     //private String valorSomado;
@@ -88,6 +92,7 @@ public class ExtratoTelaBean implements Serializable {
     private final List<SelectItem> listaTipoServico = new ArrayList();
     private final List<SelectItem> listaTipoServicoAlterar = new ArrayList();
     private final List<SelectItem> listaServico = new ArrayList();
+    private List<SelectItem> listaFilial = new ArrayList();
     private Movimento movimentoVencimento = new Movimento();
 
     private String motivoEstorno = "";
@@ -96,6 +101,7 @@ public class ExtratoTelaBean implements Serializable {
     private Historico historicoMovimento;
     private Integer index;
     private String motivoReativacao;
+    Integer idFilial;
 
     private ControleAcessoBean cab = new ControleAcessoBean();
     
@@ -113,6 +119,7 @@ public class ExtratoTelaBean implements Serializable {
         } else {
             porPesquisa = "naoRecebidas";
         }
+        listMovimentos = new ArrayList();
     }
 
     public void alterarMovimento(Integer id) {
@@ -172,14 +179,79 @@ public class ExtratoTelaBean implements Serializable {
 
     public void loadListBeta(Integer tCase) {
 
+        if (tCase == 1) {
+            listaMovimentos.clear();
+            listMovimentos = new ArrayList();
+        } else {
+            return;
+        }
+
+        if ((tipoData.equals("ate") || tipoData.equals("apartir")) && pessoa.getId() == -1) {
+            GenericaMensagem.warn("Validação", "Pesquisar uma pessoa caso o tipo de filtro de data seja até ou a partir!");
+            return;
+        }
+
+        if (pessoa.getId() == -1) {
+
+            if ((boletoInicial.equals("0") && boletoFinal.equals("0")) || (boletoInicial.isEmpty() && boletoFinal.isEmpty())) {
+                if (tipoDataPesquisa.equals("referencia")) {
+                    if (dataRefInicial.isEmpty() && dataRefFinal.isEmpty()) {
+                        GenericaMensagem.warn("Validação", "Informar referência uma referência, boleto ou uma pessoa para filtrar!");
+                        return;
+                    }
+                    if (dataRefInicial.isEmpty()) {
+                        GenericaMensagem.warn("Validação", "Informar a referência inicial!");
+                        return;
+                    }
+                    if (tipoData.equals("faixa")) {
+                        if (dataRefFinal.isEmpty()) {
+                            GenericaMensagem.warn("Validação", "Informar a referência final!");
+                            return;
+                        }
+                        if (!dataRefInicial.equals(dataRefFinal)) {
+                            if (DataHoje.maiorData("01/" + dataRefInicial, "01/" + dataRefFinal)) {
+                                GenericaMensagem.warn("Validação", "Referência final deve ser maior ou igual que data inicial!");
+                                return;
+                            }
+
+                        }
+                    }
+                } else {
+                    if ((dataInicial.isEmpty() && dataFinal.isEmpty())) {
+                        GenericaMensagem.warn("Validação", "Informar data, boleto ou uma pessoa para filtrar!");
+                        return;
+                    }
+                    if (dataInicial.isEmpty()) {
+                        GenericaMensagem.warn("Validação", "Informar a data inicial!");
+                        return;
+                    }
+                    if (tipoData.equals("faixa")) {
+                        if (dataFinal.isEmpty()) {
+                            GenericaMensagem.warn("Validação", "Informar a data final!");
+                            return;
+                        }
+                        if (!dataInicial.equals(dataFinal)) {
+                            if (DataHoje.maiorData(dataInicial, dataFinal)) {
+                                GenericaMensagem.warn("Validação", "Data final deve ser maior ou igual que data inicial!");
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
         loadListaEmpresasPertencentes();
         if (tCase == 1) {
             listaMovimentos.clear();
+            listMovimentos = new ArrayList();
         } else {
             return;
         }
         boolean habData = false;
         double soma = 0, somaRepasse = 0;
+        double somaNew = 0, somaRepasseNew = 0;
         String classTbl = "";
 
         vlRecebido = "0,00";
@@ -229,12 +301,80 @@ public class ExtratoTelaBean implements Serializable {
             return;
         }
 
+        // USAR PARA DEPURAR COM LISTA VAZIA
+        // List<Vector> listax = new ArrayList<Vector>();
         List<Vector> listax = db.listaMovimentosExtrato(
-                porPesquisa, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, ic, its, pessoa.getId(), ordenacao, movimentosDasEmpresas
+                porPesquisa, tipoDataPesquisa, tipoData, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, ic, its, pessoa.getId(), ordenacao, movimentosDasEmpresas, idFilial
         );
 
         MovimentoDao movimentosDao = new MovimentoDao();
 
+        // NOVA LISTA (DESENVOLVIMENTO)
+//        for (List list : listax) {
+//
+//            ExtratoTelaObject eto
+//                    = new ExtratoTelaObject(
+//                            false,
+//                            list.get(0),
+//                            list.get(1),
+//                            list.get(2),
+//                            list.get(3),
+//                            list.get(4),
+//                            list.get(5),
+//                            list.get(6),
+//                            list.get(7),
+//                            list.get(8),
+//                            list.get(9),
+//                            list.get(10),
+//                            list.get(11),
+//                            list.get(12),
+//                            list.get(13),
+//                            list.get(14),
+//                            list.get(15),
+//                            list.get(16),
+//                            list.get(17),
+//                            list.get(18),
+//                            list.get(19),
+//                            list.get(20),
+//                            list.get(21),
+//                            list.get(22),
+//                            new ArrayList(),
+//                            new Double(0),
+//                            new Double(0),
+//                            false,
+//                            "",
+//                            null
+//                    );
+//            if (eto.getServico_tipo().toUpperCase().equals("ACORDO")) {
+//                eto.setListMovimentoAcordo(movimentosDao.pesquisaAcordoPorMovimento(eto.getId()));
+//            }
+//
+//            // SOMA
+//            eto.setSoma(Moeda.subtracao(
+//                    Moeda.soma(
+//                            Moeda.soma(
+//                                    Moeda.soma(
+//                                            eto.getValor_baixa(), eto.getJuros()
+//                                    ),
+//                                    eto.getCorrecao()
+//                            ), eto.getMulta()
+//                    ), eto.getDesconto())
+//            );
+//            // HABILITA DATA
+//            eto.setHabilita_data((eto.getQuitacao() == null && eto.getServico_tipo().toUpperCase().equals("ACORDO")));
+//
+//            // REPASSE
+//            eto.setSoma_repasse(Moeda.multiplicar(eto.getValor_baixa(), Moeda.divisao(eto.getRepasse(), 100)));
+//
+//            // ROW STYLE CLASS
+//            eto.setRowStyleClass((eto.getQuitacao() == null && !porPesquisa.equals("excluidos")) ? "tblExtratoTelaX" : "");
+//
+//            // MOVIMENTO
+//            eto.setMovimento((Movimento) new Dao().find(new Movimento(), eto.getId()));
+//
+//            listMovimentos.add(eto);
+//        }
+        // LISTA ATUALMENTE USADA
         for (Vector linha_list : listax) {
             if ((linha_list.get(21)) == null) {
                 linha_list.set(21, 0.0);
@@ -558,11 +698,15 @@ public class ExtratoTelaBean implements Serializable {
 
     public void limparPesquisaPessoa() {
         pessoa = new Pessoa();
-        listaEmpresasPertencentes.clear();
+        listaEmpresasPertencentes = new ArrayList();
         movimentosDasEmpresas = false;
+        listaMovimentos = new ArrayList();
+        listMovimentos = new ArrayList();
+        pessoa_documento  = "";
     }
 
     public void limparDatas() {
+        tipoData = "faixa";
         if (tipoDataPesquisa.equals("referencia")) {
             dataInicial = "";
             dataFinal = "";
@@ -570,6 +714,13 @@ public class ExtratoTelaBean implements Serializable {
             dataRefInicial = "";
             dataRefFinal = "";
         }
+    }
+
+    public void limparTipoDatas() {
+        dataInicial = "";
+        dataFinal = "";
+        dataRefInicial = "";
+        dataRefFinal = "";
     }
 
     // SOMA DOS VALORES //
@@ -1969,6 +2120,453 @@ public class ExtratoTelaBean implements Serializable {
 
     public void setCab(ControleAcessoBean cab) {
         this.cab = cab;
+    }
+    
+    public List<ExtratoTelaObject> getListMovimentos() {
+        return listMovimentos;
+    }
+
+    public void setListMovimentos(List<ExtratoTelaObject> listMovimentos) {
+        this.listMovimentos = listMovimentos;
+    }
+
+    public String getTipoData() {
+        return tipoData;
+    }
+
+    public void setTipoData(String tipoData) {
+        this.tipoData = tipoData;
+    }
+
+    public List<SelectItem> getListaFilial() {
+        if (listaFilial.isEmpty()) {
+            idFilial = null;
+            listaFilial.add(new SelectItem(null, "-- SELECIONAR -- "));
+            List<Filial> list = new Dao().list(new Filial(), true);
+            for (int i = 0; i < list.size(); i++) {
+                listaFilial.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getPessoa().getNome()));
+            }
+        }
+        return listaFilial;
+    }
+
+    public void setListaFilial(List<SelectItem> listaFilial) {
+        this.listaFilial = listaFilial;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
+    }
+
+    public String getPessoa_documento() {
+        return pessoa_documento;
+    }
+
+    public void setPessoa_documento(String pessoa_documento) {
+        this.pessoa_documento = pessoa_documento;
+    }
+
+    public void findPessoaBy() {
+        pessoa = new Pessoa();
+        Juridica j = new Juridica();
+        if (!pessoa_documento.isEmpty()) {
+            pessoa_documento = AnaliseString.somenteNumero(pessoa_documento);
+            if (pessoa_documento.length() == 11 && ValidaDocumentos.isValidoCPF(pessoa_documento)) {
+                pessoa_documento = Mask.cpf(pessoa_documento);
+                j = new JuridicaDao().findByDocumento(pessoa_documento);
+                pessoa_documento = "";
+                if (j == null) {
+                    return;
+                }
+                pessoa = j.getPessoa();
+                loadListBeta();
+            }
+            if (pessoa_documento.length() == 14 || ValidaDocumentos.isValidoCNPJ(pessoa_documento)) {
+                pessoa_documento = Mask.cnpj(pessoa_documento);
+                j = new JuridicaDao().findByDocumento(pessoa_documento);
+                pessoa_documento = "";
+                if (j == null) {
+                    return;
+                }
+                pessoa = j.getPessoa();
+                loadListBeta();
+            }
+        }
+    }
+
+    public class ExtratoTelaObject {
+
+        private Boolean selected;
+        private Integer id;
+        private String documento;
+        private String nome;
+        private String boleto;
+        private String contribuicao;
+        private String referencia;
+        private Date vencimento;
+        private Date importacao;
+        private Double valor;
+        private Double taxa;
+        private String usuario_nome;
+        private String servico_tipo;
+        private Date quitacao;
+        private Double multa;
+        private Double juros;
+        private Double correcao;
+        private Double desconto;
+        private Double repasse;
+        private Integer baixa_id;
+        private String beneficiario;
+        private String filial;
+        private Double valor_baixa;
+        private String conta;
+        private List<Movimento> listMovimentoAcordo;
+        private Double soma;
+        private Double soma_repasse;
+        private Boolean habilita_data;
+        private String rowStyleClass;
+        private Movimento movimento;
+
+        public ExtratoTelaObject() {
+            this.selected = false;
+            this.id = -1;
+            this.documento = "";
+            this.nome = "";
+            this.boleto = "";
+            this.contribuicao = "";
+            this.referencia = "";
+            this.vencimento = null;
+            this.importacao = null;
+            this.valor = new Double(0);
+            this.taxa = new Double(0);
+            this.usuario_nome = "";
+            this.servico_tipo = "";
+            this.quitacao = null;
+            this.multa = new Double(0);
+            this.juros = new Double(0);
+            this.correcao = new Double(0);
+            this.desconto = new Double(0);
+            this.repasse = new Double(0);
+            this.baixa_id = -1;
+            this.beneficiario = "";
+            this.filial = "";
+            this.valor_baixa = new Double(0);
+            this.conta = "";
+            this.listMovimentoAcordo = new ArrayList();
+            this.soma = new Double(0);
+            this.soma_repasse = new Double(0);
+            this.habilita_data = false;
+            this.rowStyleClass = "";
+            this.movimento = null;
+        }
+
+        /**
+         *
+         * @param selected
+         * @param id
+         * @param documento
+         * @param nome
+         * @param boleto
+         * @param contribuicao
+         * @param referencia
+         * @param vencimento
+         * @param importacao
+         * @param valor
+         * @param taxa
+         * @param usuario_nome
+         * @param servico_tipo
+         * @param quitacao
+         * @param multa
+         * @param juros
+         * @param correcao
+         * @param desconto
+         * @param repasse
+         * @param baixa_id
+         * @param beneficiario
+         * @param filial
+         * @param valor_baixa
+         * @param conta
+         * @param listMovimentoAcordo
+         * @param soma
+         * @param soma_repasse
+         * @param habilita_data
+         */
+        public ExtratoTelaObject(Boolean selected, Object id, Object documento, Object nome, Object boleto, Object contribuicao, Object referencia, Object vencimento, Object importacao, Object valor, Object taxa, Object usuario_nome, Object servico_tipo, Object quitacao, Object multa, Object juros, Object correcao, Object desconto, Object repasse, Object baixa_id, Object beneficiario, Object filial, Object valor_baixa, Object conta, List<Movimento> listMovimentoAcordo, Double soma, Double soma_repasse, Boolean habilita_data, String rowStyleClass, Movimento movimento) {
+            this.selected = selected;
+            this.id = (Integer) id;
+            this.documento = (documento == null) ? "" : (String) documento;
+            this.nome = (nome == null) ? "" : (String) nome;
+            this.boleto = (boleto == null) ? "" : (String) boleto;
+            this.contribuicao = (contribuicao == null) ? "" : (String) contribuicao;
+            this.referencia = (referencia == null) ? "" : (String) referencia;
+            this.vencimento = (Date) vencimento;
+            this.importacao = (Date) importacao;
+            this.valor = (valor == null) ? new Double(0) : (Double) valor;
+            this.taxa = (taxa == null) ? new Double(0) : (Double) taxa;
+            this.usuario_nome = (usuario_nome == null) ? "" : (String) usuario_nome;
+            this.servico_tipo = (servico_tipo == null) ? "" : (String) servico_tipo;
+            this.quitacao = (Date) quitacao;
+            this.multa = (multa == null) ? new Double(0) : (Double) multa;
+            this.juros = (juros == null) ? new Double(0) : (Double) juros;
+            this.correcao = (correcao == null) ? new Double(0) : (Double) correcao;
+            this.desconto = (desconto == null) ? new Double(0) : (Double) desconto;
+            this.repasse = (repasse == null) ? new Double(0) : (Double) repasse;
+            this.baixa_id = (Integer) baixa_id;
+            this.beneficiario = (beneficiario == null) ? "" : (String) beneficiario;
+            this.filial = (filial == null) ? "" : (String) filial;
+            this.valor_baixa = (valor_baixa == null) ? new Double(0) : (Double) valor_baixa;
+            this.conta = (conta == null) ? "" : (String) conta;
+            this.soma = soma;
+            this.soma_repasse = soma_repasse;
+            this.habilita_data = habilita_data;
+            this.rowStyleClass = rowStyleClass;
+            this.movimento = movimento;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getDocumento() {
+            return documento;
+        }
+
+        public void setDocumento(String documento) {
+            this.documento = documento;
+        }
+
+        public String getNome() {
+            return nome;
+        }
+
+        public void setNome(String nome) {
+            this.nome = nome;
+        }
+
+        public String getBoleto() {
+            return boleto;
+        }
+
+        public void setBoleto(String boleto) {
+            this.boleto = boleto;
+        }
+
+        public String getContribuicao() {
+            return contribuicao;
+        }
+
+        public void setContribuicao(String contribuicao) {
+            this.contribuicao = contribuicao;
+        }
+
+        public String getReferencia() {
+            return referencia;
+        }
+
+        public void setReferencia(String referencia) {
+            this.referencia = referencia;
+        }
+
+        public Date getVencimento() {
+            return vencimento;
+        }
+
+        public void setVencimento(Date vencimento) {
+            this.vencimento = vencimento;
+        }
+
+        public Date getImportacao() {
+            return importacao;
+        }
+
+        public void setImportacao(Date importacao) {
+            this.importacao = importacao;
+        }
+
+        public Double getValor() {
+            return valor;
+        }
+
+        public void setValor(Double valor) {
+            this.valor = valor;
+        }
+
+        public Double getTaxa() {
+            return taxa;
+        }
+
+        public void setTaxa(Double taxa) {
+            this.taxa = taxa;
+        }
+
+        public String getUsuario_nome() {
+            return usuario_nome;
+        }
+
+        public void setUsuario_nome(String usuario_nome) {
+            this.usuario_nome = usuario_nome;
+        }
+
+        public String getServico_tipo() {
+            return servico_tipo;
+        }
+
+        public void setServico_tipo(String servico_tipo) {
+            this.servico_tipo = servico_tipo;
+        }
+
+        public Date getQuitacao() {
+            return quitacao;
+        }
+
+        public void setQuitacao(Date quitacao) {
+            this.quitacao = quitacao;
+        }
+
+        public Double getMulta() {
+            return multa;
+        }
+
+        public void setMulta(Double multa) {
+            this.multa = multa;
+        }
+
+        public Double getJuros() {
+            return juros;
+        }
+
+        public void setJuros(Double juros) {
+            this.juros = juros;
+        }
+
+        public Double getCorrecao() {
+            return correcao;
+        }
+
+        public void setCorrecao(Double correcao) {
+            this.correcao = correcao;
+        }
+
+        public Double getDesconto() {
+            return desconto;
+        }
+
+        public void setDesconto(Double desconto) {
+            this.desconto = desconto;
+        }
+
+        public Double getRepasse() {
+            return repasse;
+        }
+
+        public void setRepasse(Double repasse) {
+            this.repasse = repasse;
+        }
+
+        public Integer getBaixa_id() {
+            return baixa_id;
+        }
+
+        public void setBaixa_id(Integer baixa_id) {
+            this.baixa_id = baixa_id;
+        }
+
+        public String getBeneficiario() {
+            return beneficiario;
+        }
+
+        public void setBeneficiario(String beneficiario) {
+            this.beneficiario = beneficiario;
+        }
+
+        public String getFilial() {
+            return filial;
+        }
+
+        public void setFilial(String filial) {
+            this.filial = filial;
+        }
+
+        public Double getValor_baixa() {
+            return valor_baixa;
+        }
+
+        public void setValor_baixa(Double valor_baixa) {
+            this.valor_baixa = valor_baixa;
+        }
+
+        public String getConta() {
+            return conta;
+        }
+
+        public void setConta(String conta) {
+            this.conta = conta;
+        }
+
+        public Boolean getSelected() {
+            return selected;
+        }
+
+        public void setSelected(Boolean selected) {
+            this.selected = selected;
+        }
+
+        public List<Movimento> getListMovimentoAcordo() {
+            return listMovimentoAcordo;
+        }
+
+        public void setListMovimentoAcordo(List<Movimento> listMovimentoAcordo) {
+            this.listMovimentoAcordo = listMovimentoAcordo;
+        }
+
+        public Double getSoma() {
+            return soma;
+        }
+
+        public void setSoma(Double soma) {
+            this.soma = soma;
+        }
+
+        public Double getSoma_repasse() {
+            return soma_repasse;
+        }
+
+        public void setSoma_repasse(Double soma_repasse) {
+            this.soma_repasse = soma_repasse;
+        }
+
+        public Boolean getHabilita_data() {
+            return habilita_data;
+        }
+
+        public void setHabilita_data(Boolean habilita_data) {
+            this.habilita_data = habilita_data;
+        }
+
+        public String getRowStyleClass() {
+            return rowStyleClass;
+        }
+
+        public void setRowStyleClass(String rowStyleClass) {
+            this.rowStyleClass = rowStyleClass;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
     }
 
 }

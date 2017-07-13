@@ -187,7 +187,6 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         List listDetalhePesquisa = new ArrayList();
         sisProcesso.startQuery();
-        RelatorioProdutosDao rpd = new RelatorioProdutosDao();
         Collection list = listaPesquisa();
         sisProcesso.finishQuery();
         if (list.isEmpty()) {
@@ -1348,6 +1347,7 @@ public class RelatorioMovimentoBean implements Serializable {
         listDates.add(new SelectItem("recebimento", "Recebimento"));
         listDates.add(new SelectItem("vencimento", "Vencimento"));
         listDates.add(new SelectItem("referencia", "Referência"));
+        listDates.add(new SelectItem("lancamento", "Lançamento"));
 
         // RELOAD DATA
         if (listDateFilters != null) {
