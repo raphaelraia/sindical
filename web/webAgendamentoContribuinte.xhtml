@@ -38,7 +38,7 @@
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <p:panel styleClass="fundoCinza">
-                        <h:panelGrid columns="2">
+                        <h:panelGrid columns="3">
                             <h:panelGroup id="i_dates" layout="block"> 
                                 <p:calendar size="8" value="#{webAgendamentoContribuinteBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" mindate="#{webAgendamentoContribuinteBean.mindate}" maxdate="#{webAgendamentoContribuinteBean.maxdate}" rendered="#{webAgendamentoContribuinteBean.idStatus ne 8}">
                                     <p:ajax event="dateSelect" update="@this tbl" listener="#{webAgendamentoContribuinteBean.clearHorarios}"/>
@@ -50,6 +50,8 @@
                                 <p:ajax event="change" update="tbl i_dates" listener="#{webAgendamentoContribuinteBean.clearHorariosStatus()}"/>
                                 <f:selectItems value="#{webAgendamentoContribuinteBean.listaStatus}"/>
                             </p:selectOneMenu>
+                            
+                            <p:commandLink value="Documentos para Homologação" onclick="PF('dlg_homologacao_documentos').show()" style="margin-left: 50px; color: #132fff"/>
                         </h:panelGrid>        
                     </p:panel>
                 </h:panelGrid>
@@ -94,7 +96,7 @@
                         <p:column headerText="Funcionário" width="200">
                             <h:outputText value="#{linha.argumento7.fisica.pessoa.nome}" style="font-size: 8pt!important"/>
                         </p:column>
-                        
+
                         <p:column headerText="Imprimir Protocolo" style="text-align: center" width="80" rendered="#{webAgendamentoContabilidadeBean.idStatus == 2}">
                             <p:commandLink action="#{protocoloAgendamento.imprimir(linha.argumento9)}" target="_blank" value="#{linha.argumento9.id}" rendered="#{webAgendamentoContribuinteBean.idStatus == 2}" ajax="false"/>
                         </p:column>
@@ -437,7 +439,7 @@
                             <h:outputLabel value="MOTIVO RECUSA: #{webAgendamentoContribuinteBean.agendamento.motivoRecusa}" rendered="#{webAgendamentoContribuinteBean.agendamento.dtRecusa1 ne null and webAgendamentoContribuinteBean.agendamento.dtRecusa2 eq null and webAgendamentoContribuinteBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>
                             <h:outputLabel value="MOTIVO RECUSA 2: #{webAgendamentoContribuinteBean.agendamento.motivoRecusa2}" rendered="#{webAgendamentoContribuinteBean.agendamento.dtRecusa2 ne null and webAgendamentoContribuinteBean.agendamento.status.id eq 9}" styleClass="bold font-color-red"/>                            
                         </h:panelGrid>
-                        
+
 
                         <f:facet name="footer">
                             <h:panelGrid columns="2" style="width: 100%">
@@ -459,6 +461,22 @@
                         </f:facet>
                     </h:panelGrid>
                 </p:dialog>
+
+
+                <p:dialog widgetVar="dlg_homologacao_documentos" header="Documentos Necessários" resizable="false" modal="true" width="600" height="400" closeOnEscape="true">
+                    <p:outputPanel id="idocumentacao">
+                        <h:outputText value="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webDocumentosHomologacao}" escape="false" />
+                    </p:outputPanel>                    
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2" cellspacing="10">
+                            <p:commandButton value="SAIR" onclick="PF('dlg_homologacao_documentos').hide()" type="button"/>
+                            <p:commandButton value="Imprimir" type="button">
+                                <p:printer target=":formAgendamentoContribuinte:idocumentacao" />
+                            </p:commandButton>
+                        </h:panelGrid>
+                    </f:facet>
+                </p:dialog>
+
 
 
                 <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" >

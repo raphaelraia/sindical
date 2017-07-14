@@ -127,7 +127,9 @@ public class Registro implements Serializable {
     private boolean acessoWebDocumentoCEI;
     @Column(name = "ds_chave_cliente", length = 100)
     private String chaveCliente;
-    
+    @Column(name = "is_mei", columnDefinition = "boolean default false")
+    private boolean mei;
+
     public Registro() {
         this.id = -1;
         this.filial = new Juridica();
@@ -182,6 +184,7 @@ public class Registro implements Serializable {
         this.acessoWebDocumentoCNPJ = true;
         this.acessoWebDocumentoCPF = false;
         this.acessoWebDocumentoCEI = false;
+        this.mei = false;
     }
 
     public Registro(int id,
@@ -236,7 +239,8 @@ public class Registro implements Serializable {
             boolean biometria,
             boolean acessoWebDocumentoCNPJ,
             boolean acessoWebDocumentoCPF,
-            boolean acessoWebDocumentoCEI) {
+            boolean acessoWebDocumentoCEI,
+            boolean mei) {
         this.id = id;
         this.filial = filial;
         this.tipoEmpresa = tipoEmpresa;
@@ -289,6 +293,7 @@ public class Registro implements Serializable {
         this.acessoWebDocumentoCNPJ = acessoWebDocumentoCNPJ;
         this.acessoWebDocumentoCPF = acessoWebDocumentoCPF;
         this.acessoWebDocumentoCEI = acessoWebDocumentoCEI;
+        this.mei = mei;
     }
 
     public int getId() {
@@ -344,7 +349,7 @@ public class Registro implements Serializable {
     }
 
     public void setBloquearHomologacao(boolean bloquearHomologacao) {
-        if(!bloquearHomologacao) {
+        if (!bloquearHomologacao) {
             mesesInadimplentesAgenda = 0;
         }
         this.bloquearHomologacao = bloquearHomologacao;
@@ -444,6 +449,10 @@ public class Registro implements Serializable {
 
     public void setDocumentoHomologacao(String documentoHomologacao) {
         this.documentoHomologacao = documentoHomologacao;
+    }
+
+    public String getDocumentoHomologacaoQuebraLinhaBr() {
+        return documentoHomologacao.replace("\n", "<br /><br />");
     }
 
     public String getFormaPagamentoHomologacao() {
@@ -749,4 +758,13 @@ public class Registro implements Serializable {
     public void setChaveCliente(String chaveCliente) {
         this.chaveCliente = chaveCliente;
     }
+
+    public boolean isMei() {
+        return mei;
+    }
+
+    public void setMei(boolean mei) {
+        this.mei = mei;
+    }
+
 }

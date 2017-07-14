@@ -1,0 +1,42 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <f:view>
+        <center>
+            <h:column rendered="#{!pessoaCardBean.getImagemJuridica('Imagens/Fotos').equals('')}">
+                <p:graphicImage value="#{pessoaCardBean.getImagemJuridica('Imagens/Fotos')}" alt="Sem foto" style="border: 3px solid gray;" width="150"/>
+            </h:column>
+        </center>
+        <f:facet name="header">
+            <h:outputLabel value="#{pessoaCardBean.juridica.pessoa.nome}"  />
+        </f:facet>
+        <h:panelGrid columns="2" columnClasses="verticalAlignTop,verticalAlignTop">            
+            <h:outputLabel value="Fantasia:"  />
+            <h:outputLabel value="#{pessoaCardBean.juridica.fantasia}"/>
+            <h:outputLabel value="Documento:"  />
+            <h:outputLabel value="#{pessoaCardBean.juridica.pessoa.documento}"  />
+            <h:outputLabel value="Cnae:"  />
+            <h:outputLabel value="#{pessoaCardBean.juridica.cnae.numero} - #{pessoaCardBean.juridica.cnae.cnae}" />
+            <h:outputLabel value="Telefone 1:"  />
+            <h:outputLabel value="#{pessoaCardBean.juridica.pessoa.telefone1}"  />
+            <h:outputLabel value="Telefone 2:"  />
+            <h:outputLabel value="#{pessoaCardBean.juridica.pessoa.telefone2}"  />
+            <h:outputLabel value="Telefone 3:"  />
+            <h:outputLabel value="#{pessoaCardBean.juridica.pessoa.telefone3}"  />
+            <h:outputLabel value="Email:"  />
+            <h:commandLink value="#{pessoaCardBean.juridica.pessoa.email1}" action="#{pessoaCardBean.enviaEmail(pessoaCardBean.juridica.pessoa.id)}" title="Enviar email" styleClass="font-color-blue"/>
+            <h:outputLabel value="Emai2:"  />
+            <h:commandLink value="#{pessoaCardBean.juridica.pessoa.email2}" styleClass="font-color-blue"/>
+            <h:outputLabel value="Emai3:"  />
+            <h:commandLink value="#{pessoaCardBean.juridica.pessoa.email3}" styleClass="font-color-blue"/>
+            <h:outputLabel value="Contato:" />
+            <h:outputLabel value="#{pessoaCardBean.juridica.contato}" />            
+        </h:panelGrid>
+        <p:panel styleClass="margin-top-max" header="Endereço" rendered="#{pessoaCardBean.pessoaEndereco.id != -1}">
+            <h:outputLabel value="#{pessoaCardBean.pessoaEndereco.enderecoCompletoString}" />
+        </p:panel>
+    </f:view>
+</ui:composition>

@@ -43,7 +43,7 @@
                         <h:form id="formCobrancaMensal">
                             <c:set scope="request" var="object" value="${cobrancaMensalBean.servicoPessoa}"/> 
                             <p:panel styleClass="fundoCinza" style="clear: both" rendered="false">
-                                <ui:include src="pessoaComplemento_1.xhtml" rendered="#{cobrancaMensalBean.servicoPessoa.pessoa.id != -1}">  
+                                <ui:include src="pessoaComplemento.xhtml" rendered="#{cobrancaMensalBean.servicoPessoa.pessoa.id != -1}">  
                                     <ui:param name="idPessoa" value="#{cobrancaMensalBean.servicoPessoa.pessoa.id}" />
                                 </ui:include>   
                             </p:panel>

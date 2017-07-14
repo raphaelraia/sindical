@@ -37,6 +37,10 @@ public class CobrancaMensalBean {
     private String descFiltro = "";
     private String tipoFiltro = "beneficiario";
 
+    public CobrancaMensalBean() {
+        GenericaSessao.remove("pessoaComplementoBean");
+    }
+
     public void novo() {
         GenericaSessao.put("cobrancaMensalBean", new CobrancaMensalBean());
     }
@@ -160,6 +164,7 @@ public class CobrancaMensalBean {
 
     public ServicoPessoa getServicoPessoa() {
         if (GenericaSessao.getObject("fisicaPesquisa") != null || GenericaSessao.getObject("pessoaPesquisa") != null) {
+            GenericaSessao.remove("pessoaComplementoBean");
             if (GenericaSessao.getObject("fisicaPesquisa") != null) {
                 servicoPessoa.setPessoa(((Fisica) GenericaSessao.getObject("fisicaPesquisa")).getPessoa());
                 GenericaSessao.remove("fisicaPesquisa");

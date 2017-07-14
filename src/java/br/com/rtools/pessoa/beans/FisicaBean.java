@@ -49,6 +49,7 @@ import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -181,6 +182,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private Integer idServicosAutorizados;
 
     public FisicaBean() {
+        GenericaSessao.remove("pessoaComplementoBean");
         GenericaSessao.remove("sessaoSisAutorizacao");
         solicitarAutorizacao = "";
         sisAutorizacoes = new SisAutorizacoes();
@@ -674,6 +676,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String editarFisica(Fisica f, Boolean completo) {
+        GenericaSessao.remove("pessoaComplementoBean");
         if (f.getId() == -1) {
             return null;
         }
@@ -1479,13 +1482,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
         }
-        
+
         if (socios.getId() == -1 || (socios.getId() != -1 && (socios.getMatriculaSocios().getDtInativo() != null || !socios.getServicoPessoa().isAtivo()))) {
-            if (DataHoje.menorData(p.getRecadastroString(), new DataHoje().decrementarDias(30, DataHoje.data()))){
+            if (DataHoje.menorData(p.getRecadastroString(), new DataHoje().decrementarDias(30, DataHoje.data()))) {
                 GenericaMensagem.error("Atenção", "Conferir os dados para fins de RECADASTRAMENTO!");
                 return null;
             }
-            
+
             if (listaPessoaEndereco.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Cadastrar um Endereço!");
                 return null;
@@ -2605,11 +2608,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String converteMoeda(String valor) {
         Double d = new Double(0);
-        if(valor != null) {
+        if (valor != null) {
             try {
-               d = new Double(valor.toString());
-            } catch (Exception e)  {
-                
+                d = new Double(valor.toString());
+            } catch (Exception e) {
+
             }
         }
         return Moeda.converteR$Double(d);
@@ -3395,6 +3398,43 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setIdServicosAutorizados(Integer idServicosAutorizados) {
         this.idServicosAutorizados = idServicosAutorizados;
+    }
+
+    public String pessoaJuridicaMei() throws IOException {
+        if (fisica.getId() != -1) {
+            if (fisica.getPessoa().getDocumento().isEmpty() || fisica.getPessoa().getDocumento().equals("0")) {
+                GenericaMensagem.warn("Validação", "Informar CPF!");
+                return null;
+            }
+            if (listaPessoaEndereco.isEmpty()) {
+                GenericaMensagem.warn("Validação", "Cadastrar endereço!");
+                return null;
+            }
+        }
+        List<PessoaEmpresa> listPessoaEmpresa = new PessoaEmpresaDao().findAllByFisica(fisica.getId());
+        Juridica j = new Juridica();
+        JuridicaBean juridicaBean = new JuridicaBean();
+        for (int i = 0; i < listPessoaEmpresa.size(); i++) {
+            if (listPessoaEmpresa.get(i).isSocio()) {
+                GenericaSessao.remove("juridicaBean");
+                JuridicaBean jb = new JuridicaBean();
+                jb.init();
+                GenericaSessao.put("juridicaBean", jb);
+                return ((JuridicaBean) GenericaSessao.getObject("juridicaBean")).editar(listPessoaEmpresa.get(i).getJuridica(), true);
+            }
+        }
+        GenericaSessao.remove("juridicaBean");
+        GenericaSessao.put("newMei", true);
+        GenericaSessao.put("newFisicaMei", fisica);
+        ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).setDisabled(true);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("pessoaJuridica");
+    }
+
+    public boolean isFisicaMei() {
+        if (fisica.getId() != -1) {
+            return new PessoaEmpresaDao().findSocioProprietario(fisica.getId()) != null;
+        }
+        return false;
     }
 
 }

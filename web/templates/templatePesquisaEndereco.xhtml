@@ -16,7 +16,7 @@
         <h:panelGrid id="i_tbl_endereco_tpl">
             <p:dataTable value="#{pesquisaEnderecoBean.listaEndereco}" var="endereco" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
                 <p:column width="25">
-                    <p:commandButton icon="ui-icon-link" action="#{pesquisaEnderecoBean.put(endereco)}" title="Selecionar: #{endereco.id}" global="false"/>
+                    <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{pesquisaEnderecoBean.put(endereco)}" title="Selecionar: #{endereco.id}" global="false"/>
                 </p:column>
                 <p:column headerText="Cidade">
                     <h:outputText value="#{endereco.cidade.cidade}"/>

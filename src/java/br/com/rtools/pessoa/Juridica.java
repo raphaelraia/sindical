@@ -2,6 +2,7 @@ package br.com.rtools.pessoa;
 
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -49,10 +50,12 @@ public class Juridica implements Serializable {
     @Column(name = "is_cobranca_escritorio", columnDefinition = "boolean default false")
     private boolean cobrancaEscritorio;
     @Column(name = "ds_foto", length = 1000)
-    private String foto;    
+    private String foto;
     @Transient
     private Boolean selected;
-    
+    @Transient
+    private String mensagemInadimplente;
+
     public Juridica() {
         this.id = -1;
         this.pessoa = new Pessoa();
@@ -307,7 +310,7 @@ public class Juridica implements Serializable {
     }
 
     public CnaeConvencao getCnaeConvencao() {
-        if (cnae != null){
+        if (cnae != null) {
             CnaeConvencaoDao dB = new CnaeConvencaoDao();
             CnaeConvencao cnaeConvencao = dB.pesquisaCnaeComConvencao(cnae.getId());
             if (cnaeConvencao != null) {
@@ -316,7 +319,7 @@ public class Juridica implements Serializable {
         }
         return null;
     }
-    
+
     public String getFoto() {
         return foto;
     }
@@ -331,5 +334,20 @@ public class Juridica implements Serializable {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public String getMensagemInadimplente() {
+        if (this != null) {
+            if (this.getId() != -1) {
+                if (mensagemInadimplente == null) {
+                    int[] in = new JuridicaDao().listaInadimplencia(this.getPessoa().getId());
+                    if (in[0] > 0 && in[1] > 0) {
+                        return "Esta empresa está inadimplente em " + in[0] + " mes(es) e com " + in[1] + " movimento(s) em atraso.";
+                    }
+                }
+            }
+        }
+        return "";
+
     }
 }

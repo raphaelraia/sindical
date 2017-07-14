@@ -510,6 +510,7 @@ public class EmissaoGuiasBean implements Serializable {
                     null,
                     false,
                     "",
+                    null,
                     null
             );
 

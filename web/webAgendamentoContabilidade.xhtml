@@ -38,8 +38,8 @@
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <p:panel styleClass="fundoCinza">
-                        <h:panelGrid columns="3">
-                            <h:panelGroup id="i_dates" layout="block">rendered="#{webAgendamentoContabilidadeBean.idStatus ne 8}"
+                        <h:panelGrid columns="4">
+                            <h:panelGroup id="i_dates" layout="block" rendered="#{webAgendamentoContabilidadeBean.idStatus ne 8}"> 
                                 <p:calendar size="8" value="#{webAgendamentoContabilidadeBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" mindate="#{webAgendamentoContabilidadeBean.mindate}" maxdate="#{webAgendamentoContabilidadeBean.maxdate}" rendered="#{webAgendamentoContabilidadeBean.idStatus ne 8}">
                                     <p:ajax event="dateSelect" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                                     <p:ajax event="change" update="tbl id_msg_web i_dates" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
@@ -56,6 +56,8 @@
                                 <f:selectItem itemValue="todos" itemLabel="Todos"/>
                                 <f:selectItem itemValue="selecionado" itemLabel="Selecionado"/>
                             </p:selectOneMenu>
+
+                            <p:commandLink value="Documentos para Homologação" onclick="PF('dlg_homologacao_documentos').show()" style="margin-left: 50px; color: #132fff"/>
                         </h:panelGrid>        
                     </p:panel>
                 </h:panelGrid>
@@ -517,6 +519,20 @@
                     </h:panelGroup>
                     <f:facet name="footer">
                         <p:commandButton value="OK" onclick="PF('dlg_local').hide()" type="button"/>
+                    </f:facet>
+                </p:dialog>
+
+                <p:dialog widgetVar="dlg_homologacao_documentos" header="Documentos Necessários" resizable="false" modal="true" width="600" height="400" closeOnEscape="true">
+                    <p:outputPanel id="idocumentacao">
+                        <h:outputText value="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webDocumentosHomologacao}" escape="false" />
+                    </p:outputPanel>                    
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2" cellspacing="10">
+                            <p:commandButton value="SAIR" onclick="PF('dlg_homologacao_documentos').hide()" type="button"/>
+                            <p:commandButton value="Imprimir" type="button">
+                                <p:printer target=":formAgendamentoContabilidade:idocumentacao" />
+                            </p:commandButton>
+                        </h:panelGrid>
                     </f:facet>
                 </p:dialog>
 

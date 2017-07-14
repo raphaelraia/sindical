@@ -92,7 +92,7 @@ public class SegurancaUtilitariosBean implements Serializable {
 
     public Registro getRegistro() {
         if (registro.getId() == -1) {
-            registro = (Registro) new Dao().find(new Registro());
+            registro = (Registro) new Dao().find(new Registro(), 1);
             if (registro == null) {
                 registro = new Registro();
             }

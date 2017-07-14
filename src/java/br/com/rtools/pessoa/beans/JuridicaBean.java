@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -67,6 +66,8 @@ import org.primefaces.event.TabChangeEvent;
 @SessionScoped
 public class JuridicaBean implements Serializable {
 
+    private Integer idStatusCobranca;
+    private List<SelectItem> listStatusCobranca;
     private Juridica juridica = new Juridica();
     private PessoaEndereco pessoaEndereco = new PessoaEndereco();
     private Filial filial = new Filial();
@@ -132,7 +133,7 @@ public class JuridicaBean implements Serializable {
     private List<Cnae> listaCnae = new ArrayList();
     private List<Juridica> listaJuridica = new ArrayList();
     private List<Juridica> listaContabilidade = new ArrayList();
-    private final List<DataObject> listaEmpresasPertencentes = new ArrayList();
+    private List<DataObject> listaEmpresasPertencentes = new ArrayList();
     private final List<SelectItem> listaTipoDocumento = new ArrayList();
     private List<SelectItem> listaPorte = new ArrayList();
     private List<ContribuintesInativos> listaContribuintesInativos = new ArrayList();
@@ -145,6 +146,7 @@ public class JuridicaBean implements Serializable {
     // [2] Todas
     private Boolean[] disabled;
     private ConfiguracaoCnpj configuracaoCnpj;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
 
     // MALA DIRETA
     private Boolean habilitaMalaDireta = false;
@@ -168,17 +170,56 @@ public class JuridicaBean implements Serializable {
     private SisAutorizacoes sisAutorizacoes;
     private String alterType;
     private List<SisAutorizacoes> listSisAutorizacoes;
+    private Fisica fisicaMei;
+    private Boolean newMei;
+    private Pessoa responsavel;
+    private Integer diaVencimento;
+    private List<SelectItem> listDataVencimento;
+    private Registro registro;
 
     @PostConstruct
     public void init() {
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
+        idStatusCobranca = null;
+        listStatusCobranca = new ArrayList();
+        listDataVencimento = new ArrayList();
+        responsavel = new Pessoa();
         disabled = new Boolean[3];
         disabled[0] = false;
         disabled[1] = false;
         disabled[2] = false;
+        newMei = false;
         configuracaoCnpj = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
         sisAutorizacoes = new SisAutorizacoes();
         listSisAutorizacoes = new ArrayList();
         alterType = "";
+        fisicaMei = new Fisica();
+        if (GenericaSessao.exists("newMei", true)) {
+            fisicaMei = (Fisica) new Dao().find((Fisica) GenericaSessao.getObject("newFisicaMei", true));
+            if (fisicaMei != null) {
+                newMei = true;
+                juridica.getPessoa().setNome(fisicaMei.getPessoa().getNome() + " " + fisicaMei.getPessoa().getDocumento());
+                idPorte = 3;
+                juridica.getPessoa().setTelefone1(fisicaMei.getPessoa().getTelefone1());
+                juridica.getPessoa().setTelefone2(fisicaMei.getPessoa().getTelefone2());
+                juridica.getPessoa().setTelefone3(fisicaMei.getPessoa().getTelefone3());
+                juridica.getPessoa().setTelefone4(fisicaMei.getPessoa().getTelefone4());
+                juridica.getPessoa().setEmail1(fisicaMei.getPessoa().getEmail1());
+                juridica.getPessoa().setEmail2(fisicaMei.getPessoa().getEmail2());
+                juridica.getPessoa().setEmail3(fisicaMei.getPessoa().getEmail3());
+                juridica.getPessoa().setSite(fisicaMei.getPessoa().getSite());
+                juridica.getPessoa().setSite(fisicaMei.getPessoa().getSite());
+
+                if (fisicaMei.getPessoa().getPessoaEndereco() != null) {
+                    abreEndereco();
+                    GenericaSessao.put("enderecoPesquisa", fisicaMei.getPessoa().getPessoaEndereco().getEndereco());
+                    pessoaEndereco = fisicaMei.getPessoa().getPessoaEndereco();
+                }
+            }
+        }
+        registro = registro.get();
+        diaVencimento = registro.getFinDiaVencimentoCobranca();
+        loadListDataVencimento();
     }
 
     @PreDestroy
@@ -189,6 +230,7 @@ public class JuridicaBean implements Serializable {
         GenericaSessao.remove("contribuintes");
         GenericaSessao.remove("escritorios");
         GenericaSessao.remove("pessoaBean");
+        GenericaSessao.remove("pessoaComplementoBean");
     }
 
     public void limparRecadastro() {
@@ -769,14 +811,59 @@ public class JuridicaBean implements Serializable {
             return null;
         }
 
-//        if (!chkEndContabilidade) {
-//            juridica.setEmailEscritorio(false);
-//        }
-        //else
-        //    juridica.setEmailEscritorio(false);
         juridica.getPessoa().setNome(juridica.getPessoa().getNome().trim());
+        pessoaComplemento.setNrDiaVencimento(diaVencimento);
+        if (responsavel != null && responsavel.getId() != -1) {
+            pessoaComplemento.setResponsavel(responsavel);
+        }
+
+        if (juridica.getId() == -1) {
+            loadListStatusCobranca();
+        }
+
+        if (idStatusCobranca == null) {
+            if (configuracaoArrecadacao.getCobrancaEmail()) {
+                for (int i = 0; i < listStatusCobranca.size(); i++) {
+                    if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 3 && !listStatusCobranca.get(i).isDisabled()) {
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 3));
+                    }
+                    if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 4 && !listStatusCobranca.get(i).isDisabled()) {
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 4));
+                        break;
+                    }
+                }
+            } else {
+                for (int i = 0; i < listStatusCobranca.size(); i++) {
+                    if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 1 && !listStatusCobranca.get(i).isDisabled()) {
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 1));
+                    }
+                    if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 2 && !listStatusCobranca.get(i).isDisabled()) {
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 2));
+                        break;
+                    }
+                }
+            }
+        } else {
+            pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), idStatusCobranca));
+        }
+
         dao.openTransaction();
         if (juridica.getId() == -1) {
+
+            if (configuracaoArrecadacao.getCobrancaEmail()) {
+                for (int i = 0; i < listStatusCobranca.size(); i++) {
+                    if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 2 && !listStatusCobranca.get(i).isDisabled()) {
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 2));
+                    }
+                }
+            } else {
+                for (int i = 0; i < listStatusCobranca.size(); i++) {
+                    if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 1 && !listStatusCobranca.get(i).isDisabled()) {
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 1));
+                    }
+                }
+            }
+
             juridica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription())));
             if (juridica.getPessoa().getNome().isEmpty()) {
                 GenericaMensagem.error("Erro", "O campo nome não pode ser nulo!");
@@ -811,6 +898,14 @@ public class JuridicaBean implements Serializable {
                     dao.rollback();
                     return null;
                 }
+
+                pessoaComplemento.setPessoa(pessoa);
+
+                if (!dao.save(pessoaComplemento)) {
+                    GenericaMensagem.warn("Validação", "Ao salvar pessoa complemento!");
+                    return null;
+                }
+
                 juridica.setPessoa(pessoa);
                 if (juridica.getCnae().getId() == -1) {
                     juridica.setCnae(null);
@@ -831,8 +926,42 @@ public class JuridicaBean implements Serializable {
                     return null;
                 }
                 if (dao.save(juridica)) {
-                    GenericaMensagem.info("Sucesso", "Cadastro salvo!");
+
+                    if (newMei) {
+                        if (fisicaMei != null && fisicaMei.getId() != -1) {
+                            PessoaEmpresa pe = new PessoaEmpresaDao().findSocioProprietario(fisicaMei.getId());
+                            if (pe == null) {
+                                pe = new PessoaEmpresa();
+                                pe.setSocio(true);
+                                pe.setJuridica(juridica);
+                                pe.setFisica(fisicaMei);
+                                pe.setFuncao((Profissao) dao.find(new Profissao(), 0));
+                                pe.setSetor("");
+                                if (juridica.getDtAbertura() == null) {
+                                    pe.setDtAdmissao(new Date());
+                                } else {
+                                    pe.setDtAdmissao(juridica.getDtAbertura());
+                                }
+                                pe.setAvisoTrabalhado(false);
+                                pe.setPrincipal(false);
+
+                                if (!dao.save(pe)) {
+                                    GenericaMensagem.error("Erro", "Erro ao salvar pessoa empresa!");
+                                    dao.rollback();
+                                    return null;
+                                }
+                            }
+                        }
+                    }
+
+                    if (newMei) {
+                        GenericaMensagem.info("Sucesso", "Novo cadastro de Micro Empreendedor Individual criado com sucesso! Empreendedor: " + fisicaMei.getPessoa().getNome());
+                    } else {
+                        GenericaMensagem.info("Sucesso", "Cadastro salvo!");
+                    }
+
                     dao.commit();
+
                     NovoLog novoLog = new NovoLog();
                     novoLog.setTabela("pes_juridica");
                     novoLog.setCodigo(juridica.getId());
@@ -845,6 +974,22 @@ public class JuridicaBean implements Serializable {
                 }
             }
         } else {
+
+            Juridica jur = (Juridica) dao.find(juridica);
+
+            if (!jur.getPessoa().getEmail1().equals(juridica.getPessoa().getEmail1())) {
+                if (!jur.getPessoa().getEmail1().isEmpty() && juridica.getPessoa().getEmail1().isEmpty()) {
+                    pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 1));
+                    idStatusCobranca = 1;
+                } else if (jur.getPessoa().getEmail1().isEmpty() && !juridica.getPessoa().getEmail1().isEmpty()) {
+                    idStatusCobranca = 1;
+                    if (configuracaoArrecadacao.getCobrancaEmail()) {
+                        idStatusCobranca = 2;
+                        pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), 2));
+                    }
+                }
+            }
+
             juridica.getPessoa().setDtAtualizacao(new Date());
             if (juridica.getPessoa().getNome().isEmpty()) {
                 GenericaMensagem.error("Erro", "O campo nome não pode ser nulo!");
@@ -875,13 +1020,24 @@ public class JuridicaBean implements Serializable {
                     return null;
                 }
             }
-            Juridica jur = (Juridica) dao.find(juridica);
+
             String beforeUpdate = "ID: " + jur.getId() + " - Pessoa: (" + jur.getPessoa().getId() + ") " + jur.getPessoa().getNome() + " - Abertura: " + jur.getAbertura() + " - Fechamento: " + jur.getAbertura() + " - I.E.: " + jur.getInscricaoEstadual() + " - Insc. Mun.: " + jur.getInscricaoMunicipal() + " - Responsável: " + jur.getResponsavel();
 
             if (!dao.update(juridica.getPessoa())) {
                 GenericaMensagem.error("Erro", "Erro ao atualizar Cadastro!");
                 dao.rollback();
                 return null;
+            }
+            if (pessoaComplemento.getId() == -1) {
+                if (!dao.save(pessoaComplemento)) {
+                    GenericaMensagem.warn("Validação", "Ao salvar pessoa complemento!");
+                    return null;
+                }
+            } else {
+                if (!dao.update(pessoaComplemento)) {
+                    GenericaMensagem.warn("Validação", "Ao atualziar pessoa complemento!");
+                    return null;
+                }
             }
 
             if (dao.update(juridica)) {
@@ -909,6 +1065,8 @@ public class JuridicaBean implements Serializable {
         }
         getContribuinte();
         salvarEndereco();
+
+        loadListStatusCobranca();
 
         return null;
     }
@@ -957,6 +1115,7 @@ public class JuridicaBean implements Serializable {
         idTipoDocumento = 1;
         idPorte = 0;
         listaContribuintesInativos.clear();
+        pessoaComplemento = new PessoaComplemento();
         setEnderecoCompleto("");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoPesquisa");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoNum");
@@ -971,6 +1130,7 @@ public class JuridicaBean implements Serializable {
             return null;
         }
         List<PessoaEndereco> listaEndereco = dbPE.pesquisaEndPorPessoa(juridica.getPessoa().getId());
+        PessoaComplemento pc = new PessoaComplementoDao().findByPessoa(juridica.getPessoa().getId());
 
         dao.openTransaction();
         if (!listaEndereco.isEmpty()) {
@@ -982,6 +1142,14 @@ public class JuridicaBean implements Serializable {
                     dao.rollback();
                     return null;
                 }
+            }
+        }
+
+        if (pc != null) {
+            if (!dao.delete(pc)) {
+                GenericaMensagem.error("Erro", "Erro ao excluir uma Pessoa Complemento!");
+                dao.rollback();
+                return null;
             }
         }
 
@@ -1070,7 +1238,7 @@ public class JuridicaBean implements Serializable {
         juridica.setPessoa((Pessoa) dao.rebind(j.getPessoa()));
         listSocios.clear();
         listaContribuintesInativos.clear();
-        listaEmpresasPertencentes.clear();
+        listaEmpresasPertencentes = new ArrayList();
         contribuintesInativos = new ContribuintesInativos();
 
         if (juridica.getContabilidade() != null) {
@@ -1119,6 +1287,18 @@ public class JuridicaBean implements Serializable {
             }
         }
 
+        responsavel = pessoaComplemento.getResponsavel();
+        if (responsavel == null) {
+            responsavel = new Pessoa();
+        }
+
+        if (pessoaComplemento.getStatusCobranca() != null) {
+            idStatusCobranca = pessoaComplemento.getStatusCobranca().getId();
+
+        }
+        diaVencimento = pessoaComplemento.getNrDiaVencimento();
+
+        loadListStatusCobranca();
         existeOposicaoEmpresa();
         loadListSocios();
         loadMalaDireta();
@@ -1180,7 +1360,9 @@ public class JuridicaBean implements Serializable {
     }
 
     public String editarEmpresaContabilidade() {
-        juridica = (Juridica) new Dao().find(new Juridica(), juridica.getContabilidade().getId());
+        listaEmpresasPertencentes = new ArrayList();
+        Dao dao = new Dao();
+        juridica = (Juridica) dao.find(new Juridica(), juridica.getContabilidade().getId());
         if (juridica.getContabilidade() != null) {
             nomeContabilidade = juridica.getContabilidade().getPessoa().getNome();
         }
@@ -1189,6 +1371,28 @@ public class JuridicaBean implements Serializable {
         descPesquisa = "";
         porPesquisa = "nome";
         comoPesquisa = "";
+        loadListStatusCobranca();
+
+        pessoaComplemento = new PessoaComplemento();
+        pessoaComplemento = juridica.getPessoa().getPessoaComplemento();
+        if (pessoaComplemento.getId() == -1) {
+            pessoaComplemento = (PessoaComplemento) dao.rebind(new PessoaComplementoDao().findByPessoa(juridica.getPessoa().getId()));
+            if (pessoaComplemento == null) {
+                pessoaComplemento = new PessoaComplemento();
+            }
+        }
+
+        responsavel = pessoaComplemento.getResponsavel();
+        if (responsavel == null) {
+            responsavel = new Pessoa();
+        }
+
+        if (pessoaComplemento.getStatusCobranca() != null) {
+            idStatusCobranca = pessoaComplemento.getStatusCobranca().getId();
+
+        }
+        diaVencimento = pessoaComplemento.getNrDiaVencimento();
+
         if (url != null) {
             if (!getListaTipoDocumento().isEmpty()) {
                 for (int o = 0; o < listaTipoDocumento.size(); o++) {
@@ -1221,6 +1425,7 @@ public class JuridicaBean implements Serializable {
         juridica.setCobrancaEscritorio(true);
         renChkEndereco = "true";
         nomeContabilidade = contabilidade.getPessoa().getNome();
+        listaEmpresasPertencentes = new ArrayList();
         //chkEndContabilidade = true; // ROGÉRINHO PEDIU PRA VOLTAR TRUE NA DATA -- 30/07/2013 -- POR CAUSA DO CARLOS DE LIMEIRA
         return "pessoaJuridica";
     }
@@ -1534,11 +1739,6 @@ public class JuridicaBean implements Serializable {
         renNovoEndereco = true;
         alterarEnd = true;
         return "pessoaJuridica";
-    }
-
-    public List getListaPessoaEndereco() {
-        List result = new Dao().list(new PessoaEndereco());
-        return result;
     }
 
     public String CarregarEndereco() {
@@ -1890,15 +2090,16 @@ public class JuridicaBean implements Serializable {
     }
 
     public List<DataObject> getListaEmpresasPertencentes() {
-        JuridicaDao db = new JuridicaDao();
-        PessoaEnderecoDao dbPe = new PessoaEnderecoDao();
-        PessoaEndereco pe;
         if (juridica.getId() != -1) {
-            listaEmpresasPertencentes.clear();
-            List listaX = db.listaContabilidadePertencente(juridica.getId());
-            for (int i = 0; i < listaX.size(); i++) {
-                pe = dbPe.pesquisaEndPorPessoaTipo(((Juridica) (listaX.get(i))).getPessoa().getId(), 2);
-                listaEmpresasPertencentes.add(new DataObject((Juridica) (listaX.get(i)), pe));
+            if (listaEmpresasPertencentes.isEmpty()) {
+                JuridicaDao db = new JuridicaDao();
+                PessoaEnderecoDao dbPe = new PessoaEnderecoDao();
+                PessoaEndereco pe;
+                List listaX = db.listaContabilidadePertencente(juridica.getId());
+                for (int i = 0; i < listaX.size(); i++) {
+                    pe = dbPe.pesquisaEndPorPessoaTipo(((Juridica) (listaX.get(i))).getPessoa().getId(), 2);
+                    listaEmpresasPertencentes.add(new DataObject((Juridica) (listaX.get(i)), pe));
+                }
             }
         }
         return listaEmpresasPertencentes;
@@ -3186,4 +3387,277 @@ public class JuridicaBean implements Serializable {
         return "";
     }
 
+    public Fisica getFisicaMei() {
+        return fisicaMei;
+    }
+
+    public void setFisicaMei(Fisica fisicaMei) {
+        this.fisicaMei = fisicaMei;
+    }
+
+    public Boolean getNewMei() {
+        return newMei;
+    }
+
+    public void setNewMei(Boolean newMei) {
+        this.newMei = newMei;
+    }
+
+    public Pessoa getResponsavel() {
+        if (GenericaSessao.exists("pessoaPesquisa")) {
+            responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
+            GenericaSessao.remove("pessoaPesquisa");
+        }
+        return responsavel;
+    }
+
+    public void setResponsavel(Pessoa responsavel) {
+        this.responsavel = responsavel;
+    }
+
+    public void loadListDataVencimento() {
+        listDataVencimento = new ArrayList();
+        for (int i = 1; i <= 31; i++) {
+            if (diaVencimento == 0) {
+                diaVencimento = i;
+            }
+            listDataVencimento.add(new SelectItem(Integer.toString(i)));
+        }
+    }
+
+    public List<SelectItem> getListDataVencimento() {
+        return listDataVencimento;
+    }
+
+    public void setListDataVencimento(List<SelectItem> listDataVencimento) {
+        this.listDataVencimento = listDataVencimento;
+    }
+
+    public Integer getIdStatusCobranca() {
+        return idStatusCobranca;
+    }
+
+    public void setIdStatusCobranca(Integer idStatusCobranca) {
+        this.idStatusCobranca = idStatusCobranca;
+    }
+
+    public List<SelectItem> getListStatusCobranca() {
+        return listStatusCobranca;
+    }
+
+    public void setListStatusCobranca(List<SelectItem> listStatusCobranca) {
+        this.listStatusCobranca = listStatusCobranca;
+    }
+
+    public Integer getDiaVencimento() {
+        return diaVencimento;
+    }
+
+    public void setDiaVencimento(Integer diaVencimento) {
+        this.diaVencimento = diaVencimento;
+    }
+
+    public void loadListStatusCobranca() {
+        listStatusCobranca = new ArrayList();
+        List<StatusCobranca> list = new Dao().find("StatusCobranca", new int[]{1, 2});
+        Boolean isListEscritorio = false;
+        if (juridica.getId() != -1) {
+            if (juridica.getCnae() != null && juridica.getCnae().getId() != -1) {
+                if (juridica.getCnae().getId() == 1) {
+                    isListEscritorio = true;
+                }
+            }
+        }
+        for (int i = 0; i < list.size(); i++) {
+            if (null != list.get(i).getId()) {
+                switch (list.get(i).getId()) {
+                    // 1 BOLETO
+                    case 1:
+                        if (isListEscritorio) {
+                            listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+                        } else {
+                            if (juridica.getPessoa().getPessoaEndereco() != null) {
+                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+                            } else {
+                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "Empresa sem endereço!", true));
+                            }
+                        }
+                        break;
+                    // Email
+//                    case 2:
+//                        if (isListEscritorio) {
+//                            if (juridica.getPessoa().getPessoaEndereco() != null) {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+//                            } else {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "Escritório sem endereço", true));
+//                            }
+//                        } else {
+//                            if (juridica.getContabilidade() != null && juridica.getContabilidade().getPessoa().getPessoaEndereco() != null) {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+//                            } else {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "Escritório sem endereço", true));
+//                            }
+//                        }
+//                        break;
+                    // ANTIGO - 3 SEM ESCRITÓRIO, empresa COM email 
+                    // 2 EMAIL
+                    case 2:
+                        if (isListEscritorio) {
+                            listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+                        } else {
+                            if (!juridica.getPessoa().getEmail1().isEmpty()) {
+                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+                            } else {
+                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "Empresa sem e-mail", true));
+                            }
+                        }
+                        break;
+                    // 4 Quando vincular Escritório que tenha email
+//                    case 4:
+//                        if (isListEscritorio) {
+//                            if (!juridica.getPessoa().getEmail1().isEmpty()) {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+//                            } else {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "Escritório sem emailmail", true));
+//                            }
+//                        } else {
+//                            if (juridica.getContabilidade() != null && !juridica.getContabilidade().getPessoa().getEmail1().isEmpty()) {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), ""));
+//                            } else {
+//                                listStatusCobranca.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "Escritório sem e-mail", true));
+//                            }
+//                        }
+//                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    public List loadListStatusCobranca(Integer tcase) {
+        listStatusCobranca = new ArrayList();
+        Dao dao = new Dao();
+
+        PessoaComplemento pc;
+        if (pessoaComplemento.getId() == -1) {
+            pc = pessoaComplemento;
+        } else {
+            pc = (PessoaComplemento) new Dao().find(pessoaComplemento);
+        }
+        Pessoa p = pc.getPessoa();
+        Pessoa escritorio = null;
+        if (pc.getPessoa().getJuridica().getContabilidade() != null) {
+            escritorio = (Pessoa) dao.find(new Pessoa(), pc.getPessoa().getJuridica().getContabilidade().getPessoa().getId());
+        }
+        Juridica empresa = (Juridica) dao.find(new Juridica(), pc.getPessoa().getJuridica().getId());
+        Boolean isListEscritorio = false;
+        if (empresa.getCnae() != null && empresa.getCnae().getId() != -1) {
+            if (empresa.getCnae().getId() == 1) {
+                isListEscritorio = true;
+            }
+        }
+        Boolean disabled = true;
+        StatusCobranca sc = new StatusCobranca();
+        PessoaEndereco pe = p.getPessoaEndereco();
+        if (tcase == null) {
+            // 1 SEM ESCRITÓRIO, empresa SEM email 
+            sc = (StatusCobranca) new Dao().find(new StatusCobranca(), 1);
+            if (escritorio == null && p.getEmail1().isEmpty()) {
+                if (p.getPessoaEndereco() != null) {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Empresa não possui endereço cadastrado para envio de cobrança!!!", false));
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", true));
+                }
+            } else {
+                if (p.getPessoaEndereco() != null) {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", false));
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Empresa sem endereço!!!", true));
+                }
+            }
+            // 2 Quando vincular Escritório que NÃO tenha email 
+            sc = (StatusCobranca) new Dao().find(new StatusCobranca(), 2);
+            if (escritorio != null && escritorio.getEmail1().isEmpty()) {
+                if (escritorio.getPessoaEndereco() == null) {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Escritório vínculado não possui endereço!!!", true));
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", false));
+                }
+            } else {
+                if (escritorio != null && escritorio.getPessoaEndereco() == null) {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Escritório vínculado não possui endereço!!!", true));
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", false));
+                }
+            }
+            // 3 SEM ESCRITÓRIO, empresa COM email 
+            sc = (StatusCobranca) new Dao().find(new StatusCobranca(), 3);
+            if (escritorio == null && !p.getEmail1().isEmpty()) {
+                if (ValidaDocumentos.isEmailValido(p.getEmail1())) {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", false));
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Email da empresa inválido!", true));
+                }
+            } else {
+                listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Empresa está sem email!", true));
+            }
+            // 4 Quando vincular Escritório que tenha email
+            sc = (StatusCobranca) new Dao().find(new StatusCobranca(), 4);
+            if (isListEscritorio) {
+                if (!p.getEmail1().isEmpty()) {
+                    if (ValidaDocumentos.isEmailValido(p.getEmail1())) {
+                        listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", false));
+                    } else {
+                        listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Email do escritório inválido!", true));
+                    }
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Escritório sem email!", true));
+                }
+            } else {
+                if (escritorio != null && !escritorio.getEmail1().isEmpty()) {
+                    if (ValidaDocumentos.isEmailValido(escritorio.getEmail1())) {
+                        listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "", false));
+                    } else {
+                        listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Email do escritório inválido!", true));
+                    }
+                } else {
+                    listStatusCobranca.add(new SelectItem(sc.getId(), sc.getDescricao(), "Escritório sem email!", true));
+                }
+            }
+
+            if (pc.getStatusCobranca() == null) {
+                if (configuracaoArrecadacao.getCobrancaEmail()) {
+                    for (int i = 0; i < listStatusCobranca.size(); i++) {
+                        if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 3 && !listStatusCobranca.get(i).isDisabled()) {
+                            idStatusCobranca = 3;
+                        }
+                        if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 4 && !listStatusCobranca.get(i).isDisabled()) {
+                            idStatusCobranca = 4;
+                            break;
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < listStatusCobranca.size(); i++) {
+                        if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 1 && !listStatusCobranca.get(i).isDisabled()) {
+                            idStatusCobranca = 1;
+                        }
+                        if (Integer.parseInt(listStatusCobranca.get(i).getValue().toString()) == 2 && !listStatusCobranca.get(i).isDisabled()) {
+                            idStatusCobranca = 2;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return listStatusCobranca;
+    }
+
+    public ConfiguracaoArrecadacao getConfiguracaoArrecadacao() {
+        return configuracaoArrecadacao;
+    }
+
+    public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
+        this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
 }
