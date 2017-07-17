@@ -10,7 +10,7 @@ public class PessoaEmpresaDao extends DB {
 
     public List listaPessoaEmpresaPorFisica(int id) {
         try {
-            Query qry = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.fisica.id = :id AND PE.principal = false ORDER BY PE.dtAdmissao DESC ");
+            Query qry = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.fisica.id = :id AND (PE.principal = false OR PE.socio = true) ORDER BY PE.dtAdmissao DESC ");
             qry.setParameter("id", id);
             List list = qry.getResultList();
             if (!list.isEmpty()) {
@@ -65,10 +65,11 @@ public class PessoaEmpresaDao extends DB {
     public PessoaEmpresa pesquisaPessoaEmpresaPorFisica(int id) {
         try {
             Query qry = getEntityManager().createQuery(
-                    "    SELECT PE                          "
-                    + "    FROM PessoaEmpresa AS PE         "
-                    + "   WHERE PE.fisica.id = " + id
-                    + "     AND (PE.principal = true OR PE.dtDemissao IS NULL)"
+                    "    SELECT PE                                              \n"
+                    + "    FROM PessoaEmpresa AS PE                             \n"
+                    + "   WHERE PE.fisica.id = " + id + "                       \n"
+                    + "     AND (PE.principal = true OR PE.dtDemissao IS NULL)  \n"
+                    + "     AND PE.socio = false                                \n"
             );
             List<PessoaEmpresa> list = qry.getResultList();
             PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
@@ -132,6 +133,16 @@ public class PessoaEmpresaDao extends DB {
             return new ArrayList();
         }
         return new ArrayList();
+    }
+
+    public PessoaEmpresa findSocioProprietario(Integer fisica_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.fisica.id = :fisica_id AND PE.socio = true");
+            query.setParameter("fisica_id", fisica_id);
+            return (PessoaEmpresa) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public List findAllByJuridica(Integer juridica_id) {

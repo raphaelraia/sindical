@@ -12,6 +12,7 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioMalaDiretaDao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaString;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
@@ -35,16 +36,110 @@ public class RelatorioMalaDiretaBean implements Serializable {
 
     private List<SelectItem> listaMalaDiretaGrupo = new ArrayList();
     private Integer idMalaDiretaGrupo = 0;
+    private List<ParametroMalaDireta> parametroMalaDiretas;
+    private List<Etiquetas> parametroEtiquetas;
 
     public RelatorioMalaDiretaBean() {
         loadRelatorio();
-
         loadMalaDiretaGrupo();
+        parametroMalaDiretas = new ArrayList();
     }
 
-    public void visualizar() {
-//        RelatorioDao rdao = new RelatorioDao();
-//        Relatorios relatorio = rdao.pesquisaRelatorios(Integer.valueOf(listaRelatorio.get(idRelatorio).getDescription()));
+    public void filter() {
+        parametroMalaDiretas = new ArrayList();
+        parametroEtiquetas = new ArrayList();
+        Relatorios relatorio = (Relatorios) new Dao().find(new Relatorios(), Integer.valueOf(listaRelatorio.get(idRelatorio).getDescription()));
+        List<ArrayList> list = new RelatorioMalaDiretaDao().listaMalaDireta(Integer.valueOf(listaMalaDiretaGrupo.get(idMalaDiretaGrupo).getDescription()));
+
+        if (list.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Nenhum registro encontrado!");
+            return;
+        }
+
+        for (List l : list) {
+            if (relatorio.getId() != 4) {
+                parametroMalaDiretas.add(
+                        new ParametroMalaDireta(
+                                false,
+                                l.get(0), // GRUPO
+                                l.get(1), // DOCUMENTO
+                                l.get(2), // NOME
+                                l.get(3), // LOGRADOURO
+                                l.get(4), // ENDERECO
+                                l.get(5), // NUMERO
+                                l.get(6), // COMPLEMENTO
+                                l.get(7), // BAIRRO
+                                l.get(8), // CIDADE
+                                l.get(9), // UF
+                                l.get(10), // CEP
+                                l.get(11), // TELEFONE 1
+                                l.get(12), // TELEFONE 2
+                                l.get(13), // TELEFONE 3
+                                l.get(14), // EMAIL 1
+                                l.get(15), // EMAIL 2
+                                l.get(16) // EMAIL 3
+                        )
+                );
+            } else {
+                // ETIQUETA
+                parametroEtiquetas.add(
+                        new Etiquetas(
+                                false,
+                                GenericaString.converterNullToString(l.get(2)), // Nome
+                                GenericaString.converterNullToString(l.get(3)), // Logradouro
+                                GenericaString.converterNullToString(l.get(4)), // Endereço
+                                GenericaString.converterNullToString(l.get(5)), // Número
+                                GenericaString.converterNullToString(l.get(7)), // Bairro
+                                GenericaString.converterNullToString(l.get(8)), // Cidade
+                                GenericaString.converterNullToString(l.get(9)), // UF
+                                GenericaString.converterNullToString(l.get(10)), // Cep
+                                GenericaString.converterNullToString(l.get(6)) // Complemento
+                        )
+                );
+            }
+        }
+    }
+
+    public void print() {
+        Relatorios relatorio = (Relatorios) new Dao().find(new Relatorios(), Integer.valueOf(listaRelatorio.get(idRelatorio).getDescription()));
+
+        Collection lp = new ArrayList();
+
+        if (relatorio.getId() != 4) {
+            if (!parametroMalaDiretas.isEmpty()) {
+                for (int i = 0; i < parametroMalaDiretas.size(); i++) {
+                    if (parametroMalaDiretas.get(i).getSelected()) {
+                        lp.add(parametroMalaDiretas.get(i));
+                    }
+                }
+            }
+
+        } else {
+            if (!parametroEtiquetas.isEmpty()) {
+                for (int i = 0; i < parametroEtiquetas.size(); i++) {
+                    if (parametroEtiquetas.get(i).getSelected()) {
+                        lp.add(parametroEtiquetas.get(i));
+                    }
+                }
+            }
+        }
+
+        if (lp.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Nenhum registro selecionado!");
+            return;
+        }
+
+        if (!lp.isEmpty()) {
+            if (relatorio.getId() != 4) {
+                Jasper.IS_HEADER = true;
+                Jasper.printReports(relatorio.getJasper(), "Mala Direta", lp);
+            } else {
+                Jasper.printReports("/Relatorios/ETIQUETAS.jasper", "Etiquetas", lp);
+            }
+        }
+    }
+
+    public void printAll() {
 
         Relatorios relatorio = (Relatorios) new Dao().find(new Relatorios(), Integer.valueOf(listaRelatorio.get(idRelatorio).getDescription()));
 
@@ -56,6 +151,7 @@ public class RelatorioMalaDiretaBean implements Serializable {
                 if (relatorio.getId() != 4) {
                     lp.add(
                             new ParametroMalaDireta(
+                                    false,
                                     l.get(0), // GRUPO
                                     l.get(1), // DOCUMENTO
                                     l.get(2), // NOME
@@ -92,6 +188,11 @@ public class RelatorioMalaDiretaBean implements Serializable {
                     );
                 }
             }
+        }
+
+        if (lp.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Nenhum registro encontrado!");
+            return;
         }
 
         if (!lp.isEmpty()) {
@@ -177,5 +278,25 @@ public class RelatorioMalaDiretaBean implements Serializable {
 
     public void setIdMalaDiretaGrupo(Integer idMalaDiretaGrupo) {
         this.idMalaDiretaGrupo = idMalaDiretaGrupo;
+    }
+
+    public List<ParametroMalaDireta> getParametroMalaDiretas() {
+        return parametroMalaDiretas;
+    }
+
+    public void setParametroMalaDiretas(List<ParametroMalaDireta> parametroMalaDiretas) {
+        this.parametroMalaDiretas = parametroMalaDiretas;
+    }
+
+    public List<Etiquetas> getParametroEtiquetas() {
+        return parametroEtiquetas;
+    }
+
+    public void setParametroEtiquetas(List<Etiquetas> parametroEtiquetas) {
+        this.parametroEtiquetas = parametroEtiquetas;
+    }
+
+    public Relatorios getRelatorios() {
+        return (Relatorios) new Dao().find(new Relatorios(), Integer.valueOf(listaRelatorio.get(idRelatorio).getDescription()));
     }
 }

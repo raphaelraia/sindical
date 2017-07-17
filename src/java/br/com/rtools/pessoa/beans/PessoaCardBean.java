@@ -105,7 +105,9 @@ public class PessoaCardBean implements Serializable {
         if (juridica == null && juridica.getId() == -1) {
             return;
         }
-        convencao = juridica.getCnaeConvencao().getConvencao();
+        if(juridica.getCnaeConvencao() != null) {
+            convencao = juridica.getCnaeConvencao().getConvencao();            
+        }
         ConvencaoCidadeDao ccd = new ConvencaoCidadeDao();
         PessoaEndereco pe = juridica.getPessoa().getPessoaEndereco();
         if (convencao.getId() != -1 && pe != null && pe.getId() != -1) {
@@ -344,6 +346,15 @@ public class PessoaCardBean implements Serializable {
             if (juridicaDB.empresaInativa(p.getId())) {
                 return "CONTRIBUINTE INATIVO";
             } else {
+                if(p.getJuridica() != null) {
+                    if(p.getJuridica().getCnae() != null) {
+                        if(p.getJuridica().getCnae().getId() == 1) {
+                            return "SERVIÇO CONTÁBIL";
+                        } else {
+                            return "CONTRIBUINTE";
+                        }                        
+                    }
+                }
                 return "CONTRIBUINTE";
             }
         } catch (Exception e) {

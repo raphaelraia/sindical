@@ -31,34 +31,64 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Mala Direta" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
-                        <h:form id="formRelatorioMalaDireta">
+                        <h:form id="form_relatorio_mala_direta">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid columns="2">
                                     <p:outputLabel value="TIPO" /><br />
                                     <p:selectOneMenu value="#{relatorioMalaDiretaBean.idRelatorio}">
-                                        <p:ajax event="change" listener="#{relatorioMalaDiretaBean.loadRelatorio()}"/>
+                                        <p:ajax event="change" listener="#{relatorioMalaDiretaBean.loadRelatorio()}" update=":form_relatorio_mala_direta:"/>
                                         <f:selectItems value="#{relatorioMalaDiretaBean.listaRelatorio}" />
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:panel>
 
-                            <h:panelGrid columns="1">
-                                <h:column>
-                                    <h:panelGrid columns="2">
-                                        <p:outputLabel value="GRUPO" /><br />
-                                        <p:selectOneMenu value="#{relatorioMalaDiretaBean.idMalaDiretaGrupo}">
-                                            <p:ajax event="change" listener="#{relatorioMalaDiretaBean.loadMalaDiretaGrupo()}"/>
-                                            <f:selectItems value="#{relatorioMalaDiretaBean.listaMalaDiretaGrupo}" />
-                                        </p:selectOneMenu>
-                                    </h:panelGrid>
-                                </h:column>
+                            <h:panelGrid columns="3" styleClass="margin-top-max">
+                                <p:outputLabel value="GRUPO: " />
+                                <p:selectOneMenu value="#{relatorioMalaDiretaBean.idMalaDiretaGrupo}">
+                                    <p:ajax event="change" listener="#{relatorioMalaDiretaBean.loadMalaDiretaGrupo()}"/>
+                                    <f:selectItems value="#{relatorioMalaDiretaBean.listaMalaDiretaGrupo}" />
+                                </p:selectOneMenu>
+                                <p:commandButton value="Impressão do Grupo" action="#{relatorioMalaDiretaBean.printAll}" icon="ui-icon-print" ajax="false" style="margin-left: 30px"/>
                             </h:panelGrid>
-                            
+
                             <p:separator />
-                            
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Visualizar" action="#{relatorioMalaDiretaBean.visualizar}" icon="ui-icon-print" ajax="false"/>
+
+                            <h:panelGrid columns="3" cellspacing="5">
+                                <p:commandButton value="Filtrar e Exibir" action="#{relatorioMalaDiretaBean.filter}" update=":form_relatorio_mala_direta:"/>
+                                <p:commandButton value="Imprimir Selecionados" action="#{relatorioMalaDiretaBean.print}" icon="ui-icon-print" ajax="false"/>
                             </h:panelGrid>
+
+                            <h:column rendered="#{relatorioMalaDiretaBean.relatorios.id ne 4}">
+                                <p:dataTable value="#{relatorioMalaDiretaBean.parametroMalaDiretas}" var="malaDireta" rows="20" paginator="true" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                    <p:column width="15">
+                                        <p:selectBooleanCheckbox value="#{malaDireta.selected}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+                                    <p:column headerText="Documento" width="150">#{malaDireta.documento}</p:column>
+                                    <p:column headerText="Nome">#{malaDireta.nome}</p:column>
+                                    <p:column headerText="Endereço">#{malaDireta.logradouro} #{malaDireta.endereco}, #{malaDireta.numero} #{malaDireta.complemento}</p:column>
+                                    <p:column headerText="Cidade / UF">#{malaDireta.cidade} / #{malaDireta.uf} </p:column>
+                                    <p:column headerText="CEP" width="80">#{malaDireta.cep}</p:column>                                    
+                                </p:dataTable>
+                            </h:column>
+
+                            <h:column rendered="#{relatorioMalaDiretaBean.relatorios.id eq 4}">
+                                <p:dataTable value="#{relatorioMalaDiretaBean.parametroEtiquetas}" var="etiquetas" rows="20" paginator="true" emptyMessage="Nenhum registro encontrado!"  styleClass="margin-top-max">
+                                    <p:column width="15">
+                                        <p:selectBooleanCheckbox value="#{etiquetas.selected}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+                                    <p:column headerText="Nome">#{etiquetas.nome}</p:column>
+                                    <p:column headerText="Endereço">#{etiquetas.logradouro} #{etiquetas.endereco}, #{etiquetas.numero} #{etiquetas.complemento}</p:column>
+                                    <p:column headerText="Cidade / UF">#{etiquetas.cidade} / #{etiquetas.uf} </p:column>
+                                    <p:column headerText="CEP" width="80">#{etiquetas.cep}</p:column> 
+                                </p:dataTable>
+                            </h:column>
+
+
                         </h:form>
                     </p:panel>
                 </f:view>

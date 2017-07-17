@@ -12,6 +12,7 @@ public class Etiquetas {
     private Object cep;
     private Object complemento;
     private Object observacao;
+    private Boolean selected;
 
     public Etiquetas() {
         this.nome = "";
@@ -49,6 +50,19 @@ public class Etiquetas {
         this.cep = cep;
         this.complemento = complemento;
         this.observacao = observacao;
+    }
+
+    public Etiquetas(Boolean selected, Object nome, Object logradouro, Object endereco, Object numero, Object bairro, Object cidade, Object uf, Object cep, Object complemento) {
+        this.selected = selected;
+        this.nome = nome;
+        this.logradouro = logradouro;
+        this.endereco = endereco;
+        this.numero = numero;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.uf = uf;
+        this.cep = cep;
+        this.complemento = complemento;
     }
 
     public Object getNome() {
@@ -130,4 +144,13 @@ public class Etiquetas {
     public void setObservacao(Object observacao) {
         this.observacao = observacao;
     }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
+    }
+
 }

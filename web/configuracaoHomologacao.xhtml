@@ -69,7 +69,7 @@
                                                     <p:inputTextarea value="#{registroEmpresarialBean.registro.documentoHomologacao}" cols="75" rows="7" styleClass="no-resize no-border"/>
                                                 </p:tab>
                                                 <p:tab title="Formas de Pagamento Homologação">
-                                                    <p:inputTextarea value="#{registroEmpresarialBean.registro.formaPagamentoHomologacao}" cols="75" rows="7" styleClass="no-resize no-border" />                                                 
+                                                    <p:inputTextarea value="#{registroEmpresarialBean.registro.formaPagamentoHomologacao}" cols="75" rows="7" styleClass="no-resize no-border" />
                                                 </p:tab>
                                             </p:accordionPanel>
                                         </p:panelGrid>
@@ -189,11 +189,17 @@
                                                 </h:panelGrid>
                                             </h:column>                                            
                                         </h:panelGrid>
-                                        <p:panel header="Mensagem de suspensão do período" rendered="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDesabilitaInicial ne null}" >
-                                            <p:inputTextarea value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDesabilitaObs}" maxlength="1000" cols="110" rows="5" >
-                                                <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
-                                            </p:inputTextarea>
-                                        </p:panel>
+                                        <p:accordionPanel activeIndex="-1" multiple="true" dynamic="true">
+                                            <p:tab title="Mensagem de suspensão do período" >
+                                                <p:inputTextarea value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDesabilitaObs}" maxlength="1000" cols="110" rows="5" >
+                                                    <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                                </p:inputTextarea>                                                
+                                            </p:tab>
+                                            <p:tab title="Documentos solicitatos para agendamento Web" >
+                                                <p:editor value="#{configuracaoHomologacaoBean.configuracaoHomologacao.webDocumentosHomologacao}" controls="bold italic underline strikethrough" />
+                                                <p:commandButton action="#{configuracaoHomologacaoBean.update}" update=":form_ch:" value="Atualizar" styleClass="margin-top-max"/>
+                                            </p:tab>
+                                        </p:accordionPanel>
                                         <p:panel header="Campos obrigatórios - Web Agendamento" styleClass="margin-top">
                                             <h:panelGrid cellpadding="5" columns="4">
                                                 <p:column>

@@ -1231,7 +1231,8 @@ public class HomologacaoDao extends DB {
 
     public Boolean existsPedidosAgendamento(Integer filial_id) {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT count(*) FROM hom_agendamento WHERE dt_emissao < CURRENT_DATE AND id_status = 8 AND id_filial = " + filial_id);
+            Query query = getEntityManager().createNativeQuery("SELECT * FROM hom_agendamento WHERE dt_emissao < CURRENT_DATE AND id_status = 8 AND id_filial = " + filial_id);
+            query.setMaxResults(1);
             return !query.getResultList().isEmpty();
         } catch (Exception e) {
             return false;

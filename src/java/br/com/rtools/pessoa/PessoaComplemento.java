@@ -21,12 +21,15 @@ public class PessoaComplemento implements java.io.Serializable {
     @JoinColumn(name = "id_responsavel", referencedColumnName = "id", nullable = true)
     @ManyToOne(fetch = FetchType.EAGER)
     private Pessoa responsavel;
-    @Column(name = "is_bloqueia_obs_aviso", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "is_bloqueia_obs_aviso", columnDefinition = "boolean default false")
     private Boolean bloqueiaObsAviso;
     @Column(name = "ds_obs_aviso")
     private String obsAviso;
-    @Column(name = "is_cobranca_email", columnDefinition = "BOOLEAN DEFAULT FALSE", nullable = false)
+    @Column(name = "is_cobranca_email", columnDefinition = "boolean default false", nullable = false)
     private Boolean cobrancaEmail;
+    @JoinColumn(name = "id_status_cobranca", referencedColumnName = "id")
+    @ManyToOne
+    private StatusCobranca statusCobranca;
 
     public PessoaComplemento() {
         this.id = -1;
@@ -37,9 +40,10 @@ public class PessoaComplemento implements java.io.Serializable {
         this.bloqueiaObsAviso = false;
         this.obsAviso = "";
         this.cobrancaEmail = false;
+        this.statusCobranca = null;
     }
 
-    public PessoaComplemento(Integer id, Pessoa pessoa, Integer nrDiaVencimento, Boolean cobrancaBancaria, Pessoa responsavel, Boolean bloqueiaObsAviso, String obsAviso, Boolean cobrancaEmail) {
+    public PessoaComplemento(Integer id, Pessoa pessoa, Integer nrDiaVencimento, Boolean cobrancaBancaria, Pessoa responsavel, Boolean bloqueiaObsAviso, String obsAviso, Boolean cobrancaEmail, StatusCobranca statusCobranca) {
         this.id = id;
         this.pessoa = pessoa;
         this.nrDiaVencimento = nrDiaVencimento;
@@ -48,6 +52,7 @@ public class PessoaComplemento implements java.io.Serializable {
         this.bloqueiaObsAviso = bloqueiaObsAviso;
         this.obsAviso = obsAviso;
         this.cobrancaEmail = cobrancaEmail;
+        this.statusCobranca = statusCobranca;
     }
 
     public Integer getId() {
@@ -112,6 +117,14 @@ public class PessoaComplemento implements java.io.Serializable {
 
     public void setCobrancaEmail(Boolean cobrancaEmail) {
         this.cobrancaEmail = cobrancaEmail;
+    }
+
+    public StatusCobranca getStatusCobranca() {
+        return statusCobranca;
+    }
+
+    public void setStatusCobranca(StatusCobranca statusCobranca) {
+        this.statusCobranca = statusCobranca;
     }
 
 }

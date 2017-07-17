@@ -159,6 +159,13 @@
                                             </p:selectBooleanCheckbox>
                                         </p:column>                                        
                                         <p:column>
+                                        </p:column>                                        
+                                        <p:column>
+                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.mei}" itemLabel="Cadastro de MEI">
+                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>                                        
+                                        <p:column>
                                             <p:outputLabel value="Limite para envio de Notificações:" />
                                         </p:column>
                                         <p:column>

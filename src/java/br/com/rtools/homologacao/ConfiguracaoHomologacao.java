@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -127,6 +128,10 @@ public class ConfiguracaoHomologacao implements Serializable {
     @Column(name = "is_web_documento_obrigatorio", columnDefinition = "boolean default false", nullable = false)
     private Boolean webDocumentoObrigatorio;
 
+    @Lob
+    @Column(name = "ds_web_documentos_homologacao")
+    private String webDocumentosHomologacao;
+
 //    @Transient
 //    // @Temporal(TemporalType.DATE)
 //    // @Column(name = "dt_atualiza")
@@ -198,6 +203,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.imprimeSenhaMatricial = false;
         this.agendarMesmoHorarioEmpresa = false;
         this.webAgendarMesmoHorarioEmpresa = false;
+        this.webDocumentosHomologacao = "";
 //        this.dtAtualiza = null;
 //        this.dtHabilitaCorrecao = null;
 //        this.agendamentoWeb = false;
@@ -209,7 +215,7 @@ public class ConfiguracaoHomologacao implements Serializable {
 //        this.mesesInadimplentesAgenda = 0;
     }
 
-    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito, Boolean imprimeSenhaMatricial, Boolean agendarMesmoHorarioEmpresa, Boolean webAgendarMesmoHorarioEmpresa) {
+    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento, Boolean webImprimirPlanilhaDebito, Boolean imprimeSenhaMatricial, Boolean agendarMesmoHorarioEmpresa, Boolean webAgendarMesmoHorarioEmpresa, String webDocumentosHomologacao) {
         this.id = id;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
@@ -252,6 +258,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.imprimeSenhaMatricial = imprimeSenhaMatricial;
         this.agendarMesmoHorarioEmpresa = agendarMesmoHorarioEmpresa;
         this.webAgendarMesmoHorarioEmpresa = webAgendarMesmoHorarioEmpresa;
+        this.webDocumentosHomologacao = webDocumentosHomologacao;
     }
 
     public Integer getId() {
@@ -711,6 +718,14 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     public void setWebDocumentoObrigatorio(Boolean webDocumentoObrigatorio) {
         this.webDocumentoObrigatorio = webDocumentoObrigatorio;
+    }
+
+    public String getWebDocumentosHomologacao() {
+        return webDocumentosHomologacao;
+    }
+
+    public void setWebDocumentosHomologacao(String webDocumentosHomologacao) {
+        this.webDocumentosHomologacao = webDocumentosHomologacao;
     }
 
 }

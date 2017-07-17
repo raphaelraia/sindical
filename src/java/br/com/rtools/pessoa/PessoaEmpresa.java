@@ -40,6 +40,8 @@ public class PessoaEmpresa implements java.io.Serializable {
     private String codigo;
     @Column(name = "is_principal", nullable = false, columnDefinition = "boolean default true")
     private boolean principal;
+    @Column(name = "is_socio", nullable = false, columnDefinition = "boolean default false")
+    private boolean socio;
 
     public PessoaEmpresa() {
         this.id = -1;
@@ -52,9 +54,10 @@ public class PessoaEmpresa implements java.io.Serializable {
         this.avisoTrabalhado = true;
         this.codigo = "";
         this.principal = true;
+        this.socio = false;
     }
 
-    public PessoaEmpresa(int id, Fisica fisica, Juridica juridica, Profissao funcao, String admissao, String demissao, String setor, boolean avisoTrabalhado, String codigo, boolean principal) {
+    public PessoaEmpresa(int id, Fisica fisica, Juridica juridica, Profissao funcao, String admissao, String demissao, String setor, boolean avisoTrabalhado, String codigo, boolean principal, boolean socio) {
         this.id = id;
         this.fisica = fisica;
         this.juridica = juridica;
@@ -65,6 +68,7 @@ public class PessoaEmpresa implements java.io.Serializable {
         this.avisoTrabalhado = avisoTrabalhado;
         this.codigo = codigo;
         this.principal = principal;
+        this.socio = socio;
     }
 
     public int getId() {
@@ -187,6 +191,14 @@ public class PessoaEmpresa implements java.io.Serializable {
             return new HomologacaoDao().findByEmpresa(this.id);
         }
         return null;
+    }
+
+    public boolean isSocio() {
+        return socio;
+    }
+
+    public void setSocio(boolean socio) {
+        this.socio = socio;
     }
 
 }

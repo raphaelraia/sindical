@@ -1,15 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.impressao;
 
-/**
- *
- * @author Claudemir Rtools
- */
 public class ParametroMalaDireta {
+
+    private Boolean selected;
     private Object grupo;
     private Object documento;
     private Object nome;
@@ -28,7 +21,8 @@ public class ParametroMalaDireta {
     private Object email2;
     private Object email3;
 
-    public ParametroMalaDireta(Object grupo, Object documento, Object nome, Object logradouro, Object endereco, Object numero, Object complemento, Object bairro, Object cidade, Object uf, Object cep, Object telefone1, Object telefone2, Object telefone3, Object email1, Object email2, Object email3) {
+    public ParametroMalaDireta(Boolean selected, Object grupo, Object documento, Object nome, Object logradouro, Object endereco, Object numero, Object complemento, Object bairro, Object cidade, Object uf, Object cep, Object telefone1, Object telefone2, Object telefone3, Object email1, Object email2, Object email3) {
+        this.selected = selected;
         this.grupo = grupo;
         this.documento = documento;
         this.nome = nome;
@@ -46,6 +40,14 @@ public class ParametroMalaDireta {
         this.email1 = email1;
         this.email2 = email2;
         this.email3 = email3;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 
     public Object getGrupo() {

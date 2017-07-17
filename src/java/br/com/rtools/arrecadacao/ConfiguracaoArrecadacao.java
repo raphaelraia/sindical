@@ -36,6 +36,8 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean visualizaCertificadoRecusado;
     @Column(name = "ds_comunicado", length = 8000)
     private String comunicado;
+    @Column(name = "is_cobranca_email", columnDefinition = "boolean default true", nullable = false)
+    private Boolean cobrancaEmail;
 
     public ConfiguracaoArrecadacao() {
         this.id = null;
@@ -46,9 +48,10 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.uploadCertificado = false;
         this.visualizaCertificadoRecusado = false;
         this.comunicado = "";
+        this.cobrancaEmail = false;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado, Boolean cobrancaEmail) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
@@ -57,6 +60,7 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.uploadCertificado = uploadCertificado;
         this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
         this.comunicado = comunicado;
+        this.cobrancaEmail = cobrancaEmail;
     }
 
     public Integer getId() {
@@ -130,6 +134,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
 
     public void setComunicado(String comunicado) {
         this.comunicado = comunicado;
+    }
+
+    public Boolean getCobrancaEmail() {
+        return cobrancaEmail;
+    }
+
+    public void setCobrancaEmail(Boolean cobrancaEmail) {
+        this.cobrancaEmail = cobrancaEmail;
     }
 
 }
