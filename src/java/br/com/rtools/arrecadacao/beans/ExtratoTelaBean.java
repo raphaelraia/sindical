@@ -108,9 +108,11 @@ public class ExtratoTelaBean implements Serializable {
     public ExtratoTelaBean() {
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
         
-        cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
+        // NÃO PRECISA PEGAR DA SESSÃO
+        //cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
         
-        cab.setModulo((Modulo) new Dao().find(new Modulo(), 3));
+        // NUNCA SETAR O MÓDULO DENTRO DESTA PÁGINA, POIS ESTA ALTERANDO O MÓDULO PADRÃO DA TELA ( ex. quando vem de social o módulo é 2, e aqui estava colocando 3 - ERRO FEITO POR CLAUDEMIR
+        //cab.setModulo((Modulo) new Dao().find(new Modulo(), 3));
         
         motivoReativacao = "";
 
@@ -2112,14 +2114,6 @@ public class ExtratoTelaBean implements Serializable {
             }
         }
         return false;
-    }
-
-    public ControleAcessoBean getCab() {
-        return cab;
-    }
-
-    public void setCab(ControleAcessoBean cab) {
-        this.cab = cab;
     }
     
     public List<ExtratoTelaObject> getListMovimentos() {

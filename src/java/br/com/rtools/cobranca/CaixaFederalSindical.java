@@ -78,7 +78,7 @@ public class CaixaFederalSindical extends Cobranca {
     @Override
     public String representacao() {
         String codigoBarras = codigoBarras();
-        
+
         String repNumerica = codigoBarras.substring(0, 4);
         repNumerica += "97";
         repNumerica += codigoBarras.substring(21, 44);
@@ -354,7 +354,14 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "    "; // 19.3P Uso Exclusivo CAIXA Filler 74 77 X(004) Preencher com espaços -
                 CONTEUDO_REMESSA += mov.getVencimento().replace("/", ""); // 20.3P Vencimento Data de Vencimento do Título 78 85 9(008) Preencher com a data de vencimento do título, no formato DDMMAAAA (Dia, Mês e Ano); para regras de vencimento à vista ou contra-apresentação, vide Nota Explicativa C012 *C012
 
-                String valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
+                String valor_titulo;
+                // FIXAR VALOR 1,00 CASO FOR MENOR QUE 1,00
+                if (mov.getValor() < 1) {
+                    valor_titulo = "100";
+                } else {
+                    valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
+                }
+
                 // NO MANUAL FALA 13 PORÉM TEM QUE SER 15, ACHO QUE POR CAUSA DAS DECIMAIS ,00 (O MANUAL NÃO EXPLICA ISSO)
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor do Título Valor Nominal do Título 86 100 9(013) Preencher com o valor original do título, utilizando 2 casas decimais (exemplo: título de valor 530,44 - preencher 0000000053044) *G070
                 CONTEUDO_REMESSA += "00000"; // 22.3P Ag. Cobradora Agência Encarregada da Cobrança 101 105 9(005) Preencher com zeros *C014
@@ -489,7 +496,15 @@ public class CaixaFederalSindical extends Cobranca {
 
                 sequencial_registro_lote++;
 
-                valor_total_lote = Moeda.soma(valor_total_lote, mov.getValor());
+                Double valor_l;
+
+                if (mov.getValor() < 1) {
+                    valor_l = new Double(1);
+                } else {
+                    valor_l = mov.getValor();
+                }
+
+                valor_total_lote = Moeda.soma(valor_total_lote, valor_l);
 
                 RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
 
@@ -499,7 +514,7 @@ public class CaixaFederalSindical extends Cobranca {
                 }
 
                 list_log.add("ID: " + mov.getId());
-                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("Valor: " + Moeda.converteDoubleToString(valor_l));
                 list_log.add("-----------------------");
             }
 

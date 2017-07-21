@@ -41,9 +41,9 @@ public class DeclaracaoPessoa implements Serializable {
     @JoinColumn(name = "id_convenio", referencedColumnName = "id")
     @ManyToOne
     private Pessoa convenio;
-    @JoinColumn(name = "id_declaracao_tipo", referencedColumnName = "id")
+    @JoinColumn(name = "id_declaracao_periodo", referencedColumnName = "id")
     @ManyToOne
-    private DeclaracaoTipo declaracaoTipo;
+    private DeclaracaoPeriodo declaracaoPeriodo;
     @JoinColumn(name = "id_matricula", referencedColumnName = "id")
     @ManyToOne
     private MatriculaSocios matricula;
@@ -53,16 +53,16 @@ public class DeclaracaoPessoa implements Serializable {
         this.dtEmissao = DataHoje.dataHoje();
         this.pessoa = new Pessoa();
         this.convenio = new Pessoa();
-        this.declaracaoTipo = new DeclaracaoTipo();
+        this.declaracaoPeriodo = new DeclaracaoPeriodo();
         this.matricula = new MatriculaSocios();
     }
 
-    public DeclaracaoPessoa(int id, Date dtEmissao, Pessoa pessoa, Pessoa convenio, DeclaracaoTipo declaracaoTipo, MatriculaSocios matricula) {
+    public DeclaracaoPessoa(int id, Date dtEmissao, Pessoa pessoa, Pessoa convenio, DeclaracaoPeriodo declaracaoPeriodo, MatriculaSocios matricula) {
         this.id = id;
         this.dtEmissao = dtEmissao;
         this.pessoa = pessoa;
         this.convenio = convenio;
-        this.declaracaoTipo = declaracaoTipo;
+        this.declaracaoPeriodo = declaracaoPeriodo;
         this.matricula = matricula;
     }
 
@@ -106,12 +106,12 @@ public class DeclaracaoPessoa implements Serializable {
         this.convenio = convenio;
     }
 
-    public DeclaracaoTipo getDeclaracaoTipo() {
-        return declaracaoTipo;
+    public DeclaracaoPeriodo getDeclaracaoPeriodo() {
+        return declaracaoPeriodo;
     }
 
-    public void setDeclaracaoTipo(DeclaracaoTipo declaracaoTipo) {
-        this.declaracaoTipo = declaracaoTipo;
+    public void setDeclaracaoPeriodo(DeclaracaoPeriodo declaracaoPeriodo) {
+        this.declaracaoPeriodo = declaracaoPeriodo;
     }
 
     public MatriculaSocios getMatricula() {

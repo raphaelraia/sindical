@@ -19,11 +19,15 @@ public class Historico implements java.io.Serializable {
     @Column(name = "ds_complemento", length = 2000, nullable = true)
     private String complemento;
 
+    @Transient
+    private Boolean alterar;
+    
     public Historico() {
         this.id = -1;
         this.movimento = new Movimento();
         this.historico = "";
         this.complemento = "";
+        this.alterar = false;
     }
 
     public Historico(int id, Movimento movimento, String historico, String complemento) {
@@ -31,6 +35,7 @@ public class Historico implements java.io.Serializable {
         this.movimento = movimento;
         this.historico = historico;
         this.complemento = complemento;
+        this.alterar = false;
     }
 
     public int getId() {
@@ -63,5 +68,13 @@ public class Historico implements java.io.Serializable {
 
     public void setComplemento(String complemento) {
         this.complemento = complemento;
+    }
+
+    public Boolean getAlterar() {
+        return alterar;
+    }
+
+    public void setAlterar(Boolean alterar) {
+        this.alterar = alterar;
     }
 }

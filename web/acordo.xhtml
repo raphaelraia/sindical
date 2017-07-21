@@ -200,10 +200,16 @@
                                     </h:column>
                                 </h:panelGrid>
                                 <f:facet name="footer">
-                                    <p:outputLabel value="OBSERVAÇÃO" styleClass="bold"/><br />
-                                    <p:inputTextarea rows="2" value="#{acordoBean.historico.historico}" converter="#{toUpperCase}" autoResize="true" style="width: 100%" styleClass="margin-top" disabled="#{!acordoBean.imprimir}">
-                                        <p:ajax event="blur" update="@this" global="false"/>
-                                    </p:inputTextarea>
+                                        <p:outputLabel value="OBSERVAÇÃO" styleClass="bold"/><br />
+                                    <h:panelGrid columns="1" style="width: 100%" id="panel_obs">
+                                        <p:inputTextarea rows="2" value="#{acordoBean.historico.historico}" converter="#{toUpperCase}" autoResize="true" style="width: 100%" styleClass="margin-top" readonly="#{!acordoBean.imprimir or !acordoBean.historico.alterar}">
+                                            <p:ajax event="blur" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                        <h:panelGrid columns="1" style="width: 100%">
+                                            <p:outputLabel value="Editando a observação o texto sairá exatamente como foi digitado. " style="float:right; font-size: 8pt!important; color: red" rendered="#{acordoBean.historico.alterar}"/>
+                                            <p:commandLink value="#{acordoBean.historico.alterar ? 'Cancelar Edição' : 'Editar Observação'}" action="#{acordoBean.editarObs()}" update="form_acordo:panel_obs" style="float: right; font-size: 8pt!important" disabled="true"/>
+                                        </h:panelGrid>
+                                    </h:panelGrid>
                                     <p:commandButton value="Gerar Acordo" action="#{acordoBean.adicionarParcela}" update=":form_acordo:" styleClass="margin-top-max font-color-blue" disabled="#{!acordoBean.imprimir}" />
                                     <h:panelGrid columns="6" styleClass="margin-top-max" rendered="#{not empty acordoBean.listaOperado}">
                                         <h:column>

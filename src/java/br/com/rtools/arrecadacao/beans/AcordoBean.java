@@ -15,7 +15,6 @@ import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
-import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -30,33 +29,25 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
-import br.com.rtools.sistema.Links;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
-import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.EnviarEmail;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
 
 @ManagedBean
 @SessionScoped
@@ -93,6 +84,16 @@ public class AcordoBean implements Serializable {
 
     public String converteValorString(String valor) {
         return Moeda.converteR$(valor);
+    }
+
+    public void editarObs() {
+        if (historico.getAlterar()) {
+            historico.setAlterar(false);
+            listaVizualizado.clear();
+            getListaVizualizado();
+        } else {
+            historico.setAlterar(true);
+        }
     }
 
     public void alterarEmailEnvio(Boolean alterarEmail) {
@@ -174,7 +175,7 @@ public class AcordoBean implements Serializable {
         }
     }
 
-    public void send( ) {
+    public void send() {
         if (pessoaEnvio.getEmail1().isEmpty()) {
             GenericaMensagem.info("Validação", "Informar e-mail");
             return;
@@ -266,7 +267,7 @@ public class AcordoBean implements Serializable {
                 GenericaMensagem.info("E-mail", retorno[0]);
             }
             if (!mail.getEmailArquivos().isEmpty()) {
-                for(int i = 0; i < fls.size(); i++) {
+                for (int i = 0; i < fls.size(); i++) {
                     fls.get(i).delete();
                 }
             }
@@ -384,7 +385,13 @@ public class AcordoBean implements Serializable {
     public List<GridAcordo> getListaVizualizado() {
         if (listaVizualizado.isEmpty() && !listaMovs.isEmpty() && pessoa.getId() != -1) {
             String historicoString = "";
-            historico.setHistorico("Acordo correspondente a: ");
+            listTotalizacao.clear();
+            historico.setHistorico("");
+
+            valorEntradaSind = "0,00";
+            if (!historico.getAlterar()) {
+                historico.setHistorico("Acordo correspondente a: ");
+            }
             Integer rotina_id = 4;
             ServicoRotinaDao srd = new ServicoRotinaDao();
             String breakLine = "\n";
@@ -398,10 +405,12 @@ public class AcordoBean implements Serializable {
                         for (int x = 0; x < listaVizualizado.size(); x++) {
                             if (listaVizualizado.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
                                 listaVizualizado.get(x).setValorBaixa(+listaVizualizado.get(x).getValorBaixa() + listaMovs.get(i).getValorBaixa());
-                                if (listaVizualizado.get(x).getHistorico().isEmpty()) {
-                                    listaVizualizado.get(x).setHistorico((listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
-                                } else {
-                                    listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                                if (!historico.getAlterar()) {
+                                    if (listaVizualizado.get(x).getHistorico().isEmpty()) {
+                                        listaVizualizado.get(x).setHistorico((listaVizualizado.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
+                                    } else {
+                                        listaVizualizado.get(x).setHistorico(listaVizualizado.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                                    }
                                 }
                                 next = false;
                             }
@@ -410,10 +419,12 @@ public class AcordoBean implements Serializable {
                     for (int x = 0; x < listTotalizacao.size(); x++) {
                         if (listTotalizacao.get(x).getServicos().getId() == listaMovs.get(i).getServicos().getId()) {
                             listTotalizacao.get(x).setValorBaixa(+listTotalizacao.get(x).getValorBaixa() + listaMovs.get(i).getValorBaixa());
-                            if (listTotalizacao.get(x).getHistorico().isEmpty()) {
-                                listTotalizacao.get(x).setHistorico((listTotalizacao.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
-                            } else {
-                                listTotalizacao.get(x).setHistorico(listTotalizacao.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                            if (!historico.getAlterar()) {
+                                if (listTotalizacao.get(x).getHistorico().isEmpty()) {
+                                    listTotalizacao.get(x).setHistorico((listTotalizacao.isEmpty() ? "" : "\n") + listaMovs.get(i).getServicos().getDescricao() + ": " + listaMovs.get(i).getReferencia());
+                                } else {
+                                    listTotalizacao.get(x).setHistorico(listTotalizacao.get(x).getHistorico() + ", " + listaMovs.get(i).getReferencia());
+                                }
                             }
                             next2 = false;
                         }
@@ -426,10 +437,12 @@ public class AcordoBean implements Serializable {
                     }
                 }
             }
-            for (int x = 0; x < listTotalizacao.size(); x++) {
-                historicoString += listTotalizacao.get(x).getHistorico();
+            if (!historico.getAlterar()) {
+                for (int x = 0; x < listTotalizacao.size(); x++) {
+                    historicoString += listTotalizacao.get(x).getHistorico();
+                }
+                historico.setHistorico(historico.getHistorico() + historicoString);
             }
-            historico.setHistorico(historico.getHistorico() + historicoString);
         }
         return listaVizualizado;
     }
@@ -456,7 +469,11 @@ public class AcordoBean implements Serializable {
 
         for (DataObject listaOperado1 : listaOperado) {
             listaAcordo.add((Movimento) listaOperado1.getArgumento2());
-            listaHistorico.add((String) listaOperado1.getArgumento3());
+            if (!historico.getAlterar()) {
+                listaHistorico.add((String) listaOperado1.getArgumento3());
+            } else {
+                listaHistorico.add(historico.getHistorico());
+            }
         }
 
         try {

@@ -33,6 +33,7 @@ public class MensagemConvencaoBean {
     private int idTipoServico = 0;
     private int idReplica = 1;
     private int processarGrupos = 4;
+    private int processarGruposAlterar = 4;
     private int idIndex = -1;
     private List listaMensagens = new ArrayList();
     private boolean disAcordo = false;
@@ -48,9 +49,7 @@ public class MensagemConvencaoBean {
 
     public String replicar() {
         MensagemConvencaoDao db = new MensagemConvencaoDao();
-        List<MensagemConvencao> listam = new ArrayList();
-
-        listam = db.pesquisaTodosAno(this.getListaRefReplica().get(idReplica).getLabel());
+        List<MensagemConvencao> listam = db.pesquisaTodosAno(this.getListaRefReplica().get(idReplica).getLabel());
 
         Dao dao = new Dao();
         if (!listam.isEmpty()) {
@@ -378,23 +377,69 @@ public class MensagemConvencaoBean {
                             + " - Grupo Cidade: (" + mcBefore.getGrupoCidade().getId() + ") " + mcBefore.getGrupoCidade().getDescricao()
                             + " - Mensagem Compensação: " + mcBefore.getMensagemCompensacao();
                     if (men == null || (men.getId() == mensagemConvencao.getId())) {
-                        if (db.update(mensagemConvencao)) {
-                            novoLog.update(beforeUpdate,
-                                    " - Referência: " + mensagemConvencao.getReferencia()
-                                    + " - Vencimento: " + mensagemConvencao.getVencimento()
-                                    + " - Serviço: (" + mensagemConvencao.getServicos().getId() + ") "
-                                    + " - Tipo Serviço: (" + mensagemConvencao.getTipoServico().getId() + ") " + mensagemConvencao.getTipoServico().getDescricao()
-                                    + " - Convenção: (" + mensagemConvencao.getConvencao().getId() + ") " + mensagemConvencao.getConvencao().getDescricao()
-                                    + " - Grupo Cidade: (" + mensagemConvencao.getGrupoCidade().getId() + ") " + mensagemConvencao.getGrupoCidade().getDescricao()
-                                    + " - Mensagem Compensação: " + mensagemConvencao.getMensagemCompensacao()
-                                    + " - Mensagem Contribuinte: " + mensagemConvencao.getMensagemContribuinte()
-                            );
-                            msgConfirma = "Mensagem atualizado com sucesso!";
-                            GenericaMensagem.info("Sucesso", msgConfirma);
-                        } else {
+
+                        switch (processarGruposAlterar) {
+                            //  SALVAR PARA TODOS OS GRUPOS DESTA CONVENÇÃO
+                            case 1: {
+
+                            }
+                            // SALVAR PARA TODAS AS CONVENÇÕES DESTE GRUPO
+                            case 2: {
+
+                            }
+                            // SALVAR PARA TODOS OS GRUPOS E CONVENÇÕES
+                            case 3: {
+                                String ref = mensagemConvencao.getReferencia();
+//                                int meses = 1;
+//                                int mes_atual = Integer.parseInt(mensagemConvencao.getReferencia().substring(0, 2));
+//
+//                                if (gerarAno) {
+//                                    meses = 12;
+//                                    ref = "01/" + mensagemConvencao.getReferencia().substring(3);
+//                                }
+
+//                                for (int i = 0; i < meses; i++) {
+
+                                    List<MensagemConvencao> list = db.listaMensagemConvencaoFiltros(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), ref, mensagemConvencao.getId());
+                                    for (MensagemConvencao mc : list) {
+                                        mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
+                                        mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
+                                        mc.setVencimento(mensagemConvencao.getVencimento());
+
+                                        if (!db.update(mc)) {
+                                            msgConfirma = "Ocorreu um erro ao atualizar!";
+                                            GenericaMensagem.warn("Erro", msgConfirma);
+                                            return null;
+                                        }
+                                    }
+//
+//                                    ref = dataHoje.incrementarMeses(1, "01/" + ref);
+//                                }
+                            }
+
+                            default: {
+
+                            }
+                        }
+
+                        if (!db.update(mensagemConvencao)) {
                             msgConfirma = "Ocorreu um erro ao atualizar!";
                             GenericaMensagem.warn("Erro", msgConfirma);
                         }
+
+                        msgConfirma = "Mensagem atualizado com sucesso!";
+                        GenericaMensagem.info("Sucesso", msgConfirma);
+
+                        novoLog.update(beforeUpdate,
+                                " - Referência: " + mensagemConvencao.getReferencia()
+                                + " - Vencimento: " + mensagemConvencao.getVencimento()
+                                + " - Serviço: (" + mensagemConvencao.getServicos().getId() + ") "
+                                + " - Tipo Serviço: (" + mensagemConvencao.getTipoServico().getId() + ") " + mensagemConvencao.getTipoServico().getDescricao()
+                                + " - Convenção: (" + mensagemConvencao.getConvencao().getId() + ") " + mensagemConvencao.getConvencao().getDescricao()
+                                + " - Grupo Cidade: (" + mensagemConvencao.getGrupoCidade().getId() + ") " + mensagemConvencao.getGrupoCidade().getDescricao()
+                                + " - Mensagem Compensação: " + mensagemConvencao.getMensagemCompensacao()
+                                + " - Mensagem Contribuinte: " + mensagemConvencao.getMensagemContribuinte()
+                        );
                     } else {
                         msgConfirma = "Mensagem já existe!";
                         GenericaMensagem.warn("Erro", msgConfirma);
@@ -620,16 +665,16 @@ public class MensagemConvencaoBean {
     }
 
     public List<SelectItem> getListaTipoServico() {
-        if (listaTipoServico.isEmpty()){
+        if (listaTipoServico.isEmpty()) {
             TipoServicoDao db = new TipoServicoDao();
             List<TipoServico> select = db.pesquisaTodosPeloContaCobranca();
-            
-            if (select.isEmpty()){
+
+            if (select.isEmpty()) {
                 GenericaMensagem.error("Atenção", "Serviço Conta Cobrança não encontrado!");
                 return listaTipoServico;
             }
-            
-            for (int i = 0; i < select.size(); i++){
+
+            for (int i = 0; i < select.size(); i++) {
                 listaTipoServico.add(new SelectItem(
                         i,
                         select.get(i).getDescricao(),
@@ -699,7 +744,7 @@ public class MensagemConvencaoBean {
     }
 
     public boolean isDisAcordo() {
-        if(!getListaTipoServico().isEmpty()) {
+        if (!getListaTipoServico().isEmpty()) {
             if (Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription()) == 4) {
                 disAcordo = true;
                 mensagemConvencao.setDtVencimento(new Date());
@@ -708,7 +753,7 @@ public class MensagemConvencaoBean {
                 mensagemConvencao.setVencimento("");
             } else {
                 disAcordo = false;
-            }            
+            }
         }
         return disAcordo;
     }
@@ -776,5 +821,13 @@ public class MensagemConvencaoBean {
 
     public void setListaTipoServico(List<SelectItem> listaTipoServico) {
         this.listaTipoServico = listaTipoServico;
+    }
+
+    public int getProcessarGruposAlterar() {
+        return processarGruposAlterar;
+    }
+
+    public void setProcessarGruposAlterar(int processarGruposAlterar) {
+        this.processarGruposAlterar = processarGruposAlterar;
     }
 }

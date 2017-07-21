@@ -276,8 +276,9 @@
 
                                             </h:panelGrid>
                                         </h:panelGrid>
-                                        <h:panelGrid columns="2" styleClass="margin-top-max">
-                                            <p:outputLabel value="Ultima alteração: #{juridicaBean.juridica.pessoa.atualizacao}" rendered="#{juridicaBean.juridica.pessoa.id != -1}" />
+                                        <h:panelGrid columns="2" styleClass="margin-top-max" style="width: 100%">
+                                            <p:outputLabel value="Última alteração: #{juridicaBean.juridica.pessoa.atualizacao}" rendered="#{juridicaBean.juridica.pessoa.id != -1}" />
+                                            <p:commandLink value="BLOQUEIO DE CONTRIBUIÇÃO" action="#{juridicaBean.bloqueioContribuicao}" rendered="#{juridicaBean.juridica.id != -1}" style="float: right"/>
                                         </h:panelGrid>                                        
                                     </p:tab>
 

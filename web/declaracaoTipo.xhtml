@@ -57,20 +57,6 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:outputLabel value="Validade" /><br />
-                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.validade}" style="width: 70px; text-align: center"/>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Tipo Validade" /><br />
-                                        <p:selectOneMenu value="#{declaracaoTipoBean.declaracaoTipo.validadeTipo}" style="width: 80px">
-                                            <f:selectItem itemValue="0" itemLabel="Dia"/>
-                                            <f:selectItem itemValue="1" itemLabel="Mês"/>
-                                            <f:selectItem itemValue="2" itemLabel="Ano"/>
-                                        </p:selectOneMenu>
-                                    </h:column>
-
-                                    <h:column>
                                         <p:outputLabel value="Dias Carência" /><br />
                                         <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.diasCarencia}" style="width: 80px; text-align: center"/>
                                     </h:column>
@@ -79,21 +65,21 @@
                                         <br />
                                         <p:commandButton value="#{declaracaoTipoBean.declaracaoTipo.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:commandButton value="Novo" action="#{declaracaoTipoBean.novo()}" update="@form"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()"/>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:messages showDetail="true" closable="true" />
-                            
+
                             <p:dataTable value="#{declaracaoTipoBean.listaDeclaracaoTipo}" var="linha" emptyMessage="Nenhum Tipo Encontrado!">
                                 <p:column headerText="Descrição">
                                     <p:commandLink value="#{linha.descricao}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
@@ -111,18 +97,53 @@
                                     <p:commandLink value="#{linha.idadeFinal}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
                                 </p:column>
 
-                                <p:column headerText="Validade" style="width: 80px; text-align: center">
-                                    <p:commandLink value="#{linha.validade}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
-                                </p:column>
-
-                                <p:column headerText="Tipo Validade" style="width: 80px; text-align: center">
-                                    <p:commandLink value="#{linha.validadeTipo eq 0 ? 'Dia' : linha.validadeTipo eq 1 ? 'Meses' : 'Ano'}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
-                                </p:column>
-
                                 <p:column headerText="Dias Carência" style="width: 80px; text-align: center">
                                     <p:commandLink value="#{linha.diasCarencia}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
                                 </p:column>
+
+                                <p:column headerText="Período" style="width: 80px; text-align: center">
+                                    <p:commandButton value="EDITAR" onclick="PF('dlg_declaracao_periodo').show()" action="#{declaracaoTipoBean.openDeclaracaoPeriodo(linha)}" update="formDeclaracaoTipo:panel_declaracao_periodo" icon="ui-icon-edit"/>
+                                </p:column>
                             </p:dataTable> 
+
+                            <p:dialog widgetVar="dlg_declaracao_periodo" header="Período da Declaração" resizable="false" width="600" modal="true">
+                                <h:panelGrid id="panel_declaracao_periodo" style="width: 100%">
+                                    <p:messages showDetail="true" closable="true" />
+                                    <p:panel styleClass="fundoCinza">
+                                        <h:panelGrid columns="2">
+                                            <h:column>
+                                                <p:outputLabel value="Descrição" /><br />
+                                                <p:inputText value="#{declaracaoTipoBean.declaracaoPeriodo.descricao}" />
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:outputLabel value="Ano" /><br />
+                                                <p:inputText value="#{declaracaoTipoBean.declaracaoPeriodo.ano}" style="width: 60px; text-align: center"/>
+                                            </h:column>
+                                        </h:panelGrid>
+
+                                    </p:panel>
+                                    
+                                    <h:panelGrid columns="4">
+
+                                        <p:commandButton value="#{declaracaoTipoBean.declaracaoPeriodo.id eq -1 ? 'Salvar' : 'Alterar'}" type="submit" styleClass="ui-confirmdialog-yes" action="#{declaracaoTipoBean.salvarDeclaracaoPeriodo()}" update="formDeclaracaoTipo:panel_declaracao_periodo" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                        <p:commandButton value="Novo" action="#{declaracaoTipoBean.novoDP()}" update="formDeclaracaoTipo:panel_declaracao_periodo" style="clear: both; float: left; font-weight: bold" />  
+                                        <p:commandButton value="Excluir" action="#{declaracaoTipoBean.excluirDeclaracaoPeriodo()}" update="formDeclaracaoTipo:panel_declaracao_periodo" style="clear: both; float: left; font-weight: bold" />  
+                                        <p:commandButton value="Fechar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_declaracao_periodo').hide()" style="float: left" icon="ui-icon-close"/>       
+
+                                    </h:panelGrid>
+
+                                    <p:dataTable value="#{declaracaoTipoBean.listaDeclaracaoPeriodo}" var="linha_dp" emptyMessage="Nenhum Período Encontrado!">
+                                        <p:column headerText="Descrição">
+                                            <p:commandLink value="#{linha_dp.descricao}" action="#{declaracaoTipoBean.editarDeclaracaoPeriodo(linha_dp)}" update="formDeclaracaoTipo:panel_declaracao_periodo"/>
+                                        </p:column>
+
+                                        <p:column headerText="Ano" style="width: 60px; text-align: center">
+                                            <p:commandLink value="#{linha_dp.ano}" action="#{declaracaoTipoBean.editarDeclaracaoPeriodo(linha_dp)}" update="formDeclaracaoTipo:panel_declaracao_periodo"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                            </p:dialog>
 
                             <p:dialog widgetVar="dlg_salvar" header="Salvar Tipo de Declaração" resizable="false" width="400" modal="true">
                                 <h:panelGrid id="panel_salvar" style="width: 100%">

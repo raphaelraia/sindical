@@ -20,8 +20,14 @@ public class GrupoDigitalizacaoDao extends DB {
     }
 
     public List<GrupoDigitalizacao> findByModulo(Integer modulo_id) {
-        Query query = getEntityManager().createQuery("SELECT GD FROM GrupoDigitalizacao GD  WHERE GD.modulo.id = :modulo_id ORDER BY GD.descricao");
-        query.setParameter("modulo_id", modulo_id);
+        Query query;
+        // PORQUE NA PESSOA JURÍDICA ESTA SETANDO MODULO 9 - CADASTRO AUXILIAR e não tem grupo para ele
+        if (modulo_id == 9) {
+            query = getEntityManager().createNativeQuery("SELECT gd.* FROM dig_grupo gd ORDER BY gd.ds_descricao", GrupoDigitalizacao.class);
+        } else {
+            query = getEntityManager().createNativeQuery("SELECT gd.* FROM dig_grupo gd WHERE gd.id_modulo = " + modulo_id + " ORDER BY gd.ds_descricao", GrupoDigitalizacao.class);
+        }
+
         try {
             return query.getResultList();
         } catch (Exception e) {

@@ -83,13 +83,13 @@ public class DeclaracaoPessoaDao extends DB {
         return new ArrayList();
     }
 
-    public List<DeclaracaoPessoa> listaDeclaracaoPessoaAnoVigente(Integer id_pessoa) {
+    public List<DeclaracaoPessoa> listaDeclaracaoPessoaAnoVigente(Integer id_pessoa, Integer id_declaracao_periodo) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT dp.* \n"
                     + "   FROM soc_declaracao_pessoa dp \n"
                     + "  WHERE dp.id_pessoa = " + id_pessoa + "\n"
-                    + "    AND DATE_PART('YEAR', dp.dt_emissao) = DATE_PART('YEAR', CURRENT_DATE)", DeclaracaoPessoa.class
+                    + "    AND dp.id_declaracao_periodo = " + id_declaracao_periodo, DeclaracaoPessoa.class
             );
             return qry.getResultList();
         } catch (Exception e) {

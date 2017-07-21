@@ -6,6 +6,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Categoria;
+import br.com.rtools.associativo.DeclaracaoPeriodo;
 import br.com.rtools.associativo.DeclaracaoPessoa;
 import br.com.rtools.associativo.DeclaracaoTipo;
 import br.com.rtools.associativo.MatriculaSocios;
@@ -50,9 +51,14 @@ public class DeclaracaoPessoaBean implements Serializable {
     private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
 
     private Boolean chkTodosConvenios = false;
+    
+    private Integer indexDeclaracaoPeriodo = 0;
+    private List<SelectItem> listaDeclaracaoPeriodo = new ArrayList();
 
     public DeclaracaoPessoaBean() {
         loadListaDeclaracaoTipo();
+        loadListaDeclaracaoPeriodo();
+        
         loadListaConvenio();
         loadListaDeclaracaoPessoa();
     }
@@ -65,7 +71,8 @@ public class DeclaracaoPessoaBean implements Serializable {
         String delete_log
                 = "Pessoa: " + declaracaoPessoa.getPessoa().getDocumento() + ": " + declaracaoPessoa.getPessoa().getNome() + " \n "
                 + "Convênio: " + declaracaoPessoa.getConvenio().getDocumento() + ": " + declaracaoPessoa.getConvenio().getNome() + " \n "
-                + "Tipo Declaração: " + declaracaoPessoa.getDeclaracaoTipo().getDescricao();
+                + "Tipo Declaração: " + declaracaoPessoa.getDeclaracaoPeriodo().getDeclaracaoTipo().getDescricao() + " \n "
+                + "Período Declaração: " + declaracaoPessoa.getDeclaracaoPeriodo().getDescricao() + " - " + declaracaoPessoa.getDeclaracaoPeriodo().getAno();
 
         Integer declaracao_id = declaracaoPessoa.getId();
         if (!dao.delete(declaracaoPessoa)) {
@@ -111,6 +118,7 @@ public class DeclaracaoPessoaBean implements Serializable {
         }
 
         DeclaracaoTipo declaracao_tipo = (DeclaracaoTipo) new Dao().find(new DeclaracaoTipo(), Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
+        DeclaracaoPeriodo declaracao_periodo = (DeclaracaoPeriodo) new Dao().find(new DeclaracaoPeriodo(), Integer.valueOf(listaDeclaracaoPeriodo.get(indexDeclaracaoPeriodo).getDescription()));
 
         if (objPesquisaPessoaSelecionada.getParentesco().getId() != 1) {
             if (objPesquisaPessoaSelecionada.getIdade() < declaracao_tipo.getIdadeInicio()) {
@@ -123,7 +131,7 @@ public class DeclaracaoPessoaBean implements Serializable {
             }
         }
 
-        if (!new DeclaracaoPessoaDao().listaDeclaracaoPessoaAnoVigente(objPesquisaPessoaSelecionada.getBeneficiario().getId()).isEmpty()) {
+        if (!new DeclaracaoPessoaDao().listaDeclaracaoPessoaAnoVigente(objPesquisaPessoaSelecionada.getBeneficiario().getId(), declaracao_periodo.getId()).isEmpty()) {
             GenericaMensagem.error("Atenção", "Declaração já impressa para o ano vigente!");
             return false;
         }
@@ -141,10 +149,10 @@ public class DeclaracaoPessoaBean implements Serializable {
             return;
         }
 
-        DeclaracaoTipo declaracao_tipo = (DeclaracaoTipo) new Dao().find(new DeclaracaoTipo(), Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
+        DeclaracaoPeriodo declaracao_periodo = (DeclaracaoPeriodo) new Dao().find(new DeclaracaoPeriodo(), Integer.valueOf(listaDeclaracaoPeriodo.get(indexDeclaracaoPeriodo).getDescription()));
         Pessoa pessoa_convenio = (Pessoa) new Dao().find(new Pessoa(), Integer.valueOf(listaConvenio.get(indexConvenio).getDescription()));
 
-        DeclaracaoPessoa declaracao_pessoa = new DeclaracaoPessoa(-1, DataHoje.dataHoje(), objPesquisaPessoaSelecionada.getBeneficiario(), pessoa_convenio, declaracao_tipo, objPesquisaPessoaSelecionada.getMatricula());
+        DeclaracaoPessoa declaracao_pessoa = new DeclaracaoPessoa(-1, DataHoje.dataHoje(), objPesquisaPessoaSelecionada.getBeneficiario(), pessoa_convenio, declaracao_periodo, objPesquisaPessoaSelecionada.getMatricula());
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -160,7 +168,8 @@ public class DeclaracaoPessoaBean implements Serializable {
         String save_log
                 = "Pessoa: " + declaracao_pessoa.getPessoa().getDocumento() + ": " + declaracao_pessoa.getPessoa().getNome() + " \n "
                 + "Convênio: " + declaracao_pessoa.getConvenio().getDocumento() + ": " + declaracao_pessoa.getConvenio().getNome() + " \n "
-                + "Tipo Declaração: " + declaracao_pessoa.getDeclaracaoTipo().getDescricao();
+                + "Tipo Declaração: " + declaracao_pessoa.getDeclaracaoPeriodo().getDeclaracaoTipo().getDescricao() + " \n "
+                + "Período Declaração: " + declaracao_pessoa.getDeclaracaoPeriodo().getDescricao() + " - " + declaracao_pessoa.getDeclaracaoPeriodo().getAno();
 
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("soc_declaracao_pessoa");
@@ -192,7 +201,7 @@ public class DeclaracaoPessoaBean implements Serializable {
 
         Jasper.TYPE = "default";
         Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
-        Jasper.printReports(declaracao_pessoa.getDeclaracaoTipo().getJasper(), declaracao_pessoa.getDeclaracaoTipo().getDescricao(), list, map);
+        Jasper.printReports(declaracao_pessoa.getDeclaracaoPeriodo().getDeclaracaoTipo().getJasper(), declaracao_pessoa.getDeclaracaoPeriodo().getDeclaracaoTipo().getDescricao(), list, map);
     }
 
     public final void loadListaDeclaracaoTipo() {
@@ -209,7 +218,28 @@ public class DeclaracaoPessoaBean implements Serializable {
             );
         }
     }
+    
+    public final void loadListaDeclaracaoPeriodo() {
+        listaDeclaracaoPeriodo.clear();
+        List<DeclaracaoPeriodo> result = new DeclaracaoTipoDao().listaDeclaracaoPeriodoEmissao(Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
 
+        for (int i = 0; i < result.size(); i++) {
+            listaDeclaracaoPeriodo.add(
+                    new SelectItem(
+                            i,
+                            result.get(i).getDescricao() +" - "+ result.get(i).getAno(),
+                            "" + result.get(i).getId()
+                    )
+            );
+        }
+    }
+
+    public final void loadListaDeclaracao() {
+        loadListaConvenio();
+        
+        loadListaDeclaracaoPeriodo();
+    }
+    
     public final void loadListaConvenio() {
         listaConvenio.clear();
         List<Object> result = new DeclaracaoPessoaDao().listaConvenio(Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
@@ -334,6 +364,22 @@ public class DeclaracaoPessoaBean implements Serializable {
 
     public void setChkTodosConvenios(Boolean chkTodosConvenios) {
         this.chkTodosConvenios = chkTodosConvenios;
+    }
+
+    public Integer getIndexDeclaracaoPeriodo() {
+        return indexDeclaracaoPeriodo;
+    }
+
+    public void setIndexDeclaracaoPeriodo(Integer indexDeclaracaoPeriodo) {
+        this.indexDeclaracaoPeriodo = indexDeclaracaoPeriodo;
+    }
+
+    public List<SelectItem> getListaDeclaracaoPeriodo() {
+        return listaDeclaracaoPeriodo;
+    }
+
+    public void setListaDeclaracaoPeriodo(List<SelectItem> listaDeclaracaoPeriodo) {
+        this.listaDeclaracaoPeriodo = listaDeclaracaoPeriodo;
     }
 
     public class ObjectPesquisaPessoa {

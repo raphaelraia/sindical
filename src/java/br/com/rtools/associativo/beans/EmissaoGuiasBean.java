@@ -475,12 +475,28 @@ public class EmissaoGuiasBean implements Serializable {
     public void saveSemCadastro() {
         if (fisicaNovoCadastro.getPessoa().getId() != -1) {
             GenericaMensagem.fatal("Erro", "Verifique os dados antes de salvar!");
+            PF.update("form_eg:i_panel_sem_cadastro");
             return;
         }
+        
+        if (fisicaNovoCadastro.getPessoa().getDocumento().isEmpty()) {
+            GenericaMensagem.error("ATENÇÃO", "Digite o CPF!");
+            PF.update("form_eg:i_panel_sem_cadastro");
+            return;
+        }        
+        
         if (fisicaNovoCadastro.getPessoa().getNome().isEmpty()) {
-            message = "Nome não pode estar vazio!";
+            GenericaMensagem.error("ATENÇÃO", "Nome não pode estar vazio!");
+            PF.update("form_eg:i_panel_sem_cadastro");
             return;
         }
+        
+        if (fisicaNovoCadastro.getNascimento().isEmpty()) {
+            GenericaMensagem.error("ATENÇÃO", "Data de Nascimento não pode estar vazia!");
+            PF.update("form_eg:i_panel_sem_cadastro");
+            return;
+        }
+        
         Dao di = new Dao();
 
         //fisicaNovoCadastro.setPessoa(pessoa);
@@ -489,14 +505,15 @@ public class EmissaoGuiasBean implements Serializable {
         if (fisicaNovoCadastro.getPessoa().getId() == -1 && fisicaNovoCadastro.getId() == -1) {
             List<String> list_log = new ArrayList();
             di.openTransaction();
+            
             if (!di.save(fisicaNovoCadastro.getPessoa())) {
-                message = "Falha ao salvar Pessoa!";
+                GenericaMensagem.error("ATENÇÃO", "Não foi possível salvar Pessoa!");
                 di.rollback();
                 return;
             }
 
             if (!di.save(fisicaNovoCadastro)) {
-                message = "Falha ao salvar Física!";
+                GenericaMensagem.error("ATENÇÃO", "Não foi possível salvar Pessoa Física!");
                 di.rollback();
                 return;
             }
@@ -510,16 +527,16 @@ public class EmissaoGuiasBean implements Serializable {
                     null,
                     false,
                     "",
-                    null,
+                    false,
                     null
             );
 
             if (!di.save(pc)) {
-                message = "Falha ao salvar Pessoa Complemento!";
+                GenericaMensagem.error("ATENÇÃO", "Não foi possível salvar Pessoa Complemento!");
                 di.rollback();
                 return;
             }
-            message = "Pessoa salva com Sucesso!";
+            
             di.commit();
 
             list_log.add("** SALVAR NOVA PESSOA FÍSICA **");
@@ -547,7 +564,10 @@ public class EmissaoGuiasBean implements Serializable {
             selecionarPessoaCadastro();
 
             fisicaNovoCadastro = new Fisica();
+            GenericaMensagem.info("SUCESSO", "Pessoa Salva!");
         }
+        
+        PF.update("form_eg");
     }
 
     public void addServico() {

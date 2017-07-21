@@ -259,7 +259,7 @@
                                     <br />
                                     <f:facet name="footer">
                                         <h:panelGrid columns="3">
-                                            <p:commandButton value="Salvar" action="#{emissaoGuiasBean.saveSemCadastro()}" title="Salvar Cadastro" update=":form_eg:" oncomplete="PF('dlg_cadastro').hide()" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id == -1}"/>
+                                            <p:commandButton value="Salvar" action="#{emissaoGuiasBean.saveSemCadastro()}" title="Salvar Cadastro" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id == -1}"/>
                                             <p:commandButton value="Selecionar" action="#{emissaoGuiasBean.selecionarPessoaCadastro()}" title="Selecionar Pessoa" update=":form_eg:" oncomplete="PF('dlg_cadastro').hide()" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id != -1}" style="font-weight: bold"/>
                                             <p:commandButton value="Limpar" action="#{emissaoGuiasBean.clear(3)}" update="i_panel_sem_cadastro" />
                                             <p:commandButton value="Sair" onclick="PF('dlg_cadastro').hide()"/>

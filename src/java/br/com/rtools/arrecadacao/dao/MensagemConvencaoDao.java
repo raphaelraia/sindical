@@ -286,4 +286,46 @@ public class MensagemConvencaoDao extends DB {
         }
         return lista;
     }
+
+    public List<MensagemConvencao> listaMensagemConvencaoFiltros(Integer id_convencao, Integer id_grupo_cidade, Integer id_servico, Integer id_tipo_servico, String referencia, Integer id_exceto_mensagem) {
+        try {
+            String SELECT
+                    = "SELECT mc.* \n "
+                    + "  FROM arr_mensagem_convencao mc \n "
+                    + " WHERE mc.ds_referencia = '" + referencia + "' \n ";
+
+            List<String> list_where = new ArrayList();
+
+            if (id_convencao != null) {
+                list_where.add("mc.id_convencao = " + id_convencao);
+            }
+
+            if (id_grupo_cidade != null) {
+                list_where.add("mc.id_grupo_cidade = " + id_grupo_cidade);
+            }
+
+            if (id_servico != null) {
+                list_where.add("mc.id_servicos = " + id_servico);
+            }
+
+            if (id_tipo_servico != null) {
+                list_where.add("mc.id_tipo_servico = " + id_tipo_servico);
+            }
+            
+            if (id_exceto_mensagem != null) {
+                list_where.add("mc.id != " + id_exceto_mensagem);
+            }
+
+            String WHERE = "";
+            
+            for (String w : list_where){
+                WHERE += " AND " + w + " \n ";
+            }
+            
+            Query qry = getEntityManager().createNativeQuery(SELECT + WHERE, MensagemConvencao.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 }

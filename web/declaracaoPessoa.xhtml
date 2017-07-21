@@ -29,6 +29,7 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -38,18 +39,26 @@
                             <p:outputLabel value="Criar Nova Declaração" style="font-size: 11pt!important; font-weight: bold"/>
                             <p:separator />
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid id="panel_declaracao_tipo" columns="2">
+                                <h:panelGrid id="panel_declaracao_tipo" columns="3">
                                     <h:column>
                                         <p:outputLabel value="Tipo" /><br />
                                         <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoTipo}" style="width: 200px" autoWidth="false">
-                                            <p:ajax event="change" update="panel_declaracao_tipo" listener="#{declaracaoPessoaBean.loadListaConvenio()}" />
+                                            <p:ajax event="change" update="panel_declaracao_tipo" listener="#{declaracaoPessoaBean.loadListaDeclaracao()}" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaDeclaracaoTipo}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Período" /><br />
+                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoPeriodo}" style="width: 200px" autoWidth="false">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItems value="#{declaracaoPessoaBean.listaDeclaracaoPeriodo}" />
                                         </p:selectOneMenu>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Convênio" /><br />
-                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}" style="width: 880px" autoWidth="false">
+                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}" style="width: 650px" autoWidth="false">
                                             <p:ajax event="change" listener="#{declaracaoPessoaBean.loadListaDeclaracaoPessoa()}" update="@form" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaConvenio}"/>
                                         </p:selectOneMenu>
@@ -135,10 +144,15 @@
                                 </p:column>
 
                                 <p:rowExpansion>
-                                    <h:panelGrid columns="2" style="height: 40px" styleClass="sbb">
+                                    <h:panelGrid columns="3" style="height: 40px" styleClass="sbb">
                                         <p:column>
                                             <p:outputLabel value="TIPO" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{linha_declaracao.declaracaoTipo.descricao}"/>
+                                            <p:outputLabel value="#{linha_declaracao.declaracaoPeriodo.declaracaoTipo.descricao}"/>
+                                        </p:column>
+                                        
+                                        <p:column>
+                                            <p:outputLabel value="PERÍODO" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha_declaracao.declaracaoPeriodo.descricao} - #{linha_declaracao.declaracaoPeriodo.ano}"/>
                                         </p:column>
 
                                         <p:column>
