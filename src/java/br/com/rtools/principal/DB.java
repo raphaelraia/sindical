@@ -46,6 +46,11 @@ public class DB {
                     properties.put(TopLinkProperties.JDBC_DRIVER, "org.postgresql.Driver");
                     properties.put(TopLinkProperties.JDBC_PASSWORD, configuracao.getSenha());
                     properties.put(TopLinkProperties.JDBC_URL, "jdbc:postgresql://" + configuracao.getHost() + ":" + port + "/" + configuracao.getPersistence());
+                    
+                    // MOSTRAR QUERIES EXECUTADAS PELO SISTEMA ---
+                    // properties.put(TopLinkProperties.LOGGING_LEVEL, "FINE");
+                    // FIM ---
+                    
                     EntityManagerFactory emf = Persistence.createEntityManagerFactory(configuracao.getPersistence(), properties);
                     String createTable = GenericaString.converterNullToString(GenericaRequisicao.getParametro("createTable"));
                     if (createTable.equals("criar")) {

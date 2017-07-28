@@ -547,7 +547,7 @@ public class CaixaFederalSigCB extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa() {
+    public File gerarRemessa240() {
         // teste
 //        if (1 == 1) {
 //            return testeRemessaFebraban();
@@ -637,7 +637,7 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 17.0 Data de Geração do Arquivo 144 151 9(008) Preencher com a data da criação do arquivo, no formato DDMMAAAA (Dia, Mês e Ano) G016
             CONTEUDO_REMESSA += DataHoje.hora().replace(":", ""); // 18.0 Hora de Geração do Arquivo 152 157 9(006) Preencher com a hora de criação do arquivo, no formato HHMMSS (Hora, Minuto e Segundos) G017
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + remessa.getId()).length()) + ("" + remessa.getId()); // 19.0 NSA 158 163 9(006) Número seqüencial adotado e controlado pelo responsável pela geração do arquivo para ordenar a disposição dos arquivos encaminhados; evoluir de 1 em 1 para cada Header de Arquivo *G018
-            CONTEUDO_REMESSA += "050"; // 20.0 No da Versão do Leiaute do Arquivo 164 166 9(003) Preencher com '050' *G019
+            CONTEUDO_REMESSA += "101"; // 20.0 No da Versão do Leiaute do Arquivo 164 166 9(003) Preencher com '050' *G019
             CONTEUDO_REMESSA += "00000"; // 21.0 Densidade de Gravação do Arquivo 167 171 9(005) Preencher com zeros G020
             CONTEUDO_REMESSA += "                    "; // 22.0 Uso Exclusivo CAIXA Filler 172 191 X(020) Preencher com espaços G021
 
@@ -674,7 +674,7 @@ public class CaixaFederalSigCB extends Cobranca {
             }
 
             CONTEUDO_REMESSA += "00"; // 06.1 Filler 12 13 9(002) Preencher com zeros G004
-            CONTEUDO_REMESSA += "030"; // 07.1 Nº da Versão do Layout do Lote 14 16 9(003) Preencher '030' *G030
+            CONTEUDO_REMESSA += "060"; // 07.1 Nº da Versão do Layout do Lote 14 16 9(003) Preencher '030' *G030
             CONTEUDO_REMESSA += " "; // 08.1 CNAB Filler 17 17 X(001) Preencher com espaços G004
 
             CONTEUDO_REMESSA += "2"; // 09.1 Empresa Tipo de Inscrição do Beneficiário 18 18 9(001) Preencher com o tipo de inscrição do beneficiário: '1', se CPF (pessoa física); ou '2' se CNPJ (pessoa jurídica) *G005
@@ -765,7 +765,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "030"; // 39.3P Prazo p/ Baixa/ Devolução Número de Dias para Baixa/ Devolução 225 227 X(003) Preencher com o número desejado de dias corridos após a data de vencimento do  título não pago em que a CAIXA deverá baixá-lo da carteira e devolvê-lo; pode ser de 05 a 120 dias corridos; ATENÇÃO: Esse prazo não pode ser menor que o prazo para protesto (campo 37.3P), quando este existir C029
                 CONTEUDO_REMESSA += "09"; // 40.3P Código da Moeda Código da Moeda 228 229 9(002) Preencher ‘09’ (REAL) *G065
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Uso Exclusivo CAIXA Filler 230 239 9(010) Preencher com zeros -
-                CONTEUDO_REMESSA += " "; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
+                CONTEUDO_REMESSA += "2"; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
@@ -950,4 +950,10 @@ public class CaixaFederalSigCB extends Cobranca {
             return null;
         }
     }
+    
+    @Override
+    public File gerarRemessa400() {
+        return null;
+    }
+    
 }

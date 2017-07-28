@@ -135,7 +135,12 @@ public class CaixaFederalSicob extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa() {
+    public File gerarRemessa240() {
+        return null;
+    }
+    
+    @Override
+    public File gerarRemessa400() {
         return null;
     }
 }

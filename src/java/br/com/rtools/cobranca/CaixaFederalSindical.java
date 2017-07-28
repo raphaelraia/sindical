@@ -167,7 +167,7 @@ public class CaixaFederalSindical extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa() {
+    public File gerarRemessa240() {
 
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDao dbmov = new MovimentoDao();
@@ -386,7 +386,7 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "030"; // 39.3P Prazo p/ Baixa/ Devolução Número de Dias para Baixa/ Devolução 225 227 X(003) Preencher com o número desejado de dias corridos após a data de vencimento do  título não pago em que a CAIXA deverá baixá-lo da carteira e devolvê-lo; pode ser de 05 a 120 dias corridos; ATENÇÃO: Esse prazo não pode ser menor que o prazo para protesto (campo 37.3P), quando este existir C029
                 CONTEUDO_REMESSA += "09"; // 40.3P Código da Moeda Código da Moeda 228 229 9(002) Preencher ‘09’ (REAL) *G065
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Uso Exclusivo CAIXA Filler 230 239 9(010) Preencher com zeros -
-                CONTEUDO_REMESSA += " "; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
+                CONTEUDO_REMESSA += "2"; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
 
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
@@ -574,5 +574,10 @@ public class CaixaFederalSindical extends Cobranca {
             e.getMessage();
             return null;
         }
+    }
+    
+    @Override
+    public File gerarRemessa400() {
+        return null;
     }
 }

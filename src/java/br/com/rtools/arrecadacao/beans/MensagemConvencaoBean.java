@@ -389,36 +389,11 @@ public class MensagemConvencaoBean {
                             }
                             // SALVAR PARA TODOS OS GRUPOS E CONVENÇÕES
                             case 3: {
-                                String ref = mensagemConvencao.getReferencia();
-//                                int meses = 1;
-//                                int mes_atual = Integer.parseInt(mensagemConvencao.getReferencia().substring(0, 2));
-//
-//                                if (gerarAno) {
-//                                    meses = 12;
-//                                    ref = "01/" + mensagemConvencao.getReferencia().substring(3);
-//                                }
-
-//                                for (int i = 0; i < meses; i++) {
-
-                                    List<MensagemConvencao> list = db.listaMensagemConvencaoFiltros(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), ref, mensagemConvencao.getId());
-                                    for (MensagemConvencao mc : list) {
-                                        mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
-                                        mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
-                                        mc.setVencimento(mensagemConvencao.getVencimento());
-
-                                        if (!db.update(mc)) {
-                                            msgConfirma = "Ocorreu um erro ao atualizar!";
-                                            GenericaMensagem.warn("Erro", msgConfirma);
-                                            return null;
-                                        }
-                                    }
-//
-//                                    ref = dataHoje.incrementarMeses(1, "01/" + ref);
-//                                }
+                                updateMensagem(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), mensagemConvencao.getId(), beforeUpdate);
                             }
 
                             default: {
-
+                                updateMensagem(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), mensagemConvencao.getId(), beforeUpdate);
                             }
                         }
 
@@ -456,6 +431,49 @@ public class MensagemConvencaoBean {
 //        idServico = 0;
 //        idTipoServico = 0;
         return null;
+    }
+
+    private synchronized void updateMensagem(Integer id_convencao, Integer id_grupo_cidade, Integer id_servico, Integer id_tipo_servico, Integer id_mensagem_cobranca, String beforeUpdate) {
+        MensagemConvencaoDao db = new MensagemConvencaoDao();
+        String ref = mensagemConvencao.getReferencia();
+        int meses = 1;
+        //int mes_atual = Integer.parseInt(mensagemConvencao.getReferencia().substring(0, 2));
+
+        if (gerarAno) {
+            meses = 12;
+            ref = "01/" + mensagemConvencao.getReferencia().substring(3);
+        }
+
+        for (int i = 0; i < meses; i++) {
+
+            List<MensagemConvencao> list = db.listaMensagemConvencaoFiltros(id_convencao, id_grupo_cidade, id_servico, id_tipo_servico, ref, id_mensagem_cobranca);
+            for (MensagemConvencao mc : list) {
+                mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
+                mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
+                //mc.setVencimento(mensagemConvencao.getVencimento());
+
+                if (!db.update(mc)) {
+                    msgConfirma = "Ocorreu um erro ao atualizar!";
+                    GenericaMensagem.warn("Erro", msgConfirma);
+                    return;
+                }
+
+                new NovoLog().update(beforeUpdate,
+                        " - Referência: " + mc.getReferencia()
+                        + " - Vencimento: " + mc.getVencimento()
+                        + " - Serviço: (" + mc.getServicos().getId() + ") "
+                        + " - Tipo Serviço: (" + mc.getTipoServico().getId() + ") " + mc.getTipoServico().getDescricao()
+                        + " - Convenção: (" + mc.getConvencao().getId() + ") " + mc.getConvencao().getDescricao()
+                        + " - Grupo Cidade: (" + mc.getGrupoCidade().getId() + ") " + mc.getGrupoCidade().getDescricao()
+                        + " - Mensagem Compensação: " + mc.getMensagemCompensacao()
+                        + " - Mensagem Contribuinte: " + mc.getMensagemContribuinte()
+                );
+
+            }
+
+            ref = new DataHoje().incrementarMeses(1, "01/" + ref).substring(3);
+
+        }
     }
 
     private synchronized String insertMensagem(int idConv, int idGrupo, int idServ, int idTipo, String referencia, String vencimento) {

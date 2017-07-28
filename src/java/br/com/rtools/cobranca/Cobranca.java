@@ -129,7 +129,7 @@ public abstract class Cobranca {
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SIGCB)) {
             cobranca = new CaixaFederalSigCB(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.itau)) {
-            //cobranca = new Itau(lista_movimento);
+            cobranca = new Itau(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.bancoDoBrasil)) {
             cobranca = new BancoDoBrasil(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.real)) {
@@ -165,7 +165,9 @@ public abstract class Cobranca {
         this.boleto = boleto;
     }
     
-    public abstract File gerarRemessa();
+    public abstract File gerarRemessa240();
+    
+    public abstract File gerarRemessa400();
 
 //    public Movimento getMovimento() {
 //        return movimento;

@@ -57,14 +57,18 @@ public final class Moeda {
         return moeda.format(valor);
     }
 
-    public static String convertPercentToString(Double percent){
-        return Moeda.substituiVirgula(Moeda.converteDoubleToString(percent));
+    public static String convertPercentToString(Double percent) {
+        return convertPercentToString(percent, 2);
     }
     
-    public static String convertPercentToString(String percent){
+    public static String convertPercentToString(Double percent, Integer decimal) {
+        return Moeda.substituiVirgula(Moeda.converteDoubleToString(percent, decimal));
+    }
+
+    public static String convertPercentToString(String percent) {
         return Moeda.substituiVirgula(percent);
     }
-    
+
     //Converte Campo Real para campo Dolar
     public static double converteUS$(String $dolar) {
         return converteUS$($dolar, 2);
@@ -74,10 +78,10 @@ public final class Moeda {
         if ($dolar == null || $dolar.isEmpty()) {
             $dolar = "0,00";
         }
-        
+
         BigDecimal num = new BigDecimal(converteStringToDouble($dolar));
         try {
-            if (decimal == null){
+            if (decimal == null) {
                 decimal = 2;
             }
 
@@ -277,11 +281,26 @@ public final class Moeda {
     }
 
     public static String converteDoubleToString(Double d) {
+        return converteDoubleToString(d, 2);
+    }
+
+    public static String converteDoubleToString(Double d, Integer decimal) {
         DecimalFormatSymbols dfs = new DecimalFormatSymbols(new Locale("pt", "BR"));
 //        // Formato com sinal de menos -5.000,00
 //        DecimalFormat df1 = new DecimalFormat ("#,##0.00", dfs);
         // Formato com parêntese (5.000,00)
-        DecimalFormat df2 = new DecimalFormat("#,##0.00;#,##0.00", dfs);
+        DecimalFormat df2;
+        switch (decimal) {
+            case 3:
+                df2 = new DecimalFormat("#,##0.000;#,##0.000", dfs);
+                break;
+            case 4:
+                df2 = new DecimalFormat("#,##0.0000;#,##0.0000", dfs);
+                break;
+            default:
+                df2 = new DecimalFormat("#,##0.00;#,##0.00", dfs);
+                break;
+        }
         //d = -5000.00;
 //        s = df1.format (d); 
 //        System.out.println (s); // imprime -5.000,00
@@ -290,18 +309,24 @@ public final class Moeda {
     }
 
     public static Double converteStringToDouble(String s) {
+        return converteStringToDouble(s, 2);
+    }
+
+    public static Double converteStringToDouble(String s, Integer decimal) {
         try {
-            if(Types.isDouble(s)) {
+            if (Types.isDouble(s)) {
                 BigDecimal bigDecimal = new BigDecimal(s);
-                return bigDecimal.doubleValue();                
+                return bigDecimal.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
             }
+            
             DecimalFormat df = new DecimalFormat();
-            DecimalFormatSymbols sfs = new DecimalFormatSymbols();
-            sfs.setDecimalSeparator(',');
-            df.setDecimalFormatSymbols(sfs);
-            return df.parse(s).doubleValue();
+            DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+
+            dfs.setDecimalSeparator(',');
+            df.setDecimalFormatSymbols(dfs);
+            return new BigDecimal(df.parse(s).doubleValue()).setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
         } catch (Exception e) {
-            return new Double(0);
+            return new BigDecimal(0).setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
         }
     }
 

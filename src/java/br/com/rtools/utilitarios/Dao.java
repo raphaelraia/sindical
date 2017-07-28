@@ -2,6 +2,7 @@ package br.com.rtools.utilitarios;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.DatabaseException;
+import oracle.toplink.essentials.exceptions.EJBQLException;
 import oracle.toplink.essentials.exceptions.TopLinkException;
 
 public class Dao extends DB implements DaoInterface {
@@ -186,7 +188,7 @@ public class Dao extends DB implements DaoInterface {
             getEntityManager().merge(objeto);
             getEntityManager().flush();
             return true;
-        } catch (Exception e) {
+        } catch (EJBQLException  e) {
             EXCEPCION = e;
             if (GenericaSessao.exists("habilitaLog")) {
                 if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {

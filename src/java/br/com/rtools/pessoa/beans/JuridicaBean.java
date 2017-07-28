@@ -846,7 +846,6 @@ public class JuridicaBean implements Serializable {
         } else {
             pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), idStatusCobranca));
         }
-
         dao.openTransaction();
         if (juridica.getId() == -1) {
 
@@ -867,6 +866,7 @@ public class JuridicaBean implements Serializable {
             juridica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription())));
             if (juridica.getPessoa().getNome().isEmpty()) {
                 GenericaMensagem.error("Erro", "O campo nome não pode ser nulo!");
+                dao.rollback();
                 return null;
             }
 
@@ -877,6 +877,7 @@ public class JuridicaBean implements Serializable {
                 for (int i = 0; i < listDocumento.size(); i++) {
                     if (!listDocumento.isEmpty()) {
                         GenericaMensagem.error("Erro", "Empresa já existente no Sistema!");
+                        dao.rollback();
                         return null;
                     }
                 }
@@ -884,11 +885,13 @@ public class JuridicaBean implements Serializable {
 
             if (!validaTipoDocumento(Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription()), juridica.getPessoa().getDocumento())) {
                 GenericaMensagem.error("Erro", "Documento Invalido!");
+                dao.rollback();
                 return null;
             }
 
             if (listaEnd.isEmpty()) {
                 GenericaMensagem.error("Erro", "Cadastro não pode ser salvo sem Endereço!");
+                dao.rollback();
                 return null;
             }
 
@@ -903,6 +906,7 @@ public class JuridicaBean implements Serializable {
 
                 if (!dao.save(pessoaComplemento)) {
                     GenericaMensagem.warn("Validação", "Ao salvar pessoa complemento!");
+                    dao.rollback();
                     return null;
                 }
 
@@ -991,8 +995,10 @@ public class JuridicaBean implements Serializable {
             }
 
             juridica.getPessoa().setDtAtualizacao(new Date());
+            //juridica.getPessoa().setDtAtualizacao(null);
             if (juridica.getPessoa().getNome().isEmpty()) {
                 GenericaMensagem.error("Erro", "O campo nome não pode ser nulo!");
+                dao.rollback();
                 return null;
             }
 
@@ -1003,6 +1009,7 @@ public class JuridicaBean implements Serializable {
                 for (int i = 0; i < listDocumento.size(); i++) {
                     if (!listDocumento.isEmpty() && ((Juridica) listDocumento.get(i)).getId() != juridica.getId()) {
                         GenericaMensagem.error("Erro", "Empresa já existente no Sistema!");
+                        dao.rollback();
                         return null;
                     }
                 }
@@ -1010,6 +1017,7 @@ public class JuridicaBean implements Serializable {
             }
             if (!validaTipoDocumento(Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription()), juridica.getPessoa().getDocumento())) {
                 GenericaMensagem.error("Erro", "Documento Invalido!");
+                dao.rollback();
                 return null;
             }
             adicionarEnderecos();
@@ -1023,19 +1031,24 @@ public class JuridicaBean implements Serializable {
 
             String beforeUpdate = "ID: " + jur.getId() + " - Pessoa: (" + jur.getPessoa().getId() + ") " + jur.getPessoa().getNome() + " - Abertura: " + jur.getAbertura() + " - Fechamento: " + jur.getAbertura() + " - I.E.: " + jur.getInscricaoEstadual() + " - Insc. Mun.: " + jur.getInscricaoMunicipal() + " - Responsável: " + jur.getResponsavel();
 
+            
+            
             if (!dao.update(juridica.getPessoa())) {
                 GenericaMensagem.error("Erro", "Erro ao atualizar Cadastro!");
                 dao.rollback();
                 return null;
             }
             if (pessoaComplemento.getId() == -1) {
+                pessoaComplemento.setPessoa(juridica.getPessoa());
                 if (!dao.save(pessoaComplemento)) {
                     GenericaMensagem.warn("Validação", "Ao salvar pessoa complemento!");
+                    dao.rollback();
                     return null;
                 }
             } else {
                 if (!dao.update(pessoaComplemento)) {
                     GenericaMensagem.warn("Validação", "Ao atualziar pessoa complemento!");
+                    dao.rollback();
                     return null;
                 }
             }

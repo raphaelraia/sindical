@@ -246,7 +246,7 @@ public class Sicoob extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa() {
+    public File gerarRemessa240() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDao dbmov = new MovimentoDao();
 
@@ -585,5 +585,10 @@ public class Sicoob extends Cobranca {
             e.getMessage();
             return null;
         }
+    }
+    
+    @Override
+    public File gerarRemessa400() {
+        return null;
     }
 }
