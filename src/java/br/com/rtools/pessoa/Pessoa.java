@@ -322,7 +322,7 @@ public class Pessoa implements Serializable {
             FisicaDao fisicaDB = new FisicaDao();
             fisica = fisicaDB.pesquisaFisicaPorPessoa(this.id);
             if (fisica.getId() != -1) {
-                fisica = (Fisica) new Dao().rebind(fisica);
+                fisica = (Fisica) new Dao().rebind( fisica);
             }
             fisica.setPessoa(null);
         }

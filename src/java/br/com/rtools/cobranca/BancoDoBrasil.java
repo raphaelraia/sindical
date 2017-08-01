@@ -273,8 +273,8 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "         "; // 04.0 Uso Exclusivo FEBRABAN / CNAB 9179- Alfanumérico Brancos G004
             CONTEUDO_REMESSA += "2"; // 05.0 Tipo de Inscrição da Empresa 18181- Numérico  G005 1 – para CPF e 2 – para CNPJ.
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa 193214- Numérico G006 Informar número da inscrição (CPF ou CNPJ) da Empresa,  alinhado à direita com zeros à esquerda.
-            CONTEUDO_REMESSA += "00000000000000000000"; // 07.0 Campo opcional, preencher com brancos (espaços) OU se  Código do Convênio no Banco informado.
-
+            CONTEUDO_REMESSA += "                    "; // 07.0 Campo opcional, preencher com brancos (espaços) OU se  Código do Convênio no Banco informado.
+                                 
             Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
@@ -322,8 +322,12 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "2"; // 09.1 Tipo de Inscrição da Empresa 18181- Numérico  G005 1 – para CPF e 2 – para CNPJ.
             CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_sindicato.length()) + documento_sindicato; // 10.1 Nº de Inscrição da Empresa 193315- Numérico G006 Informar número da inscrição (CPF ou CNPJ) da Empresa, alinhado à  direita com zeros à esquerda.
             
-
-            CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco
+            CONTEUDO_REMESSA += "000000000".substring(0, 9 - codigo_cedente.length()) + codigo_cedente; // 11.1 BB1 Nùmero do convênio de cobrança BB
+            CONTEUDO_REMESSA += "0014"; // 11.1 BB2 Cobrança Cedente BB
+            CONTEUDO_REMESSA += "17"; // 11.1 BB3 Número da carteira de cobrança BB
+            CONTEUDO_REMESSA += "027"; // 11.1 BB4 Número da variação da carteira de cobrança BB
+            CONTEUDO_REMESSA += "  "; // 11.1 BB5 Campo que identifica remessa de testes
+//            CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Agência Mantenedora da Conta 54585- Numérico  G008
             CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 13.1 Dígito Verificador da Conta 59591- Alfanumérico  G009
             CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 14.1 Número da Conta Corrente 607112- Numérico  G010
@@ -366,7 +370,8 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "0"; // 12.3P Dígito Verificador da Ag/Conta 37371- Alfanumérico  G012 Campo não tratado pelo Banco do Brasil. Informar 'branco' (espaço) OU zero.
                 // 14 cobraça registrada // JÁ ESTA NO NÚMERO DO DOCUMENTO EM MOVIMENTO
                 //CONTEUDO_REMESSA += "14"; // 13.3P Carteira/Nosso Número Modalidade da Carteira 41 42 9(002) Ver Nota Explicativa G069 *G069
-                CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - mov.getDocumento().length()) + mov.getDocumento(); // 13.3P Identificação do Título no Banco 385720- Alfanumérico G069 
+                //CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - mov.getDocumento().length()) + mov.getDocumento(); // 13.3P Identificação do Título no Banco 385720- Alfanumérico G069 
+                CONTEUDO_REMESSA += (mov.getDocumento() + "                    ").substring(0, 20); // 13.3P Identificação do Título no Banco 385720- Alfanumérico G069 
                 CONTEUDO_REMESSA += "1"; // 14.3P Código da Carteira 58581-  Numérico  C006
                 CONTEUDO_REMESSA += "1"; // 15.3P Forma de Cadastr. do Título no Banco 59591- Numérico C007 Campo não tratado pelo sistema do Banco do Brasil. Pode ser informado 'branco', Zero, 1 – com   cadastramento (Cobrança registrada) ou 2 – sem cadastramento (Cobrança sem registro).
                 CONTEUDO_REMESSA += "0"; // 16.3P Tipo de Documento 60601- Alfanumérico C008 Campo não tratado pelo sistema do Banco do Brasil. Pode ser informado 'branco', Zero, 1 – Tradicional, ou 2 –   Escritural.

@@ -917,12 +917,10 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "9999"; // 02.9 Lote de Serviço 4 7 9(004) Preencher ‘9999’ *G002
             CONTEUDO_REMESSA += "9"; // 03.9 Tipo de Registro 8 8 9(001) Preencher ‘9’ (equivale a Trailer de Arquivo) *G003
             CONTEUDO_REMESSA += "         "; // 04.9 CNAB Filler 9 17 X(009) Preencher com espaços G004
-            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
-
-            //CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
+            
             CONTEUDO_REMESSA += "000001"; // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
 
-            Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
+            Integer quantidade_registros = (3 * listaMovimento.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24 29 9(006) Informar o Número do total de registros enviados no arquivo; trata-se da somatória dos registros de tipo 0, 1, 3, 5 e 9 G056
             CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004

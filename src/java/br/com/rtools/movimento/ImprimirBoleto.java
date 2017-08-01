@@ -1135,7 +1135,7 @@ public class ImprimirBoleto implements Serializable {
     public File imprimirRemessa(List<Movimento> lista_movimento, Boleto boletox) {
         Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_movimento, boletox);
         if (cobranca != null) {
-            File file = cobranca.gerarRemessa240();
+            File file = boletox.getContaCobranca().getNrLayout() == 240 ? cobranca.gerarRemessa240() : cobranca.gerarRemessa400();
             Boolean zipar = false;
             if (zipar) {
                 Zip zip = new Zip();

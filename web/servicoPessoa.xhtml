@@ -10,7 +10,7 @@
                     <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop" style="width: 100%">
                         <h:column>
                             <p:commandButton icon="ui-icon-search" title="Pesquisar Sócio" value="Pesquisar Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" rendered="false" />
-                            <p:commandButton icon="ui-icon-search" title="Pesquisar Sócio" value="Pesquisar Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" />
+                            <p:commandButton icon="ui-icon-search" title="Pesquisar Sócio" value="Pesquisar Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" disabled="#{servicoPessoaBean.servicoPessoa.id != -1}"/>
                             <h:panelGrid columns="2">
                                 <h:outputText value="Documento: " rendered="#{servicoPessoaBean.titular.pessoa.id != -1}"/>
                                 <h:outputText value="#{servicoPessoaBean.titular.pessoa.tipoDocumento.descricao} - #{servicoPessoaBean.titular.pessoa.documento} - " rendered="#{servicoPessoaBean.titular.pessoa.id != -1}"/>
@@ -33,7 +33,7 @@
                 <p:tab id="complemento" title="Cobrança" >
                     <h:panelGrid columns="2">
                         <p:outputLabel value="Serviços: "  rendered="#{servicoPessoaBean.renderServicos}"/>
-                        <p:selectOneMenu id="idServico" value="#{servicoPessoaBean.idServico}" rendered="#{servicoPessoaBean.renderServicos}" style="width: 600px">
+                        <p:selectOneMenu id="idServico" value="#{servicoPessoaBean.idServico}" rendered="#{servicoPessoaBean.renderServicos}" style="width: 600px" disabled="#{servicoPessoaBean.servicoPessoa.id != -1}">
                             <p:ajax event="change" update="@this idNrDesconto idValorServico" listener="#{servicoPessoaBean.refreshCalculos()}"/>
                             <f:selectItems value="#{servicoPessoaBean.listaServicos}"/>
                         </p:selectOneMenu>

@@ -78,11 +78,11 @@ public class MatriculaConvenioMedicoBean implements Serializable {
             matriculaConvenioMedico.setServicoPessoa(servicoPessoaBean.getServicoPessoa());
             if (dao.save(matriculaConvenioMedico)) {
                 novoLog.save(""
-                        + "ID: " + matriculaConvenioMedico.getId()
-                        + " - Código: " + matriculaConvenioMedico.getCodigo()
-                        + " - Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getPessoa().getNome()
-                        + " - Cobrança (Pessoa): (" + matriculaConvenioMedico.getServicoPessoa().getCobranca().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getCobranca().getNome()
-                        + " - Serviço Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getServicos().getDescricao()
+                        + "ID: " + matriculaConvenioMedico.getId() + " \n "
+                        + "Código: " + matriculaConvenioMedico.getCodigo() + " \n "
+                        + "Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getPessoa().getNome() + " \n "
+                        + "Cobrança (Pessoa): (" + matriculaConvenioMedico.getServicoPessoa().getCobranca().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getCobranca().getNome() + " \n "
+                        + "Serviço Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getServicos().getDescricao()
                 );
                 message = "Matricula salva com Sucesso!";
                 dao.commit();
@@ -106,19 +106,19 @@ public class MatriculaConvenioMedicoBean implements Serializable {
             MatriculaConvenioMedico mcm = (MatriculaConvenioMedico) dao.find(matriculaConvenioMedico);
             matriculaConvenioMedico.setServicoPessoa(servicoPessoaBean.getServicoPessoa());
             String beforeUpdate = ""
-                    + "ID: " + mcm.getId()
-                    + " - Código: " + mcm.getCodigo()
-                    + " - Pessoa: (" + mcm.getServicoPessoa().getPessoa().getId() + ") " + mcm.getServicoPessoa().getPessoa().getNome()
-                    + " - Cobrança (Pessoa): (" + mcm.getServicoPessoa().getCobranca().getId() + ") " + mcm.getServicoPessoa().getCobranca().getNome()
-                    + " - Serviço Pessoa: (" + mcm.getServicoPessoa().getId() + ") " + mcm.getServicoPessoa().getServicos().getDescricao();
+                    + "ID: " + mcm.getId() + " \n "
+                    + "Código: " + mcm.getCodigo() + " \n "
+                    + "Pessoa: (" + mcm.getServicoPessoa().getPessoa().getId() + ") " + mcm.getServicoPessoa().getPessoa().getNome() + " \n "
+                    + "Cobrança (Pessoa): (" + mcm.getServicoPessoa().getCobranca().getId() + ") " + mcm.getServicoPessoa().getCobranca().getNome() + " \n "
+                    + "Serviço Pessoa: (" + mcm.getServicoPessoa().getId() + ") " + mcm.getServicoPessoa().getServicos().getDescricao();
             if (dao.update(matriculaConvenioMedico)) {
                 message = "Matricula atualizada com Sucesso!";
                 novoLog.update(beforeUpdate, ""
-                        + "ID: " + matriculaConvenioMedico.getId()
-                        + " - Código: " + matriculaConvenioMedico.getCodigo()
-                        + " - Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getPessoa().getNome()
-                        + " - Cobrança (Pessoa): (" + matriculaConvenioMedico.getServicoPessoa().getCobranca().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getCobranca().getNome()
-                        + " - Serviço Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getServicos().getDescricao()
+                        + "ID: " + matriculaConvenioMedico.getId() + " \n "
+                        + "Código: " + matriculaConvenioMedico.getCodigo() + " \n "
+                        + "Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getPessoa().getNome() + " \n "
+                        + "Cobrança (Pessoa): (" + matriculaConvenioMedico.getServicoPessoa().getCobranca().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getCobranca().getNome() + " \n "
+                        + "Serviço Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getServicos().getDescricao()
                 );
                 dao.commit();
             } else {
@@ -143,11 +143,11 @@ public class MatriculaConvenioMedicoBean implements Serializable {
             if (dao.update(matriculaConvenioMedico)) {
                 if (dao.update(matriculaConvenioMedico.getServicoPessoa())) {
                     novoLog.delete(
-                            "ID: " + matriculaConvenioMedico.getId()
-                            + " - Código: " + matriculaConvenioMedico.getCodigo()
-                            + " - Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getPessoa().getNome()
-                            + " - Cobrança (Pessoa): (" + matriculaConvenioMedico.getServicoPessoa().getCobranca().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getCobranca().getNome()
-                            + " - Serviço Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getServicos().getDescricao()
+                            "ID: " + matriculaConvenioMedico.getId() + " \n "
+                            + "Código: " + matriculaConvenioMedico.getCodigo() + " \n "
+                            + "Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getPessoa().getNome() + " \n "
+                            + "Cobrança (Pessoa): (" + matriculaConvenioMedico.getServicoPessoa().getCobranca().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getCobranca().getNome() + " \n "
+                            + "Serviço Pessoa: (" + matriculaConvenioMedico.getServicoPessoa().getId() + ") " + matriculaConvenioMedico.getServicoPessoa().getServicos().getDescricao()
                     );
                     servicoPessoaBean.setServicoPessoa(matriculaConvenioMedico.getServicoPessoa());
                     dao.commit();
@@ -169,6 +169,7 @@ public class MatriculaConvenioMedicoBean implements Serializable {
 
     public String edit(MatriculaConvenioMedico mcm) {
         Dao dao = new Dao();
+
         mcm = (MatriculaConvenioMedico) dao.rebind(mcm);
         matriculaConvenioMedico = mcm;
         servicoPessoaBean.setServicoPessoa(matriculaConvenioMedico.getServicoPessoa());

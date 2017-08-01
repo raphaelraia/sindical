@@ -65,6 +65,8 @@ public class ContaCobranca implements java.io.Serializable {
     private Integer boletoAtual;
     @Column(name = "is_cobranca_registrada", nullable = false, columnDefinition = "boolean default false")
     private boolean cobrancaRegistrada;
+    @Column(name = "nr_layout")
+    private Integer nrLayout;
 
     public ContaCobranca() {
         this.id = -1;
@@ -94,9 +96,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.mensagemAssociativo = "";
         this.boletoAtual = 0;
         this.cobrancaRegistrada = false;
+        this.nrLayout = 240;
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, boolean cobrancaRegistrada) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, boolean cobrancaRegistrada, Integer nrLayout) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -124,6 +127,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.mensagemAssociativo = mensagemAssociativo;
         this.boletoAtual = boletoAtual;
         this.cobrancaRegistrada = cobrancaRegistrada;
+        this.nrLayout = nrLayout;
     }
 
     public int getId() {
@@ -340,5 +344,13 @@ public class ContaCobranca implements java.io.Serializable {
 
     public void setCobrancaRegistrada(boolean cobrancaRegistrada) {
         this.cobrancaRegistrada = cobrancaRegistrada;
+    }
+
+    public Integer getNrLayout() {
+        return nrLayout;
+    }
+
+    public void setNrLayout(Integer nrLayout) {
+        this.nrLayout = nrLayout;
     }
 }
