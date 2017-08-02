@@ -273,16 +273,30 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "         "; // 04.0 Uso Exclusivo FEBRABAN / CNAB 9179- Alfanumérico Brancos G004
             CONTEUDO_REMESSA += "2"; // 05.0 Tipo de Inscrição da Empresa 18181- Numérico  G005 1 – para CPF e 2 – para CNPJ.
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa 193214- Numérico G006 Informar número da inscrição (CPF ou CNPJ) da Empresa,  alinhado à direita com zeros à esquerda.
-            CONTEUDO_REMESSA += "                    "; // 07.0 Campo opcional, preencher com brancos (espaços) OU se  Código do Convênio no Banco informado.
-                                 
+
             Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente();
             String codigo_cedente = boleto_rem.getContaCobranca().getCodCedente();
 
-            CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Agência Mantenedora da Conta 53575- Numérico  G008
+            // CONVENIO DIFERENCIADO PARA BB ( INICIAIS DO NOSSO NÚMERO )
+            String convenio = "000000000";
             
+            if (listaMovimento.get(0).getDocumento().length() == 17) {
+                convenio = "000000000".substring(0, 9 - listaMovimento.get(0).getDocumento().substring(0, 7).length()) + listaMovimento.get(0).getDocumento().substring(0, 7);
+            } else if (listaMovimento.get(0).getDocumento().length() == 11) {
+                convenio = "000000000".substring(0, 9 - listaMovimento.get(0).getDocumento().substring(0, 6).length()) + listaMovimento.get(0).getDocumento().substring(0, 6);
+            }
+
+            CONTEUDO_REMESSA += convenio; // 07.0 BB1 Nùmero do convênio de cobrança BB
+            CONTEUDO_REMESSA += "0014"; // 07.0 BB2 Cobrança Cedente BB '0014'
+            CONTEUDO_REMESSA += "17"; // 07.0 BB3 Número da carteira de cobrança BB
+            CONTEUDO_REMESSA += "027"; // 07.0 BB4 Número da variação da carteira de cobrança BB 
+            CONTEUDO_REMESSA += "  "; // 07.0 BB5 Campo reservado BB
+
+            CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Agência Mantenedora da Conta 53575- Numérico  G008
+
             CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.0 Dígito Verificador da Agência 58581- Alfanumérico  G009 Obs. Em caso de dígito X informar maiúsculo. 
             CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.0 Número da Conta Corrente 597012- Numérico  G010
             CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente));// 11.0 Dígito Verificador da Conta 71711- Alfanumérico  G011 Obs. Em caso de dígito X informar maiúsculo. 
@@ -302,7 +316,6 @@ public class BancoDoBrasil extends Cobranca {
 
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
-
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -321,8 +334,8 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += " "; // 08.1 Uso Exclusivo FEBRABAN/CNAB 17171- Alfanumérico Brancos G004
             CONTEUDO_REMESSA += "2"; // 09.1 Tipo de Inscrição da Empresa 18181- Numérico  G005 1 – para CPF e 2 – para CNPJ.
             CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_sindicato.length()) + documento_sindicato; // 10.1 Nº de Inscrição da Empresa 193315- Numérico G006 Informar número da inscrição (CPF ou CNPJ) da Empresa, alinhado à  direita com zeros à esquerda.
-            
-            CONTEUDO_REMESSA += "000000000".substring(0, 9 - codigo_cedente.length()) + codigo_cedente; // 11.1 BB1 Nùmero do convênio de cobrança BB
+
+            CONTEUDO_REMESSA += convenio; // 11.1 BB1 Nùmero do convênio de cobrança BB
             CONTEUDO_REMESSA += "0014"; // 11.1 BB2 Cobrança Cedente BB
             CONTEUDO_REMESSA += "17"; // 11.1 BB3 Número da carteira de cobrança BB
             CONTEUDO_REMESSA += "027"; // 11.1 BB4 Número da variação da carteira de cobrança BB
@@ -331,9 +344,9 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Agência Mantenedora da Conta 54585- Numérico  G008
             CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 13.1 Dígito Verificador da Conta 59591- Alfanumérico  G009
             CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 14.1 Número da Conta Corrente 607112- Numérico  G010
-            CONTEUDO_REMESSA +=  moduloOnze("" + Integer.valueOf(codigo_cedente)); // 15.1 Dígito Verificador da Conta 72721- Alfanumérico  G011
+            CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(codigo_cedente)); // 15.1 Dígito Verificador da Conta 72721- Alfanumérico  G011
             CONTEUDO_REMESSA += "0"; // 16.1 Dígito Verificador da Ag/Conta 73731- Alfanumérico G012 Campo não tratado pelo Banco do Brasil. Informar 'branco' (espaço) OU  zero.
-            
+
             CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 17.1 Nome da Empresa 7410330- Alfanumérico  G013
             CONTEUDO_REMESSA += "                                        "; // 18.1 Mensagem 1 10414340- Alfanumérico  C073
             CONTEUDO_REMESSA += "                                        "; // 19.1 Mensagem 2 14418340- Alfanumérico  C073
@@ -385,7 +398,7 @@ public class BancoDoBrasil extends Cobranca {
                 //if (mov.getValor() < 1) {
                 //    valor_titulo = "100";
                 //} else {
-                    valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
+                valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
                 //}
                 // NO MANUAL FALA 13 PORÉM TEM QUE SER 15, ACHO QUE POR CAUSA DAS DECIMAIS ,00 (O MANUAL NÃO EXPLICA ISSO)
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor Nominal do Título 8610013 2Numérico  G070
@@ -437,7 +450,7 @@ public class BancoDoBrasil extends Cobranca {
 
                 String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição 19 3315- Numérico 
- 
+
                 CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome 34 7340- Alfanumérico  G013
 
                 PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
@@ -476,7 +489,7 @@ public class BancoDoBrasil extends Cobranca {
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
-                
+
                 sequencial_registro_lote++;
 
                 Double valor_l;
@@ -526,9 +539,9 @@ public class BancoDoBrasil extends Cobranca {
 
             Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24296- Numérico 
- 
+
             CONTEUDO_REMESSA += "      "; // 07.9 Qtde de Contas p/ Conc. (Lotes) 30356- Numérico 
- 
+
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB 36240205- Alfanumérico Brancos G004
 
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
@@ -545,10 +558,9 @@ public class BancoDoBrasil extends Cobranca {
             log.save(
                     log_string
             );
-            
-            // -----------------------------------------------------------------
-            // -----------------------------------------------------------------
 
+            // -----------------------------------------------------------------
+            // -----------------------------------------------------------------
             return new File(destino);
         } catch (IOException | NumberFormatException e) {
             e.getMessage();
