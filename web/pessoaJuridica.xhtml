@@ -420,8 +420,8 @@
                                                     <p:ajax event="change" update="@this"  />
                                                 </h:inputTextarea>
                                             </p:column>
-                                            <h:outputLabel value="Status Cobrança" rendered="#{juridicaBean.juridica.contabilidade == null}" />
-                                            <p:selectOneMenu value="#{juridicaBean.idStatusCobranca}" rendered="#{juridicaBean.juridica.contabilidade == null}" disabled="#{juridicaBean.juridica.id eq -1}">
+                                            <h:outputLabel value="Status Cobrança" rendered="#{juridicaBean.juridica.contabilidade == null or juridicaBean.juridica.contabilidade.id eq juridicaBean.juridica.id}" />
+                                            <p:selectOneMenu value="#{juridicaBean.idStatusCobranca}" rendered="#{juridicaBean.juridica.contabilidade == null or juridicaBean.juridica.contabilidade.id eq juridicaBean.juridica.id}" disabled="#{juridicaBean.juridica.id eq -1}">
                                                 <p:ajax event="change" update="@this"/>
                                                 <f:selectItems value="#{juridicaBean.listStatusCobranca}" />
                                             </p:selectOneMenu>

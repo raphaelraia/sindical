@@ -2093,7 +2093,7 @@ public class VendasCaravanaBean implements Serializable {
                                 return true;
                             }
                         }
-                    } else if (m.getBaixa() == null && listaParcela.getMovimento().getBaixa() != null) {
+                    } else if (m != null && m.getBaixa() == null && listaParcela.getMovimento().getBaixa() != null) {
                         baixaEmOutroPC = true;
                         return true;
                     }

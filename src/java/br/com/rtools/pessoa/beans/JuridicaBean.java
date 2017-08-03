@@ -1031,8 +1031,6 @@ public class JuridicaBean implements Serializable {
 
             String beforeUpdate = "ID: " + jur.getId() + " - Pessoa: (" + jur.getPessoa().getId() + ") " + jur.getPessoa().getNome() + " - Abertura: " + jur.getAbertura() + " - Fechamento: " + jur.getAbertura() + " - I.E.: " + jur.getInscricaoEstadual() + " - Insc. Mun.: " + jur.getInscricaoMunicipal() + " - Responsável: " + jur.getResponsavel();
 
-            
-            
             if (!dao.update(juridica.getPessoa())) {
                 GenericaMensagem.error("Erro", "Erro ao atualizar Cadastro!");
                 dao.rollback();
@@ -1384,8 +1382,7 @@ public class JuridicaBean implements Serializable {
         descPesquisa = "";
         porPesquisa = "nome";
         comoPesquisa = "";
-        loadListStatusCobranca();
-
+        loadListStatusCobranca(true);
         pessoaComplemento = new PessoaComplemento();
         pessoaComplemento = juridica.getPessoa().getPessoaComplemento();
         if (pessoaComplemento.getId() == -1) {
@@ -3471,15 +3468,20 @@ public class JuridicaBean implements Serializable {
     }
 
     public void loadListStatusCobranca() {
+        loadListStatusCobranca(false);
+    }
+
+    public void loadListStatusCobranca(Boolean isListEscritorio) {
         listStatusCobranca = new ArrayList();
         List<StatusCobranca> list = new Dao().find("StatusCobranca", new int[]{1, 2});
-        Boolean isListEscritorio = false;
-        if (juridica.getId() != -1) {
-            if (juridica.getCnae() != null && juridica.getCnae().getId() != -1) {
-                if (juridica.getCnae().getId() == 1) {
-                    isListEscritorio = true;
+        if(isListEscritorio == null || isListEscritorio == false) {
+            if (juridica.getId() != -1) {
+                if (juridica.getCnae() != null && juridica.getCnae().getId() != -1) {
+                    if (juridica.getCnae().getId() == 1) {
+                        isListEscritorio = true;
+                    }
                 }
-            }
+            }            
         }
         for (int i = 0; i < list.size(); i++) {
             if (null != list.get(i).getId()) {

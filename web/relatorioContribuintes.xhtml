@@ -384,14 +384,17 @@
                     </h:panelGrid>
 
                     <br /><br /><br />
-                    <h:panelGrid columns="5" styleClass="margin-top-max" id="igfh">
+                    <h:panelGrid columns="9" styleClass="margin-top-max" id="igfh">
                         <p:commandButton value="Visualizar" icon="ui-icon-disk" title="Visualizar" action="#{relatorioContribuintesBean.print}" ajax="false" update="id_messages_growl"/>
                         <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar">
                             <p:ajax event="change" update="@this" />
                         </p:selectBooleanCheckbox>
-                        <!-- <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="# {jasperBean.EXPORT_TO}" disabled="# {!relatorioContribuintesBean.relatorios.excel}">
-                            <p:ajax event="change" update="@this igfh" />
-                        </p:selectBooleanCheckbox> -->
+                        <p:outputLabel value="Exportar para " />
+                        <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                            <p:ajax event="change" global="false" update="@this"/>
+                            <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                            <f:selectItem itemValue="xls" itemLabel="Excel" />
+                        </p:selectOneMenu>
                         <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this" />
                             <f:selectItems value="#{jasperBean.listTypes('xls')}" />

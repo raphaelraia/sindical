@@ -31,7 +31,6 @@ import br.com.rtools.utilitarios.StatusRetorno;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -76,7 +75,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
         JuridicaDao dbJur = new JuridicaDao();
         juridica = dbJur.pesquisaJuridicaPorPessoa(pessoa.getId());
 
-        List lista = new ArrayList();
+        List lista;
         if (strFiltroRef.isEmpty()) {
             lista = db.pesquisaMovParaWebContribuinte(juridica.getPessoa().getId());
         } else {
@@ -84,35 +83,35 @@ public class WebContribuintesBean extends MovimentoValorBean {
         }
 
         for (int i = 0; i < lista.size(); i++) {
-            if (((Vector) lista.get(i)).get(5) == null) {
-                ((Vector) lista.get(i)).set(5, 0.0);
+            if (((List) lista.get(i)).get(5) == null) {
+                ((List) lista.get(i)).set(5, 0.0);
             }
-            if (((Vector) lista.get(i)).get(6) == null) {
-                ((Vector) lista.get(i)).set(6, 0.0);
+            if (((List) lista.get(i)).get(6) == null) {
+                ((List) lista.get(i)).set(6, 0.0);
             }
-            if (((Vector) lista.get(i)).get(7) == null) {
-                ((Vector) lista.get(i)).set(7, 0.0);
+            if (((List) lista.get(i)).get(7) == null) {
+                ((List) lista.get(i)).set(7, 0.0);
             }
-            if (((Vector) lista.get(i)).get(8) == null) {
-                ((Vector) lista.get(i)).set(8, 0.0);
+            if (((List) lista.get(i)).get(8) == null) {
+                ((List) lista.get(i)).set(8, 0.0);
             }
-            if (((Vector) lista.get(i)).get(9) == null) {
-                ((Vector) lista.get(i)).set(9, 0.0);
+            if (((List) lista.get(i)).get(9) == null) {
+                ((List) lista.get(i)).set(9, 0.0);
             }
-            if (((Vector) lista.get(i)).get(10) == null) {
-                ((Vector) lista.get(i)).set(10, 0.0);
+            if (((List) lista.get(i)).get(10) == null) {
+                ((List) lista.get(i)).set(10, 0.0);
             }
-            if (((Vector) lista.get(i)).get(11) == null) {
-                ((Vector) lista.get(i)).set(11, 0.0);
+            if (((List) lista.get(i)).get(11) == null) {
+                ((List) lista.get(i)).set(11, 0.0);
             }
 
-            if (((Integer) ((Vector) lista.get(i)).get(13)) < 0) {
-                ((Vector) lista.get(i)).set(13, 0);
+            if (((Integer) ((List) lista.get(i)).get(13)) < 0) {
+                ((List) lista.get(i)).set(13, 0);
             }
 
             // data ----
             boolean hdata, hvalor;
-            int data1 = DataHoje.converteDataParaInteger(DataHoje.converteData((Date) ((Vector) lista.get(i)).get(4)));
+            int data1 = DataHoje.converteDataParaInteger(DataHoje.converteData((Date) ((List) lista.get(i)).get(4)));
 
             if (data1 < DataHoje.converteDataParaInteger(DataHoje.data())) {
                 hdata = true;
@@ -121,7 +120,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
             }
 
             // valor ----
-            if ((Integer) ((Vector) lista.get(i)).get(2) == 4) {
+            if ((Integer) ((List) lista.get(i)).get(2) == 4) {
                 hvalor = false;
             } else {
                 hvalor = true;
@@ -129,23 +128,23 @@ public class WebContribuintesBean extends MovimentoValorBean {
 
             listaMovimento.add(new DataObject(
                     false,
-                    ((Vector) lista.get(i)).get(0), // boleto
-                    dao.find(new Servicos(), (Integer) ((Vector) lista.get(i)).get(1)), // servico
-                    dao.find(new TipoServico(), (Integer) ((Vector) lista.get(i)).get(2)), // tipo
-                    ((Vector) lista.get(i)).get(3), // referencia
-                    DataHoje.converteData((Date) ((Vector) lista.get(i)).get(4)), // vencimento
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(5))), // valor_mov
-                    ((Vector) lista.get(i)).get(6), // valor_folha
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(7))), // multa
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(8))), // juros
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(9))), // correcao
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(10))), // desconto
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(11))), // valor_calculado
-                    ((Vector) lista.get(i)).get(12), // meses em atraso
-                    ((Vector) lista.get(i)).get(13), // dias em atraso
-                    ((Vector) lista.get(i)).get(14), // indice
-                    ((Vector) lista.get(i)).get(15), // id movimento
-                    Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(11))), // valor_calculado original
+                    ((List) lista.get(i)).get(0), // boleto
+                    dao.find(new Servicos(), (Integer) ((List) lista.get(i)).get(1)), // servico
+                    dao.find(new TipoServico(), (Integer) ((List) lista.get(i)).get(2)), // tipo
+                    ((List) lista.get(i)).get(3), // referencia
+                    DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), // vencimento
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(5))), // valor_mov
+                    ((List) lista.get(i)).get(6), // valor_folha
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(7))), // multa
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(8))), // juros
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(9))), // correcao
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(10))), // desconto
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))), // valor_calculado
+                    ((List) lista.get(i)).get(12), // meses em atraso
+                    ((List) lista.get(i)).get(13), // dias em atraso
+                    ((List) lista.get(i)).get(14), // indice
+                    ((List) lista.get(i)).get(15), // id movimento
+                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))), // valor_calculado original
                     hdata, // null
                     hvalor, // null
                     "0", // null
@@ -401,11 +400,11 @@ public class WebContribuintesBean extends MovimentoValorBean {
             MovimentoDao dbm = new MovimentoDao();
 
             List<Movimento> lm = dbm.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId());
-                                
+
             if (!lm.isEmpty() && lm.size() > 1) {
                 GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
                 return;
-            } else if (!lm.isEmpty()){
+            } else if (!lm.isEmpty()) {
                 GenericaMensagem.error("Atenção", "Este boleto já existe!");
                 return;
             }
@@ -463,13 +462,13 @@ public class WebContribuintesBean extends MovimentoValorBean {
                     );
 
                     StatusRetorno sr = GerarMovimento.salvarUmMovimento(new Lote(), movi);
-                    
+
                     if (sr.getStatus()) {
-                        
+
                         loadList();
                         GenericaMensagem.info("Sucesso", "Boleto Adicionado!");
                         renderNovo = false;
-                        
+
                     } else {
                         GenericaMensagem.error("Atenção", sr.getMensagem());
                     }

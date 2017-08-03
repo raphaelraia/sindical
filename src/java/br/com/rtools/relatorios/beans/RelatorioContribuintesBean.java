@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -97,6 +98,7 @@ public class RelatorioContribuintesBean implements Serializable {
     private String finishDate;
     private Juridica empresa;
     private List<Juridica> listEmpresa;
+    private Relatorios relatorios;
 
     public RelatorioContribuintesBean() {
         GenericaSessao.remove("juridicaPesquisa");
@@ -670,9 +672,9 @@ public class RelatorioContribuintesBean implements Serializable {
         CentroComercialDao ccd = new CentroComercialDao();
         if (getShow("centro_comercial")) {
             if (selectedCentroComercial == null || selectedCentroComercial.isEmpty()) {
-                if(tipoCentroComercial.equals("com")) {
+                if (tipoCentroComercial.equals("com")) {
                     GenericaMensagem.warn("Sistema", "Selecione pelo menos um centro comercial.");
-                    return;                    
+                    return;
                 }
             }
             String in_centro_comercial = inIdCentroComercial();
@@ -821,6 +823,7 @@ public class RelatorioContribuintesBean implements Serializable {
                     ));
                 }
             }
+            Jasper.EXPORT_TO = true;
             Jasper.printReports(rcd.getRelatorios().getJasper(), rcd.getRelatorios().getNome(), (Collection) c);
         } catch (Exception erro) {
             GenericaMensagem.info("Sistema", "O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
@@ -1254,4 +1257,22 @@ public class RelatorioContribuintesBean implements Serializable {
     public void setListEmpresa(List<Juridica> listEmpresa) {
         this.listEmpresa = listEmpresa;
     }
+
+    public Relatorios getRelatorios() {
+        try {
+            if (relatorios != null && !Objects.equals(relatorios.getId(), idRelatorio)) {
+                Jasper.EXPORT_TO = false;
+            }
+            relatorios = (Relatorios) new Dao().find(new Relatorios(), idRelatorio);
+        } catch (Exception e) {
+            relatorios = new Relatorios();
+            Jasper.EXPORT_TO = false;
+        }
+        return relatorios;
+    }
+
+    public void setRelatorios(Relatorios relatorios) {
+        this.relatorios = relatorios;
+    }
+
 }
