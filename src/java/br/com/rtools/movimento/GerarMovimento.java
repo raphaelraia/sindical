@@ -1488,6 +1488,8 @@ public class GerarMovimento extends DB {
         Plano5Dao plano5DB = new Plano5Dao();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
 
+        valor_baixa = Moeda.converteDoubleR$Double(valor_baixa);
+        
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -1519,6 +1521,7 @@ public class GerarMovimento extends DB {
         }
 
         double soma = 0;
+        
         for (Movimento movimento : lista_movimento) {
             soma = Moeda.soma(soma, movimento.getValor());
 
@@ -1531,7 +1534,9 @@ public class GerarMovimento extends DB {
                 return lista_log;
             }
         }
-
+        
+        soma = Moeda.converteDoubleR$Double(soma);
+        
         if (valor_baixa == soma) {
             // valor baixado corretamente
             for (Movimento movimento : lista_movimento) {
@@ -1600,7 +1605,6 @@ public class GerarMovimento extends DB {
                 }
             }
             dao.commit();
-            //sv.desfazerTransacao();
             lista_log[0] = 7; // 7 - VALOR DO ARQUIVO MAIOR
             lista_log[1] = lista_movimento;
             lista_log[2] = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MAIOR com acréscimo de " + Moeda.converteR$Double(acrescimo);

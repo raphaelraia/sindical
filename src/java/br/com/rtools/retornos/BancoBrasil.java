@@ -2,7 +2,6 @@ package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.GenericaRetorno;
 import br.com.rtools.utilitarios.Moeda;
@@ -12,8 +11,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 
 public class BancoBrasil extends ArquivoRetorno {
 
@@ -29,6 +26,8 @@ public class BancoBrasil extends ArquivoRetorno {
             valorRepasse = "",
             dataPagamento = "",
             dataCredito = "";
+
+    private Integer statusRegistro = null;
 
     public BancoBrasil(ContaCobranca contaCobranca) {
         super(contaCobranca);
@@ -69,6 +68,19 @@ public class BancoBrasil extends ArquivoRetorno {
                             }
                             valorTaxa = ((String) lista.get(i)).substring(198, 213);
                             dataVencimento = ((String) lista.get(i)).substring(73, 81);
+
+                            switch (((String) lista.get(i)).substring(15, 17)) {
+                                // RETORNO VEM COM A CONFIRMAÇÃO QUE FOI REGISTRADO ( REFERENTE A REMESSA GERADA )
+                                case "02":
+                                    statusRegistro = 1; // BOLETO REGISTRADO
+                                    break;
+                                case "03":
+                                    statusRegistro = 2; // BOLETO REJEITADO
+                                    break;
+                                default:
+                                    statusRegistro = 3; // BOLETO PARA BAIXAR
+                                    break;
+                            }
                         }
                         try {
                             int con = Integer.parseInt(dataVencimento);
