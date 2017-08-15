@@ -440,7 +440,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List listaMovimentosExtrato(String tipo, String faixa_data, String tipo_data, String data_inicial, String data_final, String referencia_inicial, String referencia_final, String boleto_inicial, String boleto_final, int id_servico, int id_tipo_servico, int id_pessoa, String ordenacao, boolean movimentoDaEmpresa, Integer filial_id) {
+    public List listaMovimentosExtrato(String tipo, String faixa_data, String tipo_data, String data_inicial, String data_final, String referencia_inicial, String referencia_final, String boleto_inicial, String boleto_final, int id_servico, int id_tipo_servico, int id_pessoa, String ordenacao, boolean movimentoDaEmpresa, Integer filial_id, Integer id_status_retorno) {
         String qry_data = "", qry_servico = "", qry_tipo_servico = "", qry_condicao = "", qry_boleto = "", qry_pessoa = "", qry_filial = "", ordem = "";
 
         String textQuery;
@@ -595,7 +595,7 @@ public class MovimentoDao extends DB {
                 break;
         }
 
-        if(filial_id != null) {
+        if (filial_id != null) {
             qry_servico = " and l.id_filial = " + filial_id + " \n ";
         }
 
@@ -692,6 +692,23 @@ public class MovimentoDao extends DB {
         } else {
             ordem += "ba.dt_importacao desc, nome";
         }
+
+        String qry_status_boleto = "";
+
+        switch (id_status_retorno) {
+            case -1:
+                // TODOS BOLETOS
+                break;
+            case -2:
+                // NÃO REGISTRADOS
+                qry_status_boleto += " AND (b.id_status_retorno IS NULL OR b.id_status_retorno = 4) AND b.dt_vencimento >= '01/09/2017'";
+                break;
+            default:
+                // STATUS
+                qry_status_boleto += " AND b.id_status_retorno = " + id_status_retorno;
+                break;
+        }
+
         textQuery = "select m.id            as id, \n " // 0
                 + "       p.ds_documento  as documento, \n " // 1
                 + "       p.ds_nome       as nome, \n " //2 
@@ -710,7 +727,7 @@ public class MovimentoDao extends DB {
                 + "       m.nr_correcao   as correcao, \n "//15
                 + "       m.nr_desconto   as desconto, \n "//16
                 + "       cc.nr_repasse   as repasse, \n "//17
-                + "        case when ba.id = null              then 0 else ba.id end   as id_baixa,  \n "
+                + "       case when ba.id = null              then 0 else ba.id end   as id_baixa,  \n "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, \n "
                 + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, \n "
                 + "       m.nr_valor_baixa as valor_baixa,\n "
@@ -736,7 +753,7 @@ public class MovimentoDao extends DB {
                 + "   and m.is_ativo = " + ativo + " \n "
                 + "   and m.id_pessoa = p.id \n "
                 + "   and m.id_servicos = s.id \n "
-                + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao + qry_filial
+                + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao + qry_filial + qry_status_boleto
                 + "     group by m.id, \n"
                 + "        p.ds_documento, \n"
                 + "        p.ds_nome, \n"
@@ -1366,12 +1383,12 @@ public class MovimentoDao extends DB {
 
             filtros += grupoCidadeConvencao;
 
-            switch (email) {
+            switch (email) { // EMAIL                
                 case "com":
-                    email = " AND ( ( pj.id_contabilidade IS NULL AND pcomp.id_status_cobranca = 2 ) OR (pj.id_contabilidade > 0 AND pcompe.id_status_cobranca = 2) ) \n";
-                    break;
+                    email = " AND ( (  (pj.id_contabilidade IS NULL or pj.is_cobranca_escritorio=false) AND pcomp.id_status_cobranca = 2 ) OR (pj.id_contabilidade > 0 AND pj.is_cobranca_escritorio=true AND pcompe.id_status_cobranca = 2) ) \n ";
+                    break; // CORREIOS                
                 case "sem":
-                    email = " AND ( ( pj.id_contabilidade IS NULL AND pcomp.id_status_cobranca = 1 ) OR (pj.id_contabilidade > 0 AND pcompe.id_status_cobranca = 1) )  ";
+                    email = " AND ( (  (pj.id_contabilidade IS NULL OR pj.is_cobranca_escritorio=false) AND pcomp.id_status_cobranca = 1 ) OR (pj.id_contabilidade > 0 AND pj.is_cobranca_escritorio=true AND pcompe.id_status_cobranca = 1) )   AND (m.id_servicos = 2 AND bo.id_conta_cobranca = 1 ) \n ";
                     break;
                 default:
                     email = " ";
@@ -1400,15 +1417,15 @@ public class MovimentoDao extends DB {
             String textQry = "SELECT m.ds_documento AS boleto,                                                              \n" // 0 BOLETO
                     + "              contr.ds_nome  AS razao,                                                               \n" // 1 EMPRESA NOME
                     + "              contr.ds_documento AS cnpj,                                                            \n" // 2 EMPRESA DOCUMENTO
-                    + "    CASE WHEN ( x.idcontabilidade > 0 )  THEN p_contabil.ds_nome ELSE '' END AS escritorio,          \n" // 3 CONTABILIDADE NOME
+                    + "    CASE WHEN ( x.idcontabilidade > 0 AND pj.is_cobranca_escritorio = true)  THEN p_contabil.ds_nome ELSE '' END AS escritorio,          \n" // 3 CONTABILIDADE NOME
                     + "              s.ds_descricao  AS servico,                                                            \n" // 4 SERVIÇO (CONTRIBUIÇÃO)
                     + "              t.ds_descricao  AS tipo_servico,                                                       \n" // 5 TIPO DE SERVIÇO
                     + "              m.dt_vencimento AS vencimento,                                                         \n" // 6 VENCIMENTO
                     + "              m.ds_referencia AS referencia,                                                         \n" // 7 REFERÊNCIA
                     + "              m.id AS id,                                                                            \n" // 8 MOVIMENTO ID
-                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN p_contabil.id ELSE 0 END AS idContabilidade,            \n" // 9 CONTABILIDADE id_pessoa
+                    + "    CASE WHEN ( x.idcontabilidade > 0 AND pj.is_cobranca_escritorio = true) THEN p_contabil.id ELSE 0 END AS idContabilidade,            \n" // 9 CONTABILIDADE id_pessoa
                     + "              contr.id_juridica AS idJuridica,                                                       \n" // 10 EMPRESA id_juridica
-                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN x.qtde ELSE 0 END AS qtde,                              \n" // 11 QUANTIDADE
+                    + "    CASE WHEN ( x.idcontabilidade > 0 AND pj.is_cobranca_escritorio = true) THEN x.qtde ELSE 0 END AS qtde,                              \n" // 11 QUANTIDADE
                     + "              bo.dt_cobranca_registrada AS data_cobranca_registrada,                                 \n" // 12 DATA COBRANÇA REGISTRADA
                     + "              cc.is_cobranca_registrada                                                              \n" // 13 COBRANÇA REGISTRADA
                     + "         FROM fin_movimento              AS m                                                    \n"
@@ -1964,25 +1981,19 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List<Movimento> pesquisaMovimentos(int idPessoa, String idRef, int idTipoServ, int idServicos) {
-        int i = 0;
-        String texto = "";
-
+    public List<Movimento> pesquisaMovimentos(int id_pessoa, String ds_ref, int id_tipo_servico, int id_servicos) {
         try {
-            texto = "select mov "
-                    + "  from Movimento mov            "
-                    + " where mov.referencia = :r      "
-                    + "   and mov.tipoServico.id = :t  "
-                    + "   and mov.servicos.id = :s     "
-                    + "   and mov.pessoa.id  = :p      "
-                    + "   and mov.ativo = true";
+            String texto
+                    = "SELECT m.* \n "
+                    + "  FROM fin_movimento m \n "
+                    + " WHERE m.ds_referencia = '" + ds_ref + "' \n "
+                    + "   AND m.id_pessoa = " + id_pessoa + " \n "
+                    + "   AND m.id_servicos = " + id_servicos + " \n "
+                    + "   AND ( \n "
+                    + "         (m.id_tipo_servico = " + id_tipo_servico + " AND m.is_ativo = TRUE) OR (m.id_tipo_servico = " + id_tipo_servico + " AND m.id_acordo > 0 AND m.is_ativo = FALSE) \n "
+                    + "       )";
 
-            Query qry = getEntityManager().createQuery(texto);
-            qry.setParameter("r", idRef);
-            qry.setParameter("t", idTipoServ);
-            qry.setParameter("s", idServicos);
-            qry.setParameter("p", idPessoa);
-
+            Query qry = getEntityManager().createNativeQuery(texto, Movimento.class);
             // DEVE RETORNAR APENAS UM RESULTADO OU ZERO, SE TRAZER MAIS DE UM ESTA COM ERRO POIS NÃO PODE DUPLICAR A CHAVE
             return qry.getResultList();
         } catch (Exception e) {

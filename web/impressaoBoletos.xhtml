@@ -64,8 +64,8 @@
                                                     <p:selectOneMenu id="cbEmail" value="#{impressaoBoletosBean.cbEmail}" style="margin-left: 20px;">
                                                         <p:ajax event="change" listener="#{impressaoBoletosBean.limparTotais()}" update="i_panel_botao tbl_vencimento" global="false"/>
                                                         <f:selectItem itemValue="todos" itemLabel="Todos"/>
-                                                        <f:selectItem itemValue="com" itemLabel="Com e-mail"/>
-                                                        <f:selectItem itemValue="sem" itemLabel="Sem e-mail"/>
+                                                        <f:selectItem itemValue="com" itemLabel="E-mail"/>
+                                                        <f:selectItem itemValue="sem" itemLabel="Correios"/>
                                                     </p:selectOneMenu>
                                                 </h:panelGrid>                                            
                                             </h:column>

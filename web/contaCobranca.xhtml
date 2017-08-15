@@ -117,19 +117,13 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid style="margin-top: 10px" columns="8">
+                                <h:panelGrid style="margin-top: 10px; width: 100%" columns="9">
                                     <p:column>
-                                        <h:outputLabel value="Layout:" />
-                                    </p:column>
-
-                                    <p:column>
+                                        <p:outputLabel value="Layout" /><br />
                                         <p:selectOneMenu value="#{contaCobrancaBean.idLayout}" style="width: 150px;">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{contaCobrancaBean.listaLayout}" />
                                         </p:selectOneMenu>
-                                    </p:column>
-
-                                    <p:column>
                                         <p:selectOneMenu value="#{contaCobrancaBean.contaCobranca.nrLayout}" style="width: 50px;">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItem itemValue="240" itemLabel="240"/>
@@ -138,23 +132,27 @@
                                     </p:column>
 
                                     <p:column>
-                                        <h:outputLabel value="Boleto Atual: "/>
-                                    </p:column>
-
-                                    <p:column>
+                                        <h:outputLabel value="Boleto Atual: "/><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.boletoAtual}" size="8" maxlength="100" title="Boleto Atual" disabled="true" style="opacity: .5; text-align: right"/>
                                     </p:column>
 
+
                                     <p:column>
+                                        <br />
                                         <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.arrecadacao}" itemLabel="Baixa Arrecadação" style="margin-left: 20px"/>
                                     </p:column>
 
                                     <p:column>
+                                        <br />
                                         <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.associativo}" itemLabel="Baixa Associativo" style="margin-left: 20px"/>
                                     </p:column>
 
                                     <p:column>
-                                        <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.cobrancaRegistrada}" itemLabel="! Cobranca Registrada" style="margin-left: 20px; font-weight: bold"/>
+                                        <p:outputLabel value="Tipo de Cobrança" /><br />
+                                        <p:selectOneMenu value="#{contaCobrancaBean.indexListaCobrancaRegistrada}" style="width: 50px;">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{contaCobrancaBean.listaCobrancaRegistrada}" />
+                                        </p:selectOneMenu>
                                     </p:column>
                                 </h:panelGrid>
 

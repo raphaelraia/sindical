@@ -53,7 +53,10 @@ public class JuridicaReceita implements Serializable {
     private String email;
     @Column(name = "ds_telefone", length = 500)
     private String telefone;
-        
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_situacao_cadastral")
+    private Date dtSituacaoCadastral;
+
     public JuridicaReceita() {
         this.id = -1;
         this.pessoa = new Pessoa();
@@ -72,9 +75,10 @@ public class JuridicaReceita implements Serializable {
         this.cnaeSegundario = "";
         this.cidade = "";
         this.uf = "";
+        this.dtSituacaoCadastral = null;
     }
 
-    public JuridicaReceita(int id, Pessoa pessoa, Date dtPesquisa, String documento, String nome, String fantasia, String cep, String descricaoEndereco, String bairro, String complemento, String numero, String cnae, String status, Date dtAbertura, String cnaeSegundario, String cidade, String uf) {
+    public JuridicaReceita(int id, Pessoa pessoa, Date dtPesquisa, String documento, String nome, String fantasia, String cep, String descricaoEndereco, String bairro, String complemento, String numero, String cnae, String status, Date dtAbertura, String cnaeSegundario, String cidade, String uf, Date dtSituacaoCadastral) {
         this.id = id;
         this.pessoa = pessoa;
         this.dtPesquisa = dtPesquisa;
@@ -92,6 +96,7 @@ public class JuridicaReceita implements Serializable {
         this.cnaeSegundario = cnaeSegundario;
         this.cidade = cidade;
         this.uf = uf;
+        this.dtSituacaoCadastral = dtSituacaoCadastral;
     }
 
     public int getId() {
@@ -252,5 +257,13 @@ public class JuridicaReceita implements Serializable {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public Date getDtSituacaoCadastral() {
+        return dtSituacaoCadastral;
+    }
+
+    public void setDtSituacaoCadastral(Date dtSituacaoCadastral) {
+        this.dtSituacaoCadastral = dtSituacaoCadastral;
     }
 }

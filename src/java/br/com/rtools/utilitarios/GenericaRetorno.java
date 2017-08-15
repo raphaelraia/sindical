@@ -1,5 +1,7 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.financeiro.StatusRetorno;
+
 public final class GenericaRetorno {
 
     private String cnpj;
@@ -18,59 +20,26 @@ public final class GenericaRetorno {
     private String nomeArquivo;
     private String dataCredito;
     private String sequencialArquivo;
-
-    public GenericaRetorno() {
-        this.setCnpj("");
-        this.setCodigoCedente("");
-        this.setNossoNumero("");
-        this.setValorPago("");
-        this.setValorTaxa("");
-        this.setValorCredito("");
-        this.setDataPagamento("");
-        this.setDataVencimento("");
-        this.setAcrescimo("");
-        this.setValorDesconto("");
-        this.setValorAbatimento("");
-        this.setValorRepasse("");
-        this.setNomePasta("");
-        this.setNomeArquivo("");
-        this.setDataCredito("");
-        this.setSequencialArquivo("");
-    }
-
-    public GenericaRetorno(
-            String cnpj,
-            String codigoCedente,
-            String nossoNumero,
-            String valorPago,
-            String valorTaxa,
-            String valorCredito,
-            String dataPagamento,
-            String dataVencimento,
-            String acrescimo,
-            String valorDesconto,
-            String valorAbatimento,
-            String valorRepasse,
-            String nomePasta,
-            String nomeArquivo,
-            String dataCredito,
-            String sequencialArquivo) {
-        this.setCnpj(cnpj);
-        this.setCodigoCedente(codigoCedente);
-        this.setNossoNumero(nossoNumero);
-        this.setValorPago(valorPago);
-        this.setValorTaxa(valorTaxa);
-        this.setValorCredito(valorCredito);
-        this.setDataPagamento(dataPagamento);
-        this.setDataVencimento(dataVencimento);
-        this.setAcrescimo(acrescimo);
-        this.setValorDesconto(valorDesconto);
-        this.setValorAbatimento(valorAbatimento);
-        this.setValorRepasse(valorRepasse);
-        this.setNomePasta(nomePasta);
-        this.setNomeArquivo(nomeArquivo);
-        this.setDataCredito(dataCredito);
-        this.setSequencialArquivo(sequencialArquivo);
+    private StatusRetorno statusRetorno;
+    
+    public GenericaRetorno(String cnpj, String codigoCedente, String nossoNumero, String valorPago, String valorTaxa, String valorCredito, String dataPagamento, String dataVencimento, String acrescimo, String valorDesconto, String valorAbatimento, String valorRepasse, String nomePasta, String nomeArquivo, String dataCredito, String sequencialArquivo, StatusRetorno statusRetorno) {
+        this.cnpj = cnpj;
+        this.codigoCedente = codigoCedente;
+        this.nossoNumero = nossoNumero;
+        this.valorPago = valorPago;
+        this.valorTaxa = valorTaxa;
+        this.valorCredito = valorCredito;
+        this.dataPagamento = dataPagamento;
+        this.dataVencimento = dataVencimento;
+        this.acrescimo = acrescimo;
+        this.valorDesconto = valorDesconto;
+        this.valorAbatimento = valorAbatimento;
+        this.valorRepasse = valorRepasse;
+        this.nomePasta = nomePasta;
+        this.nomeArquivo = nomeArquivo;
+        this.dataCredito = dataCredito;
+        this.sequencialArquivo = sequencialArquivo;
+        this.statusRetorno = statusRetorno;
     }
 
     public String getCnpj() {
@@ -199,5 +168,13 @@ public final class GenericaRetorno {
 
     public void setSequencialArquivo(String sequencialArquivo) {
         this.sequencialArquivo = sequencialArquivo;
+    }
+
+    public StatusRetorno getStatusRetorno() {
+        return statusRetorno;
+    }
+
+    public void setStatusRetorno(StatusRetorno statusRetorno) {
+        this.statusRetorno = statusRetorno;
     }
 }

@@ -414,6 +414,8 @@ public class JuridicaBean implements Serializable {
                     jro = new JuridicaReceitaJSON(documento, "gratis").pesquisar();
                 } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 4) {
                     jro = new JuridicaReceitaJSON(pesquisaCNPJ, "rtools").pesquisar();
+                } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 5) {
+                    jro = new JuridicaReceitaJSON(documento, "hubdodesenvolvedor").pesquisar();
                 } else {
                     jro = new JuridicaReceitaJSON(documento, "sindical").pesquisar();
                 }
@@ -469,6 +471,12 @@ public class JuridicaBean implements Serializable {
             juridica.getPessoa().setNome(juridicaReceita.getNome().toUpperCase());
             juridica.setFantasia(juridicaReceita.getFantasia().toUpperCase());
             juridica.setDtAbertura(juridicaReceita.getDtAbertura());
+            if (juridicaReceita.getDtSituacaoCadastral() != null) {
+                juridica.getPessoa().setDtAtualizacao(juridicaReceita.getDtSituacaoCadastral());
+            }
+            if (juridicaReceita.getStatus().toUpperCase().equals("BAIXADA")) {
+                juridica.setDtFechamento(juridicaReceita.getDtSituacaoCadastral());
+            }
 
             if (jro == null) {
                 return;
@@ -930,6 +938,23 @@ public class JuridicaBean implements Serializable {
                     return null;
                 }
                 if (dao.save(juridica)) {
+
+                    if (juridicaReceita != null && juridicaReceita.getId() != -1) {
+                        if (juridicaReceita.getStatus().toUpperCase().equals("BAIXADA")) {
+                            ContribuintesInativos ci = new ContribuintesInativos();
+                            ci.setJuridica(juridica);
+                            ci.setDtInativacao(juridicaReceita.getDtSituacaoCadastral());
+                            ci.setMotivoInativacao((MotivoInativacao) dao.find(new MotivoInativacao(), 4));
+                            ci.setSolicitante("SISTEMA");
+                            ci.setObservacao("INATIVAÇÃO AUTOMÁTICA PELO SISTEMA, CONFORME CADASTRO INATIVO NA RECEITA!!!");
+                            if (!dao.save(ci)) {
+                                GenericaMensagem.error("Erro", "Erro ao salvar contribuinte inátivo!");
+                                dao.rollback();
+                                return null;
+                            }
+                            contribuintesInativos = ci;
+                        }
+                    }
 
                     if (newMei) {
                         if (fisicaMei != null && fisicaMei.getId() != -1) {
@@ -2233,6 +2258,18 @@ public class JuridicaBean implements Serializable {
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).extratoTela();
     }
 
+    public void updateCobrancaEscritorio(Juridica j) {
+        new Dao().update(j, true);
+        if(j.isCobrancaEscritorio()) {
+             GenericaMensagem.info("Sucesso", "A COBRANÇA SERÁ REALIZADA NESTE ESCRITÓRIO");
+        } else {
+             GenericaMensagem.info("Sucesso", "A COBRANÇA SERÁ FEITA DIRETA NA EMPRESA");
+        }
+        listaEmpresasPertencentes = new ArrayList();
+        getListaEmpresasPertencentes();
+
+    }
+
     public String retornaDaInativacao() {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
         return "pessoaJuridica";
@@ -3474,14 +3511,14 @@ public class JuridicaBean implements Serializable {
     public void loadListStatusCobranca(Boolean isListEscritorio) {
         listStatusCobranca = new ArrayList();
         List<StatusCobranca> list = new Dao().find("StatusCobranca", new int[]{1, 2});
-        if(isListEscritorio == null || isListEscritorio == false) {
+        if (isListEscritorio == null || isListEscritorio == false) {
             if (juridica.getId() != -1) {
                 if (juridica.getCnae() != null && juridica.getCnae().getId() != -1) {
                     if (juridica.getCnae().getId() == 1) {
                         isListEscritorio = true;
                     }
                 }
-            }            
+            }
         }
         for (int i = 0; i < list.size(); i++) {
             if (null != list.get(i).getId()) {
@@ -3674,5 +3711,13 @@ public class JuridicaBean implements Serializable {
 
     public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
         this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
+
+    public JuridicaReceita getJuridicaReceita() {
+        return juridicaReceita;
+    }
+
+    public void setJuridicaReceita(JuridicaReceita juridicaReceita) {
+        this.juridicaReceita = juridicaReceita;
     }
 }

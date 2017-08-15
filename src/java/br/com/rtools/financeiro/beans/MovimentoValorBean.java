@@ -198,7 +198,7 @@ public abstract class MovimentoValorBean {
                         MovimentoDao dbm = new MovimentoDao();
                         Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
                         if (bol != null) {
-                            if (bol.getContaCobranca().isCobrancaRegistrada()) {
+                            if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
                                 bol.setDtCobrancaRegistrada(null);
                                 dao.update(bol);
                             }
@@ -249,7 +249,7 @@ public abstract class MovimentoValorBean {
                         MovimentoDao dbm = new MovimentoDao();
                         Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
                         if (bol != null) {
-                            if (bol.getContaCobranca().isCobrancaRegistrada()) {
+                            if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
                                 bol.setDtCobrancaRegistrada(null);
                                 dao.update(bol);
                             }

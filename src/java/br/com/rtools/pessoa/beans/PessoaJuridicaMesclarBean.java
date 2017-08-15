@@ -756,6 +756,14 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 return;
             }
         }
+        List<JuridicaReceita> listJuridicaReceita = new JuridicaReceitaDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listJuridicaReceita.size(); i++) {
+            if (!dao.delete(listJuridicaReceita.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER JURIDÍCA RECEITA!");
+                return;
+            }
+        }
         JuridicaImportacao juridicaImportacao = new JuridicaImportacaoDao().findByJuridica(remover.getId());
         if (juridicaImportacao != null) {
             if (!dao.delete(juridicaImportacao)) {

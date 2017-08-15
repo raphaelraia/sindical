@@ -302,6 +302,7 @@ public class ConciliacaoBean implements Serializable {
                 null,
                 null,
                 null,
+                0,
                 0
         );
     }

@@ -104,16 +104,19 @@ public class ExtratoTelaBean implements Serializable {
     Integer idFilial;
 
     private ControleAcessoBean cab = new ControleAcessoBean();
-    
+
+    private Integer indexListaStatusRetorno = 0;
+    private final List<SelectItem> listaStatusRetorno = new ArrayList();
+
+    private Boolean selecionaTodos = false;
+
     public ExtratoTelaBean() {
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
-        
+
         // NÃO PRECISA PEGAR DA SESSÃO
         //cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
-        
         // NUNCA SETAR O MÓDULO DENTRO DESTA PÁGINA, POIS ESTA ALTERANDO O MÓDULO PADRÃO DA TELA ( ex. quando vem de social o módulo é 2, e aqui estava colocando 3 - ERRO FEITO POR CLAUDEMIR
         //cab.setModulo((Modulo) new Dao().find(new Modulo(), 3));
-        
         motivoReativacao = "";
 
         if (cab.getListaExtratoTela(false)) {
@@ -122,6 +125,47 @@ public class ExtratoTelaBean implements Serializable {
             porPesquisa = "naoRecebidas";
         }
         listMovimentos = new ArrayList();
+
+        loadListaStatusRetorno();
+    }
+
+    public void marcarTodos() {
+        listaMovimentos.stream().forEach((da) -> {
+            da.setArgumento0(selecionaTodos);
+        });
+    }
+
+    public void fecharModalRemessa() {
+        loadListBeta();
+    }
+
+    public void changeStatusRetorno() {
+        Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
+        if (id_status_retorno == -2) {
+            porPesquisa = "naoRecebidas";
+        }
+    }
+
+    public final void loadListaStatusRetorno() {
+        listaStatusRetorno.clear();
+
+        List<StatusRetorno> result = new Dao().list(new StatusRetorno());
+
+        listaStatusRetorno.add(new SelectItem(0, "Todos Boletos", "-1"));
+        listaStatusRetorno.add(new SelectItem(1, "Não Registrados", "-2"));
+
+        Integer indx = 1;
+
+        for (int i = 0; i < result.size(); i++) {
+            listaStatusRetorno.add(
+                    new SelectItem(
+                            indx + 1,
+                            result.get(i).getDescricao(),
+                            Integer.toString(result.get(i).getId())
+                    )
+            );
+            indx++;
+        }
     }
 
     public void alterarMovimento(Integer id) {
@@ -188,60 +232,66 @@ public class ExtratoTelaBean implements Serializable {
             return;
         }
 
-        if ((tipoData.equals("ate") || tipoData.equals("apartir")) && pessoa.getId() == -1) {
-            GenericaMensagem.warn("Validação", "Pesquisar uma pessoa caso o tipo de filtro de data seja até ou a partir!");
-            return;
-        }
+        Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
 
-        if (pessoa.getId() == -1) {
+        // TODOS BOLETOS / BOLETO REGISTRADO / BOLETO LIQUIDADO
+        if (id_status_retorno == -1 || id_status_retorno == 2 || id_status_retorno == 3) {
 
-            if ((boletoInicial.equals("0") && boletoFinal.equals("0")) || (boletoInicial.isEmpty() && boletoFinal.isEmpty())) {
-                if (tipoDataPesquisa.equals("referencia")) {
-                    if (dataRefInicial.isEmpty() && dataRefFinal.isEmpty()) {
-                        GenericaMensagem.warn("Validação", "Informar referência uma referência, boleto ou uma pessoa para filtrar!");
-                        return;
-                    }
-                    if (dataRefInicial.isEmpty()) {
-                        GenericaMensagem.warn("Validação", "Informar a referência inicial!");
-                        return;
-                    }
-                    if (tipoData.equals("faixa")) {
-                        if (dataRefFinal.isEmpty()) {
-                            GenericaMensagem.warn("Validação", "Informar a referência final!");
+            if ((tipoData.equals("ate") || tipoData.equals("apartir")) && pessoa.getId() == -1) {
+                GenericaMensagem.warn("Validação", "Pesquisar uma pessoa caso o tipo de filtro de data seja até ou a partir!");
+                return;
+            }
+
+            if (pessoa.getId() == -1) {
+
+                if ((boletoInicial.equals("0") && boletoFinal.equals("0")) || (boletoInicial.isEmpty() && boletoFinal.isEmpty())) {
+                    if (tipoDataPesquisa.equals("referencia")) {
+                        if (dataRefInicial.isEmpty() && dataRefFinal.isEmpty()) {
+                            GenericaMensagem.warn("Validação", "Informar referência uma referência, boleto ou uma pessoa para filtrar!");
                             return;
                         }
-                        if (!dataRefInicial.equals(dataRefFinal)) {
-                            if (DataHoje.maiorData("01/" + dataRefInicial, "01/" + dataRefFinal)) {
-                                GenericaMensagem.warn("Validação", "Referência final deve ser maior ou igual que data inicial!");
+                        if (dataRefInicial.isEmpty()) {
+                            GenericaMensagem.warn("Validação", "Informar a referência inicial!");
+                            return;
+                        }
+                        if (tipoData.equals("faixa")) {
+                            if (dataRefFinal.isEmpty()) {
+                                GenericaMensagem.warn("Validação", "Informar a referência final!");
                                 return;
                             }
+                            if (!dataRefInicial.equals(dataRefFinal)) {
+                                if (DataHoje.maiorData("01/" + dataRefInicial, "01/" + dataRefFinal)) {
+                                    GenericaMensagem.warn("Validação", "Referência final deve ser maior ou igual que data inicial!");
+                                    return;
+                                }
 
+                            }
                         }
-                    }
-                } else {
-                    if ((dataInicial.isEmpty() && dataFinal.isEmpty())) {
-                        GenericaMensagem.warn("Validação", "Informar data, boleto ou uma pessoa para filtrar!");
-                        return;
-                    }
-                    if (dataInicial.isEmpty()) {
-                        GenericaMensagem.warn("Validação", "Informar a data inicial!");
-                        return;
-                    }
-                    if (tipoData.equals("faixa")) {
-                        if (dataFinal.isEmpty()) {
-                            GenericaMensagem.warn("Validação", "Informar a data final!");
+                    } else {
+                        if ((dataInicial.isEmpty() && dataFinal.isEmpty())) {
+                            GenericaMensagem.warn("Validação", "Informar data, boleto ou uma pessoa para filtrar!");
                             return;
                         }
-                        if (!dataInicial.equals(dataFinal)) {
-                            if (DataHoje.maiorData(dataInicial, dataFinal)) {
-                                GenericaMensagem.warn("Validação", "Data final deve ser maior ou igual que data inicial!");
+                        if (dataInicial.isEmpty()) {
+                            GenericaMensagem.warn("Validação", "Informar a data inicial!");
+                            return;
+                        }
+                        if (tipoData.equals("faixa")) {
+                            if (dataFinal.isEmpty()) {
+                                GenericaMensagem.warn("Validação", "Informar a data final!");
                                 return;
+                            }
+                            if (!dataInicial.equals(dataFinal)) {
+                                if (DataHoje.maiorData(dataInicial, dataFinal)) {
+                                    GenericaMensagem.warn("Validação", "Data final deve ser maior ou igual que data inicial!");
+                                    return;
+                                }
                             }
                         }
                     }
                 }
-            }
 
+            }
         }
 
         loadListaEmpresasPertencentes();
@@ -306,7 +356,7 @@ public class ExtratoTelaBean implements Serializable {
         // USAR PARA DEPURAR COM LISTA VAZIA
         // List<Vector> listax = new ArrayList<Vector>();
         List<Vector> listax = db.listaMovimentosExtrato(
-                porPesquisa, tipoDataPesquisa, tipoData, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, ic, its, pessoa.getId(), ordenacao, movimentosDasEmpresas, idFilial
+                porPesquisa, tipoDataPesquisa, tipoData, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, ic, its, pessoa.getId(), ordenacao, movimentosDasEmpresas, idFilial, id_status_retorno
         );
 
         MovimentoDao movimentosDao = new MovimentoDao();
@@ -704,7 +754,7 @@ public class ExtratoTelaBean implements Serializable {
         movimentosDasEmpresas = false;
         listaMovimentos = new ArrayList();
         listMovimentos = new ArrayList();
-        pessoa_documento  = "";
+        pessoa_documento = "";
     }
 
     public void limparDatas() {
@@ -862,7 +912,7 @@ public class ExtratoTelaBean implements Serializable {
 
         for (int i = 0; i < listaMovimentos.size(); i++) {
             if (((Boolean) listaMovimentos.get(i).getArgumento0())) {
-                StatusRetorno sr = GerarMovimento.excluirUmMovimento(db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1()));
+                StatusRetornoMensagem sr = GerarMovimento.excluirUmMovimento(db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1()));
                 if (!sr.getStatus()) {
                     exc = false;
                 }
@@ -1034,7 +1084,7 @@ public class ExtratoTelaBean implements Serializable {
 
         for (DataObject listaMovimento : listaMovimentos) {
             if ((Boolean) listaMovimento.getArgumento0()) {
-                StatusRetorno sr = GerarMovimento.estornarMovimento(db.pesquisaCodigo((Integer) listaMovimento.getArgumento1()), motivoEstorno);
+                StatusRetornoMensagem sr = GerarMovimento.estornarMovimento(db.pesquisaCodigo((Integer) listaMovimento.getArgumento1()), motivoEstorno);
                 if (!sr.getStatus()) {
                     msgConfirma = sr.getMensagem();
                     GenericaMensagem.error("ERRO", sr.getMensagem());
@@ -1154,33 +1204,35 @@ public class ExtratoTelaBean implements Serializable {
 
         listaC = imp.atualizaContaCobrancaMovimento(listaC);
 
-        MovimentoDao dao = new MovimentoDao();
-        Boleto boleto_teste = dao.pesquisaBoletos(listaC.get(0).getNrCtrBoleto());
-        String ids_movimento = "";
+        //MovimentoDao dao = new MovimentoDao();
+        Boleto boleto_teste = listaC.get(0).getBoleto();
+        String ids_boleto = "";
 
+        List<Boleto> lista_boleto = new ArrayList();
         for (Movimento m : listaC) {
-            Boleto boletox = dao.pesquisaBoletos(m.getNrCtrBoleto());
+            Boleto boletox = m.getBoleto();
             if (boleto_teste.getContaCobranca().getId() != boletox.getContaCobranca().getId()) {
                 GenericaMensagem.error("Atenção", "Para gerar a remessa os boletos devem ser da mesma Conta Cobrança!");
                 return null;
             }
 
-            if (ids_movimento.isEmpty()) {
-                ids_movimento = "" + m.getId();
+            if (ids_boleto.isEmpty()) {
+                ids_boleto = "" + boletox.getId();
             } else {
-                ids_movimento += ", " + m.getId();
+                ids_boleto += ", " + boletox.getId();
             }
+            lista_boleto.add(boletox);
         }
         RemessaBancoDao daor = new RemessaBancoDao();
 
-        List<RemessaBanco> l_rb = daor.listaMovimentoComRemessaBanco(ids_movimento);
+        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_boleto);
 
         if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getMovimento().getDocumento());
+            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
             return null;
         }
 
-        File fi = imp.imprimirRemessa(listaC, boleto_teste);
+        File fi = imp.imprimirRemessa(lista_boleto, boleto_teste);
         if (fi == null) {
             GenericaMensagem.error("Atenção", "Erro ao gerar Remessa!");
             return null;
@@ -2115,7 +2167,7 @@ public class ExtratoTelaBean implements Serializable {
         }
         return false;
     }
-    
+
     public List<ExtratoTelaObject> getListMovimentos() {
         return listMovimentos;
     }
@@ -2190,6 +2242,26 @@ public class ExtratoTelaBean implements Serializable {
                 loadListBeta();
             }
         }
+    }
+
+    public List<SelectItem> getListaStatusRetorno() {
+        return listaStatusRetorno;
+    }
+
+    public Integer getIndexListaStatusRetorno() {
+        return indexListaStatusRetorno;
+    }
+
+    public void setIndexListaStatusRetorno(Integer indexListaStatusRetorno) {
+        this.indexListaStatusRetorno = indexListaStatusRetorno;
+    }
+
+    public Boolean getSelecionaTodos() {
+        return selecionaTodos;
+    }
+
+    public void setSelecionaTodos(Boolean selecionaTodos) {
+        this.selecionaTodos = selecionaTodos;
     }
 
     public class ExtratoTelaObject {

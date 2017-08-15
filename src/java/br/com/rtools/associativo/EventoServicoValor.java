@@ -31,6 +31,8 @@ public class EventoServicoValor implements java.io.Serializable {
     private int idadeFinal;
     @Column(name = "ds_sexo", nullable = true, length = 1)
     private String sexo;
+    @Column(name = "nr_desconto_primeira_venda")
+    private Double descontoPrimeiraVenda;
 
     public EventoServicoValor() {
         this.id = -1;
@@ -39,15 +41,17 @@ public class EventoServicoValor implements java.io.Serializable {
         this.idadeInicial = 0;
         this.idadeFinal = 150;
         this.sexo = "A";
+        this.descontoPrimeiraVenda = new Double(0);
     }
 
-    public EventoServicoValor(int id, EventoServico eventoServico, double valor, int idadeInicial, int idadeFinal, String sexo) {
+    public EventoServicoValor(int id, EventoServico eventoServico, double valor, int idadeInicial, int idadeFinal, String sexo, Double descontoPrimeiraVenda) {
         this.id = id;
         this.eventoServico = eventoServico;
         this.valor = valor;
         this.idadeInicial = idadeInicial;
         this.idadeFinal = idadeFinal;
         this.sexo = sexo;
+        this.descontoPrimeiraVenda = descontoPrimeiraVenda;
     }
 
     public int getId() {
@@ -121,4 +125,28 @@ public class EventoServicoValor implements java.io.Serializable {
     public void setSexo(String sexo) {
         this.sexo = sexo;
     }
+
+    public Double getDescontoPrimeiraVenda() {
+        return descontoPrimeiraVenda;
+    }
+
+    public void setDescontoPrimeiraVenda(Double descontoPrimeiraVenda) {
+        if (descontoPrimeiraVenda > 100) {
+            descontoPrimeiraVenda = new Double(0);
+        }
+        this.descontoPrimeiraVenda = descontoPrimeiraVenda;
+    }
+
+    public String getDescontoPrimeiraVendaString() {
+        return Moeda.converteR$Double(descontoPrimeiraVenda);
+    }
+
+    public void setDescontoPrimeiraVendaString(String descontoPrimeiraVendaString) {
+        if (Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString) > valor) {
+            this.descontoPrimeiraVenda = new Double(0);
+        } else {
+            this.descontoPrimeiraVenda = Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString);            
+        }
+    }
+
 }

@@ -70,6 +70,7 @@
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO!')}" escape="false" rendered="#{juridicaBean.pessoaComplemento.bloqueiaObsAviso}" />
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO:', juridicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty juridicaBean.pessoaComplemento.obsAviso}" />                                    
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('info', 'NOVO CADASTRO DE MICRO EMPREENDEDOR INDIVIDUAL', juridicaBean.fisicaMei.pessoa.nome.concat(' - ').concat(juridicaBean.fisicaMei.pessoa.documento))}" escape="false" rendered="#{juridicaBean.newMei}" />
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'Importante', 'EMPRESA COM SITUAÇÃO BAIXADA')}" escape="false" rendered="#{juridicaBean.juridicaReceita != null and juridicaBean.juridicaReceita.id != -1 and juridicaBean.juridicaReceita.status eq 'BAIXADA'}" />
                                 </h:panelGroup>
                                 <p:messages id="i_msg_m" autoUpdate="true" showDetail="true" closable="true"/>
                                 <p:tabView id="i_tabview_juridica" style="width: 100%" activeIndex="#{juridicaBean.indicaTab}">
@@ -375,6 +376,12 @@
                                                 <p:column headerText="Cidade / UF" width="250" style="text-align: center">
                                                     <h:outputText value="#{linha.argumento1.endereco.cidade.cidade} - #{linha.argumento1.endereco.cidade.uf}"/>
                                                 </p:column>
+                                                
+                                                <p:column headerText="Cobrança no Escritório" width="100" style="text-align: center">
+                                                    <p:selectBooleanCheckbox value="#{linha.argumento0.cobrancaEscritorio}">
+                                                        <p:ajax event="change" update="@this" listener="#{juridicaBean.updateCobrancaEscritorio(linha.argumento0)}"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </p:column>
 
                                                 <p:column headerText="" width="100" style="text-align: center">
                                                     <p:commandLink value="Ver Extrato" action="#{juridicaBean.extratoTelaListaContabil(linha.argumento0)}" style="color: red"/>
@@ -420,8 +427,11 @@
                                                     <p:ajax event="change" update="@this"  />
                                                 </h:inputTextarea>
                                             </p:column>
-                                            <h:outputLabel value="Status Cobrança" rendered="#{juridicaBean.juridica.contabilidade == null or juridicaBean.juridica.contabilidade.id eq juridicaBean.juridica.id}" />
-                                            <p:selectOneMenu value="#{juridicaBean.idStatusCobranca}" rendered="#{juridicaBean.juridica.contabilidade == null or juridicaBean.juridica.contabilidade.id eq juridicaBean.juridica.id}" disabled="#{juridicaBean.juridica.id eq -1}">
+                                            <p:selectBooleanCheckbox value="#{juridicaBean.juridica.cobrancaEscritorio}" itemLabel="Cobrança no Escritório?" rendered="#{juridicaBean.juridica.contabilidade != null}">
+                                                <p:ajax event="change" update="@this id_pg_b" />
+                                            </p:selectBooleanCheckbox>                              
+                                            <h:outputLabel value="Status Cobrança" rendered="#{juridicaBean.juridica.contabilidade == null or juridicaBean.juridica.contabilidade.id eq juridicaBean.juridica.id or !juridicaBean.juridica.cobrancaEscritorio}" />
+                                            <p:selectOneMenu value="#{juridicaBean.idStatusCobranca}" rendered="#{juridicaBean.juridica.contabilidade == null or juridicaBean.juridica.contabilidade.id eq juridicaBean.juridica.id or !juridicaBean.juridica.cobrancaEscritorio}" disabled="#{juridicaBean.juridica.id eq -1}">
                                                 <p:ajax event="change" update="@this"/>
                                                 <f:selectItems value="#{juridicaBean.listStatusCobranca}" />
                                             </p:selectOneMenu>

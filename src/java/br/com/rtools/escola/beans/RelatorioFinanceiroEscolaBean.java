@@ -74,7 +74,7 @@ public class RelatorioFinanceiroEscolaBean implements Serializable {
         }
     }
 
-    public void imprimir() {
+    public void print() {
         Relatorios relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
 
         String tipo_pessoa = null, id_servicos = "";

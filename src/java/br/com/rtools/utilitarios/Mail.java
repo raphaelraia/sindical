@@ -342,10 +342,10 @@ public class Mail extends MailTemplate implements Serializable {
                         strings[1] = "Email de destinatário inválido!";
                         strings[1] += " - " + returnExceptionText(e.getMessage());
                     } catch (MessagingException e) {
-                        if(e.getCause().toString().contains("PKIX")) {
+                        if(e.getCause() != null && e.getCause().toString().contains("PKIX")) {
                             strings[1] = "" + e.getCause().toString();                            
                         } else {
-                            strings[1] = "" + returnExceptionText(e.getMessage());                            
+                            strings[1] = "" + returnExceptionText(e.getMessage());
                         }
                     } catch (UnsupportedEncodingException ex) {
                         strings[1] = "Erro ";

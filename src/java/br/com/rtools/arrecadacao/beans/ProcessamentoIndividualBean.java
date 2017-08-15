@@ -12,7 +12,6 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.dao.HistoricoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -39,7 +38,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -514,7 +513,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     if (!movimentoBefore.getVencimento().equals(movim.getVencimento())) {
                         Boleto bol = finDB.pesquisaBoletos(movim.getNrCtrBoleto());
                         if (bol != null) {
-                            if (bol.getContaCobranca().isCobrancaRegistrada()) {
+                            if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
                                 bol.setDtCobrancaRegistrada(null);
                                 new Dao().update(bol, true);
                             }
@@ -544,7 +543,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     movim.setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                     String vencto = ((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento();
 
-                    StatusRetorno sr = GerarMovimento.salvarUmMovimento(lote, movim);
+                    StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(lote, movim);
 
                     if (sr.getStatus()) {
 

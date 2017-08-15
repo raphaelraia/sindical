@@ -62,11 +62,11 @@ public class EventoBaileDao extends DB {
         if (como.equals("P")) {
             desc = "%" + desc.toLowerCase().toUpperCase() + "%";
             textQuery = "select objeto from EventoBaile objeto where UPPER(objeto.evento.descricaoEvento.descricao) like :desc"
-                    + " order by objeto.evento.descricaoEvento.descricao";
+                    + " order by objeto.data DESC, objeto.evento.descricaoEvento.descricao";
         } else if (como.equals("I")) {
             desc = desc.toLowerCase().toUpperCase() + "%";
             textQuery = "select objeto from EventoBaile objeto where UPPER(objeto.evento.descricaoEvento.descricao) like :desc"
-                    + " order by objeto.evento.descricaoEvento.descricao";
+                    + " order by objeto.data DESC, objeto.evento.descricaoEvento.descricao";
         }
         try {
             Query qry = getEntityManager().createQuery(textQuery);
@@ -193,7 +193,7 @@ public class EventoBaileDao extends DB {
         }
 
         try {
-            Query qry = getEntityManager().createNativeQuery(textQuery, EventoBaileImpressaoConvite.class);
+            Query qry = getEntityManager().createNativeQuery(textQuery + "ORDER BY ebic.dt_impressao DESC, ebic.ds_hora_impressao DESC, ebic.id DESC ", EventoBaileImpressaoConvite.class);
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();

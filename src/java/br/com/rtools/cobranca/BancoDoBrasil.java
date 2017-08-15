@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Usuario;
@@ -32,8 +33,8 @@ public class BancoDoBrasil extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public BancoDoBrasil(List<Movimento> listaMovimento) {
-        super(listaMovimento);
+    public BancoDoBrasil(List<Boleto> listaBoleto) {
+        super(listaBoleto);
     }
 
     @Override
@@ -259,7 +260,8 @@ public class BancoDoBrasil extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaMovimento.isEmpty()) {
+            if (listaBoleto.isEmpty()) {
+                dao.rollback();
                 return null;
             }
             // header do arquivo -----------------------------------------------
@@ -274,7 +276,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "2"; // 05.0 Tipo de Inscrição da Empresa 18181- Numérico  G005 1 – para CPF e 2 – para CNPJ.
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa 193214- Numérico G006 Informar número da inscrição (CPF ou CNPJ) da Empresa,  alinhado à direita com zeros à esquerda.
 
-            Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
+            Boleto boleto_rem = listaBoleto.get(0); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente();
@@ -282,11 +284,11 @@ public class BancoDoBrasil extends Cobranca {
 
             // CONVENIO DIFERENCIADO PARA BB ( INICIAIS DO NOSSO NÚMERO )
             String convenio = "000000000";
-            
-            if (listaMovimento.get(0).getDocumento().length() == 17) {
-                convenio = "000000000".substring(0, 9 - listaMovimento.get(0).getDocumento().substring(0, 7).length()) + listaMovimento.get(0).getDocumento().substring(0, 7);
-            } else if (listaMovimento.get(0).getDocumento().length() == 11) {
-                convenio = "000000000".substring(0, 9 - listaMovimento.get(0).getDocumento().substring(0, 6).length()) + listaMovimento.get(0).getDocumento().substring(0, 6);
+
+            if (boleto_rem.getBoletoComposto().length() == 17) {
+                convenio = "000000000".substring(0, 9 - boleto_rem.getBoletoComposto().substring(0, 7).length()) + boleto_rem.getBoletoComposto().substring(0, 7);
+            } else if (boleto_rem.getBoletoComposto().length() == 11) {
+                convenio = "000000000".substring(0, 9 - boleto_rem.getBoletoComposto().substring(0, 6).length()) + boleto_rem.getBoletoComposto().substring(0, 6);
             }
 
             CONTEUDO_REMESSA += convenio; // 07.0 BB1 Nùmero do convênio de cobrança BB
@@ -364,8 +366,9 @@ public class BancoDoBrasil extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaMovimento.size(); i++) {
-                Movimento mov = listaMovimento.get(i);
+            for (Integer i = 0; i < listaBoleto.size(); i++) {
+                Boleto bol = listaBoleto.get(i);
+                List<Movimento> lista_m = bol.getListaMovimento();
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "001"; // 01.3P Código do Banco na Compensação 133- Numérico  G001 001 para Banco do Brasil S.A.
@@ -384,22 +387,29 @@ public class BancoDoBrasil extends Cobranca {
                 // 14 cobraça registrada // JÁ ESTA NO NÚMERO DO DOCUMENTO EM MOVIMENTO
                 //CONTEUDO_REMESSA += "14"; // 13.3P Carteira/Nosso Número Modalidade da Carteira 41 42 9(002) Ver Nota Explicativa G069 *G069
                 //CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - mov.getDocumento().length()) + mov.getDocumento(); // 13.3P Identificação do Título no Banco 385720- Alfanumérico G069 
-                CONTEUDO_REMESSA += (mov.getDocumento() + "                    ").substring(0, 20); // 13.3P Identificação do Título no Banco 385720- Alfanumérico G069 
+                CONTEUDO_REMESSA += (bol.getBoletoComposto() + "                    ").substring(0, 20); // 13.3P Identificação do Título no Banco 385720- Alfanumérico G069 
                 CONTEUDO_REMESSA += "1"; // 14.3P Código da Carteira 58581-  Numérico  C006
                 CONTEUDO_REMESSA += "1"; // 15.3P Forma de Cadastr. do Título no Banco 59591- Numérico C007 Campo não tratado pelo sistema do Banco do Brasil. Pode ser informado 'branco', Zero, 1 – com   cadastramento (Cobrança registrada) ou 2 – sem cadastramento (Cobrança sem registro).
                 CONTEUDO_REMESSA += "0"; // 16.3P Tipo de Documento 60601- Alfanumérico C008 Campo não tratado pelo sistema do Banco do Brasil. Pode ser informado 'branco', Zero, 1 – Tradicional, ou 2 –   Escritural.
                 CONTEUDO_REMESSA += "0"; // 17.3P Identificação da Emissão do Bloqueto 61611- Numérico C009 
                 CONTEUDO_REMESSA += "0"; // 18.3P Identificação da Distribuição 62621-  Alfanumérico  C010
-                CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + mov.getId()).length()) + mov.getId(); // 19.3P Número do Documento de Cobrança 637715-  Alfanumérico  C011
-                CONTEUDO_REMESSA += mov.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título 78858-  Numérico  C012
+                CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + bol.getId()).length()) + bol.getId(); // 19.3P Número do Documento de Cobrança 637715-  Alfanumérico  C011
+                CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título 78858-  Numérico  C012
+
+                Double valor_titulo_double = new Double(0);
+
+                for (Movimento m : lista_m) {
+                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                }
 
                 String valor_titulo;
-                // FIXAR VALOR 1,00 CASO FOR MENOR QUE 1,00
-                //if (mov.getValor() < 1) {
-                //    valor_titulo = "100";
-                //} else {
-                valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
-                //}
+                // FIXAR VALOR 0,01 CASO FOR MENOR QUE 0,01
+                if (valor_titulo_double < 1) {
+                    valor_titulo = "1";
+                } else {
+                    valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");
+                }
+
                 // NO MANUAL FALA 13 PORÉM TEM QUE SER 15, ACHO QUE POR CAUSA DAS DECIMAIS ,00 (O MANUAL NÃO EXPLICA ISSO)
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor Nominal do Título 8610013 2Numérico  G070
                 CONTEUDO_REMESSA += "00000"; // 22.3P Agência Encarregada da Cobrança 1011055-  Numérico  C014 Informar Zeros. A agência encarregada da Cobrança é definida de acordo com o CEP do sacado. 
@@ -417,7 +427,7 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000000"; // 32.3P Desconto 1 Valor/Percentual
                 CONTEUDO_REMESSA += "000000000000000"; // 33.3P Valor do IOF a ser Recolhido 16618013 2Numérico  C024
                 CONTEUDO_REMESSA += "000000000000000"; // 34.3P Valor do Abatimento 18119513 G045
-                CONTEUDO_REMESSA += "                         ".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 35.3P Identificação do Título na Empresa 19622025-  Alfanumérico  G072
+                CONTEUDO_REMESSA += "                         ".substring(0, 25 - ("" + bol.getId()).length()) + bol.getId(); // 35.3P Identificação do Título na Empresa 19622025-  Alfanumérico  G072
                 CONTEUDO_REMESSA += "3"; // 36.3P Código para Protesto 2212211-  Numérico  C026
                 CONTEUDO_REMESSA += "00"; // 37.3P Número de Dias para Protesto 2222232- 
                 CONTEUDO_REMESSA += "0"; // 38.3P Código para Baixa/Devolução 2242241- 
@@ -442,18 +452,20 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += " "; // 06.3Q Uso Exclusivo FEBRABAN/CNAB 15 151- Alfanumérico Brancos G004
                 CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa 16 172- Numérico  C004
 
-                if (mov.getPessoa().getTipoDocumento().getId() == 1) { // CPF
+                Pessoa pessoa = bol.getPessoa();
+
+                if (pessoa.getTipoDocumento().getId() == 1) { // CPF
                     CONTEUDO_REMESSA += "1"; // 08.3Q Tipo de Inscrição 18 181- Numérico 
-                } else if (mov.getPessoa().getTipoDocumento().getId() == 2) { // CNPJ
+                } else if (pessoa.getTipoDocumento().getId() == 2) { // CNPJ
                     CONTEUDO_REMESSA += "2"; // 08.3Q Tipo de Inscrição 18 181- Numérico 
                 }
 
-                String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
+                String documento_pessoa = pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "");
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição 19 3315- Numérico 
 
-                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome 34 7340- Alfanumérico  G013
+                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((pessoa.getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome 34 7340- Alfanumérico  G013
 
-                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
+                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
                 if (pessoa_endereco != null) {
                     String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
                             end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
@@ -494,22 +506,22 @@ public class BancoDoBrasil extends Cobranca {
 
                 Double valor_l;
 
-                if (mov.getValor() < 1) {
+                if (valor_titulo_double < 1) {
                     valor_l = new Double(1);
                 } else {
-                    valor_l = mov.getValor();
+                    valor_l = valor_titulo_double;
                 }
 
                 valor_total_lote = Moeda.soma(valor_total_lote, valor_l);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
                     return null;
                 }
 
-                list_log.add("ID: " + mov.getId());
+                list_log.add("ID: " + bol.getId());
                 list_log.add("Valor: " + Moeda.converteDoubleToString(valor_l));
                 list_log.add("-----------------------");
             }
@@ -520,7 +532,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço 474 - Numérico  G002 Informar mesmo número do header de lote. 
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 881 - Numérico '5' G003
             CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB 9179 - Alfanumérico  G004 Informar 'brancos'. 
-            Integer quantidade_lote = (2 * listaMovimento.size()) + 2;
+            Integer quantidade_lote = (2 * listaBoleto.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros do Lote 18236 - Numérico G057 Total de linhas do lote (inclui Header de lote, Registros e  Trailer de lote).
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                         "; // 06.5 Uso Exclusivo FEBRABAN/CNAB 24240217 - Alfanumérico Brancos G004 Informar Zeros e 'brancos'.
 
@@ -537,7 +549,7 @@ public class BancoDoBrasil extends Cobranca {
 
             CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo 18236- Numérico  G049 Informar quantos lotes o arquivo possui. 
 
-            Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
+            Integer quantidade_registros = (2 * listaBoleto.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24296- Numérico 
 
             CONTEUDO_REMESSA += "      "; // 07.9 Qtde de Contas p/ Conc. (Lotes) 30356- Numérico 
@@ -564,6 +576,7 @@ public class BancoDoBrasil extends Cobranca {
             return new File(destino);
         } catch (IOException | NumberFormatException e) {
             e.getMessage();
+            dao.rollback();
             return null;
         }
     }
@@ -573,9 +586,9 @@ public class BancoDoBrasil extends Cobranca {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDao dbmov = new MovimentoDao();
 
+        Dao dao = new Dao();
         try {
             String nome_arquivo = "ARQX" + DataHoje.hora().replace(":", "") + ".txt";
-            Dao dao = new Dao();
 
             dao.openTransaction();
 
@@ -621,7 +634,8 @@ public class BancoDoBrasil extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaMovimento.isEmpty()) {
+            if (listaBoleto.isEmpty()) {
+                dao.rollback();
                 return null;
             }
             // header ----------------------------------------------------------
@@ -637,7 +651,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "COBRANCA"; // 012 a 019 X(008) Identificação por Extenso do Tipo de Serviço: “COBRANCA”
             CONTEUDO_REMESSA += "       "; // 020 a 026 X(007) Complemento do Registro: “Brancos”
 
-            Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
+            Boleto boleto_rem = listaBoleto.get(0);
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente().replace(",", "");
@@ -676,8 +690,9 @@ public class BancoDoBrasil extends Cobranca {
             Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
 
-            for (Integer i = 0; i < listaMovimento.size(); i++) {
-                Movimento mov = listaMovimento.get(i);
+            for (Integer i = 0; i < listaBoleto.size(); i++) {
+                Boleto bol = listaBoleto.get(i);
+                List<Movimento> lista_m = bol.getListaMovimento();
 
                 CONTEUDO_REMESSA += "7"; // 001 a 001 9(001) Identificação do Registro Detalhe: 7 (sete)
                 CONTEUDO_REMESSA += "02"; // 002 a 003 9(002) Tipo de Inscrição do Cedente (01 - CPF / 02 - CNPJ)
@@ -690,9 +705,9 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "00000000".substring(0, 8 - codigo_cedente.length()) + codigo_cedente; // 023 a 030 9(008) Número da Conta Corrente do Cedente
                 CONTEUDO_REMESSA += moduloOnze(codigo_cedente); // 031 a 031 X(001) Dígito Verificador - D.V. - do Número da Conta Corrente do Cedente 
                 CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7); // NÚMERO DO CONVÊNIO (criar campo no banco pra isso) // 032 a 038 9(007) Número do Convênio de Cobrança do Cedente
-                CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 039 a 063 X(025) Código de Controle da Empresa 
+                CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + bol.getId()).length()) + bol.getId(); // 039 a 063 X(025) Código de Controle da Empresa 
                 //CONTEUDO_REMESSA += (boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7) + "0000000000").substring(0, 17 - ("" + (Integer.valueOf(mov.getDocumento()))).length()) + ("" + (Integer.valueOf(mov.getDocumento()))); // 064 a 080 9(017) Nosso-Número 
-                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - mov.getDocumento().length()) + mov.getDocumento(); // 064 a 080 9(017) Nosso-Número 
+                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - bol.getBoletoComposto().length()) + bol.getBoletoComposto(); // 064 a 080 9(017) Nosso-Número 
                 CONTEUDO_REMESSA += "00"; // 081 a 082 9(002) Número da Prestação: “00” (Zeros)
                 CONTEUDO_REMESSA += "00"; // 083 a 084 9(002) Grupo de Valor: “00” (Zeros)
                 CONTEUDO_REMESSA += "   "; // 085 a 087 X(003) Complemento do Registro: “Brancos”
@@ -704,13 +719,25 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "04DSC"; // 102 a 106 X(005) Tipo de Cobrança
                 CONTEUDO_REMESSA += "17"; // 107 a 108 9(002) Carteira de Cobrança 
                 CONTEUDO_REMESSA += "01"; // 109 a 110 9(002) Comando
-                CONTEUDO_REMESSA += "0000000000".substring(0, 10 - ("" + mov.getId()).length()) + mov.getId(); // 111 a 120 X(010) Seu Número/Número do Título Atribuído pelo Cedente 
+                CONTEUDO_REMESSA += "0000000000".substring(0, 10 - ("" + bol.getId()).length()) + bol.getId(); // 111 a 120 X(010) Seu Número/Número do Título Atribuído pelo Cedente 
 
-                String[] data_vencimento = DataHoje.DataToArrayString(mov.getVencimento());
+                String[] data_vencimento = DataHoje.DataToArrayString(bol.getVencimento());
 
                 CONTEUDO_REMESSA += data_vencimento[0] + data_vencimento[1] + data_vencimento[2].substring(2, 4); // 121 a 126 9(006) Data de Vencimento 
 
-                String valor_titulo = Moeda.converteR$Double(mov.getValor()).replace(".", "").replace(",", "");
+                Double valor_titulo_double = new Double(0);
+
+                for (Movimento m : lista_m) {
+                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                }
+
+                String valor_titulo;
+                // FIXAR VALOR 0,01 CASO FOR MENOR QUE 0,01
+                if (valor_titulo_double < 1) {
+                    valor_titulo = "1";
+                } else {
+                    valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");
+                }
 
                 CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - valor_titulo.length()) + valor_titulo; // 127 a 139 9(011)v99 Valor do Título 
                 CONTEUDO_REMESSA += "001"; // 140 a 142 9(003) Número do Banco: “001”
@@ -730,17 +757,20 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000000"; // 180 a 192 9(011)v99 Valor do Desconto 
                 CONTEUDO_REMESSA += "0000000000000"; // 193 a 205 9(011)v99 Valor do IOF/Qtde Unidade Variável. 
                 CONTEUDO_REMESSA += "0000000000000"; // 206 a 218 9(011)v99 Valor do Abatimento 
-                if (mov.getPessoa().getTipoDocumento().getId() == 1) {
+
+                Pessoa pessoa = bol.getPessoa();
+
+                if (pessoa.getTipoDocumento().getId() == 1) {
                     CONTEUDO_REMESSA += "01"; // 219 a 220 9(002) Tipo de Inscrição do Sacado CPF
-                } else if (mov.getPessoa().getTipoDocumento().getId() == 2) {
+                } else if (pessoa.getTipoDocumento().getId() == 2) {
                     CONTEUDO_REMESSA += "02"; // 219 a 220 9(002) Tipo de Inscrição do Sacado CNPJ
                 }
-                String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
+                String documento_pessoa = pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "");
                 CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_pessoa.length()) + documento_pessoa; // 221 a 234 9(014) Número do CNPJ ou CPF do Sacado
-                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                     ").substring(0, 37)); // 235 a 271 X(037) Nome do Sacado
+                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((pessoa.getNome() + "                                     ").substring(0, 37)); // 235 a 271 X(037) Nome do Sacado
                 CONTEUDO_REMESSA += "   "; // 272 a 274 X(003) Complemento do Registro: “Brancos”
 
-                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
+                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
                 if (pessoa_endereco != null) {
                     String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
                             end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
@@ -773,15 +803,15 @@ public class BancoDoBrasil extends Cobranca {
 
                 CONTEUDO_REMESSA = "";
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
                     return null;
                 }
 
-                list_log.add("ID: " + mov.getId());
-                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("ID: " + bol.getId());
+                list_log.add("Valor: " + valor_titulo);
                 list_log.add("-----------------------");
             }
             // -----------------------------------------------------------------
@@ -812,6 +842,7 @@ public class BancoDoBrasil extends Cobranca {
             return new File(destino);
         } catch (IOException | NumberFormatException e) {
             e.getMessage();
+            dao.rollback();
             return null;
         }
     }

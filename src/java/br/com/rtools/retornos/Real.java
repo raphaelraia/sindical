@@ -2,7 +2,6 @@ package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.GenericaRetorno;
 import java.io.BufferedReader;
@@ -11,24 +10,23 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 
 public class Real extends ArquivoRetorno {
-    private String linha = "", 
-                   pasta = "", 
-                   cnpj = "", 
-                   codigoCedente = "", 
-                   nossoNumero = "", 
-                   dataVencimento = "", 
-                   valorTaxa = "",
-                   valorPago = "",
-                   valorCredito = "",
-                   valorRepasse = "",
-                   dataPagamento = "",
-                   dataCredito = "",
-                   sequencialArquivo = "";
-    
+
+    private String linha = "",
+            pasta = "",
+            cnpj = "",
+            codigoCedente = "",
+            nossoNumero = "",
+            dataVencimento = "",
+            valorTaxa = "",
+            valorPago = "",
+            valorCredito = "",
+            valorRepasse = "",
+            dataPagamento = "",
+            dataCredito = "",
+            sequencialArquivo = "";
+
     public Real(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
@@ -37,7 +35,7 @@ public class Real extends ArquivoRetorno {
     public List<GenericaRetorno> sicob(boolean baixar, String host) {
         host = host + "/pendentes/";
         pasta = host;
-        
+
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
@@ -78,29 +76,32 @@ public class Real extends ArquivoRetorno {
                             valorPago = ((String) lista.get(i)).substring(77, 92);
                             dataPagamento = ((String) lista.get(i)).substring(137, 145);
 
-                            listaRetorno.add(new GenericaRetorno(
-                                    cnpj, //1 ENTIDADE
-                                    codigoCedente, //2 NESTE CASO SICAS
-                                    nossoNumero, //3
-                                    valorPago, //4
-                                    valorTaxa, //5
-                                    "",//valorCredito,   //6
-                                    dataPagamento, //7
-                                    dataVencimento,//dataVencimento, //8
-                                    "", //9 ACRESCIMO
-                                    "", //10 VALOR DESCONTO
-                                    "", //11 VALOR ABATIMENTO
-                                    "", //12 VALOR REPASSE ...(valorPago - valorCredito)
-                                    pasta, // 13 NOME DA PASTA
-                                    listFile[u].getName(), //14 NOME DO ARQUIVO
-                                    "", //15 DATA CREDITO
-                                    "") // 16 SEQUENCIAL DO ARQUIVO
+                            listaRetorno.add(
+                                    new GenericaRetorno(
+                                            cnpj, //1 ENTIDADE
+                                            codigoCedente, //2 NESTE CASO SICAS
+                                            nossoNumero, //3
+                                            valorPago, //4
+                                            valorTaxa, //5
+                                            "",//valorCredito,   //6
+                                            dataPagamento, //7
+                                            dataVencimento,//dataVencimento, //8
+                                            "", //9 ACRESCIMO
+                                            "", //10 VALOR DESCONTO
+                                            "", //11 VALOR ABATIMENTO
+                                            "", //12 VALOR REPASSE ...(valorPago - valorCredito)
+                                            pasta, // 13 NOME DA PASTA
+                                            listFile[u].getName(), //14 NOME DO ARQUIVO
+                                            "", //15 DATA CREDITO
+                                            "", // 16 SEQUENCIAL DO ARQUIVO
+                                            null
+                                    )
                             );
                             i++;
                         }
                     }
                 } catch (Exception e) {
-                    continue;
+                    
                 }
             }
         }
@@ -128,7 +129,7 @@ public class Real extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSigCBSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
@@ -140,7 +141,7 @@ public class Real extends ArquivoRetorno {
         String mensagem = super.baixarArquivo(this.sicob(true, caminho), caminho, usuario);
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSicobSocial(String caminho, Usuario usuario) {
         String mensagem = super.baixarArquivoSocial(this.sicob(true, caminho), caminho, usuario);

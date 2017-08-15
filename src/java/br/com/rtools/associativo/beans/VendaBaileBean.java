@@ -10,6 +10,7 @@ import br.com.rtools.associativo.EventoBaileMapa;
 import br.com.rtools.associativo.EventoBanda;
 import br.com.rtools.associativo.EventoServicoValor;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.dao.BVendaDao;
 import br.com.rtools.associativo.dao.VendaBaileDao;
 import br.com.rtools.associativo.dao.EventoBaileDao;
 import br.com.rtools.associativo.dao.EventoBandaDao;
@@ -66,6 +67,7 @@ public class VendaBaileBean implements Serializable {
     private List<EventoBaileMapa> listaMesasBaileSelecionada = new ArrayList();
     private List<EventoBaileConvite> listaConviteBaile = new ArrayList();
     private List<EventoBaileConvite> listaConviteBaileSelecionado = new ArrayList();
+    private List<EventoBaileImpressaoConvite> listaConviteBaileImpressaoConvites = new ArrayList();
     private List<SelectItem> listaTipoVenda = new ArrayList();
     //private int idMesaBaile = 0;
     private int indexEventoBaile = 0;
@@ -81,6 +83,7 @@ public class VendaBaileBean implements Serializable {
 
     private String valor = "0,00";
     private String desconto = "0,00";
+    private double descontoPrimeiraVenda = 0;
     private String valorLiquido = "0,00";
     private String total = "0,00";
     private Integer quantidade = 0;
@@ -104,6 +107,7 @@ public class VendaBaileBean implements Serializable {
 
     private EventoBaileConvite ebcTroca = new EventoBaileConvite();
     private EventoBaileConvite ebcTrocaSelecionada = new EventoBaileConvite();
+    private Boolean editarVenda = false;
 
     @PostConstruct
     public void init() {
@@ -135,13 +139,30 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void imprimirConviteIndividual(EventoBaileConvite ebc) {
+
+        if (ebc.getMovimento() != null) {
+            if (ebc.getMovimento().getLote().getCondicaoPagamento().getId() == 1) {
+                Movimento m = (Movimento) new Dao().find(ebc.getMovimento());
+                if (m.getBaixa() == null) {
+                    GenericaMensagem.warn("Atenção", "Não é possível imprimir convites com movimentos não baixados!");
+                    return;
+                }
+            }
+        }
+
         EventoBaileDao ebdb = new EventoBaileDao();
+
         // FALSE = tem permissão
         // TRUE = não tem permissão
         // cab.verificaPermissao("reimprimir_convite_baile", 4)
-        if (!ebdb.listaEventoBaileImpressaoConvite(ebc.getId(), "convite").isEmpty() && cab.verificaPermissao("reimprimir_convite_baile", 4)) {
-            GenericaMensagem.error("Atenção", "Usuário sem permissão para reimprimir este convite!");
-            return;
+        Boolean reimpressao = cab.verificaPermissao("reimprimir_convite_baile", 4);
+        List<EventoBaileImpressaoConvite> listaEventoBaileImpressaoConvite = ebdb.listaEventoBaileImpressaoConvite(ebc.getId(), "convite");
+        if (!listaEventoBaileImpressaoConvite.isEmpty()) {
+            if (reimpressao) {
+                GenericaMensagem.error("Atenção", "Convite já impresso! Sem permissão para reimpressão.");
+                return;
+            }
+            GenericaMensagem.warn("Importante", "Convite já impresso! Reimpressão com persmissão de acesso!!!");
         }
 
         String tipo = "Individual", tipo_descricao, numero = "" + ebc.getConvite();
@@ -201,10 +222,25 @@ public class VendaBaileBean implements Serializable {
         EventoBaileDao ebdb = new EventoBaileDao();
         // FALSE = tem permissão
         // TRUE = não tem permissão
-        // cab.verificaPermissao("reimprimir_convite_baile", 4)
-        if (!ebdb.listaEventoBaileImpressaoConvite(ebm.getId(), "mesa").isEmpty() && cab.verificaPermissao("reimprimir_convite_baile", 4)) {
-            GenericaMensagem.error("Atenção", "Usuário sem permissão para reimprimir este convite!");
-            return;
+        if (ebm.getbVenda().getEventoServico().getServicos().getId() != 13 && ebm.getbVenda().getEventoServico().getServicos().getId() != 15) {
+            if (ebm.getMovimento() != null) {
+                if (ebm.getMovimento().getLote().getCondicaoPagamento().getId() == 1) {
+                    Movimento m = (Movimento) new Dao().find(ebm.getMovimento());
+                    if (m.getBaixa() == null) {
+                        GenericaMensagem.warn("Atenção", "Não é possível imprimir convites com movimentos não baixados!");
+                        return;
+                    }
+                }
+            }
+        }
+        Boolean reimpressao = cab.verificaPermissao("reimprimir_convite_baile", 4);
+        List<EventoBaileImpressaoConvite> listaEventoBaileImpressaoConvite = ebdb.listaEventoBaileImpressaoConvite(ebm.getId(), "mesa");
+        if (!listaEventoBaileImpressaoConvite.isEmpty()) {
+            if (reimpressao) {
+                GenericaMensagem.error("Atenção", "Convite já impresso! Sem permissão para reimpressão.");
+                return;
+            }
+            GenericaMensagem.warn("Importante", "Convite já impresso! Reimpressão com persmissão de acesso!!!");
         }
 
         String tipo = "Mesa", tipo_descricao, numero = "" + ebm.getMesa();
@@ -296,8 +332,8 @@ public class VendaBaileBean implements Serializable {
                     )
             );
         }
-
-        Jasper.printReports("CONVITE_BAILE.jasper", "Convite Baile", lista, params);
+        Jasper.PART_NAME = "";
+        Jasper.printReports("CONVITE_BAILE.jasper", tipo_descricao + " n" + numero + "__", lista, params);
     }
 
     public void trocarMesa(Vector linha) {
@@ -315,6 +351,21 @@ public class VendaBaileBean implements Serializable {
 
         loadListaMesa();
         PF.openDialog("dlg_trocar_mesa");
+    }
+
+    public void showHistoricoImpressao(Object o, String tcase) {
+        if (eventoBaile.getId() == -1) {
+            return;
+        }
+        listaConviteBaileImpressaoConvites = new ArrayList();
+        EventoBaileDao ebdb = new EventoBaileDao();
+        if (tcase.equals("mesa")) {
+            EventoBaileMapa ebm = (EventoBaileMapa) o;
+            listaConviteBaileImpressaoConvites = ebdb.listaEventoBaileImpressaoConvite(ebm.getId(), tcase);
+        } else {
+            EventoBaileConvite ebc = (EventoBaileConvite) o;
+            listaConviteBaileImpressaoConvites = ebdb.listaEventoBaileImpressaoConvite(ebc.getId(), tcase);
+        }
     }
 
     public void selecionarTrocarMesa(EventoBaileMapa ebm) {
@@ -532,29 +583,43 @@ public class VendaBaileBean implements Serializable {
         listaVendasConvite = dao.listaVendasConvite(eventoBaile.getEvento().getId());
     }
 
-    public void calculoDesconto() {
-        if (Moeda.converteUS$(valor) <= 0) {
-            desconto = "0,00";
-        }
-
-        valorLiquido = Moeda.converteR$Double(Moeda.converteUS$(valor) - Moeda.converteUS$(desconto));
-
-        total = Moeda.converteR$Double(Moeda.converteUS$(valorLiquido) * getQuantidade());
-    }
-
     public void somaValor() {
         if (eventoServicoValor != null) {
             valor = Moeda.converteR$Double(eventoServicoValor.getValor());
+            if (pessoa.getId() != -1) {
+
+                if (eventoServicoValor.getDescontoPrimeiraVenda() != null && eventoServicoValor.getDescontoPrimeiraVenda() != 0) {
+                    if (pessoa.getSocios().getId() != -1) {
+                        List list = new BVendaDao().findBy(pessoa.getId(), eventoServicoValor.getEventoServico().getEvento().getId());
+                        if (list.isEmpty()) {
+                            descontoPrimeiraVenda = eventoServicoValor.getDescontoPrimeiraVenda();
+                        }
+                    }
+                }
+            }
             if (venda.getId() != -1) {
                 desconto = venda.getDescontoUnitarioString();
             }
         }
-
         calculoDesconto();
     }
 
+    public void calculoDesconto() {
+        if (Moeda.converteUS$(valor) <= 0) {
+            desconto = "0,00";
+        }
+        valorLiquido = Moeda.converteR$Double(Moeda.converteUS$(valor) - Moeda.converteUS$(desconto));
+        total = Moeda.converteR$Double(Moeda.converteUS$(valorLiquido) * getQuantidade());
+        if (descontoPrimeiraVenda != 0 && Moeda.converteUS$(total) > 0) {
+            total = Moeda.converteR$Double(Moeda.converteUS$(total) - descontoPrimeiraVenda);
+            if (!tipoVenda.equals("reserva")) {
+                GenericaMensagem.info("Valor promocional", "APLICADO DESCONTO PROMOCIONAL DE R$" + eventoServicoValor.getDescontoPrimeiraVendaString() + " PARA PRIMEIRA COMPRA NESTE EVENTO!");
+            }
+        }
+    }
+
     public void loadListaServicos() {
-        listaServicos.clear();
+        listaServicos = new ArrayList();
         VendaBaileDao dao = new VendaBaileDao();
         if (!listaEventoBaile.isEmpty()) {
             EventoBaile eb = (EventoBaile) new Dao().find(new EventoBaile(), Integer.valueOf(listaEventoBaile.get(indexEventoBaile).getDescription()));
@@ -625,6 +690,7 @@ public class VendaBaileBean implements Serializable {
     public void zeraValores() {
         valor = "0,00";
         valorLiquido = "0,00";
+        descontoPrimeiraVenda = 0;
         desconto = "0,00";
         total = "0,00";
     }
@@ -634,7 +700,7 @@ public class VendaBaileBean implements Serializable {
         listaMesasBaileSelecionada = (listaMesasBaileSelecionada == null ? new ArrayList() : new ArrayList());
         if (!listaEventoBaile.isEmpty()) {
             EventoBaileDao eventoBaileDB = new EventoBaileDao();
-            if (tipoVenda.equals("venda") || tipoVenda.equals("reserva") && venda.getId() == -1) {
+            if ((tipoVenda.equals("venda") || tipoVenda.equals("reserva")) && venda.getId() == -1) {
                 listaMesasBaile = (List<EventoBaileMapa>) eventoBaileDB.listaBaileMapaDisponiveis(Integer.parseInt(listaEventoBaile.get(indexEventoBaile).getDescription()), 1, null, null);
             } else if (tipoVenda.equals("reservado")) {
                 listaMesasBaile = (List<EventoBaileMapa>) eventoBaileDB.listaBaileMapaDisponiveis(Integer.parseInt(listaEventoBaile.get(indexEventoBaile).getDescription()), 2, pessoa.getId(), venda.getId());
@@ -660,7 +726,7 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void loadListaEventoBaile() {
-        listaEventoBaile.clear();
+        listaEventoBaile = new ArrayList();
         VendaBaileDao dao = new VendaBaileDao();
         List<EventoBaile> result = dao.listaBaile(todos);
         if (!result.isEmpty()) {
@@ -705,15 +771,26 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void concluir() {
+        concluir(false);
+    }
+
+    public void concluir(Boolean updateBVenda) {
+        if (updateBVenda) {
+            if (venda.getId() != -1 && tipoVenda.equals("vendido")) {
+                new Dao().update(venda, true);
+                GenericaMensagem.info("Sucesso", "OBSERVAÇÃO ATUALIZADA!");
+                PF.update("formVendasBaile");
+                return;
+            }
+        }
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Atenção", "Pesquise uma pessoa para salvar esta venda!");
             PF.update("formVendasBaile");
             return;
         }
 
-        if (eventoServicoValor == null) {
-            GenericaMensagem.warn("Atenção", "Nenhum Serviço foi encontrado!");
-            PF.update("formVendasBaile");
+        if (eventoServicoValor == null || eventoServicoValor.getEventoServico().getId() == -1) {
+            GenericaMensagem.error("Erro", "Nenhum serviço encontrado! Para este tipo de venda!!");
             return;
         }
 
@@ -800,6 +877,11 @@ public class VendaBaileBean implements Serializable {
     public String salvar() {
         Dao dao = new Dao();
 
+        if (eventoServicoValor.getEventoServico() == null || eventoServicoValor.getEventoServico().getId() == -1) {
+            GenericaMensagem.error("Erro", "Nenhum serviço encontrado!");
+            return null;
+        }
+
         dao.openTransaction();
         EventoBaile eb = (EventoBaile) new Dao().find(new EventoBaile(), Integer.valueOf(listaEventoBaile.get(indexEventoBaile).getDescription()));
 
@@ -878,7 +960,8 @@ public class VendaBaileBean implements Serializable {
                     return telaBaixa();
                 } else {
                     GenericaMensagem.info("Sucesso", "Venda Concluída!");
-                    novo();
+                    novo(false);
+                    editar(venda, false);
                 }
                 break;
             case "reserva":
@@ -912,14 +995,28 @@ public class VendaBaileBean implements Serializable {
     }
 
     public String editar(Vector linha) {
-        venda = (BVenda) new Dao().find(new BVenda(), (Integer) linha.get(0));
+        Dao dao = new Dao();
+        venda = (BVenda) dao.find(new BVenda(), (Integer) linha.get(0));
+        editar(venda);
+        GenericaSessao.put("linkClicado", true);
+        return (String) GenericaSessao.getString("urlRetorno");
+    }
+
+    public void editar(BVenda bv) {
+        editar(bv, true);
+    }
+
+    public void editar(BVenda bv, Boolean ev) {
+        Dao dao = new Dao();
+        venda = (BVenda) dao.rebind(venda);
+        venda = bv;
         pessoa = venda.getPessoa();
         responsavel = new FunctionsDao().titularDaPessoa(pessoa.getId());
-
-        VendaBaileDao dao = new VendaBaileDao();
+        editarVenda = ev;
+        VendaBaileDao vbd = new VendaBaileDao();
         // LISTA EVENTO BAILE
-        List<EventoBaileMapa> lm = dao.listaEventoBaileMapaPorVenda(venda.getId());
-        List<EventoBaileConvite> lc = dao.listaEventoBaileConvitePorVenda(venda.getId());
+        List<EventoBaileMapa> lm = vbd.listaEventoBaileMapaPorVenda(venda.getId());
+        List<EventoBaileConvite> lc = vbd.listaEventoBaileConvitePorVenda(venda.getId());
         EventoBaile eb = new EventoBaile();
 
         if (!lm.isEmpty()) {
@@ -947,8 +1044,6 @@ public class VendaBaileBean implements Serializable {
             }
         }
 
-        GenericaSessao.put("linkClicado", true);
-        return (String) GenericaSessao.getString("urlRetorno");
     }
 
     public void excluir() {
@@ -956,7 +1051,7 @@ public class VendaBaileBean implements Serializable {
         // LISTA EVENTO BAILE
         List<EventoBaileMapa> lm = vdao.listaEventoBaileMapaPorVenda(venda.getId());
         List<EventoBaileConvite> lc = vdao.listaEventoBaileConvitePorVenda(venda.getId());
-
+        editarVenda = false;
         Dao dao = new Dao();
         dao.openTransaction();
         List<Movimento> listm = new ArrayList();
@@ -1074,7 +1169,14 @@ public class VendaBaileBean implements Serializable {
     }
 
     public String novo() {
-        //GenericaSessao.remove("vendaBaileBean");
+        novo(true);
+        return "vendasBaile";
+    }
+
+    public void novo(Boolean newVenda) {
+        if (newVenda) {
+            venda = new BVenda();
+        }
         listaMesasBaile = new ArrayList();
         listaMesasBaileSelecionada = new ArrayList();
         listaConviteBaile = new ArrayList();
@@ -1082,12 +1184,11 @@ public class VendaBaileBean implements Serializable {
         listaTipoVenda = new ArrayList();
 
         pessoa = new Pessoa();
-        venda = new BVenda();
         todos = false;
 
         mesaConvite = "mesa";
         tipoVenda = "venda";
-
+        editarVenda = false;
         idServicos = 0;
         listaServicos = new ArrayList();
 
@@ -1110,8 +1211,10 @@ public class VendaBaileBean implements Serializable {
 
         listaMovimento = new ArrayList();
 
-        init();
-        return "vendasBaile";
+        if (newVenda) {
+            init();
+        }
+
     }
 
     public String telaBaixa() {
@@ -1216,9 +1319,10 @@ public class VendaBaileBean implements Serializable {
             return false;
         }
 
+        int index = 0;
         if (mesaConvite.equals("mesa")) {
             for (EventoBaileMapa mb : listaMesasBaileSelecionada) {
-                Movimento m = movimento(l, vencimento, eb);
+                Movimento m = movimento(l, vencimento, eb, index);
                 if (!dao.save(m)) {
                     GenericaMensagem.error("Error", "Nao foi possivel salvar Movimento!");
                     listaMovimento.clear();
@@ -1232,11 +1336,12 @@ public class VendaBaileBean implements Serializable {
                     listaMovimento.clear();
                     return false;
                 }
+                index++;
 
             }
         } else {
             for (EventoBaileConvite cb : listaConviteBaileSelecionado) {
-                Movimento m = movimento(l, vencimento, eb);
+                Movimento m = movimento(l, vencimento, eb, index);
                 if (!dao.save(m)) {
                     GenericaMensagem.error("Error", "Nao foi possivel salvar Movimento!");
                     listaMovimento.clear();
@@ -1250,12 +1355,19 @@ public class VendaBaileBean implements Serializable {
                     listaMovimento.clear();
                     return false;
                 }
+                index++;
             }
         }
         return true;
     }
 
-    public Movimento movimento(Lote l, String vencimento, EventoBaile eb) {
+    public Movimento movimento(Lote l, String vencimento, EventoBaile eb, int index) {
+        double vl = Moeda.converteUS$(valorLiquido);
+        if (descontoPrimeiraVenda > 0) {
+            if (index == 0) {
+                vl = vl - descontoPrimeiraVenda;
+            }
+        }
         return new Movimento(
                 -1,
                 l,
@@ -1265,7 +1377,7 @@ public class VendaBaileBean implements Serializable {
                 null, // ID_BAIXA
                 (TipoServico) new Dao().find(new TipoServico(), 1),
                 null,
-                Moeda.converteUS$(valorLiquido),
+                vl,
                 DataHoje.converteDataParaReferencia(eb.getDataString()),
                 vencimento,
                 1,
@@ -1587,5 +1699,29 @@ public class VendaBaileBean implements Serializable {
 
     public void setEbcTrocaSelecionada(EventoBaileConvite ebcTrocaSelecionada) {
         this.ebcTrocaSelecionada = ebcTrocaSelecionada;
+    }
+
+    public double getDescontoPrimeiraVenda() {
+        return descontoPrimeiraVenda;
+    }
+
+    public void setDescontoPrimeiraVenda(double descontoPrimeiraVenda) {
+        this.descontoPrimeiraVenda = descontoPrimeiraVenda;
+    }
+
+    public Boolean getEditarVenda() {
+        return editarVenda;
+    }
+
+    public void setEditarVenda(Boolean editarVenda) {
+        this.editarVenda = editarVenda;
+    }
+
+    public List<EventoBaileImpressaoConvite> getListaConviteBaileImpressaoConvites() {
+        return listaConviteBaileImpressaoConvites;
+    }
+
+    public void setListaConviteBaileImpressaoConvites(List<EventoBaileImpressaoConvite> listaConviteBaileImpressaoConvites) {
+        this.listaConviteBaileImpressaoConvites = listaConviteBaileImpressaoConvites;
     }
 }

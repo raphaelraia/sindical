@@ -69,7 +69,6 @@ import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -341,24 +340,26 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void calculoValor() {
         String valorx;
-        Servicos se = (Servicos) new Dao().find(new Servicos(), idServico);
-        if (se != null) {
-            if (aluno.getPessoa().getSocios().getId() != -1) {
-                valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, aluno.getPessoa().getSocios().getMatriculaSocios().getCategoria().getId()));
-            } else {
-                valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
-            }
+        if (aluno.getId() != -1) {
+            Servicos se = (Servicos) new Dao().find(new Servicos(), idServico);
+            if (se != null) {
+                if (aluno.getPessoa().getSocios().getId() != -1) {
+                    valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, aluno.getPessoa().getSocios().getMatriculaSocios().getCategoria().getId()));
+                } else {
+                    valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
+                }
 
-            valor = Moeda.converteR$(valorx);
+                valor = Moeda.converteR$(valorx);
 
-            if (matriculaAcademia.getId() == -1 && desconto == 0) {
-                Dao di = new Dao();
-                AcademiaServicoValor asv = (AcademiaServicoValor) di.find(new AcademiaServicoValor(), Integer.parseInt(getListaPeriodosGrade().get(idPeriodoGrade).getDescription()));
-                if (!asv.getFormula().isEmpty()) {
-                    String calculoFormula = asv.getFormula().replace("valor", Moeda.substituiVirgula(valor));
-                    if (!(new FunctionsDao().scriptSimples(calculoFormula)).isEmpty()) {
-                        String valord = Moeda.converteR$(new FunctionsDao().scriptSimples(calculoFormula));
-                        desconto = Moeda.subtracao(Moeda.converteUS$(valorx), Moeda.converteUS$(valord));
+                if (matriculaAcademia.getId() == -1 && desconto == 0) {
+                    Dao di = new Dao();
+                    AcademiaServicoValor asv = (AcademiaServicoValor) di.find(new AcademiaServicoValor(), Integer.parseInt(getListaPeriodosGrade().get(idPeriodoGrade).getDescription()));
+                    if (!asv.getFormula().isEmpty()) {
+                        String calculoFormula = asv.getFormula().replace("valor", Moeda.substituiVirgula(valor));
+                        if (!(new FunctionsDao().scriptSimples(calculoFormula)).isEmpty()) {
+                            String valord = Moeda.converteR$(new FunctionsDao().scriptSimples(calculoFormula));
+                            desconto = Moeda.subtracao(Moeda.converteUS$(valorx), Moeda.converteUS$(valord));
+                        }
                     }
                 }
             }
@@ -367,34 +368,37 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void calculoDesconto() {
         String valorx;
-        Servicos se = (Servicos) new Dao().find(new Servicos(), idServico);
-        if (se != null) {
-            if (aluno.getPessoa().getSocios().getId() != -1) {
-                valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, aluno.getPessoa().getSocios().getMatriculaSocios().getCategoria().getId()));
-            } else {
-                valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
-            }
+        if (aluno.getId() != -1) {
 
-            String valorx_cheio = Moeda.converteR$Double(new FunctionsDao().valorServicoCheio(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje()));
-            double calculo = Moeda.subtracao(valorx_cheio) - (Moeda.converteUS$(valorx) - desconto);
-            double valor_do_percentual = Moeda.converteUS$(Moeda.percentualDoValor(valorx_cheio, Moeda.converteR$Double(calculo)));
+            Servicos se = (Servicos) new Dao().find(new Servicos(), idServico);
+            if (se != null) {
+                if (aluno.getPessoa().getSocios().getId() != -1) {
+                    valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, aluno.getPessoa().getSocios().getMatriculaSocios().getCategoria().getId()));
+                } else {
+                    valorx = Moeda.converteR$Double(new FunctionsDao().valorServico(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje(), 0, null));
+                }
 
-            if (desconto == 0) {
-                matriculaAcademia.getServicoPessoa().setNrDescontoString("0.0");
-            } else {
-                matriculaAcademia.getServicoPessoa().setNrDesconto(valor_do_percentual);
-            }
+                String valorx_cheio = Moeda.converteR$Double(new FunctionsDao().valorServicoCheio(aluno.getPessoa().getId(), se.getId(), DataHoje.dataHoje()));
+                double calculo = Moeda.converteUS$(valorx_cheio) - (Moeda.converteUS$(valorx) - desconto);
+                double valor_do_percentual = Moeda.converteUS$(Moeda.percentualDoValor(valorx_cheio, Moeda.converteR$Double(calculo)));
 
-            if (aluno.getPessoa().getId() != -1) {
-                Integer idade = new DataHoje().calcularIdade(aluno.getDtNascimento());
-                List<ServicoValor> lsv = new MatriculaEscolaDao().listServicoValorPorServicoIdade(se.getId(), idade);
-                valorLiquido = (lsv.isEmpty()) ? valor : Moeda.converteR$Double(Moeda.converteUS$(Moeda.valorDoPercentual(valor, Moeda.converteR$Double(lsv.get(0).getDescontoAteVenc()))));
-                valorLiquido = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorLiquido), desconto));
-            } else {
-                valorLiquido = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valor), desconto));
-            }
-            if (descontoServicoEmpresa != null && !descontoServicoEmpresa.equals(0)) {
-                valorLiquido = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(getDescontoServicoEmpresaString())));
+                if (desconto == 0) {
+                    matriculaAcademia.getServicoPessoa().setNrDescontoString("0.0");
+                } else {
+                    matriculaAcademia.getServicoPessoa().setNrDesconto(valor_do_percentual);
+                }
+
+                if (aluno.getPessoa().getId() != -1) {
+                    Integer idade = new DataHoje().calcularIdade(aluno.getDtNascimento());
+                    List<ServicoValor> lsv = new MatriculaEscolaDao().listServicoValorPorServicoIdade(se.getId(), idade);
+                    valorLiquido = (lsv.isEmpty()) ? valor : Moeda.converteR$Double(Moeda.converteUS$(Moeda.valorDoPercentual(valor, Moeda.converteR$Double(lsv.get(0).getDescontoAteVenc()))));
+                    valorLiquido = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorLiquido), desconto));
+                } else {
+                    valorLiquido = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valor), desconto));
+                }
+                if (descontoServicoEmpresa != null && !descontoServicoEmpresa.equals(0)) {
+                    valorLiquido = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(getDescontoServicoEmpresaString())));
+                }
             }
         }
     }

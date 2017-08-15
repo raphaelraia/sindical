@@ -38,8 +38,7 @@ public class RemessaDao extends DB {
                 = "SELECT r.* \n"
                 + "  FROM fin_remessa AS r \n"
                 + " INNER JOIN fin_remessa_banco rb ON r.id = rb.id_remessa \n"
-                + " INNER JOIN fin_movimento m ON rb.id_movimento = m.id \n"
-                + " INNER JOIN fin_boleto b ON b.nr_ctr_boleto = m.nr_ctr_boleto \n"
+                + " INNER JOIN fin_boleto b ON b.id = rb.id_boleto \n"
                 + " INNER JOIN fin_conta_cobranca cc ON cc.id = b.id_conta_cobranca \n"
                 + " WHERE cc.id_conta_banco = " + id_conta_banco + " \n"
                 + " GROUP BY r.id \n"
@@ -56,10 +55,9 @@ public class RemessaDao extends DB {
         String queryString
                 = "SELECT rb.* \n"
                 + "  FROM fin_remessa_banco AS rb \n"
-                + " INNER JOIN fin_movimento m ON m.id = rb.id_movimento \n"
-                + " INNER JOIN pes_pessoa pr ON pr.id = m.id_pessoa \n"
+                + " INNER JOIN fin_boleto b ON b.id = rb.id_boleto \n"
                 + " WHERE rb.id_remessa = " + id_remessa + " \n"
-                + " ORDER BY pr.ds_nome";
+                + " ORDER BY rb.id";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, RemessaBanco.class);
             return qry.getResultList();

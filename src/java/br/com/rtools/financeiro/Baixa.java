@@ -38,6 +38,8 @@ public class Baixa implements java.io.Serializable {
     private Usuario usuarioDesconto;
     @Column(name = "nr_troco")
     private double troco;
+    @Column(name = "nr_taxa_liquidacao")
+    private double taxaLiquidacao;
 
     public Baixa() {
         this.id = -1;
@@ -50,6 +52,7 @@ public class Baixa implements java.io.Serializable {
         this.fechamentoCaixa = new FechamentoCaixa();
         this.usuarioDesconto = null;
         this.troco = 0;
+        this.taxaLiquidacao = 0;
     }
 
     public Baixa(int id,
@@ -61,7 +64,8 @@ public class Baixa implements java.io.Serializable {
             Caixa caixa,
             FechamentoCaixa fechamentoCaixa,
             Usuario usuarioDesconto,
-            double troco) {
+            double troco,
+            double taxaLiquidacao) {
         this.id = id;
         this.usuario = usuario;
         this.dtBaixa = dtBaixa;
@@ -72,6 +76,7 @@ public class Baixa implements java.io.Serializable {
         this.caixa = caixa;
         this.usuarioDesconto = usuarioDesconto;
         this.troco = troco;
+        this.taxaLiquidacao = taxaLiquidacao;
     }
 
     public int getId() {
@@ -168,5 +173,13 @@ public class Baixa implements java.io.Serializable {
 
     public void setTroco(double troco) {
         this.troco = troco;
+    }
+
+    public double getTaxaLiquidacao() {
+        return taxaLiquidacao;
+    }
+
+    public void setTaxaLiquidacao(double taxaLiquidacao) {
+        this.taxaLiquidacao = taxaLiquidacao;
     }
 }

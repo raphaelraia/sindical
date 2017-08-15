@@ -14,20 +14,20 @@ public class RemessaBanco implements java.io.Serializable {
     @JoinColumn(name = "id_remessa", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Remessa remessa;
-    @JoinColumn(name = "id_movimento", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_boleto", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private Movimento movimento;
+    private Boleto boleto;
 
     public RemessaBanco() {
         this.id = -1;
         this.remessa = new Remessa();
-        this.movimento = new Movimento();
+        this.boleto = new Boleto();
     }
 
-    public RemessaBanco(int id, Remessa remessa, Movimento movimento) {
+    public RemessaBanco(int id, Remessa remessa, Boleto boleto) {
         this.id = id;
         this.remessa = remessa;
-        this.movimento = movimento;
+        this.boleto = boleto;
     }
 
     public int getId() {
@@ -46,12 +46,12 @@ public class RemessaBanco implements java.io.Serializable {
         this.remessa = remessa;
     }
 
-    public Movimento getMovimento() {
-        return movimento;
+    public Boleto getBoleto() {
+        return boleto;
     }
 
-    public void setMovimento(Movimento movimento) {
-        this.movimento = movimento;
+    public void setBoleto(Boleto boleto) {
+        this.boleto = boleto;
     }
 
 }

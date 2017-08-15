@@ -44,7 +44,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import static java.lang.Integer.reverse;
@@ -599,7 +599,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
 
-            StatusRetorno sr = GerarMovimento.estornarMovimento(movimento, motivoEstorno);
+            StatusRetornoMensagem sr = GerarMovimento.estornarMovimento(movimento, motivoEstorno);
 
             if (!sr.getStatus()) {
                 GenericaMensagem.warn("Atenção", sr.getMensagem());

@@ -76,7 +76,7 @@
                                     </p:panel>
                                     <br />
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Imprimir" action="#{relatorioFinanceiroEscolaBean.imprimir}" ajax="false" onclick="form.target = '_blank'"/>
+                                        <p:commandButton value="Imprimir" action="#{relatorioFinanceiroEscolaBean.print}" ajax="false" onclick="form.target = '_blank'"/>
                                         <p:selectBooleanCheckbox value="#{relatorioFinanceiroEscolaBean.chkExcel}" itemLabel="Excel">
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>

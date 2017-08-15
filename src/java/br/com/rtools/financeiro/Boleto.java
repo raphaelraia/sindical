@@ -1,7 +1,12 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
@@ -38,7 +43,13 @@ public class Boleto implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_registro_baixa")
     private Date dtRegistroBaixa;
-    
+    @JoinColumn(name = "id_status_retorno", referencedColumnName = "id")
+    @ManyToOne
+    private StatusRetorno statusRetorno;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_status_retorno")
+    private Date dtStatusRetorno;
+
     public Boleto() {
         this.id = -1;
         this.contaCobranca = new ContaCobranca();
@@ -51,9 +62,11 @@ public class Boleto implements java.io.Serializable {
         this.mensagem = "";
         this.dtCobrancaRegistrada = null;
         this.dtRegistroBaixa = null;
+        this.statusRetorno = null;
+        this.dtStatusRetorno = null;
     }
 
-    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa) {
+    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa, StatusRetorno statusRetorno, Date dtStatusRetorno) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.nrBoleto = nrBoleto;
@@ -65,6 +78,8 @@ public class Boleto implements java.io.Serializable {
         this.mensagem = mensagem;
         this.dtCobrancaRegistrada = dtCobrancaRegistrada;
         this.dtRegistroBaixa = dtRegistroBaixa;
+        this.statusRetorno = statusRetorno;
+        this.dtStatusRetorno = dtStatusRetorno;
     }
 
     public int getId() {
@@ -90,7 +105,7 @@ public class Boleto implements java.io.Serializable {
     public void setNrBoleto(long nrBoleto) {
         this.nrBoleto = nrBoleto;
     }
-    
+
     public String getBoletoComposto() {
         return boletoComposto;
     }
@@ -121,7 +136,7 @@ public class Boleto implements java.io.Serializable {
 
     public void setDtVencimento(Date dtVencimento) {
         this.dtVencimento = dtVencimento;
-    }    
+    }
 
     public String getVencimento() {
         return DataHoje.converteData(dtVencimento);
@@ -138,7 +153,7 @@ public class Boleto implements java.io.Serializable {
     public void setDtVencimentoOriginal(Date dtVencimentoOriginal) {
         this.dtVencimentoOriginal = dtVencimentoOriginal;
     }
-    
+
     public String getVencimentoOriginal() {
         return DataHoje.converteData(dtVencimentoOriginal);
     }
@@ -162,7 +177,7 @@ public class Boleto implements java.io.Serializable {
     public void setDtCobrancaRegistrada(Date dtCobrancaRegistrada) {
         this.dtCobrancaRegistrada = dtCobrancaRegistrada;
     }
-    
+
     public String getDtCobrancaRegistradaString() {
         return DataHoje.converteData(dtCobrancaRegistrada);
     }
@@ -177,5 +192,62 @@ public class Boleto implements java.io.Serializable {
 
     public String getDtRegistroBaixaString() {
         return DataHoje.converteData(dtRegistroBaixa);
+    }
+
+    public StatusRetorno getStatusRetorno() {
+        return statusRetorno;
+    }
+
+    public void setStatusRetorno(StatusRetorno statusRetorno) {
+        this.statusRetorno = statusRetorno;
+    }
+
+    public Date getDtStatusRetorno() {
+        return dtStatusRetorno;
+    }
+
+    public void setDtStatusRetorno(Date dtStatusRetorno) {
+        this.dtStatusRetorno = dtStatusRetorno;
+    }
+
+    public String getDtStatusRetornoString() {
+        return DataHoje.converteData(dtStatusRetorno);
+    }
+
+    public void setDtStatusRetornoString(String dtStatusRetornoString) {
+        this.dtStatusRetorno = DataHoje.converte(dtStatusRetornoString);
+    }
+
+    public Pessoa getPessoa() {
+        if (id != -1) {
+            return new MovimentosReceberSocialDao().responsavelBoleto(nrCtrBoleto);
+        } else {
+            return new Pessoa();
+        }
+    }
+
+    public List<Movimento> getListaMovimento() {
+        if (id != -1) {
+            return new MovimentosReceberSocialDao().listaMovimentosPorNrCtrBoleto(nrCtrBoleto);
+        } else {
+            return new ArrayList();
+        }
+    }
+
+    public Double getValor() {
+        if (id != -1) {
+            List<Movimento> list = getListaMovimento();
+            Double valor_somado = new Double(0);
+            for (Movimento m : list){
+                valor_somado = Moeda.soma(valor_somado, m.getValor());
+            }
+            return valor_somado;
+        } else {
+            return new Double(0);
+        }
+    }
+    
+    public String getValorString(){
+        return Moeda.converteR$Double(getValor());
     }
 }

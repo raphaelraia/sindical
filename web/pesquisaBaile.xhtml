@@ -39,7 +39,7 @@
 
 
                             <p:dataTable value="#{baileBean.listaEventoBaile}" var="linha" id="tbl" emptyMessage="Nenhum Baile foi encontrado!">
-                                <p:column headerText="ID">
+                                <p:column headerText="ID" width="50" styleClass="text-center">
                                     <p:commandLink action="#{baileBean.editar(linha)}" value="#{linha.id}" />
                                 </p:column>
 
@@ -47,11 +47,11 @@
                                     <p:commandLink action="#{baileBean.editar(linha)}" value="#{linha.evento.descricaoEvento.descricao}" />
                                 </p:column>
 
-                                <p:column headerText="Data">
+                                <p:column headerText="Data" width="100" styleClass="text-center">
                                     <h:outputText value="#{linha.dataString}"/>
                                 </p:column>
 
-                                <p:column headerText="Horário">
+                                <p:column headerText="Horário" width="150" styleClass="text-center">
                                     <h:outputText value="#{linha.horaInicio} - #{linha.horaFim}"/>
                                 </p:column>
                             </p:dataTable>

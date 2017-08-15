@@ -1,8 +1,10 @@
 package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaRetorno;
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,6 +40,9 @@ public class Sicoob240 extends ArquivoRetorno {
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
+
+        StatusRetorno sr = null;
+
         if (listFile != null) {
             int qntRetornos = listFile.length;
             for (int u = 0; u < qntRetornos; u++) {
@@ -61,6 +66,23 @@ public class Sicoob240 extends ArquivoRetorno {
                             nossoNumero = ((String) lista.get(i)).substring(37, 46).trim();
                             valorTaxa = ((String) lista.get(i)).substring(198, 213);
                             dataVencimento = ((String) lista.get(i)).substring(73, 81);
+
+                            switch (((String) lista.get(i)).substring(15, 17)) {
+                                // RETORNO VEM COM A CONFIRMAÇÃO QUE FOI REGISTRADO ( REFERENTE A REMESSA GERADA )
+                                case "02":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 2); // BOLETO REGISTRADO
+                                    break;
+                                case "03":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 1); // BOLETO REJEITADO
+                                    break;
+                                case "06": // LIQUIDAÇÃO
+                                case "17": // LIQUIDAÇÃO QUANDO O BOLETO PAGO NÃO É REGISTRADO
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
+                                    break;
+                                default:
+                                    sr = null;
+                                    break;
+                            }
                         }
                         try {
                             int con = Integer.parseInt(dataVencimento);
@@ -78,24 +100,27 @@ public class Sicoob240 extends ArquivoRetorno {
                                 i++;
                                 continue;
                             }
-                            
-                            listaRetorno.add(new GenericaRetorno(
-                                    cnpj, //1 ENTIDADE
-                                    codigoCedente, //2 NESTE CASO SICAS
-                                    nossoNumero, //3
-                                    valorPago, //4
-                                    valorTaxa, //5
-                                    "",//valorCredito,   //6
-                                    dataPagamento, //7
-                                    dataVencimento,//dataVencimento, //8
-                                    "", //9 ACRESCIMO
-                                    "", //10 VALOR DESCONTO
-                                    "", //11 VALOR ABATIMENTO
-                                    "", //12 VALOR REPASSE ...(valorPago - valorCredito)
-                                    pasta, // 13 NOME DA PASTA
-                                    listFile[u].getName(), //14 NOME DO ARQUIVO
-                                    "", //15 DATA CREDITO
-                                    "") // 16 SEQUENCIAL DO ARQUIVO
+
+                            listaRetorno.add(
+                                    new GenericaRetorno(
+                                            cnpj, //1 ENTIDADE
+                                            codigoCedente, //2 NESTE CASO SICAS
+                                            nossoNumero, //3
+                                            valorPago, //4
+                                            valorTaxa, //5
+                                            "",//valorCredito,   //6
+                                            dataPagamento, //7
+                                            dataVencimento,//dataVencimento, //8
+                                            "", //9 ACRESCIMO
+                                            "", //10 VALOR DESCONTO
+                                            "", //11 VALOR ABATIMENTO
+                                            "", //12 VALOR REPASSE ...(valorPago - valorCredito)
+                                            pasta, // 13 NOME DA PASTA
+                                            listFile[u].getName(), //14 NOME DO ARQUIVO
+                                            "", // 15 DATA CREDITO
+                                            "", // 16 SEQUENCIAL DO ARQUIVO
+                                            sr // 17 STATUS RETORNO
+                                    )
                             );
                             i++;
                         }

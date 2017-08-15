@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.endereco.Endereco;
@@ -72,12 +67,126 @@ public class JuridicaReceitaJSON {
             URL url;
             Charset charset = Charset.forName("UTF8");
             Integer status;
+            Boolean statusBoolean;
             String error;
 
             List<String> list_cnae = new ArrayList();
             List<String> list_cnae_sec = new ArrayList();
-
+            ConfiguracaoCnpj cc;
+            HttpURLConnection con;
             switch (tipo) {
+                case "hubdodesenvolvedor":
+                    /*
+                     * 0 (zero): requisição feita com sucesso.
+                     * 1: requisição feita com sucesso, porém dados estão sendo atualizados; aguarde o tempo indicado e refaça exatamente a mesma requisição.
+                     * 2: requisição feita com sucesso, porém dado requisitado não existe no site fonte.
+                     * 3: erro, método inválido.
+                     * 4: erro, parâmetro inválido; verifique os parâmetros informados.
+                     * 5: erro, autenticação falhou; informe corretamente o usuário e senha
+                     * 6: erro, você não possui um plano de acessos para realizar a requisição; adquira mais acessos.
+                     * 7: erro, você não possui acessos restantes para realizar a requisição; adquira mais acessos.
+                     * 8: erro, ocorreu um erro ao processar sua requisição; contate o suporte técnico.
+                     * 9: erro, é necessário realizar todas as requisições utilizando oprotocolo HTTPS.
+                     */
+                    cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 5);
+                    if (cc == null) {
+                        url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555");
+                    } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
+                        url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555");
+                    } else {
+                        if (cc.getDias() == 0) {
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555&ignore_db=true");
+                        } else {
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555");
+                        }
+                    }
+                    con = (HttpURLConnection) url.openConnection();
+                    con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
+                    con.setRequestMethod("GET");
+                    con.connect();
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = in.readLine()) != null) {
+                            sb.append(line);
+                        }
+
+                        // String str = org.apache.commons.io.IOUtils.toString(in);
+                        JSONObject result = new JSONObject(sb.toString());
+                        statusBoolean = result.getBoolean("status");
+                        error = result.getString("return");
+                        // ERRO PARA FALTA DE CRÉDITOS
+                        if (statusBoolean && !error.equals("OK")) {
+                            jro.setStatus(-1);
+                            error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!";
+                            jro.setMsg(error);
+
+                            in.close();
+                            con.disconnect();
+                            return jro;
+                        }
+
+                        // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
+                        if (statusBoolean && !error.equals("OK")) {
+                            jro.setStatus(-1);
+                            jro.setMsg(error.toUpperCase());
+
+                            in.close();
+                            con.disconnect();
+                            return jro;
+                        }
+
+                        JSONObject obj = result.getJSONObject("result");
+                        String cnaeAtividadePrincipal = "";
+                        try {
+                            JSONObject atividade_principal = obj.getJSONObject("atividade_principal");
+                            cnaeAtividadePrincipal = atividade_principal.getString("text") + " (" + atividade_principal.getString("code") + ")";
+                            list_cnae.add(atividade_principal.getString("code").replace(".", "").replace("-", ""));
+                        } catch (JSONException e) {
+
+                        }
+                        String cnaeAtividadeSecundaria = "";
+                        try {
+                            JSONArray atividades_secundarias = obj.getJSONArray("atividades_secundarias");
+                            for (int i = 0; i < atividades_secundarias.length(); i++) {
+
+                                try {
+                                    JSONObject as = atividades_secundarias.getJSONObject(i);
+                                    cnaeAtividadeSecundaria += as.getString("text") + " (" + as.getString("code") + ") ";
+                                    list_cnae_sec.add(as.getString("code"));
+                                } catch (Exception e) {
+                                    break;
+                                }
+                            }
+                        } catch (JSONException e) {
+
+                        }
+
+                        jro = new JuridicaReceitaObject(
+                                0, // status
+                                error, // msg
+                                obj.getString("nome"),
+                                obj.getString("fantasia"),
+                                AnaliseString.mascaraCep(obj.getString("cep")),
+                                obj.getString("logradouro"),
+                                obj.getString("bairro"),
+                                obj.getString("complemento"),
+                                obj.getString("numero"),
+                                cnaeAtividadePrincipal,
+                                obj.getString("situacao"),
+                                DataHoje.converteData(DataHoje.converte(obj.getString("abertura"))),
+                                cnaeAtividadeSecundaria,
+                                obj.getString("municipio"),
+                                obj.getString("uf"),
+                                obj.getString("email"),
+                                obj.getString("telefone"),
+                                obj.getString("dt_situacao_cadastral"),
+                                ""
+                        );
+                        in.close();
+                    }
+                    con.disconnect();
+                    break;
                 case "wooki":
                     /*
                      * 0 (zero): requisição feita com sucesso.
@@ -91,7 +200,7 @@ public class JuridicaReceitaJSON {
                      * 8: erro, ocorreu um erro ao processar sua requisição; contate o suporte técnico.
                      * 9: erro, é necessário realizar todas as requisições utilizando oprotocolo HTTPS.
                      */
-                    ConfiguracaoCnpj cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
+                    cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
                     if (cc == null) {
                         url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=90&usuario=rogerio@rtools.com.br&senha=989899");
                     } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
@@ -101,7 +210,7 @@ public class JuridicaReceitaJSON {
                     }
 
                     // URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con = (HttpURLConnection) url.openConnection();
                     con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
                     con.setRequestMethod("GET");
                     con.connect();
@@ -234,8 +343,8 @@ public class JuridicaReceitaJSON {
                             for (int i = 0; i < cnaeArraySec.length(); ++i) {
                                 JSONObject rec = cnaeArraySec.getJSONObject(i);
                                 String code = rec.getString("code").replace(".", "").replace("-", "");
-                                list_cnae_sec.add(code);
                                 cnaeStringSec += rec.getString("text") + " (" + code + ") ";
+                                list_cnae_sec.add(code);
                             }
                         } catch (Exception e) {
 
@@ -448,7 +557,7 @@ public class JuridicaReceitaJSON {
     public JuridicaReceitaObject load() {
         List<String> list_cnae = new ArrayList();
         List<String> list_cnae_sec = new ArrayList();
-
+        ConfiguracaoCnpj configuracaoCnpj = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
         JuridicaReceitaObject jro = new JuridicaReceitaObject(
                 0,
                 "",
@@ -624,6 +733,8 @@ public class JuridicaReceitaJSON {
         private List<Cnae> lista_cnae_secundario;
         private Endereco endereco;
         private List<PessoaEndereco> pessoaEndereco;
+        private String data_inativacao;
+        private String motivo_inativacao;
 
         public JuridicaReceitaObject() {
 
@@ -647,6 +758,28 @@ public class JuridicaReceitaJSON {
             this.uf = uf;
             this.email_rf = email_rf;
             this.telefone_rf = telefone_rf;
+        }
+
+        public JuridicaReceitaObject(Integer status, String msg, String nome_empresarial, String titulo_estabelecimento, String cep, String logradouro, String bairro, String complemento, String numero, String atividade_principal, String situacao_cadastral, String data_abertura, String atividades_secundarias, String municipio, String uf, String email_rf, String telefone_rf, String data_inativacao, String motivo_inativacao) {
+            this.status = status;
+            this.msg = msg;
+            this.nome_empresarial = nome_empresarial;
+            this.titulo_estabelecimento = titulo_estabelecimento;
+            this.cep = cep;
+            this.logradouro = logradouro;
+            this.bairro = bairro;
+            this.complemento = complemento;
+            this.numero = numero;
+            this.atividade_principal = atividade_principal;
+            this.situacao_cadastral = situacao_cadastral;
+            this.data_abertura = data_abertura;
+            this.atividades_secundarias = atividades_secundarias;
+            this.municipio = municipio;
+            this.uf = uf;
+            this.email_rf = email_rf;
+            this.telefone_rf = telefone_rf;
+            this.data_inativacao = data_inativacao;
+            this.motivo_inativacao = motivo_inativacao;
         }
 
         public Integer getStatus() {
@@ -863,6 +996,22 @@ public class JuridicaReceitaJSON {
 
         public void setLista_cnae_secundario(List<Cnae> lista_cnae_secundario) {
             this.lista_cnae_secundario = lista_cnae_secundario;
+        }
+
+        public String getData_inativacao() {
+            return data_inativacao;
+        }
+
+        public void setData_inativacao(String data_inativacao) {
+            this.data_inativacao = data_inativacao;
+        }
+
+        public String getMotivo_inativacao() {
+            return motivo_inativacao;
+        }
+
+        public void setMotivo_inativacao(String motivo_inativacao) {
+            this.motivo_inativacao = motivo_inativacao;
         }
 
     }

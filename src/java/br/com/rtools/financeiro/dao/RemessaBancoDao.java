@@ -14,8 +14,8 @@ public class RemessaBancoDao extends DB {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     " select max(rb.nr_lote) + 1 from fin_remessa_banco rb "
-                    + " inner join fin_movimento m on (m.id = rb.id_movimento) "
-                    + " inner join fin_conta_cobranca c on (m.id_conta_cobranca = c.id) "
+                    + " inner join fin_boleto b on (b.id = rb.id_boleto) "
+                    + " inner join fin_conta_cobranca c on (b.id_conta_cobranca = c.id) "
                     + " and c.id = " + id_cobranca
             );
             result = (Object) qry.getSingleResult();
@@ -25,12 +25,12 @@ public class RemessaBancoDao extends DB {
         return ((Vector) result).get(0);
     }
 
-    public List<RemessaBanco> listaMovimentoComRemessaBanco(String ids) {
+    public List<RemessaBanco> listaBoletoComRemessaBanco(String ids) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT rb.*\n"
                     + "  FROM fin_remessa_banco rb \n"
-                    + " WHERE rb.id_movimento IN (" + ids + ")", RemessaBanco.class
+                    + " WHERE rb.id_boleto IN (" + ids + ")", RemessaBanco.class
             );
             return qry.getResultList();
         } catch (Exception e) {

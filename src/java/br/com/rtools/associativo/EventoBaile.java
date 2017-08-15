@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Table(name = "eve_evento_baile")
 @NamedQuery(name = "EventoBaile.pesquisaID", query = "select s from EventoBaile s where s.id=:pid")
 public class EventoBaile implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -42,7 +43,7 @@ public class EventoBaile implements java.io.Serializable {
         this.horaFim = "";
         this.quantidadeConvites = 0;
         this.evt = null;
-        this.local= "";
+        this.local = "";
     }
 
     public EventoBaile(int id, AEvento evento, int quantidadeMesas, Date data, String horaInicio, String horaFim, int quantidadeConvites, Evt evt, String local) {
@@ -79,6 +80,14 @@ public class EventoBaile implements java.io.Serializable {
 
     public void setQuantidadeMesas(int quantidadeMesas) {
         this.quantidadeMesas = quantidadeMesas;
+    }
+
+    public String getQuantidadeMesasString() {
+        return Integer.toString(quantidadeMesas);
+    }
+
+    public void setQuantidadeMesasString(String quantidadeMesasString) {
+        this.quantidadeMesas = Integer.parseInt(quantidadeMesasString);
     }
 
     public Date getData() {
@@ -125,6 +134,14 @@ public class EventoBaile implements java.io.Serializable {
 
     public void setQuantidadeConvites(int quantidadeConvites) {
         this.quantidadeConvites = quantidadeConvites;
+    }
+
+    public String getQuantidadeConvitesString() {
+        return Integer.toString(quantidadeConvites);
+    }
+
+    public void setQuantidadeConvitesString(String quantidadeConvitesString) {
+        this.quantidadeConvites = Integer.parseInt(quantidadeConvitesString);
     }
 
     public Evt getEvt() {
