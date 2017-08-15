@@ -1541,8 +1541,8 @@ public class ImpressaoBoletosBean implements Serializable {
                 }
                 contaCobranca.put(
                         (list.get(i).getServicos().getDescricao() + " - "
-                        + list.get(i).getTipoServico().getDescricao() + " - "
-                        + list.get(i).getContaCobranca().getCodCedente() + "" + (list.get(i).getContaCobranca().isCobrancaRegistrada() ? "( REGISTRADA )" : "") + "").toUpperCase(),
+                                + list.get(i).getTipoServico().getDescricao() + " - "
+                                + list.get(i).getContaCobranca().getCodCedente() + "" + (list.get(i).getContaCobranca().isCobrancaRegistrada() ? "( REGISTRADA )" : "") + "").toUpperCase(),
                         list.get(i).getId()
                 );
             }

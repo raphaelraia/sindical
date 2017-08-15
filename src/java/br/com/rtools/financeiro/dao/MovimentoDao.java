@@ -596,9 +596,9 @@ public class MovimentoDao extends DB {
         }
 
         if(filial_id != null) {
-            qry_servico = " and l.id_filial = " + filial_id + " \n ";            
+            qry_servico = " and l.id_filial = " + filial_id + " \n ";
         }
-        
+
         if (id_servico != 0) {
             qry_servico = " and m.id_servicos = " + id_servico + " \n ";
         }
