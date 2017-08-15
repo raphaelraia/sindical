@@ -1354,6 +1354,7 @@ public class JuridicaBean implements Serializable {
         if (juridica.getContabilidade() != null) {
             nomeContabilidade = juridica.getContabilidade().getPessoa().getNome();
         }
+        listaEmpresasPertencentes = new ArrayList();
 
         //contabilidade = juridica.getContabilidade();
         String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");

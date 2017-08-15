@@ -99,7 +99,7 @@ public class RelatorioFechamentoBaileBean implements Serializable {
     public void loadListaEventoBaile() {
         listaEventoBaile.clear();
         VendaBaileDao dao = new VendaBaileDao();
-        List<EventoBaile> result = dao.listaBaile(mostrar_todos);
+        List<EventoBaile> result = dao.listaBaile(mostrar_todos, null, null);
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaEventoBaile.add(new SelectItem(
