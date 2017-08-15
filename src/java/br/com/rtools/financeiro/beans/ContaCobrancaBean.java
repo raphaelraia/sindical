@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.financeiro.CobrancaRegistrada;
 import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Layout;
@@ -29,16 +30,41 @@ public class ContaCobrancaBean {
     private String codigoCedente = "";
     private boolean limpar = false;
 
+    private Integer indexListaCobrancaRegistrada = 0;
+    private List<SelectItem> listaCobrancaRegistrada = new ArrayList();
+
+    public ContaCobrancaBean() {
+        loadListaCobrancaRegistrada();
+    }
+
+    public final void loadListaCobrancaRegistrada() {
+        listaCobrancaRegistrada.clear();
+
+        List<CobrancaRegistrada> result = new Dao().list(new CobrancaRegistrada());
+
+        for (int i = 0; i < result.size(); i++) {
+            listaCobrancaRegistrada.add(
+                    new SelectItem(
+                            i,
+                            result.get(i).getDescricao(),
+                            Integer.toString(result.get(i).getId())
+                    )
+            );
+        }
+    }
+
     public String salvar() {
 
         ContaCobrancaDao db = new ContaCobrancaDao();
         Layout la = db.pesquisaLayoutId(Integer.valueOf(getListaLayout().get(idLayout).getDescription()));
+        Dao dao = new Dao();
 
         msgConfirma = "";
 
         contaCobranca.setSicasSindical(sicas);
         contaCobranca.setCodigoSindical(codigoCedente);
         contaCobranca.setLayout(la);
+        contaCobranca.setCobrancaRegistrada((CobrancaRegistrada) dao.find(new CobrancaRegistrada(), Integer.valueOf(listaCobrancaRegistrada.get(indexListaCobrancaRegistrada).getDescription())));
 
         if (contaCobranca.getContaBanco().getBanco().getBanco().isEmpty()) {
             msgConfirma = "Atenção, é preciso pesquisar um Banco!";
@@ -95,7 +121,6 @@ public class ContaCobrancaBean {
         }
 
         NovoLog log = new NovoLog();
-        Dao dao = new Dao();
         if (contaCobranca.getId() == -1) {
             if (db.idContaCobranca(contaCobranca) != null) {
                 msgConfirma = "Este cadastro já existe no Sistema.";
@@ -213,6 +238,13 @@ public class ContaCobrancaBean {
                 idLayout = i;
             }
         }
+        
+        loadListaCobrancaRegistrada();
+        for (int i = 0; i < listaCobrancaRegistrada.size(); i++) {
+            if (Integer.valueOf(listaCobrancaRegistrada.get(i).getDescription()) == contaCobranca.getCobrancaRegistrada().getId()) {
+                indexListaCobrancaRegistrada = i;
+            }
+        }
 
         setSicas(contaCobranca.getSicasSindical());
         setCodigoCedente(contaCobranca.getCodigoSindical());
@@ -297,5 +329,21 @@ public class ContaCobrancaBean {
 
     public void setLimpar(boolean limpar) {
         this.limpar = limpar;
+    }
+
+    public List<SelectItem> getListaCobrancaRegistrada() {
+        return listaCobrancaRegistrada;
+    }
+
+    public void setListaCobrancaRegistrada(List<SelectItem> listaCobrancaRegistrada) {
+        this.listaCobrancaRegistrada = listaCobrancaRegistrada;
+    }
+
+    public Integer getIndexListaCobrancaRegistrada() {
+        return indexListaCobrancaRegistrada;
+    }
+
+    public void setIndexListaCobrancaRegistrada(Integer indexListaCobrancaRegistrada) {
+        this.indexListaCobrancaRegistrada = indexListaCobrancaRegistrada;
     }
 }

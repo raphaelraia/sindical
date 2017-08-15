@@ -21,6 +21,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.financeiro.dao.BoletoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -115,10 +116,56 @@ public class ImprimirBoleto implements Serializable {
 
         HashMap hash = new LinkedHashMap();
 
-        if (!boleto.getContaCobranca().isCobrancaRegistrada()) {
-            hash.put("boleto", boleto);
-            hash.put("mensagem", "");
-            return hash;
+        switch (boleto.getContaCobranca().getCobrancaRegistrada().getId()) {
+            // NECESSÁRIO ARQUIVO REMESSA PARA IMPRIMIR
+            case 1:
+                if (boleto.getStatusRetorno() == null) {
+                    boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 4));
+                    boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                    dao.update(boleto, true);
+                }
+
+                switch (boleto.getStatusRetorno().getId()) {
+                    case 1:
+                        // BOLETO FOI REJEITADO
+                        hash.put("boleto", null);
+                        hash.put("mensagem", "Boletos Reijeitados pelo Cobrança Registrada não pode ser impresso! Boleto: (" + boleto.getBoletoComposto() + ")");
+                        return hash;
+                    case 2:
+                        // BOLETO FOI REGISTRADO
+                        hash.put("boleto", boleto);
+                        hash.put("mensagem", "");
+                        return hash;
+
+                    // case 3: NÃO EXISTE POIS BOLETO LIQUIDADO NÃO PODE SER IMPRESSO
+                    case 4:
+                        // BOLETO JÁ FOI SOLICITADO PARA REGISTRO
+
+                        // MESMO COM COBRANÇA REGISTRADA O BOLETO PODERÁ SER IMPRESSO CASO O VENCIMENTO DO MESMO FOR MENOR QUE 01/09/2017
+                        if (DataHoje.maiorData(boleto.getVencimento(), "01/09/2017")) {
+                            hash.put("boleto", null);
+                            hash.put("mensagem", "Solicitação de Registro enviada! Boleto: (" + boleto.getBoletoComposto() + ")");
+                        } else {
+                            hash.put("boleto", boleto);
+                            hash.put("mensagem", "");
+                        }
+                        return hash;
+                    case 5:
+                        // BOLETO JÁ FOI ENVIADO PARA REGISTRO, APENAS AGUARDANDO RETORNO
+                        hash.put("boleto", null);
+                        hash.put("mensagem", "Aguardando Boleto ser Registrado! Boleto: (" + boleto.getBoletoComposto() + ")");
+                        return hash;
+                    default:
+                        break;
+                }
+
+            case 2:
+            // CONTINUA PARA O REGISTRO VIA WEB SERVICE
+            case 3:
+                // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
+                hash.put("boleto", boleto);
+                hash.put("mensagem", "");
+                return hash;
         }
 
         Registro reg = Registro.get();
@@ -158,7 +205,7 @@ public class ImprimirBoleto implements Serializable {
 
                     if (!dao.update(lista_movimento.get(i))) {
                         dao.rollback();
-                        hash.put("lista", new ArrayList());
+                        hash.put("boleto", null);
                         hash.put("mensagem", "Erro ao Atualizar Movimento ID " + lista_movimento.get(i).getId());
 
                         voltarBoleto(boleto, nr_ctr);
@@ -168,7 +215,7 @@ public class ImprimirBoleto implements Serializable {
 
                 if (!dao.update(bol_novo)) {
                     dao.rollback();
-                    hash.put("lista", new ArrayList());
+                    hash.put("boleto", null);
                     hash.put("mensagem", "Erro ao Atualizar Boleto ID " + bol_novo.getId());
                     voltarBoleto(boleto, nr_ctr);
                     return hash;
@@ -179,7 +226,7 @@ public class ImprimirBoleto implements Serializable {
             } else {
                 dao.rollback();
 
-                hash.put("lista", new ArrayList());
+                hash.put("boleto", null);
                 hash.put("mensagem", "Erro ao Gerar Novo Boleto");
                 voltarBoleto(boleto, nr_ctr);
                 return hash;
@@ -345,6 +392,9 @@ public class ImprimirBoleto implements Serializable {
                     boleto.setNrBoleto(Integer.valueOf(nb));
 
                     boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                    boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                    boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
                     new Dao().update(boleto, true);
 
                     for (Movimento m : lista_movimento) {
@@ -388,9 +438,53 @@ public class ImprimirBoleto implements Serializable {
                 return hash;
             }
 
-            if (!bol.getContaCobranca().isCobrancaRegistrada()) {
-                listaAdd.add(lista.get(i));
-                continue;
+            switch (bol.getContaCobranca().getCobrancaRegistrada().getId()) {
+                // NECESSÁRIO ARQUIVO REMESSA PARA IMPRIMIR
+                case 1:
+                    if (bol.getStatusRetorno() == null) {
+                        bol.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 4));
+                        bol.setDtStatusRetorno(DataHoje.dataHoje());
+                        dao.update(bol, true);
+                    }
+
+                    switch (bol.getStatusRetorno().getId()) {
+                        case 1:
+                            // BOLETO FOI REJEITADO
+                            hash.put("lista", new ArrayList());
+                            hash.put("mensagem", "Boletos Reijeitados pelo Cobrança Registrada não pode ser impresso! Boleto: (" + bol.getBoletoComposto() + ")");
+                            return hash;
+                        case 2:
+                            // BOLETO FOI REGISTRADO
+                            listaAdd.add(lista.get(i));
+                            continue;
+                        // case 3: NÃO EXISTE POIS BOLETO LIQUIDADO NÃO PODE SER IMPRESSO
+                        case 4:
+                            // BOLETO JÁ FOI SOLICITADO PARA REGISTRO
+                            
+                            // MESMO COM COBRANÇA REGISTRADA O BOLETO PODERÁ SER IMPRESSO CASO O VENCIMENTO DO MESMO FOR MENOR QUE 01/09/2017
+                            if (DataHoje.maiorData(bol.getVencimento(), "01/09/2017")) {
+                                hash.put("boleto", null);
+                                hash.put("mensagem", "Solicitação de Registro enviada! Boleto: (" + bol.getBoletoComposto() + ")");
+                            } else {
+                                hash.put("boleto", bol);
+                                hash.put("mensagem", "");
+                            }
+                            return hash;
+                        case 5:
+                            // BOLETO JÁ FOI ENVIADO PARA REGISTRO, APENAS AGUARDANDO RETORNO
+                            hash.put("lista", new ArrayList());
+                            hash.put("mensagem", "Aguardando Boleto ser Registrado! Boleto: (" + bol.getBoletoComposto() + ")");
+                            return hash;
+                        default:
+                            break;
+                    }
+
+                case 2:
+                // CONTINUA PARA O REGISTRO VIA WEB SERVICE
+                case 3:
+                    // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
+                    listaAdd.add(lista.get(i));
+                    continue;
             }
 
             if (listaValores.get(i) < 1) {
@@ -617,6 +711,8 @@ public class ImprimirBoleto implements Serializable {
                         bol.setNrBoleto(Integer.valueOf(nb));
 
                         bol.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                        bol.setDtStatusRetorno(DataHoje.dataHoje());
+                        bol.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
                         new Dao().update(bol, true);
 
                         lista.get(i).setDocumento(nb);
@@ -760,7 +856,7 @@ public class ImprimirBoleto implements Serializable {
         HashMap hash = registrarMovimentos(lista, listaValores, listaVencimentos);
 
         if (((ArrayList) hash.get("lista")).isEmpty() || ((ArrayList) hash.get("lista")).size() != listaValores.size()) {
-            GenericaMensagem.error("Erro", hash.get("mensagem").toString());
+            GenericaMensagem.error("Atenção", hash.get("mensagem").toString());
             return new byte[0];
         }
         MensagemConvencaoDao dbm = new MensagemConvencaoDao();
@@ -1132,10 +1228,20 @@ public class ImprimirBoleto implements Serializable {
         return arquivo;
     }
 
-    public File imprimirRemessa(List<Movimento> lista_movimento, Boleto boletox) {
-        Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_movimento, boletox);
+    public File imprimirRemessa(List<Boleto> lista_boleto, Boleto boletox) {
+        Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_boleto, boletox);
         if (cobranca != null) {
             File file = boletox.getContaCobranca().getNrLayout() == 240 ? cobranca.gerarRemessa240() : cobranca.gerarRemessa400();
+
+            if (file != null) {
+                Dao dao = new Dao();
+                for (Boleto b : lista_boleto) {
+                    b.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 5));
+                    b.setDtStatusRetorno(DataHoje.dataHoje());
+                    dao.update(b, true);
+                }
+            }
+
             Boolean zipar = false;
             if (zipar) {
                 Zip zip = new Zip();
@@ -2687,6 +2793,8 @@ public class ImprimirBoleto implements Serializable {
                                 if (!hash.get("mensagem").toString().isEmpty()) {
                                     if (hash.get("mensagem").toString().contains("Erro")) {
                                         GenericaMensagem.warn(hash.get("mensagem").toString(), "");
+                                    } else {
+                                        GenericaMensagem.warn("Atenção", hash.get("mensagem").toString());
                                     }
                                 }
                             }

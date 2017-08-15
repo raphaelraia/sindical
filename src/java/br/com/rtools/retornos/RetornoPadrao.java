@@ -32,7 +32,7 @@ public class RetornoPadrao extends ArquivoRetorno {
     public List<GenericaRetorno> sicob(boolean baixar, String host) {
         Usuario usuario = new Usuario();
         usuario = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
-        GenericaRetorno genericaRetorno = new GenericaRetorno();
+
         FacesContext context = FacesContext.getCurrentInstance();
         String linha = null;
         String cnpj = "";
@@ -57,7 +57,7 @@ public class RetornoPadrao extends ArquivoRetorno {
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
         Dao dao = new Dao();
-        Rotina rotina = (Rotina) dao.find(new Rotina(), 4);
+        //Rotina rotina = (Rotina) dao.find(new Rotina(), 4);
         if (listFile != null) {
             int qntRetornos = listFile.length;
             for (int u = 0; u < qntRetornos; u++) {
@@ -74,19 +74,16 @@ public class RetornoPadrao extends ArquivoRetorno {
                         dataVencimento = "";
 
                         if (!contaCobranca.getCodCedente().trim().equals(codigoCedente.trim())) {
-                            contaCobranca = new ContaCobranca();
                             contaCobranca = dbC.pesquisaCobrancaCedente(codigoCedente);
                         }
                         movimento = db.pesquisaMovPorNumDocumentoList(nossoNumero, DataHoje.converte(DataHoje.colocarBarras(dataVencimento)), contaCobranca.getId());
                         if (!movimento.isEmpty()) {
                             if (movimento.size() > 1) {
-                                movimento = new ArrayList();
-                                listaDtPagamentos = new ArrayList<String>();
-                                listaTaxa = new ArrayList<Double>();
-                                listaValor = new ArrayList();
+                                movimento.clear();
+                                listaDtPagamentos.clear();
+                                listaTaxa.clear();
+                                listaValor.clear();
                                 continue;
-                            } else {
-
                             }
 
                             Movimento movi = movimento.get(0);
@@ -96,14 +93,13 @@ public class RetornoPadrao extends ArquivoRetorno {
 
                             GerarMovimento.salvarUmMovimento(null, movi);
                         }
-                        movimento = new ArrayList();
-                        listaDtPagamentos = new ArrayList<String>();
-                        listaTaxa = new ArrayList<Double>();
-                        listaValor = new ArrayList();
-                        //contaCobranca = new ContaCobranca();
+                        movimento.clear();
+                        listaDtPagamentos.clear();
+                        listaTaxa.clear();
+                        listaValor.clear();
                     }
                 } catch (Exception e) {
-                    continue;
+                    e.getMessage();
                 }
             }
             if (moverArquivo) {

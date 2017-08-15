@@ -1,9 +1,10 @@
 package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.ArquivoRetorno;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaRetorno;
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,24 +13,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 
 public class Santander extends ArquivoRetorno {
-    private String linha = "", 
-                   pasta = "", 
-                   cnpj = "", 
-                   codigoCedente = "", 
-                   nossoNumero = "", 
-                   dataVencimento = "", 
-                   valorTaxa = "",
-                   valorPago = "",
-                   valorCredito = "",
-                   valorRepasse = "",
-                   dataPagamento = "",
-                   dataCredito = "",
-                   sequencialArquivo = "";
-    
+
+    private String linha = "",
+            pasta = "",
+            cnpj = "",
+            codigoCedente = "",
+            nossoNumero = "",
+            dataVencimento = "",
+            valorTaxa = "",
+            valorPago = "",
+            valorCredito = "",
+            valorRepasse = "",
+            dataPagamento = "",
+            dataCredito = "",
+            sequencialArquivo = "";
+
     public Santander(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
@@ -38,10 +38,13 @@ public class Santander extends ArquivoRetorno {
     public List<GenericaRetorno> sicob(boolean baixar, String host) {
         host = host + "/pendentes/";
         pasta = host;
-        
+
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
+
+        StatusRetorno sr = null;
+
         if (listFile != null) {
             int qntRetornos = listFile.length;
             for (int u = 0; u < qntRetornos; u++) {
@@ -58,13 +61,30 @@ public class Santander extends ArquivoRetorno {
                     while (i < lista.size()) {
                         if (i < 1) {
                             cnpj = ((String) lista.get(i)).substring(18, 32);
-                            int codc = Integer.valueOf( lista.get(0).toString().substring(53, 61) );
+                            int codc = Integer.valueOf(lista.get(0).toString().substring(53, 61));
                             codigoCedente = String.valueOf(codc);
                         }
                         if (((String) lista.get(i)).substring(13, 14).equals("T")) {
                             nossoNumero = ((String) lista.get(i)).substring(40, 52).trim();
                             valorTaxa = ((String) lista.get(i)).substring(193, 208);
                             dataVencimento = ((String) lista.get(i)).substring(69, 77);
+
+                            switch (((String) lista.get(i)).substring(15, 17)) {
+                                // RETORNO VEM COM A CONFIRMAÇÃO QUE FOI REGISTRADO ( REFERENTE A REMESSA GERADA )
+                                case "02":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 2); // BOLETO REGISTRADO
+                                    break;
+                                case "03":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 1); // BOLETO REJEITADO
+                                    break;
+                                case "06": // LIQUIDAÇÃO
+                                case "17": // LIQUIDAÇÃO QUANDO O BOLETO PAGO NÃO É REGISTRADO
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
+                                    break;
+                                default:
+                                    sr = null;
+                                    break;
+                            }
                         }
                         try {
                             int con = Integer.parseInt(dataVencimento);
@@ -80,23 +100,27 @@ public class Santander extends ArquivoRetorno {
                             valorCredito = ((String) lista.get(i)).substring(97, 107);
                             dataCredito = ((String) lista.get(i)).substring(145, 153);
 
-                            listaRetorno.add(new GenericaRetorno(
-                                    cnpj, //1 ENTIDADE
-                                    codigoCedente, //2 NESTE CASO SICAS
-                                    nossoNumero, //3
-                                    valorPago, //4
-                                    valorTaxa, //5
-                                    valorCredito,//valorCredito,   //6
-                                    dataPagamento, //7
-                                    dataVencimento,//dataVencimento, //8
-                                    "", //9 ACRESCIMO
-                                    "", //10 VALOR DESCONTO
-                                    "", //11 VALOR ABATIMENTO
-                                    "", //12 VALOR REPASSE ...(valorPago - valorCredito)
-                                    pasta, // 13 NOME DA PASTA
-                                    listFile[u].getName(), //14 NOME DO ARQUIVO
-                                    dataCredito, //15 DATA CREDITO
-                                    "") // 16 SEQUENCIAL DO ARQUIVO
+                            listaRetorno.add(
+                                    
+                                    new GenericaRetorno(
+                                            cnpj, //1 ENTIDADE
+                                            codigoCedente, //2 NESTE CASO SICAS
+                                            nossoNumero, //3
+                                            valorPago, //4
+                                            valorTaxa, //5
+                                            valorCredito,//valorCredito,   //6
+                                            dataPagamento, //7
+                                            dataVencimento,//dataVencimento, //8
+                                            "", //9 ACRESCIMO
+                                            "", //10 VALOR DESCONTO
+                                            "", //11 VALOR ABATIMENTO
+                                            "", //12 VALOR REPASSE ...(valorPago - valorCredito)
+                                            pasta, // 13 NOME DA PASTA
+                                            listFile[u].getName(), //14 NOME DO ARQUIVO
+                                            dataCredito, //15 DATA CREDITO
+                                            "", // 16 SEQUENCIAL DO ARQUIVO
+                                            sr // 17 STATUS RETORNO
+                                    )
                             );
                             i++;
                         }
@@ -123,7 +147,7 @@ public class Santander extends ArquivoRetorno {
         String mensagem = super.baixarArquivo(this.sicob(true, caminho), caminho, usuario);
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSicobSocial(String caminho, Usuario usuario) {
         String mensagem = super.baixarArquivoSocial(this.sicob(true, caminho), caminho, usuario);
@@ -135,7 +159,7 @@ public class Santander extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSigCBSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";

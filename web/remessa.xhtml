@@ -12,7 +12,7 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
-            
+
             .column00{
                 padding: 8px;
             }
@@ -47,9 +47,9 @@
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:messages closable="true" showDetail="true" />
-                            
+
                             <p:dataTable var="linha" id="tbl" value="#{remessaBean.listaRemessa}" emptyMessage="Nenhuma Remessa Encontrada.">
                                 <p:column headerText="Nome">
                                     <p:outputLabel value="#{linha.nomeArquivo}" />
@@ -63,61 +63,21 @@
                                     <p:outputLabel value="#{linha.horaEmissao}" />
                                 </p:column>
 
-                                <p:column headerText="Ver Movimentos desta Remessa" style="text-align: center; width: 150px;">
+                                <p:column headerText="Ver Boletos desta Remessa" style="text-align: center; width: 150px;">
                                     <p:commandButton icon="ui-icon-search" value="Visualizar" action="#{remessaBean.visualizar(linha)}" update="formRemessa:panel_remessa_banco" oncomplete="PF('dlg_remessa_banco').show()"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Envio para Banco" style="text-align: center; width: 150px;">
                                     <p:commandButton icon="ui-icon-arrowthickstop-1-n" value="#{linha.dtEnvioBancoString eq '' ? 'Não Enviado' : 'Enviado'}" action="#{remessaBean.enviarArquivo(linha)}" update="formRemessa:panel_enviar_arquivo" oncomplete="PF('dlg_enviar_arquivo').show()" disabled="#{linha.dtEnvioBancoString ne ''}"/>
                                 </p:column>
                             </p:dataTable>
 
-                            <p:dialog widgetVar="dlg_enviar_arquivo" header="Arquivo Enviado para o Banco?" resizable="false" width="450" modal="true">
+                            <p:dialog widgetVar="dlg_enviar_arquivo" header="Arquivo Enviado para o Banco?" resizable="false" width="550" modal="true" position="top">
                                 <h:panelGrid id="panel_enviar_arquivo" style="width: 100%">
                                     <h:panelGrid columns="1">
                                         <h:outputLabel value="#{remessaBean.contaSelecionada.conta}" style="font-size: 14pt!important; font-weight: bold"/>
                                     </h:panelGrid>
-                                    
-                                    <p:panel styleClass="fundoCinza">
-                                        <h:panelGrid columns="3" columnClasses="column00, column00, column00">
-                                            <h:column>
-                                                <h:outputLabel value="Nome" style="font-weight: bold"/><br />
-                                                <h:outputLabel value="#{remessaBean.remessa.nomeArquivo}" />
-                                            </h:column>
 
-                                            <h:column>
-                                                <h:outputLabel value="Data" style="font-weight: bold"/><br />
-                                                <h:outputLabel value="#{remessaBean.remessa.dtEmissaoString}" />
-                                            </h:column>
-
-                                            <h:column>
-                                                <h:outputLabel value="Hora" style="font-weight: bold"/><br />
-                                                <h:outputLabel value="#{remessaBean.remessa.horaEmissao}" />
-                                            </h:column>
-                                        </h:panelGrid>
-                                    </p:panel>
-                                    
-                                    <p:messages closable="true" showDetail="true" />
-                                    
-                                    <h:panelGrid columns="1">
-                                        <h:outputLabel value="Confirmar data de envio de arquivo para o banco" style="font-size: 11pt!important; color: red; font-weight: bold"/>
-                                        <p:inputMask value="#{remessaBean.dataEnvioArquivo}" mask="99/99/9999" style="text-align: center; font-size: 12pt!important"/>
-                                    </h:panelGrid>
-                                </h:panelGrid>
-                                
-                                
-                                <h:panelGrid columns="2">
-                                    <p:commandButton value="Salvar data de Envio" icon="ui-icon-check" action="#{remessaBean.salvarEnvioBanco()}" style="font-weight: bold"/>
-                                    <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_enviar_arquivo').hide()"/>
-                                </h:panelGrid>
-                            </p:dialog>
-                            
-                            <p:dialog widgetVar="dlg_remessa_banco" header="Movimentos da Remessa" resizable="false" width="700" modal="true" position="top">
-                                <h:panelGrid id="panel_remessa_banco" style="width: 100%">
-                                    <h:panelGrid columns="1">
-                                        <h:outputLabel value="#{remessaBean.contaSelecionada.conta}" style="font-size: 14pt!important; font-weight: bold"/>
-                                    </h:panelGrid>
-                                    
                                     <p:panel styleClass="fundoCinza">
                                         <h:panelGrid columns="4" columnClasses="column00, column00, column00, column00">
                                             <h:column>
@@ -134,48 +94,110 @@
                                                 <h:outputLabel value="Hora" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{remessaBean.remessa.horaEmissao}" />
                                             </h:column>
-                                            
+
+                                            <h:column>
+                                                <br />
+                                                <p:commandButton value="Imprimir Arquivo" icon="ui-icon-print" action="#{remessaBean.reimprimirRemessa()}" ajax="false"/>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+
+                                    <p:messages closable="true" showDetail="true" />
+
+                                    <h:panelGrid columns="1">
+                                        <h:outputLabel value="Confirmar data de envio de arquivo para o banco" style="font-size: 11pt!important; color: red; font-weight: bold"/>
+                                        <p:inputMask value="#{remessaBean.dataEnvioArquivo}" mask="99/99/9999" style="text-align: center; font-size: 12pt!important"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Salvar data de Envio" icon="ui-icon-check" action="#{remessaBean.salvarEnvioBanco()}" style="font-weight: bold"/>
+                                    <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_enviar_arquivo').hide()"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_remessa_banco" header="Boletos da Remessa" resizable="false" width="700" modal="true" position="top">
+                                <h:panelGrid id="panel_remessa_banco" style="width: 100%">
+                                    <h:panelGrid columns="1">
+                                        <h:outputLabel value="#{remessaBean.contaSelecionada.conta}" style="font-size: 14pt!important; font-weight: bold"/>
+                                    </h:panelGrid>
+
+                                    <p:panel styleClass="fundoCinza">
+                                        <h:panelGrid columns="6" columnClasses="column00, column00, column00, column00, column00, column00">
+                                            <h:column>
+                                                <h:outputLabel value="Nome" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{remessaBean.remessa.nomeArquivo}" />
+                                            </h:column>
+
+                                            <h:column>
+                                                <h:outputLabel value="Data" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{remessaBean.remessa.dtEmissaoString}" />
+                                            </h:column>
+
+                                            <h:column>
+                                                <h:outputLabel value="Hora" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{remessaBean.remessa.horaEmissao}" />
+                                            </h:column>
+
                                             <h:column rendered="#{remessaBean.remessa.dtEnvioBancoString ne ''}">
                                                 <h:outputLabel value="Data de Envio para o Banco" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{remessaBean.remessa.dtEnvioBancoString}" style="color: red"/>
                                             </h:column>
+
+                                            <h:column>
+                                                <br />
+                                                <p:commandButton value="Imprimir Arquivo" icon="ui-icon-print" action="#{remessaBean.reimprimirRemessa()}" ajax="false"/>
+                                            </h:column>
+
+                                            <h:column>
+                                                <br />
+                                                <p:commandButton value="Excluir Arquivo" icon="ui-icon-close" action="#{remessaBean.excluirRemessa()}" update="@form" style="color: red; font-weight: bold">
+                                                    <p:confirm message="Deseja Realmente excluir este arquivo e os boletos gerados para ele?" header="Excluir Arquivo Remessa"/>
+                                                </p:commandButton>
+                                            </h:column>
                                         </h:panelGrid>
                                     </p:panel>
-                                    
+
                                     <p:messages closable="true" showDetail="true" />
-                                    
-                                    <p:dataTable var="linha" id="tbl_remessa_banco" value="#{remessaBean.listaRemessaBanco}" emptyMessage="Nenhum Movimento Encontrado." scrollable="true" scrollHeight="350">
+
+                                    <p:dataTable var="linha" id="tbl_remessa_banco" value="#{remessaBean.listaRemessaBanco}" emptyMessage="Nenhum Boleto Encontrado." scrollable="true" scrollHeight="350">
                                         <p:column headerText="ID" style="width: 80px; text-align: center">
-                                            <p:outputLabel value="#{linha.movimento.id}" />
+                                            <p:outputLabel value="#{linha.boleto.id}" />
                                         </p:column>
-                                        
+
                                         <p:column headerText="Responsável">
-                                            <p:outputLabel value="#{linha.movimento.pessoa.nome}" />
+                                            <p:outputLabel value="#{linha.boleto.pessoa.nome}" />
                                         </p:column>
-                                        
-                                        <p:column headerText="Venvimento" style="width: 80px; text-align: center">
-                                            <p:outputLabel value="#{linha.movimento.vencimento}" />
+
+                                        <p:column headerText="Vencimento" style="width: 80px; text-align: center">
+                                            <p:outputLabel value="#{linha.boleto.vencimento}" />
                                         </p:column>
-                                        
+
                                         <p:column headerText="Valor" style="width: 80px; text-align: right">
-                                            <p:outputLabel value="#{linha.movimento.valorString}" />
+                                            <p:outputLabel value="#{linha.boleto.valorString}" />
                                         </p:column>
-                                        
+
                                         <p:column style="width: 40px; text-align: center">
-                                            <p:commandButton icon="ui-icon-close" action="#{remessaBean.removerMovimentoRemessa(linha)}" title="Remover este movimento da remessa" onclick="PF('dlg_remover_movimento').show()" disabled="#{linha.remessa.dtEnvioBancoString ne ''}"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{remessaBean.removerBoletoRemessa(linha)}" title="Remover este boleto da remessa" onclick="PF('dlg_remover_boleto').show()" disabled="true"/>
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
                             </p:dialog>
-                            
-                            <p:dialog widgetVar="dlg_remover_movimento" header="Remover Movimentos da Remessa" resizable="false" width="400" modal="true">
+
+                            <p:dialog widgetVar="dlg_remover_boleto" header="Remover Boletos da Remessa" resizable="false" width="400" modal="true">
                                 <h:panelGrid columns="1">
-                                    <p:outputLabel value="Deseja realmente excluir este Movimento da Remessa" style="font-size: 12pt!important"/>
+                                    <p:outputLabel value="Deseja realmente excluir este Boleto da Remessa" style="font-size: 11pt!important"/>
                                 </h:panelGrid>
-                                
-                                <p:commandButton value="Excluir" icon="ui-icon-check" action="#{remessaBean.removerMovimentoRemessa()}" onclick="PF('dlg_remover_movimento').hide()" update=":formRemessa:panel_remessa_banco" style="font-weight: bold"/>
-                                <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_remover_movimento').hide()" />
+
+                                <p:commandButton value="Excluir" icon="ui-icon-check" action="#{remessaBean.removerBoletoRemessa()}" onclick="PF('dlg_remover_boleto').hide()" update=":formRemessa:panel_remessa_banco" style="font-weight: bold; color: red"/>
+                                <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_remover_boleto').hide()" />
                             </p:dialog>
+
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
                         </h:form>
                     </p:panel>
                 </f:view>

@@ -44,7 +44,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -626,7 +626,7 @@ public class BaixaGeralBean implements Serializable {
 
         double vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
 
-        StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.converteStringToDouble(total), quitacao, caixa, vl);
+        StatusRetornoMensagem sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.converteStringToDouble(total), quitacao, caixa, vl);
 
         if (!sr.getStatus()) {
             mensagem = "Erro ao baixar! " + sr.getMensagem();

@@ -31,12 +31,12 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                     <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
-                
+
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Extrato Tela Social" styleClass="fonteHeader" />
                         <h:form id="formExtratoTelaSocial">
-                            <h:panelGrid columns="4" style="clear: both;">
+                            <h:panelGrid id="header_opcoes" columns="4" style="clear: both;">
                                 <h:column>
                                     <p:outputLabel value="Filtrar por" /><br />
                                     <p:selectOneMenu value="#{extratoTelaSocialBean.porPesquisa}" style="margin-right: 20px">
@@ -45,6 +45,14 @@
                                         <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
                                         <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
                                         <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
+                                    </p:selectOneMenu>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Status do Boleto"/><br />
+                                    <p:selectOneMenu value="#{extratoTelaSocialBean.indexListaStatusRetorno}" style="margin-right: 20px">
+                                        <p:ajax event="change" update="header_opcoes" global="false" listener="#{extratoTelaSocialBean.changeStatusRetorno}"/>
+                                        <f:selectItems value="#{extratoTelaSocialBean.listaStatusRetorno}" />
                                     </p:selectOneMenu>
                                 </h:column>
 
@@ -177,11 +185,19 @@
                             <p:messages id="i_msg" closable="true" showDetail="true"/>
 
                             <p:dataTable value="#{extratoTelaSocialBean.listaMovimento}" var="linha" id="tbl" rows="500" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
+                                <f:facet name="header">
+                                    <h:panelGrid style="width: 100%; text-align: left">
+                                        <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.selecionaTodos}" itemLabel="Selecionar Todos Movimentos da lista">
+                                            <p:ajax event="change" update="@this @form" listener="#{extratoTelaSocialBean.marcarTodos()}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                </f:facet>
+
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
 
-                                <p:column style="width:15px">
+                                <p:column style="width:15px; text-align: center">
                                     <p:selectBooleanCheckbox value="#{linha.argumento0}">
                                         <p:ajax event="change" update="@this" global="false"/>
                                     </p:selectBooleanCheckbox>
@@ -306,8 +322,8 @@
                         <h:form id="formExtratoTelaSocialOpcoes">
                             <p:panel styleClass="fundoCinza">
                                 <p:outputLabel value="Opções do Boleto" style="font-weight: bold; font-size: 8pt!important"/>
-                                
-                                <h:panelGrid columns="7" style="width: 850px">
+
+                                <h:panelGrid columns="8" style="width: 850px">
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.imprimirVerso}" itemLabel="Imprimir Verso" style="margin-right: 20px"/>
                                     </h:column>
@@ -316,6 +332,10 @@
                                         <p:commandLink action="#{extratoTelaSocialBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false">
                                             <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false" style="margin-right: 20px"/>
                                         </p:commandLink>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:commandButton icon="ui-icon-print" value="Remessa" title="Gerar Remessa de Boletos Selecionados" onclick="PF('dlg_gerar_remessa').show()" style="margin-right: 20px"/>
                                     </h:column>
 
                                     <h:column>
@@ -344,7 +364,7 @@
 
                             <p:panel styleClass="fundoCinza" style="margin-top: 10px">
                                 <p:outputLabel value="Opções do Acordo" style="font-weight: bold; font-size: 8pt!important"/>
-                                
+
                                 <h:panelGrid columns="3">
                                     <h:column>
                                         <p:commandButton icon="ui-icon-close" value="Excluir Acordo" style="margin-right: 15px" title="Excluir Acordos Selecionados" onclick="PF('dlg_acordo').show()" disabled="#{extratoTelaSocialBean.cab.verificarPermissao('excluir_acordo_social', 2)}"/>
@@ -369,9 +389,9 @@
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente excluir esses movimentos?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <p:messages id="i_msg_excluir" closable="true" showDetail="true"/>
-                                
+
                                 <h:panelGrid style="width: 100%"> 
                                     <p:outputLabel value="Digite o motivo para exclusão"/>
                                     <p:inputTextarea value="#{extratoTelaSocialBean.historico}" rows="5" style="width: 100%" />
@@ -387,16 +407,16 @@
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente ESTORNAR esses movimentos?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <p:messages id="i_msg_estornar" closable="true" showDetail="true"/>
-                                
+
                                 <h:panelGrid style="width: 100%">
                                     <p:outputLabel value="Digite um motivo para o Estorno." /><br />
                                     <p:inputTextarea value="#{extratoTelaSocialBean.motivoEstorno}" style="width: 100%" rows="2"/>
                                 </h:panelGrid>
-                                
+
                                 <br />
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{extratoTelaSocialBean.estornarBaixa()}" title="Estornar boletos selecionados" update="i_msg_estornar"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar Estorno" onclick="PF('dlg_estornar').hide()" global="false"/>
@@ -427,6 +447,20 @@
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar exclusão de Acordos" onclick="PF('dlg_acordo').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
+
+                            <p:dialog widgetVar="dlg_gerar_remessa" header="Gerar Arquivo Remessa" resizable="false" modal="true" width="400">
+                                <p:ajax event="close" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes" listener="#{extratoTelaSocialBean.fecharModalRemessa}"/>  
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente gerar Arquivo Remessa desses arquivos?" style="font-weight: bold; font-size: 12pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandLink action="#{extratoTelaSocialBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK">
+                                        <p:commandButton icon="ui-icon-print" value="Gerar Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>
+                                    </p:commandLink>
+                                    <p:commandButton icon="ui-icon-circle-close" value="SAIR" title="Cancelar Geração" onclick="PF('dlg_gerar_remessa').hide()" />
+                                </h:panelGrid>
+                            </p:dialog>                            
                         </h:form>
 
                     </p:panel>

@@ -4,8 +4,11 @@ import br.com.rtools.associativo.dao.ExtratoTelaSocialDao;
 import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.RemessaBancoDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -25,7 +28,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -74,6 +77,11 @@ public class ExtratoTelaSocialBean implements Serializable {
 
     private String motivoEstorno = "";
 
+    private Integer indexListaStatusRetorno = 0;
+    private final List<SelectItem> listaStatusRetorno = new ArrayList();
+    
+    private Boolean selecionaTodos = false;
+
     @PostConstruct
     public void init() {
         loadListaServicos();
@@ -81,11 +89,51 @@ public class ExtratoTelaSocialBean implements Serializable {
 
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
 
+        loadListaStatusRetorno();
     }
 
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("extratoTelaSocialBean");
+    }
+    
+    public void marcarTodos(){
+        listaMovimento.stream().forEach((da) -> {
+            da.setArgumento0(selecionaTodos);
+        });
+    }
+    
+    public void fecharModalRemessa(){
+        loadLista();
+    }
+
+    public void changeStatusRetorno() {
+        Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
+        if (id_status_retorno == -2) {
+            porPesquisa = "naoRecebidas";
+        }
+    }
+
+    public final void loadListaStatusRetorno() {
+        listaStatusRetorno.clear();
+
+        List<StatusRetorno> result = new Dao().list(new StatusRetorno());
+
+        listaStatusRetorno.add(new SelectItem(0, "Todos Boletos", "-1"));
+        listaStatusRetorno.add(new SelectItem(1, "Não Registrados", "-2"));
+
+        Integer indx = 1;
+
+        for (int i = 0; i < result.size(); i++) {
+            listaStatusRetorno.add(
+                    new SelectItem(
+                            indx + 1,
+                            result.get(i).getDescricao(),
+                            Integer.toString(result.get(i).getId())
+                    )
+            );
+            indx++;
+        }
     }
 
     public void loadLista() {
@@ -98,9 +146,14 @@ public class ExtratoTelaSocialBean implements Serializable {
         vlTotal = "0,00";
         vlLiquido = "0,00";
 
-        if (dataInicial.isEmpty() && dataFinal.isEmpty() && dataRefInicial.isEmpty() && dataRefFinal.isEmpty() && boletoInicial.isEmpty() && boletoFinal.isEmpty() && pessoa.getId() == -1 && Integer.valueOf(listaServicos.get(idServicos).getDescription()) == 0 && Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()) == 0) {
-            GenericaMensagem.warn("Atenção", "Selecione algum filtro para não travar com muitos resultados!");
-            return;
+        Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
+
+        // TODOS BOLETOS / BOLETO REGISTRADO / BOLETO LIQUIDADO
+        if (id_status_retorno == -1 || id_status_retorno == 2 || id_status_retorno == 3) {
+            if (dataInicial.isEmpty() && dataFinal.isEmpty() && dataRefInicial.isEmpty() && dataRefFinal.isEmpty() && boletoInicial.isEmpty() && boletoFinal.isEmpty() && pessoa.getId() == -1 && Integer.valueOf(listaServicos.get(idServicos).getDescription()) == 0 && Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()) == 0) {
+                GenericaMensagem.warn("Atenção", "Selecione algum filtro para não travar com muitos resultados!");
+                return;
+            }
         }
 
         if (!tipoPessoa.equals("nenhum") && pessoa.getId() == -1) {
@@ -108,7 +161,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         List<Vector> result = dao.listaMovimentosSocial(
-                porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription())
+                porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()), id_status_retorno
         );
 
         double valor = 0, valor_baixa = 0, valor_taxa = 0;
@@ -168,6 +221,69 @@ public class ExtratoTelaSocialBean implements Serializable {
             ib.imprimirBoletoSocial(listab, "soc_socios_vw", imprimirVerso);
             ib.visualizar(null);
         }
+    }
+
+    public String imprimirRemessa() {
+
+        ImprimirBoleto imp = new ImprimirBoleto();
+
+        List<Boleto> listab = new ArrayList();
+        Map<Integer, Boleto> hash = new LinkedHashMap();
+        String ids_boleto = "";
+
+        for (DataObject datao : listaMovimento) {
+            if ((Boolean) datao.getArgumento0() && ((Vector) datao.getArgumento1()).get(15) != null) {
+                Boleto boletox = (Boleto) new Dao().find(new Boleto(), ((Vector) datao.getArgumento1()).get(15));
+
+                if (boletox.getNrCtrBoleto().isEmpty()) {
+                    GenericaMensagem.fatal("Atenção", "Boleto " + boletox.getNrBoleto() + " sem NrCtrBoleto!, Contate o administrador!");
+                    return null;
+                }
+
+                hash.put(boletox.getId(), boletox);
+            }
+        }
+
+        if (hash.isEmpty()) {
+            GenericaMensagem.fatal("Atenção", "Nenhum Boleto Selecionado!");
+            return null;
+        }
+
+        for (Map.Entry<Integer, Boleto> entry : hash.entrySet()) {
+            listab.add(entry.getValue());
+        }
+
+        for (Boleto b : listab) {
+            if (listab.get(0).getContaCobranca().getId() != b.getContaCobranca().getId()) {
+                GenericaMensagem.error("Atenção", "Para gerar a remessa os boletos devem ser da mesma Conta Cobrança!");
+                return null;
+            }
+
+            if (ids_boleto.isEmpty()) {
+                ids_boleto = "" + b.getId();
+            } else {
+                ids_boleto += ", " + b.getId();
+            }
+
+        }
+
+        RemessaBancoDao daor = new RemessaBancoDao();
+
+        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_boleto);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return null;
+        }
+
+        File fi = imp.imprimirRemessa(listab, listab.get(0));
+        if (fi == null) {
+            GenericaMensagem.error("Atenção", "Erro ao gerar Remessa!");
+            return null;
+        }
+        imp.visualizar_remessa(fi);
+
+        return null;
     }
 
     public void imprimirPlanilha() {
@@ -243,7 +359,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         int qnt = 0;
-        
+
         Movimento mov = null;
 
         for (DataObject listaMovimento1 : listaMovimento) {
@@ -257,7 +373,7 @@ public class ExtratoTelaSocialBean implements Serializable {
             GenericaMensagem.warn("Atenção", "Nenhum Movimento selecionado!");
             return;
         }
-        
+
         if (qnt > 1) {
             GenericaMensagem.warn("Erro", "Mais de um movimento foi selecionado!");
             return;
@@ -287,8 +403,8 @@ public class ExtratoTelaSocialBean implements Serializable {
             mov.setAtivo(false);
         }
 
-        StatusRetorno sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
-        
+        StatusRetornoMensagem sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
+
         if (!sr.getStatus()) {
             GenericaMensagem.warn("Atenção", sr.getMensagem());
         } else {
@@ -761,5 +877,25 @@ public class ExtratoTelaSocialBean implements Serializable {
 
     public void setMotivoEstorno(String motivoEstorno) {
         this.motivoEstorno = motivoEstorno;
+    }
+
+    public Integer getIndexListaStatusRetorno() {
+        return indexListaStatusRetorno;
+    }
+
+    public void setIndexListaStatusRetorno(Integer indexListaStatusRetorno) {
+        this.indexListaStatusRetorno = indexListaStatusRetorno;
+    }
+
+    public List<SelectItem> getListaStatusRetorno() {
+        return listaStatusRetorno;
+    }
+
+    public Boolean getSelecionaTodos() {
+        return selecionaTodos;
+    }
+
+    public void setSelecionaTodos(Boolean selecionaTodos) {
+        this.selecionaTodos = selecionaTodos;
     }
 }

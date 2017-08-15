@@ -27,7 +27,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -461,7 +461,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
                             null
                     );
 
-                    StatusRetorno sr = GerarMovimento.salvarUmMovimento(new Lote(), movi);
+                    StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(new Lote(), movi);
 
                     if (sr.getStatus()) {
 

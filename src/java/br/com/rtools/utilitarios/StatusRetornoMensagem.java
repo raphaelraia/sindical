@@ -9,12 +9,12 @@ package br.com.rtools.utilitarios;
  *
  * @author Claudemir Rtools
  */
-public class StatusRetorno {
+public class StatusRetornoMensagem {
 
     private Boolean status;
     private String mensagem;
 
-    public StatusRetorno(Boolean status, String mensagem) {
+    public StatusRetornoMensagem(Boolean status, String mensagem) {
         this.status = status;
         this.mensagem = mensagem;
     }

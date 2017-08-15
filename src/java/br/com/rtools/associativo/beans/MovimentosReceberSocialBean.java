@@ -44,7 +44,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1084,7 +1084,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         Integer id_baixa_estornada = mov.getBaixa().getId();
 
-        StatusRetorno sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
+        StatusRetornoMensagem sr = GerarMovimento.estornarMovimento(mov, motivoEstorno);
 
         if (!sr.getStatus()) {
             msgConfirma = sr.getMensagem();
@@ -2143,7 +2143,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     public Boolean renderedEncaminhamento(Integer id_lote) {
         MovimentoDao db = new MovimentoDao();
         Guia gu = db.pesquisaGuias(id_lote);
-        
+
         if (gu.getId() != -1 && gu.getSubGrupoConvenio() != null) {
             return gu.getSubGrupoConvenio().getEncaminhamento();
         }

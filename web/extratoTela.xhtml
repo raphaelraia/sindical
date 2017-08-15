@@ -39,7 +39,7 @@
 
                             <p:panel >
                                 <f:facet name="header">
-                                    <h:panelGrid columns="5" cellspacing="5" style="width: 100%">
+                                    <h:panelGrid id="header_opcoes" columns="6" cellspacing="6" style="width: 100%">
                                         <h:column>
                                             <h:panelGrid>
                                                 <p:outputLabel value="Filtrar por" />
@@ -75,6 +75,16 @@
                                         </h:column>
 
                                         <h:column>
+                                            <h:panelGrid>
+                                                <p:outputLabel value="Status do Boleto"/>
+                                                <p:selectOneMenu value="#{extratoTelaBean.indexListaStatusRetorno}">
+                                                    <p:ajax event="change" update="@this header_opcoes" global="false" listener="#{extratoTelaBean.changeStatusRetorno}"/>
+                                                    <f:selectItems value="#{extratoTelaBean.listaStatusRetorno}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <h:column>
                                             <h:panelGrid>                                    
                                                 <p:outputLabel value="Ordenação" />
                                                 <p:selectOneMenu value="#{extratoTelaBean.ordenacao}">
@@ -103,7 +113,7 @@
 
                                         <h:column>
                                             <br />
-                                            <p:commandButton value="FILTRAR LISTA" style="float: right; font-weight: bold; margin-left: 400px" action="#{extratoTelaBean.loadListBeta()}" update="formExtratoTela" />
+                                            <p:commandButton value="FILTRAR LISTA" style="float: right; font-weight: bold; margin-left: 350px" action="#{extratoTelaBean.loadListBeta()}" update="formExtratoTela" />
                                         </h:column>
                                     </h:panelGrid>
                                 </f:facet>
@@ -231,6 +241,14 @@
                             </p:panel>
                             <p:messages id="i_msg" closable="true" showDetail="true" autoUpdate="true"/>
                             <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="10" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%" rowIndexVar="index">
+                                <f:facet name="header">
+                                    <h:panelGrid style="width: 100%; text-align: left">
+                                        <p:selectBooleanCheckbox value="#{extratoTelaBean.selecionaTodos}" itemLabel="Selecionar Todos Movimentos da lista">
+                                            <p:ajax event="change" update="@this @form" listener="#{extratoTelaBean.marcarTodos()}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                </f:facet>
+                                
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
@@ -361,9 +379,20 @@
                                             <p:outputLabel value="Vencto Original" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento29.vencimentoOriginal}"/>
                                         </p:column>
+
                                         <p:column>
                                             <p:outputLabel value="Lançamento" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento29.lote.lancamento}"/>
+                                        </p:column>
+
+                                        <p:column rendered="#{movimentos.argumento29.boleto.statusRetorno ne null}">
+                                            <p:outputLabel value="Status do Boleto" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{movimentos.argumento29.boleto.statusRetorno.descricao}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
+                                        </p:column>
+
+                                        <p:column rendered="#{movimentos.argumento29.boleto.statusRetorno ne null}">
+                                            <p:outputLabel value="Data do Processo" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{movimentos.argumento29.boleto.dtStatusRetornoString}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
                                         </p:column>
                                     </h:panelGrid>
 
@@ -708,6 +737,7 @@
                             </p:panel>
 
                             <p:dialog widgetVar="dlg_gerar_remessa" header="Gerar Arquivo Remessa" resizable="false" modal="true" width="400">
+                                <p:ajax event="close" update="formExtratoTela" listener="#{extratoTelaBean.fecharModalRemessa}"/>  
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente gerar Arquivo Remessa desses arquivos?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
@@ -716,7 +746,7 @@
                                     <p:commandLink action="#{extratoTelaBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK">
                                         <p:commandButton icon="ui-icon-print" value="Gerar Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>
                                     </p:commandLink>
-                                    <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar Geração" onclick="PF('dlg_gerar_remessa').hide()" global="false"/>
+                                    <p:commandButton icon="ui-icon-circle-close" value="SAIR" title="Cancelar Geração" onclick="PF('dlg_gerar_remessa').hide()"/>
                                 </h:panelGrid>
                             </p:dialog>
 

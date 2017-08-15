@@ -42,8 +42,8 @@
                                 <p:column headerText="Código - Cedente">
                                     <h:outputText value="#{contaCobranca.codCedente} - #{contaCobranca.cedente}"/>
                                 </p:column>
-                                <p:column headerText="Cob. Reg." style="width: 40px; text-align: center">
-                                    <h:outputText value="#{contaCobranca.cobrancaRegistrada ? 'SIM' : 'NÃO'}" style="font-weight: bold"/>
+                                <p:column headerText="Cob. Reg." style="width: 80px; text-align: center">
+                                    <h:outputText value="#{contaCobranca.cobrancaRegistrada.descricao}" />
                                 </p:column>
                                 <p:rowExpansion>
                                     <h:outputText value="Serviço: #{contaCobranca.apelido}"/>                                    

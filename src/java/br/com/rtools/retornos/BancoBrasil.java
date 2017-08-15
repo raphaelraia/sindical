@@ -1,8 +1,10 @@
 package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaRetorno;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.BufferedReader;
@@ -27,8 +29,6 @@ public class BancoBrasil extends ArquivoRetorno {
             dataPagamento = "",
             dataCredito = "";
 
-    private Integer statusRegistro = null;
-
     public BancoBrasil(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
@@ -41,6 +41,9 @@ public class BancoBrasil extends ArquivoRetorno {
         File fl = new File(host);
         File listFile[] = fl.listFiles();
         List<GenericaRetorno> listaRetorno = new ArrayList();
+        
+        StatusRetorno sr = null;
+        
         if (listFile != null) {
             int qntRetornos = listFile.length;
             String valorDescontado = "";
@@ -72,13 +75,17 @@ public class BancoBrasil extends ArquivoRetorno {
                             switch (((String) lista.get(i)).substring(15, 17)) {
                                 // RETORNO VEM COM A CONFIRMAÇÃO QUE FOI REGISTRADO ( REFERENTE A REMESSA GERADA )
                                 case "02":
-                                    statusRegistro = 1; // BOLETO REGISTRADO
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 2); // BOLETO REGISTRADO
                                     break;
                                 case "03":
-                                    statusRegistro = 2; // BOLETO REJEITADO
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 1); // BOLETO REJEITADO
+                                    break;
+                                case "06": // LIQUIDAÇÃO
+                                case "17": // LIQUIDAÇÃO QUANDO O BOLETO PAGO NÃO É REGISTRADO
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
                                 default:
-                                    statusRegistro = 3; // BOLETO PARA BAIXAR
+                                    sr = null;
                                     break;
                             }
                         }
@@ -102,23 +109,26 @@ public class BancoBrasil extends ArquivoRetorno {
                                 valorPago = "000000000000000".substring(0, 15 - calculo_s.length()) + calculo_s;
                             }
 
-                            listaRetorno.add(new GenericaRetorno(
-                                    cnpj, //1 ENTIDADE
-                                    codigoCedente, //2 NESTE CASO SICAS
-                                    nossoNumero, //3
-                                    valorPago, //4
-                                    valorTaxa, //5
-                                    "",//valorCredito,   //6
-                                    dataPagamento, //7
-                                    dataVencimento,//dataVencimento, //8
-                                    "", //9 ACRESCIMO
-                                    "", //10 VALOR DESCONTO
-                                    "", //11 VALOR ABATIMENTO
-                                    "", //12 VALOR REPASSE ...(valorPago - valorCredito)
-                                    pasta, // 13 NOME DA PASTA
-                                    listFile[u].getName(), //14 NOME DO ARQUIVO
-                                    "", //15 DATA CREDITO
-                                    "") // 16 SEQUENCIAL DO ARQUIVO
+                            listaRetorno.add(
+                                    new GenericaRetorno(
+                                            cnpj, //1 ENTIDADE
+                                            codigoCedente, //2 NESTE CASO SICAS
+                                            nossoNumero, //3
+                                            valorPago, //4
+                                            valorTaxa, //5
+                                            "",//valorCredito,   //6
+                                            dataPagamento, //7
+                                            dataVencimento,//dataVencimento, //8
+                                            "", //9 ACRESCIMO
+                                            "", //10 VALOR DESCONTO
+                                            "", //11 VALOR ABATIMENTO
+                                            "", //12 VALOR REPASSE ...(valorPago - valorCredito)
+                                            pasta, // 13 NOME DA PASTA
+                                            listFile[u].getName(), //14 NOME DO ARQUIVO
+                                            "", //15 DATA CREDITO
+                                            "", // 16 SEQUENCIAL DO ARQUIVO
+                                            sr // 17 STATUS RETORNO
+                                    )
                             );
                             i++;
                         }

@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Usuario;
@@ -34,8 +35,8 @@ public class Itau extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public Itau(List<Movimento> listaMovimento) {
-        super(listaMovimento);
+    public Itau(List<Boleto> listaBoleto) {
+        super(listaBoleto);
     }
 
     @Override
@@ -209,20 +210,20 @@ public class Itau extends Cobranca {
     public String codigoBanco() {
         return "341-7";
     }
-    
+
     @Override
     public File gerarRemessa240() {
         return null;
     }
-    
+
     @Override
     public File gerarRemessa400() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDao dbmov = new MovimentoDao();
 
+        Dao dao = new Dao();
         try {
             String nome_arquivo = "IT" + DataHoje.hora().replace(":", "") + ".txt";
-            Dao dao = new Dao();
 
             dao.openTransaction();
 
@@ -268,7 +269,8 @@ public class Itau extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaMovimento.isEmpty()) {
+            if (listaBoleto.isEmpty()) {
+                dao.rollback();
                 return null;
             }
             // header ----------------------------------------------------------
@@ -283,7 +285,7 @@ public class Itau extends Cobranca {
             CONTEUDO_REMESSA += "01"; // IDENTIFICAÇÃO DO TIPO DE SERVIÇO 010   011 9(02)  01
             CONTEUDO_REMESSA += "COBRANCA       "; // IDENTIFICAÇÃO POR EXTENSO DO TIPO DE SERVIÇO 012   026 X(15)  COBRANCA
 
-            Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
+            Boleto boleto_rem = listaBoleto.get(0); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente().replace(",", "");
@@ -319,8 +321,9 @@ public class Itau extends Cobranca {
             Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
 
-            for (Integer i = 0; i < listaMovimento.size(); i++) {
-                Movimento mov = listaMovimento.get(i);
+            for (Integer i = 0; i < listaBoleto.size(); i++) {
+                Boleto bol = listaBoleto.get(i);
+                List<Movimento> lista_m = bol.getListaMovimento();
 
                 CONTEUDO_REMESSA += "1"; // TIPO DE REGISTRO  IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO 001   001  9(01) 1
                 CONTEUDO_REMESSA += "02"; // CÓDIGO DE INSCRIÇÃO TIPO DE INSCRIÇÃO DA EMPRESA 002   003  9(02) NOTA 1
@@ -334,20 +337,27 @@ public class Itau extends Cobranca {
                 CONTEUDO_REMESSA += "    "; // BRANCOS COMPLEMENTO DE REGISTRO 030   033 X(04) 
                 CONTEUDO_REMESSA += "0000"; // INSTRUÇÃO/ALEGAÇÃO CÓD.INSTRUÇÃO/ALEGAÇÃO A SER CANCELADA 034   037 9(04) NOTA 27
 
-                CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // USO DA EMPRESA  IDENTIFICAÇÃO DO TÍTULO NA EMPRESA 038   062  X(25) NOTA 2
-                CONTEUDO_REMESSA += "00000000".substring(0, 8 - mov.getDocumento().length()) + mov.getDocumento(); // NOSSO NÚMERO  IDENTIFICAÇÃO DO TÍTULO NO BANCO 063   070 9(08) NOTA 3
+                CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + bol.getId()).length()) + bol.getId(); // USO DA EMPRESA  IDENTIFICAÇÃO DO TÍTULO NA EMPRESA 038   062  X(25) NOTA 2
+                CONTEUDO_REMESSA += "00000000".substring(0, 8 - bol.getBoletoComposto().length()) + bol.getBoletoComposto(); // NOSSO NÚMERO  IDENTIFICAÇÃO DO TÍTULO NO BANCO 063   070 9(08) NOTA 3
                 CONTEUDO_REMESSA += "0000000000000"; // QTDE DE MOEDA  QUANTIDADE DE MOEDA VARIÁVEL 071   083 9(08)V9(5) NOTA 4   
 
                 CONTEUDO_REMESSA += "109"; // Nº DA CARTEIRA  NÚMERO DA CARTEIRA NO BANCO 084   086 9(03) NOTA 5
                 CONTEUDO_REMESSA += "                     "; // USO DO BANCO IDENTIFICAÇÃO DA OPERAÇÃO NO BANCO 087   107  X(21)
                 CONTEUDO_REMESSA += "I"; // CARTEIRA  CÓDIGO DA CARTEIRA  108   108  X(01) NOTA 5
                 CONTEUDO_REMESSA += "01"; // CÓD. DE OCORRÊNCIA IDENTIFICAÇÃO DA OCORRÊNCIA  109   110 9(02) NOTA 6 
-                CONTEUDO_REMESSA += "0000000000".substring(0, 10 - mov.getDocumento().length()) + mov.getDocumento();; // Nº DO DOCUMENTO  Nº DO DOCUMENTO DE COBRANÇA (DUPL.,NP ETC.) 111   120  X(10) NOTA 18 
+                CONTEUDO_REMESSA += "0000000000".substring(0, 10 - bol.getBoletoComposto().length()) + bol.getBoletoComposto(); // Nº DO DOCUMENTO  Nº DO DOCUMENTO DE COBRANÇA (DUPL.,NP ETC.) 111   120  X(10) NOTA 18 
 
-                String[] data_vencimento = DataHoje.DataToArrayString(mov.getVencimento());
+                String[] data_vencimento = DataHoje.DataToArrayString(bol.getVencimento());
                 CONTEUDO_REMESSA += data_vencimento[0] + data_vencimento[1] + data_vencimento[2].substring(2, 4); // VENCIMENTO  DATA DE VENCIMENTO DO TÍTULO  121   126  9(06) NOTA 7 
 
-                String valor_titulo = Moeda.converteR$Double(mov.getValor()).replace(".", "").replace(",", "");
+                Double valor_titulo_double = new Double(0);
+
+                for (Movimento m : lista_m) {
+                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                }
+
+                String valor_titulo = Moeda.converteR$Double(valor_titulo_double).replace(".", "").replace(",", "");
+
                 CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - valor_titulo.length()) + valor_titulo; // VALOR DO TÍTULO  VALOR NOMINAL DO TÍTULO 127   139 9(11)V9(2) NOTA 8 
 
                 CONTEUDO_REMESSA += "341"; // CÓDIGO DO BANCO   Nº DO BANCO NA CÂMARA DE COMPENSAÇÃO  140   142  9(03) 341 
@@ -368,17 +378,19 @@ public class Itau extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000000"; // VALOR DO DESCONTO  VALOR DO DESCONTO A SER CONCEDIDO 180   192  9(11)V9(2) NOTA 13 
                 CONTEUDO_REMESSA += "0000000000000"; // VALOR DO I.O.F.  VALOR DO I.O.F. RECOLHIDO P/ NOTAS SEGURO 193   205  9(11)V((2) NOTA 14 
                 CONTEUDO_REMESSA += "0000000000000"; // ABATIMENTO   VALOR DO ABATIMENTO A SER CONCEDIDO 206   218 9(11)V9(2) NOTA 13  
-                if (mov.getPessoa().getTipoDocumento().getId() == 1) {
+
+                Pessoa pessoa = bol.getPessoa();
+                if (pessoa.getTipoDocumento().getId() == 1) {
                     CONTEUDO_REMESSA += "01"; // CÓDIGO DE INSCRIÇÃO IDENTIFICAÇÃO DO TIPO DE INSCRIÇÃO/PAGADOR 219   220  9(02) 01=CPF  02=CNPJ
-                } else if (mov.getPessoa().getTipoDocumento().getId() == 2) {
+                } else if (pessoa.getTipoDocumento().getId() == 2) {
                     CONTEUDO_REMESSA += "02"; // CÓDIGO DE INSCRIÇÃO IDENTIFICAÇÃO DO TIPO DE INSCRIÇÃO/PAGADOR 219   220  9(02) 01=CPF  02=CNPJ
                 }
-                String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
+                String documento_pessoa = pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "");
                 CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_pessoa.length()) + documento_pessoa; // NÚMERO DE INSCRIÇÃO Nº DE INSCRIÇÃO DO PAGADOR  (CPF/CNPJ) 221   234 9(14) 
-                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                              ").substring(0, 30)); // NOME NOME DO PAGADOR 235   264 X(30) NOTA 15 
+                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((pessoa.getNome() + "                              ").substring(0, 30)); // NOME NOME DO PAGADOR 235   264 X(30) NOTA 15 
                 CONTEUDO_REMESSA += "          "; // BRANCOS COMPLEMENTO DE REGISTRO 265   274  X(10) NOTA 15
 
-                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
+                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
                 if (pessoa_endereco != null) {
                     String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
                             end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
@@ -414,16 +426,16 @@ public class Itau extends Cobranca {
 
                 CONTEUDO_REMESSA = "";
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
+                    RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
 
-                if (!dao.save(remessaBanco)) {
-                    dao.rollback();
-                    return null;
-                }
+                    if (!dao.save(remessaBanco)) {
+                        dao.rollback();
+                        return null;
+                    }
 
-                list_log.add("ID: " + mov.getId());
-                list_log.add("Valor: " + mov.getValorString());
-                list_log.add("-----------------------");
+                    list_log.add("ID: " + bol.getId());
+                    list_log.add("Valor: " + valor_titulo);
+                    list_log.add("-----------------------");
             }
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -440,7 +452,7 @@ public class Itau extends Cobranca {
             buff_writer.close();
 
             dao.commit();
-            
+
             String log_string = "";
             log_string = list_log.stream().map((string_x) -> string_x + " \n").reduce(log_string, String::concat);
             NovoLog log = new NovoLog();
@@ -453,6 +465,7 @@ public class Itau extends Cobranca {
             return new File(destino);
         } catch (IOException | NumberFormatException e) {
             e.getMessage();
+            dao.rollback();
             return null;
         }
     }

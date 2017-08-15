@@ -24,7 +24,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +43,7 @@ public class GerarMovimento extends DB {
 
 //      VERIFICAÇÃO
         try {
-            String LEFT_BLOQUEIA_SERVICO 
+            String LEFT_BLOQUEIA_SERVICO
                     = " LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = c.id_pessoa \n "
                     + "  AND sp.id_servicos = " + id_servico + " \n "
                     + "  AND '" + vencimento + "' >= sp.dt_inicio \n "
@@ -490,7 +490,7 @@ public class GerarMovimento extends DB {
         return "";
     }
 
-    public static StatusRetorno salvarUmMovimentoBaixa(Lote lote, Movimento movimento) {
+    public static StatusRetornoMensagem salvarUmMovimentoBaixa(Lote lote, Movimento movimento) {
         Dao dao = new Dao();
         ContaCobrancaDao dbc = new ContaCobrancaDao();
         NovoLog log = new NovoLog();
@@ -500,7 +500,7 @@ public class GerarMovimento extends DB {
         ContaCobranca cc = dbc.pesquisaServicoCobranca(movimento.getServicos().getId(), movimento.getTipoServico().getId());
 
         if (cc == null) {
-            return new StatusRetorno(Boolean.FALSE, "CONTA COBRANÇA VAZIA!");
+            return new StatusRetornoMensagem(Boolean.FALSE, "CONTA COBRANÇA VAZIA!");
         }
 
         int id_boleto = db.inserirBoletoNativo(cc.getId());
@@ -528,7 +528,7 @@ public class GerarMovimento extends DB {
                     log.save("Salvar Lote " + " - ID: " + lote.getId() + " Pessoa: " + lote.getPessoa().getNome() + " Data: " + lote.getEmissao());
                 } else {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR LOTE!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR LOTE!");
                 }
 
                 // MOVIMENTO ----
@@ -550,32 +550,32 @@ public class GerarMovimento extends DB {
 
                         if (!dao.update(movimento)) {
                             dao.rollback();
-                            return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
                         }
 
                         if (!dao.update(boleto)) {
                             dao.rollback();
-                            return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
                         }
                     }
 
                     log.save("Salvar Movimento - ID: " + movimento.getId() + " Pessoa: " + movimento.getPessoa().getNome() + " Valor: " + movimento.getValor());
                 } else {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR MOVIMENTO!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR MOVIMENTO!");
                 }
             } else {
                 dao.rollback();
-                return new StatusRetorno(Boolean.FALSE, "MOVIMENTO NÃO ENCONTRADO!");
+                return new StatusRetornoMensagem(Boolean.FALSE, "MOVIMENTO NÃO ENCONTRADO!");
             }
             dao.commit();
         } else {
-            return new StatusRetorno(Boolean.FALSE, "BOLETO NÃO ENCONTRADO!");
+            return new StatusRetornoMensagem(Boolean.FALSE, "BOLETO NÃO ENCONTRADO!");
         }
-        return new StatusRetorno(Boolean.TRUE, "MOVIMENTO SALVO!");
+        return new StatusRetornoMensagem(Boolean.TRUE, "MOVIMENTO SALVO!");
     }
 
-    public static StatusRetorno salvarUmMovimento(Lote lote, Movimento movimento) {
+    public static StatusRetornoMensagem salvarUmMovimento(Lote lote, Movimento movimento) {
         Dao dao = new Dao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
@@ -591,13 +591,13 @@ public class GerarMovimento extends DB {
 
         if (cc == null) {
             dao.rollback();
-            return new StatusRetorno(Boolean.FALSE, "CONTA COBRANÇA NÃO ENCONTRADA!");
+            return new StatusRetornoMensagem(Boolean.FALSE, "CONTA COBRANÇA NÃO ENCONTRADA!");
         }
 
         if (movimento.getPessoa().getId() != 0) {
             Convencao convencao = dbco.pesquisarCnaeConvencaoPorPessoa(movimento.getPessoa().getId());
             if (convencao == null) {
-                return new StatusRetorno(Boolean.FALSE, "CONVENÇÃO NÃO ENCONTRADA!");
+                return new StatusRetornoMensagem(Boolean.FALSE, "CONVENÇÃO NÃO ENCONTRADA!");
             }
 
             if (movimento.getTipoServico().getId() != 4) {
@@ -610,7 +610,7 @@ public class GerarMovimento extends DB {
                         movimento.getReferencia());
 
                 if (mc == null) {
-                    return new StatusRetorno(Boolean.FALSE, "MENSAGEM COBRANÇA NÃO ENCONTRADA!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "MENSAGEM COBRANÇA NÃO ENCONTRADA!");
                 }
 
             }
@@ -642,7 +642,7 @@ public class GerarMovimento extends DB {
                     log.save("Salvar Lote - ID: " + lote.getId() + " Pessoa: " + lote.getPessoa().getNome() + " Data: " + lote.getEmissao());
                 } else {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR LOTE!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR LOTE!");
                 }
 
                 // MOVIMENTO ----
@@ -669,18 +669,18 @@ public class GerarMovimento extends DB {
 
                         if (!dao.update(movimento)) {
                             dao.rollback();
-                            return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
                         }
 
                         if (!dao.update(boleto)) {
                             dao.rollback();
-                            return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
                         }
 
                         if (movimento.getPessoa().getId() != 0 && movimento.getTipoServico().getId() != 4) {
                             if (!dao.save(new MensagemCobranca(-1, movimento, mc))) {
                                 dao.rollback();
-                                return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR MENSAGEM COBRANÇA!");
+                                return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR MENSAGEM COBRANÇA!");
                             }
                         }
                     }
@@ -688,19 +688,19 @@ public class GerarMovimento extends DB {
                     log.save("Salvar Movimento - ID: " + movimento.getId() + " Pessoa: " + movimento.getPessoa().getNome() + " Valor: " + movimento.getValor());
                 } else {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR MOVIMENTO!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR MOVIMENTO!");
                 }
             } else {
                 dao.rollback();
-                return new StatusRetorno(Boolean.FALSE, "ERRO AO ENCONTRAR MOVIMENTO!");
+                return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ENCONTRAR MOVIMENTO!");
             }
 
             dao.commit();
         } else {
-            return new StatusRetorno(Boolean.FALSE, "ERRO AO ENCONTRAR BOLETO!");
+            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ENCONTRAR BOLETO!");
         }
 
-        return new StatusRetorno(Boolean.TRUE, "MOVIMENTO SALVO!");
+        return new StatusRetornoMensagem(Boolean.TRUE, "MOVIMENTO SALVO!");
     }
 
     public static boolean alterarUmMovimento(Movimento movimento) {
@@ -735,7 +735,7 @@ public class GerarMovimento extends DB {
         return true;
     }
 
-    public static StatusRetorno excluirUmMovimento(Movimento movimento) {
+    public static StatusRetornoMensagem excluirUmMovimento(Movimento movimento) {
         MovimentoDao movDB = new MovimentoDao();
         Dao dao = new Dao();
         Lote lote = null;
@@ -751,7 +751,7 @@ public class GerarMovimento extends DB {
                 for (ImpressaoWeb imp : listaLogWeb) {
                     if (!dao.delete(imp)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO NA EXCLUSÃO DA LISTA DE LOG WEB!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO NA EXCLUSÃO DA LISTA DE LOG WEB!");
                     }
                 }
 
@@ -759,21 +759,21 @@ public class GerarMovimento extends DB {
                 if (mensagemCobranca != null) {
                     if (!dao.delete(mensagemCobranca)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO NA EXCLUSÃO DA MENSAGEM DO BOLETO!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO NA EXCLUSÃO DA MENSAGEM DO BOLETO!");
                     }
                 }
 
                 // EXCLUI MOVIMENTO
                 if (!dao.delete(movimento)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO NA EXCLUSÃO DO MOVIMENTO!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO NA EXCLUSÃO DO MOVIMENTO!");
                 }
 
                 lote = movimento.getLote();
                 // EXCLUI LOTE
                 if (!dao.delete(lote)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO NA EXCLUSÃO DO LOTE!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO NA EXCLUSÃO DO LOTE!");
                 }
 
                 // EXCLUI BOLETO 
@@ -782,20 +782,20 @@ public class GerarMovimento extends DB {
                 if (bols != null) {
                     if (!dao.delete(bols)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO NA EXCLUSÃO DO BOLETO!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO NA EXCLUSÃO DO BOLETO!");
                     }
                 }
 
                 dao.commit();
 
-                return new StatusRetorno(Boolean.TRUE, "MOVIMENTO EXCLUÍDO!");
+                return new StatusRetornoMensagem(Boolean.TRUE, "MOVIMENTO EXCLUÍDO!");
             }
 
         } catch (Exception e) {
-            return new StatusRetorno(Boolean.FALSE, e.getMessage());
+            return new StatusRetornoMensagem(Boolean.FALSE, e.getMessage());
         }
 
-        return new StatusRetorno(Boolean.FALSE, "NÃO FOI POSSÍVEL EXCLUIR MOVIMENTO!");
+        return new StatusRetornoMensagem(Boolean.FALSE, "NÃO FOI POSSÍVEL EXCLUIR MOVIMENTO!");
     }
 
     public static String inativarUmMovimento(Movimento movimento, String historico) {
@@ -975,7 +975,7 @@ public class GerarMovimento extends DB {
         return mensagem;
     }
 
-    public static StatusRetorno estornarMovimento(Movimento movimento, String motivoEstorno) {
+    public static StatusRetornoMensagem estornarMovimento(Movimento movimento, String motivoEstorno) {
         MovimentoDao db = new MovimentoDao();
         Baixa baixa;
         List<FormaPagamento> formaPagamento;
@@ -984,14 +984,14 @@ public class GerarMovimento extends DB {
 
         try {
             if (movimento == null || movimento.getBaixa() == null || (!movimento.isAtivo() && movimento.getLote().getRotina().getId() != 132)) {
-                return new StatusRetorno(Boolean.FALSE, "MOVIMENTO NÃO ENCONTRADO OU ROTINA NAO PERMITIDA!");
+                return new StatusRetornoMensagem(Boolean.FALSE, "MOVIMENTO NÃO ENCONTRADO OU ROTINA NAO PERMITIDA!");
             }
 
             String data_fechamento_diario = DataHoje.converteData(new FechamentoDiarioDao().ultimaDataContaSaldo());
             String data_hoje = DataHoje.data();
 
             if (DataHoje.menorData(data_hoje, data_fechamento_diario) || data_hoje.equals(data_fechamento_diario)) {
-                return new StatusRetorno(Boolean.FALSE, "FECHAMENTO DIÁRIO EFETUADO, MOVIMENTO NÃO PODE SER ESTORNADO!");
+                return new StatusRetornoMensagem(Boolean.FALSE, "FECHAMENTO DIÁRIO EFETUADO, MOVIMENTO NÃO PODE SER ESTORNADO!");
             }
 
             lista = db.movimentoIdbaixa(movimento.getBaixa().getId());
@@ -1003,7 +1003,7 @@ public class GerarMovimento extends DB {
                 for (BaixaLog bl : l_baixaLog) {
                     if (!dao.delete(bl)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR BAIXA LOG!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR BAIXA LOG!");
                     }
                 }
             }
@@ -1011,19 +1011,19 @@ public class GerarMovimento extends DB {
             ChequePag chequePag = null;
             if (lista.isEmpty()) {
                 dao.rollback();
-                return new StatusRetorno(Boolean.FALSE, "LISTA DE BAIXA MOVIMENTO NÃO ENCONTRADA!");
+                return new StatusRetornoMensagem(Boolean.FALSE, "LISTA DE BAIXA MOVIMENTO NÃO ENCONTRADA!");
             } else if (lista.size() > 1) {
                 formaPagamento = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
                 for (int i = 0; i < formaPagamento.size(); i++) {
                     if (!dao.delete(formaPagamento.get(i))) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR FORMA DE PAGAMENTO!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR FORMA DE PAGAMENTO!");
                     }
 
                     if (formaPagamento.get(i).getChequeRec() != null) {
                         if (!dao.delete(formaPagamento.get(i).getChequeRec())) {
                             dao.rollback();
-                            return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE REC!");
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE REC!");
                         }
                     }
 
@@ -1036,11 +1036,11 @@ public class GerarMovimento extends DB {
                                     cb.setUCheque(formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getUCheque() - 1);
                                     if (!dao.update(cb)) {
                                         dao.rollback();
-                                        return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR ÚLTIMO CHEQUE!");
+                                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR ÚLTIMO CHEQUE!");
                                     }
                                     if (!dao.delete(formaPagamento.get(i).getChequePag())) {
                                         dao.rollback();
-                                        return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE PAG!");
+                                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE PAG!");
                                     }
                                 } else {
                                     chequePag = formaPagamento.get(i).getChequePag();
@@ -1069,7 +1069,7 @@ public class GerarMovimento extends DB {
 
                 if (!dao.save(ecl)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA LOTE!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA LOTE!");
                 }
 
                 if (chequePag != null) {
@@ -1079,7 +1079,7 @@ public class GerarMovimento extends DB {
                     // ESTORNA PAGAMENTO CHEQUE IMPRESSO 
                     if (!dao.update(chequePag)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR CHEQUE PAG!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR CHEQUE PAG!");
                     }
                 }
                 for (int i = 0; i < lista.size(); i++) {
@@ -1095,18 +1095,18 @@ public class GerarMovimento extends DB {
 
                     if (!dao.update(lista.get(i))) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
                     }
 
                     if (!dao.save(new EstornoCaixa(-1, ecl, lista.get(i), valor_baixa))) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA!");
                     }
                 }
 
                 if (!dao.delete(baixa)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR BAIXA!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR BAIXA!");
                 }
             } else {
                 formaPagamento = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
@@ -1114,13 +1114,13 @@ public class GerarMovimento extends DB {
                 for (int i = 0; i < formaPagamento.size(); i++) {
                     if (!dao.delete(formaPagamento.get(i))) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR FORMA DE PAGAMENTO!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR FORMA DE PAGAMENTO!");
                     }
 
                     if (formaPagamento.get(i).getChequeRec() != null) {
                         if (!dao.delete(formaPagamento.get(i).getChequeRec())) {
                             dao.rollback();
-                            return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE REC!");
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE REC!");
                         }
                     }
 
@@ -1133,11 +1133,11 @@ public class GerarMovimento extends DB {
                                     cb.setUCheque(formaPagamento.get(i).getChequePag().getPlano5().getContaBanco().getUCheque() - 1);
                                     if (!dao.update(cb)) {
                                         dao.rollback();
-                                        return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR ÚLTIMO CHEQUE!");
+                                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR ÚLTIMO CHEQUE!");
                                     }
                                     if (!dao.delete(formaPagamento.get(i).getChequePag())) {
                                         dao.rollback();
-                                        return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE PAG!");
+                                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR CHEQUE PAG!");
                                     }
                                 } else {
                                     chequePag = formaPagamento.get(i).getChequePag();
@@ -1178,14 +1178,14 @@ public class GerarMovimento extends DB {
                     // ESTORNA PAGAMENTO CHEQUE IMPRESSO 
                     if (!dao.update(chequePag)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR CHEQUE PAG!");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR CHEQUE PAG!");
                     }
 
                 }
 
                 if (!dao.save(ecl)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA LOTE!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA LOTE!");
                 }
 
                 Double valor_baixa = movimento.getValorBaixa();
@@ -1200,25 +1200,36 @@ public class GerarMovimento extends DB {
 
                 if (!dao.update(movimento)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
+                }
+
+                Boleto bol = movimento.getBoleto();
+
+                bol.setDtCobrancaRegistrada(null);
+                bol.setStatusRetorno(null);;
+                bol.setDtStatusRetorno(null);;
+
+                if (!dao.update(bol)) {
+                    dao.rollback();
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
                 }
 
                 if (!dao.save(new EstornoCaixa(-1, ecl, movimento, valor_baixa))) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR ESTORNO CAIXA!");
                 }
 
                 if (!dao.delete(baixa)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO EXCLUIR BAIXA!");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO EXCLUIR BAIXA!");
                 }
             }
 
             dao.commit();
-            return new StatusRetorno(Boolean.TRUE, "ESTORNO CONCLUÍDO!");
+            return new StatusRetornoMensagem(Boolean.TRUE, "ESTORNO CONCLUÍDO!");
         } catch (Exception e) {
             dao.rollback();
-            return new StatusRetorno(Boolean.FALSE, e.getMessage());
+            return new StatusRetornoMensagem(Boolean.FALSE, e.getMessage());
         }
     }
 
@@ -1232,6 +1243,7 @@ public class GerarMovimento extends DB {
         baixa.setSequenciaBaixa(nrSequencia);
         baixa.setDocumentoBaixa(numeroComposto);
         baixa.setCaixa(null);
+        baixa.setTaxaLiquidacao(movimento.getTaxa());
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -1306,7 +1318,7 @@ public class GerarMovimento extends DB {
         return true;
     }
 
-    public static StatusRetorno baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco) {
+    public static StatusRetornoMensagem baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco) {
         // 15
         // 000003652580001
         // 8
@@ -1344,7 +1356,7 @@ public class GerarMovimento extends DB {
             dao.openTransaction();
             if (!dao.save(baixa)) {
                 dao.rollback();
-                return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR BAIXA");
+                return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR BAIXA");
             }
 
             double valor_forma_pagamento = 0;
@@ -1366,7 +1378,7 @@ public class GerarMovimento extends DB {
                     ch.setVencimento(fp1.getChequeRec().getVencimento());
                     if (!dao.save(ch)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR CHEQUE REC");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR CHEQUE REC");
                     }
                     fp1.setChequeRec(ch);
                 }
@@ -1378,7 +1390,7 @@ public class GerarMovimento extends DB {
 
                     if (!dao.save(ch_p)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR CHEQUE PAG");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR CHEQUE PAG");
                     }
                     fp1.setChequePag(ch_p);
 
@@ -1386,7 +1398,7 @@ public class GerarMovimento extends DB {
                     cb.setUCheque(cb.getUCheque() + 1);
                     if (!dao.update(cb)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR ÚLTIMO CHEQUE");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR ÚLTIMO CHEQUE");
                     }
                 }
 
@@ -1395,7 +1407,7 @@ public class GerarMovimento extends DB {
                     cartao_pag.setId(fp1.getCartaoPag().getId());
                     if (!dao.save(cartao_pag)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR CARTÃO PAG");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR CARTÃO PAG");
                     }
 
                     fp1.setCartaoPag(cartao_pag);
@@ -1412,7 +1424,7 @@ public class GerarMovimento extends DB {
 
                     if (!dao.save(cartao_rec)) {
                         dao.rollback();
-                        return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR CARTÃO REC");
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR CARTÃO REC");
                     }
 
                     fp1.setCartaoRec(cartao_rec);
@@ -1420,7 +1432,7 @@ public class GerarMovimento extends DB {
 
                 if (!dao.save(fp1)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR FORMA DE PAGAMENTO");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR FORMA DE PAGAMENTO");
                 }
 
                 valor_forma_pagamento = Moeda.soma(valor_forma_pagamento, fp1.getValor());
@@ -1432,7 +1444,7 @@ public class GerarMovimento extends DB {
 
                 if (!dao.update(movimento.get(i))) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO");
                 }
 
                 valor_movimento = Moeda.soma(valor_movimento, movimento.get(i).getValorBaixa());
@@ -1445,20 +1457,20 @@ public class GerarMovimento extends DB {
 
                 if (!dao.save(baixaLog)) {
                     dao.rollback();
-                    return new StatusRetorno(Boolean.FALSE, "ERRO AO SALVAR BAIXA LOG");
+                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR BAIXA LOG");
                 }
             }
 
             if (Moeda.converteDoubleR$Double(valor_forma_pagamento).equals(Moeda.converteDoubleR$Double(valor_movimento))) {
                 dao.commit();
-                return new StatusRetorno(Boolean.TRUE, "MOVIMENTO BAIXADO");
+                return new StatusRetornoMensagem(Boolean.TRUE, "MOVIMENTO BAIXADO");
             } else {
                 dao.rollback();
-                return new StatusRetorno(Boolean.FALSE, "VALORES NÃO CORRESPONDEM ( valor_forma_pagamento == valor_movimento )");
+                return new StatusRetornoMensagem(Boolean.FALSE, "VALORES NÃO CORRESPONDEM ( valor_forma_pagamento == valor_movimento )");
             }
         } catch (Exception e) {
             e.getMessage();
-            return new StatusRetorno(Boolean.FALSE, e.getMessage());
+            return new StatusRetornoMensagem(Boolean.FALSE, e.getMessage());
         }
     }
 
@@ -1470,7 +1482,7 @@ public class GerarMovimento extends DB {
         baixa.setFechamentoCaixa(null);
         baixa.setBaixa(data_pagamento);
         baixa.setImportacao(DataHoje.data());
-        baixa.setCaixa(null);
+        baixa.setTaxaLiquidacao(valor_taxa);
 
         dao.openTransaction();
         if (!dao.save(baixa)) {
@@ -1489,7 +1501,7 @@ public class GerarMovimento extends DB {
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
 
         valor_baixa = Moeda.converteDoubleR$Double(valor_baixa);
-        
+
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -1521,7 +1533,7 @@ public class GerarMovimento extends DB {
         }
 
         double soma = 0;
-        
+
         for (Movimento movimento : lista_movimento) {
             soma = Moeda.soma(soma, movimento.getValor());
 
@@ -1534,9 +1546,9 @@ public class GerarMovimento extends DB {
                 return lista_log;
             }
         }
-        
+
         soma = Moeda.converteDoubleR$Double(soma);
-        
+
         if (valor_baixa == soma) {
             // valor baixado corretamente
             for (Movimento movimento : lista_movimento) {

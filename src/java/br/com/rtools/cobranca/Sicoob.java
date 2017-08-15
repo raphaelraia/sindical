@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Usuario;
@@ -32,8 +33,8 @@ public class Sicoob extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public Sicoob(List<Movimento> listaMovimento) {
-        super(listaMovimento);
+    public Sicoob(List<Boleto> listaBoleto) {
+        super(listaBoleto);
     }
 
     @Override
@@ -105,7 +106,7 @@ public class Sicoob extends Cobranca {
         fimCodigoBarras += boleto.getContaCobranca().getCarteira();       // carteira
 
         fimCodigoBarras += boleto.getContaCobranca().getContaBanco().getAgencia();
-        if (boleto.getContaCobranca().isCobrancaRegistrada()) {
+        if (boleto.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
             fimCodigoBarras += "01";        // modalidade -- 01 com registro no banco // -- 01 sem registro no banco
         } else {
             fimCodigoBarras += "02";        // modalidade -- 02 com registro no banco // -- 02 sem registro no banco
@@ -115,7 +116,7 @@ public class Sicoob extends Cobranca {
         fimCodigoBarras += cedente;
 
         String nossoNumero = "";
-        if (boleto.getContaCobranca().isCobrancaRegistrada() && boleto.getDtCobrancaRegistrada() != null) {
+        if (boleto.getContaCobranca().getCobrancaRegistrada().getId() != 3 && boleto.getDtCobrancaRegistrada() != null) {
             nossoNumero = boleto.getBoletoComposto();
         } else {
             nossoNumero = boleto.getBoletoComposto() + calculoConstante();
@@ -211,7 +212,7 @@ public class Sicoob extends Cobranca {
 
     @Override
     public String getNossoNumeroFormatado() {
-        if (boleto.getContaCobranca().isCobrancaRegistrada() && boleto.getDtCobrancaRegistrada() != null) {
+        if (boleto.getContaCobranca().getCobrancaRegistrada().getId() != 3 && boleto.getDtCobrancaRegistrada() != null) {
             return boleto.getBoletoComposto();
         } else {
             return boleto.getBoletoComposto() + "-" + calculoConstante();
@@ -296,7 +297,8 @@ public class Sicoob extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaMovimento.isEmpty()) {
+            if (listaBoleto.isEmpty()) {
+                dao.rollback();
                 return null;
             }
             // header do arquivo -----------------------------------------------
@@ -312,7 +314,7 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa
             CONTEUDO_REMESSA += "                    "; // 07.0 Código do Convênio no Sicoob: Preencher com espaços em branco
 
-            Boleto boleto_rem = dbmov.pesquisaBoletos(listaMovimento.get(0).getNrCtrBoleto());
+            Boleto boleto_rem = listaBoleto.get(0);
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             //String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").split("-")[0];
@@ -387,8 +389,9 @@ public class Sicoob extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaMovimento.size(); i++) {
-                Movimento mov = listaMovimento.get(i);
+            for (Integer i = 0; i < listaBoleto.size(); i++) {
+                Boleto bol = listaBoleto.get(i);
+                List<Movimento> lista_m = bol.getListaMovimento();
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "756"; // 01.3P Código do Banco na Compensação: "756"
@@ -405,18 +408,24 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += " ";// moduloOnze("" + Integer.valueOf(codigo_cedente)); // 12.3P Dígito Verificador da Ag/Conta: Preencher com espaços em branco
                 // 14 cobraça registrada // JÁ ESTA NO NÚMERO DO DOCUMENTO EM MOVIMENTO
                 //CONTEUDO_REMESSA += "14"; // 13.3P Carteira/Nosso Número Modalidade da Carteira 41 42 9(002) Ver Nota Explicativa G069 *G069
-                CONTEUDO_REMESSA += (mov.getDocumento() + "                    ").substring(0, 20); // 13.3P Nosso Número
+                CONTEUDO_REMESSA += (bol.getBoletoComposto() + "                    ").substring(0, 20); // 13.3P Nosso Número
                 CONTEUDO_REMESSA += "1"; // 14.3P Código da Carteira: vide planilha "Contracapa" deste arquivo
                 CONTEUDO_REMESSA += "0"; // 15.3P Forma de Cadastr. do Título no Banco: "0"
                 CONTEUDO_REMESSA += " "; // 16.3P Tipo de Documento: Preencher com espaços em branco
                 CONTEUDO_REMESSA += "2"; // 17.3P "Identificação da Emissão do Boleto: (vide planilha ""Contracapa"" deste arquivo) '1'  =  Sicoob Emite '2'  =  Beneficiário Emite"
                 CONTEUDO_REMESSA += "2"; // 18.3P "Identificação da Distribuição do Boleto: (vide planilha ""Contracapa"" deste arquivo) '1'  =  Sicoob Distribui '2'  =  Beneficiário Distribui"
 
-                CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + mov.getId()).length()) + mov.getId(); // 19.3P Número do Documento de Cobrança: Número adotado e controlado pelo Cliente, para identificar o título de cobrança. Informação utilizada pelo Sicoob para referenciar a identificação do documento objeto de cobrança. Poderá conter número de duplicata, no caso de cobrança de duplicatas; número da apólice, no caso de cobrança de seguros, etc.
+                CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + bol.getId()).length()) + bol.getId(); // 19.3P Número do Documento de Cobrança: Número adotado e controlado pelo Cliente, para identificar o título de cobrança. Informação utilizada pelo Sicoob para referenciar a identificação do documento objeto de cobrança. Poderá conter número de duplicata, no caso de cobrança de duplicatas; número da apólice, no caso de cobrança de seguros, etc.
 
-                CONTEUDO_REMESSA += mov.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título
+                CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título
 
-                String valor_titulo = mov.getValorString().replace(".", "").replace(",", "");
+                Double valor_titulo_double = new Double(0);
+
+                for (Movimento m : lista_m) {
+                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                }
+
+                String valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");
                 // NO MANUAL FALA 13 PORÉM TEM QUE SER 15, ACHO QUE POR CAUSA DAS DECIMAIS ,00 (O MANUAL NÃO EXPLICA ISSO)
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor Nominal do Título
                 CONTEUDO_REMESSA += "00000"; // 22.3P Agência Encarregada da Cobrança: "00000"
@@ -435,7 +444,7 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000000"; // 32.3P Valor/Percentual a ser Concedido
                 CONTEUDO_REMESSA += "000000000000000"; // 33.3P Valor do IOF a ser Recolhido
                 CONTEUDO_REMESSA += "000000000000000"; // 34.3P Valor do Abatimento
-                CONTEUDO_REMESSA += "                         ".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 35.3P Identificação do Título na Empresa: Campo destinado para uso do Beneficiário para identificação do Título.
+                CONTEUDO_REMESSA += "                         ".substring(0, 25 - ("" + bol.getId()).length()) + bol.getId(); // 35.3P Identificação do Título na Empresa: Campo destinado para uso do Beneficiário para identificação do Título.
                 CONTEUDO_REMESSA += "3"; // 36.3P "'1' = Protestar dias corridos '2' = Protestar dias úteis '3' = Não Protestar '9' = Cancelar Instrução de Protesto 
                 // O código '9' deverá ser utilizado para cancelar um agendamento futuro de protesto e deverá estar atrelado obrigatóriamente ao código de entrada '31'."
 
@@ -463,18 +472,20 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "01"; // 07.3Q "Código de Movimento Remessa: '01'  =  Entrada de Títulos"
 
                 // 08.3Q "Tipo de Inscrição Pagador: '1'  =  CPF '2'  =  CGC / CNPJ"
-                if (mov.getPessoa().getTipoDocumento().getId() == 1) { // CPF
+                Pessoa pessoa = bol.getPessoa();
+
+                if (pessoa.getTipoDocumento().getId() == 1) { // CPF
                     CONTEUDO_REMESSA += "1"; // 08.3Q 
-                } else if (mov.getPessoa().getTipoDocumento().getId() == 2) { // CNPJ
+                } else if (pessoa.getTipoDocumento().getId() == 2) { // CNPJ
                     CONTEUDO_REMESSA += "2"; // 08.3Q 
                 }
 
-                String documento_pessoa = mov.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
+                String documento_pessoa = pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "");
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - documento_pessoa.length()) + documento_pessoa; // 09.3Q Número de Inscrição
 
-                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((mov.getPessoa().getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome
+                CONTEUDO_REMESSA += AnaliseString.normalizeUpper((pessoa.getNome() + "                                        ").substring(0, 40)); // 10.3Q Nome
 
-                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(mov.getPessoa().getId(), 3);
+                PessoaEndereco pessoa_endereco = ped.pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
                 if (pessoa_endereco != null) {
                     String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
                             end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
@@ -512,17 +523,17 @@ public class Sicoob extends Cobranca {
 
                 sequencial_registro_lote++;
 
-                valor_total_lote = Moeda.soma(valor_total_lote, mov.getValor());
+                valor_total_lote = Moeda.soma(valor_total_lote, valor_titulo_double);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, mov);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
                     return null;
                 }
 
-                list_log.add("ID: " + mov.getId());
-                list_log.add("Valor: " + mov.getValorString());
+                list_log.add("ID: " + bol.getId());
+                list_log.add("Valor: " + valor_titulo);
                 list_log.add("-----------------------");
             }
 
@@ -532,9 +543,9 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro: "5"
             CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-            Integer quantidade_lote = (3 * listaMovimento.size()) + 2;
+            Integer quantidade_lote = (3 * listaBoleto.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros no Lote
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaMovimento.size()).length()) + ("" + listaMovimento.size()); // 06.5 Quantidade de Títulos em Cobrança
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoleto.size()).length()) + ("" + listaBoleto.size()); // 06.5 Quantidade de Títulos em Cobrança
             String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
             CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dosTítulos em Carteiras
             CONTEUDO_REMESSA += "000000"; // 08.5 Quantidade de Títulos em Cobrança
@@ -558,7 +569,7 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "         "; // 04.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
             CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo
 
-            Integer quantidade_registros = (2 * listaMovimento.size()) + 4;
+            Integer quantidade_registros = (2 * listaBoleto.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes): "000000"
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
@@ -583,10 +594,11 @@ public class Sicoob extends Cobranca {
             return new File(destino);
         } catch (IOException | NumberFormatException e) {
             e.getMessage();
+            dao.rollback();
             return null;
         }
     }
-    
+
     @Override
     public File gerarRemessa400() {
         return null;

@@ -393,7 +393,7 @@ public class MensagemConvencaoBean {
                             }
 
                             default: {
-                                updateMensagem(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), mensagemConvencao.getId(), beforeUpdate);
+                                updateMensagem(mensagemConvencao.getConvencao().getId(), mensagemConvencao.getGrupoCidade().getId(), mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), null, beforeUpdate);
                             }
                         }
 

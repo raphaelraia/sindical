@@ -56,7 +56,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -1006,7 +1006,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
 
             if (valor_soma == 0) {
-                StatusRetorno sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0);
+                StatusRetornoMensagem sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0);
                 if (!sr.getStatus()) {
                     message = "Erro ao baixar Guias! " + sr.getMensagem();
                     return null;

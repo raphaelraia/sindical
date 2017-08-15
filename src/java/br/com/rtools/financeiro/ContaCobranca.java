@@ -63,10 +63,11 @@ public class ContaCobranca implements java.io.Serializable {
     private String mensagemAssociativo;
     @Column(name = "nr_boleto_atual")
     private Integer boletoAtual;
-    @Column(name = "is_cobranca_registrada", nullable = false, columnDefinition = "boolean default false")
-    private boolean cobrancaRegistrada;
     @Column(name = "nr_layout")
     private Integer nrLayout;
+    @JoinColumn(name = "id_cobranca_registrada", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private CobrancaRegistrada cobrancaRegistrada;
 
     public ContaCobranca() {
         this.id = -1;
@@ -95,11 +96,11 @@ public class ContaCobranca implements java.io.Serializable {
         this.associativo = false;
         this.mensagemAssociativo = "";
         this.boletoAtual = 0;
-        this.cobrancaRegistrada = false;
         this.nrLayout = 240;
+        this.cobrancaRegistrada = new CobrancaRegistrada();
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, boolean cobrancaRegistrada, Integer nrLayout) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -126,8 +127,8 @@ public class ContaCobranca implements java.io.Serializable {
         this.associativo = associativo;
         this.mensagemAssociativo = mensagemAssociativo;
         this.boletoAtual = boletoAtual;
-        this.cobrancaRegistrada = cobrancaRegistrada;
         this.nrLayout = nrLayout;
+        this.cobrancaRegistrada = cobrancaRegistrada;
     }
 
     public int getId() {
@@ -338,19 +339,19 @@ public class ContaCobranca implements java.io.Serializable {
         this.boletoAtual = boletoAtual;
     }
 
-    public boolean isCobrancaRegistrada() {
-        return cobrancaRegistrada;
-    }
-
-    public void setCobrancaRegistrada(boolean cobrancaRegistrada) {
-        this.cobrancaRegistrada = cobrancaRegistrada;
-    }
-
     public Integer getNrLayout() {
         return nrLayout;
     }
 
     public void setNrLayout(Integer nrLayout) {
         this.nrLayout = nrLayout;
+    }
+
+    public CobrancaRegistrada getCobrancaRegistrada() {
+        return cobrancaRegistrada;
+    }
+
+    public void setCobrancaRegistrada(CobrancaRegistrada cobrancaRegistrada) {
+        this.cobrancaRegistrada = cobrancaRegistrada;
     }
 }

@@ -24,7 +24,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.StatusRetorno;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -142,7 +142,7 @@ public class ContasAPagarBean implements Serializable {
 
         Integer id_baixa_estornada = mes.getMovimento().getBaixa().getId();
 
-        StatusRetorno sr = GerarMovimento.estornarMovimento(mes.getMovimento(), motivoEstorno);
+        StatusRetornoMensagem sr = GerarMovimento.estornarMovimento(mes.getMovimento(), motivoEstorno);
 
         if (!sr.getStatus()) {
             GenericaMensagem.warn("Erro", sr.getMensagem());
