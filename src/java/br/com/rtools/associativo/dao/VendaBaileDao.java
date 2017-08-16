@@ -5,22 +5,39 @@ import br.com.rtools.associativo.EventoBaileConvite;
 import br.com.rtools.associativo.EventoBaileMapa;
 import br.com.rtools.associativo.EventoServicoValor;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 import javax.persistence.Query;
 
 public class VendaBaileDao extends DB {
 
-    public List<EventoBaile> listaBaile(Boolean todos) {
+    public List<EventoBaile> listaBaile(Boolean todos, Date startDate, Date endDate) {
         try {
-            String textqry
-                    = " SELECT EV.*                                             \n"
-                    + "   FROM eve_evento_baile AS EV                           \n "
-                    + (!todos ? "  WHERE EV.dt_data >= CURRENT_DATE             \n " : " \n ")
-                    + (todos ? "  ORDER BY EV.dt_data DESC " : " ORDER BY EV.dt_data ASC ");
+            List listWhere = new ArrayList();
+            String queryString = " SELECT EV.*                                  \n"
+                    + "   FROM eve_evento_baile AS EV                           \n ";
+            if (!todos) {
+                listWhere.add("EV.dt_data >= CURRENT_DATE");
+            } else {
+                if (startDate != null && endDate == null) {
+                    listWhere.add("EV.dt_data = '" + DataHoje.converteData(startDate) + "'");
+                }
+                if (startDate != null && endDate != null) {
+                    listWhere.add("EV.dt_data BETWEEN '" + DataHoje.converteData(startDate) + "' AND '" + DataHoje.converteData(endDate) + "' ");
 
-            Query qry = getEntityManager().createNativeQuery(textqry, EventoBaile.class);
+                }
+            }
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + " \n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + " \n";
+                }
+            }
+            queryString += (todos ? "  ORDER BY EV.dt_data DESC " : " ORDER BY EV.dt_data ASC ");
+            Query qry = getEntityManager().createNativeQuery(queryString, EventoBaile.class);
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();
@@ -105,7 +122,7 @@ public class VendaBaileDao extends DB {
         return null;
     }
 
-    public List<Vector> listaVendasMesa(Integer id_evento) {
+    public List<List> listaVendasMesa(Integer id_evento) {
         try {
             String textqry
                     = "SELECT e.id AS id, \n "
@@ -137,7 +154,7 @@ public class VendaBaileDao extends DB {
         return new ArrayList();
     }
 
-    public List<Vector> listaVendasConvite(Integer id_evento) {
+    public List<List> listaVendasConvite(Integer id_evento) {
         try {
             String textqry
                     = "SELECT e.id, \n "

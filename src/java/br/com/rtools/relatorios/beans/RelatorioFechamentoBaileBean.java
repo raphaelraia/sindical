@@ -28,6 +28,8 @@ public class RelatorioFechamentoBaileBean implements Serializable {
     private Integer idEventoBaile = 0;
     private Boolean EXPORT_TO = false;
     private Boolean mostrar_todos = false;
+    private String startDate = "";
+    private String endDate = "";
 
     @PostConstruct
     public void init() {
@@ -99,7 +101,7 @@ public class RelatorioFechamentoBaileBean implements Serializable {
     public void loadListaEventoBaile() {
         listaEventoBaile.clear();
         VendaBaileDao dao = new VendaBaileDao();
-        List<EventoBaile> result = dao.listaBaile(mostrar_todos);
+        List<EventoBaile> result = dao.listaBaile(mostrar_todos, DataHoje.converte(startDate), DataHoje.converte(endDate));
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaEventoBaile.add(new SelectItem(
@@ -133,6 +135,26 @@ public class RelatorioFechamentoBaileBean implements Serializable {
     }
 
     public void setMostrar_todos(Boolean mostrar_todos) {
+        if (!mostrar_todos) {
+            startDate = "";
+            endDate = "";
+        }
         this.mostrar_todos = mostrar_todos;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 }

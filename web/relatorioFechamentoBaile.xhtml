@@ -33,37 +33,49 @@
                         <h:form id="formFechamentoBaile">
                             <div class="clear"></div>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
-                            <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="3">
-                                    <h:column>
-                                        <p:outputLabel value="Eventos" /><br />
-                                    </h:column>
-                                    <h:column>
-                                        <h:panelGrid id="i_e_b_t">
-                                            <p:selectOneMenu value="#{relatorioFechamentoBaileBean.idEventoBaile}" filter="true" filterMatchMode="startsWith">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItems value="#{relatorioFechamentoBaileBean.listaEventoBaile}"/>
-                                            </p:selectOneMenu>                                            
-                                        </h:panelGrid>
-                                    </h:column>
-                                    <p:selectBooleanCheckbox value="#{relatorioFechamentoBaileBean.mostrar_todos}" itemLabel="Mostrar todos" styleClass="margin-left-max">
-                                        <p:ajax event="change" update="@this i_e_b_t" listener="#{relatorioFechamentoBaileBean.clear(1)}"/>
-                                    </p:selectBooleanCheckbox>                                    
+                            <p:panel>
+                                <f:facet name="header">
+                                    <h:panelGrid columns="2">
+                                        <p:selectBooleanCheckbox value="#{relatorioFechamentoBaileBean.mostrar_todos}" itemLabel="Mostrar todos">
+                                            <p:ajax event="change" update="@this formFechamentoBaile" listener="#{relatorioFechamentoBaileBean.clear(1)}"/>
+                                        </p:selectBooleanCheckbox>                                    
+                                        <h:column>
+                                            <h:panelGrid columns="6" cellspacing="5" rendered="#{relatorioFechamentoBaileBean.mostrar_todos}" >
+                                                <p:outputLabel value="De" styleClass="margin-left-max"/>
+                                                <p:inputMask mask="99/99/9999" value="#{relatorioFechamentoBaileBean.startDate}" converter="#{isDateString}" size="10" styleClass="text-center">
+                                                    <p:ajax event="change" update="formFechamentoBaile" listener="#{relatorioFechamentoBaileBean.clear(1)}" />
+                                                </p:inputMask>
+                                                <p:outputLabel value="até" styleClass="margin-left-max"/>
+                                                <p:inputMask mask="99/99/9999" value="#{relatorioFechamentoBaileBean.endDate}" converter="#{isDateString}" size="10" styleClass="text-center margin-left-max">
+                                                    <p:ajax event="change" update="formFechamentoBaile" listener="#{relatorioFechamentoBaileBean.clear(1)}"  />
+                                                </p:inputMask>                                                
+                                            </h:panelGrid>
+                                        </h:column>                                    
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGrid id="i_e_b_t" columns="2">
+                                    <p:outputLabel value="EVENTOS: " />
+                                    <p:selectOneMenu value="#{relatorioFechamentoBaileBean.idEventoBaile}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{relatorioFechamentoBaileBean.listaEventoBaile}"/>
+                                    </p:selectOneMenu>                                            
                                 </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <h:panelGrid columns="1" id="i_e_x_j_c">
-                                        <p:commandButton icon="ui-icon-print" value="Imprimir" action="#{relatorioFechamentoBaileBean.imprimir()}" ajax="false" onclick="this.form.target = '_blank'" />
-                                        <h:panelGrid columns="2">
-                                            <p:selectBooleanCheckbox value="#{jasperBean.EXPORT_TO}" itemLabel="Exportar">
-                                                <p:ajax event="change" update="@this i_e_x_j_c" />                                        
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItems value="#{jasperBean.listTypes('xls')}" />
-                                            </p:selectOneMenu>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <h:panelGrid columns="5" id="i_e_x_j_c">
+                                            <p:commandButton icon="ui-icon-print" value="Imprimir" action="#{relatorioFechamentoBaileBean.imprimir()}" ajax="false" onclick="this.form.target = '_blank'" />
+                                            <h:panelGrid columns="2" style="margin-left: 30px">
+                                                <p:selectBooleanCheckbox value="#{jasperBean.EXPORT_TO}" itemLabel="Exportar">
+                                                    <p:ajax event="change" update="@this i_e_x_j_c" />                                        
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
                                         </h:panelGrid>
                                     </h:panelGrid>
-                                </h:panelGrid>
+                                </f:facet>
                             </p:panel>
                         </h:form>
                     </p:panel>

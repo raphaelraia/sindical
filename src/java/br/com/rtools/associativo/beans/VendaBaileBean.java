@@ -88,8 +88,8 @@ public class VendaBaileBean implements Serializable {
     private String total = "0,00";
     private Integer quantidade = 0;
 
-    private List<Vector> listaVendasMesa = new ArrayList();
-    private List<Vector> listaVendasConvite = new ArrayList();
+    private List<List> listaVendasMesa = new ArrayList();
+    private List<List> listaVendasConvite = new ArrayList();
     private ControleAcessoBean cab = new ControleAcessoBean();
     private String novoDesconto = "0,00";
     private String tipoPagamento = "avista";
@@ -108,6 +108,8 @@ public class VendaBaileBean implements Serializable {
     private EventoBaileConvite ebcTroca = new EventoBaileConvite();
     private EventoBaileConvite ebcTrocaSelecionada = new EventoBaileConvite();
     private Boolean editarVenda = false;
+    private String startDate = "";
+    private String endDate = "";
 
     @PostConstruct
     public void init() {
@@ -572,13 +574,13 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void loadListaVendasMesa() {
-        listaVendasMesa.clear();
+        listaVendasMesa = new ArrayList();
         VendaBaileDao dao = new VendaBaileDao();
         listaVendasMesa = dao.listaVendasMesa(eventoBaile.getEvento().getId());
     }
 
     public void loadListaVendasConvite() {
-        listaVendasConvite.clear();
+        listaVendasConvite = new ArrayList();
         VendaBaileDao dao = new VendaBaileDao();
         listaVendasConvite = dao.listaVendasConvite(eventoBaile.getEvento().getId());
     }
@@ -728,7 +730,11 @@ public class VendaBaileBean implements Serializable {
     public void loadListaEventoBaile() {
         listaEventoBaile = new ArrayList();
         VendaBaileDao dao = new VendaBaileDao();
-        List<EventoBaile> result = dao.listaBaile(todos);
+        if (!todos) {
+            startDate = "";
+            endDate = "";
+        }
+        List<EventoBaile> result = dao.listaBaile(todos, DataHoje.converte(startDate), DataHoje.converte(endDate));
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaEventoBaile.add(new SelectItem(
@@ -748,7 +754,7 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void loadListaTipoVenda() {
-        listaTipoVenda.clear();
+        listaTipoVenda = new ArrayList();
         tipoVenda = "venda";
 
         if (mesaConvite.equals("mesa")) {
@@ -1276,7 +1282,7 @@ public class VendaBaileBean implements Serializable {
         DataHoje dh = new DataHoje();
         CondicaoPagamento cp = tipoPagamento.equals("avista") ? (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 1) : (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 2);
         String vencimento = tipoPagamento.equals("avista") ? DataHoje.data() : (pc.getNrDiaVencimento() < 10) ? "0" + pc.getNrDiaVencimento() : "" + pc.getNrDiaVencimento() + "/" + dh.incrementarMeses(1, DataHoje.data()).substring(3);
-        listaMovimento.clear();
+        listaMovimento = new ArrayList();
 
 //        Evt evt = new Evt();
 //        if (!dao.save(evt)) {
@@ -1325,7 +1331,7 @@ public class VendaBaileBean implements Serializable {
                 Movimento m = movimento(l, vencimento, eb, index);
                 if (!dao.save(m)) {
                     GenericaMensagem.error("Error", "Nao foi possivel salvar Movimento!");
-                    listaMovimento.clear();
+                    listaMovimento = new ArrayList();
                     return false;
                 }
                 listaMovimento.add(m);
@@ -1333,7 +1339,7 @@ public class VendaBaileBean implements Serializable {
                 mb.setMovimento(m);
                 if (!dao.update(mb)) {
                     GenericaMensagem.error("Error", "Nao foi possivel alterar Evento Mesa Baile!");
-                    listaMovimento.clear();
+                    listaMovimento = new ArrayList();
                     return false;
                 }
                 index++;
@@ -1344,7 +1350,7 @@ public class VendaBaileBean implements Serializable {
                 Movimento m = movimento(l, vencimento, eb, index);
                 if (!dao.save(m)) {
                     GenericaMensagem.error("Error", "Nao foi possivel salvar Movimento!");
-                    listaMovimento.clear();
+                    listaMovimento = new ArrayList();
                     return false;
                 }
                 listaMovimento.add(m);
@@ -1352,7 +1358,7 @@ public class VendaBaileBean implements Serializable {
                 cb.setMovimento(m);
                 if (!dao.update(cb)) {
                     GenericaMensagem.error("Error", "Nao foi possivel alterar Evento Mesa Convite!");
-                    listaMovimento.clear();
+                    listaMovimento = new ArrayList();
                     return false;
                 }
                 index++;
@@ -1450,6 +1456,10 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void setTodos(Boolean todos) {
+        if (!todos) {
+            startDate = "";
+            endDate = "";
+        }
         this.todos = todos;
     }
 
@@ -1573,11 +1583,11 @@ public class VendaBaileBean implements Serializable {
         this.quantidade = quantidade;
     }
 
-    public List<Vector> getListaVendasMesa() {
+    public List<List> getListaVendasMesa() {
         return listaVendasMesa;
     }
 
-    public void setListaVendasMesa(List<Vector> listaVendasMesa) {
+    public void setListaVendasMesa(List<List> listaVendasMesa) {
         this.listaVendasMesa = listaVendasMesa;
     }
 
@@ -1661,11 +1671,11 @@ public class VendaBaileBean implements Serializable {
         this.eventoBaile = eventoBaile;
     }
 
-    public List<Vector> getListaVendasConvite() {
+    public List<List> getListaVendasConvite() {
         return listaVendasConvite;
     }
 
-    public void setListaVendasConvite(List<Vector> listaVendasConvite) {
+    public void setListaVendasConvite(List<List> listaVendasConvite) {
         this.listaVendasConvite = listaVendasConvite;
     }
 
@@ -1723,5 +1733,21 @@ public class VendaBaileBean implements Serializable {
 
     public void setListaConviteBaileImpressaoConvites(List<EventoBaileImpressaoConvite> listaConviteBaileImpressaoConvites) {
         this.listaConviteBaileImpressaoConvites = listaConviteBaileImpressaoConvites;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 }

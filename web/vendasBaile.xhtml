@@ -42,7 +42,7 @@
                             <div class="clear"></div>
                             <p:panel>
                                 <f:facet name="header">
-                                    <h:panelGrid columns="2" cellspacing="5">
+                                    <h:panelGrid columns="6" cellspacing="5">
                                         <h:column>
                                             <h:outputText value="BAILES" styleClass="bold"/>
                                         </h:column>
@@ -50,6 +50,20 @@
                                             <p:selectBooleanCheckbox value="#{vendaBaileBean.todos}" itemLabel="Mostrar Todos" disabled="#{vendaBaileBean.venda.id != -1}" style="margin-left: 45px">
                                                 <p:ajax event="change" update="formVendasBaile" listener="#{vendaBaileBean.loadListaEventoBaile}" />
                                             </p:selectBooleanCheckbox>
+                                        </h:column>
+                                        <h:column rendered="#{vendaBaileBean.venda.id == -1}">
+                                            <h:panelGrid columns="6" cellspacing="5" rendered="#{vendaBaileBean.todos}" >
+                                                <p:outputLabel value="De" styleClass="margin-left-max"/>
+                                                <p:inputMask mask="99/99/9999" value="#{vendaBaileBean.startDate}" converter="#{isDateString}" size="10" styleClass="text-center">
+                                                     <p:ajax event="change" update="formVendasBaile" listener="#{vendaBaileBean.loadListaEventoBaile}" />
+                                                </p:inputMask>
+                                                <p:outputLabel value="até" styleClass="margin-left-max"/>
+                                                <p:inputMask mask="99/99/9999" value="#{vendaBaileBean.endDate}" converter="#{isDateString}" size="10" styleClass="text-center margin-left-max">
+                                                     <p:ajax event="change" update="formVendasBaile" listener="#{vendaBaileBean.loadListaEventoBaile}" />
+                                                </p:inputMask>                                                
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <h:column>
                                         </h:column>
                                     </h:panelGrid>                                    
                                 </f:facet>
@@ -66,7 +80,7 @@
                                     <h:column>
                                         <h:panelGrid>
                                             <p:outputLabel value="Eventos" />
-                                            <p:selectOneMenu value="#{vendaBaileBean.indexEventoBaile}" style="padding-right: 20px; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' :'' }" disabled="#{vendaBaileBean.venda.id != -1}">
+                                            <p:selectOneMenu value="#{vendaBaileBean.indexEventoBaile}" style="padding-right: 20px; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' :'' }" disabled="#{vendaBaileBean.venda.id != -1}" filter="true" filterMatchMode="contains">
                                                 <p:ajax event="change" update="@this formVendasBaile formVendasBaileTbl" listener="#{vendaBaileBean.updateTipoVenda()}"/>
                                                 <f:selectItems value="#{vendaBaileBean.listaEventoBaile}" />
                                             </p:selectOneMenu>
