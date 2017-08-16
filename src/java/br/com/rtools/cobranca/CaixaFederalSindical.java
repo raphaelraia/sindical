@@ -151,7 +151,8 @@ public class CaixaFederalSindical extends Cobranca {
 
     @Override
     public String getCedenteFormatado() {
-        return boleto.getContaCobranca().getCodCedente().substring(0, 3) + "."
+        return "999."
+                + boleto.getContaCobranca().getCodCedente().substring(0, 3) + "."
                 + boleto.getContaCobranca().getCodCedente().substring(3, 6) + "."
                 + boleto.getContaCobranca().getCodCedente().substring(6) + "-"
                 + this.moduloOnze(boleto.getContaCobranca().getCodCedente());

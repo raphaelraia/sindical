@@ -481,6 +481,7 @@ public class ImprimirBoleto implements Serializable {
 
                 case 2:
                 // CONTINUA PARA O REGISTRO VIA WEB SERVICE
+                    break;
                 case 3:
                     // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
                     listaAdd.add(lista.get(i));
@@ -915,7 +916,7 @@ public class ImprimirBoleto implements Serializable {
                 cobranca = Cobranca.retornaCobranca(mov.getPessoa().getId(), mov.getValor(), mov.getDtVencimento(), boletox);
 
                 if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
-                    swap[43] = "EXERC " + lista.get(i).getReferencia().substring(3);
+                    swap[43] = "Competência (" + lista.get(i).getReferencia() + ")";
                     swap[42] = "BLOQUETO DE CONTRIBUIÇÃO SINDICAL URBANA.";
                 }
 
@@ -1122,7 +1123,7 @@ public class ImprimirBoleto implements Serializable {
                 String referencia = "Ref:. " + lista.get(i).getReferencia(), descricaoServico = "Contribuição:. " + lista.get(i).getServicos().getDescricao();
                 if (boletox.getContaCobranca().getLayout().getId() == 2) {
                     //codc = swap[44] + "-" + codc.substring(codc.length() - 1, codc.length()); 17/03/2014 -- HOMOLOGAÇÃO DE ARCERBURGO EXIRGIU A RETIRADA DESDE DV
-                    codc = swap[44];
+                    //codc = swap[44]; // NOVA VERSÃO VOLTA A SER COMO ANTES // 0242/S02507-5 >>>>> FICARA : ???.004.136.02507-5
                 } else {
                     // SE NÃO FOR SINDICAL E FOR ACORDO NÃO MOSTRAR REFERÊNCIA 
                     if (lista.get(i).getServicos().getId() != 1 && lista.get(i).getTipoServico().getId() == 4) {
@@ -1176,7 +1177,7 @@ public class ImprimirBoleto implements Serializable {
                         codc,//codcedente
                         boletox.getContaCobranca().getAceite(),//aceite
                         boletox.getContaCobranca().getCarteira(),//carteira
-                        lista.get(i).getReferencia().substring(3),//exercicio
+                        boletox.getContaCobranca().getLayout().getId() == 2 ? lista.get(i).getReferencia() : lista.get(i).getReferencia().substring(3),// competência / exercicio
                         swap[16],//nomeentidade
                         swap[40],
                         //   ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper"),//LAYOUT
