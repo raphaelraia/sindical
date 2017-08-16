@@ -463,11 +463,11 @@ public class ImprimirBoleto implements Serializable {
                             
                             // MESMO COM COBRANÇA REGISTRADA O BOLETO PODERÁ SER IMPRESSO CASO O VENCIMENTO DO MESMO FOR MENOR QUE 01/09/2017
                             if (DataHoje.maiorData(bol.getVencimento(), "01/09/2017")) {
-                                hash.put("boleto", null);
+                                hash.put("lista", new ArrayList());
                                 hash.put("mensagem", "Solicitação de Registro enviada! Boleto: (" + bol.getBoletoComposto() + ")");
                             } else {
-                                hash.put("boleto", bol);
-                                hash.put("mensagem", "");
+                                listaAdd.add(lista.get(i));
+                                continue;
                             }
                             return hash;
                         case 5:
@@ -881,7 +881,6 @@ public class ImprimirBoleto implements Serializable {
             Historico historico = null;
 
             File file_jasper = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/BOLETO.jasper"));
-            //File file_jasper = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/teste.jasper"));
 
             JasperReport jasper = (JasperReport) JRLoader.loadObject(file_jasper);
 
@@ -984,7 +983,7 @@ public class ImprimirBoleto implements Serializable {
 
                 try {
                     swap[16] = boletox.getContaCobranca().getCedente();
-                    swap[17] = "";//jurDB.pesquisaJuridicaPorPessoa(i).getPessoa().getNome();
+                    swap[17] = "";
                 } catch (Exception e) {
                     swap[16] = "-1";
                     swap[17] = "";

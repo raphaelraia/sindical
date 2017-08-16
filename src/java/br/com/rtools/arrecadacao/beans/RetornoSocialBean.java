@@ -44,7 +44,7 @@ public class RetornoSocialBean {
     private ContaCobranca contaCobranca;
     private List<String> listaArquivosPendentes;
     private List<Object[]> listaLogs;
-    
+
     private String tipo;
 
     @PostConstruct
@@ -55,7 +55,7 @@ public class RetornoSocialBean {
         listaArquivosPendentes = new ArrayList();
         listaLogs = new ArrayList();
         tipo = "";
-        
+
         loadListaContas();
         loadListaArquivosBaixar();
 
@@ -166,6 +166,10 @@ public class RetornoSocialBean {
                             GenericaMensagem.error("Boleto não encontrado", obj[1].toString());
                             listaLogs.add(list_object);
                         }
+                        break;
+                    default:
+                        list_object[3] = DataHoje.hora();
+                        listaLogs.add(list_object);
                         break;
                 }
             }

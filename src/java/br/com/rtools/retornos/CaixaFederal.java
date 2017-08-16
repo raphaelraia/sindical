@@ -83,6 +83,9 @@ public class CaixaFederal extends ArquivoRetorno {
                                 case "06":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
+                                    i = i + 2;
+                                    continue;
                                 default:
                                     sr = null;
                                     break;
@@ -188,6 +191,9 @@ public class CaixaFederal extends ArquivoRetorno {
                                 case "06":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
+                                    i = i + 2;
+                                    continue;
                                 default:
                                     sr = null;
                                     break;
@@ -282,6 +288,9 @@ public class CaixaFederal extends ArquivoRetorno {
                                 case "06":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
+                                    i = i + 2;
+                                    continue;
                                 default:
                                     sr = null;
                                     break;

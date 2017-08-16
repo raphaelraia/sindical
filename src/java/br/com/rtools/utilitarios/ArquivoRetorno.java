@@ -111,7 +111,7 @@ public abstract class ArquivoRetorno {
         }
         return "Status do Retorno não encontrado, verificar manual";
     }
-    
+
     public String continuaBaixaSoc(Boleto b, StatusRetorno sr) {
         if (sr != null) {
             b.setStatusRetorno(sr);
@@ -612,7 +612,7 @@ public abstract class ArquivoRetorno {
                         //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
                         String retorno_continua = continuaBaixaSoc(lista_movimento.get(0).getBoleto(), listaParametros.get(u).getStatusRetorno());
-                        
+
                         if (!retorno_continua.isEmpty()) {
                             Object[] log = new Object[3];
 
@@ -657,6 +657,16 @@ public abstract class ArquivoRetorno {
                                 + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
                         lista_logs.add(log);
                     }
+                } else {
+                    Object[] log = new Object[3];
+
+                    log[0] = 5;
+                    log[1] = listaParametros.get(u).getNossoNumero();
+                    log[2] = "Boleto já Baixado - " + listaParametros.get(u).getNossoNumero()
+                            + " - Data de Importação: " + lista_movimento.get(0).getBaixa().getImportacao()
+                            + " - Data de Pagamento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento())
+                            + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
+                    lista_logs.add(log);
                 }
                 lista_movimento.clear();
             }
