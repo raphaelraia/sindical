@@ -119,14 +119,14 @@ public class ControleAcessoWebBean implements Serializable {
                     listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), tp.getDescricao(), Integer.toString(tp.getId())));
                 }
                 if (r.isAcessoWebDocumentoCNPJ() && tp.getId() == 2) {
-                    listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), tp.getDescricao(), Integer.toString(tp.getId())));
+                    listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), "CNPJ do contribuinte", Integer.toString(tp.getId())));
                 }
                 if (r.isAcessoWebDocumentoCEI() && tp.getId() == 3) {
                     listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), tp.getDescricao(), Integer.toString(tp.getId())));
                 }
             }
-            
-            if(listaDocumentoAcesso.isEmpty()){
+
+            if (listaDocumentoAcesso.isEmpty()) {
                 listaDocumentoAcesso.add(new SelectItem(listaDocumentoAcesso.size(), "INVÁLIDO", "99"));
             }
         }
@@ -756,9 +756,9 @@ public class ControleAcessoWebBean implements Serializable {
                 return null;
             }
         } else if (Integer.valueOf(listaDocumentoAcesso.get(indexDocumentoAcesso).getDescription()) == 99) {
-                GenericaMensagem.warn("Erro", "Lista Inválida!");
-                PF.update("formLogin");
-                return null;
+            GenericaMensagem.warn("Erro", "Lista Inválida!");
+            PF.update("formLogin");
+            return null;
         } else {
             // CEI
         }
@@ -806,6 +806,13 @@ public class ControleAcessoWebBean implements Serializable {
         if (pessoaContribuinte == null && pessoaContabilidade != null) {
             GenericaMensagem.warn("Atenção", "CONTABILIDADE, entre com o CNPJ da Empresa!");
             return null;
+        }
+
+        if (pessoaContribuinte != null && pessoaContabilidade == null) {
+            if (pessoaContribuinte.getId() == 1) {
+                GenericaMensagem.warn("Atenção", "ACESSO NÃO AUTORIZADO!");
+                return null;
+            }
         }
 
         List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId());
