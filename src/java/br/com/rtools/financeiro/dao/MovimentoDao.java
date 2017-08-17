@@ -279,6 +279,10 @@ public class MovimentoDao extends DB {
     }
 
     public List datasMovimento(List<ServicoContaCobranca> list) {
+        if (list.isEmpty()){
+            return new ArrayList();
+        }
+        
         String dataAnterior = DataHoje.data().substring(0, 6) + Integer.toString(Integer.parseInt(DataHoje.data().substring(6, 10)) - 1);
         try {
             String queryString = ""

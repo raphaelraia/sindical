@@ -1508,6 +1508,8 @@ public class ImpressaoBoletosBean implements Serializable {
                         list.get(i).getId()
                 );
             }
+            
+            alterarTodasDatas();
         }
         return contaCobranca;
     }
