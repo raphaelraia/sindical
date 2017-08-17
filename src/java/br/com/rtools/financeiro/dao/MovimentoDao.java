@@ -1427,7 +1427,7 @@ public class MovimentoDao extends DB {
                     + "              contr.id_juridica AS idJuridica,                                                       \n" // 10 EMPRESA id_juridica
                     + "    CASE WHEN ( x.idcontabilidade > 0 AND pj.is_cobranca_escritorio = true) THEN x.qtde ELSE 0 END AS qtde,                              \n" // 11 QUANTIDADE
                     + "              bo.dt_cobranca_registrada AS data_cobranca_registrada,                                 \n" // 12 DATA COBRANÇA REGISTRADA
-                    + "              cc.is_cobranca_registrada                                                              \n" // 13 COBRANÇA REGISTRADA
+                    + "    CASE WHEN (cc.id_cobranca_registrada = 3) THEN false ELSE true END AS cobranca_registrada    \n" // 13 COBRANÇA REGISTRADA
                     + "         FROM fin_movimento              AS m                                                    \n"
                     + " INNER JOIN arr_contribuintes_vw         AS contr      ON m.id_pessoa = contr.id_pessoa          \n"
                     + " INNER JOIN pes_pessoa                   AS p          ON p.id = contr.id_pessoa                 \n"
