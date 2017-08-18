@@ -41,6 +41,8 @@ public class ConfiguracaoCnpj implements Serializable {
     @JoinColumn(name = "id_tipo_pesquisa_cnpj", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private TipoPesquisaCnpj tipoPesquisaCnpj;
+    @Column(name = "ds_token", length = 150)
+    private String token;    
 
     public ConfiguracaoCnpj() {
         this.id = -1;
@@ -52,9 +54,10 @@ public class ConfiguracaoCnpj implements Serializable {
         this.local = false;
         this.web = false;
         this.tipoPesquisaCnpj = new TipoPesquisaCnpj();
+        this.token = "";
     }
 
-    public ConfiguracaoCnpj(Integer id, Date dataCadastro, Date dataAtualizacao, String email, String senha, Integer dias, Boolean local, Boolean web, TipoPesquisaCnpj tipoPesquisaCnpj) {
+    public ConfiguracaoCnpj(Integer id, Date dataCadastro, Date dataAtualizacao, String email, String senha, Integer dias, Boolean local, Boolean web, TipoPesquisaCnpj tipoPesquisaCnpj, String token) {
         this.id = id;
         this.dataCadastro = dataCadastro;
         this.dataAtualizacao = dataAtualizacao;
@@ -64,6 +67,7 @@ public class ConfiguracaoCnpj implements Serializable {
         this.local = local;
         this.web = web;
         this.tipoPesquisaCnpj = tipoPesquisaCnpj;
+        this.token = token;
     }
 
     public Integer getId() {
@@ -184,5 +188,15 @@ public class ConfiguracaoCnpj implements Serializable {
     public void setTipoPesquisaCnpj(TipoPesquisaCnpj tipoPesquisaCnpj) {
         this.tipoPesquisaCnpj = tipoPesquisaCnpj;
     }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+    
+    
 
 }

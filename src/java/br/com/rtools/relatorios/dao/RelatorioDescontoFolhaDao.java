@@ -86,6 +86,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            sum(m.nr_valor_baixa)  AS valor_baixa,       \n" // 21 VALOR DA BAIXA
                         + "            ''                AS nome_socio              \n" // 22 NOME DO SÓCIO
                         + "       FROM fin_movimento     AS m                       \n"
+                        + " INNER JOIN pes_fisica AS F ON f.id_pessoa = m.id_titular \n"                         
                         + "  LEFT JOIN fin_baixa         AS ba ON ba.id = m.id_baixa \n"
                         + " INNER JOIN pes_pessoa        AS t  ON t.id         = m.id_titular                   \n"
                         + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
@@ -143,6 +144,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "        0 AS valor_baixa,                        --- 21 \n"
                         + "        be.ds_nome AS nome_socio                 --- 22 \n"
                         + "  FROM fin_movimento          AS m                       \n"
+                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular \n"                        
                         + " INNER JOIN pes_pessoa        AS t  ON t.id         = m.id_titular                   \n"
                         + " INNER JOIN pes_pessoa        AS be  ON be.id        = m.id_beneficiario             \n"
                         + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
@@ -204,12 +206,13 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "        null AS dt_baixa, \n"
                         + "        0 AS valor_baixa,  \n"
                         + "        be.ds_nome AS nome_socio  \n"
-                        + " FROM fin_movimento     AS m \n"
-                        + "INNER JOIN pes_pessoa   AS t ON t.id  = m.id_titular \n"
-                        + "INNER JOIN pes_pessoa   AS be ON be.id = m.id_beneficiario \n"
-                        + "INNER JOIN pes_pessoa   AS pj ON pj.id = m.id_pessoa \n"
-                        + "INNER JOIN pes_juridica AS j ON j.id_pessoa = m.id_pessoa \n"
-                        + "INNER JOIN pes_fisica AS f ON f.id_pessoa=t.id \n"
+                        + "       FROM fin_movimento     AS m \n"
+                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular \n"                        
+                        + " INNER JOIN pes_pessoa   AS t ON t.id  = m.id_titular \n"
+                        + " INNER JOIN pes_pessoa   AS be ON be.id = m.id_beneficiario \n"
+                        + " INNER JOIN pes_pessoa   AS pj ON pj.id = m.id_pessoa \n"
+                        + " INNER JOIN pes_juridica AS j ON j.id_pessoa = m.id_pessoa \n"
+                        + " INNER JOIN pes_fisica AS f ON f.id_pessoa=t.id \n"
                         + "  LEFT JOIN \n"
                         + "( \n "
                         + "     SELECT m.id_pessoa, \n"
@@ -264,6 +267,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            right('0'||text(extract(month FROM m.dt_vencimento)),2) AS mes, \n" // 21
                         + "            text(extract(year FROM m.dt_vencimento))                AS ano  \n" // 22
                         + "       FROM fin_movimento     AS m                                          \n"
+                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular                   \n"                        
                         + "  LEFT JOIN soc_socios_vw     AS so  ON m.id_titular = so.codsocio          \n"
                         + " INNER JOIN fin_servicos      AS se on se.id = m.id_servicos                \n"
                         + " INNER JOIN pes_pessoa        AS t  ON t.id  = m.id_titular                 \n"
