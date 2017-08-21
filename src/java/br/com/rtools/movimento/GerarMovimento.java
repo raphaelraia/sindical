@@ -1202,16 +1202,15 @@ public class GerarMovimento extends DB {
                     dao.rollback();
                     return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR MOVIMENTO!");
                 }
-
-                Boleto bol = movimento.getBoleto();
-
-                bol.setDtCobrancaRegistrada(null);
-                bol.setStatusRetorno(null);;
-                bol.setDtStatusRetorno(null);;
-
-                if (!dao.update(bol)) {
-                    dao.rollback();
-                    return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
+                if (movimento.getNrCtrBoleto() != null && !movimento.getNrCtrBoleto().isEmpty()) {
+                    Boleto bol = movimento.getBoleto();
+                    bol.setDtCobrancaRegistrada(null);
+                    bol.setStatusRetorno(null);
+                    bol.setDtStatusRetorno(null);
+                    if (!dao.update(bol)) {
+                        dao.rollback();
+                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
+                    }
                 }
 
                 if (!dao.save(new EstornoCaixa(-1, ecl, movimento, valor_baixa))) {

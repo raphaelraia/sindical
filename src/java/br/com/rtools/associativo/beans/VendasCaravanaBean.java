@@ -720,7 +720,9 @@ public class VendasCaravanaBean implements Serializable {
         dao.openTransaction();
         Usuario usuario = Usuario.getUsuario();
         NovoLog novoLog = new NovoLog();
+        Boolean newVenda = false;
         if (vendas.getId() == null) {
+            newVenda = true;
             vendas.setOperador(usuario);
             vendas.setCaravana(caravana);
             if (!dao.save(vendas)) {
@@ -743,6 +745,10 @@ public class VendasCaravanaBean implements Serializable {
             return;
         } else {
             CaravanaVenda cv = (CaravanaVenda) dao.find(vendas);
+            if (cv == null) {
+                GenericaMensagem.warn("Erro", "Erro ao atualizar esta venda!");
+                return;
+            }
             String beforeUpdate = "VENDA Nº" + cv.getId()
                     + " - CARAVANA: " + cv.getCaravana().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
                     + " - " + cv.getCaravana().getDataEmbarqueIda()
@@ -764,12 +770,22 @@ public class VendasCaravanaBean implements Serializable {
         CaravanaReservasDao crd = new CaravanaReservasDao();
         for (ListaReservas lr : listaReservas) {
             if (lr.getReservas().getId() == null) {
-                if (!crd.findPoltronaDisponivel(vendas.getCaravana().getId(), lr.getPoltrona()).isEmpty()) {
-                    GenericaMensagem.warn("Validação", "Esta poltrona já foi reservada! Poltrona nº" + lr.getPoltrona());
-                    dao.rollback();
-                    return;
-                }
                 CaravanaReservas res = new CaravanaReservas();
+                if (lr.getMenorIdade()) {
+                    res.setPoltrona(0);
+                } else {
+                    res.setPoltrona(lr.getPoltrona());
+                }
+                if (res.getPoltrona() != 0) {
+                    if (!crd.findPoltronaDisponivel(vendas.getCaravana().getId(), res.getPoltrona()).isEmpty()) {
+                        if (newVenda) {
+                            vendas.setId(null);
+                        }
+                        GenericaMensagem.warn("Validação", "Esta poltrona já foi reservada! Poltrona nº" + res.getPoltrona());
+                        dao.rollback();
+                        return;
+                    }
+                }
                 res.setVenda(vendas);
                 res.setPessoa(lr.getFisica().getPessoa());
                 res.setPoltrona(lr.getPoltrona());
@@ -780,6 +796,9 @@ public class VendasCaravanaBean implements Serializable {
                 if (!dao.save(res)) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
+                    if (newVenda) {
+                        vendas.setId(null);
+                    }
                     return;
                 }
                 novoLog.save(
@@ -795,6 +814,9 @@ public class VendasCaravanaBean implements Serializable {
             } else {
                 lr.getReservas().setPoltrona(lr.getPoltrona());
                 if (!dao.update(lr.getReservas())) {
+                    if (newVenda) {
+                        vendas.setId(null);
+                    }
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
                     return;
@@ -1170,15 +1192,15 @@ public class VendasCaravanaBean implements Serializable {
             for (int i = 0; i < list.size(); i++) {
                 Boolean cancelada = false;
                 String caravanaString = list.get(i).getDataEmbarqueIda() + " - " + list.get(i).getHoraEmbarqueIda() + " - " + list.get(i).getEvento().getDescricaoEvento().getDescricao() + "  " + list.get(i).getTituloComplemento();
-                if(list.get(i).getDtInativacao() != null) {
+                if (list.get(i).getDtInativacao() != null) {
                     cancelada = true;
                     caravanaString += " (CANCELADA) ";
                 }
                 if (caravana == null) {
-                    if(!cancelada) {
+                    if (!cancelada) {
                         idCaravanaSelect = list.get(i).getId();
                         caravana = list.get(i);
-                        vendas.setEvento(list.get(i).getEvento());                        
+                        vendas.setEvento(list.get(i).getEvento());
                     }
                 }
                 listaCaravanaSelect.add(new SelectItem(list.get(i).getId(), caravanaString, Integer.toString(i), cancelada));
@@ -1495,7 +1517,7 @@ public class VendasCaravanaBean implements Serializable {
             double valor = 0;
             for (Parcelas listaParcela : listaParcelas) {
                 if (!listaParcela.getBaixado()) {
-                    valor = Moeda.soma (valor, Moeda.substituiVirgulaDouble(String.valueOf(listaParcela.getValor())));
+                    valor = Moeda.soma(valor, Moeda.substituiVirgulaDouble(String.valueOf(listaParcela.getValor())));
                 }
             }
             valorOutras = Moeda.converteR$Double(valor);
@@ -2072,6 +2094,21 @@ public class VendasCaravanaBean implements Serializable {
 
         public void setListPoltrona(List<SelectItem> listPoltrona) {
             this.listPoltrona = listPoltrona;
+        }
+
+        public Boolean getMenorIdade() {
+            if (eventoServicoValor != null) {
+                if (eventoServicoValor.getIdadeInicial() >= 0 && eventoServicoValor.getIdadeInicial() <= 2 && eventoServicoValor.getValor() == 0) {
+                    return true;
+                }
+            } else {
+                if (reservas.getId() != null) {
+                    if (reservas.getPoltrona() == 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
     }

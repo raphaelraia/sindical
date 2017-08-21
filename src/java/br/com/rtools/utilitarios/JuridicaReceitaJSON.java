@@ -88,16 +88,15 @@ public class JuridicaReceitaJSON {
                      * 8: erro, ocorreu um erro ao processar sua requisição; contate o suporte técnico.
                      * 9: erro, é necessário realizar todas as requisições utilizando oprotocolo HTTPS.
                      */
-                    cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 5);
+                    // 2235824594887334ABV16325666555
+                    cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
                     if (cc == null) {
-                        url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555");
-                    } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
-                        url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555");
+                        url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + "");
                     } else {
                         if (cc.getDias() == 0) {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555&ignore_db=true");
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken() + " +&ignore_db=true");
                         } else {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=2235824594887334ABV16325666555");
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken());
                         }
                     }
                     con = (HttpURLConnection) url.openConnection();

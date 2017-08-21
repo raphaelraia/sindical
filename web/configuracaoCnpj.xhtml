@@ -30,10 +30,12 @@
                         <p:tabView>
                             <p:tab title="Geral">
                                 <h:panelGrid cellpadding="5" columns="2">
-                                    <p:outputLabel value="Email" />
-                                    <p:inputText value="#{configuracaoCnpjBean.configuracaoCnpj.email}" maxlength="200"/>
-                                    <p:outputLabel value="Senha" />
-                                    <p:inputText value="#{configuracaoCnpjBean.configuracaoCnpj.senha}" maxlength="10"/>
+                                    <p:outputLabel value="Email" rendered="#{configuracaoCnpjBean.idTipoPesquisa ne 5}"/>
+                                    <p:inputText value="#{configuracaoCnpjBean.configuracaoCnpj.email}" maxlength="200" rendered="#{configuracaoCnpjBean.idTipoPesquisa ne 5}"/>
+                                    <p:outputLabel value="Senha" rendered="#{configuracaoCnpjBean.idTipoPesquisa ne 5}"/>
+                                    <p:inputText value="#{configuracaoCnpjBean.configuracaoCnpj.senha}" maxlength="10" rendered="#{configuracaoCnpjBean.idTipoPesquisa ne 5}"/>
+                                    <p:outputLabel value="Token" />
+                                    <p:inputText value="#{configuracaoCnpjBean.configuracaoCnpj.token}" maxlength="150" size="50"/>
                                     <h:outputLabel value="Dias" />
                                     <p:column>
                                         <p:spinner value="#{configuracaoCnpjBean.configuracaoCnpj.dias}" max="120" min="0" size="5" stepFactor="0">
@@ -45,13 +47,13 @@
                                 <h:panelGrid>
                                     <p:column>
                                         <p:outputLabel value="Sistema de Pesquisa" /><br />
-                                        <p:selectOneMenu value="#{configuracaoCnpjBean.indexTipoPesquisa}" style="width: 100px">
-                                            <p:ajax event="change" update="@this"/>
+                                        <p:selectOneMenu value="#{configuracaoCnpjBean.idTipoPesquisa}" style="width: 100px">
+                                            <p:ajax event="change" update="@this :form_cnpj:"/>
                                             <f:selectItems value="#{configuracaoCnpjBean.listaTipoPesquisa}"/>
                                         </p:selectOneMenu>
                                     </p:column>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid cellpadding="5" columns="2">
                                     <p:selectBooleanCheckbox value="#{configuracaoCnpjBean.configuracaoCnpj.local}" itemLabel="Libera Consulta Sistema">
                                         <p:ajax event="change" update="@this form_cnpj" listener="#{configuracaoCnpjBean.update}"/>
@@ -62,7 +64,7 @@
                                 </h:panelGrid>
                             </p:tab>                            
                         </p:tabView>
-                        
+
                         <f:facet name="footer">
                             <p:commandButton value="Atualizar" action="#{configuracaoCnpjBean.update()}" update=":form_cnpj:"/>
                         </f:facet>

@@ -1370,7 +1370,7 @@ public class JuridicaBean implements Serializable {
                 }
             }
         }
-
+ 
         if (url != null) {
             if (!getListaTipoDocumento().isEmpty()) {
                 for (int o = 0; o < listaTipoDocumento.size(); o++) {

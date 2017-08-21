@@ -277,11 +277,16 @@
                                     </p:column>
 
                                     <p:column headerText="Poltrona" style="text-align: center; width: 60px" >
-                                        <p:selectOneMenu value="#{listaReservas.poltrona}" style="padding-right: 20px" rendered="#{listaReservas.reservas.id == null or !vendasCaravanaBean.locked}" disabled="#{((vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null and vendasCaravanaBean.locked) or listaReservas.reservas.dtCancelamento != null)}">
-                                            <p:ajax event="change" update="@this #{listaReservas.reservas.id == null ? '' : ':form_vendas_caravana:i_servicos'}" listener="#{vendasCaravanaBean.updatePoltrona}" />
-                                            <f:selectItems value="#{listaReservas.listPoltrona}" />
-                                        </p:selectOneMenu>                                    
-                                        <h:outputLabel value="#{listaReservas.reservas.poltrona}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}; margin-left: 10px; font-weight: bold; font-size: 12pt!important" rendered="#{listaReservas.reservas.id != null and vendasCaravanaBean.locked}"/>
+                                        <p:column rendered="#{listaReservas.menorIdade}">
+                                            CRIANÇA DE COLO
+                                        </p:column>
+                                        <p:column rendered="#{!listaReservas.menorIdade}">
+                                            <p:selectOneMenu value="#{listaReservas.poltrona}" style="padding-right: 20px" rendered="#{listaReservas.reservas.id == null or !vendasCaravanaBean.locked}" disabled="#{((vendasCaravanaBean.vendas.id != null and listaReservas.reservas.id != null and vendasCaravanaBean.locked) or listaReservas.reservas.dtCancelamento != null)}">
+                                                <p:ajax event="change" update="@this #{listaReservas.reservas.id == null ? '' : ':form_vendas_caravana:i_servicos'}" listener="#{vendasCaravanaBean.updatePoltrona}" />
+                                                <f:selectItems value="#{listaReservas.listPoltrona}" />
+                                            </p:selectOneMenu>                                    
+                                            <h:outputLabel value="#{listaReservas.reservas.poltrona}" style="#{listaReservas.reservas.dtCancelamento == null ? 'color: black;' : 'text-decoration:line-through; color: red'}; margin-left: 10px; font-weight: bold; font-size: 12pt!important" rendered="#{listaReservas.reservas.id != null and vendasCaravanaBean.locked}"/>
+                                        </p:column>
                                     </p:column>
 
                                     <p:column headerText="Valor (R$)" style="text-align: center; width: 100px">

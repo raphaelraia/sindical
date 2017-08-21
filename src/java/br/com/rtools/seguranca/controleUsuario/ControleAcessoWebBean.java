@@ -815,7 +815,7 @@ public class ControleAcessoWebBean implements Serializable {
             }
         }
 
-        List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId());
+        List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId()); 
 
         if (!listax.isEmpty()) {
             // 11 - DATA DE INATIVACAO

@@ -25,7 +25,7 @@ public class ConfiguracaoCnpjBean implements Serializable {
     private ConfiguracaoCnpj configuracaoCnpj;
     private Registro registro;
     private List<SelectItem> listaTipoPesquisa = new ArrayList();
-    private Integer indexTipoPesquisa = 0;
+    private Integer idTipoPesquisa = null;
 
     @PostConstruct
     public void init() {
@@ -36,15 +36,10 @@ public class ConfiguracaoCnpjBean implements Serializable {
 
         if (configuracaoCnpj == null) {
             configuracaoCnpj = new ConfiguracaoCnpj();
-            configuracaoCnpj.setTipoPesquisaCnpj((TipoPesquisaCnpj) new Dao().find(new TipoPesquisaCnpj(), Integer.valueOf(listaTipoPesquisa.get(indexTipoPesquisa).getDescription())));
+            configuracaoCnpj.setTipoPesquisaCnpj((TipoPesquisaCnpj) new Dao().find(new TipoPesquisaCnpj(), 3));
             dao.save(configuracaoCnpj, true);
         }
-
-        for (int i = 0; i < listaTipoPesquisa.size(); i++) {
-            if (configuracaoCnpj.getTipoPesquisaCnpj().getId().equals(Integer.valueOf(listaTipoPesquisa.get(i).getDescription()))) {
-                indexTipoPesquisa = i;
-            }
-        }
+        idTipoPesquisa = configuracaoCnpj.getTipoPesquisaCnpj().getId();
     }
 
     @PreDestroy
@@ -60,7 +55,7 @@ public class ConfiguracaoCnpjBean implements Serializable {
         for (int i = 0; i < result.size(); i++) {
             listaTipoPesquisa.add(
                     new SelectItem(
-                            i,
+                            result.get(i).getId(),
                             result.get(i).getDescricao(),
                             "" + result.get(i).getId()
                     )
@@ -71,7 +66,7 @@ public class ConfiguracaoCnpjBean implements Serializable {
     public void update() {
         Dao dao = new Dao();
         if (configuracaoCnpj.getId() != -1) {
-            configuracaoCnpj.setTipoPesquisaCnpj((TipoPesquisaCnpj) new Dao().find(new TipoPesquisaCnpj(), Integer.valueOf(listaTipoPesquisa.get(indexTipoPesquisa).getDescription())));
+            configuracaoCnpj.setTipoPesquisaCnpj((TipoPesquisaCnpj) new Dao().find(new TipoPesquisaCnpj(), idTipoPesquisa));
             if (dao.update(configuracaoCnpj, true)) {
                 configuracaoCnpj.setDataAtualizacao(DataHoje.dataHoje());
                 GenericaMensagem.info("Sucesso", "Configurações aplicadas");
@@ -115,12 +110,12 @@ public class ConfiguracaoCnpjBean implements Serializable {
         this.listaTipoPesquisa = listaTipoPesquisa;
     }
 
-    public Integer getIndexTipoPesquisa() {
-        return indexTipoPesquisa;
+    public Integer getIdTipoPesquisa() {
+        return idTipoPesquisa;
     }
 
-    public void setIndexTipoPesquisa(Integer indexTipoPesquisa) {
-        this.indexTipoPesquisa = indexTipoPesquisa;
+    public void setIdTipoPesquisa(Integer idTipoPesquisa) {
+        this.idTipoPesquisa = idTipoPesquisa;
     }
 
 }

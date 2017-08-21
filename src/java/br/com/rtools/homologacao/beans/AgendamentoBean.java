@@ -419,7 +419,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (listaMovimento.isEmpty()) {
             return null;
         }
-        
+
         List<ListMovimentoReceber> listMovimentoReceber = PlanilhaDebitoBean.find(juridica.getPessoa().getId());
         for (int i = 0; i < listaMovimento.size(); i++) {
             for (int x = 0; x < listMovimentoReceber.size(); x++) {
@@ -607,9 +607,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         limpar();
         loadListaHorariosTransferencia();
 
-        if (getData().getDay() == 6 || getData().getDay() == 0) {
-            GenericaMensagem.warn("Atenção", "Fins de semana não permitido!");
-            return;
+        if (idStatus != 8) {
+            if (getData().getDay() == 6 || getData().getDay() == 0) {
+                GenericaMensagem.warn("Atenção", "Fins de semana não permitido!");
+                return;
+            }
         }
 
         emailEmpresa = "";
@@ -1988,7 +1990,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (agendamento.getId() != -1) {
             if (dao.update(agendamento, true)) {
                 validacao = false;
-                GenericaMensagem.info("Sucesso", "Altorização de Agendamento Concluída!");
+                GenericaMensagem.info("Sucesso", "Autorização de Agendamento Concluída!");
                 ProtocoloAgendamento protocoloAgendamento = new ProtocoloAgendamento();
                 protocoloAgendamento.enviar(agendamento, 8);
             } else {

@@ -1389,10 +1389,10 @@ public class MovimentoDao extends DB {
 
             switch (email) { // EMAIL                
                 case "com":
-                    email = " AND ( (  (pj.id_contabilidade IS NULL or pj.is_cobranca_escritorio=false) AND pcomp.id_status_cobranca = 2 ) OR (pj.id_contabilidade > 0 AND pj.is_cobranca_escritorio=true AND pcompe.id_status_cobranca = 2) ) \n ";
+                    email = " AND ( ( ( pj.id_contabilidade IS NULL or pj.is_cobranca_escritorio = false ) AND pcomp.id_status_cobranca = 2 ) OR ( pj.id_contabilidade > 0 AND pj.is_cobranca_escritorio = true AND pcompe.id_status_cobranca = 2 ) ) \n";
                     break; // CORREIOS                
                 case "sem":
-                    email = " AND ( (  (pj.id_contabilidade IS NULL OR pj.is_cobranca_escritorio=false) AND pcomp.id_status_cobranca = 1 ) OR (pj.id_contabilidade > 0 AND pj.is_cobranca_escritorio=true AND pcompe.id_status_cobranca = 1) )   AND (m.id_servicos = 2 AND bo.id_conta_cobranca = 1 ) \n ";
+                    email = " AND ( ( ( pj.id_contabilidade IS NULL OR pj.is_cobranca_escritorio = false ) AND pcomp.id_status_cobranca = 1 ) OR ( pj.id_contabilidade > 0 AND pj.is_cobranca_escritorio = true AND pcompe.id_status_cobranca = 1 ) ) \n";
                     break;
                 default:
                     email = " ";
