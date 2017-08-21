@@ -1482,6 +1482,7 @@ public class GerarMovimento extends DB {
         baixa.setFechamentoCaixa(null);
         baixa.setBaixa(data_pagamento);
         baixa.setImportacao(DataHoje.data());
+        baixa.setCaixa(null);
         baixa.setTaxaLiquidacao(valor_taxa);
 
         dao.openTransaction();
