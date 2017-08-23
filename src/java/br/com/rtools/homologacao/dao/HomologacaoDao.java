@@ -875,8 +875,7 @@ public class HomologacaoDao extends DB {
                         + "       ds_motivo_recusa2 = '2º PRAZO EXPIROU, CANCELADO PELO SISTEMA!'   \n"
                         + " WHERE dt_data < CURRENT_DATE                                            \n"
                         + "   AND id_status = 8                                                     \n"
-                        + "   AND dt_recusa1 IS NOT NULL                                            \n"
-                        + "   AND dt_solicitacao2 IS NOT NULL                                       \n";
+                        + "   AND dt_recusa1 IS NOT NULL                                            \n";
                 query = getEntityManager().createNativeQuery(queryString);
                 result = query.executeUpdate();
                 if (result < 0) {

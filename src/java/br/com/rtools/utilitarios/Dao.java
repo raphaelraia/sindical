@@ -188,7 +188,7 @@ public class Dao extends DB implements DaoInterface {
             getEntityManager().merge(objeto);
             getEntityManager().flush();
             return true;
-        } catch (EJBQLException  e) {
+        } catch (EJBQLException e) {
             EXCEPCION = e;
             if (GenericaSessao.exists("habilitaLog")) {
                 if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
@@ -485,12 +485,12 @@ public class Dao extends DB implements DaoInterface {
         }
 
         if (objectId == null) {
-            int id;
+            Integer id;
             try {
                 Class classe = object.getClass();
                 Method metodo = classe.getMethod("getId", new Class[]{});
                 id = (Integer) metodo.invoke(object, (Object[]) null);
-                if (id == -1) {
+                if (id == -1 || id == null) {
                     return null;
                 }
             } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {

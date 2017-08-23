@@ -651,7 +651,7 @@ public class RelatorioSociosBean implements Serializable {
         Jasper.TITLE = relatorios.getNome();
         Map map = new HashMap();
         map.put("groups", selectedGroups);
-        if (relatorios.getNome().equals("ETIQUETAS")) {
+        if (relatorios.getRelatorioTipo().getId() == 2) {
             collection = new ArrayList();
             for (int i = 0; i < list.size(); i++) {
                 collection.add(

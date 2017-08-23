@@ -57,6 +57,11 @@
                                             <p:commandButton action="#{relatorioBean.listRotina.clear()}" value="Restaurar" update="i_panel_grid_rotinas" rendered="#{relatorioBean.relatorio.id == -1}"/>
                                         </h:panelGrid>
                                     </h:column>
+                                    <h:outputLabel value="Tipo:" />
+                                    <p:selectOneMenu value="#{relatorioBean.relatorio_tipo_id}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@form" />
+                                        <f:selectItems value="#{relatorioBean.listRelatorioTipo}" />
+                                    </p:selectOneMenu>                                    
                                     <h:column />
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{relatorioBean.relatorio.principal}" itemLabel="Default da rotina" disabled="#{relatorioBean.relatorio.id == -1}">

@@ -212,7 +212,6 @@
                                         </p:dataTable>
                                     </p:panel>                                    
                                     <p:panel style="height: 50px" styleClass="margin-top-max">
-                                        <!-- <p:poll interval="5" update="i_panel_poll" listener="# {polling.existeUsuarioSessao()}"/>  -->
                                         <h:panelGrid id="i_panel_poll" style="float: left">
                                             <h:outputLabel value="Sem Notificações" rendered="#{!notificacaoBean.habilitaNot}" style="font-size: 12pt; color: #dd3b58; font-weight: bold"/>
                                             <h:outputLabel value="Existem #{notificacaoBean.quantidadeMenu} notificações de cobrança para serem enviadas" rendered="#{notificacaoBean.habilitaNot}" styleClass="fonteExtratoTela" style="font-size: 12pt; color: #dd3b58; font-weight: bold"/>
@@ -337,11 +336,13 @@
                                             <p:column headerText="Caixa">#{inconsistenciaBaixa.argumento6}</p:column>
                                         </p:dataTable> 
                                     </p:dialog>
-                                    <c:if test="#{configuracaoHomologacaoBean.configuracaoHomologacao.webValidaAgendamento and menuPrincipalBean.existsPedidosAgendamento}">
-                                        <p:notificationBar  effect="fade" effectSpeed="slow" styleClass="top" widgetVar="bar" autoDisplay="true" position="bottom" style="text-align: center; background: #ffd9a2!important">
-                                            <br />                                            
-                                            <h:outputText value="EXISTEM PEDIDOS DE AGENDAMENTO PARA SEREM CONFIRMADO(S) !!!" style="font-size: 24px!important; color: red; font-weight: bold;" />
-                                        </p:notificationBar>
+                                    <c:if test="#{configuracaoHomologacaoBean.configuracaoHomologacao.webValidaAgendamento}">
+                                        <c:if test="#{menuPrincipalBean.existsPedidosAgendamento}">
+                                            <p:notificationBar  effect="fade" effectSpeed="slow" styleClass="top" widgetVar="bar" autoDisplay="true" position="bottom" style="text-align: center; background: #ffd9a2!important">
+                                                <br />                                            
+                                                <h:outputText value="EXISTEM PEDIDOS DE AGENDAMENTO PARA SEREM CONFIRMADO(S) !!!" style="font-size: 24px!important; color: red; font-weight: bold;" />
+                                            </p:notificationBar>
+                                        </c:if>
                                     </c:if>
 
                                     <ui:include id="template_processo_automatico" src="templates/templateProcessamentoAutomatico.xhtml" />

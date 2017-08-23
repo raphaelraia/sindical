@@ -212,7 +212,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + " INNER JOIN pes_pessoa   AS be ON be.id = m.id_beneficiario \n"
                         + " INNER JOIN pes_pessoa   AS pj ON pj.id = m.id_pessoa \n"
                         + " INNER JOIN pes_juridica AS j ON j.id_pessoa = m.id_pessoa \n"
-                        + " INNER JOIN pes_fisica AS f ON f.id_pessoa=t.id \n"
+                        // + " INNER JOIN pes_fisica AS f ON f.id_pessoa=t.id \n"
                         + "  LEFT JOIN \n"
                         + "( \n "
                         + "     SELECT m.id_pessoa, \n"

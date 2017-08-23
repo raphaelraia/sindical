@@ -361,7 +361,7 @@ public class RelatorioFinanceiroSocialDao extends DB {
 
         try {
             return qry.getResultList();
-        } catch (Exception e) {
+        } catch (Exception e) {            
             e.getMessage();
         }
 

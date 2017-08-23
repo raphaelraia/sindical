@@ -94,7 +94,7 @@ public class JuridicaReceitaJSON {
                         url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + "");
                     } else {
                         if (cc.getDias() == 0) {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken() + " +&ignore_db=true");
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
                         } else {
                             url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken());
                         }

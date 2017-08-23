@@ -7,7 +7,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "sis_relatorios")
 @NamedQueries({
-    @NamedQuery(name = "Relatorios.pesquisaID", query = "SELECT R FROM Relatorios R WHERE R.id = :pid"),
+    @NamedQuery(name = "Relatorios.pesquisaID", query = "SELECT R FROM Relatorios R WHERE R.id = :pid")
+    ,
     @NamedQuery(name = "Relatorios.findAll", query = "SELECT R FROM Relatorios AS R ORDER BY R.nome ASC")
 })
 public class Relatorios implements Serializable {
@@ -41,6 +42,9 @@ public class Relatorios implements Serializable {
     private String queryString;
     @Column(name = "is_default", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean principal;
+    @JoinColumn(name = "id_relatorio_tipo", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private RelatorioTipo relatorioTipo;
 
     public Relatorios() {
         this.id = -1;
@@ -56,9 +60,10 @@ public class Relatorios implements Serializable {
         this.montaQuery = false;
         this.queryString = "";
         this.principal = false;
+        this.relatorioTipo = null;
     }
 
-    public Relatorios(Integer id, Rotina rotina, String nome, String jasper, String qry, Boolean porFolha, String nomeGrupo, Boolean excel, String camposExcel, Boolean montaQuery, String queryString, Boolean principal) {
+    public Relatorios(Integer id, Rotina rotina, String nome, String jasper, String qry, Boolean porFolha, String nomeGrupo, Boolean excel, String camposExcel, Boolean montaQuery, String queryString, Boolean principal, RelatorioTipo relatorioTipo) {
         this.id = id;
         this.rotina = rotina;
         this.nome = nome;
@@ -71,6 +76,7 @@ public class Relatorios implements Serializable {
         this.montaQuery = montaQuery;
         this.queryString = queryString;
         this.principal = principal;
+        this.relatorioTipo = relatorioTipo;
     }
 
     public Integer getId() {
@@ -177,26 +183,17 @@ public class Relatorios implements Serializable {
         this.principal = principal;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        return hash;
+    public RelatorioTipo getRelatorioTipo() {
+        return relatorioTipo;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Relatorios other = (Relatorios) obj;
-        return true;
+    public void setRelatorioTipo(RelatorioTipo relatorioTipo) {
+        this.relatorioTipo = relatorioTipo;
     }
 
     @Override
     public String toString() {
-        return "Relatorios{" + "id=" + id + ", rotina=" + rotina + ", nome=" + nome + ", jasper=" + jasper + ", qry=" + qry + ", qryOrdem=" + qryOrdem + ", porFolha=" + porFolha + ", nomeGrupo=" + nomeGrupo + ", excel=" + excel + ", camposExcel=" + camposExcel + ", montaQuery=" + montaQuery + ", queryString=" + queryString + ", principal=" + principal + '}';
+        return "Relatorios{" + "id=" + id + ", rotina=" + rotina + ", nome=" + nome + ", jasper=" + jasper + ", qry=" + qry + ", qryOrdem=" + qryOrdem + ", porFolha=" + porFolha + ", nomeGrupo=" + nomeGrupo + ", excel=" + excel + ", camposExcel=" + camposExcel + ", montaQuery=" + montaQuery + ", queryString=" + queryString + ", principal=" + principal + ", relatorioTipo=" + relatorioTipo + '}';
     }
+
 }

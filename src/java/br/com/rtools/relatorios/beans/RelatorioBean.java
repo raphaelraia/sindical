@@ -5,6 +5,7 @@ import br.com.rtools.relatorios.RelatorioGrupo;
 import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
+import br.com.rtools.relatorios.RelatorioTipo;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
@@ -39,6 +40,8 @@ public class RelatorioBean implements Serializable {
     private List<RelatorioParametros> listaRelatorioParametro;
     private List<RelatorioGrupo> listaRelatorioGrupo;
     private List<RelatorioJoin> listaRelatorioJoin;
+    private List<SelectItem> listRelatorioTipo;
+    private Integer relatorio_tipo_id;
 
     private String textQuery;
     private String description;
@@ -61,6 +64,7 @@ public class RelatorioBean implements Serializable {
         textQuery = "";
         description = "";
         loadListRotinas();
+        loadListRelatorioTipo();
         listRelatorio = new Dao().list(new Relatorios(), true);
     }
 
@@ -259,6 +263,15 @@ public class RelatorioBean implements Serializable {
         setListaRelatorioJoin(dao.listaRelatorioJoin(relatorio.getId()));
     }
 
+    public void loadListRelatorioTipo() {
+        listRelatorioTipo = new ArrayList();
+        List<RelatorioTipo> list = new Dao().list(new RelatorioTipo(), true);
+        relatorio_tipo_id = 1;
+        for (int i = 0; i < list.size(); i++) {
+            listRelatorioTipo.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
     public void loadListRotinas() {
         listRotina = new ArrayList();
         List<Rotina> list = new Dao().list(new Rotina(), true);
@@ -366,6 +379,7 @@ public class RelatorioBean implements Serializable {
         NovoLog log = new NovoLog();
 
         relatorio.setRotina((Rotina) dao.find(new Rotina(), rotina_id));
+        relatorio.setRelatorioTipo((RelatorioTipo) dao.find(new RelatorioTipo(), relatorio_tipo_id));
 
         dao.openTransaction();
         if (relatorio.getId() == -1) {
@@ -442,6 +456,7 @@ public class RelatorioBean implements Serializable {
         listRelatorioOrdem.clear();
         relatorioOrdem = new RelatorioOrdem();
         rotina_id = relatorio.getRotina().getId();
+        relatorio_tipo_id = relatorio.getRelatorioTipo().getId();
         loadListaRelatorioParametro();
         loadListaRelatorioGrupo();
         loadListaRelatorioJoin();
@@ -633,4 +648,21 @@ public class RelatorioBean implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public List<SelectItem> getListRelatorioTipo() {
+        return listRelatorioTipo;
+    }
+
+    public void setListRelatorioTipo(List<SelectItem> listRelatorioTipo) {
+        this.listRelatorioTipo = listRelatorioTipo;
+    }
+
+    public Integer getRelatorio_tipo_id() {
+        return relatorio_tipo_id;
+    }
+
+    public void setRelatorio_tipo_id(Integer relatorio_tipo_id) {
+        this.relatorio_tipo_id = relatorio_tipo_id;
+    }
+
 }
