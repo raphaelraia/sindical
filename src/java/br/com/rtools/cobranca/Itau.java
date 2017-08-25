@@ -310,6 +310,9 @@ public class Itau extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // NÚMERO SEQÜENCIAL DO REGISTRO NO ARQUIVO  395   400  9(06)  000001
             sequencial_registro++;
 
+            if (CONTEUDO_REMESSA.length() != 400) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -364,7 +367,9 @@ public class Itau extends Cobranca {
                 CONTEUDO_REMESSA += "00000"; // AGÊNCIA COBRADORA AGÊNCIA ONDE O TÍTULO SERÁ COBRADO 143   147 9(05) NOTA 9 
 
                 CONTEUDO_REMESSA += "18"; // ESPÉCIE  ESPÉCIE DO TÍTULO 148   149  X(02) NOTA 10
-                CONTEUDO_REMESSA += "A"; // ACEITE  IDENTIFICAÇÃO DE TÍTULO ACEITO OU NÃO ACEITO 150   150 X(01) A=ACEITE  N=NÃO ACEITE 
+                
+                String aceite = bol.getContaCobranca().getAceite().equals("N") ? bol.getContaCobranca().getAceite() : "A";
+                CONTEUDO_REMESSA += aceite; // ACEITE  IDENTIFICAÇÃO DE TÍTULO ACEITO OU NÃO ACEITO 150   150 X(01) A=ACEITE  N=NÃO ACEITE 
 
                 String[] data_emissao = DataHoje.DataToArrayString(DataHoje.data());
                 CONTEUDO_REMESSA += data_emissao[0] + data_emissao[1] + data_emissao[2].substring(2, 4); // DATA DE EMISSÃO  DATA DA EMISSÃO DO TÍTULO 151   156 9(06) NOTA 31
@@ -422,20 +427,23 @@ public class Itau extends Cobranca {
 
                 CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial de Registro
                 sequencial_registro++;
+                if (CONTEUDO_REMESSA.length() != 400) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
 
-                    RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
 
-                    if (!dao.save(remessaBanco)) {
-                        dao.rollback();
-                        return null;
-                    }
+                if (!dao.save(remessaBanco)) {
+                    dao.rollback();
+                    return null;
+                }
 
-                    list_log.add("ID: " + bol.getId());
-                    list_log.add("Valor: " + valor_titulo);
-                    list_log.add("-----------------------");
+                list_log.add("ID: " + bol.getId());
+                list_log.add("Valor: " + valor_titulo);
+                list_log.add("-----------------------");
             }
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
@@ -446,6 +454,9 @@ public class Itau extends Cobranca {
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                                                                                                                                                                                                         "; // 002 a 394 X(393) Complemento do Registro: “Brancos”
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Número Seqüencial do Registro no Arquivo 
 
+            if (CONTEUDO_REMESSA.length() != 400) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             buff_writer.write("");
             buff_writer.flush();

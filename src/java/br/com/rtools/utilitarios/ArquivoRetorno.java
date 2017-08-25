@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Vector;
 
 public abstract class ArquivoRetorno {
 
@@ -105,6 +106,28 @@ public abstract class ArquivoRetorno {
                     bol.setDtCobrancaRegistrada(DataHoje.dataHoje());
                     new Dao().update(bol, true);
                     return "";
+                // BOLETO EXCLUIDO
+                case 6:
+                    new Dao().update(bol, true);
+//                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
+//                    if (m.getBaixa() != null) {
+//                        return "Boleto já quitado não pode ser excluído!";
+//                    }
+//
+//                    if (m.getAcordo() != null) {
+//                        return "Boleto do tipo acordo não pode ser excluído!";
+//                    }
+//
+//                    String motivo_exclusao = "Boleto excluído pelo arquivo retorno";
+//
+//                    String ret = GerarMovimento.inativarUmMovimento(m, motivo_exclusao);
+//
+//                    if (!ret.isEmpty()) {
+//                        return "Não foi possível excluir, " + ret;
+//                    }
+
+//                    return "Boleto Excluído";
+                    return "Boleto Baixado no Banco";
                 default:
                     return "Status do Retorno não encontrado, verificar manual";
             }
@@ -132,10 +155,51 @@ public abstract class ArquivoRetorno {
                     b.setDtCobrancaRegistrada(DataHoje.dataHoje());
                     new Dao().update(b, true);
                     return "";
+                // BOLETO EXCLUIDO
+                case 6:
+                    new Dao().update(b, true);
+//                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
+//                    List<Movimento> lm = b.getListaMovimento();
+//
+//                    if (lm.isEmpty()) {
+//                        return "Lista de Movimentos não encontrado";
+//                    }
+//
+//                    for (Movimento m : lm) {
+//                        if (m.getBaixa() != null) {
+//                            return "Boleto já quitado não pode ser excluído!";
+//                        }
+//
+//                        if (m.getBaixa() != null && m.getBaixa().getFechamentoCaixa() != null) {
+//                            return "Boleto com caixa fechado não pode ser excluído!";
+//                        }
+//
+//                        if (m.getAcordo() != null) {
+//                            return "Boleto do tipo acordo não pode ser excluído!";
+//                        }
+//                    }
+//
+//                    String motivo_exclusao = "Boleto excluído pelo arquivo retorno";
+//
+//                    Dao dao = new Dao();
+//                    dao.openTransaction();
+//
+//                    String ret = GerarMovimento.inativarArrayMovimento(lm, motivo_exclusao, dao);
+//
+//                    if (!ret.isEmpty()) {
+//                        dao.rollback();
+//                        return "Não foi possível excluir, " + ret;
+//                    }
+//                    
+//                    dao.commit();
+//                    
+//                    return "Boleto Excluído";
+                    return "Boleto Baixado no Banco";
                 default:
                     return "Status do Retorno não encontrado, verificar manual";
             }
         }
+        
         return "Status do Retorno não encontrado, verificar manual";
     }
 

@@ -68,7 +68,9 @@ public class ContaCobranca implements java.io.Serializable {
     @JoinColumn(name = "id_cobranca_registrada", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private CobrancaRegistrada cobrancaRegistrada;
-
+    @Column(name = "is_layout_barras_novo", columnDefinition = "boolean default false")
+    private Boolean layoutBarrasNovo;
+    
     public ContaCobranca() {
         this.id = -1;
         this.contaBanco = new ContaBanco();
@@ -98,9 +100,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.boletoAtual = 0;
         this.nrLayout = 240;
         this.cobrancaRegistrada = new CobrancaRegistrada();
+        this.layoutBarrasNovo = false;
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -129,6 +132,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.boletoAtual = boletoAtual;
         this.nrLayout = nrLayout;
         this.cobrancaRegistrada = cobrancaRegistrada;
+        this.layoutBarrasNovo = layoutBarrasNovo;
     }
 
     public int getId() {
@@ -354,4 +358,13 @@ public class ContaCobranca implements java.io.Serializable {
     public void setCobrancaRegistrada(CobrancaRegistrada cobrancaRegistrada) {
         this.cobrancaRegistrada = cobrancaRegistrada;
     }
+
+    public Boolean getLayoutBarrasNovo() {
+        return layoutBarrasNovo;
+    }
+
+    public void setLayoutBarrasNovo(Boolean layoutBarrasNovo) {
+        this.layoutBarrasNovo = layoutBarrasNovo;
+    }
+
 }

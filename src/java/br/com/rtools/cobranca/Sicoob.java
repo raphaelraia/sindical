@@ -340,7 +340,9 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "                    "; // 23.0 Para Uso Reservado da Empresa: Preencher com espaços em branco
             CONTEUDO_REMESSA += "                             "; // 24.0 Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
 
-            // PAREI AQUI
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -379,7 +381,9 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 21.1 Data de Gravação Remessa/Retorno
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito: "00000000"
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -454,7 +458,9 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "09"; // 40.3P "Código da Moeda: '02'  =  Dólar Americano Comercial (Venda) '09'  = Real"
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Nº do Contrato da Operação de Créd.: "0000000000"
                 CONTEUDO_REMESSA += " "; // 42.3P Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -517,7 +523,9 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "   "; // 20.3Q "Cód. Bco. Corresp. na Compensação: Caso o Beneficiário não tenha contratado a opção de Banco Correspondente com o Sicoob, preencher com ""000""; Caso o Beneficiário tenha contratado a opção de Banco Correspondente com o Sicoob e a emissão seja a cargo do Sicoob (SEQ 17.3.P do Segmento P do Detalhe), preencher com ""001"" (Banco do Brasil) ou ""237"" (Banco Bradesco)."
                 CONTEUDO_REMESSA += "                    "; // 21.3Q "Nosso Nº no Banco Correspondente: ""1323739"" (Banco do Brasil) ou ""4498893"" (Banco Bradesco). O campo NN deve ser preenchido, somente nos casos em que o campo anterior tenha indicado o uso do Banco Correspondente. Obs.: O preenchimento deste campo será alinha à esquerda a partir da posição 213 indo até 219."
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB
-
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
 
@@ -556,7 +564,9 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "00000000000000000"; // 13.5 Valor Total dosTítulos em Carteiras
             CONTEUDO_REMESSA += "        "; // 14.5 Número do Aviso de Lançamento: Preencher com espaços em branco
             CONTEUDO_REMESSA += "                                                                                                                     "; // 15.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -573,7 +583,9 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes): "000000"
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             buff_writer.flush();

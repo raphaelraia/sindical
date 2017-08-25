@@ -48,7 +48,7 @@
                                     <p:column>
                                         <h:outputLabel value="Código do Cedente" for="idCodigoCedente"/><br />
                                         <p:inputText id="idCodigoCedente" value="#{contaCobrancaBean.contaCobranca.codCedente}" size="16" maxlength="100" title="Código do Cedente">
-                                            <p:ajax event="keyup" listener="#{contaCobrancaBean.preencheSicasECodSindical}" update="idSicas, idCodigoSindical"  />
+                                            <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </p:column>
 
@@ -117,7 +117,7 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid style="margin-top: 10px; width: 100%" columns="9">
+                                <h:panelGrid style="margin-top: 10px; width: 100%" columns="10">
                                     <p:column>
                                         <p:outputLabel value="Layout" /><br />
                                         <p:selectOneMenu value="#{contaCobrancaBean.idLayout}" style="width: 150px;">
@@ -154,10 +154,16 @@
                                             <f:selectItems value="#{contaCobrancaBean.listaCobrancaRegistrada}" />
                                         </p:selectOneMenu>
                                     </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.layoutBarrasNovo}" itemLabel="Layout Barras Novo" style="margin-left: 20px"/>
+                                    </p:column>
                                 </h:panelGrid>
-
                             </p:panel>
+
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
+                            
                             <h:panelGrid style="margin-top: 10px; margin-bottom: 10px; clear: both">
                                 <h:outputLabel value="Cobrança Sindical" style="font-size: 13pt!important"/>
                             </h:panelGrid>
@@ -184,14 +190,17 @@
                                 </p:column>
 
                                 <p:column>
+                                    <h:outputLabel value="Código Sindical" for="idCodigoSindical"/><br />
+                                    <p:inputText id="idCodigoSindical" value="#{contaCobrancaBean.codigoCedente}" maxlength="50" size="20" title="Código Sindical">
+                                        <p:ajax event="keyup" listener="#{contaCobrancaBean.preencheSicasECodSindical}" update="idSicas"  />
+                                    </p:inputText>
+                                </p:column>
+                                
+                                <p:column>
                                     <h:outputLabel value="Sicas" for="idSicas"/><br />
                                     <p:inputText id="idSicas" value="#{contaCobrancaBean.sicas}" maxlength="5" size="4" title="Sicas Sindical" readonly="true" style="text-align: center; margin-right: 10px" />
                                 </p:column>
 
-                                <p:column>
-                                    <h:outputLabel value="Código Sindical" for="idCodigoSindical"/><br />
-                                    <p:inputText id="idCodigoSindical" value="#{contaCobrancaBean.codigoCedente}" maxlength="50" size="20" title="Código Sindical" />    
-                                </p:column>
                             </h:panelGrid>
 
                             <h:panelGrid columns="4" style="margin-top: 10px">

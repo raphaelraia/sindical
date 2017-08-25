@@ -279,10 +279,10 @@ public class MovimentoDao extends DB {
     }
 
     public List datasMovimento(List<ServicoContaCobranca> list) {
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             return new ArrayList();
         }
-        
+
         String dataAnterior = DataHoje.data().substring(0, 6) + Integer.toString(Integer.parseInt(DataHoje.data().substring(6, 10)) - 1);
         try {
             String queryString = ""
@@ -3146,6 +3146,26 @@ public class MovimentoDao extends DB {
         );
 
         return ((Long) ((List) qry.getSingleResult()).get(0)).intValue() > 0;
+    }
+
+    public List<Movimento> listaMovimentoAcordado(Integer id_pessoa, String referencia, Integer id_tipo_servico, Integer id_servico) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "  SELECT m.* \n"
+                    + "  FROM fin_movimento m \n"
+                    + " WHERE m.id_pessoa = " + id_pessoa + " \n"
+                    + "   AND m.id_servicos = " + id_servico + " \n"
+                    + "   AND m.ds_referencia = '" + referencia + "' \n"
+                    + "   AND m.id_tipo_servico = " + id_tipo_servico + " \n"
+                    + "   AND m.is_ativo = FALSE \n"
+                    + "   AND m.id_acordo > 0", Movimento.class
+            );
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
     }
 
 }

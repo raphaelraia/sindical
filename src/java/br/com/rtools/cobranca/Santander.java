@@ -307,6 +307,9 @@ public class Santander extends Cobranca {
 
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -344,6 +347,9 @@ public class Santander extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN / CNAB
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -426,6 +432,9 @@ public class Santander extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 40.3P Uso Exclusivo do Banco
                 CONTEUDO_REMESSA += " "; // 41.3P Uso Exclusivo FEBRABAN/CNAB
 
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -487,7 +496,9 @@ public class Santander extends Cobranca {
                 CONTEUDO_REMESSA += "000"; // 20.3Q Uso Exclusivo do Banco
                 CONTEUDO_REMESSA += "                    "; // 21.3Q Uso Exclusivo do Banco
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB
-
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -527,7 +538,9 @@ public class Santander extends Cobranca {
             CONTEUDO_REMESSA += "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"; // 06.5 Uso exclusivo do Banco
             CONTEUDO_REMESSA += "        "; // 14.5 N. do Aviso Número do Aviso de Lançamento
             CONTEUDO_REMESSA += "                                                                                                                     "; // 15.5 Uso Exclusivo FEBRABAN/CNAB
-
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -547,7 +560,9 @@ public class Santander extends Cobranca {
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes)
 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB
-
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             buff_writer.flush();

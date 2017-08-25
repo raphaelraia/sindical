@@ -270,6 +270,9 @@ public class CaixaFederalSigCB extends Cobranca {
             // -----------------------------------------------------------------
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -304,6 +307,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -378,6 +384,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -443,6 +452,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -475,6 +487,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -518,6 +533,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -535,6 +553,9 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde. de Contas Concil. Qtde de Contas p/ Conc. (Lotes) 30 35 6 - Num  *G037 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Uso Exclusivo FEBRABAN/CNAB 36 240 205 - Alfa Brancos G004 
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             buff_writer.flush();
@@ -669,6 +690,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -711,6 +735,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -791,6 +818,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -855,6 +885,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -884,6 +917,9 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
                 CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
 
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
 
@@ -931,6 +967,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -949,6 +988,9 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             buff_writer.flush();

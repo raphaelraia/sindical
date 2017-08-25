@@ -42,59 +42,148 @@ public class CaixaFederalSindical extends Cobranca {
     @Override
     public String codigoBarras() {
         JuridicaDao jurDB = new JuridicaDao();
+        String codigoBarras;
 
-        String ent = ((Registro) Registro.get()).getTipoEntidade();
-        // (1-Sindicato, 2-Federação, 3-Confederação)
-        if (ent.equals("S")) {
-            ent = "1";
-        } else if (ent.equals("F")) {
-            ent = "2";
-        } else if (ent.equals("C")) {
-            ent = "3";
-        }
-        String codigoBarras = "";
-        codigoBarras = boleto.getContaCobranca().getContaBanco().getBanco().getNumero() + boleto.getContaCobranca().getMoeda(); // banco + moeda
-        codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
-        int i = 0;
+        if (boleto.getContaCobranca().getLayoutBarrasNovo()) {
+            String valor_string = Moeda.converteDoubleToString(valor).replace(".", "").replace(",", "");
 
-        int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
-        while (i != (10 - tam)) { // zeros
-            codigoBarras += "0";
-            i++;
+            String t_numero_banco = boleto.getContaCobranca().getContaBanco().getBanco().getNumero(), // BANCO
+                    t_moeda = boleto.getContaCobranca().getMoeda(), // MOEDA
+                    t_fator = fatorVencimento(vencimento), // FATOR DE VENCIMENTO
+                    t_valor = "0000000000".substring(0, 10 - valor_string.length()) + valor_string, // VALOR
+                    t_cod_cedente = "000000".substring(0, 6 - boleto.getContaCobranca().getCodCedente().length()) + boleto.getContaCobranca().getCodCedente(), // CODIGO BENEFICIARIO
+                    t_dv_cod_cedente = moduloOnzeDV(boleto.getContaCobranca().getCodCedente()), // DV CODIGO BENEFICIARIO
+                    t_seq1 = boleto.getBoletoComposto().substring(2, 5), // NOSSO NUMERO - SEQUENCIA 1 (3 digitos)
+                    t_const1 = boleto.getBoletoComposto().substring(0, 1), // CONSTANTE 1 (1 digito)
+                    t_seq2 = boleto.getBoletoComposto().substring(5, 8), // NOSSO NUMERO - SEQUENCIA 2 (3 digitos)
+                    t_const2 = boleto.getBoletoComposto().substring(1, 2), // CONSTANTE 2 (1 digito)
+                    t_seq3 = boleto.getBoletoComposto().substring(8, 17); // NOSSO NUMERO - SEQUENCIA 3 (restante dos digitos)
+            
+            // VALORES PARA TESTE * PODE EXCLUIR *
+//            String valor_string = "32112";
+//            String nosso_numero = "14222333777777777";
+//            String t_numero_banco = "104", // BANCO
+//                    t_moeda = "9", // MOEDA
+//                    t_fator = fatorVencimento(DataHoje.converte("23/08/2006")), // FATOR DE VENCIMENTO
+//                    t_valor = "0000000000".substring(0, 10 - valor_string.length()) + valor_string, // VALOR
+//                    t_sicas = "000000".substring(0, 6 - "5507".length()) + "5507", // CODIGO BENEFICIARIO
+//                    t_dv_sicas = moduloOnzeDV("5507"), // DV CODIGO BENEFICIARIO
+//                    t_seq1 = nosso_numero.substring(2, 5), // NOSSO NUMERO - SEQUENCIA 1 (3 digitos)
+//                    t_const1 = nosso_numero.substring(0, 1), // CONSTANTE 1 (1 digito)
+//                    t_seq2 = nosso_numero.substring(5, 8), // NOSSO NUMERO - SEQUENCIA 2 (3 digitos)
+//                    t_const2 = nosso_numero.substring(1, 2), // CONSTANTE 2 (1 digito)
+//                    t_seq3 = nosso_numero.substring(8, 17); // NOSSO NUMERO - SEQUENCIA 3 (restante dos digitos)
+
+            codigoBarras = t_numero_banco;
+            codigoBarras += t_moeda;
+            codigoBarras += t_fator;
+            codigoBarras += t_valor;
+            codigoBarras += t_cod_cedente;
+            codigoBarras += t_dv_cod_cedente;
+            codigoBarras += t_seq1;
+            codigoBarras += t_const1;
+            codigoBarras += t_seq2;
+            codigoBarras += t_const2;
+            codigoBarras += t_seq3;
+
+            String t_mod_cod = moduloOnzeDV(codigoBarras.substring(20));
+
+            codigoBarras += t_mod_cod;
+
+            String t_mod_geral = codigoBarras.substring(0, 4) + moduloOnzeDV(codigoBarras) + codigoBarras.substring(4, codigoBarras.length());
+
+            codigoBarras = t_mod_geral;
+            int dd = codigoBarras.length();
+        } else {
+            String ent = ((Registro) Registro.get()).getTipoEntidade();
+            // (1-Sindicato, 2-Federação, 3-Confederação)
+            switch (ent) {
+                case "S":
+                    ent = "1";
+                    break;
+                case "F":
+                    ent = "2";
+                    break;
+                case "C":
+                    ent = "3";
+                    break;
+                default:
+                    break;
+            }
+            codigoBarras = boleto.getContaCobranca().getContaBanco().getBanco().getNumero() + boleto.getContaCobranca().getMoeda(); // banco + moeda
+            codigoBarras += fatorVencimento(vencimento);   // fator de vencimento
+            int i = 0;
+
+            int tam = Moeda.limparPonto(Moeda.converteR$Double(valor)).length();
+            while (i != (10 - tam)) { // zeros
+                codigoBarras += "0";
+                i++;
+            }
+            codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
+            codigoBarras += "97";
+            codigoBarras += boleto.getContaCobranca().getSicasSindical();
+            codigoBarras += jurDB.pesquisaJuridicaPorPessoa(id_pessoa).getCnae().getNumero().substring(0, 1);
+            //codigoBarras += "1";
+            codigoBarras += ent;
+            codigoBarras += "77";
+            codigoBarras += boleto.getBoletoComposto();       // nosso numero
+            codigoBarras += jurDB.pesquisaJuridicaPorPessoa(id_pessoa).getCnae().getNumero().substring(1, 3);
+            codigoBarras = codigoBarras.substring(0, 4) + moduloOnzeDV(codigoBarras) + codigoBarras.substring(4, codigoBarras.length());
+            int dd = codigoBarras.length();
         }
-        codigoBarras += Moeda.limparPonto(Double.toString(valor)); // valor
-        codigoBarras += "97";
-        codigoBarras += boleto.getContaCobranca().getSicasSindical();
-        codigoBarras += jurDB.pesquisaJuridicaPorPessoa(id_pessoa).getCnae().getNumero().substring(0, 1);
-        //codigoBarras += "1";
-        codigoBarras += ent;
-        codigoBarras += "77";
-        codigoBarras += boleto.getBoletoComposto();       // nosso numero
-        codigoBarras += jurDB.pesquisaJuridicaPorPessoa(id_pessoa).getCnae().getNumero().substring(1, 3);
-        codigoBarras = codigoBarras.substring(0, 4) + moduloOnzeDV(codigoBarras) + codigoBarras.substring(4, codigoBarras.length());
-        int dd = codigoBarras.length();
+
         return codigoBarras;
     }
 
     @Override
     public String representacao() {
         String codigoBarras = codigoBarras();
+        String repNumerica;
 
-        String repNumerica = codigoBarras.substring(0, 4);
-        repNumerica += "97";
-        repNumerica += codigoBarras.substring(21, 44);
-        repNumerica += codigoBarras.substring(4, 19);
-        repNumerica = repNumerica.substring(0, 9) + this.moduloDez(repNumerica.substring(0, 9)) + repNumerica.substring(9, repNumerica.length());
-        repNumerica = repNumerica.substring(0, 20) + this.moduloDez(repNumerica.substring(10, 20)) + repNumerica.substring(20, repNumerica.length());
-        repNumerica = repNumerica.substring(0, 31) + this.moduloDez(repNumerica.substring(21, 31)) + repNumerica.substring(31, repNumerica.length());
-        repNumerica = repNumerica.substring(0, 5) + "."
-                + repNumerica.substring(5, 10) + " "
-                + repNumerica.substring(10, 15) + "."
-                + repNumerica.substring(15, 21) + " "
-                + repNumerica.substring(21, 26) + "."
-                + repNumerica.substring(26, 32) + " "
-                + repNumerica.substring(32, 33) + " "
-                + repNumerica.substring(33, repNumerica.length());
+        if (boleto.getContaCobranca().getLayoutBarrasNovo()) {
+            repNumerica = codigoBarras.substring(0, 4);
+            repNumerica += codigoBarras.substring(19, 24);
+            repNumerica = repNumerica.substring(0, 9) + this.moduloDez(repNumerica.substring(0, 9)) + repNumerica.substring(9, repNumerica.length());
+            
+            
+            repNumerica += codigoBarras.substring(24, 34);
+            repNumerica = repNumerica.substring(0, 20) + this.moduloDez(repNumerica.substring(10, 20)) + repNumerica.substring(20, repNumerica.length());
+            
+            repNumerica += codigoBarras.substring(34, 44);
+            repNumerica = repNumerica.substring(0, 31) + this.moduloDez(repNumerica.substring(21, 31)) + repNumerica.substring(31, repNumerica.length());
+            
+            repNumerica += codigoBarras.substring(4, 5);
+            
+            repNumerica += codigoBarras.substring(5, 9) + codigoBarras.substring(9, 19);
+            
+            repNumerica = repNumerica.substring(0, 5) + "."
+                    + repNumerica.substring(5, 10) + " "
+                    + repNumerica.substring(10, 15) + "."
+                    + repNumerica.substring(15, 21) + " "
+                    + repNumerica.substring(21, 26) + "."
+                    + repNumerica.substring(26, 32) + " "
+                    + repNumerica.substring(32, 33) + " "
+                    + repNumerica.substring(33, repNumerica.length());
+
+        } else {
+
+            repNumerica = codigoBarras.substring(0, 4);
+            repNumerica += "97";
+            repNumerica += codigoBarras.substring(21, 44);
+            repNumerica += codigoBarras.substring(4, 19);
+            repNumerica = repNumerica.substring(0, 9) + this.moduloDez(repNumerica.substring(0, 9)) + repNumerica.substring(9, repNumerica.length());
+            repNumerica = repNumerica.substring(0, 20) + this.moduloDez(repNumerica.substring(10, 20)) + repNumerica.substring(20, repNumerica.length());
+            repNumerica = repNumerica.substring(0, 31) + this.moduloDez(repNumerica.substring(21, 31)) + repNumerica.substring(31, repNumerica.length());
+            repNumerica = repNumerica.substring(0, 5) + "."
+                    + repNumerica.substring(5, 10) + " "
+                    + repNumerica.substring(10, 15) + "."
+                    + repNumerica.substring(15, 21) + " "
+                    + repNumerica.substring(21, 26) + "."
+                    + repNumerica.substring(26, 32) + " "
+                    + repNumerica.substring(32, 33) + " "
+                    + repNumerica.substring(33, repNumerica.length());
+
+        }
         return repNumerica;
     }
 
@@ -151,11 +240,11 @@ public class CaixaFederalSindical extends Cobranca {
 
     @Override
     public String getCedenteFormatado() {
-        return "999."
-                + boleto.getContaCobranca().getCodCedente().substring(0, 3) + "."
-                + boleto.getContaCobranca().getCodCedente().substring(3, 6) + "."
-                + boleto.getContaCobranca().getCodCedente().substring(6) + "-"
-                + this.moduloOnze(boleto.getContaCobranca().getCodCedente());
+        return boleto.getContaCobranca().getCodigoSindical().substring(0, 3) + "."
+                + boleto.getContaCobranca().getCodigoSindical().substring(3, 6) + "."
+                + boleto.getContaCobranca().getCodigoSindical().substring(6, 9) + "."
+                + boleto.getContaCobranca().getCodigoSindical().substring(9) + "-"
+                + this.moduloOnze(boleto.getContaCobranca().getCodigoSindical());
     }
 
     @Override
@@ -172,7 +261,6 @@ public class CaixaFederalSindical extends Cobranca {
     public File gerarRemessa240() {
 
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -280,6 +368,10 @@ public class CaixaFederalSindical extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
+
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -319,6 +411,10 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 21.1 Data de Gravação Remessa 192 199 9(008) Preencher com a data da gravação do arquivo, no formato DDMMAAAA (Dia, Mês e Ano) G068
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito Filler 200 207 9(008) Preencher com zeros C003 
             CONTEUDO_REMESSA += "                                 "; // 23.1 CNAB Filler 208 240 X(033) Preencher com espaços G004
+
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
 
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
@@ -399,6 +495,10 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Uso Exclusivo CAIXA Filler 230 239 9(010) Preencher com zeros -
                 CONTEUDO_REMESSA += "2"; // 42.3P CNAB Filler 240 240 X(001) Preencher com espaços G004
 
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
+
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
 
@@ -474,6 +574,10 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - cod_sindical.length()) + cod_sindical; // 24.3Q Código Sindical Código sindical da Entidade Sindical 217 221 5 - Num  C106
                 CONTEUDO_REMESSA += "                   "; // 25.3Q  CNAB Uso Exclusivo FEBRABAN/ CNAB Uso Exclusivo FEBRABAN/CNAB  222 240 19 Alfa Brancos G004 *G006 
 
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
+
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -503,6 +607,10 @@ public class CaixaFederalSindical extends Cobranca {
                 CONTEUDO_REMESSA += "2"; // 14.3Y Tipo de Valor Tipo de Valor Informado 40 40 1  Num  C08
                 CONTEUDO_REMESSA += "000000000000100"; // 15.3Y Valor Mínimo/Percentual Valor Mínimo 41 55 13 2 Num  C082 
                 CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
+
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
 
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
@@ -550,6 +658,10 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += "                               "; // 12.5 CNAB Filler 93 123 X(031) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                     "; // 13.5 CNAB Filler 124 240 X(117) G004
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
+
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -567,6 +679,10 @@ public class CaixaFederalSindical extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24 29 9(006) Informar o Número do total de registros enviados no arquivo; trata-se da somatória dos registros de tipo 0, 1, 3, 5 e 9 G056
             CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004
+
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
 
             buff_writer.write(CONTEUDO_REMESSA);
             buff_writer.flush();

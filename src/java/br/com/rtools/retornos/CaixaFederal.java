@@ -83,6 +83,9 @@ public class CaixaFederal extends ArquivoRetorno {
                                 case "06":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "09":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
+                                    break;
                                 case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
                                     i = i + 2;
                                     continue;
@@ -191,6 +194,9 @@ public class CaixaFederal extends ArquivoRetorno {
                                 case "06":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "09":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
+                                    break;                                    
                                 case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
                                     i = i + 2;
                                     continue;
@@ -288,6 +294,9 @@ public class CaixaFederal extends ArquivoRetorno {
                                 case "06":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "09":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
+                                    break;                                    
                                 case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
                                     i = i + 2;
                                     continue;

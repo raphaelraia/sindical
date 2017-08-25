@@ -49,7 +49,7 @@ public class Boleto implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_status_retorno")
     private Date dtStatusRetorno;
-
+    
     public Boleto() {
         this.id = -1;
         this.contaCobranca = new ContaCobranca();

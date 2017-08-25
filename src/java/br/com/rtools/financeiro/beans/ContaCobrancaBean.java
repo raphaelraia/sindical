@@ -120,6 +120,33 @@ public class ContaCobrancaBean {
             return null;
         }
 
+        // SE FOR SINDICAL
+        if (contaCobranca.getLayout().getId() == 2) {
+            // REMESSA - WEB SERVICE
+            if (contaCobranca.getCobrancaRegistrada().getId() == 1 || contaCobranca.getCobrancaRegistrada().getId() == 2) {
+                if (contaCobranca.getCodigoSindical().length() != 14) {
+                    GenericaMensagem.error("Atenção", "Código Sindical deve conter 14 digitos!");
+                    return null;
+                }
+
+
+                if (contaCobranca.getCodCedente().length() != 6) {
+                    GenericaMensagem.error("Atenção", "Código Cedente deve conter 6 digitos!");
+                    return null;
+                }
+
+                if (contaCobranca.getBoletoInicial().length() != 17) {
+                    GenericaMensagem.error("Atenção", "Boleto Inicial deve conter 17 digitos!");
+                    return null;
+                }
+
+                if (!contaCobranca.getBoletoInicial().substring(0, 2).equals("14")) {
+                    GenericaMensagem.error("Atenção", "Boleto Inicial deve começar com 14!");
+                    return null;
+                }
+            }
+        }
+
         NovoLog log = new NovoLog();
         if (contaCobranca.getId() == -1) {
             if (db.idContaCobranca(contaCobranca) != null) {
@@ -238,7 +265,7 @@ public class ContaCobrancaBean {
                 idLayout = i;
             }
         }
-        
+
         loadListaCobrancaRegistrada();
         for (int i = 0; i < listaCobrancaRegistrada.size(); i++) {
             if (Integer.valueOf(listaCobrancaRegistrada.get(i).getDescription()) == contaCobranca.getCobrancaRegistrada().getId()) {
@@ -258,12 +285,12 @@ public class ContaCobrancaBean {
     }
 
     public String preencheSicasECodSindical() {
-        if (contaCobranca.getCodCedente().length() >= 5) {
-            sicas = contaCobranca.getCodCedente().substring(contaCobranca.getCodCedente().length() - 5, contaCobranca.getCodCedente().length());
+        if (codigoCedente.length() >= 5) {
+            sicas = codigoCedente.substring(codigoCedente.length() - 5, codigoCedente.length());
         } else {
             sicas = "";
         }
-        codigoCedente = contaCobranca.getCodCedente();
+        //codigoCedente = contaCobranca.getCodCedente();
         return null;
     }
 

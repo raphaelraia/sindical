@@ -318,6 +318,9 @@ public class BancoDoBrasil extends Cobranca {
 
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
 
@@ -357,6 +360,9 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito 2002078- Numérico C003
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN/CNAB 20824033- Alfanumérico Brancos G004 Informar 'brancos' (espaços).
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -436,6 +442,9 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Nº do Contrato da Operação de Créd. 23023910-  Numérico  C030
                 CONTEUDO_REMESSA += " "; // 42.3P Uso Exclusivo FEBRABAN/CNAB 2402401-  Alfanumérico Brancos G004 Informar 'brancos' (espaços). 
 
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -498,6 +507,9 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "                    "; // 21.3Q Nosso Nº no Banco Correspondente 213 23220- Alfanumérico  C032 Campo não tratado. Preencher com 'brancos'. 
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB 233 2408- Alfanumérico Brancos G004 Informar 'brancos' (espaços).
 
+                if (CONTEUDO_REMESSA.length() != 240) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -536,6 +548,10 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros do Lote 18236 - Numérico G057 Total de linhas do lote (inclui Header de lote, Registros e  Trailer de lote).
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                         "; // 06.5 Uso Exclusivo FEBRABAN/CNAB 24240217 - Alfanumérico Brancos G004 Informar Zeros e 'brancos'.
 
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
+
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             CONTEUDO_REMESSA = "";
@@ -555,7 +571,9 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "      "; // 07.9 Qtde de Contas p/ Conc. (Lotes) 30356- Numérico 
 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB 36240205- Alfanumérico Brancos G004
-
+            if (CONTEUDO_REMESSA.length() != 240) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
             buff_writer.flush();
@@ -584,7 +602,6 @@ public class BancoDoBrasil extends Cobranca {
     @Override
     public File gerarRemessa400() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         try {
@@ -678,6 +695,9 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial do Registro:”000001”
             sequencial_registro++;
 
+            if (CONTEUDO_REMESSA.length() != 400) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             //buff_writer.newLine();
 
@@ -798,6 +818,10 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += " "; // 394 a 394 X(001) Complemento do Registro: “Brancos”
                 CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial de Registro
                 sequencial_registro++;
+
+                if (CONTEUDO_REMESSA.length() != 400) {
+                    return null;
+                }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 //buff_writer.newLine();
 
@@ -823,6 +847,9 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                                                                                                                                                                                                         "; // 002 a 394 X(393) Complemento do Registro: “Brancos”
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Número Seqüencial do Registro no Arquivo 
 
+            if (CONTEUDO_REMESSA.length() != 400) {
+                return null;
+            }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             buff_writer.write("");
             buff_writer.flush();

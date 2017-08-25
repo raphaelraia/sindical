@@ -949,9 +949,7 @@ public class FinanceiroDao extends DB {
                     + "   FROM " + view + " \n "
                     + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "')  \n "
                     + "  GROUP BY  \n "
-                    + //"       id_fin_lote, " +
-                    //"       id_fin_movimento, " +
-                    "       nr_ctr_boleto,  \n "
+                    + "       nr_ctr_boleto,  \n "
                     + "       id_lote_boleto,  \n "
                     + "       processamento,  \n "
                     + "       codigo, \n "
@@ -960,8 +958,7 @@ public class FinanceiroDao extends DB {
                     + "       matricula, \n "
                     + "       grupo_categoria, \n "
                     + "       categoria, \n "
-                    + //"       servico," +
-                    "       codigo_titular, \n "
+                    + "       codigo_titular, \n "
                     + "       nome_titular, \n "
                     + "       mensalidades_corrigidas, \n "
                     + "       mensagem_boleto, \n "

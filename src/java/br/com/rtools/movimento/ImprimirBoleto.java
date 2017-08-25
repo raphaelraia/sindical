@@ -161,6 +161,7 @@ public class ImprimirBoleto implements Serializable {
 
             case 2:
             // CONTINUA PARA O REGISTRO VIA WEB SERVICE
+                break;
             case 3:
                 // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
                 hash.put("boleto", boleto);
@@ -817,7 +818,8 @@ public class ImprimirBoleto implements Serializable {
                     dao.rollback();
                 }
             } else {
-                Movimento mov = new Movimento(-1,
+                Movimento mov = new Movimento(
+                        -1,
                         null,
                         scc.getServicos().getPlano5(),
                         lista.get(i).getPessoa(),
@@ -2761,6 +2763,12 @@ public class ImprimirBoleto implements Serializable {
                         contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
                     }
                 }
+                
+                if (lista_socio.isEmpty()){
+                    GenericaMensagem.warn("Atenção", "Lista não encontrada. CTR_BOLETO:. " + boleto.getNrCtrBoleto() + " VIEW:. " + view);
+                    return new byte[0];
+                }
+                
                 Cobranca cobranca = null;
                 // SOMA VALOR DAS ATRASADAS
                 double valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;
@@ -2938,15 +2946,26 @@ public class ImprimirBoleto implements Serializable {
             Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
             List listImpressao = new ArrayList();
             Boolean e_fisica = tipo.equals("fisica");
-            Movimento m;
+            
             for (Integer i = 0; i < result.size(); i++) {
                 List linha = (List) result.get(i);
                 String valor = "0,00";
                 if (e_fisica) {
                     valor = Moeda.converteR$Double(Moeda.converteUS$(linha.get(14).toString()));
                 } else {
-                    m = (Movimento) movimentoDao.findByNrCtrBoletoTitular(linha.get(2).toString(), Integer.parseInt(linha.get(41).toString()));
-                    valor = m.getValorString();
+                    Boleto b = movimentoDao.pesquisaBoletos(linha.get(2).toString());
+                    List<Movimento> lm = b.getListaMovimento();
+                    Double valor_s = new Double(0);
+                    for (Movimento mx : lm){
+                        valor_s = Moeda.soma(valor_s, mx.getValor());
+                    }
+                    //m = (Movimento) movimentoDao.findByNrCtrBoletoTitular(linha.get(2).toString(), Integer.parseInt(linha.get(41).toString()));
+                    //if (m == null){
+                    //    i++;
+                    //    continue;
+                    //}
+                    //valor = m.getValorString();
+                    valor = Moeda.converteR$Double(valor_s);
                 }
                 try {
                     if (novo_boleto) {

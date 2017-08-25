@@ -230,6 +230,14 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         Movimento movim = null;
         MovimentoDao finDB = new MovimentoDao();
 
+        // VALIDA ACORDO
+        List<Movimento> lm_acordado = finDB.listaMovimentoAcordado(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
+        
+        if(!lm_acordado.isEmpty()){
+            GenericaMensagem.error("Atenção", "Esta referência já foi acordada!");
+            return null;
+        }
+        
         List<Movimento> lm = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
 
         if (!lm.isEmpty() && lm.size() > 1) {
