@@ -377,12 +377,12 @@
                                                     <p:commandLink ajax="false" value="Ir para cadastro completo" action="#{chamadaPaginaBean.pessoaJuridica()}" style="margin-left: 20px"/>
                                                     <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA FÍSICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('fisica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
                                                 </h:panelGrid><br />
-                                                <h:panelGrid columns="4">
+                                                <h:panelGrid columns="4" id="i_nome_empresa_2">
                                                     <p:inputText id="i_nome_empresa" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50" converter="#{toUpperCase}">
-                                                        <p:ajax event="change" update="@this" listener="#{pessoaSugestaoBean.sugerirPessoaJuridica(lancamentoFinanceiroBean.pessoa)}"/>
+                                                        <p:ajax event="change" update="@this i_nome_empresa_2" listener="#{pessoaSugestaoBean.sugerirPessoaJuridica(lancamentoFinanceiroBean.pessoa)}"/>
                                                     </p:inputText>
                                                     <p:watermark value="Nome da Empresa" for="i_nome_empresa"/>
-                                                    <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
+                                                    <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" disabled="#{empty lancamentoFinanceiroBean.pessoa.nome}"/>
                                                     <p:commandButton action="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_pessoa i_panel_cadastro" icon="ui-icon-close" />  
                                                 </h:panelGrid>
                                             </h:column>

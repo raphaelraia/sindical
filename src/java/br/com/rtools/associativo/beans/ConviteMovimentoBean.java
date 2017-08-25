@@ -300,6 +300,7 @@ public class ConviteMovimentoBean implements Serializable {
             GenericaMensagem.warn("ATENÇÃO", "INFORMAR DATA DE NASCIMENTO DO CONVIDADO!");
             return false;
         }
+
         return true;
     }
 

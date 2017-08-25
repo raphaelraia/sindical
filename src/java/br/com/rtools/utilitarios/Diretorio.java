@@ -103,6 +103,10 @@ public class Diretorio {
         String caminho = "";
         try {
             caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/" + diretorio);
+            File files = new File(caminho);
+            if (!files.exists()) {
+                caminho = "";
+            }
         } catch (Exception ef) {
         }
         if (caminho == null || caminho.isEmpty()) {
@@ -131,7 +135,21 @@ public class Diretorio {
 
     public static List<MemoryFile> listMemoryFiles(String path) {
         List<MemoryFile> listaArquivos = new ArrayList<>();
-        String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/" + path);
+        String caminho = "";
+        try {
+            caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/" + path);
+            File files = new File(caminho);
+            if (!files.exists()) {
+                caminho = "";
+            }
+        } catch (Exception ef) {
+        }
+        if (caminho == null || caminho.isEmpty()) {
+            try {
+                caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + getCliente().toLowerCase() + "/" + path;
+            } catch (Exception ef2) {
+            }
+        }
         try {
             File files = new File(caminho);
             if (!files.exists()) {

@@ -103,6 +103,9 @@
                                                     <p:column width="30" styleClass="text-center">
                                                         <p:commandButton action="#{modeloCarteirinhaBean.deleteModeloCarteirinha(modeloCarteirinha)}" update=":formModeloCarteirinha" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}"/>
                                                     </p:column>
+                                                    <p:column width="30" styleClass="text-center">
+                                                        <p:commandButton action="#{modeloCarteirinhaBean.printModel(modeloCarteirinha)}" icon="ui-icon-print" ajax="false"/>  
+                                                    </p:column>
                                                     <p:rowExpansion>
                                                         <p:panel styleClass="margin-top-max" id="i_panel_xxxx_#{index+1}">
                                                             <p:messages showDetail="true" closable="true" id="i_msg_mcc_#{index+1}" autoUpdate="true"/>

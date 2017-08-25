@@ -91,16 +91,16 @@ public class JuridicaReceitaJSON {
                     // 2235824594887334ABV16325666555
                     cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
                     if (cc == null) {
-                        url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + "");
+                        url = new URL("http://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + "");
                     } else {
                         if (cc.getDias() == 0) {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
+                            url = new URL("http://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
                         } else {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken());
+                            url = new URL("http://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken());
                         }
                     }
                     con = (HttpURLConnection) url.openConnection();
-                    con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
+                    con.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36");
                     con.setRequestMethod("GET");
                     con.connect();
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
@@ -142,7 +142,9 @@ public class JuridicaReceitaJSON {
                             cnaeAtividadePrincipal = atividade_principal.getString("text") + " (" + atividade_principal.getString("code") + ")";
                             list_cnae.add(atividade_principal.getString("code").replace(".", "").replace("-", ""));
                         } catch (JSONException e) {
-
+                            if (GenericaSessao.exists("habilitaLog")) {
+                                GenericaMensagem.warn("JSONException", e.getMessage());
+                            }
                         }
                         String cnaeAtividadeSecundaria = "";
                         try {
@@ -154,11 +156,16 @@ public class JuridicaReceitaJSON {
                                     cnaeAtividadeSecundaria += as.getString("text") + " (" + as.getString("code") + ") ";
                                     list_cnae_sec.add(as.getString("code"));
                                 } catch (Exception e) {
+                                    if (GenericaSessao.exists("habilitaLog")) {
+                                        GenericaMensagem.warn("JSONException", e.getMessage());
+                                    }
                                     break;
                                 }
                             }
                         } catch (JSONException e) {
-
+                            if (GenericaSessao.exists("habilitaLog")) {
+                                GenericaMensagem.warn("JSONException", e.getMessage());
+                            }
                         }
 
                         jro = new JuridicaReceitaObject(
@@ -548,7 +555,9 @@ public class JuridicaReceitaJSON {
 
             return jro;
         } catch (IOException | JSONException e) {
-            e.getMessage();
+            if (GenericaSessao.exists("habilitaLog")) {
+                GenericaMensagem.warn("JSONException", e.getMessage());
+            }
         }
         return null;
     }

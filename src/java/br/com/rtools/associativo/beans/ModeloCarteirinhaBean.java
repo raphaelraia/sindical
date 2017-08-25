@@ -6,14 +6,20 @@ import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
 import br.com.rtools.associativo.dao.ModeloCarteirinhaCategoriaDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.lista.ListModeloCarterinhaCategoria;
+import br.com.rtools.impressao.CartaoSocial;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import static br.com.rtools.utilitarios.ImpressaoParaSocios.getConverteNullString;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +32,10 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
@@ -348,6 +358,149 @@ public class ModeloCarteirinhaBean {
                 modeloCarteirinha.setFoto(uuid + "." + extension);
                 new Dao().update(modeloCarteirinha, true);
             };
+        }
+    }
+
+    public void printModel(ModeloCarteirinha modeloCarteirinha) {
+
+        String logoCartao = "";
+        File file_img = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao.jpg"));
+        String caminho_img = "";
+
+        if (file_img.exists()) {
+            caminho_img = file_img.getPath();
+        }
+        String assinatura = "";
+        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
+        if (f.exists()) {
+            assinatura = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
+        }
+        String cartaoVerso = "";
+        File fileCartaoVerso = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg"));
+        if (fileCartaoVerso.exists()) {
+            cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg");
+        }
+        try {
+            if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png")).exists()) {
+                logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+            }
+        } catch (Exception e) {
+
+        }
+        try {
+            if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png")).exists()) {
+                logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png");
+            }
+        } catch (Exception e) {
+
+        }
+        String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+        File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/images/.png");
+
+        for (String imagensTipo1 : imagensTipo) {
+            File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/user_undefined.png"));
+            if (test.exists()) {
+                foto_cartao = test;
+                break;
+            }
+        }
+        Collection list = new ArrayList();
+        list.add(
+                new CartaoSocial(
+                        "0", //                                                         CODIGO
+                        "000000000000", //                                                       BARRAS 
+                        "NOME", //  NOME
+                        "EMPRESA", //  EMPRESA
+                        "00.000.000/0000-00", //  CNPJ
+                        "01/01/1900", //  DATA ADMISSAO
+                        "01/01/1900", //  DATA VALIDADE
+                        "CIDADE", //  CIDADE
+                        "UF", //  UF
+                        logoCartao, // LOGO
+                        foto_cartao.getAbsolutePath(), // CAMINHO FOTO
+                        "01/01/1900", // FILIAÇÃO
+                        "PROFISSAO", // PROFISSÃO
+                        "000.000.000-00", // CPF
+                        "00.000.000-X", // RG
+                        1, //    ID_PESSOA
+                        "DESCRICAO DO ENDEREO", //                                                     ENDERECO
+                        "CIDADE", //                                                    CIDADE
+                        "BRASILEIRO", // NACIONALIDADE
+                        "01/01/1900", // NASCIMENTO
+                        "SOLTEIRO", // ESTADO CIVIL
+                        "000000", // CARTEIRA
+                        "001", // SERIE
+                        caminho_img, //                                                  IMAGEM FUNDO
+                        "", //                                              CÓDIGO FUNCIONAL
+                        "SSP", // ÓRGÃO EXPEDITOR
+                        "PARENTESCO", // PARENTESCO
+                        "CATEGORIA", // CATEGORIA
+                        "SP", //  FANTASIA
+                        "TITULAR NOME", //                                                      TITULAR
+                        "DEPENDENTE NOME", //                                                   DEPENDENTE
+                        "FANTASIA EMPRESA - TITULAR", // FANTASIA EMPRESA - TITULAR
+                        "002", //  CÓDIGO FUNCIONAL - TITULAR
+                        1, // TITULAR ID
+                        "GRUPO CATEGORIA", // GRUPO CATEGORIA
+                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
+                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
+                        (!("01/01/1900").isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
+                        "0",
+                        new ArrayList(),
+                        assinatura,
+                        cartaoVerso,
+                        new ArrayList(),
+                        new ArrayList()
+                )
+        );
+        try {
+            Diretorio.criar("downloads/carteirinhas");
+            List ljasper = new ArrayList();
+            JasperReport jasper;
+            JasperReport jasperVerso;
+            String subreport = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/DEPENDENTES.jasper");
+
+            Map map = new HashMap();
+        
+            String mimeType = "application/pdf";
+
+            String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + modeloCarteirinha.getJasper());
+            if (caminho == null) {
+                GenericaMensagem.error("Erro jasper: " + modeloCarteirinha.getJasper(), "Modelo não encontrado na pasta Relatório!");
+            }
+
+            File file = new File(
+                    ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + modeloCarteirinha.getJasper())
+            );
+            //* ADD LISTA DE JASPERS *//
+            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(list);
+            jasper = (JasperReport) JRLoader.loadObject(file);
+            if (subreport != null) {
+                map.put("template_dir", subreport);
+            }
+
+            ljasper.add(Jasper.fillObject(jasper, map, dtSource));
+            try {
+                File fileVerso = new File(
+                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/CARTAO_VERSO.jasper")
+                );
+                if (fileVerso.exists()) {
+                    //* ADD LISTA DE JASPERS *//
+                    dtSource = new JRBeanCollectionDataSource(list);
+                    jasperVerso = (JasperReport) JRLoader.loadObject(fileVerso);
+                    ljasper.add(Jasper.fillObject(jasperVerso, map, dtSource));
+                }
+            } catch (JRException ev) {
+                GenericaMensagem.warn("Erro", "Ao imprimir verso do cartão! " + ev.getMessage());
+                return;
+            }
+
+            Jasper.load();
+            Jasper.PART_NAME = "";
+            Jasper.PATH = "downloads";
+            Jasper.printReports("cartao_social", ljasper);
+        } catch (JRException e) {
+
         }
     }
 }

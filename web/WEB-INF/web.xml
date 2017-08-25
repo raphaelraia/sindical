@@ -103,5 +103,16 @@
         <exception-type>javax.faces.application.ViewExpiredException</exception-type>
         <location>/login</location>
     </error-page>   
+    <!--  
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Sindical</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+    -->
         
 </web-app>

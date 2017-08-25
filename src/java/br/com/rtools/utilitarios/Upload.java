@@ -202,7 +202,7 @@ public class Upload implements Serializable {
         }
         String diretorio = "";
         if (cu.isResourceFolder()) {
-            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + cliente + "/" + cu.getDiretorio();
+            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + cliente.toLowerCase() + "/" + cu.getDiretorio();
         } else {
             diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + cliente + "/" + cu.getDiretorio());
         }
