@@ -86,6 +86,10 @@ public class Sicoob400 extends ArquivoRetorno {
                                 case "06": // BOLETO LIQUIDADO COM REGISTRO
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "09": // 09 - BAIXA EXECUTADA DIRETO PELO BANCO (BOLETO EXCLUIDO)
+                                case "10": // 10 - BAIXA EXECUTADA PELO CLIENTE (BOLETO EXCLUIDO)
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6);
+                                    break;
                                 default:
                                     sr = null;
                                     break;

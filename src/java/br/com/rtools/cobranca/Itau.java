@@ -197,7 +197,10 @@ public class Itau extends Cobranca {
     @Override
     public String getNossoNumeroFormatado() {
         return boleto.getContaCobranca().getCarteira() + "/" + boleto.getBoletoComposto() + "-"
-                + this.moduloDez(boleto.getContaCobranca().getCarteira() + boleto.getBoletoComposto());
+                + this.moduloDez(boleto.getBoletoComposto()
+                        + boleto.getContaCobranca().getCodCedente()
+                        + boleto.getContaCobranca().getCarteira()
+                        + boleto.getContaCobranca().getContaBanco().getAgencia());
     }
 
     @Override
@@ -294,7 +297,7 @@ public class Itau extends Cobranca {
             CONTEUDO_REMESSA += agencia; // AGÊNCIA MANTENEDORA DA CONTA 027   030 9(04)
             CONTEUDO_REMESSA += "00"; // COMPLEMENTO DE REGISTRO 031   032 9(02) 00
             CONTEUDO_REMESSA += "00000".substring(0, 5 - codigo_cedente.length()) + codigo_cedente; // NÚMERO DA CONTA CORRENTE DA EMPRESA 033   037 9(05)
-            CONTEUDO_REMESSA += moduloOnze(agencia); // DÍGITO DE AUTO CONFERÊNCIA AG/CONTA EMPRESA 038   038 9(01)
+            CONTEUDO_REMESSA += moduloDez(agencia + codigo_cedente); // DÍGITO DE AUTO CONFERÊNCIA AG/CONTA EMPRESA 038   038 9(01)
             CONTEUDO_REMESSA += "        "; // COMPLEMENTO DO REGISTRO  039   046 X(08) 
 
             CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // NOME POR EXTENSO DA "EMPRESA MÃE"  047   076 X(30)
@@ -336,7 +339,7 @@ public class Itau extends Cobranca {
                 CONTEUDO_REMESSA += "00"; // ZEROS COMPLEMENTO DE REGISTRO 022   023 9(02) “00”
 
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - codigo_cedente.length()) + codigo_cedente; // CONTA NÚMERO DA CONTA CORRENTE DA EMPRESA 024   028 9(05)
-                CONTEUDO_REMESSA += moduloOnze(agencia); // DAC DÍGITO DE AUTO CONFERÊNCIA AG/CONTA EMPRESA 029   029 9(01)
+                CONTEUDO_REMESSA += moduloDez(agencia + codigo_cedente); // DAC DÍGITO DE AUTO CONFERÊNCIA AG/CONTA EMPRESA 029   029 9(01)
                 CONTEUDO_REMESSA += "    "; // BRANCOS COMPLEMENTO DE REGISTRO 030   033 X(04) 
                 CONTEUDO_REMESSA += "0000"; // INSTRUÇÃO/ALEGAÇÃO CÓD.INSTRUÇÃO/ALEGAÇÃO A SER CANCELADA 034   037 9(04) NOTA 27
 
@@ -359,15 +362,21 @@ public class Itau extends Cobranca {
                     valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
                 }
 
-                String valor_titulo = Moeda.converteR$Double(valor_titulo_double).replace(".", "").replace(",", "");
-
+                String valor_titulo;
+                // FIXAR VALOR 0,01 CASO FOR MENOR QUE 0,01
+                if (valor_titulo_double < 1) {
+                    valor_titulo = "1";
+                } else {
+                    valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");
+                }
+                
                 CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - valor_titulo.length()) + valor_titulo; // VALOR DO TÍTULO  VALOR NOMINAL DO TÍTULO 127   139 9(11)V9(2) NOTA 8 
 
                 CONTEUDO_REMESSA += "341"; // CÓDIGO DO BANCO   Nº DO BANCO NA CÂMARA DE COMPENSAÇÃO  140   142  9(03) 341 
                 CONTEUDO_REMESSA += "00000"; // AGÊNCIA COBRADORA AGÊNCIA ONDE O TÍTULO SERÁ COBRADO 143   147 9(05) NOTA 9 
 
                 CONTEUDO_REMESSA += "18"; // ESPÉCIE  ESPÉCIE DO TÍTULO 148   149  X(02) NOTA 10
-                
+
                 String aceite = bol.getContaCobranca().getAceite().equals("N") ? bol.getContaCobranca().getAceite() : "A";
                 CONTEUDO_REMESSA += aceite; // ACEITE  IDENTIFICAÇÃO DE TÍTULO ACEITO OU NÃO ACEITO 150   150 X(01) A=ACEITE  N=NÃO ACEITE 
 

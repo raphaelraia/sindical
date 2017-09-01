@@ -88,6 +88,10 @@ public abstract class ArquivoRetorno {
         if (sr != null) {
             Boleto bol = m.getBoleto();
 
+            if (bol == null){
+                return "BOLETO NÃO PODE SER ENCONTRADO!";
+            }
+            
             bol.setStatusRetorno(sr);
             bol.setDtStatusRetorno(DataHoje.dataHoje());
 
@@ -127,7 +131,7 @@ public abstract class ArquivoRetorno {
 //                    }
 
 //                    return "Boleto Excluído";
-                    return "Boleto Baixado no Banco";
+                    return "Boleto Baixado(excluído) pelo Banco";
                 default:
                     return "Status do Retorno não encontrado, verificar manual";
             }
@@ -137,6 +141,7 @@ public abstract class ArquivoRetorno {
 
     public String continuaBaixaSoc(Boleto b, StatusRetorno sr) {
         if (sr != null) {
+            
             b.setStatusRetorno(sr);
             b.setDtStatusRetorno(DataHoje.dataHoje());
 
@@ -194,12 +199,12 @@ public abstract class ArquivoRetorno {
 //                    dao.commit();
 //                    
 //                    return "Boleto Excluído";
-                    return "Boleto Baixado no Banco";
+                    return "Boleto Baixado(excluído) pelo Banco";
                 default:
                     return "Status do Retorno não encontrado, verificar manual";
             }
         }
-        
+
         return "Status do Retorno não encontrado, verificar manual";
     }
 
@@ -578,18 +583,32 @@ public abstract class ArquivoRetorno {
 
                             lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
                         } else {
+                            String detalhe = "";
+
+                            String retorno_continua = continuaBaixaArr(movimento.get(0), listaParametros.get(u).getStatusRetorno());
+
+                            if (!retorno_continua.isEmpty()) {
+                                detalhe = retorno_continua;
+                            }
+
                             String xt = "";
 
                             for (Movimento m : movimento) {
                                 if (xt.isEmpty()) {
-                                    xt = "||BOLETO - DUPLICADO||";
+                                    xt = "<b>||BOLETO - DUPLICADO||</b>";
                                 }
                                 xt += "</br></br>";
                                 xt += "ID Movimento: " + m.getId() + " </br> ";
                                 xt += "Data de Vencimento: " + m.getVencimento();
                             }
+                            
+                            if (!detalhe.isEmpty()) {
+                                detalhe += "</br></br>" + xt;
+                            } else {
+                                detalhe = xt;
+                            }
 
-                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 7, xt));
+                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 7, detalhe));
                         }
                     } else {
                         String xt = "Boleto não Encontrado - " + listaParametros.get(u).getNossoNumero()

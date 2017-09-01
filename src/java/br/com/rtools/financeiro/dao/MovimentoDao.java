@@ -1713,6 +1713,7 @@ public class MovimentoDao extends DB {
                     + "                  length('000000000000000'||bol.ds_boleto))"
                     + "    and mov.is_ativo is true "
                     + "    and mov.id_baixa is null "
+                    + "    AND mov.nr_ctr_boleto IS NOT NULL AND mov.nr_ctr_boleto <> '' " // nova verificação 30/08/2017
                     + "    and bol.id_conta_cobranca = " + idContaCobranca;
             Query qry = getEntityManager().createNativeQuery(textQuery);
             vetor = qry.getResultList();
@@ -1739,6 +1740,8 @@ public class MovimentoDao extends DB {
                 + " INNER JOIN fin_boleto b ON b.nr_ctr_boleto = m.nr_ctr_boleto \n "
                 + " WHERE m.id_baixa IS NULL \n "
                 + "   AND m.is_ativo = TRUE \n "
+                + "   AND m.nr_ctr_boleto IS NOT NULL \n "
+                + "   AND m.nr_ctr_boleto <> '' \n "
                 + "   AND SUBSTRING('000000000000000'||'" + numero + "', LENGTH('000000000000000'||'" + numero + "') - 16, LENGTH('000000000000000'||'" + numero + "')) \n"
                 + "                = \n"
                 + "       SUBSTRING('000000000000000'||b.ds_boleto, LENGTH('000000000000000'||b.ds_boleto) - 16, LENGTH('000000000000000'||b.ds_boleto))";
@@ -1779,6 +1782,7 @@ public class MovimentoDao extends DB {
                     + "                  length('000000000000000'||bol.ds_boleto))"
                     + "    and mov.is_ativo is true "
                     + "    and mov.id_baixa is not null "
+                    + "    AND mov.nr_ctr_boleto IS NOT NULL AND mov.nr_ctr_boleto <> '' " // nova linha de verificação 30/08/2017
                     + "    and mov.id_servicos IN (select id_servicos from fin_servico_rotina where id_rotina = 4) "
                     + "    and bol.id_conta_cobranca = " + idContaCobranca;
             Query qry = getEntityManager().createNativeQuery(textQuery);
@@ -1842,6 +1846,7 @@ public class MovimentoDao extends DB {
                     + "                  length('000000000000000'||bol.ds_boleto))"
                     + "    and mov.is_ativo is true "
                     + "    and mov.id_baixa is not null "
+                    + "    AND mov.nr_ctr_boleto IS NOT NULL AND mov.nr_ctr_boleto <> '' "
                     + "    and mov.id_servicos NOT IN (select id_servicos from fin_servico_rotina where id_rotina = 4) "
                     + "    and bol.id_conta_cobranca = " + idContaCobranca;
             Query qry = getEntityManager().createNativeQuery(textQuery);
@@ -1873,6 +1878,7 @@ public class MovimentoDao extends DB {
                     + "                  length('000000000000000'||bol.ds_boleto))"
                     + "    and mov.is_ativo is true "
                     + "    and mov.id_baixa is null "
+                    + "    AND mov.nr_ctr_boleto IS NOT NULL AND mov.nr_ctr_boleto <> '' "
                     + "    and mov.id_servicos NOT IN (select id_servicos from fin_servico_rotina where id_rotina = 4) "
                     + "    and bol.id_conta_cobranca = " + idContaCobranca;
             Query qry = getEntityManager().createNativeQuery(textQuery);
@@ -1900,6 +1906,7 @@ public class MovimentoDao extends DB {
                     + "  inner join fin_boleto bol on (mov.nr_ctr_boleto = bol.nr_ctr_boleto) "
                     + " where ba.ds_documento_baixa = '" + numero + "'"
                     + "   and mov.is_ativo is true     "
+                    + "   AND mov.nr_ctr_boleto IS NOT NULL AND mov.nr_ctr_boleto <> ''" // nova linha de verificação 30/08/2017
                     + "   and bol.id_conta_cobranca = " + idContaCobranca;
             Query qry = getEntityManager().createNativeQuery(textQuery);
             vetor = qry.getResultList();
@@ -1913,48 +1920,7 @@ public class MovimentoDao extends DB {
             return listMov;
         }
     }
-// NOVA PESQUISA POR NUM BOLETO ----------------------------
-//    
-//    
-//    public List<Movimento> pesquisaMovPorNumDocumentoListBaixado(String numero, int idContaCobranca){
-//        List<Movimento> listMov = new ArrayList();
-//        String textQuery = "";
-//        try{
-//            textQuery = "select m from Movimento m, Boleto b "+
-//                        " where m.nrCtrBoleto = b.nrCtrBoleto "+
-//                        "   and m.baixa is not null "+
-//                        //"   and m.ativo is true "+
-//                        "   and b.boletoComposto = '"+numero+"'"+
-//                        "   and b.contaCobranca.id = "+idContaCobranca;
-//            Query qry = getEntityManager().createQuery(textQuery);
-//            listMov = qry.getResultList();
-//            return listMov;
-//        }catch(EJBQLException e){
-//            e.printStackTrace();
-//            return listMov;
-//        }
-//    }
-//    
-//    
-//    public List<Movimento> pesquisaMovPorNumDocumentoList(String numero, int idContaCobranca){
-//        List<Movimento> listMov = new ArrayList();
-//        String textQuery = "";
-//        try{
-//            textQuery = "select m from Movimento m, Boleto b "+
-//                        " where m.nrCtrBoleto = b.nrCtrBoleto "+
-//                        "   and m.baixa is null "+
-//                        //"   and m.ativo is true "+
-//                        "   and b.boletoComposto = '"+numero+"'"+
-//                        "   and b.contaCobranca.id = "+idContaCobranca;
-//            Query qry = getEntityManager().createQuery(textQuery);
-//            listMov = qry.getResultList();
-//            return listMov;
-//        }catch(EJBQLException e){
-//
-//        return listMov;
-//        }
-//    }
-
+    
     public List<Movimento> listaMovimentosDoLote(int idLote) {
         try {
             Query qry = getEntityManager().createQuery(" SELECT MOV FROM Movimento AS MOV WHERE MOV.lote.id = :pLote ORDER BY MOV.dtVencimento ASC, MOV.id ASC");
@@ -2480,6 +2446,7 @@ public class MovimentoDao extends DB {
                     + "   and m.id_servicos = 1 "
                     + "   and m.is_ativo is true"
                     + "   and m.id_baixa is null"
+                    + "   AND m.nr_ctr_boleto IS NOT NULL AND m.nr_ctr_boleto <> ''" // nova verificação 30/08/2017
                     + "   and m.ds_referencia = '" + ref + "'"
                     + "   and b.id_conta_cobranca = " + id_conta_cobranca
                     + "   and m.id_tipo_servico = " + id_tipo_servico;
