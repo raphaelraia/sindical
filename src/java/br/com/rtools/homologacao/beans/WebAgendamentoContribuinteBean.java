@@ -550,6 +550,11 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId());
         if (age != null) {
             GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome());
+            if (configuracaoHomologacao.getWebValidaAgendamento()) {
+                if (age.getDtRecusa1() != null && age.getDtRecusa2() == null && !age.getMotivoRecusa().isEmpty()) {
+                    GenericaMensagem.fatal("Pendências", age.getMotivoRecusa());
+                }
+            }
             dao.rollback();
             return;
         }

@@ -968,7 +968,7 @@ public class RecepcaoBean implements Serializable {
     }
 
     public void loadListHorarios() {
-        listaHorarios.clear();
+        listaHorarios = new ArrayList();
 
         if (macFilial == null) {
             return;

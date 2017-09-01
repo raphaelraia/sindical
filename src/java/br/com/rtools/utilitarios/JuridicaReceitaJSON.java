@@ -69,6 +69,7 @@ public class JuridicaReceitaJSON {
             Integer status;
             Boolean statusBoolean;
             String error;
+            String message = "";
 
             List<String> list_cnae = new ArrayList();
             List<String> list_cnae_sec = new ArrayList();
@@ -114,6 +115,11 @@ public class JuridicaReceitaJSON {
                         JSONObject result = new JSONObject(sb.toString());
                         statusBoolean = result.getBoolean("status");
                         error = result.getString("return");
+                        try {
+                            message = result.getString("message");
+                        } catch (Exception e) {
+
+                        }
                         // ERRO PARA FALTA DE CRÉDITOS
                         if (statusBoolean && !error.equals("OK")) {
                             jro.setStatus(-1);
@@ -129,6 +135,16 @@ public class JuridicaReceitaJSON {
                         if (statusBoolean && !error.equals("OK")) {
                             jro.setStatus(-1);
                             jro.setMsg(error.toUpperCase());
+
+                            in.close();
+                            con.disconnect();
+                            return jro;
+                        }
+
+                        // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
+                        if (!statusBoolean && error.equals("NOK")) {
+                            jro.setStatus(-1);
+                            jro.setMsg(message);
 
                             in.close();
                             con.disconnect();

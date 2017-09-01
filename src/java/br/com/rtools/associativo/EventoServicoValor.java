@@ -41,7 +41,6 @@ public class EventoServicoValor implements java.io.Serializable {
         this.idadeInicial = 0;
         this.idadeFinal = 150;
         this.sexo = "A";
-        this.descontoPrimeiraVenda = new Double(0);
     }
 
     public EventoServicoValor(int id, EventoServico eventoServico, double valor, int idadeInicial, int idadeFinal, String sexo, Double descontoPrimeiraVenda) {
@@ -145,7 +144,7 @@ public class EventoServicoValor implements java.io.Serializable {
         if (Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString) > valor) {
             this.descontoPrimeiraVenda = new Double(0);
         } else {
-            this.descontoPrimeiraVenda = Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString);            
+            this.descontoPrimeiraVenda = Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString);
         }
     }
 

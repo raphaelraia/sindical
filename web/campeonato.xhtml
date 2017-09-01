@@ -36,9 +36,15 @@
                                 <p:column>
                                     <p:panel>
                                         <f:facet name="header">
-                                            <p:selectOneMenu id="idDescricao" value="#{campeonatoBean.idDescricaoEvento}">
-                                                <f:selectItems value="#{campeonatoBean.listDescricaoEvento}"/>
-                                            </p:selectOneMenu>                                            
+                                            <h:panelGrid columns="2" cellspacing="5" id="i_eventos">
+                                                <p:selectOneMenu id="idGrupo" value="#{campeonatoBean.idGrupoEvento}">
+                                                    <p:ajax event="change" update="@this i_eventos" listener="#{campeonatoBean.loadListDescricaoEventos}"/>
+                                                    <f:selectItems value="#{campeonatoBean.listGrupoEvento}"/>
+                                                </p:selectOneMenu>                                            
+                                                <p:selectOneMenu id="idDescricao" value="#{campeonatoBean.idDescricaoEvento}">
+                                                    <f:selectItems value="#{campeonatoBean.listDescricaoEvento}"/>
+                                                </p:selectOneMenu>                                                                                            
+                                            </h:panelGrid>
                                         </f:facet>
                                         <h:panelGrid columns="2" cellspacing="5">
                                             <p:outputLabel value="COMPLEMENTO" styleClass="font-size-10 bold"/>
@@ -71,6 +77,94 @@
                                             </h:panelGrid> 
                                         </f:facet>
                                     </p:panel>
+
+                                    <h:panelGroup layout="block" rendered="#{campeonatoBean.campeonato.id ne null}" id="i_panel_group_servicos">
+                                        <p:panel styleClass="margin-top-max" header="SERVIÇOS">
+
+                                            <h:panelGrid id="i_panel_tipo" columns="9">                                    
+                                                <h:column>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Serviços" />
+                                                        <p:selectOneMenu value="#{campeonatoBean.idServico}" disabled="#{campeonatoBean.eventoServico.id ne -1}">
+                                                            <p:ajax event="change" update="form_campeonato" listener="#{campeonatoBean.updateServicoCategoria()}"/>
+                                                            <f:selectItems value="#{campeonatoBean.listServicos}" />
+                                                        </p:selectOneMenu>
+                                                    </h:panelGrid>
+                                                </h:column>
+
+                                                <h:column rendered="#{campeonatoBean.servicos.id ne 13 and campeonatoBean.servicos.id ne 15}">
+                                                    <h:panelGrid  style="margin-left: 20px">
+                                                        <h:outputLabel value="Valor" />
+                                                        <p:inputText id="i_valor" value="#{campeonatoBean.eventoServicoValor.valorString}" maxlength="15" size="6" title="Valor do Serviço" converter="#{toCurrency}">
+                                                            <p:ajax event="change" update="i_valor" />
+                                                        </p:inputText>
+                                                    </h:panelGrid>
+                                                </h:column>
+
+                                                <h:column rendered="#{campeonatoBean.eventoServicoValor.id eq -1}">
+                                                    <br />
+                                                    <p:selectBooleanCheckbox value="#{campeonatoBean.eventoServico.socio}" itemLabel="Sócio" rendered="#{campeonatoBean.servicos.id ne 13 and campeonatoBean.servicos.id ne 15}" disabled="true">
+                                                        <p:ajax event="change" update="@this i_panel_group_servicos" listener="#{campeonatoBean.loadCategoria()}"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </h:column>
+
+                                                <h:column>                                                    
+                                                    <br />
+                                                    <p:selectBooleanCheckbox value="#{campeonatoBean.eventoServico.responsavel}" itemLabel="Responsável">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:selectBooleanCheckbox>
+                                                </h:column>
+                                                
+                                                <h:column rendered="#{campeonatoBean.eventoServico.socio}">
+                                                    <h:panelGrid style="margin-left: 20px" rendered="#{not empty campeonatoBean.listCategoria or campeonatoBean.eventoServico.id ne -1}">
+                                                        <h:outputLabel value="Categoria" />
+                                                        <p:selectOneMenu value="#{campeonatoBean.idCategoria}" style="padding-right: 20px" rendered="#{campeonatoBean.eventoServicoValor.id eq -1}">
+                                                            <f:selectItems value="#{campeonatoBean.listCategoria}" />
+                                                        </p:selectOneMenu>
+                                                        <h:outputLabel value="#{campeonatoBean.eventoServicoValor.eventoServico.categoria.categoria}"  styleClass="bold"/>
+                                                    </h:panelGrid>
+                                                </h:column>
+                                            </h:panelGrid>
+
+                                            <f:facet name="footer">
+                                                <h:panelGrid columns="2" cellspacing="5">
+                                                    <h:column>
+                                                        <p:commandButton icon="ui-icon-circle-triangle-s" value="#{campeonatoBean.eventoServicoValor.id eq -1 ? 'Adicionar Serviço' : 'Atualizar Serviço'}" action="#{campeonatoBean.adicionarServicos}" update="form_campeonato" />
+                                                    </h:column>
+                                                    <p:commandButton icon="ui-icon-circlesmall-plus" value="Adicionar todas categorias" action="#{campeonatoBean.adicionarTodosServicos}" update="form_campeonato" rendered="#{campeonatoBean.eventoServicoValor.id eq -1 and campeonatoBean.eventoServico.socio and not empty campeonatoBean.listCategoria}"/>
+                                                    <p:commandButton value="Limpar" action="#{campeonatoBean.newServico()}" update="form_campeonato" rendered="#{campeonatoBean.eventoServicoValor.id ne -1}"/>
+                                                </h:panelGrid>                                        
+                                            </f:facet>
+
+                                        </p:panel>
+                                        <p:dataTable value="#{campeonatoBean.listEventoServicoValor}" var="esv" id="tbl_s" emptyMessage="Nenhum registro encontrado" >
+
+                                            <p:column style="text-align: center; width: 40px">
+                                                <p:commandButton action="#{campeonatoBean.editEventoServicoValor(esv)}" icon="ui-icon-pencil" update="form_campeonato"/>
+                                            </p:column>
+
+                                            <p:column headerText="Serviços">
+                                                <h:outputLabel value="#{esv.eventoServico.servicos.descricao}" />
+                                            </p:column>
+
+                                            <p:column headerText="Valor" style="width: 80px;  text-align: right">
+                                                <h:outputLabel value="#{esv.valorString}"/>
+                                            </p:column>
+
+                                            <p:column headerText="Categoria" style="width: 250px">
+                                                <h:outputLabel value="#{esv.eventoServico.categoria.categoria}" />
+                                            </p:column>
+                                            
+                                            <p:column headerText="" style="width: 250px">
+                                                <h:outputLabel value="#{esv.eventoServico.responsavel ? 'RESPONSÁVEL' : 'DEPENDENTE'}" />
+                                            </p:column>
+
+                                            <p:column style="text-align: center; width: 40px">
+                                                <p:commandButton action="#{campeonatoBean.removerEventoServico(esv)}" icon="ui-icon-trash" update="form_campeonato"/>
+                                            </p:column>                                    
+                                        </p:dataTable>
+                                    </h:panelGroup>
+
                                 </p:column>
 
 

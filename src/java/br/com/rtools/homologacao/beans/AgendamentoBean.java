@@ -114,6 +114,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String motivoRecusaDireto;
     private String motivoRecusa1;
     private String motivoRecusa2;
+    private Boolean comPendencia;
 
     public AgendamentoBean() {
         if (configuracaoHomologacao.getId() == null) {
@@ -129,6 +130,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         motivoRecusaDireto = "";
         motivoRecusa1 = "";
         motivoRecusa2 = "";
+        comPendencia = false;
         listFiles = new ArrayList();
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         Dao dao = new Dao();
@@ -326,8 +328,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             Date d = getData();
             if (idNrStatus == 8) {
                 d = null;
+            } else {
+                comPendencia = false;
             }
-            agendamentos = homologacaoDB.pesquisaAgendamento(idNrStatus, macFilial.getFilial().getId(), d, null, 0, 0, 0, false, false);
+            agendamentos = homologacaoDB.pesquisaAgendamento(idNrStatus, macFilial.getFilial().getId(), d, null, 0, 0, 0, false, false, comPendencia);
             for (Agendamento agenda : agendamentos) {
                 ListaAgendamento listaAgendamento = new ListaAgendamento();
                 Usuario u = new Usuario();
@@ -2162,6 +2166,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setMotivoRecusa2(String motivoRecusa2) {
         this.motivoRecusa2 = motivoRecusa2;
+    }
+
+    public Boolean getComPendencia() {
+        return comPendencia;
+    }
+
+    public void setComPendencia(Boolean comPendencia) {
+        this.comPendencia = comPendencia;
     }
 
 }

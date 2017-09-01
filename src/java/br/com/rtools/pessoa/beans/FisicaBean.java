@@ -171,6 +171,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private String inCategoriaSocio = null;
     private List<Fisica> listFisicaSugestao = new ArrayList();
     private Boolean cadastrar = false;
+    private Boolean editar = false;
     private SisAutorizacoes sisAutorizacoes;
     private String alterType;
     private List<SisAutorizacoes> listSisAutorizacoes;
@@ -767,7 +768,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         // --
 
         // loadListaDocumentos();
-        return url;
+        if (!getCadastrar() && !getEditar()) {
+            return url;
+        } else {
+            return null;
+        }
     }
 
     public void showImagemFisica() {
@@ -1617,6 +1622,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Fisica getFisica() {
+        if (GenericaSessao.exists("fisicaPesquisaEditar")) {
+            editarFisica((Fisica) GenericaSessao.getObject("fisicaPesquisaEditar", true), true);
+        }
         if (fisica.getId() == -1) {
             tipo = "novo";
         } else {
@@ -1901,6 +1909,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void loadList() {
         cadastrar = false;
+        editar = false;
         limit = 500;
         offset = 0;
         List list = new ArrayList<>();
@@ -3072,7 +3081,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public Boolean getCadastrar() {
         if (GenericaSessao.exists("cadastrar")) {
-            GenericaSessao.remove("cadastrar");
             cadastrar = true;
         }
         return cadastrar;
@@ -3080,6 +3088,17 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setCadastrar(Boolean cadastrar) {
         this.cadastrar = cadastrar;
+    }
+
+    public Boolean getEditar() {
+        if (GenericaSessao.exists("editar")) {
+            editar = true;
+        }
+        return editar;
+    }
+
+    public void setEditar(Boolean editar) {
+        this.editar = editar;
     }
 
     // public void
