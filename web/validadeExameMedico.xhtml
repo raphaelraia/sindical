@@ -33,7 +33,7 @@
                         <div style="clear: both"></div>
                         <h:form id="formValidadeExameMedico">
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="5">
+                                <h:panelGrid columns="5" cellspacing="10">
                                     <h:column>
                                         <p:outputLabel value="Departamento" /><br />
                                         <p:selectOneMenu value="#{validadeExameMedicoBean.indexDepartamento}" disabled="#{validadeExameMedicoBean.validadeExameMedico.id eq -1 ? false : true}" style="width: 180px;">
@@ -46,17 +46,25 @@
                                         <p:outputLabel value="Meses para Validade" /><br />
                                         <p:inputText value="#{validadeExameMedicoBean.validadeExameMedico.meses}" style="width: 120px; text-align: right"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:outputLabel value="ex. [ 2 ] Meses" style="font-size: 8pt!important"/>
+                                    </h:column>
+
+
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{validadeExameMedicoBean.validadeExameMedico.obrigatorio}" itemLabel="Obrigatório">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
                                     </h:column>
 
                                     <h:column>
                                         <br />
                                         <p:commandButton value="#{validadeExameMedicoBean.validadeExameMedico.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()" rendered="#{validadeExameMedicoBean.validadeExameMedico.id ne -1}"/>
@@ -65,7 +73,7 @@
                             </p:panel>
 
                             <p:messages showDetail="true" closable="true" />
-                            
+
                             <p:dataTable value="#{validadeExameMedicoBean.listaValidadeExameMedico}" var="linha" emptyMessage="Nenhum Registro Encontrado!">
                                 <p:column headerText="ID"  style="width: 80px; text-align: center">
                                     <p:commandLink value="#{linha.id}" action="#{validadeExameMedicoBean.editar(linha)}" update="@form"/>
@@ -86,7 +94,7 @@
                                 <p:commandButton value="SIM" type="submit" styleClass="ui-confirmdialog-yes" action="#{validadeExameMedicoBean.salvar()}" update="@form" style="clear: both; float: left" icon="ui-icon-check" />
                                 <p:commandButton value="NÃO" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_excluir" header="Salvar Validade" resizable="false" width="400" modal="true">
                                 <p:outputLabel value="Deseja realmente EXCLUIR esta validade?" style="font-size: 11pt!important"/>
                                 <br /><br />

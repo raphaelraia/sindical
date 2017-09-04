@@ -16,10 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-/**
- *
- * @author Claudemir Rtools
- */
 @Entity
 @Table(name = "soc_exame_medico_validade")
 public class ValidadeExameMedico implements Serializable {
@@ -33,17 +29,21 @@ public class ValidadeExameMedico implements Serializable {
     private Departamento departamento;
     @Column(name = "nr_meses")
     private Integer meses;
+    @Column(name = "is_obrigatorio", columnDefinition = "boolean default false")
+    private Boolean obrigatorio;
 
     public ValidadeExameMedico() {
         this.id = -1;
         this.departamento = new Departamento();
         this.meses = 0;
+        this.obrigatorio = false;
     }
-    
-    public ValidadeExameMedico(Integer id, Departamento departamento, Integer meses) {
+
+    public ValidadeExameMedico(Integer id, Departamento departamento, Integer meses, Boolean obrigatorio) {
         this.id = id;
         this.departamento = departamento;
         this.meses = meses;
+        this.obrigatorio = obrigatorio;
     }
 
     public Integer getId() {
@@ -69,6 +69,13 @@ public class ValidadeExameMedico implements Serializable {
     public void setMeses(Integer meses) {
         this.meses = meses;
     }
-    
-    
+
+    public Boolean getObrigatorio() {
+        return obrigatorio;
+    }
+
+    public void setObrigatorio(Boolean obrigatorio) {
+        this.obrigatorio = obrigatorio;
+    }
+
 }

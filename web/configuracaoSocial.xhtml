@@ -34,7 +34,7 @@
 
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Configuração Social" styleClass="fonteHeader" />
-                        <h:form id="formConfiguracaoSocial">
+                        <h:form id="form_configuracao_social">
                             <c:set scope="request" var="object" value="${configuracaoSocialBean.configuracaoSocial}"/>
                             <div style="clear:both"></div>
                             <p:messages id="id_messages" showDetail="true" closable="true" autoUpdate="true"/>
@@ -142,6 +142,12 @@
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
                                     </h:column> 
+                                    <h:column>
+                                        <p:outputLabel value="Validade dias convite" /><br />
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.validadeDiaConviteString}" style="width: 80px" converter="#{thisNumber}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column> 
                                 </h:panelGrid>
                             </p:panel>
 
@@ -191,7 +197,7 @@
                                 <p:outputLabel value="Titulo Extrato (Boleto)" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="1" style="width: 100%" >
                                     <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.tituloExtrato}" maxlength="255" size="150" converter="#{toUpperCase}">
-                                         <p:ajax event="change" update="@this" />
+                                        <p:ajax event="change" update="@this" />
                                     </p:inputText>
                                 </h:panelGrid>
                             </p:panel>
@@ -203,7 +209,7 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:commandButton value="Atualizar" action="#{configuracaoSocialBean.update()}" update=":formConfiguracaoSocial:" styleClass="margin-top-max"/>
+                            <p:commandButton value="Atualizar" action="#{configuracaoSocialBean.update()}" update=":form_configuracao_social:" styleClass="margin-top-max"/>
                         </h:form>
                     </p:panel>
                 </f:view>
