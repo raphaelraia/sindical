@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -29,9 +30,9 @@ public class RelatorioBalanceteDao extends DB {
                     WHERE = "",
                     GROUP_BY,
                     ORDER_BY;
-            
+
             if (idRelatorio != null && idRelatorio == 100) {
-                SELECT 
+                SELECT
                         = "   SELECT B.codigo1,    \n"
                         + "          B.conta1,     \n"
                         + "          B.codigo2,    \n"
@@ -98,7 +99,7 @@ public class RelatorioBalanceteDao extends DB {
             }
 
             List listWhere = new ArrayList();
-            
+
             if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
                 switch (tipo_data) {
                     case "igual":
@@ -133,7 +134,7 @@ public class RelatorioBalanceteDao extends DB {
                     + WHERE
                     + GROUP_BY
                     + ORDER_BY;
-
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

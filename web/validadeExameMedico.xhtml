@@ -43,8 +43,18 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:outputLabel value="Meses para Validade" /><br />
+                                        <p:outputLabel value="Validade Meses" /><br />
                                         <p:inputText value="#{validadeExameMedicoBean.validadeExameMedico.meses}" style="width: 120px; text-align: right"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:outputLabel value="ex. [ 2 ] Meses" style="font-size: 8pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Validade Meses Convidado" /><br />
+                                        <p:inputText value="#{validadeExameMedicoBean.validadeExameMedico.mesesConvidado}" style="width: 120px; text-align: right"/>
                                     </h:column>
 
                                     <h:column>
@@ -59,32 +69,54 @@
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
                                     </h:column>
-
+                                </h:panelGrid>
+                                <h:panelGrid columns="5" cellspacing="10">
                                     <h:column>
-                                        <br />
-                                        <p:commandButton value="#{validadeExameMedicoBean.validadeExameMedico.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"/>
+                                        <p:outputLabel value="Idade Inicial" /><br />
+                                        <p:inputText value="#{validadeExameMedicoBean.validadeExameMedico.idadeInicial}" style="width: 120px; text-align: right"/>
                                     </h:column>
-
                                     <h:column>
-                                        <br />
-                                        <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()" rendered="#{validadeExameMedicoBean.validadeExameMedico.id ne -1}"/>
+                                        <p:outputLabel value="Idade Final" /><br />
+                                        <p:inputText value="#{validadeExameMedicoBean.validadeExameMedico.idadeFinal}" style="width: 120px; text-align: right"/>
                                     </h:column>
                                 </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2" cellspacing="10">
+                                        <p:commandButton value="#{validadeExameMedicoBean.validadeExameMedico.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"/>
+                                        <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()" rendered="#{validadeExameMedicoBean.validadeExameMedico.id ne -1}"/>                                    
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:panel>
 
                             <p:messages showDetail="true" closable="true" />
 
-                            <p:dataTable value="#{validadeExameMedicoBean.listaValidadeExameMedico}" var="linha" emptyMessage="Nenhum Registro Encontrado!">
-                                <p:column headerText="ID"  style="width: 80px; text-align: center">
-                                    <p:commandLink value="#{linha.id}" action="#{validadeExameMedicoBean.editar(linha)}" update="@form"/>
+                            <p:dataTable value="#{validadeExameMedicoBean.listaValidadeExameMedico}" var="validaExameMedico" emptyMessage="Nenhum Registro Encontrado!">
+                                <p:column width="30" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-pencil" title="Editar registro º#{validaExameMedico.id}" action="#{validadeExameMedicoBean.editar(validaExameMedico)}" update="@form" />
                                 </p:column>
 
                                 <p:column headerText="Departamento">
-                                    <p:commandLink value="#{linha.departamento.descricao}" action="#{validadeExameMedicoBean.editar(linha)}" update="@form"/>
+                                    #{validaExameMedico.departamento.descricao.toUpperCase()}
+                                </p:column>
+
+                                <p:column headerText="Idade Inicial" width="100" styleClass="text-center">
+                                    #{validaExameMedico.idadeInicial}
+                                </p:column>
+
+                                <p:column headerText="Idade Final" width="100" styleClass="text-center">
+                                    <p:commandLink value="#{validaExameMedico.idadeFinal}"  action="#{validadeExameMedicoBean.editar(validaExameMedico)}" update="@form" />
+                                </p:column>
+
+                                <p:column headerText="Obrigatório" width="100" styleClass="text-center">
+                                    #{validaExameMedico.obrigatorio ? 'SIM' : ''}
                                 </p:column>
 
                                 <p:column headerText="Meses" style="width: 80px; text-align: right">
-                                    <p:commandLink value="#{linha.meses}"  action="#{validadeExameMedicoBean.editar(linha)}" update="@form" />
+                                    #{validaExameMedico.meses}
+                                </p:column>
+
+                                <p:column headerText="Meses Convidado" style="width: 80px; text-align: right">
+                                    #{validaExameMedico.mesesConvidado}
                                 </p:column>
                             </p:dataTable>
 

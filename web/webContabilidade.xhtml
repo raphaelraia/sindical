@@ -88,7 +88,7 @@
                         <p:column headerText="Pagar na Data" style="text-align: center" width="115">
                             <p:selectOneMenu value="#{linha.argumento20}" rendered="#{linha.argumento18}" style="width: 90px">
                                 <p:ajax event="change" update="@this :formImpressao:i_panel_lista" global="false"/>
-                                <f:selectItems value="#{webContabilidadeBean.listaVencimento}"/>
+                                <f:selectItems value="#{linha.argumento22}"/>
                             </p:selectOneMenu>
                             <h:outputText value="#{linha.argumento5}" rendered="#{!linha.argumento18}"/>
                         </p:column>

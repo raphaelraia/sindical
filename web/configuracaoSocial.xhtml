@@ -143,11 +143,34 @@
                                         </p:selectBooleanCheckbox>
                                     </h:column> 
                                     <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.conviteCartaoPvc}" itemLabel="Convite Cartão PVC" style="margin-right: 20px">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column> 
+                                    <h:column>
                                         <p:outputLabel value="Validade dias convite" /><br />
                                         <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.validadeDiaConviteString}" style="width: 80px" converter="#{thisNumber}">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </h:column> 
+                                </h:panelGrid>
+                                <h:panelGrid columns="5" styleClass="margin-top-max">
+
+                                    <h:column>
+                                        <h:outputLabel value="Idade bloqueio CPF convite" /><br />
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.idadeBloqueioCpfConvite}" style="margin-right: 20px" >
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:outputLabel value="Idade bloqueio RG convite" /><br />
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.idadeBloqueioRgConvite}" style="margin-right: 20px"  >
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column>
+
                                 </h:panelGrid>
                             </p:panel>
 

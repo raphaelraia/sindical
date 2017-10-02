@@ -44,6 +44,7 @@ public class ImpressaoChequeBean implements Serializable {
     private List<ObjectListaCheque> listaCheques = new ArrayList();
 
     private ObjectImprimirCheque imprimirCheque = new ObjectImprimirCheque();
+    private String numeroCheque = "";
 
     public ImpressaoChequeBean() {
         loadListaConta();
@@ -215,8 +216,13 @@ public class ImpressaoChequeBean implements Serializable {
         PessoaEnderecoDao pedao = new PessoaEnderecoDao();
         PessoaEndereco sindicato_endereco = pedao.pesquisaEndPorPessoaTipo(1, 5);
 
+        String nc = "";
+        if (statusCheque.equals("emitidos") || statusCheque.equals("cancelados")) {
+            nc = numeroCheque;
+        }
+
         if (!listaConta.isEmpty()) {
-            List<Object> result = new ImpressaoChequeDao().listaCheques(Integer.valueOf(listaConta.get(indexConta).getDescription()), statusCheque);
+            List<Object> result = new ImpressaoChequeDao().listaCheques(Integer.valueOf(listaConta.get(indexConta).getDescription()), statusCheque, nc);
             Dao dao = new Dao();
             for (Object lista : result) {
                 List linha = (List) lista;
@@ -341,6 +347,14 @@ public class ImpressaoChequeBean implements Serializable {
 
     public void setImprimirCheque(ObjectImprimirCheque imprimirCheque) {
         this.imprimirCheque = imprimirCheque;
+    }
+
+    public String getNumeroCheque() {
+        return numeroCheque;
+    }
+
+    public void setNumeroCheque(String numeroCheque) {
+        this.numeroCheque = numeroCheque;
     }
 
     public class ObjectImprimirCheque {
@@ -516,4 +530,5 @@ public class ImpressaoChequeBean implements Serializable {
             this.chequePag = chequePag;
         }
     }
+
 }

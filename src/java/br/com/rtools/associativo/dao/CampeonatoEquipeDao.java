@@ -2,6 +2,7 @@ package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.CampeonatoEquipe;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -36,6 +37,24 @@ public class CampeonatoEquipeDao extends DB {
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
+        }
+    }
+
+    public Boolean saveNativeCarterinha(Dao dao, Integer pessoa_id) {
+        try {
+            String queryString = " "
+                    + "    INSERT INTO soc_carteirinha (id_pessoa, id_modelo_carteirinha, nr_via, dt_validade_carteirinha, is_ativo) \n"
+                    + "     ( \n"
+                    + "         SELECT id, 1, 1, (CURRENT_DATE + 1825), true "
+                    + "           FROM pes_pessoa WHERE id = " + pessoa_id + " "
+                    + "            AND id NOT IN (SELECT id_pessoa FROM soc_carteirinha) "
+                    + "            AND id NOT IN (SELECT codsocio FROM soc_socios_vw) \n"
+                    + ") ";
+            Query query = dao.getEntityManager().createNativeQuery(queryString);
+            query.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

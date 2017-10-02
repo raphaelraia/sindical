@@ -42,7 +42,7 @@
                     </p:selectBooleanCheckbox>
                 </p:column>
                 <p:column>
-                    <h:inputTextarea value="#{pessoaComplementoBean.pessoaComplemento.obsAviso}"  cols="150" rows="5">
+                    <h:inputTextarea value="#{pessoaComplementoBean.pessoaComplemento.obsAviso}"  cols="150" rows="5" disabled="#{controleAcessoBean.verificarPermissao('libera_mensagem_bloqueio_aviso', 3)}">
                         <p:ajax event="change" update="@this"  />
                     </h:inputTextarea>
                 </p:column>

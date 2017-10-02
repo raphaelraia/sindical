@@ -5,6 +5,7 @@ import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -1085,6 +1086,7 @@ public class RelatorioSociosDao extends DB {
                 + orderby;
 
         try {
+            Debugs.put("habilitaDebugQuery", textQry);
             Query qry = getEntityManager().createNativeQuery(textQry);
             return qry.getResultList();
         } catch (Exception e) {

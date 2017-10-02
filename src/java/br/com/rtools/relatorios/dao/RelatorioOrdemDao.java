@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
+import br.com.rtools.relatorios.Relatorios;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -40,6 +41,18 @@ public class RelatorioOrdemDao extends DB {
             return false;
         }
         return true;
+    }
+
+    public RelatorioOrdem findDefaultByRelatorio(Integer relatorio_id, Boolean principal) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT RO FROM RelatorioOrdem AS RO WHERE RO.relatorios.id = :relatorio_id AND RO.principal = true");
+            query.setParameter("relatorio_id", relatorio_id);
+            query.setParameter("principal", principal);
+            query.setMaxResults(1);
+            return (RelatorioOrdem) query.getSingleResult();
+        } catch (Exception e) {
+        }
+        return null;
     }
 
 }

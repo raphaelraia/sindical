@@ -33,7 +33,7 @@
                         <div style="clear: both"></div>
                         <h:form id="formImpressaoCheque">
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="6">
                                     <p:column>
                                         <h:outputLabel value="Conta"/><br />
                                         <p:selectOneMenu value="#{impressaoChequeBean.indexConta}">
@@ -59,6 +59,21 @@
                                             <p:ajax event="change" update="@this" global="false"/>
                                             <f:selectItems value="#{impressaoChequeBean.listaImpressora}"/>
                                         </p:selectOneMenu>
+                                    </p:column>
+                                    
+                                    <p:column rendered="#{impressaoChequeBean.statusCheque eq 'emitidos' or impressaoChequeBean.statusCheque eq 'cancelados'}">
+                                        <h:outputLabel value="Número"/><br />
+                                        <h:column>
+                                            <h:panelGrid columns="3">
+                                                <p:inputText value="#{impressaoChequeBean.numeroCheque}" converter="#{thisNumber}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>
+                                                <p:commandButton icon="ui-icon-search" update="@form" action="#{impressaoChequeBean.loadListaCheques()}" global="false" />
+                                                <p:commandButton icon="ui-icon-close" action="#{impressaoChequeBean.loadListaCheques()}" >
+                                                    <p:ajax event="click" update="@form"  global="false" listener="#{impressaoChequeBean.setNumeroCheque('')}"/>
+                                                </p:commandButton>
+                                            </h:panelGrid>
+                                        </h:column>
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>

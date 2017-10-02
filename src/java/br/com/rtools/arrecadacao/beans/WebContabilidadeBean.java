@@ -128,6 +128,29 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                     } else {
                         hvalor = true;
                     }
+                    String data = DataHoje.data();
+                    String newData = "";
+                    int z = 0;
+                    List<SelectItem> listVencimento = new ArrayList();
+                    while (z < 6) {
+                        newData = (new DataHoje()).incrementarDias(z, data);
+                        listVencimento.add(new SelectItem(z, newData, newData));
+                        z++;
+                    }
+                    Servicos s = (Servicos) dao.find(new Servicos(), (Integer) ((Vector) linha).get(1));
+                    TipoServico ts = (TipoServico) dao.find(new TipoServico(), (Integer) ((Vector) linha).get(2));
+                    ContaCobranca cc = new ContaCobrancaDao().pesquisaServicoCobranca(s.getId(), ts.getId());
+                    // Boleto b = new BoletoDao().findByNrCtrBoleto(((List) lista.get(i)).get(0).toString());
+                    // if (b != null) { 
+                    if (cc != null) {
+                        if (cc.getCobrancaRegistrada() != null) {
+                            if (cc.getCobrancaRegistrada().getId() == 1) {
+                                listVencimento = new ArrayList();
+                                listVencimento.add(new SelectItem(0, DataHoje.converteData((Date) ((Vector) linha).get(4)), DataHoje.converteData((Date) ((Vector) linha).get(4))));
+                            }
+                        }
+                    }
+                    //}
                     listaMovimento.add(new DataObject(
                             false,
                             ((Vector) linha).get(0), // boleto
@@ -150,7 +173,10 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                             hdata, // null
                             hvalor, // null
                             "0", // null
-                            listaEmpresaSelecionada.get(ix).getPessoa().getNome() // null
+                            listaEmpresaSelecionada.get(ix).getPessoa().getNome(),
+                            listVencimento, // 22
+                            null,
+                            null
                     ));
                 }
             }

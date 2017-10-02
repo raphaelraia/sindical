@@ -284,6 +284,11 @@ public class CampeonatoEquipeBean implements Serializable {
             GenericaMensagem.warn("Validação", "PESSOA JÁ ESTA NESSA EQUIPE!");
             return;
         }
+        if (!new CampeonatoEquipeDao().saveNativeCarterinha(dao, membroEquipe.getId())) {
+            dao.rollback();
+            GenericaMensagem.warn("Validação", "ERRO AO ADICIONAR CARTEIRINHA!");
+            return;
+        }
         if (!dao.save(cep)) {
             dao.rollback();
             GenericaMensagem.warn("Erro", "AO INSERIR REGISTRO!");
@@ -325,7 +330,7 @@ public class CampeonatoEquipeBean implements Serializable {
         Categoria c = null;
         EventoServicoValor esv;
         if (c == null) {
-            eventoServico = new EventoServicoDao().findByEvento(campeonatoEquipe.getCampeonato().getEvento().getId(), null, false);
+            eventoServico = new EventoServicoDao().findByEvento(cadastrarDependente.getCampeonato().getEvento().getId(), null, false);
             if (eventoServico == null) {
                 GenericaMensagem.warn("Validação", "CADASTRAR TABELA DE PREÇOS PARA DEPENDENTE!");
                 return;
@@ -337,9 +342,9 @@ public class CampeonatoEquipeBean implements Serializable {
                 sp.setNrValorFixo(esv.getValor());
             }
         } else {
-            eventoServico = new EventoServicoDao().findByEvento(campeonatoEquipe.getCampeonato().getEvento().getId(), c.getId(), false);
+            eventoServico = new EventoServicoDao().findByEvento(cadastrarDependente.getCampeonato().getEvento().getId(), c.getId(), false);
             if (eventoServico == null) {
-                eventoServico = new EventoServicoDao().findByEvento(campeonatoEquipe.getCampeonato().getEvento().getId(), null, false);
+                eventoServico = new EventoServicoDao().findByEvento(cadastrarDependente.getCampeonato().getEvento().getId(), null, false);
                 if (eventoServico == null) {
                     GenericaMensagem.warn("Validação", "CADASTRAR TABELA DE PREÇOS PARA DEPENDENTE!");
                     return;
@@ -372,6 +377,11 @@ public class CampeonatoEquipeBean implements Serializable {
         if (!dao.save(sp)) {
             dao.rollback();
             GenericaMensagem.warn("Erro", "AO INSERIR SERVIÇO PESSOA!");
+            return;
+        }
+        if (!new CampeonatoEquipeDao().saveNativeCarterinha(dao, fisicaDependente.getPessoa().getId())) {
+            dao.rollback();
+            GenericaMensagem.warn("Validação", "ERRO AO ADICIONAR CARTEIRINHA!");
             return;
         }
 
@@ -408,7 +418,7 @@ public class CampeonatoEquipeBean implements Serializable {
             GenericaMensagem.warn("Erro", "AO REMOVER MEMBRO!");
             return;
         }
-        loadListCampeonatoDependentens(cadastrarDependente.getId());
+        loadListCampeonatoDependentens(cep.getId());
         for (int i = 0; i < listCampeonatoDependente.size(); i++) {
             listCampeonatoDependente.get(i).getServicoPessoa().setAtivo(false);
             listCampeonatoDependente.get(i).getServicoPessoa().setInativacao("SISTEMA");

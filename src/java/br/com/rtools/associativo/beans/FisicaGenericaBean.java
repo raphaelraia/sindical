@@ -3,10 +3,12 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.endereco.Cidade;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import static br.com.rtools.seguranca.Usuario.getUsuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -43,6 +45,13 @@ public class FisicaGenericaBean implements Serializable {
 
     public FisicaGenericaBean() {
         fisica = new Fisica();
+        fisica.setEstadoCivil("Solteiro(a)");
+        fisica.setNacionalidade("Brasileiro(a)");
+        String nat;
+        Cidade c = Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade();
+        nat = c.getCidade();
+        nat = nat + " - " + c.getUf();
+        fisica.setNaturalidade(nat);
         visibleModal = false;
         listFisicaSugestao = new ArrayList();
         listFisicaSugestao2 = new ArrayList();
@@ -130,6 +139,7 @@ public class FisicaGenericaBean implements Serializable {
 
     public void openModal() {
         fisica = new Fisica();
+        fisica.setEstadoCivil("Solteiro(a)");
         visibleModal = true;
         PF.update("form_pessoa_fisica_generica");
         listFisicaSugestao = new ArrayList();
@@ -142,6 +152,16 @@ public class FisicaGenericaBean implements Serializable {
     }
 
     public Fisica getFisica() {
+        if (GenericaSessao.exists("cidadePesquisa")) {
+            String nat;
+            Cidade cidade;
+            if (GenericaSessao.exists("cidadePesquisa")) {
+                cidade = (Cidade) GenericaSessao.getObject("cidadePesquisa", true);
+                nat = cidade.getCidade();
+                nat = nat + " - " + cidade.getUf();
+                fisica.setNaturalidade(nat);
+            }
+        }
         return fisica;
     }
 
@@ -299,6 +319,7 @@ public class FisicaGenericaBean implements Serializable {
                     String doc = fisica.getPessoa().getDocumento();
 
                     fisica = new Fisica();
+                    fisica.setEstadoCivil("Solteiro(a)");
 
                     fisica.getPessoa().setDocumento(doc);
                 }
@@ -384,6 +405,13 @@ public class FisicaGenericaBean implements Serializable {
         }
         fisica = new Fisica();
         fisicaPesquisa = new Fisica();
+        fisica.setEstadoCivil("Solteiro(a)");
+        fisica.setNacionalidade("Brasileiro(a)");
+        String nat;
+        Cidade c = Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade();
+        nat = c.getCidade();
+        nat = nat + " - " + c.getUf();
+        fisica.setNaturalidade(nat);
         return null;
     }
 

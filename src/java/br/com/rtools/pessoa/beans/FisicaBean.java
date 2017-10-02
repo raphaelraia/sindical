@@ -2454,6 +2454,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "locacaoFilme":
             case "associarFisica":
             case "conviteMovimento":
+            case "campeonatoEquipe":
                 GenericaSessao.remove("sessaoSisAutorizacao");
                 Boolean ignoreCase = false;
                 if (validacao.equals("emissaoGuias")) {

@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -43,6 +44,7 @@ public class RelatorioFechamentoBaileDao extends DB {
                 + "WHERE eb.id = " + id_evento_baile + " \n "
                 + "ORDER BY nr_mesa, nr_convite ";
         try {
+            Debugs.put("habilitaDebugQuery", text);
             Query query = getEntityManager().createNativeQuery(text);
             return query.getResultList();
         } catch (Exception e) {

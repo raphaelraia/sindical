@@ -26,12 +26,12 @@
                         <p:panel style="border: 0px; margin: 0 auto;  width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:menubar>
                                 <p:submenu label="Cadastro" icon="ui-icon-document" style="margin-right: 15px;">
-                                    <p:menuitem value="Tabela Preço"            action="#{chamadaPaginaBean.pagina('academiaServicoValor')}" />
                                     <p:menuitem value="Pessoa Jurídica"         action="#{chamadaPaginaBean.pessoaJuridica}"/>
                                     <p:menuitem value="Pessoa Física"           action="#{chamadaPaginaBean.pessoaFisica}" />
                                     <p:menuitem value="SPC"                     action="#{chamadaPaginaBean.pagina('spc')}" />
                                     <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" title="Desconto Serviço Empresa"/>
                                     <p:submenu label="Suporte">
+                                        <p:menuitem value="Tabela Preço"            action="#{chamadaPaginaBean.pagina('academiaServicoValor')}" />
                                         <p:menuitem value="Grade Academia"      action="#{chamadaPaginaBean.pagina('academiaGrade')}" />
                                         <p:menuitem value="Modelo Contrato"     action="#{chamadaPaginaBean.pagina('modeloContrato')}" />
                                         <p:menuitem value="Serviços"            action="#{chamadaPaginaBean.pagina('servicos')}" />
@@ -39,7 +39,6 @@
                                         <p:menuitem value="Acesso Catraca/Serviço"  action="#{chamadaPaginaBean.pagina('acessoCatracaServico')}" />
                                     </p:submenu>
                                     <p:menuitem value="Validade Exame Médico"   action="#{chamadaPaginaBean.pagina('validadeExameMedico')}" title="Validade Exame Médico"/>
-                                    <p:menuitem value="Exame Médico"            action="#{chamadaPaginaBean.pagina('exameMedico')}" title="Exame Médico"/>
                                     <p:menuitem value="Catraca"                 action="#{chamadaPaginaBean.pagina('catraca')}"/>
                                 </p:submenu>
                                 <p:submenu label="Movimento" icon="ui-icon-document" style="margin-right: 15px;">
@@ -55,6 +54,7 @@
                                         <p:menuitem value="Liberar"             action="#{chamadaPaginaBean.pagina('liberarCatraca')}" />
                                         <p:menuitem value="Consultar"           action="#{chamadaPaginaBean.pagina('consultarLiberacaoCatraca')}" />
                                     </p:submenu>
+                                    <p:menuitem value="Exame Médico"            action="#{chamadaPaginaBean.pagina('exameMedico')}" title="Exame Médico"/>
                                 </p:submenu>
                                 <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px;">
                                     <p:menuitem value="Cadastral"               action="#{chamadaPaginaBean.pagina('relatorioAcademia')}" />

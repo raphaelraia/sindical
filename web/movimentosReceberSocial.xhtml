@@ -411,6 +411,10 @@
                                             <p:outputLabel value="Lançamento" styleClass="bold"/><br />
                                             <p:outputLabel value="#{linha.argumento16}"/>
                                         </p:column>
+                                        <p:column>
+                                            <p:outputLabel value="Lote Baixa" styleClass="bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento1.baixa.id}" styleClass="bold font-color-red"/>
+                                        </p:column>                                        
                                     </h:panelGrid>
 
                                     <p:panel header="Dados do Fechamento" rendered="#{linha.argumento1.baixa.fechamentoCaixa != null}">

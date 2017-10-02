@@ -5,6 +5,7 @@ import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Debugs;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
@@ -512,7 +513,7 @@ public class RelatorioMovimentosDao extends DB {
         } else {
             queryString += "ORDER BY " + montaqry[2];
         }
-
+        Debugs.put("habilitaDebugQuery", queryString);
         try {
             Query qry = getEntityManager().createNativeQuery(queryString);
             return qry.getResultList();

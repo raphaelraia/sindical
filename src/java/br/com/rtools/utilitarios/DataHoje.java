@@ -386,7 +386,7 @@ public class DataHoje {
                 if ((d[1] + qtd) > 12) {
                     int tmp = (d[1] + qtd);
                     while (tmp > 12) {
-                        tmp -= 12; 
+                        tmp -= 12;
                         c++;
                     }
                     d[2] += c;
@@ -1290,6 +1290,17 @@ public class DataHoje {
 
     public static Boolean between(Date date, Date start, Date finish) {
         return between(converteData(date), converteData(start), converteData(finish));
+    }
+
+    public static Boolean betweenAge(Integer age, Integer start, Integer end) {
+        try {
+            if (age >= start && age <= end) {
+                return true;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return false;
     }
 
     public String getDiaSemana(String data) {

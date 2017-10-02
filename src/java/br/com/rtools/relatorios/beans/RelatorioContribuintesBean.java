@@ -314,6 +314,7 @@ public class RelatorioContribuintesBean implements Serializable {
         listDates.add(new SelectItem("atualizacao", "Atualização"));
         listDates.add(new SelectItem("cadastro", "Cadastro"));
         listDates.add(new SelectItem("recadastro", "Recadastro"));
+        listDates.add(new SelectItem("inativacao", "Inativação"));
         // RELOAD DATA
         if (listDateFilters != null) {
             for (int i = 0; i < listDateFilters.size(); i++) {

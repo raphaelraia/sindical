@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -63,7 +64,8 @@ public class RelatorioEstornoDao extends DB {
 
         String order = " ORDER BY data_lancamento, id_baixa, responsavel, titular, beneficiario, vencimento ";
 
-        try {
+        try {            
+            Debugs.put("habilitaDebugQuery", text + where + order);
             Query qry = getEntityManager().createNativeQuery(text + where + order);
             return qry.getResultList();
         } catch (Exception e) {

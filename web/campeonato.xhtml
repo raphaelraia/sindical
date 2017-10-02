@@ -36,14 +36,14 @@
                                 <p:column>
                                     <p:panel>
                                         <f:facet name="header">
-                                            <h:panelGrid columns="2" cellspacing="5" id="i_eventos">
+                                            <h:panelGrid columns="3" cellspacing="5" id="i_eventos">                                                
                                                 <p:selectOneMenu id="idGrupo" value="#{campeonatoBean.idGrupoEvento}">
                                                     <p:ajax event="change" update="@this i_eventos" listener="#{campeonatoBean.loadListDescricaoEventos}"/>
                                                     <f:selectItems value="#{campeonatoBean.listGrupoEvento}"/>
                                                 </p:selectOneMenu>                                            
                                                 <p:selectOneMenu id="idDescricao" value="#{campeonatoBean.idDescricaoEvento}">
                                                     <f:selectItems value="#{campeonatoBean.listDescricaoEvento}"/>
-                                                </p:selectOneMenu>                                                                                            
+                                                </p:selectOneMenu>                                  
                                             </h:panelGrid>
                                         </f:facet>
                                         <h:panelGrid columns="2" cellspacing="5">
@@ -74,6 +74,7 @@
                                                 <p:commandButton update=":form_campeonato:" value="Novo" action="#{campeonatoBean.clear}"/>
                                                 <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" />
                                                 <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaCampeonato')}" />
+                                                <p:outputLabel value="##{campeonatoBean.campeonato.id}" styleClass="font-color-gray" title="Código do campeonato #{campeonatoBean.campeonato.id} Evento ##{campeonatoBean.campeonato.evento.id}" rendered="#{campeonatoBean.campeonato.id ne null}"/>
                                             </h:panelGrid> 
                                         </f:facet>
                                     </p:panel>
@@ -140,7 +141,7 @@
                                         <p:dataTable value="#{campeonatoBean.listEventoServicoValor}" var="esv" id="tbl_s" emptyMessage="Nenhum registro encontrado" >
 
                                             <p:column style="text-align: center; width: 40px">
-                                                <p:commandButton action="#{campeonatoBean.editEventoServicoValor(esv)}" icon="ui-icon-pencil" update="form_campeonato"/>
+                                                <p:commandButton action="#{campeonatoBean.editEventoServicoValor(esv)}" icon="ui-icon-pencil" update="form_campeonato" title="Registro E.S.V. nº#{esv.id} Registro E.S. nº#{esv.eventoServico.id}"/>
                                             </p:column>
 
                                             <p:column headerText="Serviços">

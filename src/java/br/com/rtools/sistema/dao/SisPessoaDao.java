@@ -32,6 +32,7 @@ public class SisPessoaDao extends DB {
             if ((desc != null) && (!(como.equals("T")))) {
                 qry.setParameter("desc", desc);
             }
+            qry.setMaxResults(100);
             lista = qry.getResultList();
         } catch (Exception e) {
             lista = new ArrayList();

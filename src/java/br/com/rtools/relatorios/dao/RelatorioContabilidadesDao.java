@@ -3,6 +3,7 @@ package br.com.rtools.relatorios.dao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -101,7 +102,7 @@ public class RelatorioContabilidadesDao extends DB {
                     + "  INNER JOIN end_endereco         AS E ON E.id = PE.id_endereco          \n"
                     + "  INNER JOIN endereco_vw          AS ENDE ON ENDE.id = PE.id_endereco    \n"
                     + "  INNER JOIN pes_pessoa           AS P ON P.ID = J.id_pessoa             \n"
-                    + "       WHERE C.dt_inativacao IS NULL AND C.id_contabilidade > 0          \n";
+                    + "       WHERE C.dt_inativacao IS NULL AND ( C.id_contabilidade > 0 OR C.id_cnae IN ( 1 ) ) \n";
 
             if (pEmpresas.equals("comEmpresas")) {
                 textFaixa = " HAVING COUNT(C.id_contabilidade) >= " + indexEmp1 + " AND COUNT(C.id_contabilidade) <= " + indexEmp2 + " \n";
@@ -153,6 +154,7 @@ public class RelatorioContabilidadesDao extends DB {
             } else if (ordem.equals("qtde")) {
                 textQueryNativa += " ORDER BY qtde ASC                          \n";
             }
+            Debugs.put("habilitaDebugQuery", textQueryNativa);
             Query queryNativa = getEntityManager().createNativeQuery(textQueryNativa);
             list = queryNativa.getResultList();
             if (!list.isEmpty()) {

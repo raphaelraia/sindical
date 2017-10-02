@@ -4,6 +4,7 @@ import br.com.rtools.agenda.Agenda;
 import br.com.rtools.agenda.GrupoAgenda;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -40,6 +41,7 @@ public class RelatorioAgendaTelefonicaDao extends DB {
             if (!order.isEmpty()) {
                 queryString += " ORDER BY  " + order + " \n";
             }
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString, Agenda.class);
             return query.getResultList();
         } catch (Exception e) {

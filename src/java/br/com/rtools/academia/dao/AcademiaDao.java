@@ -83,7 +83,15 @@ public class AcademiaDao extends DB {
 
     public List<AcademiaServicoValor> listaServicoValorPorRotina() {
         try {
-            Query query = getEntityManager().createQuery(" SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.servicos.id IN(SELECT S.servicos.id FROM ServicoRotina AS S WHERE S.rotina.id = 122) AND ASV.periodo.id IN(SELECT PER.id FROM Periodo AS PER) ORDER BY ASV.servicos.descricao ASC ");
+            String queryString = ""
+                    + "     SELECT ASV.*                                        \n"
+                    + "       FROM aca_servico_valor AS ASV                     \n"
+                    + " INNER JOIN fin_servicos S ON S.id = ASV.id_servico      \n"
+                    + "      WHERE ASV.id_servico IN( SELECT SR.id_servicos FROM fin_servico_rotina AS SR WHERE SR.id_rotina = 122) \n"
+                    + "        AND ASV.id_periodo IN(SELECT PER.id FROM sis_periodo AS PER) \n"
+                    + "        AND S.ds_situacao = 'A'  \n"
+                    + "   ORDER BY S.ds_descricao ASC";
+            Query query = getEntityManager().createNativeQuery(queryString, AcademiaServicoValor.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -94,9 +102,30 @@ public class AcademiaDao extends DB {
         return new ArrayList();
     }
 
+    public Integer findMainId() {
+        try {
+            String queryString = ""
+                    + "     SELECT ASV.id, count(*)                      \n"
+                    + "       FROM matr_academia A                              \n"
+                    + " INNER JOIN aca_servico_valor AS ASV ON ASV.id = A.id_servico_valor  \n"
+                    + " INNER JOIN fin_servico_pessoa AS SP ON SP.id = A.id_servico_pessoa  \n"
+                    + "      WHERE dt_emissao BETWEEN (CURRENT_DATE-7) AND CURRENT_DATE     \n"
+                    + "   GROUP BY ASV.id                                \n"
+                    + "   ORDER BY count(*) DESC ";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return Integer.parseInt(((List) list.get(0)).get(0).toString());
+            }
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return null;
+    }
+
     public List<AcademiaServicoValor> listaAcademiaServicoValorPorServico(int idServico) {
         try {
-            Query query = getEntityManager().createQuery(" SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.servicos.id = :servicos ORDER BY ASV.servicos.descricao ASC, ASV.periodo.dias ASC");
+            Query query = getEntityManager().createQuery(" SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.servicos.id = :servicos AND ASV.id IN (SELECT ASE.academiaServicoValor.id FROM AcademiaSemana ASE ) ORDER BY ASV.servicos.descricao ASC, ASV.periodo.dias ASC");
             query.setParameter("servicos", idServico);
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -221,32 +250,59 @@ public class AcademiaDao extends DB {
         return new ArrayList();
     }
 
-    public List<MatriculaAcademia> pesquisaMatriculaAcademia(String tipo, String por, String como, String descricao, boolean ativo, int servicos) {
-        String queryString = "";
+    public List<MatriculaAcademia> pesquisaMatriculaAcademia(String tipo, String por, String como, String descricao, boolean ativo, int servicos, String periodoEmissao, String startDate, String endDate) {
+        String queryString = ""
+                + "    SELECT MATR.*                                            \n"
+                + "      FROM matr_academia AS MATR                             \n"
+                + "INNER JOIN fin_servico_pessoa SP ON SP.id = MATR.id_servico_pessoa\n"
+                + "INNER JOIN fin_servicos S ON S.id = SP.id_servico            \n"
+                + "INNER JOIN pes_pessoa A ON A.id = SP.id_pessoa               \n";
 
-        if (por.equals("cpf")) {
-            if (como.equals("I")) {
-                queryString = " UPPER(MATR.servicoPessoa.pessoa.documento) LIKE '" + descricao.toUpperCase() + "%'";
-            } else {
-                queryString = " UPPER(MATR.servicoPessoa.pessoa.documento) LIKE '%" + descricao.toUpperCase() + "%'";
+        List listWhere = new ArrayList();
+        if (!descricao.isEmpty()) {
+            if (por.equals("cpf")) {
+                if (como.equals("I")) {
+                    listWhere.add(" UPPER(A.ds_documento) LIKE '" + descricao.toUpperCase() + "%'");
+                } else {
+                    listWhere.add(" UPPER(A.ds_documento) LIKE '%" + descricao.toUpperCase() + "%'");
+                }
+            } else if (por.equals("nome")) {
+                if (como.equals("I")) {
+                    listWhere.add("UPPER(func_translate(A.ds_nome)) LIKE UPPER(func_translate('" + descricao + "%'))");
+                } else {
+                    listWhere.add("UPPER(func_translate(A.ds_nome)) LIKE UPPER(func_translate('%" + descricao + "%'))");
+                }
             }
-        } else if (como.equals("I")) {
-            queryString = " UPPER(MATR.servicoPessoa.pessoa.nome) LIKE '" + descricao.toUpperCase() + "%'";
-        } else {
-            queryString = " UPPER(MATR.servicoPessoa.pessoa.nome) LIKE '%" + descricao.toUpperCase() + "%'";
         }
-        if (!queryString.isEmpty()) {
-            queryString += " AND ";
+        switch (periodoEmissao) {
+            case "hoje":
+                listWhere.add("SP.dt_emissao = CURRENT_DATE");
+                break;
+            case "ontem":
+                listWhere.add("SP.dt_emissao = (CURRENT_DATE - 1)");
+                break;
+            case "ultimos_sete_dias":
+                listWhere.add("SP.dt_emissao BETWEEN (CURRENT_DATE - 7) AND CURRENT_DATE ");
+                break;
+            case "este_mes":
+                listWhere.add("to_char(SP.dt_emissao , 'YYYY-MM') = to_char(CURRENT_DATE , 'YYYY-MM')");
+                break;
+            default:
+                break;
         }
-        queryString += " MATR.servicoPessoa.ativo = " + ativo + " ";
+        listWhere.add("SP.is_ativo = " + ativo + " ");
         if (servicos > 0) {
-            if (!queryString.isEmpty()) {
-                queryString += " AND ";
-            }
-            queryString += " MATR.servicoPessoa.servicos.id = " + servicos + " ";
+            listWhere.add("S.id IN( " + servicos + " )");
         }
         try {
-            Query query = getEntityManager().createQuery("SELECT MATR FROM MatriculaAcademia AS MATR WHERE " + queryString);
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + " \n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + " \n";
+                }
+            }
+            Query query = getEntityManager().createNativeQuery(queryString, MatriculaAcademia.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -257,12 +313,12 @@ public class AcademiaDao extends DB {
         return new ArrayList();
     }
 
-    public boolean existeAlunoModalidade(int aluno, int modalidade, Date emissao) {
+    public boolean existeAlunoModalidade(Integer aluno_id, Integer modalidade_id, Date emissao) {
         try {
-            Query query = getEntityManager().createQuery("SELECT MA FROM MatriculaAcademia AS MA WHERE MA.servicoPessoa.pessoa.id = :aluno AND MA.academiaServicoValor.servicos.id = :modalidade AND MA.dtInativo IS NULL AND (MA.dtValidade IS NULL OR MA.dtValidade > CURRENT_TIMESTAMP)");
+            Query query = getEntityManager().createQuery("SELECT MA FROM MatriculaAcademia AS MA WHERE MA.servicoPessoa.pessoa.id = :aluno_id AND MA.academiaServicoValor.servicos.id = :modalidade_id AND MA.dtInativo IS NULL AND (MA.dtValidade IS NULL OR MA.dtValidade > CURRENT_TIMESTAMP)");
             query.setMaxResults(1);
-            query.setParameter("aluno", aluno);
-            query.setParameter("modalidade", modalidade);
+            query.setParameter("aluno", aluno_id);
+            query.setParameter("modalidade", modalidade_id);
             if (!query.getResultList().isEmpty()) {
                 return true;
             }

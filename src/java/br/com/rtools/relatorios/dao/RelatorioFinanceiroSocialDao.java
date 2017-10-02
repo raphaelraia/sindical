@@ -5,6 +5,7 @@ import br.com.rtools.relatorios.RelatorioGrupo;
 import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -355,8 +356,8 @@ public class RelatorioFinanceiroSocialDao extends DB {
 
         if (!order.isEmpty()) {
             order = " ORDER BY " + order;
-        }
-
+        }        
+        Debugs.put("habilitaDebugQuery", select + where + group + order);
         Query qry = getEntityManager().createNativeQuery(select + where + group + order);
 
         try {

@@ -60,6 +60,7 @@ public class ControleUsuarioBean implements Serializable {
     private List<ContadorAcessos> listaContador = new ArrayList();
     private List<String> images = new ArrayList<>();
     private boolean habilitaLog = false;
+    private boolean habilitaDebugQuery = false;
     private Boolean export = null;
     private String historicoAcesso = "";
     private String ip = "";
@@ -614,12 +615,27 @@ public class ControleUsuarioBean implements Serializable {
     }
 
     public boolean isHabilitaLog() {
+        if (GenericaSessao.exists("habilitaLog")) {
+            return GenericaSessao.getBoolean("habilitaLog");
+        }
         return habilitaLog;
     }
 
     public void setHabilitaLog(boolean habilitaLog) {
         GenericaSessao.put("habilitaLog", habilitaLog);
         this.habilitaLog = habilitaLog;
+    }
+
+    public boolean isHabilitaDebugQuery() {
+        if (GenericaSessao.exists("habilitaDebugQuery")) {
+            return GenericaSessao.getBoolean("habilitaDebugQuery");
+        }
+        return habilitaDebugQuery;
+    }
+
+    public void setHabilitaDebugQuery(boolean habilitaDebugQuery) {
+        GenericaSessao.put("habilitaDebugQuery", habilitaDebugQuery);
+        this.habilitaDebugQuery = habilitaDebugQuery;
     }
 
     public Boolean getExport() {

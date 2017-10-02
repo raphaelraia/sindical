@@ -38,7 +38,7 @@
                                     <h:panelGrid columns="5" cellspacing="5">
                                         <p:outputLabel value="CAMPEONATO" styleClass="font-size-10 bold"/>
                                         <p:selectOneMenu value="#{campeonatoEquipeBean.idCampeonato}">
-                                            <p:ajax event="change" update=":form_campeonato_equipe:" />
+                                            <p:ajax event="change" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.loadListCampeonatoEquipes()}" />
                                             <f:selectItems value="#{campeonatoEquipeBean.listCampeonatos}"/>
                                         </p:selectOneMenu>
                                         <p:outputLabel value="EQUIPE" styleClass="font-size-10 bold margin-left-max"/>
@@ -56,7 +56,7 @@
                                     <p:commandButton icon="ui-icon-pencil" action="#{campeonatoEquipeBean.edit(campeonatoEquipe)}" title="Editar registro nº#{campeonatoEquipe.id}" update=":form_campeonato_equipe:" />
                                 </p:column> 
                                 <p:column headerText="Campeonato">
-                                    #{campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipe.campeonato.tituloComplemento}
+                                    <h:outputLabel value="#{campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipe.campeonato.tituloComplemento}" title="##{campeonatoEquipe.campeonato.id}" />
                                 </p:column> 
                                 <p:column headerText="Modalidade">
                                     #{campeonatoEquipe.campeonato.modalidade.descricao}
@@ -84,7 +84,7 @@
                                         <f:facet name="header">
                                             <h:panelGrid columns="1" cellspacing="5">
                                                 <h:column>
-                                                    <h:outputLabel value="CAMPEONATO: #{campeonatoEquipeBean.campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipeBean.campeonatoEquipe.campeonato.tituloComplemento}" styleClass="bold"/>
+                                                    <h:outputLabel value="CAMPEONATO: #{campeonatoEquipeBean.campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipeBean.campeonatoEquipe.campeonato.tituloComplemento} ##{campeonatoEquipeBean.campeonatoEquipe.campeonato.id}" styleClass="bold"/>
                                                 </h:column>
                                                 <h:column>
                                                     <h:outputLabel value="EQUIPE:  #{campeonatoEquipeBean.campeonatoEquipe.equipe.descricao}"  styleClass="bold"/>
@@ -114,7 +114,7 @@
                                         <p:column headerText="Categoria">
                                             #{matriculaCampeonato.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
                                         </p:column>
-                                         <p:column headerText="Dependentes" styleClass="text-center">
+                                         <p:column headerText="Valor Responsável" styleClass="text-center">
                                             #{matriculaCampeonato.servicoPessoa.nrValorFixoString}
                                         </p:column>  
                                         <p:column headerText="Dependentes" styleClass="text-center">

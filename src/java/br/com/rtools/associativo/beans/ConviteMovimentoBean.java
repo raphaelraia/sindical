@@ -252,6 +252,7 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public boolean validaSave() {
+
         if (configuracaoSocial.getCartaoDigitos() <= 0) {
             GenericaMensagem.fatal("ATENÇÃO", "CARTÃO NÃO TEM CÓDIGO DE BARRAS CONFIGURADO!");
             return false;
@@ -299,6 +300,26 @@ public class ConviteMovimentoBean implements Serializable {
             //message = "Informar data de nascimento do convidado!";
             GenericaMensagem.warn("ATENÇÃO", "INFORMAR DATA DE NASCIMENTO DO CONVIDADO!");
             return false;
+        }
+
+        // EXIGE UMA IDADE MÍNIMA OBRIGATÓRIA PARA O USO DO CPF
+        if (conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
+            if (configuracaoSocial.getIdadeBloqueioCpfConvite() > 0) {
+                if (conviteMovimento.getSisPessoa().getIdade() >= configuracaoSocial.getIdadeBloqueioCpfConvite()) {
+                    GenericaMensagem.warn("ATENÇÃO", "A PARTIR DOS " + conviteMovimento.getSisPessoa().getIdade() + " ANOS É OBRIGATÓRIO APRESENTA CPF!");
+                    return false;
+                }
+            }
+        }
+
+        // EXIGE UMA IDADE MÍNIMA OBRIGATÓRIA PARA O USO DO RG
+        if (conviteMovimento.getSisPessoa().getRg().isEmpty()) {
+            if (configuracaoSocial.getIdadeBloqueioRgConvite() > 0) {
+                if (conviteMovimento.getSisPessoa().getIdade() >= configuracaoSocial.getIdadeBloqueioRgConvite()) {
+                    GenericaMensagem.warn("ATENÇÃO", "A PARTIR DOS " + conviteMovimento.getSisPessoa().getIdade() + " ANOS É OBRIGATÓRIO APRESENTAR RG!");
+                    return false;
+                }
+            }
         }
 
         return true;
@@ -469,7 +490,7 @@ public class ConviteMovimentoBean implements Serializable {
         // FIM SALVAR sis_pessoa ------------------------
 
         DataHoje dh = new DataHoje();
-        conviteMovimento.setValidade(dh.incrementarMeses(1, DataHoje.data()));
+        conviteMovimento.setValidade(dh.incrementarDias(configuracaoSocial.getValidadeDiaConvite(), DataHoje.data()));
 
         // SALVAR CONVITE -----------------------------
         dao.openTransaction();

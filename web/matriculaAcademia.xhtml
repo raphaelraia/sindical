@@ -159,9 +159,25 @@
                                                 </h:column>
                                                 <p:outputLabel value="Modalidade:" />
                                                 <p:selectOneMenu value="#{matriculaAcademiaBean.idModalidade}" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" style="width: 690px">
-                                                    <p:ajax event="change" update="@this id_panel_grid_calcula id_grid_periodo_grade i_panel_dia_vencimento i_parceiros" listener="#{matriculaAcademiaBean.listener('recalcular1')}"/>
+                                                    <p:ajax event="change" update="@this id_panel_grid_calcula id_grid_periodo_grade i_panel_dia_vencimento i_parceiros i_vagas_1 i_vagas_2" listener="#{matriculaAcademiaBean.listener('recalcular1')}"/>
                                                     <f:selectItems value="#{matriculaAcademiaBean.listaModalidades}"/>
-                                                </p:selectOneMenu>
+                                                </p:selectOneMenu>                                                        
+                                                <h:column rendered="false">
+                                                    <h:panelGroup id="i_vagas_1">
+                                                        <h:panelGrid columns="3" rendered="#{matriculaAcademiaBean.quantidadeVagas ne null}">
+                                                            <p:outputLabel value="Vagas:" />
+                                                            <p:outputLabel value="#{matriculaAcademiaBean.quantidadeVagas}"  styleClass="bold"/>
+                                                        </h:panelGrid>
+                                                    </h:panelGroup>
+                                                </h:column>
+                                                <h:column rendered="false">
+                                                    <h:panelGroup id="i_vagas_2">
+                                                        <h:panelGrid columns="3" rendered="#{matriculaAcademiaBean.quantidadeVagas ne null}">
+                                                            <p:outputLabel value="Disponiveis:" styleClass="margin-left-max"/>
+                                                            <p:outputLabel value="#{matriculaAcademiaBean.quantidadeDisponiveis}"  styleClass="bold"/>
+                                                        </h:panelGrid>                                                        
+                                                    </h:panelGroup>
+                                                </h:column>
                                                 <h:column>
                                                     <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1}">
                                                         <p:outputLabel value="Parceiro: " />

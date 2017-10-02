@@ -39,7 +39,7 @@
             <p:panel style="margin: auto 0;">
                 <h:form id="form_grid_pesquisa_sis_pessoa">
                     <h:panelGrid id="i_panel_grid" style="width: 100%">
-                        <p:dataTable value="#{sisPessoaBean.listaSisPessoa}" var="sisPessoa" id="tbl" emptyMessage="Nenhuma registro encontrado" scrollHeight="400" scrollable="true">
+                        <p:dataTable value="#{sisPessoaBean.listaSisPessoa}" var="sisPessoa" id="tbl" emptyMessage="Nenhuma registro encontrado" rows="10" paginator="true">
                             <p:column headerText="ID" styleClass="text-center" width="50">
                                 <p:commandLink action="#{sisPessoaBean.editar(sisPessoa)}" value="#{sisPessoa.id}"/>
                             </p:column>

@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -19,6 +20,7 @@ public class RelatorioChequesRecebidosDao extends DB {
                 + ")                            \n"
                 + "ORDER BY ds_conta";
         try {
+            Debugs.put("habilitaDebugQuery", queryString);
             Query qry = getEntityManager().createNativeQuery(queryString, Plano5.class);
             return qry.getResultList();
         } catch (Exception e) {

@@ -4,6 +4,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -151,6 +152,7 @@ public class RelatorioAtendimentoDao extends DB {
             // queryString += " ORDER BY pf.ds_nome, pf.ds_documento, dt_emissao, c.ds_nome, c.ds_documento ";
         }
         try {
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

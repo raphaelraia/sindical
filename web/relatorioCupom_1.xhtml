@@ -1,0 +1,197 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Relatório Cupom</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Relatório Cupom" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                            <p:outputLabel value="Tipo de Relatório: " />
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioCupomBean.idRelatorio}">
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado id_pg_relatorios" global="false" listener="#{relatorioCupomBean.loadRelatorioOrdem()}"/>
+                                <f:selectItems value="#{relatorioCupomBean.listRelatorios}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioCupomBean.listRelatorioOrdem}"/>
+                            <p:selectOneMenu value="#{relatorioCupomBean.idRelatorioOrdem}" rendered="#{not empty relatorioCupomBean.listRelatorioOrdem}">
+                                <p:ajax event="change" update="@this"/>
+                                <f:selectItems value="#{relatorioCupomBean.listRelatorioOrdem}"/>
+                            </p:selectOneMenu>                            
+                        </h:panelGrid>
+                    </p:panel>                  
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioCupomBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" rendered="#{!filter.disabled}">
+                                            <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioCupomBean.load(relatorioCupomBean.listFilters[loop.index])}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+                                <p:column>
+                                    <p:panel header="Cupons" style="width: 100%!important">
+                                        <h:panelGrid columns="2" cellspacing="5"> 
+                                            <p:selectOneMenu label="Data" value="#{relatorioCupomBean.idCupom}">
+                                                <p:ajax event="change" update="@this" />
+                                                <f:selectItems value="#{relatorioCupomBean.listCupom}"/>
+                                            </p:selectOneMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>                                        
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCupomBean.listFilters[0].active}">
+                                    <p:panel header="Data Emissão" style="width: 100%!important">
+                                        <h:panelGrid columns="5" id="id_data_nascimento">
+                                            <p:selectOneMenu label="Data" value="#{relatorioCupomBean.tipoDataEmissao}">
+                                                <p:ajax event="change" update="@this id_data_nascimento" />
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask mask="99/99/9999" value="#{relatorioCupomBean.dataEmissaoInicial}" converter="#{isDateString}" rendered="#{relatorioCupomBean.tipoDataEmissao ne 'todos'}">
+                                                <p:ajax event="change" global="false" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioCupomBean.tipoDataEmissao eq 'faixa'}" styleClass="margin-left-max"/>
+                                            <p:inputMask mask="99/99/9999" value="#{relatorioCupomBean.dataEmissaoFinal}" converter="#{isDateString}" rendered="#{relatorioCupomBean.tipoDataEmissao eq 'faixa'}">
+                                                <p:ajax event="change" global="false" />
+                                            </p:inputMask>                                            
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCupomBean.listFilters[1].active}">
+                                    <p:panel header="Sexo" style="width: 100%!important">
+                                        <h:panelGrid columns="5">
+                                            <p:outputLabel value="Sexo" />
+                                            <p:selectOneMenu value="#{relatorioCupomBean.sexo}">
+                                                <f:selectItem itemValue="M" itemLabel="M" />
+                                                <f:selectItem itemValue="F" itemLabel="F" />
+                                            </p:selectOneMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Parentesco" style="width: 100%!important" rendered="#{relatorioCupomBean.listFilters[2].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar parentesco" value="#{relatorioCupomBean.selectedParentesco}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCupomBean.listParentesco}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[2])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCupomBean.listFilters[3].active}">
+                                    <p:panel header="Idade" style="width: 100%!important">
+                                        <h:panelGrid columns="5">
+                                            <p:inputText value="#{relatorioCupomBean.idadeInicial}" converter="#{thisNumber}" size="1" styleClass="text-center">
+                                                <p:ajax event="change" global="false" />
+                                            </p:inputText>
+                                            <p:outputLabel value="até" />
+                                            <p:inputText value="#{relatorioCupomBean.idadeFinal}" converter="#{thisNumber}" size="1" styleClass="text-center">
+                                                <p:ajax event="change" global="false" />
+                                            </p:inputText>                                            
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[3])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                                <p:column>
+                                    <p:panel header="Operador" style="width: 100%!important" rendered="#{relatorioCupomBean.listFilters[4].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar operador" value="#{relatorioCupomBean.selectedOperador}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCupomBean.listOperador}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[4])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                                            
+                                <p:column>
+                                    <p:panel header="Cidade da Empresa do Sócio" style="width: 100%!important" rendered="#{relatorioCupomBean.listFilters[5].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar cidade" value="#{relatorioCupomBean.selectedCidade}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCupomBean.listCidade}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[5])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                                            
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" id="i_btns" cellpadding="3">
+                        <h:column>
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioCupomBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" disabled="#{empty relatorioCupomBean.listRelatorios}"/>
+                            </h:panelGrid>
+                        </h:column>
+                        <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                            <p:ajax event="change" update="@this" />
+                        </p:selectBooleanCheckbox>
+                        <h:column>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel value="Exportar para " />
+                                <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                    <p:ajax event="change" global="false" update="@this"/>
+                                    <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                    <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>
+                        </h:column>
+                        <h:column>
+                            <p:commandButton value="ALIAS para ordenar" title="Uso exclusivo do administrador" icon="ui-icon-close" onclick="PF('dlg_alias').show();" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                        </h:column>
+                    </h:panelGrid>
+                    <p:dialog widgetVar="dlg_alias" modal="true" width="330" header="ALIAS para ordenar">
+                        <h:panelGrid columns="1">
+                            <h:column>
+                                CM.dt_emissao (Emissão do cupom)           
+                            </h:column>
+                            <h:column>
+                                P.ds_nome (Pessoa nome)
+                            </h:column>
+                            <h:column>
+                                PO.ds_nome (Operador nome)
+                            </h:column>
+                            <h:column>
+                                U.ds_login (Operador login)
+                            </h:column>
+                            <h:column>
+                                S.parentesco (Parentesco)
+                            </h:column>                            
+                            <h:column>
+                                func_idade(f.dt_nascimento, current_date) (Pessoa idade)
+                            </h:column>                            
+                        </h:panelGrid>
+                    </p:dialog>
+                </h:form>               
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

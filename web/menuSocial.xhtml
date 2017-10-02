@@ -46,26 +46,34 @@
                                     <p:menuitem value="Agendamento Financeiro"  action="#{chamadaPaginaBean.pagina('matriculaAgendamentoFinanceiro')}" />
                                     <p:menuitem value="Juridica"                action="#{chamadaPaginaBean.pessoaJuridica}" />
 
+                                    <p:submenu label="Agendamentos">
+                                        <p:menuitem value="Serviços"            action="#{chamadaPaginaBean.pagina('agendaServico')}" />
+                                    </p:submenu>
+
                                     <p:submenu label="Convênio Empresas">
                                         <p:menuitem value="Convênio"            action="#{chamadaPaginaBean.pagina('convenio')}" />
                                         <p:menuitem value="Grupo Convênio"      action="#{chamadaPaginaBean.paginaSimples('GrupoConvenio', 'GRUPO CONVÊNIO')}" />
                                         <p:menuitem value="SubGrupo Convênio"   action="#{chamadaPaginaBean.pagina('subGrupoConvenio')}" />
                                     </p:submenu>
 
-                                    <p:submenu label="Evento Baile">
-                                        <p:menuitem value="Baile"               action="#{chamadaPaginaBean.baile}" />
-                                        <p:menuitem value="Banda"               action="#{chamadaPaginaBean.bandas}" />
-                                    </p:submenu>
+                                    <p:submenu label="Eventos">
+                                        <p:submenu label="Baile">
+                                            <p:menuitem value="Baile"               action="#{chamadaPaginaBean.baile}" />
+                                            <p:menuitem value="Banda"               action="#{chamadaPaginaBean.bandas}" />
+                                        </p:submenu>
 
-                                    <p:submenu label="Viagens">
-                                        <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
-                                    </p:submenu>
+                                        <p:submenu label="Campeonatos">
+                                            <p:menuitem value="Agenda"                  action="#{chamadaPaginaBean.pagina('campeonato')}" />
+                                            <p:menuitem value="Equipes"                 action="#{chamadaPaginaBean.pagina('equipe')}" />
+                                            <p:menuitem value="Equipes do Campeonato"   action="#{chamadaPaginaBean.pagina('campeonatoEquipe')}" />
+                                            <p:separator style="border-top: 1px solid #999999"/> 
+                                            <p:menuitem value="Modalidade"              action="#{chamadaPaginaBean.paginaSimples('CampeonatoModalidade', 'CAMPEONATO MODALIDADE')}" />
+                                            <p:menuitem value="Campeonato"              action="#{chamadaPaginaBean.pagina('descricaoEvento')}" />
+                                        </p:submenu>
 
-                                    <p:submenu label="Campeonatos">
-                                        <p:menuitem value="Campeonato"              action="#{chamadaPaginaBean.pagina('campeonato')}" />
-                                        <p:menuitem value="Equipes"                 action="#{chamadaPaginaBean.pagina('equipe')}" />
-                                        <p:menuitem value="Equipes do Campeonato"   action="#{chamadaPaginaBean.pagina('campeonatoEquipe')}" />
-                                        <p:menuitem value="Modalidades"             action="#{chamadaPaginaBean.paginaSimples('CampeonatoModalidade', 'CAMPEONATO MODALIDADE')}" />
+                                        <p:submenu label="Viagens">
+                                            <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
+                                        </p:submenu>
                                     </p:submenu>
 
                                     <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" />
@@ -145,6 +153,7 @@
                                         <p:menuitem value="Cupom"               action="#{chamadaPaginaBean.pagina('relatorioCupom')}" ajax="false"/>
                                         <p:menuitem value="Frequência Catraca"  action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false"/>
                                         <p:menuitem value="Mala Direta Grupo"   action="#{chamadaPaginaBean.paginaSimples('MalaDiretaGrupo', 'Mala Direta Grupo')}"/>
+                                        <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonato')}" ajax="false"/>
                                     </p:submenu>
                                     <p:submenu label="Rotina">
                                         <p:menuitem value="Cartão Social"       action="#{chamadaPaginaBean.cartaoSocial}" />
@@ -156,6 +165,7 @@
                                         <p:menuitem value="Fechamento Baile"    action="#{chamadaPaginaBean.pagina('relatorioFechamentoBaile')}" ajax="false"/>
                                         <p:menuitem value="Cobrança Externa"    action="#{chamadaPaginaBean.pagina('relatorioCobrancaExterna')}" ajax="false"/>
                                         <p:menuitem value="Desconto em Folha"   action="#{chamadaPaginaBean.pagina('relatorioDescontoFolha')}" ajax="false"/>
+                                        <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonatoFinanceiro', 'relatorioCampeonato')}" ajax="false"/>
                                         <p:submenu label="Boletos">
                                             <p:menuitem value="Baixados (banco)"     action="#{chamadaPaginaBean.pagina('relatorioBoletosBaixados')}" ajax="false"/>
                                             <p:menuitem value="Resumo"          action="#{chamadaPaginaBean.pagina('relatorioResumoImpressaoBoletos')}" />

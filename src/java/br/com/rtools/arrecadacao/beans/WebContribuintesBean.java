@@ -3,6 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.WebContribuintesDao;
+import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ImpressaoWeb;
@@ -11,6 +12,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
+import br.com.rtools.financeiro.dao.BoletoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
@@ -126,11 +128,35 @@ public class WebContribuintesBean extends MovimentoValorBean {
                 hvalor = true;
             }
 
+            String data = DataHoje.data();
+            String newData = "";
+            int z = 0;
+            List<SelectItem> listVencimento = new ArrayList();
+            while (z < 6) {
+                newData = (new DataHoje()).incrementarDias(z, data);
+                listVencimento.add(new SelectItem(z, newData, newData));
+                z++;
+            }
+            Servicos s = (Servicos) dao.find(new Servicos(), (Integer) ((List) lista.get(i)).get(1));
+            TipoServico ts = (TipoServico) dao.find(new TipoServico(), (Integer) ((List) lista.get(i)).get(2));
+            ContaCobranca cc = new ContaCobrancaDao().pesquisaServicoCobranca(s.getId(), ts.getId());
+            // Boleto b = new BoletoDao().findByNrCtrBoleto(((List) lista.get(i)).get(0).toString());
+            // if (b != null) { 
+            if (cc != null) {
+                if (cc.getCobrancaRegistrada() != null) {
+                    if (cc.getCobrancaRegistrada().getId() == 1) {
+                        listVencimento = new ArrayList();
+                        listVencimento.add(new SelectItem(0, DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), DataHoje.converteData((Date) ((List) lista.get(i)).get(4))));
+                    }
+                }
+            }
+            //}
+
             listaMovimento.add(new DataObject(
                     false,
                     ((List) lista.get(i)).get(0), // boleto
-                    dao.find(new Servicos(), (Integer) ((List) lista.get(i)).get(1)), // servico
-                    dao.find(new TipoServico(), (Integer) ((List) lista.get(i)).get(2)), // tipo
+                    s, // servico
+                    ts, // tipo
                     ((List) lista.get(i)).get(3), // referencia
                     DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), // vencimento
                     Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(5))), // valor_mov
@@ -148,6 +174,9 @@ public class WebContribuintesBean extends MovimentoValorBean {
                     hdata, // null
                     hvalor, // null
                     "0", // null
+                    listVencimento, // null
+                    null, // null
+                    null, // null
                     null // null
             ));
         }

@@ -33,85 +33,123 @@
                         <div style="clear: both"></div>
                         <h:form id="formExameMedico">
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="3">
-                                    <c:forEach items="#{exameMedicoBean.listaValidade}" var="lista_validade">
-                                        <h:column>
-                                            <p:panel>
-                                                <p:selectBooleanCheckbox value="#{lista_validade.chkValidade}" itemLabel="#{lista_validade.vem.departamento.descricao}" /><br /><br />
-                                                <p:outputLabel value="Quantidade de Meses Válido" /><br />
-                                                <p:inputText value="#{lista_validade.vem.meses}" style="width: 200px; opacity: .5; font-weight: bold; font-size: 11pt!important; text-align: right" disabled="true"/>
-                                            </p:panel>
-                                        </h:column>
-                                    </c:forEach>
+                                <f:facet name="header">
+                                    <h:panelGrid columns="3" style="width: 100%">
+                                        <c:forEach items="#{exameMedicoBean.listaValidade}" var="lista_validade">
+                                            <h:column>
+                                                <p:panel>
+                                                    <p:selectBooleanCheckbox value="#{lista_validade.chkValidade}" itemLabel="#{lista_validade.vem.departamento.descricao}" /><br /><br />
+                                                    <p:outputLabel value="Quantidade de Meses Válido" /><br />
+                                                    <p:inputText value="#{lista_validade.vem.meses}" style="width: 200px; opacity: .5; font-weight: bold; font-size: 11pt!important; text-align: right" disabled="true"/><br /><br />
+                                                    <p:outputLabel value="Faixa de idade de #{lista_validade.vem.idadeInicial} até #{lista_validade.vem.idadeFinal} anos" /><br />
+                                                </p:panel>
+                                            </h:column>
+                                        </c:forEach>
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                                  <h:column rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq 1}">
+                                    <h:panelGrid columns="2">
+                                        <h:outputLabel value="Emissão: " />
+                                        <p:inputMask mask="99/99/9999" value="#{exameMedicoBean.dataEmissao}" converter="#{isDateString}" size="10">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
+                                    </h:panelGrid>                                    
+                                </h:column>
+                                <h:panelGrid columns="2" style="width: 100%">
+                                    <h:column>
+
+                                        <h:panelGrid columns="3">
+                                            <h:column>
+                                                <p:commandButton icon="ui-icon-search" oncomplete="PF('dlg_tipo_pesquisa').show()"/>
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:commandLink action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" value="#{(exameMedicoBean.fisica.id eq -1) ? 'PESQUISA PESSOA' : exameMedicoBean.fisica.pessoa.nome} (#{exameMedicoBean.fisica.idade} anos)" style="font-size: 11pt!important" rendered="#{exameMedicoBean.fisica.id ne -1}"/>
+                                                <p:commandLink action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" value="#{(exameMedicoBean.sisPessoa.id eq -1) ? '' : exameMedicoBean.sisPessoa.nome} (#{exameMedicoBean.sisPessoa.idade} anos)" style="font-size: 11pt!important" rendered="#{exameMedicoBean.sisPessoa.id ne -1}"/>
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:commandButton icon="ui-icon-close" action="#{exameMedicoBean.removerPessoa()}" update="@form" rendered="#{exameMedicoBean.fisica.id ne -1 or exameMedicoBean.sisPessoa.id ne -1}"/>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="3">
+                                                <p:commandButton value="Novo" action="#{genericaSessao.removeSession('exameMedicoBean')}" update="@form" />
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:panelGrid columns="1">
+                                            <h:column>
+                                                <p:commandButton icon="ui-icon-check" onclick="PF('dlg_salvar').show()" value="Salvar Exame" rendered="#{exameMedicoBean.fisica.id ne -1 or exameMedicoBean.sisPessoa.id ne -1}"/>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:column>
                                 </h:panelGrid>
+                                <f:facet name="footer">
+
+                                </f:facet>
                             </p:panel>
-                            <h:panelGrid columns="2" style="width: 100%">
-                                <h:column>
-
-                                    <h:panelGrid columns="3">
-                                        <h:column>
-                                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" />
-                                        </h:column>
-
-                                        <h:column>
-                                            <p:commandLink action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" value="#{(exameMedicoBean.fisica.id eq -1) ? 'PESQUISA PESSOA' : exameMedicoBean.fisica.pessoa.nome}" style="font-size: 11pt!important" />
-                                        </h:column>
-
-                                        <h:column>
-                                            <p:commandButton icon="ui-icon-close" action="#{exameMedicoBean.removerPessoa()}" update="@form" rendered="#{exameMedicoBean.fisica.id ne -1}"/>
-                                        </h:column>
-                                    </h:panelGrid>
-                                </h:column>
-
-                                <h:column>
-                                    <h:panelGrid columns="1" style="float: right">
-                                        <h:column>
-                                            <p:commandButton icon="ui-icon-check" onclick="PF('dlg_salvar').show()" value="Salvar Exame" rendered="#{exameMedicoBean.fisica.id ne -1}"/>
-                                        </h:column>
-                                    </h:panelGrid>
-                                </h:column>
-                            </h:panelGrid>
 
                             <p:messages showDetail="true" closable="true" />
 
-                            <p:dataTable value="#{exameMedicoBean.listaExameMedico}" var="linha" emptyMessage="Nenhum Registro Encontrado!">
-                                <p:column headerText="ID"  style="width: 80px; text-align: center">
-                                    <p:outputLabel value="#{linha.pessoa.id}" />
+                            <p:dataTable value="#{exameMedicoBean.listaExameMedico}" var="exameMedico" emptyMessage="Nenhum Registro Encontrado!" paginator="true" rows="10">
+                                <p:column styleClass="text-center" width="30">
+                                    <p:commandButton action="#{exameMedicoBean.print(exameMedico)}" icon="ui-icon-print" ajax="false"/>
                                 </p:column>
-                                
-                                <p:column headerText="PESSOA"  style="">
-                                    <p:outputLabel value="#{linha.pessoa.nome}" />
+
+                                <p:column headerText="#"  styleClass="text-center" width="50">
+                                    <p:outputLabel value="#{exameMedico.id}" />
                                 </p:column>
-                                
-                                <p:column headerText="EMISSÃO"  style="width: 80px; text-align: center">
-                                    <p:outputLabel value="#{linha.dtEmissaoString}" />
+
+                                <p:column headerText="TIPO"  styleClass="text-center">
+                                    <p:outputLabel value="#{exameMedico.pessoa eq null ? 'CONVIDADO' : 'SÓCIO'}" />
                                 </p:column>
-                                
-                                <p:column headerText="VALIDADE"  style="width: 80px; text-align: center">
-                                    <p:outputLabel value="#{linha.dtValidadeString}"/>
+
+                                <p:column headerText="PESSOA" >
+                                    <p:outputLabel value="#{exameMedico.pessoa eq null ? exameMedico.sisPessoa.nome : exameMedico.pessoa.nome}" />
                                 </p:column>
-                                
-                                <p:column headerText="DEPARTAMENTO"  style="width: 150px">
-                                    <p:outputLabel value="#{linha.departamento.descricao}" />
+
+                                <p:column headerText="IDADE" width="60" styleClass="text-center">
+                                    <p:outputLabel value="#{exameMedico.pessoa eq null ? exameMedico.sisPessoa.idade : exameMedico.pessoa.fisica.idade}" />
                                 </p:column>
-                                
-                                <p:column headerText=""  style="width: 30px; text-align: center;">
-                                    <p:commandButton icon="ui-icon-close" action="#{exameMedicoBean.editar(linha)}" title="EXCLUIR EXAME MÉDICO" oncomplete="PF('dlg_excluir').show()"/>
+
+                                <p:column headerText="EMISSÃO" width="80" styleClass="text-center">
+                                    <p:outputLabel value="#{exameMedico.dtEmissaoString}" />
+                                </p:column>
+
+                                <p:column headerText="VALIDADE" width="80" styleClass="text-center">
+                                    <p:outputLabel value="#{exameMedico.dtValidadeString}"/>
+                                </p:column>
+
+                                <p:column headerText="DEPARTAMENTO" >
+                                    <p:outputLabel value="#{linha.departamento.descricao.toUpperCase()}" />
+                                </p:column>
+
+                                <p:column width="30">
+                                    <p:commandButton icon="ui-icon-close" action="#{exameMedicoBean.editar(exameMedico)}" title="EXCLUIR EXAME MÉDICO" oncomplete="PF('dlg_excluir').show()"/>
                                 </p:column>
                             </p:dataTable>
-                            
+
                             <p:dialog widgetVar="dlg_salvar" header="Salvar Exame" resizable="false" width="400" modal="true">
                                 <p:outputLabel value="Deseja realmente SALVAR este Exame Médico?" style="font-size: 11pt!important"/>
                                 <br /><br />
                                 <p:commandButton value="SIM" type="submit" styleClass="ui-confirmdialog-yes" action="#{exameMedicoBean.salvar()}" update="@form" style="clear: both; float: left" icon="ui-icon-check" />
                                 <p:commandButton value="NÃO" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_excluir" header="Excluir Exame" resizable="false" width="400" modal="true">
                                 <p:outputLabel value="Deseja realmente EXCLUIR este Exame Médico?" style="font-size: 11pt!important; color: red"/>
                                 <br /><br />
                                 <p:commandButton value="SIM" type="submit" styleClass="ui-confirmdialog-yes" action="#{exameMedicoBean.excluir()}" update="@form" style="clear: both; float: left" icon="ui-icon-check" />
                                 <p:commandButton value="NÃO" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_tipo_pesquisa" header="Pesquisar Sócio/Convidado" resizable="false" width="400" modal="true">
+                                <center>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" value="SÓCIO" rendered="#{exameMedicoBean.exameMedico.id eq -1 and exameMedicoBean.exameMedico.pessoa.id eq -1}"/>
+                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaSisPessoa')}" value="CONVIDADO" rendered="#{exameMedicoBean.exameMedico.id eq -1 and exameMedicoBean.exameMedico.sisPessoa.id eq -1}"/>
+                                    </h:panelGrid>                                    
+                                </center>
                             </p:dialog>
                         </h:form>
                     </p:panel>

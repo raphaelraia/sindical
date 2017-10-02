@@ -88,11 +88,12 @@
                                         <p:ajax event="change" update="@this i_panel_datas" global="false" />
                                         <f:selectItem itemValue="todos" itemLabel="Todos" />
                                         <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                        <f:selectItem itemValue="hoje" itemLabel="Hoje" />
                                         <f:selectItem itemValue="apartir" itemLabel="A partir" />
                                         <f:selectItem itemValue="ate" itemLabel="Até" />
                                         <f:selectItem itemValue="faixa" itemLabel="Faixa" />
                                     </p:selectOneMenu>
-                                    <p:inputMask mask="99/99/9999" value="#{cartaoSocialBean.startDate}" converter="#{isDateString}" rendered="#{cartaoSocialBean.typeDate ne 'todos'}" size="10" styleClass="text-center">
+                                    <p:inputMask mask="99/99/9999" value="#{cartaoSocialBean.startDate}" converter="#{isDateString}" rendered="#{(cartaoSocialBean.typeDate ne 'todos' and cartaoSocialBean.typeDate ne 'hoje')}" size="10" styleClass="text-center">
                                         <p:ajax event="change" global="false" />
                                     </p:inputMask>
                                     <p:outputLabel value="até" rendered="#{cartaoSocialBean.typeDate eq 'faixa'}" styleClass="margin-left-max"/>

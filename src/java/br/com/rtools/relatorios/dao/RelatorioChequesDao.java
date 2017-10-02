@@ -4,6 +4,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -137,6 +138,7 @@ public class RelatorioChequesDao extends DB {
 
         queryString += " ORDER BY CH.dt_emissao, CB.ds_conta, CH.ds_cheque ";
         try {
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
             if (!list.isEmpty()) {

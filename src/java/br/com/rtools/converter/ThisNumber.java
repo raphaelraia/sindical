@@ -1,5 +1,6 @@
 package br.com.rtools.converter;
 
+import br.com.rtools.utilitarios.Types;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -13,6 +14,9 @@ public class ThisNumber implements Converter {
         try {
             return (String) value; // Or (value != null) ? value.toString().toUpperCase() : null;            
         } catch (Exception e) {
+            if (Types.isInteger(value)) {
+                return value + "";
+            }
             return "";
         }
     }
@@ -20,7 +24,7 @@ public class ThisNumber implements Converter {
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
         value = (value != null) ? value.replaceAll("[^0-9]", "") : null;
-        if(value == null || value.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             value = "0";
         }
         return value;

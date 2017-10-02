@@ -263,8 +263,11 @@ public class ImpressaoParaSocios {
                 //* ADD LISTA DE JASPERS *//
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(entry.getValue());
                 jasper = (JasperReport) JRLoader.loadObject(file);
-                if (subreport != null) {
-                    map.put("template_dir", subreport);
+                File subreportFile = new File(subreport);
+                if(subreportFile.exists()) {
+                    if (subreport != null) {
+                        map.put("template_dir", subreport);
+                    }                    
                 }
 
                 // EM PRODUÇÃO COMPACTA CARTÕES EM GRANDES QUANTIDADES E PARTICIONA - BRUNO

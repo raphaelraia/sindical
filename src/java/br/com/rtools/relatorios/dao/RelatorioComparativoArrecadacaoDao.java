@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -122,6 +123,7 @@ public class RelatorioComparativoArrecadacaoDao extends DB {
             } else {
                 queryString += " ORDER BY P.ds_nome ASC ";
             }
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
             if (!list.isEmpty()) {

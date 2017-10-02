@@ -1,6 +1,5 @@
 package br.com.rtools.sistema.dao;
 
-import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
 import br.com.rtools.sistema.Configuracao;
 import br.com.rtools.sistema.Resolucao;

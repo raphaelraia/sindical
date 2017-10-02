@@ -687,6 +687,12 @@ public class VendaBaileBean implements Serializable {
         zeraValores();
         somaValor();
         eventoBaile = (EventoBaile) new Dao().find(new EventoBaile(), Integer.valueOf(listaEventoBaile.get(indexEventoBaile).getDescription()));
+        mesaConvite = "mesa";
+        if (eventoBaile.getQuantidadeMesas() > 0) {
+            mesaConvite = "mesa";
+        } else if (eventoBaile.getQuantidadeMesas() == 0 && eventoBaile.getQuantidadeConvites() > 0) {
+            mesaConvite = "convite";
+        }
     }
 
     public void zeraValores() {
@@ -749,6 +755,11 @@ public class VendaBaileBean implements Serializable {
                 );
             }
             eventoBaile = (EventoBaile) new Dao().find(new EventoBaile(), Integer.valueOf(listaEventoBaile.get(indexEventoBaile).getDescription())); //result.get(0);
+            if (eventoBaile.getQuantidadeMesas() > 0) {
+                mesaConvite = "mesa";
+            } else if (eventoBaile.getQuantidadeMesas() == 0 && eventoBaile.getQuantidadeConvites() > 0) {
+                mesaConvite = "convite";
+            }
         }
         loadListaServicos();
     }

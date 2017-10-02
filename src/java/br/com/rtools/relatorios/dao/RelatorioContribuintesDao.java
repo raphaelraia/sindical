@@ -6,6 +6,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Debugs;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,7 +176,8 @@ public class RelatorioContribuintesDao extends DB {
                     + "   LEFT JOIN end_logradouro         AS lcon  on lcon.id = econ.id_logradouro \n"
                     + "   LEFT JOIN end_descricao_endereco AS decon on decon.id = econ.id_descricao_endereco \n"
                     + "   LEFT JOIN end_bairro             AS bcon  on bcon.id = econ.id_bairro     \n"
-                    + "   LEFT JOIN pes_centro_comercial   AS CECOM ON CECOM.id_juridica = j.id     \n";
+                    + "   LEFT JOIN pes_centro_comercial   AS CECOM ON CECOM.id_juridica = j.id     \n"
+                    + "   LEFT JOIN arr_contribuintes_inativos  AS ACC ON ACC.id_juridica = j.id     \n";
 
             // CONVENCAO GRUPO --------------------------------------------
             String cg_where = "", cg_and = "";
@@ -417,6 +419,39 @@ public class RelatorioContribuintesDao extends DB {
                 }
             }
 
+            // RECADASTRO
+            if (listDateFilters != null && !listDateFilters.isEmpty()) {
+                DateFilters dateFilters = DateFilters.getDateFilters(listDateFilters, "inativacao");
+                if (dateFilters != null) {
+                    if ((dateFilters.getDtStart() != null && !dateFilters.getStart().isEmpty()) || dateFilters.getType().equals("com") || dateFilters.getType().equals("sem")) {
+                        switch (dateFilters.getType()) {
+                            case "igual":
+                                listWhere.add(" ACC.dt_inativacao = '" + dateFilters.getStart() + "'");
+                                break;
+                            case "apartir":
+                                listWhere.add(" ACC.dt_inativacao >= '" + dateFilters.getStart() + "'");
+                                break;
+                            case "ate":
+                                listWhere.add(" ACC.dt_inativacao <= '" + dateFilters.getStart() + "'");
+                                break;
+                            case "faixa":
+                                if (!dateFilters.getStart().isEmpty()) {
+                                    listWhere.add(" ACC.dt_inativacao BETWEEN '" + dateFilters.getStart() + "' AND '" + dateFilters.getFinish() + "'");
+                                }
+                                break;
+                            case "com":
+                                listWhere.add(" ACC.dt_inativacao IS NOT NULL ");
+                                break;
+                            case "null":
+                                listWhere.add(" ACC.dt_inativacao IS NULL ");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
             // VALOR
             if (valor_inicial != null && valor_final != null && data_valor_inicial != null && data_valor_final != null) {
                 String subquery = "  p.id IN ( \n "
@@ -470,6 +505,7 @@ public class RelatorioContribuintesDao extends DB {
             } else {
                 // queryString += " ORDER BY " + "";
             }
+            Debugs.put("habilitaDebugQuery", queryString);
             Query qry = getEntityManager().createNativeQuery(queryString);
             List list = qry.getResultList();
             if (!list.isEmpty()) {

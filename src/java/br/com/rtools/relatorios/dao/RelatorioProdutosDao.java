@@ -3,6 +3,7 @@ package br.com.rtools.relatorios.dao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Debugs;
 import br.com.rtools.utilitarios.QueryString;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,7 +155,7 @@ public class RelatorioProdutosDao extends DB {
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
             }
-
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

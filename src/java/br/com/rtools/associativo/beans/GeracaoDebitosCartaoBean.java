@@ -1,7 +1,6 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.HistoricoCarteirinha;
-import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
