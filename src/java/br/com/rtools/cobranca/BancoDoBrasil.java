@@ -4,7 +4,7 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
-import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -33,7 +33,7 @@ public class BancoDoBrasil extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public BancoDoBrasil(List<Boleto> listaBoleto) {
+    public BancoDoBrasil(List<BoletoRemessa> listaBoleto) {
         super(listaBoleto);
     }
 
@@ -210,9 +210,8 @@ public class BancoDoBrasil extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa240() {
+    public RespostaArquivoRemessa gerarRemessa240() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -220,7 +219,7 @@ public class BancoDoBrasil extends Cobranca {
         Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
         }
 
         List<String> list_log = new ArrayList();
@@ -237,7 +236,7 @@ public class BancoDoBrasil extends Cobranca {
 
         if (!dao.update(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao atualizar Remessa");
         }
 
         try {
@@ -260,9 +259,9 @@ public class BancoDoBrasil extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header do arquivo -----------------------------------------------
             // -----------------------------------------------------------------
@@ -276,7 +275,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "2"; // 05.0 Tipo de Inscrição da Empresa 18181- Numérico  G005 1 – para CPF e 2 – para CNPJ.
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa 193214- Numérico G006 Informar número da inscrição (CPF ou CNPJ) da Empresa,  alinhado à direita com zeros à esquerda.
 
-            Boleto boleto_rem = listaBoleto.get(0); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto(); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente();
@@ -319,7 +318,8 @@ public class BancoDoBrasil extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
@@ -361,7 +361,8 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN/CNAB 20824033- Alfanumérico Brancos G004 Informar 'brancos' (espaços).
 
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -372,8 +373,9 @@ public class BancoDoBrasil extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
+                StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
                 List<Movimento> lista_m = bol.getListaMovimento();
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
@@ -384,7 +386,11 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3P Nº Sequencial do Registro no Lote 9135- Numérico  G038 Começar com 00001 e ir incrementando em 1 a cada nova linha de registro detalhe
                 CONTEUDO_REMESSA += "P"; // 05.3P Cód. Segmento do Registro Detalhe 14141- Alfanumérico 'P' G03
                 CONTEUDO_REMESSA += " "; // 06.3P Uso Exclusivo FEBRABAN/CNAB 15151- Alfanumérico Brancos G004
-                CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa 16172- Numérico  C004
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa 16172- Numérico  C004 // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3P Código de Movimento Remessa 16172- Numérico  C004 // BAIXAR
+                }
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Agência Mantenedora da Conta 18225- Numérico  G008
                 CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P Dígito Verificador da Agência 23231- Alfanumérico  G009 Obs. Em caso de dígito X informar maiúsculo. 
                 CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.3P Número da Conta Corrente 243512- Numérico  G010
@@ -443,7 +449,8 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += " "; // 42.3P Uso Exclusivo FEBRABAN/CNAB 2402401-  Alfanumérico Brancos G004 Informar 'brancos' (espaços). 
 
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento P menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -459,7 +466,12 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q Nº Sequencial do Registro no Lote 9 135- Numérico  G038
                 CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe 14 141- Alfanumérico ‘Q’ G039
                 CONTEUDO_REMESSA += " "; // 06.3Q Uso Exclusivo FEBRABAN/CNAB 15 151- Alfanumérico Brancos G004
-                CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa 16 172- Numérico  C004
+                
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa 16 172- Numérico  C004 // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3Q Código de Movimento Remessa 16 172- Numérico  C004 // BAIXAR
+                }
 
                 Pessoa pessoa = bol.getPessoa();
 
@@ -487,6 +499,10 @@ public class BancoDoBrasil extends Cobranca {
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro 
                     String cep = end_cep.replace("-", "").replace(".", "");
+                    if (cep.length() < 8) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
+                    }
                     CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP do Pagador
                     CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP do Pagador
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade do Pagador
@@ -508,8 +524,10 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB 233 2408- Alfanumérico Brancos G004 Informar 'brancos' (espaços).
 
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Q menor que 240: " + CONTEUDO_REMESSA);
                 }
+
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -526,11 +544,11 @@ public class BancoDoBrasil extends Cobranca {
 
                 valor_total_lote = Moeda.soma(valor_total_lote, valor_l);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -544,12 +562,13 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço 474 - Numérico  G002 Informar mesmo número do header de lote. 
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 881 - Numérico '5' G003
             CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB 9179 - Alfanumérico  G004 Informar 'brancos'. 
-            Integer quantidade_lote = (2 * listaBoleto.size()) + 2;
+            Integer quantidade_lote = (2 * listaBoletoRemessa.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros do Lote 18236 - Numérico G057 Total de linhas do lote (inclui Header de lote, Registros e  Trailer de lote).
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                         "; // 06.5 Uso Exclusivo FEBRABAN/CNAB 24240217 - Alfanumérico Brancos G004 Informar Zeros e 'brancos'.
 
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
 
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
@@ -565,14 +584,15 @@ public class BancoDoBrasil extends Cobranca {
 
             CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo 18236- Numérico  G049 Informar quantos lotes o arquivo possui. 
 
-            Integer quantidade_registros = (2 * listaBoleto.size()) + 4;
+            Integer quantidade_registros = (2 * listaBoletoRemessa.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24296- Numérico 
 
             CONTEUDO_REMESSA += "      "; // 07.9 Qtde de Contas p/ Conc. (Lotes) 30356- Numérico 
 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB 36240205- Alfanumérico Brancos G004
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé do Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -591,16 +611,15 @@ public class BancoDoBrasil extends Cobranca {
 
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 
     @Override
-    public File gerarRemessa400() {
+    public RespostaArquivoRemessa gerarRemessa400() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
 
         Dao dao = new Dao();
@@ -612,7 +631,7 @@ public class BancoDoBrasil extends Cobranca {
             Remessa remessa = new Remessa(-1, nome_arquivo, DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
             if (!dao.save(remessa)) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
             }
 
             List<String> list_log = new ArrayList();
@@ -651,9 +670,9 @@ public class BancoDoBrasil extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header ----------------------------------------------------------
             // -----------------------------------------------------------------
@@ -668,7 +687,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "COBRANCA"; // 012 a 019 X(008) Identificação por Extenso do Tipo de Serviço: “COBRANCA”
             CONTEUDO_REMESSA += "       "; // 020 a 026 X(007) Complemento do Registro: “Brancos”
 
-            Boleto boleto_rem = listaBoleto.get(0);
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto();
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente().replace(",", "");
@@ -696,7 +715,8 @@ public class BancoDoBrasil extends Cobranca {
             sequencial_registro++;
 
             if (CONTEUDO_REMESSA.length() != 400) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Arquivo menor que 400");
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             //buff_writer.newLine();
@@ -710,8 +730,9 @@ public class BancoDoBrasil extends Cobranca {
             Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
 
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
+                StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
                 List<Movimento> lista_m = bol.getListaMovimento();
 
                 CONTEUDO_REMESSA += "7"; // 001 a 001 9(001) Identificação do Registro Detalhe: 7 (sete)
@@ -738,7 +759,11 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "000000"; // 096 a 101 9(006) Número do Borderô: “000000” (Zeros) 
                 CONTEUDO_REMESSA += "04DSC"; // 102 a 106 X(005) Tipo de Cobrança
                 CONTEUDO_REMESSA += "17"; // 107 a 108 9(002) Carteira de Cobrança 
-                CONTEUDO_REMESSA += "01"; // 109 a 110 9(002) Comando
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 109 a 110 9(002) Comando // REGISTRAR 
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 109 a 110 9(002) Comando // BAIXAR
+                }
                 CONTEUDO_REMESSA += "0000000000".substring(0, 10 - ("" + bol.getId()).length()) + bol.getId(); // 111 a 120 X(010) Seu Número/Número do Título Atribuído pelo Cedente 
 
                 String[] data_vencimento = DataHoje.DataToArrayString(bol.getVencimento());
@@ -820,18 +845,19 @@ public class BancoDoBrasil extends Cobranca {
                 sequencial_registro++;
 
                 if (CONTEUDO_REMESSA.length() != 400) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Detalhe de Arquivo menor que 400");
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 //buff_writer.newLine();
 
                 CONTEUDO_REMESSA = "";
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -848,7 +874,8 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Número Seqüencial do Registro no Arquivo 
 
             if (CONTEUDO_REMESSA.length() != 400) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Footer de Arquivo menor que 400");
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             buff_writer.write("");
@@ -866,11 +893,10 @@ public class BancoDoBrasil extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 }

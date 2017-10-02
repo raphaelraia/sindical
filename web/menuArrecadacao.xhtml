@@ -70,16 +70,17 @@
                                     <p:menuitem value="Impressão de Boletos"       action="#{chamadaPaginaBean.impressaoBoletos}" />
                                     <p:menuitem value="Impressão Individual"       action="#{chamadaPaginaBean.processamentoIndividual}" />
                                     <p:menuitem value="Retorno Banco"              action="#{chamadaPaginaBean.retornoBanco}" />
+                                    <p:menuitem value="Autoriza Repro. Retorno"    action="#{chamadaPaginaBean.pagina('autorizaReprocessamentoRetorno')}" />
                                     <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
                                     <p:menuitem value="Retorno Padrao"             action="#{chamadaPaginaBean.retornoPadrao}" rendered="false"/>
                                     <p:submenu label="Envio de Arquivos">
                                         <p:menuitem value="Contribuinte" action="#{chamadaPaginaBean.enviarArquivosContribuinte}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contribuinte')}"/>
-                                        <p:menuitem value="Escritório"   action="#{chamadaPaginaBean.enviarArquivosContabilidade}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contabilidade')}" />
+                                        <p:menuitem value="Escritório" action="#{chamadaPaginaBean.enviarArquivosContabilidade}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contabilidade')}" />
                                     </p:submenu>
-                                    <p:menuitem value="Gerar Notificação"          action="#{chamadaPaginaBean.notificacao()}" />
+                                    <p:menuitem value="Gerar Notificação" action="#{chamadaPaginaBean.notificacao()}" />
                                     <p:menuitem value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing', 'tmktHistoricoBean')}"/>
-                                    <p:menuitem value="Download Doc. Web"          action="#{chamadaPaginaBean.pagina('downloadDocumentosWeb')}" />
-                                    <p:menuitem value="Folha Empresa"       action="#{chamadaPaginaBean.pagina('folhaEmpresa')}" />
+                                    <p:menuitem value="Download Doc. Web" action="#{chamadaPaginaBean.pagina('downloadDocumentosWeb')}" />
+                                    <p:menuitem value="Folha Empresa" action="#{chamadaPaginaBean.pagina('folhaEmpresa')}" />
                                 </p:submenu>
 
                                 <p:submenu label="Relatórios" icon="ui-icon-document" style="margin-right: 15px">

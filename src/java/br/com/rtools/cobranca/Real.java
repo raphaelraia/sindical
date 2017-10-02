@@ -1,7 +1,7 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
-import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.File;
 import java.util.Date;
@@ -144,12 +144,12 @@ public class Real extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa240() {
-        return null;
+    public RespostaArquivoRemessa gerarRemessa240() {
+        return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
     
     @Override
-    public File gerarRemessa400() {
-        return null;
+    public RespostaArquivoRemessa gerarRemessa400() {
+        return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
 }

@@ -372,7 +372,7 @@ public final class ArquivoBancoBean implements Serializable {
             Object objs[] = caminhoServicoPendente();
             ContaCobranca scc = (ContaCobranca) objs[1];
             ArquivoRetorno ar = null;
-            List<GenericaRetorno> genericaRetorno = new ArrayList();
+            List<ObjetoRetorno> lista_objeto_retorno = new ArrayList();
             MovimentoDao db = new MovimentoDao();
 
             // CAIXA FEDERAL ------------------------------------------------------------------------------
@@ -381,21 +381,21 @@ public final class ArquivoBancoBean implements Serializable {
                     ar = new CaixaFederal(scc);
                     for (int i = 0; i < listaPasta.size(); i++) {
                         if ((Boolean) ((DataObject) listaPasta.get(i)).getArgumento0()) {
-                            genericaRetorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
+                            lista_objeto_retorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
                         }
                     }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
                     ar = new CaixaFederal(scc);
                     for (int i = 0; i < listaPasta.size(); i++) {
                         if ((Boolean) ((DataObject) listaPasta.get(i)).getArgumento0()) {
-                            genericaRetorno.addAll(ar.sindical(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
+                            lista_objeto_retorno.addAll(ar.sindical(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
                         }
                     }
                 } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                     ar = new CaixaFederal(scc);
                     for (int i = 0; i < listaPasta.size(); i++) {
                         if ((Boolean) ((DataObject) listaPasta.get(i)).getArgumento0()) {
-                            genericaRetorno.addAll(ar.sigCB(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
+                            lista_objeto_retorno.addAll(ar.sigCB(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
                         }
                     }
                 }
@@ -405,7 +405,7 @@ public final class ArquivoBancoBean implements Serializable {
                     ar = new BancoBrasil(scc);
                     for (int i = 0; i < listaPasta.size(); i++) {
                         if ((Boolean) ((DataObject) listaPasta.get(i)).getArgumento0()) {
-                            genericaRetorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
+                            lista_objeto_retorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
                         }
                     }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
@@ -417,7 +417,7 @@ public final class ArquivoBancoBean implements Serializable {
                     ar = new Real(scc);
                     for (int i = 0; i < listaPasta.size(); i++) {
                         if ((Boolean) ((DataObject) listaPasta.get(i)).getArgumento0()) {
-                            genericaRetorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
+                            lista_objeto_retorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
                         }
                     }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
@@ -429,96 +429,106 @@ public final class ArquivoBancoBean implements Serializable {
                     ar = new Itau(scc);
                     for (int i = 0; i < listaPasta.size(); i++) {
                         if ((Boolean) ((DataObject) listaPasta.get(i)).getArgumento0()) {
-                            genericaRetorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
+                            lista_objeto_retorno.addAll(ar.sicob(false, ((String) ((DataObject) listaPasta.get(i)).getArgumento1())));
                         }
                     }
                 } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
                 } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                 }
-
             }
-            Collection listaComparas = new ArrayList<ComparaMovimentos>();
-            ComparaMovimentos compara = null;
-            List<Movimento> movs = null;
-            String arqNumero = "";
-            String movNumero = "";
-            String vencimento = "";
-            Boleto boleto = new Boleto();
 
-            if (!genericaRetorno.isEmpty()) {
-                for (int i = 0; i < genericaRetorno.size(); i++) {
-                    movs = db.pesquisaMovPorNumDocumentoListBaixadoArr(genericaRetorno.get(i).getNossoNumero(), scc.getId());
-                    if (!movs.isEmpty()) {
-                        boleto = db.pesquisaBoletos(movs.get(0).getNrCtrBoleto());
-                        arqNumero = genericaRetorno.get(i).getNossoNumero();
-                        movNumero = boleto.getBoletoComposto();
-                        vencimento = genericaRetorno.get(i).getDataVencimento();
-                        if (vencimento.isEmpty()) {
-                            vencimento = "00000000";
-                        }
-                        compara = new ComparaMovimentos(arqNumero.substring(arqNumero.length() - movNumero.length(), arqNumero.length()),
-                                Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
-                                DataHoje.colocarBarras(genericaRetorno.get(i).getDataPagamento()),
-                                DataHoje.colocarBarras(vencimento),
-                                movNumero,
-                                movs.get(0).getValor(),
-                                movs.get(0).getBaixa().getImportacao(),
-                                movs.get(0).getVencimento(),
-                                movs.get(0).getPessoa().getDocumento(),
-                                movs.get(0).getPessoa().getNome(),
-                                movs.get(0).getServicos().getDescricao(),
-                                movs.get(0).getTipoServico().getDescricao(),
-                                genericaRetorno.get(i).getNomePasta(),
-                                genericaRetorno.get(i).getNomeArquivo());
-                    } else {
-                        movs = db.pesquisaMovPorNumDocumentoList(genericaRetorno.get(i).getNossoNumero(), DataHoje.converte(DataHoje.colocarBarras(genericaRetorno.get(i).getDataVencimento())), scc.getId());
-                        if (!movs.isEmpty()) {
-                            boleto = db.pesquisaBoletos(movs.get(0).getNrCtrBoleto());
-                            arqNumero = genericaRetorno.get(i).getNossoNumero();
-                            movNumero = boleto.getBoletoComposto();
-                            vencimento = genericaRetorno.get(i).getDataVencimento();
-                            if (vencimento.isEmpty()) {
-                                vencimento = "00000000";
-                            }
-                            compara = new ComparaMovimentos(arqNumero.substring(arqNumero.length() - movNumero.length(), arqNumero.length()),
-                                    Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
-                                    DataHoje.colocarBarras(genericaRetorno.get(i).getDataPagamento()),
-                                    DataHoje.colocarBarras(vencimento),
-                                    boleto.getBoletoComposto(),
-                                    movs.get(0).getValor(),
-                                    "",
-                                    movs.get(0).getVencimento(),
-                                    movs.get(0).getPessoa().getDocumento(),
-                                    movs.get(0).getPessoa().getNome(),
-                                    movs.get(0).getServicos().getDescricao(),
-                                    movs.get(0).getTipoServico().getDescricao(),
-                                    genericaRetorno.get(i).getNomePasta(),
-                                    genericaRetorno.get(i).getNomeArquivo());
+            Collection listaComparas = new ArrayList();
 
-                        } else {
-                            vencimento = genericaRetorno.get(i).getDataVencimento();
-                            if (vencimento.isEmpty()) {
-                                vencimento = "00000000";
+            ComparaMovimentos compara;
+
+            List<Movimento> movs;
+
+            String arqNumero, movNumero, vencimento;
+
+            if (!lista_objeto_retorno.isEmpty()) {
+                for (ObjetoRetorno objeto_retorno : lista_objeto_retorno) {
+
+                    for (ObjetoArquivo objeto_arquivo : objeto_retorno.getListaObjetoArquivo()) {
+
+                        for (LinhaSegmento linha_segmento : objeto_arquivo.getLinhaSegmento()) {
+
+                            movs = db.pesquisaMovPorNumDocumentoListBaixadoArr(linha_segmento.getNossoNumero(), scc.getId());
+                            if (!movs.isEmpty()) {
+                                Boleto boleto = db.pesquisaBoletos(movs.get(0).getNrCtrBoleto());
+                                arqNumero = linha_segmento.getNossoNumero();
+                                movNumero = boleto.getBoletoComposto();
+                                vencimento = linha_segmento.getDataVencimento();
+                                if (vencimento.isEmpty()) {
+                                    vencimento = "00000000";
+                                }
+                                compara = new ComparaMovimentos(arqNumero.substring(arqNumero.length() - movNumero.length(), arqNumero.length()),
+                                        Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(linha_segmento.getValorPago()), 100))),
+                                        DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
+                                        DataHoje.colocarBarras(vencimento),
+                                        movNumero,
+                                        movs.get(0).getValor(),
+                                        movs.get(0).getBaixa().getImportacao(),
+                                        movs.get(0).getVencimento(),
+                                        movs.get(0).getPessoa().getDocumento(),
+                                        movs.get(0).getPessoa().getNome(),
+                                        movs.get(0).getServicos().getDescricao(),
+                                        movs.get(0).getTipoServico().getDescricao(),
+                                        objeto_arquivo.getNomePasta(),
+                                        objeto_arquivo.getNomeArquivo()
+                                );
+                            } else {
+                                movs = db.pesquisaMovPorNumDocumentoList(linha_segmento.getNossoNumero(), DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataVencimento())), scc.getId());
+                                if (!movs.isEmpty()) {
+                                    Boleto boleto = db.pesquisaBoletos(movs.get(0).getNrCtrBoleto());
+                                    arqNumero = linha_segmento.getNossoNumero();
+                                    movNumero = boleto.getBoletoComposto();
+                                    vencimento = linha_segmento.getDataVencimento();
+                                    if (vencimento.isEmpty()) {
+                                        vencimento = "00000000";
+                                    }
+                                    compara = new ComparaMovimentos(arqNumero.substring(arqNumero.length() - movNumero.length(), arqNumero.length()),
+                                            Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(linha_segmento.getValorPago()), 100))),
+                                            DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
+                                            DataHoje.colocarBarras(vencimento),
+                                            boleto.getBoletoComposto(),
+                                            movs.get(0).getValor(),
+                                            "",
+                                            movs.get(0).getVencimento(),
+                                            movs.get(0).getPessoa().getDocumento(),
+                                            movs.get(0).getPessoa().getNome(),
+                                            movs.get(0).getServicos().getDescricao(),
+                                            movs.get(0).getTipoServico().getDescricao(),
+                                            objeto_arquivo.getNomePasta(),
+                                            objeto_arquivo.getNomeArquivo());
+
+                                } else {
+                                    vencimento = linha_segmento.getDataVencimento();
+                                    if (vencimento.isEmpty()) {
+                                        vencimento = "00000000";
+                                    }
+                                    compara = new ComparaMovimentos(linha_segmento.getNossoNumero(),
+                                            Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(linha_segmento.getValorPago()), 100))),
+                                            DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
+                                            DataHoje.colocarBarras(vencimento),
+                                            "",
+                                            0,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            objeto_arquivo.getNomePasta(),
+                                            objeto_arquivo.getNomeArquivo());
+                                }
                             }
-                            compara = new ComparaMovimentos(genericaRetorno.get(i).getNossoNumero(),
-                                    Moeda.converteUS$(String.valueOf(Moeda.divisao(Integer.parseInt(genericaRetorno.get(i).getValorPago()), 100))),
-                                    DataHoje.colocarBarras(genericaRetorno.get(i).getDataPagamento()),
-                                    DataHoje.colocarBarras(vencimento),
-                                    "",
-                                    0,
-                                    "",
-                                    "",
-                                    "",
-                                    "",
-                                    "",
-                                    "",
-                                    genericaRetorno.get(i).getNomePasta(),
-                                    genericaRetorno.get(i).getNomeArquivo());
+
+                            listaComparas.add(compara);
+                            movs = null;
                         }
                     }
-                    listaComparas.add(compara);
-                    movs = null;
                 }
+
                 try {
                     FacesContext faces = FacesContext.getCurrentInstance();
                     HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
@@ -554,6 +564,7 @@ public final class ArquivoBancoBean implements Serializable {
 
             }
         }
+
         return null;
     }
 
@@ -756,7 +767,12 @@ public final class ArquivoBancoBean implements Serializable {
                 }
             }
 
-            GenericaMensagem.info("Sucesso", "Arquivos Baixados");
+            if (result.isEmpty()) {
+                GenericaMensagem.info("SUCESSO", "ARQUIVOS BAIXADOS!");
+            } else {
+                GenericaMensagem.error("ATENÇÃO", result);
+            }
+
             loadListaArquivosBaixar();
             loadListaDocumentos();
         } catch (Exception e) {
@@ -910,7 +926,8 @@ public final class ArquivoBancoBean implements Serializable {
                         return false;
                     } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                         return false;
-                    }   break;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -1089,6 +1106,7 @@ public final class ArquivoBancoBean implements Serializable {
 
     public void setListaDetalheRetornoBanco(List<ObjectDetalheRetorno> listaDetalheRetornoBanco) {
         this.listaDetalheRetornoBanco = listaDetalheRetornoBanco;
+
     }
 
     public class DetalheRetornoArr {

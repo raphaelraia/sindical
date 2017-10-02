@@ -107,7 +107,7 @@ public class ControleUsuarioBean implements Serializable {
                     + "  WHERE ds_identifica =     '" + nomeCliente + "'"
                     + "  LIMIT 1                    "
             );
-            //ps.setString(1, nomeCliente);
+            
             rs = ps.executeQuery();
 
             if (!rs.next()) {
@@ -120,13 +120,6 @@ public class ControleUsuarioBean implements Serializable {
                 return true;
             }
 
-//            while (rs.next()) {
-//                
-//                Boolean ativo = Boolean.parseBoolean(rs.getString("is_ativo"));
-//                if (ativo) {
-//                    return true;
-//                }
-//            }
         } catch (Exception e) {
             e.getMessage();
             return true;

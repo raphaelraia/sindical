@@ -17,17 +17,22 @@ public class RemessaBanco implements java.io.Serializable {
     @JoinColumn(name = "id_boleto", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Boleto boleto;
+    @JoinColumn(name = "id_status_remessa", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private StatusRemessa statusRemessa;
 
     public RemessaBanco() {
         this.id = -1;
         this.remessa = new Remessa();
         this.boleto = new Boleto();
+        this.statusRemessa = new StatusRemessa();
     }
 
-    public RemessaBanco(int id, Remessa remessa, Boleto boleto) {
+    public RemessaBanco(int id, Remessa remessa, Boleto boleto, StatusRemessa statusRemessa) {
         this.id = id;
         this.remessa = remessa;
         this.boleto = boleto;
+        this.statusRemessa = statusRemessa;
     }
 
     public int getId() {
@@ -52,6 +57,14 @@ public class RemessaBanco implements java.io.Serializable {
 
     public void setBoleto(Boleto boleto) {
         this.boleto = boleto;
+    }
+
+    public StatusRemessa getStatusRemessa() {
+        return statusRemessa;
+    }
+
+    public void setStatusRemessa(StatusRemessa statusRemessa) {
+        this.statusRemessa = statusRemessa;
     }
 
 }

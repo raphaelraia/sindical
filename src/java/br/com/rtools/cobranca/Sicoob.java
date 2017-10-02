@@ -4,7 +4,7 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
-import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -33,8 +33,8 @@ public class Sicoob extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public Sicoob(List<Boleto> listaBoleto) {
-        super(listaBoleto);
+    public Sicoob(List<BoletoRemessa> listaBoletoRemessa) {
+        super(listaBoletoRemessa);
     }
 
     @Override
@@ -247,9 +247,8 @@ public class Sicoob extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa240() {
+    public RespostaArquivoRemessa gerarRemessa240() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -257,7 +256,7 @@ public class Sicoob extends Cobranca {
         Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
         }
 
         List<String> list_log = new ArrayList();
@@ -274,7 +273,7 @@ public class Sicoob extends Cobranca {
 
         if (!dao.update(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao atualizar Remessa");
         }
 
         try {
@@ -297,9 +296,9 @@ public class Sicoob extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header do arquivo -----------------------------------------------
             // -----------------------------------------------------------------
@@ -314,7 +313,7 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa
             CONTEUDO_REMESSA += "                    "; // 07.0 Código do Convênio no Sicoob: Preencher com espaços em branco
 
-            Boleto boleto_rem = listaBoleto.get(0);
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto();
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             //String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").split("-")[0];
@@ -341,7 +340,8 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "                             "; // 24.0 Uso Exclusivo FEBRABAN / CNAB: Preencher com espaços em branco
 
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
@@ -382,7 +382,8 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "00000000"; // 22.1 Data do Crédito: "00000000"
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -393,8 +394,9 @@ public class Sicoob extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
+                StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
                 List<Movimento> lista_m = bol.getListaMovimento();
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
@@ -404,7 +406,11 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3P Nº Sequencial do Registro no Lote: Número adotado para identificar a sequência de registros encaminhados no lote. Preencher com '00001' para o primeiro segmento P do lote do arquivo. Para os demais: número do segmento anterior acrescido de 1.
                 CONTEUDO_REMESSA += "P"; // 05.3P Cód. Segmento do Registro Detalhe: "P"
                 CONTEUDO_REMESSA += " "; // 06.3P Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-                CONTEUDO_REMESSA += "01"; // 07.3P "Código de Movimento Remessa: '01' = Entrada de Títulos '09' = Protestar '10' = Desistência do Protesto e Baixar Título '11' = Desistência do Protesto e manter em carteira '31' = Alterações de outros dados"
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3P "Código de Movimento Remessa: '01' = Entrada de Títulos '09' = Protestar '10' = Desistência do Protesto e Baixar Título '11' = Desistência do Protesto e manter em carteira '31' = Alterações de outros dados"
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3P "Código de Movimento Remessa: '01' = Entrada de Títulos '09' = Protestar '10' = Desistência do Protesto e Baixar Título '11' = Desistência do Protesto e manter em carteira '31' = Alterações de outros dados"
+                }
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Prefixo da Cooperativa: vide planilha "Contracapa" deste arquivo
                 CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P Dígito Verificador do Prefixo: vide planilha "Contracapa" deste arquivo
                 CONTEUDO_REMESSA += "000000000000".substring(0, 12 - conta.length()) + conta; // 10.3P Conta Corrente: vide planilha "Contracapa" deste arquivo
@@ -459,7 +465,8 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "0000000000"; // 41.3P Nº do Contrato da Operação de Créd.: "0000000000"
                 CONTEUDO_REMESSA += " "; // 42.3P Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento P menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -475,8 +482,11 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q "Nº Sequencial do Registro no Lote: Número adotado para identificar a sequência de registros encaminhados no lote. Preencher com '00001' para o primeiro segmento P do lote do arquivo. Para os demais: número do segmento anterior acrescido de 1. Ex: Se segmento anterior P = ""00001"". Então, segmento Q = ""00002"" e assim consecutivamente."
                 CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe: "Q"
                 CONTEUDO_REMESSA += " "; // 06.3Q Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-                CONTEUDO_REMESSA += "01"; // 07.3Q "Código de Movimento Remessa: '01'  =  Entrada de Títulos"
-
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3Q "Código de Movimento Remessa: '01'  =  Entrada de Títulos" // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3Q "Código de Movimento Remessa: '01'  =  Entrada de Títulos" // BAIXAR
+                }
                 // 08.3Q "Tipo de Inscrição Pagador: '1'  =  CPF '2'  =  CGC / CNPJ"
                 Pessoa pessoa = bol.getPessoa();
 
@@ -504,6 +514,10 @@ public class Sicoob extends Cobranca {
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro
                     String cep = end_cep.replace("-", "").replace(".", "");
+                    if (cep.length() < 8) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
+                    }
                     CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP
                     CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade
@@ -524,7 +538,8 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "                    "; // 21.3Q "Nosso Nº no Banco Correspondente: ""1323739"" (Banco do Brasil) ou ""4498893"" (Banco Bradesco). O campo NN deve ser preenchido, somente nos casos em que o campo anterior tenha indicado o uso do Banco Correspondente. Obs.: O preenchimento deste campo será alinha à esquerda a partir da posição 213 indo até 219."
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Q menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
@@ -533,11 +548,11 @@ public class Sicoob extends Cobranca {
 
                 valor_total_lote = Moeda.soma(valor_total_lote, valor_titulo_double);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -551,9 +566,9 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro: "5"
             CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-            Integer quantidade_lote = (3 * listaBoleto.size()) + 2;
+            Integer quantidade_lote = (3 * listaBoletoRemessa.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros no Lote
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoleto.size()).length()) + ("" + listaBoleto.size()); // 06.5 Quantidade de Títulos em Cobrança
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoletoRemessa.size()).length()) + ("" + listaBoletoRemessa.size()); // 06.5 Quantidade de Títulos em Cobrança
             String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
             CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dosTítulos em Carteiras
             CONTEUDO_REMESSA += "000000"; // 08.5 Quantidade de Títulos em Cobrança
@@ -565,7 +580,8 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "        "; // 14.5 Número do Aviso de Lançamento: Preencher com espaços em branco
             CONTEUDO_REMESSA += "                                                                                                                     "; // 15.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -579,12 +595,13 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "         "; // 04.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
             CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo
 
-            Integer quantidade_registros = (2 * listaBoleto.size()) + 4;
+            Integer quantidade_registros = (2 * listaBoletoRemessa.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes): "000000"
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé do Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -603,16 +620,15 @@ public class Sicoob extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 
     @Override
-    public File gerarRemessa400() {
-        return null;
+    public RespostaArquivoRemessa gerarRemessa400() {
+        return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
 }

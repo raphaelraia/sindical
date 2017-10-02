@@ -5,6 +5,7 @@
  */
 package br.com.rtools.arrecadacao.dao;
 
+import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
@@ -50,7 +51,7 @@ public class RemessaDao extends DB {
             return new ArrayList();
         }
     }
-    
+
     public List<RemessaBanco> listaRemessaBanco(Integer id_remessa) {
         String queryString
                 = "SELECT rb.* \n"
@@ -60,6 +61,70 @@ public class RemessaDao extends DB {
                 + " ORDER BY rb.id";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, RemessaBanco.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<Boleto> listaRegistrarAutomatico(Integer id_conta_cobranca) {
+        String queryString
+                = "SELECT b.* \n "
+                + "  FROM fin_boleto AS b \n "
+                + "  LEFT JOIN fin_remessa_banco AS rb ON rb.id_boleto = b.id AND rb.id_status_remessa = 1 \n "
+                + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno <> 2) \n "
+                + "   AND (b.dt_vencimento >= CURRENT_DATE - 20 AND b.dt_vencimento >= '11/09/2017') \n "
+                + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
+                + "   AND rb.id IS NULL \n "
+                + " LIMIT 2000";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+    
+    public List<Boleto> listaRegistrarAutomaticoCount(Integer id_conta_cobranca) {
+        String queryString
+                = "SELECT count(b.id) \n "
+                + "  FROM fin_boleto AS b \n "
+                + "  LEFT JOIN fin_remessa_banco AS rb ON rb.id_boleto = b.id AND rb.id_status_remessa = 1 \n "
+                + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno <> 2) \n "
+                + "   AND (b.dt_vencimento >= CURRENT_DATE - 20 AND b.dt_vencimento >= '11/09/2017') \n "
+                + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
+                + "   AND rb.id IS NULL ";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<Boleto> listaRegistrarRecusados(Integer id_conta_cobranca) {
+        String queryString
+                = "SELECT b.* \n "
+                + "  FROM fin_boleto AS b \n "
+                + " WHERE b.id_status_retorno = 1 \n "
+                + "   AND b.id_conta_cobranca = " + id_conta_cobranca;
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<Boleto> listaBaixarRegistrados(Integer id_conta_cobranca) {
+        String queryString
+                = "SELECT b.* \n"
+                + "  FROM fin_boleto AS b \n "
+                + " WHERE b.dt_cobranca_registrada IS NOT NULL \n "
+                + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
+                + "   AND b.dt_vencimento <= CURRENT_DATE - 20";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();

@@ -3,7 +3,6 @@ package br.com.rtools.retornos;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
-import br.com.rtools.utilitarios.GenericaRetorno;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,18 +12,18 @@ public class Banespa extends ArquivoRetorno {
     }
 
     @Override
-    public List<GenericaRetorno> sicob(boolean baixar, String host) {
-        List<GenericaRetorno> listaRetorno = new ArrayList();
-        return listaRetorno;
+    public List<ObjetoRetorno> sicob(boolean baixar, String host) {
+        List<ObjetoRetorno> lista_objeto_retorno = new ArrayList();
+        return lista_objeto_retorno;
     }
 
     @Override
-    public List<GenericaRetorno> sindical(boolean baixar, String host) {
+    public List<ObjetoRetorno> sindical(boolean baixar, String host) {
         return new ArrayList();
     }
 
     @Override
-    public List<GenericaRetorno> sigCB(boolean baixar, String host) {
+    public List<ObjetoRetorno> sigCB(boolean baixar, String host) {
         return new ArrayList();
     }
 

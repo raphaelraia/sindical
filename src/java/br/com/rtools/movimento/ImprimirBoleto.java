@@ -21,6 +21,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.financeiro.dao.BoletoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
@@ -1230,14 +1231,17 @@ public class ImprimirBoleto implements Serializable {
         return arquivo;
     }
 
-    public File imprimirRemessa(List<Boleto> lista_boleto, Boleto boletox) {
-        Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_boleto, boletox);
+    public RespostaArquivoRemessa imprimirRemessa(List<BoletoRemessa> lista_boleto_remessa) {
+        Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_boleto_remessa);
+        Boleto boletox = lista_boleto_remessa.get(0).getBoleto();
+        
         if (cobranca != null) {
-            File file = boletox.getContaCobranca().getNrLayout() == 240 ? cobranca.gerarRemessa240() : cobranca.gerarRemessa400();
+            RespostaArquivoRemessa resp = boletox.getContaCobranca().getNrLayout() == 240 ? cobranca.gerarRemessa240() : cobranca.gerarRemessa400();
 
-            if (file != null) {
+            if (resp.getArquivo() != null) {
                 Dao dao = new Dao();
-                for (Boleto b : lista_boleto) {
+                for (BoletoRemessa br : lista_boleto_remessa) {
+                    Boleto b = br.getBoleto();
                     b.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 5));
                     b.setDtStatusRetorno(DataHoje.dataHoje());
                     dao.update(b, true);
@@ -1249,21 +1253,19 @@ public class ImprimirBoleto implements Serializable {
                 Zip zip = new Zip();
                 List<File> lf = new ArrayList();
 
-                lf.add(file);
+                lf.add(resp.getArquivo());
                 File file_destino = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/remessa.rar"));
                 try {
                     zip.zip(lf, file_destino);
                 } catch (Exception e) {
-                    e.getMessage();
-                    return null;
+                    return new RespostaArquivoRemessa(null, e.getMessage());
                 }
 
-                return file_destino;
-            } else {
-                return file;
-            }
+                resp.setArquivo(file_destino);
+            } 
+            return resp;
         }
-        return null;
+        return new RespostaArquivoRemessa(null, "CONTA COBRANÇA NÃO ENCONTRADA");
     }
 
     public byte[] imprimirAcordo(List<Movimento> lista, Acordo acordo, Historico historico, boolean imprimir_pro) {
@@ -2950,23 +2952,30 @@ public class ImprimirBoleto implements Serializable {
             for (Integer i = 0; i < result.size(); i++) {
                 List linha = (List) result.get(i);
                 String valor = "0,00";
-                if (e_fisica) {
-                    valor = Moeda.converteR$Double(Moeda.converteUS$(linha.get(14).toString()));
-                } else {
-                    Boleto b = movimentoDao.pesquisaBoletos(linha.get(2).toString());
-                    List<Movimento> lm = b.getListaMovimento();
-                    Double valor_s = new Double(0);
-                    for (Movimento mx : lm){
-                        valor_s = Moeda.soma(valor_s, mx.getValor());
-                    }
-                    //m = (Movimento) movimentoDao.findByNrCtrBoletoTitular(linha.get(2).toString(), Integer.parseInt(linha.get(41).toString()));
-                    //if (m == null){
-                    //    i++;
-                    //    continue;
-                    //}
-                    //valor = m.getValorString();
-                    valor = Moeda.converteR$Double(valor_s);
-                }
+                
+                  valor = Moeda.converteR$Double(Moeda.converteUS$(linha.get(14).toString()));
+                  // ANTES O VALOR ERA SOMADO DIFERENTE PARA FÍSICA E JURIDICA PORQUE NA JURIDICA PODIA TER MAIS DE UM MOVIMENTO PARA CADA LINHA, 
+                  // COM AS MUDANÇAS A QUERY RETORNA TODOS OS MOVIMENTOS
+//                if (e_fisica) {
+//                    valor = Moeda.converteR$Double(Moeda.converteUS$(linha.get(14).toString()));
+//                } else {
+//                    Boleto b = movimentoDao.pesquisaBoletos(linha.get(2).toString());
+//                    List<Movimento> lm = b.getListaMovimento();
+//                    Double valor_s = new Double(0);
+//                    for (Movimento mx : lm){
+//                        valor_s = Moeda.soma(valor_s, mx.getValor());
+//                    }
+//                    //m = (Movimento) movimentoDao.findByNrCtrBoletoTitular(linha.get(2).toString(), Integer.parseInt(linha.get(41).toString()));
+//                    //if (m == null){
+//                    //    i++;
+//                    //    continue;
+//                    //}
+//                    //valor = m.getValorString();
+//                    
+//                    valor = Moeda.converteR$Double(valor_s);
+//                    //valor = Moeda.converteR$Double(Moeda.converteUS$(linha.get(14).toString()));
+//                }
+
                 try {
                     if (novo_boleto) {
                         valor_boleto = 0;

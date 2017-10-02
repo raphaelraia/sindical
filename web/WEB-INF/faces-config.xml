@@ -2469,6 +2469,12 @@
             <redirect/>
         </navigation-case>    
         
+        <navigation-case>
+            <from-outcome>autorizaReprocessamentoRetorno</from-outcome>
+            <to-view-id>/autorizaReprocessamentoRetorno.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>    
+        
     </navigation-rule>
     
     <lifecycle>

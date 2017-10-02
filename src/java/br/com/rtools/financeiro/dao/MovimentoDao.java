@@ -444,7 +444,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List listaMovimentosExtrato(String tipo, String faixa_data, String tipo_data, String data_inicial, String data_final, String referencia_inicial, String referencia_final, String boleto_inicial, String boleto_final, int id_servico, int id_tipo_servico, int id_pessoa, String ordenacao, boolean movimentoDaEmpresa, Integer filial_id, Integer id_status_retorno) {
+    public List listaMovimentosExtrato(String tipo, String faixa_data, String tipo_data, String data_inicial, String data_final, String referencia_inicial, String referencia_final, String boleto_inicial, String boleto_final, int id_servico, int id_tipo_servico, int id_pessoa, String ordenacao, boolean movimentoDaEmpresa, Integer filial_id, Integer id_status_retorno, String id_boleto_adicionado_remessa, Integer id_conta_cobranca) {
         String qry_data = "", qry_servico = "", qry_tipo_servico = "", qry_condicao = "", qry_boleto = "", qry_pessoa = "", qry_filial = "", ordem = "";
 
         String textQuery;
@@ -547,6 +547,32 @@ public class MovimentoDao extends DB {
                     case "faixa":
                         if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
                             qry_data = " and l.dt_lancamento >= '" + data_inicial + "' and l.dt_lancamento <= '" + data_final + "' \n ";
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "registro":
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            qry_data = " and b.dt_cobranca_registrada = '" + data_inicial + "' \n ";
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            qry_data = " and b.dt_cobranca_registrada >= '" + data_inicial + "' \n ";
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            qry_data = "' and b.dt_cobranca_registrada <= '" + data_inicial + "' \n ";
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            qry_data = " and b.dt_cobranca_registrada >= '" + data_inicial + "' and b.dt_cobranca_registrada <= '" + data_final + "' \n ";
                         }
                         break;
                     default:
@@ -705,12 +731,30 @@ public class MovimentoDao extends DB {
                 break;
             case -2:
                 // NÃO REGISTRADOS
-                qry_status_boleto += " AND (b.id_status_retorno IS NULL OR b.id_status_retorno = 4) AND b.dt_vencimento >= '01/09/2017'";
+                qry_status_boleto += " AND (b.id_status_retorno IS NULL OR b.id_status_retorno = 4) AND b.dt_vencimento >= '01/09/2017' \n ";
+                qry_status_boleto += " AND m.id_pessoa NOT IN ( \n "
+                        + " SELECT id_pessoa FROM fin_bloqueia_servico_pessoa \n "
+                        + "  WHERE id_servicos = m.id_servicos \n "
+                        + "    AND func_compara_intervalo_ref( \n "
+                        + "     '" + DataHoje.referencia() + "','12/2050', \n"
+                        + "     RIGHT('0'||EXTRACT(MONTH FROM dt_inicio),2)||'/'||EXTRACT(YEAR FROM dt_inicio), \n"
+                        + "     RIGHT('0'||EXTRACT(MONTH FROM dt_fim),2)||'/'||EXTRACT(YEAR FROM dt_fim) \n"
+                        + ") = TRUE) \n ";
                 break;
             default:
                 // STATUS
                 qry_status_boleto += " AND b.id_status_retorno = " + id_status_retorno;
                 break;
+        }
+
+        String qry_adicionado_remessa = "";
+        if (!id_boleto_adicionado_remessa.isEmpty()) {
+            qry_adicionado_remessa = " AND b.id NOT IN (" + id_boleto_adicionado_remessa + ")";
+        }
+
+        String qry_conta_cobranca = "";
+        if (id_conta_cobranca != -1) {
+            qry_conta_cobranca = " AND b.id_conta_cobranca = " + id_conta_cobranca;
         }
 
         textQuery = "select m.id            as id, \n " // 0
@@ -734,9 +778,10 @@ public class MovimentoDao extends DB {
                 + "       case when ba.id = null              then 0 else ba.id end   as id_baixa,  \n "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, \n "
                 + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, \n "
-                + "       m.nr_valor_baixa as valor_baixa,\n "
+                + "       m.nr_valor_baixa as valor_baixa, \n "
                 + "       UPPER(P5.ds_conta) AS conta,                          \n "//22,
-                + "       l.dt_lancamento  AS lancamento \n "//23                
+                + "       l.dt_lancamento  AS lancamento, \n "// 23                
+                + "       b.id as boleto_id \n "// 24                
                 + "  from fin_movimento m \n "
                 + "  left join fin_baixa ba on (m.id_baixa = ba.id) \n "
                 + "  left join fin_lote l on (m.id_lote = l.id) \n "
@@ -757,7 +802,7 @@ public class MovimentoDao extends DB {
                 + "   and m.is_ativo = " + ativo + " \n "
                 + "   and m.id_pessoa = p.id \n "
                 + "   and m.id_servicos = s.id \n "
-                + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao + qry_filial + qry_status_boleto
+                + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao + qry_filial + qry_status_boleto + qry_adicionado_remessa + qry_conta_cobranca
                 + "     group by m.id, \n"
                 + "        p.ds_documento, \n"
                 + "        p.ds_nome, \n"
@@ -781,14 +826,15 @@ public class MovimentoDao extends DB {
                 + "        pf.ds_nome, \n"
                 + "        m.nr_valor_baixa, \n"
                 + "        P5.ds_conta, "
-                + "        l.dt_lancamento "
+                + "        l.dt_lancamento, "
+                + "        b.id "
                 + " order by " + ordem + "";
 
         try {
             Query qry = getEntityManager().createNativeQuery(textQuery);
             return qry.getResultList();
         } catch (Exception e) {
-            return new Vector();
+            return new ArrayList();
         }
     }
 
@@ -879,7 +925,8 @@ public class MovimentoDao extends DB {
                 + "       case when l.id = null              then 0 else l.id end   as id_baixa, "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, "
                 + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, "
-                + "       m.nr_valor_baixa as valor_baixa "
+                + "       m.nr_valor_baixa as valor_baixa, \n "
+                + "       b.id as boleto_id \n "
                 + "  from fin_movimento m "
                 + "  left join fin_baixa ba on (m.id_baixa = ba.id) "
                 + "  left join fin_lote l on (m.id_lote = l.id) "
@@ -996,7 +1043,8 @@ public class MovimentoDao extends DB {
                 + "       case when l.id = null              then 0 else l.id end   as id_baixa, "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, "
                 + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, "
-                + "       m.nr_valor_baixa as valor_baixa "
+                + "       m.nr_valor_baixa as valor_baixa, \n "
+                + "       b.id as boleto_id \n "
                 + "  from fin_movimento m "
                 + "  right join fin_baixa ba on (m.id_baixa = ba.id) "
                 + "  left join fin_lote l on (m.id_lote = l.id) "
@@ -1113,7 +1161,8 @@ public class MovimentoDao extends DB {
                 + "       0              as id_baixa, "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, "
                 + "       ''              as filial, "
-                + "       m.nr_valor_baixa as valor_baixa "
+                + "       m.nr_valor_baixa as valor_baixa, \n "
+                + "       b.id as boleto_id \n "
                 + "  from fin_movimento m "
                 + "  left join fin_baixa ba on (m.id_baixa = ba.id) "
                 + "  left join fin_lote l on (m.id_lote = l.id) "
@@ -1227,7 +1276,8 @@ public class MovimentoDao extends DB {
                 + "       0              as id_baixa, "
                 + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, "
                 + "       ''              as filial, "
-                + "       m.nr_valor_baixa as valor_baixa "
+                + "       m.nr_valor_baixa as valor_baixa, \n "
+                + "       b.id as boleto_id \n "
                 + "  from fin_movimento m "
                 + "  left join fin_baixa ba on (m.id_baixa = ba.id) "
                 + "  left join fin_lote l on (m.id_lote = l.id) "
@@ -1920,7 +1970,7 @@ public class MovimentoDao extends DB {
             return listMov;
         }
     }
-    
+
     public List<Movimento> listaMovimentosDoLote(int idLote) {
         try {
             Query qry = getEntityManager().createQuery(" SELECT MOV FROM Movimento AS MOV WHERE MOV.lote.id = :pLote ORDER BY MOV.dtVencimento ASC, MOV.id ASC");

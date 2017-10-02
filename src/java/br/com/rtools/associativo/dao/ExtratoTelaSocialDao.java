@@ -10,7 +10,7 @@ import javax.persistence.Query;
 public class ExtratoTelaSocialDao extends DB {
 
     public List<Vector> listaMovimentosSocial(
-            String porPesquisa, String ordenacao, String tipoDataPesquisa, String dataInicial, String dataFinal, String dataRefInicial, String dataRefFinal, String boletoInicial, String boletoFinal, String tipoPessoa, Integer id_pessoa, Integer id_servico, Integer id_tipo_servico, Integer id_status_retorno
+            String porPesquisa, String ordenacao, String tipoDataPesquisa, String dataInicial, String dataFinal, String dataRefInicial, String dataRefFinal, String boletoInicial, String boletoFinal, String tipoPessoa, Integer id_pessoa, Integer id_servico, Integer id_tipo_servico, Integer id_status_retorno, String id_boleto_adicionado_remessa, Integer id_conta_cobranca
     ) {
 
         String text
@@ -161,6 +161,14 @@ public class ExtratoTelaSocialDao extends DB {
                 // STATUS
                 and += " AND bo.id_status_retorno = " + id_status_retorno;
                 break;
+        }
+        
+        if (!id_boleto_adicionado_remessa.isEmpty()) {
+            and += " AND bo.id NOT IN (" + id_boleto_adicionado_remessa + ")";
+        }
+
+        if (id_conta_cobranca != -1) {
+            and += " AND bo.id_conta_cobranca = " + id_conta_cobranca;
         }
         
         switch (ordenacao) {

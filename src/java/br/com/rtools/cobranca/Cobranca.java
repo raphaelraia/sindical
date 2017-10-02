@@ -1,9 +1,7 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
-import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.utilitarios.DataHoje;
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -24,12 +22,8 @@ public abstract class Cobranca {
     public final static int SICOB = 1;
     public final static int SINDICAL = 2;
     public final static int SIGCB = 3;
-    protected List<Boleto> listaBoleto;
-
-//    public Cobranca(Movimento movimento, Boleto boleto) {
-//        setMovimento(movimento);
-//        setBoleto(boleto);
-//    }
+    protected List<BoletoRemessa> listaBoletoRemessa;
+    
     public Cobranca(Integer id_pessoa, double valor, Date vencimento, Boleto boleto) {
         this.id_pessoa = id_pessoa;
         this.valor = valor;
@@ -37,8 +31,8 @@ public abstract class Cobranca {
         this.boleto = boleto;
     }
     
-    public Cobranca(List<Boleto> listaBoleto) {
-        this.listaBoleto = listaBoleto;
+    public Cobranca(List<BoletoRemessa> listaBoletoRemessa) {
+        this.listaBoletoRemessa = listaBoletoRemessa;
     }
 
     public abstract String moduloDez(String composicao);
@@ -118,27 +112,29 @@ public abstract class Cobranca {
         return cobranca;
     }
     
-    public static Cobranca retornaCobrancaRemessa(List<Boleto> lista_boleto, Boleto boletox) {
+    public static Cobranca retornaCobrancaRemessa(List<BoletoRemessa> lista_boleto_remessa) {
         Cobranca cobranca = null;
+        Boleto boletox = lista_boleto_remessa.get(0).getBoleto();
+        
         if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
             // ÚNICO CASO QUE UTILIZA O id_pessoa
-            cobranca = new CaixaFederalSindical(lista_boleto);
+            cobranca = new CaixaFederalSindical(lista_boleto_remessa);
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SICOB)) {
             //cobranca = new CaixaFederalSicob(lista_movimento);
         } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SIGCB)) {
-            cobranca = new CaixaFederalSigCB(lista_boleto);
+            cobranca = new CaixaFederalSigCB(lista_boleto_remessa);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.itau)) {
-            cobranca = new Itau(lista_boleto);
+            cobranca = new Itau(lista_boleto_remessa);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.bancoDoBrasil)) {
-            cobranca = new BancoDoBrasil(lista_boleto);
+            cobranca = new BancoDoBrasil(lista_boleto_remessa);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.real)) {
             //cobranca = new Real(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.bradesco)) {
             //cobranca = new Bradesco(lista_movimento);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.santander)) {
-            cobranca = new Santander(lista_boleto);
+            cobranca = new Santander(lista_boleto_remessa);
         } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.sicoob)) {
-            cobranca = new Sicoob(lista_boleto);
+            cobranca = new Sicoob(lista_boleto_remessa);
         }
         return cobranca;
     }
@@ -164,8 +160,8 @@ public abstract class Cobranca {
         this.boleto = boleto;
     }
     
-    public abstract File gerarRemessa240();
+    public abstract RespostaArquivoRemessa gerarRemessa240();
     
-    public abstract File gerarRemessa400();
+    public abstract RespostaArquivoRemessa gerarRemessa400();
 
 }

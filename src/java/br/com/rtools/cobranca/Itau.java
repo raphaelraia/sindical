@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
@@ -35,8 +36,8 @@ public class Itau extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public Itau(List<Boleto> listaBoleto) {
-        super(listaBoleto);
+    public Itau(List<BoletoRemessa> listaBoletoRemessa) {
+        super(listaBoletoRemessa);
     }
 
     @Override
@@ -215,12 +216,12 @@ public class Itau extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa240() {
+    public RespostaArquivoRemessa gerarRemessa240() {
         return null;
     }
 
     @Override
-    public File gerarRemessa400() {
+    public RespostaArquivoRemessa gerarRemessa400() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDao dbmov = new MovimentoDao();
 
@@ -233,7 +234,7 @@ public class Itau extends Cobranca {
             Remessa remessa = new Remessa(-1, nome_arquivo, DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
             if (!dao.save(remessa)) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
             }
 
             List<String> list_log = new ArrayList();
@@ -272,9 +273,9 @@ public class Itau extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header ----------------------------------------------------------
             // -----------------------------------------------------------------
@@ -288,7 +289,7 @@ public class Itau extends Cobranca {
             CONTEUDO_REMESSA += "01"; // IDENTIFICAÇÃO DO TIPO DE SERVIÇO 010   011 9(02)  01
             CONTEUDO_REMESSA += "COBRANCA       "; // IDENTIFICAÇÃO POR EXTENSO DO TIPO DE SERVIÇO 012   026 X(15)  COBRANCA
 
-            Boleto boleto_rem = listaBoleto.get(0); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto(); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente().replace(",", "");
@@ -314,7 +315,8 @@ public class Itau extends Cobranca {
             sequencial_registro++;
 
             if (CONTEUDO_REMESSA.length() != 400) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Arquivo menor que 400: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -327,8 +329,8 @@ public class Itau extends Cobranca {
             Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
 
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 List<Movimento> lista_m = bol.getListaMovimento();
 
                 CONTEUDO_REMESSA += "1"; // TIPO DE REGISTRO  IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO 001   001  9(01) 1
@@ -369,7 +371,7 @@ public class Itau extends Cobranca {
                 } else {
                     valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");
                 }
-                
+
                 CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - valor_titulo.length()) + valor_titulo; // VALOR DO TÍTULO  VALOR NOMINAL DO TÍTULO 127   139 9(11)V9(2) NOTA 8 
 
                 CONTEUDO_REMESSA += "341"; // CÓDIGO DO BANCO   Nº DO BANCO NA CÂMARA DE COMPENSAÇÃO  140   142  9(03) 341 
@@ -416,6 +418,10 @@ public class Itau extends Cobranca {
 
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // LOGRADOURO  RUA, NÚMERO E COMPLEMENTO DO PAGADOR 275   314 X(40) 
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "            ").substring(0, 12)); // BAIRRO BAIRRO DO PAGADOR 315   326 X(12) 
+                    if (end_cep.replace("-", "").replace(".", "").length() < 8) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, pessoa.getNome() + " CEP INVÁLIDO: " + end_cep.replace("-", "").replace(".", ""));
+                    }
                     CONTEUDO_REMESSA += end_cep.replace("-", "").replace(".", ""); // CEP  CEP DO PAGADOR 327   334 9(08) 
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // CIDADE   CIDADE DO PAGADOR 335   349  X(15) 
                     CONTEUDO_REMESSA += end_uf; // ESTADO   UF DO PAGADOR 350   351  X(02) 
@@ -437,17 +443,18 @@ public class Itau extends Cobranca {
                 CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial de Registro
                 sequencial_registro++;
                 if (CONTEUDO_REMESSA.length() != 400) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Detalhe de Arquivo menor que 400: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -464,7 +471,8 @@ public class Itau extends Cobranca {
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Número Seqüencial do Registro no Arquivo 
 
             if (CONTEUDO_REMESSA.length() != 400) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Footer de Arquivo menor que 400: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             buff_writer.write("");
@@ -482,11 +490,10 @@ public class Itau extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 }

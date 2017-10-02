@@ -16,6 +16,9 @@
 
             .tblExtratoTelaX{ background-color: #ff9587!important; }
             .tblExtratoTelaX:hover{ background-color: #fe887f!important; }
+
+            .tblExtratoTelaT1{ background-color: #c7ffc7!important; }
+            .tblExtratoTelaT2{  }            
         </style>
 
         <script type="text/javascript">
@@ -36,7 +39,8 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Extrato Tela Social" styleClass="fonteHeader" />
                         <h:form id="formExtratoTelaSocial">
-                            <h:panelGrid id="header_opcoes" columns="4" style="clear: both;">
+                            
+                            <h:panelGrid id="header_opcoes" columns="5" style="clear: both;">
                                 <h:column>
                                     <p:outputLabel value="Filtrar por" /><br />
                                     <p:selectOneMenu value="#{extratoTelaSocialBean.porPesquisa}" style="margin-right: 20px">
@@ -69,8 +73,27 @@
                                 </h:column>
 
                                 <h:column>
+                                    <h:panelGrid>                                    
+                                        <p:outputLabel value="Conta Cobrança" />
+                                        <h:panelGrid rendered="#{extratoTelaSocialBean.statusRemessa.id eq -1}">
+                                            <p:selectOneMenu value="#{extratoTelaSocialBean.indexConta}" autoWidth="false" style="width: 250px">
+                                                <p:ajax event="change" update="formExtratoTelaSocial" listener="#{extratoTelaSocialBean.alterarContaRemessa()}"/>
+                                                <f:selectItems value="#{extratoTelaSocialBean.listaConta}" />
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>                                    
+
+                                        <h:panelGrid rendered="#{extratoTelaSocialBean.statusRemessa.id ne -1}">
+                                            <h:panelGrid columns="2">
+                                                <p:outputLabel value="#{extratoTelaSocialBean.contaSelecionada.apelido} - #{extratoTelaSocialBean.contaSelecionada.codCedente} - #{extratoTelaSocialBean.contaSelecionada.contaBanco.banco.banco}" style="font-weight: bold; font-size: 11pt!important"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{extratoTelaSocialBean.fecharModalRemessa()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes"/>
+                                            </h:panelGrid>
+                                        </h:panelGrid>
+                                    </h:panelGrid>
+                                </h:column>
+
+                                <h:column>
                                     <br />
-                                    <p:commandButton value="FILTRAR LISTA" style="float: right; font-weight: bold; margin-left: 400px" action="#{extratoTelaSocialBean.loadLista()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes" />
+                                    <p:commandButton value="FILTRAR LISTA" style="float: right; font-weight: bold; margin-left: 255px" action="#{extratoTelaSocialBean.loadLista()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes" />
                                 </h:column>
                             </h:panelGrid>
 
@@ -86,6 +109,7 @@
                                                 <f:selectItem itemValue="recebimento" itemLabel="Faixa de Recebimento"/>
                                                 <f:selectItem itemValue="vencimento"  itemLabel="Faixa de Vencimento"/>
                                                 <f:selectItem itemValue="referencia"  itemLabel="Faixa de Referência"/>
+                                                <f:selectItem itemValue="registro"    itemLabel="Faixa de Registro"/>
                                             </p:selectOneMenu>
 
                                             <h:panelGrid columns="2" rendered="#{extratoTelaSocialBean.tipoDataPesquisa != 'referencia'}" style="width: 100%">
@@ -320,10 +344,11 @@
                         </h:form>
 
                         <h:form id="formExtratoTelaSocialOpcoes">
+                            <p:messages closable="true" showDetail="true"/>
                             <p:panel styleClass="fundoCinza">
                                 <p:outputLabel value="Opções do Boleto" style="font-weight: bold; font-size: 8pt!important"/>
 
-                                <h:panelGrid columns="8" style="width: 950px">
+                                <h:panelGrid columns="8" style="width: 955px">
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.imprimirVerso}" itemLabel="Imprimir Verso" style="margin-right: 20px"/>
                                     </h:column>
@@ -335,7 +360,7 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-print" value="Remessa" title="Gerar Remessa de Boletos Selecionados" onclick="PF('dlg_gerar_remessa').show()" style="margin-right: 20px"/>
+                                        <p:commandButton icon="ui-icon-print" value="Criar Remessa" title="Gerar Remessa de Boletos" action="#{extratoTelaSocialBean.adicionarRemessa()}" style="margin-right: 20px"/>
                                     </h:column>
 
                                     <h:column>
@@ -384,6 +409,99 @@
 
                                 </h:panelGrid>
                             </p:panel>
+                            
+                            <p:dialog widgetVar="dlg_gerar_remessa" header="Gerador Arquivo Remessa" resizable="false" draggable="false" width="950" position="top" visible="#{extratoTelaSocialBean.visibleModalRemessa}">
+                                <p:ajax event="close" update="formExtratoTelaSocial" listener="#{extratoTelaSocialBean.fecharModalRemessa}"/>
+                                
+                                <h:panelGrid id="dlg_gerar_remessa" style="width: 100%">
+                                    <p:messages autoUpdate="true" closable="true" showDetail="true" />
+                                    
+                                    <h:panelGrid columns="2">
+                                        <p:selectBooleanButton value="#{extratoTelaSocialBean.verListaRemessa}" onLabel="NÃO VER LISTA DE BOLETO" offLabel="VER LISTA DE BOLETO" onIcon="ui-icon-close" offIcon="ui-icon-check" style="margin-right: 15px">
+                                            <p:ajax update="dlg_gerar_remessa" />
+                                        </p:selectBooleanButton>
+                                        
+                                        <p:outputLabel value="#{extratoTelaSocialBean.contaSelecionada.apelido} - #{extratoTelaSocialBean.contaSelecionada.codCedente} - #{extratoTelaSocialBean.contaSelecionada.contaBanco.banco.banco}" style="font-weight: bold; font-size: 11pt!important; "/>
+                                    </h:panelGrid>
+                                    
+                                    <p:separator />
+
+                                    <h:panelGrid rendered="#{extratoTelaSocialBean.verListaRemessa}">
+                                        <p:dataTable value="#{extratoTelaSocialBean.listaBoletoRemessa}" var="linha_remessa" emptyMessage="Nenhum Boleto Adicionado" scrollable="true" scrollHeight="350" rowStyleClass="#{linha_remessa.tipo}">
+                                            <p:column headerText="#" style="width: 80px; text-align: center">
+                                                <h:outputText value="#{linha_remessa.boleto.id}" />
+                                            </p:column>
+
+                                            <p:column headerText="Boleto" style="width: 150px; text-align: center">
+                                                <h:outputText value="#{linha_remessa.boleto.boletoComposto}" />
+                                            </p:column>
+                                            
+                                            <p:column headerText="Pessoa">
+                                                <h:outputText value="#{linha_remessa.boleto.pessoa.nome}" />
+                                            </p:column>
+
+                                            <p:column headerText="Vencimento" style="width: 80px; text-align: center">
+                                                <h:outputText value="#{linha_remessa.boleto.vencimento}" />
+                                            </p:column>
+                                            
+                                            <p:column headerText="Status" style="width: 80px; text-align: center">
+                                                <h:outputText value="#{linha_remessa.statusRemessa.descricao}" style="font-weight: bold"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                        
+                                        <h:panelGrid columns="4">
+                                            <h:column>
+                                                <div style="width: 15px; height: 15px; border:1px solid black;" class="tblExtratoTelaT1"></div>
+                                            </h:column>
+                                            <h:column>
+                                                <b>Adicionados Automáticamente</b>
+                                            </h:column>
+                                            
+                                            <h:column>
+                                                <div style="width: 15px; height: 15px; border:1px solid black;"></div>
+                                            </h:column>
+                                            <h:column>
+                                                <b>Adicionados por mim</b>
+                                            </h:column>
+                                        </h:panelGrid>
+                                            
+                                    </h:panelGrid>
+                                    
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <p:outputLabel value="Quantidade de Boletos: " /><p:outputLabel value="#{extratoTelaSocialBean.listaBoletoRemessa.size()}" style="font-weight: bold"/>
+                                        </h:column>
+                                        
+                                        <h:column>
+                                            <p:outputLabel value="Limite médio de Arquivo: " /><p:outputLabel value="2000" style="font-weight: bold"/>
+                                        </h:column>
+                                        <!--
+                                        <h:column>
+                                            <p:outputLabel value="De um total de " /><p:outputLabel value="# {extratoTelaSocialBean.listaBoletoRemessaCount}" style="font-weight: bold"/><p:outputLabel value=" boletos" />
+                                        </h:column>
+                                        -->
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton icon="ui-icon-check" value="GERAR REMESSA" action="#{extratoTelaSocialBean.imprimirRemessa()}" ajax="false"/>
+                                        <p:commandButton icon="ui-icon-circle-close" value="SAIR E CANCELAR REMESSA" title="Cancelar Geração de Arquivo Remessa" onclick="PF('dlg_gerar_remessa').hide()"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_opcao_remessa" header="Opções da Remessa Selecionada" resizable="false" width="450" modal="true">
+
+                                <h:panelGrid columns="1">
+                                    <p:outputLabel value="O que fazer com os boletos selecionados?" style="font-size: 12pt!important; font-weight: bold"/>
+                                </h:panelGrid>
+                                <br />
+                                <h:panelGrid columns="3">
+                                    <p:commandButton icon="ui-icon-plus" value="REGISTRAR" title="Registrar" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaSocialBean.adicionarRemessa('registrar')}"/>
+                                    <p:commandButton icon="ui-icon-arrowthick-1-s" value="BAIXAR NO BANCO" title="Baixar no Banco" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaSocialBean.adicionarRemessa('baixar_banco')}"/>
+                                    <p:commandButton icon="ui-icon-circle-close" value="FECHAR" title="Cancelar Geração" onclick="PF('dlg_opcao_remessa').hide()"/>
+                                </h:panelGrid>
+
+                            </p:dialog>
 
                             <p:dialog widgetVar="dlg_excluir" header="Excluir Movimentos" resizable="false" modal="true" width="400">
                                 <h:panelGrid>
@@ -447,20 +565,7 @@
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar exclusão de Acordos" onclick="PF('dlg_acordo').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
-
-                            <p:dialog widgetVar="dlg_gerar_remessa" header="Gerar Arquivo Remessa" resizable="false" modal="true" width="400">
-                                <p:ajax event="close" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes" listener="#{extratoTelaSocialBean.fecharModalRemessa}"/>  
-                                <h:panelGrid>
-                                    <p:outputLabel value="Deseja realmente gerar Arquivo Remessa desses arquivos?" style="font-weight: bold; font-size: 12pt!important"/>
-                                </h:panelGrid>
-
-                                <h:panelGrid columns="2">
-                                    <p:commandLink action="#{extratoTelaSocialBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK">
-                                        <p:commandButton icon="ui-icon-print" value="Gerar Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>
-                                    </p:commandLink>
-                                    <p:commandButton icon="ui-icon-circle-close" value="SAIR" title="Cancelar Geração" onclick="PF('dlg_gerar_remessa').hide()" />
-                                </h:panelGrid>
-                            </p:dialog>                            
+                        
                         </h:form>
 
                     </p:panel>
@@ -478,4 +583,3 @@
         </div>                
     </h:body>
 </ui:composition>
-

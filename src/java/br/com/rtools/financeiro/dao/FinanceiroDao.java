@@ -1077,7 +1077,7 @@ public class FinanceiroDao extends DB {
                     + "	'' AS logoVerso, -- 52\n"
                     + "	'' AS sindicatoLogo -- 53\n"
                     + " FROM soc_boletos_vw AS b\n"
-                    + "INNER JOIN fin_conta_cobranca AS cc ON cc.ds_cod_cedente = b.cedente\n"
+                    + "INNER JOIN fin_conta_cobranca AS cc ON cc.id = b.id_conta_cobranca \n"
                     + "INNER JOIN pes_pessoa AS f ON f.id = 1\n"
                     + "INNER JOIN pes_pessoa AS r ON r.id = b.codigo\n"
                     + " LEFT JOIN pes_juridica AS cj ON cj.id_pessoa = b.codigo\n"

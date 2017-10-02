@@ -1,18 +1,25 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.arrecadacao.dao.RemessaDao;
 import br.com.rtools.associativo.dao.ExtratoTelaSocialDao;
 import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
+import br.com.rtools.cobranca.BoletoRemessa;
+import br.com.rtools.cobranca.RespostaArquivoRemessa;
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.RemessaBancoDao;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -29,6 +36,7 @@ import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.StatusRetornoMensagem;
+import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -79,8 +87,17 @@ public class ExtratoTelaSocialBean implements Serializable {
 
     private Integer indexListaStatusRetorno = 0;
     private final List<SelectItem> listaStatusRetorno = new ArrayList();
-    
+
     private Boolean selecionaTodos = false;
+    private Boolean visibleModalRemessa = false;
+
+    private List<BoletoRemessa> listaBoletoRemessa = new ArrayList();
+    private List<SelectItem> listaConta = new ArrayList();
+    private Integer indexConta = 0;
+    private ContaCobranca contaSelecionada = new ContaCobranca();
+    private Boolean verListaRemessa = false;
+    private StatusRemessa statusRemessa = new StatusRemessa();
+    private String id_boleto_adicionado_remessa = "";
 
     @PostConstruct
     public void init() {
@@ -90,20 +107,262 @@ public class ExtratoTelaSocialBean implements Serializable {
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
 
         loadListaStatusRetorno();
+
+        loadListaContas();
     }
 
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("extratoTelaSocialBean");
     }
-    
-    public void marcarTodos(){
+
+    public final void loadListaContas() {
+        listaConta.clear();
+        indexConta = 0;
+
+        ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+        List<ContaCobranca> result = servDB.listaContaCobrancaAtivoAssociativo();
+
+        listaConta.add(new SelectItem(0, "SELECIONAR UMA CONTA", "0"));
+
+        Integer contador = 1;
+        for (int i = 0; i < result.size(); i++) {
+            listaConta.add(
+                    new SelectItem(
+                            contador,
+                            result.get(i).getApelido() + " - " + result.get(i).getCodCedente() + " - " + result.get(i).getContaBanco().getBanco().getBanco(),
+                            Integer.toString(result.get(i).getId())
+                    )
+            );
+            contador++;
+        }
+
+        if (Integer.valueOf(listaConta.get(indexConta).getDescription()) != 0) {
+            contaSelecionada = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.valueOf(listaConta.get(indexConta).getDescription()));
+        } else {
+            contaSelecionada = new ContaCobranca();
+        }
+    }
+
+    public void alterarContaRemessa() {
+        if (Integer.valueOf(listaConta.get(indexConta).getDescription()) != 0) {
+            contaSelecionada = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.valueOf(listaConta.get(indexConta).getDescription()));
+        } else {
+            contaSelecionada = new ContaCobranca();
+        }
+
+        loadLista();
+    }
+
+    public List<Boleto> validaListaRemessa(String opcao) {
+        List<Boleto> lista_boleto_validado = new ArrayList();
+        if (!listaMovimento.isEmpty()) {
+
+            List<Boleto> lista_boleto = new ArrayList();
+            Map<Integer, Boleto> hash = new LinkedHashMap();
+
+            for (DataObject datao : listaMovimento) {
+                // SE ESTA SELECIONADO E NÃO FOR QUITADO
+                if ((Boolean) datao.getArgumento0() && ((Vector) datao.getArgumento1()).get(15) != null) {
+                    Boleto boletox = (Boleto) new Dao().find(new Boleto(), ((Vector) datao.getArgumento1()).get(15));
+                    hash.put(boletox.getId(), boletox);
+                }
+            }
+
+            for (Map.Entry<Integer, Boleto> entry : hash.entrySet()) {
+                lista_boleto.add(entry.getValue());
+            }
+
+            for (Boleto bol : lista_boleto) {
+                Pessoa pessoa_boleto = bol.getPessoa();
+                // SE O TIPO DE DOCUMENTO É 1 ou 2 (CPF, CNPJ)
+                if (pessoa_boleto.getTipoDocumento().getId() != 1 && pessoa_boleto.getTipoDocumento().getId() != 2) {
+                    GenericaMensagem.error(pessoa_boleto.getNome(), "TIPO DE DOCUMENTO INVÁLIDO!");
+                    return null;
+                }
+
+                // SE O DOCUMENTO É VÁLIDO
+                // -- CPF
+                if (pessoa_boleto.getTipoDocumento().getId() == 1) {
+                    if (!ValidaDocumentos.isValidoCPF(pessoa_boleto.getDocumentoSomentoNumeros())) {
+                        GenericaMensagem.error(pessoa_boleto.getNome(), "CPF INVÁLIDO!");
+                        return null;
+                    }
+                }
+                // -- CNPJ
+                if (pessoa_boleto.getTipoDocumento().getId() == 2) {
+                    if (!ValidaDocumentos.isValidoCNPJ(pessoa_boleto.getDocumentoSomentoNumeros())) {
+                        GenericaMensagem.error(pessoa_boleto.getNome(), "CNPJ INVÁLIDO!");
+                        return null;
+                    }
+                }
+
+                // SE TEM ENDEREÇO
+                PessoaEndereco pe = pessoa_boleto.getPessoaEndereco();
+
+                if (pe == null) {
+                    GenericaMensagem.error(pessoa_boleto.getNome(), "NÃO CONTÉM ENDEREÇO!");
+                    return null;
+                }
+
+                String cep = pe.getEndereco().getCep().replace("-", "").replace(".", "");
+                if (cep.length() < 8) {
+                    GenericaMensagem.error(pessoa_boleto.getNome(), "CEP INVÁLIDO: " + cep);
+                    return null;
+                }
+
+                if (bol.getStatusRetorno() != null) {
+                    switch (opcao) {
+                        case "registrar":
+                            if (bol.getStatusRetorno().getId() == 2) {
+                                GenericaMensagem.error(pessoa_boleto.getNome(), "NÃO PODE REGISTRAR UM BOLETO JÁ REGISTRADO!");
+                                return null;
+                            }
+
+                            if (bol.getStatusRetorno().getId() == 3) {
+                                GenericaMensagem.error(pessoa_boleto.getNome(), "NÃO PODE REGISTRAR UM BOLETO LIQUIDADO!");
+                                return null;
+                            }
+
+                            break;
+                        case "baixar_banco":
+                            if (bol.getStatusRetorno().getId() != 2) {
+                                GenericaMensagem.error(pessoa_boleto.getNome(), "NÃO PODE BAIXAR NO BANCO UM BOLETO QUE NÃO FOI REGISTRADO!");
+                                return null;
+                            }
+                            break;
+                    }
+                }
+
+            }
+            return lista_boleto_validado;
+        }
+        // SE JÁ FOI GERADO UMA REMESSA PARA OS MOVIMENTOS
+        RemessaBancoDao daor = new RemessaBancoDao();
+
+        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(id_boleto_adicionado_remessa);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return null;
+        }
+
+        return lista_boleto_validado;
+    }
+
+    public void adicionarRemessa() {
+        adicionarRemessa(null);
+    }
+
+    public void adicionarRemessa(String opcao) {
+        if (contaSelecionada.getId() == -1) {
+            GenericaMensagem.error("ATENÇÃO", "Selecione uma Conta Cobrança para continuar!");
+            PF.update("formExtratoTelaSocial");
+            return;
+        }
+
+        if (opcao == null) {
+            PF.openDialog("dlg_opcao_remessa");
+            return;
+        }
+
+        Dao dao = new Dao();
+
+        if (listaBoletoRemessa.isEmpty()) {
+            List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId());
+
+            statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
+
+            for (Boleto bo : lista_b) {
+
+                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+                listaBoletoRemessa.add(br);
+
+                if (id_boleto_adicionado_remessa.isEmpty()) {
+                    id_boleto_adicionado_remessa = "" + bo.getId();
+                } else {
+                    id_boleto_adicionado_remessa += ", " + bo.getId();
+                }
+            }
+
+            lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId());
+
+            for (Boleto bo : lista_b) {
+
+                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+                listaBoletoRemessa.add(br);
+
+                if (id_boleto_adicionado_remessa.isEmpty()) {
+                    id_boleto_adicionado_remessa = "" + bo.getId();
+                } else {
+                    id_boleto_adicionado_remessa += ", " + bo.getId();
+                }
+            }
+
+            lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId());
+
+            statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
+
+            for (Boleto bo : lista_b) {
+
+                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+                listaBoletoRemessa.add(br);
+
+                if (id_boleto_adicionado_remessa.isEmpty()) {
+                    id_boleto_adicionado_remessa = "" + bo.getId();
+                } else {
+                    id_boleto_adicionado_remessa += ", " + bo.getId();
+                }
+            }
+        }
+
+        List<Boleto> lista_boleto_validado = validaListaRemessa(opcao);
+        if (lista_boleto_validado == null) {
+            PF.update("formExtratoTelaSocial");
+            PF.update("formExtratoTelaSocialOpcoes");
+            return;
+        }
+
+        switch (opcao) {
+            case "registrar":
+                statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
+                break;
+            case "baixar_banco":
+                statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
+                break;
+        }
+
+        for (Boleto bol : lista_boleto_validado) {
+            BoletoRemessa br = new BoletoRemessa(bol, statusRemessa, "tblExtratoTelaT2");
+            listaBoletoRemessa.add(br);
+
+            if (id_boleto_adicionado_remessa.isEmpty()) {
+                id_boleto_adicionado_remessa = "" + bol.getId();
+            } else {
+                id_boleto_adicionado_remessa += ", " + bol.getId();
+            }
+        }
+
+        visibleModalRemessa = true;
+
+        loadLista();
+        PF.update("formExtratoTelaSocial");
+        PF.update("formExtratoTelaSocialOpcoes");
+
+    }
+
+    public void marcarTodos() {
         listaMovimento.stream().forEach((da) -> {
             da.setArgumento0(selecionaTodos);
         });
     }
-    
-    public void fecharModalRemessa(){
+
+    public void fecharModalRemessa() {
+        visibleModalRemessa = false;
+        id_boleto_adicionado_remessa = "";
+        listaBoletoRemessa.clear();
+        statusRemessa = new StatusRemessa();
+
         loadLista();
     }
 
@@ -161,7 +420,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         List<Vector> result = dao.listaMovimentosSocial(
-                porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()), id_status_retorno
+                porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()), id_status_retorno, id_boleto_adicionado_remessa, contaSelecionada.getId()
         );
 
         double valor = 0, valor_baixa = 0, valor_taxa = 0;
@@ -223,65 +482,61 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
     }
 
+    public Boolean validaImprimir() {
+        if (listaBoletoRemessa.isEmpty()) {
+            GenericaMensagem.error("Atenção", "NENHUM BOLETO PARA GERAR ARQUIVO");
+            return false;
+        }
+
+        return true;
+    }
+
     public String imprimirRemessa() {
 
         ImprimirBoleto imp = new ImprimirBoleto();
 
-        List<Boleto> listab = new ArrayList();
-        Map<Integer, Boleto> hash = new LinkedHashMap();
-        String ids_boleto = "";
-
-        for (DataObject datao : listaMovimento) {
-            if ((Boolean) datao.getArgumento0() && ((Vector) datao.getArgumento1()).get(15) != null) {
-                Boleto boletox = (Boleto) new Dao().find(new Boleto(), ((Vector) datao.getArgumento1()).get(15));
-
-                if (boletox.getNrCtrBoleto().isEmpty()) {
-                    GenericaMensagem.fatal("Atenção", "Boleto " + boletox.getNrBoleto() + " sem NrCtrBoleto!, Contate o administrador!");
-                    return null;
-                }
-
-                hash.put(boletox.getId(), boletox);
-            }
-        }
-
-        if (hash.isEmpty()) {
-            GenericaMensagem.fatal("Atenção", "Nenhum Boleto Selecionado!");
+        if (!validaImprimir()) {
             return null;
         }
 
-        for (Map.Entry<Integer, Boleto> entry : hash.entrySet()) {
-            listab.add(entry.getValue());
-        }
+//        List<Boleto> listab = new ArrayList();
+//        Map<Integer, Boleto> hash = new LinkedHashMap();
+//        String ids_boleto = "";
+//        for (DataObject datao : listaMovimento) {
+//            if ((Boolean) datao.getArgumento0() && ((Vector) datao.getArgumento1()).get(15) != null) {
+//                Boleto boletox = (Boleto) new Dao().find(new Boleto(), ((Vector) datao.getArgumento1()).get(15));
+//
+//                if (boletox.getNrCtrBoleto().isEmpty()) {
+//                    GenericaMensagem.fatal("Atenção", "Boleto " + boletox.getNrBoleto() + " sem NrCtrBoleto!, Contate o administrador!");
+//                    return null;
+//                }
+//
+//                hash.put(boletox.getId(), boletox);
+//            }
+//        }
+//
+//        if (hash.isEmpty()) {
+//            GenericaMensagem.fatal("Atenção", "Nenhum Boleto Selecionado!");
+//            return null;
+//        }
+//        for (Map.Entry<Integer, Boleto> entry : hash.entrySet()) {
+//            listab.add(entry.getValue());
+//        }
+//        RemessaBancoDao daor = new RemessaBancoDao();
+//        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_boleto);
+//        if (!l_rb.isEmpty()) {
+//            GenericaMensagem.error("Atenção", "Boleto já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+//            return null;
+//        }
+        //File fi = imp.imprimirRemessa(listab, listab.get(0));
+        RespostaArquivoRemessa RESP = imp.imprimirRemessa(listaBoletoRemessa);
 
-        for (Boleto b : listab) {
-            if (listab.get(0).getContaCobranca().getId() != b.getContaCobranca().getId()) {
-                GenericaMensagem.error("Atenção", "Para gerar a remessa os boletos devem ser da mesma Conta Cobrança!");
-                return null;
-            }
-
-            if (ids_boleto.isEmpty()) {
-                ids_boleto = "" + b.getId();
-            } else {
-                ids_boleto += ", " + b.getId();
-            }
-
-        }
-
-        RemessaBancoDao daor = new RemessaBancoDao();
-
-        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_boleto);
-
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+        if (RESP.getArquivo() == null) {
+            GenericaMensagem.error("ATENÇÃO", RESP.getMensagem());
             return null;
         }
 
-        File fi = imp.imprimirRemessa(listab, listab.get(0));
-        if (fi == null) {
-            GenericaMensagem.error("Atenção", "Erro ao gerar Remessa!");
-            return null;
-        }
-        imp.visualizar_remessa(fi);
+        imp.visualizar_remessa(RESP.getArquivo());
 
         return null;
     }
@@ -897,5 +1152,61 @@ public class ExtratoTelaSocialBean implements Serializable {
 
     public void setSelecionaTodos(Boolean selecionaTodos) {
         this.selecionaTodos = selecionaTodos;
+    }
+
+    public Boolean getVisibleModalRemessa() {
+        return visibleModalRemessa;
+    }
+
+    public void setVisibleModalRemessa(Boolean visibleModalRemessa) {
+        this.visibleModalRemessa = visibleModalRemessa;
+    }
+
+    public List<BoletoRemessa> getListaBoletoRemessa() {
+        return listaBoletoRemessa;
+    }
+
+    public void setListaBoletoRemessa(List<BoletoRemessa> listaBoletoRemessa) {
+        this.listaBoletoRemessa = listaBoletoRemessa;
+    }
+
+    public List<SelectItem> getListaConta() {
+        return listaConta;
+    }
+
+    public void setListaConta(List<SelectItem> listaConta) {
+        this.listaConta = listaConta;
+    }
+
+    public Integer getIndexConta() {
+        return indexConta;
+    }
+
+    public void setIndexConta(Integer indexConta) {
+        this.indexConta = indexConta;
+    }
+
+    public ContaCobranca getContaSelecionada() {
+        return contaSelecionada;
+    }
+
+    public void setContaSelecionada(ContaCobranca contaSelecionada) {
+        this.contaSelecionada = contaSelecionada;
+    }
+
+    public Boolean getVerListaRemessa() {
+        return verListaRemessa;
+    }
+
+    public void setVerListaRemessa(Boolean verListaRemessa) {
+        this.verListaRemessa = verListaRemessa;
+    }
+
+    public StatusRemessa getStatusRemessa() {
+        return statusRemessa;
+    }
+
+    public void setStatusRemessa(StatusRemessa statusRemessa) {
+        this.statusRemessa = statusRemessa;
     }
 }

@@ -1,75 +1,85 @@
 package br.com.rtools.retornos;
 
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.Retorno;
 import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.GenericaRetorno;
-import java.io.BufferedReader;
+import br.com.rtools.utilitarios.DataHoje;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Santander extends ArquivoRetorno {
-
-    private String linha = "",
-            pasta = "",
-            cnpj = "",
-            codigoCedente = "",
-            nossoNumero = "",
-            dataVencimento = "",
-            valorTaxa = "",
-            valorPago = "",
-            valorCredito = "",
-            valorRepasse = "",
-            dataPagamento = "",
-            dataCredito = "",
-            sequencialArquivo = "";
 
     public Santander(ContaCobranca contaCobranca) {
         super(contaCobranca);
     }
 
     @Override
-    public List<GenericaRetorno> sicob(boolean baixar, String host) {
+    public List<ObjetoRetorno> sicob(boolean baixar, String host) {
         host = host + "/pendentes/";
-        pasta = host;
 
-        File fl = new File(host);
-        File listFile[] = fl.listFiles();
-        List<GenericaRetorno> listaRetorno = new ArrayList();
+        File arquivos[] = ObjetoRetorno.arquivos(host);
+        List<ObjetoRetorno> lista_objeto_retorno = new ArrayList();
 
-        StatusRetorno sr = null;
+        // SE TEM ARQUIVOS
+        if (arquivos != null) {
+            
+            for (int u = 0; u < arquivos.length; u++) {
+                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null);
+                
+                List<ObjetoArquivo> lista_objeto_arquivo = new ArrayList();
+                ObjetoArquivo objeto_arquivo = new ObjetoArquivo();
 
-        if (listFile != null) {
-            int qntRetornos = listFile.length;
-            for (int u = 0; u < qntRetornos; u++) {
                 try {
-                    FileReader reader = new FileReader(host + listFile[u].getName());
-                    BufferedReader buffReader = new BufferedReader(reader);
-                    List lista = new Vector();
-                    while ((linha = buffReader.readLine()) != null) {
-                        lista.add(linha);
-                    }
-                    reader.close();
-                    buffReader.close();
-                    int i = 0;
-                    while (i < lista.size()) {
-                        if (i < 1) {
-                            cnpj = ((String) lista.get(i)).substring(18, 32);
-                            int codc = Integer.valueOf(lista.get(0).toString().substring(53, 61));
-                            codigoCedente = String.valueOf(codc);
-                        }
-                        if (((String) lista.get(i)).substring(13, 14).equals("T")) {
-                            nossoNumero = ((String) lista.get(i)).substring(40, 52).trim();
-                            valorTaxa = ((String) lista.get(i)).substring(193, 208);
-                            dataVencimento = ((String) lista.get(i)).substring(69, 77);
+                    List<String> linhas = ObjetoRetorno.retornaLinhaDoArquivo(host + arquivos[u].getName());
+                    
+                    objeto_arquivo.setNomePasta(host);
+                    objeto_arquivo.setNomeArquivo(arquivos[u].getName());
+                    objeto_arquivo.setRetorno(retorno);
+                    
+                    // PRIMEIRA LINHA - HEADER ARQUIVO
+                    objeto_arquivo.setCnpj(linhas.get(0).substring(18, 32));
+                    int codc = Integer.valueOf(linhas.get(0).substring(53, 61));
+                    objeto_arquivo.setCodigoCedente(String.valueOf(codc));
+                    objeto_arquivo.setSequencialArquivo(linhas.get(0).substring(157, 163));
+                    
+                    Integer sequencial_arquivo = Integer.parseInt(objeto_arquivo.getSequencialArquivo());
 
-                            switch (((String) lista.get(i)).substring(15, 17)) {
+                    String m_erro = ObjetoRetorno.continuarRetorno(retorno, super.getContaCobranca().getId(), sequencial_arquivo);
+
+                    if (!m_erro.isEmpty()) {
+                        lista_objeto_retorno.add(new ObjetoRetorno(new ArrayList(), m_erro));
+                        continue;
+                    }
+
+                    // SEGUNDA LINHA - HEADER LOTE
+                    // -- PULAR
+                    
+                    // SEGMENTOS T - U
+                    List<LinhaSegmento> lista_linha_segmento = new ArrayList();
+                    for (int i = 0; i < linhas.size(); i++) {
+                        LinhaSegmento linha_segmento = new LinhaSegmento();
+                        
+                        if (linhas.get(i).substring(13, 14).equals("T")) {
+                            linha_segmento.setNossoNumero(linhas.get(i).substring(40, 52).trim());
+                            linha_segmento.setValorTaxa(linhas.get(i).substring(193, 208));
+                            linha_segmento.setDataVencimento(linhas.get(i).substring(69, 77));
+                            // VERIFICA VENCIMENTO VÁLIDO
+                            try {
+                                if (Integer.parseInt(linha_segmento.getDataVencimento()) == 0) {
+                                    linha_segmento.setDataVencimento("11111111");
+                                }
+                            } catch (Exception e) {
+                            }
+                            
+                            // VERIFICA O STATUS DO MOVIMENTO RETORNADO
+                            linha_segmento.setCodigoMovimento(linhas.get(i).substring(15, 17));
+                            
+                            StatusRetorno sr;
+                            switch (linha_segmento.getCodigoMovimento()) {
                                 // RETORNO VEM COM A CONFIRMAÇÃO QUE FOI REGISTRADO ( REFERENTE A REMESSA GERADA )
                                 case "02":
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 2); // BOLETO REGISTRADO
@@ -81,65 +91,55 @@ public class Santander extends ArquivoRetorno {
                                 case "17": // LIQUIDAÇÃO QUANDO O BOLETO PAGO NÃO É REGISTRADO
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 3); // BOLETO PARA BAIXAR
                                     break;
+                                case "09":
+                                    sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
+                                    break;
                                 default:
                                     sr = null;
                                     break;
                             }
+                            linha_segmento.setStatusRetorno(sr);
+                            // FIM
                         }
-                        try {
-                            int con = Integer.parseInt(dataVencimento);
-                            if (con == 0) {
-                                dataVencimento = "11111111";
-                            }
-                        } catch (Exception e) {
-                        }
+                        
                         i++;
-                        if (i < lista.size() && ((String) lista.get(i)).substring(13, 14).equals("U")) {
-                            valorPago = ((String) lista.get(i)).substring(77, 92);
-                            dataPagamento = ((String) lista.get(i)).substring(137, 145);
-                            valorCredito = ((String) lista.get(i)).substring(97, 107);
-                            dataCredito = ((String) lista.get(i)).substring(145, 153);
-
-                            listaRetorno.add(
-                                    
-                                    new GenericaRetorno(
-                                            cnpj, //1 ENTIDADE
-                                            codigoCedente, //2 NESTE CASO SICAS
-                                            nossoNumero, //3
-                                            valorPago, //4
-                                            valorTaxa, //5
-                                            valorCredito,//valorCredito,   //6
-                                            dataPagamento, //7
-                                            dataVencimento,//dataVencimento, //8
-                                            "", //9 ACRESCIMO
-                                            "", //10 VALOR DESCONTO
-                                            "", //11 VALOR ABATIMENTO
-                                            "", //12 VALOR REPASSE ...(valorPago - valorCredito)
-                                            pasta, // 13 NOME DA PASTA
-                                            listFile[u].getName(), //14 NOME DO ARQUIVO
-                                            dataCredito, //15 DATA CREDITO
-                                            "", // 16 SEQUENCIAL DO ARQUIVO
-                                            sr // 17 STATUS RETORNO
-                                    )
-                            );
-                            i++;
+                        if (linhas.get(i).substring(13, 14).equals("U")) {
+                            linha_segmento.setValorPago(linhas.get(i).substring(77, 92));
+                            linha_segmento.setDataPagamento(linhas.get(i).substring(137, 145));
+                            linha_segmento.setValorCredito(linhas.get(i).substring(97, 107));
+                            linha_segmento.setDataCredito(linhas.get(i).substring(145, 153));
+                            
+                            lista_linha_segmento.add(linha_segmento);
                         }
                     }
-                } catch (IOException | NumberFormatException e) {
+                    objeto_arquivo.setLinhaSegmento(lista_linha_segmento);
+                    lista_objeto_arquivo.add(objeto_arquivo);
+                    
+                    // AS DUAS ÚLTIMAS LINHAS NÃO TEM NECESSIDADE DE LER
+                    // FOOTER LOTE
+                    // FOOTER ARQUIVO
+                } catch (Exception e) {
+                    ObjetoRetorno objeto_retorno = new ObjetoRetorno(new ArrayList(), e.getMessage());
+                    lista_objeto_retorno.add(objeto_retorno);
+                    new Dao().delete(retorno, true);
+                    return lista_objeto_retorno;
                 }
+                
+                ObjetoRetorno objeto_retorno = new ObjetoRetorno(lista_objeto_arquivo, "");
+                lista_objeto_retorno.add(objeto_retorno);
             }
         }
-        return listaRetorno;
+        return lista_objeto_retorno;
     }
 
     @Override
-    public List<GenericaRetorno> sindical(boolean baixar, String host) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<ObjetoRetorno> sindical(boolean baixar, String host) {
+        return new ArrayList();
     }
 
     @Override
-    public List<GenericaRetorno> sigCB(boolean baixar, String host) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<ObjetoRetorno> sigCB(boolean baixar, String host) {
+        return new ArrayList();
     }
 
     @Override

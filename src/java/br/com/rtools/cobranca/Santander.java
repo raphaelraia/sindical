@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
@@ -33,8 +34,8 @@ public class Santander extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public Santander(List<Boleto> listaBoleto) {
-        super(listaBoleto);
+    public Santander(List<BoletoRemessa> listaBoletoRemessa) {
+        super(listaBoletoRemessa);
     }
 
     @Override
@@ -204,9 +205,8 @@ public class Santander extends Cobranca {
     }
 
     @Override
-    public File gerarRemessa240() {
+    public RespostaArquivoRemessa gerarRemessa240() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -214,7 +214,7 @@ public class Santander extends Cobranca {
         Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
         }
 
         List<String> list_log = new ArrayList();
@@ -231,7 +231,7 @@ public class Santander extends Cobranca {
 
         if (!dao.update(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao atualizar Remessa");
         }
 
         try {
@@ -254,9 +254,9 @@ public class Santander extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header do arquivo -----------------------------------------------
             // -----------------------------------------------------------------
@@ -270,7 +270,7 @@ public class Santander extends Cobranca {
             CONTEUDO_REMESSA += "2"; // 05.0 Tipo de Inscrição da Empresa
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição da Empresa
 
-            Boleto boleto_rem = listaBoleto.get(0);
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto();
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente();
@@ -308,7 +308,8 @@ public class Santander extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
@@ -348,7 +349,8 @@ public class Santander extends Cobranca {
             CONTEUDO_REMESSA += "                                 "; // 23.1 Uso Exclusivo FEBRABAN / CNAB
 
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -358,8 +360,9 @@ public class Santander extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
+                StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
                 List<Movimento> lista_m = bol.getListaMovimento();
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
@@ -370,7 +373,11 @@ public class Santander extends Cobranca {
 
                 CONTEUDO_REMESSA += "P"; // 05.3P Cód. Segmento do Registro Detalhe
                 CONTEUDO_REMESSA += " "; // 06.3P Uso Exclusivo FEBRABAN / CNAB
-                CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3P Código de Movimento Remessa // BAIXAR
+                }
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Agência Mantenedora da Conta
                 CONTEUDO_REMESSA += " "; // 09.3P Uso Exclusivo do Banco
                 CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.3P Número da Conta Corrente
@@ -433,7 +440,8 @@ public class Santander extends Cobranca {
                 CONTEUDO_REMESSA += " "; // 41.3P Uso Exclusivo FEBRABAN/CNAB
 
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento P menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -449,8 +457,11 @@ public class Santander extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q Nº Sequencial do Registro no Lote
                 CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe
                 CONTEUDO_REMESSA += " "; // 06.3Q Uso Exclusivo FEBRABAN/CNAB
-                CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa
-
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3Q Código de Movimento Remessa // BAIXAR
+                }
                 Pessoa pessoa = bol.getPessoa();
 
                 if (pessoa.getTipoDocumento().getId() == 1) { // CPF
@@ -477,6 +488,10 @@ public class Santander extends Cobranca {
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro 
                     String cep = end_cep.replace("-", "").replace(".", "");
+                    if (cep.length() < 8) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
+                    }
                     CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP do Pagador
                     CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP do Pagador
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade do Pagador
@@ -496,9 +511,12 @@ public class Santander extends Cobranca {
                 CONTEUDO_REMESSA += "000"; // 20.3Q Uso Exclusivo do Banco
                 CONTEUDO_REMESSA += "                    "; // 21.3Q Uso Exclusivo do Banco
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB
+
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Q menor que 240: " + CONTEUDO_REMESSA);
                 }
+
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -515,11 +533,11 @@ public class Santander extends Cobranca {
 
                 valor_total_lote = Moeda.soma(valor_total_lote, valor_l);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -533,13 +551,14 @@ public class Santander extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro
             CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB
-            Integer quantidade_lote = (2 * listaBoleto.size()) + 2;
+            Integer quantidade_lote = (2 * listaBoletoRemessa.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros do Lote
             CONTEUDO_REMESSA += "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"; // 06.5 Uso exclusivo do Banco
             CONTEUDO_REMESSA += "        "; // 14.5 N. do Aviso Número do Aviso de Lançamento
             CONTEUDO_REMESSA += "                                                                                                                     "; // 15.5 Uso Exclusivo FEBRABAN/CNAB
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -554,14 +573,15 @@ public class Santander extends Cobranca {
 
             CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo
 
-            Integer quantidade_registros = (2 * listaBoleto.size()) + 4;
+            Integer quantidade_registros = (2 * listaBoletoRemessa.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo
 
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes)
 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé do Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -580,16 +600,15 @@ public class Santander extends Cobranca {
 
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 
     @Override
-    public File gerarRemessa400() {
-        return null;
+    public RespostaArquivoRemessa gerarRemessa400() {
+        return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
 }

@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
+import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
@@ -33,8 +34,8 @@ public class CaixaFederalSigCB extends Cobranca {
         super(id_pessoa, valor, vencimento, boleto);
     }
 
-    public CaixaFederalSigCB(List<Boleto> listaBoleto) {
-        super(listaBoleto);
+    public CaixaFederalSigCB(List<BoletoRemessa> listaBoletoRemessa) {
+        super(listaBoletoRemessa);
     }
 
     @Override
@@ -166,9 +167,8 @@ public class CaixaFederalSigCB extends Cobranca {
         return "104-0";
     }
 
-    public File testeRemessaFebraban() {
+    public RespostaArquivoRemessa testeRemessaFebraban() {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -176,7 +176,7 @@ public class CaixaFederalSigCB extends Cobranca {
         Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
         }
 
         String nome_arquivo = "E" + DataHoje.data().substring(0, 2) + "00000".substring(0, 5 - ("" + remessa.getId()).length()) + ("" + remessa.getId()) + ".REM";
@@ -185,7 +185,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
         if (!dao.update(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao atualizar Remessa");
         }
 
         List<String> list_log = new ArrayList();
@@ -225,9 +225,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header do arquivo -----------------------------------------------
             // -----------------------------------------------------------------
@@ -242,7 +242,7 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número Número de Inscrição da Empresa 19 32 14 - Num  *G006 
             CONTEUDO_REMESSA += "00000000000000000000"; // 07.0 Convênio Código do Convênio no Banco 33 52 20 - Alfa  *G007 
 
-            Boleto boleto_rem = listaBoleto.get(0); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto(); // PEGO O PRIMEIRO BOLETO POIS É OBRIGATÓRIO TODOS MOVIMENTOS SEREM DA MESMA CONTA COBRANÇA
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente();
@@ -271,7 +271,8 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header do Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -308,7 +309,8 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -319,8 +321,9 @@ public class CaixaFederalSigCB extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
+                StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
                 List<Movimento> lista_m = bol.getListaMovimento();
 
                 // tipo 3 - segmento P -------------------------------------------------------
@@ -332,7 +335,11 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3P Serviço Nº do Registro Nº Sequencial do Registro no Lote 9 13 5 - Num  *G038 
                 CONTEUDO_REMESSA += "P"; // 05.3P Segmento Cód. Segmento do Registro Detalhe 14 14 1 - Alfa 'P' *G039 
                 CONTEUDO_REMESSA += " "; // 06.3P CNAB Uso Exclusivo FEBRABAN/CNAB 15 15 1 - Alfa Brancos G004 
-                CONTEUDO_REMESSA += "01"; // 07.3P Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3P Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3P Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 // BAIXAR
+                }
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P C/C Agência Código Agência Mantenedora da Conta 18 22 5 - Num  *G008 
                 CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P DV Dígito Verificador da Agência 23 23 1 - Alfa  *G009 
                 CONTEUDO_REMESSA += "000000000000".substring(0, 12 - codigo_cedente.length()) + codigo_cedente; // 10.3P Conta Número Número da Conta Corrente 24 35 12 - Num  *G010
@@ -385,7 +392,8 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento P menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -401,7 +409,11 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q Serviço Nº do Registro Nº Sequencial do Registro no Lote 9 13 5 - Num  *G038 
                 CONTEUDO_REMESSA += "Q"; // 05.3Q Segmento Cód. Segmento do Registro Detalhe 14 14 1 - Alfa ‘Q’ *G039 
                 CONTEUDO_REMESSA += " "; // 06.3Q CNAB Uso Exclusivo FEBRABAN/CNAB 15 15 1 - Alfa Brancos G004 
-                CONTEUDO_REMESSA += "01"; // 07.3Q Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3Q Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 // REGISTRAR
+                }else{
+                    CONTEUDO_REMESSA += "02"; // 07.3Q Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 // BAIXAR
+                }
 
                 // 08.3Q Dados do Pagador Inscrição Tipo Tipo de Inscrição  18 18 1 - Num  *G005 
                 Pessoa pessoa = bol.getPessoa();
@@ -453,8 +465,10 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Q menor que 240: " + CONTEUDO_REMESSA);
                 }
+
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
                 CONTEUDO_REMESSA = "";
@@ -488,7 +502,8 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Y menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -498,11 +513,11 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 valor_total_lote = Moeda.soma(valor_total_lote, valor_titulo_double);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, null);
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -517,9 +532,9 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote Lote de Serviço 4 7 4 - Num  *G002
             CONTEUDO_REMESSA += "5"; // 03.5 Registro Tipo de Registro 8 8 1 - Num ‘5’ *G003 
             CONTEUDO_REMESSA += "         "; // 04.5 CNAB Uso Exclusivo FEBRABAN/CNAB 9 17 9 - Alfa Brancos G004
-            Integer quantidade_lote = (3 * listaBoleto.size()) + 2;
+            Integer quantidade_lote = (3 * listaBoletoRemessa.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Qtde de Registros Quantidade de Registros no Lote 18 23 6 - Num  *G057 
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoleto.size()).length()) + ("" + listaBoleto.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança 24 29 6 - Num  *C070 
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoletoRemessa.size()).length()) + ("" + listaBoletoRemessa.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança 24 29 6 - Num  *C070 
             String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
             CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dosTítulos em Carteiras 30 46 15 2 Num  *C071 
             CONTEUDO_REMESSA += "000000"; // 08.5 Totalização da Cobrança Vinculada Quantidade de Títulos em Cobrança 47 52 6 - Num  *C070 
@@ -534,7 +549,7 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                return new RespostaArquivoRemessa(null, "Footer do Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -548,13 +563,14 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "         "; // 04.9 CNAB Uso Exclusivo FEBRABAN/CNAB 9 17 9 - Alfa Brancos G004 
             CONTEUDO_REMESSA += "000001"; // 05.9 Totais Qtde. de Lotes Quantidade de Lotes do Arquivo 18 23 6 - Num  G049
 
-            Integer quantidade_registros = (2 * listaBoleto.size()) + 4;
+            Integer quantidade_registros = (2 * listaBoletoRemessa.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Qtde. de Registros Quantidade de Registros do Arquivo 24 29 6 - Num  G056
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde. de Contas Concil. Qtde de Contas p/ Conc. (Lotes) 30 35 6 - Num  *G037 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Uso Exclusivo FEBRABAN/CNAB 36 240 205 - Alfa Brancos G004 
 
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Footer do Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -573,23 +589,21 @@ public class CaixaFederalSigCB extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 
     @Override
-    public File gerarRemessa240() {
+    public RespostaArquivoRemessa gerarRemessa240() {
         // teste
 //        if (1 == 1) {
 //            return testeRemessaFebraban();
 //        }
 
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDao dbmov = new MovimentoDao();
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -597,7 +611,7 @@ public class CaixaFederalSigCB extends Cobranca {
         Remessa remessa = new Remessa(-1, "", DataHoje.dataHoje(), DataHoje.horaMinuto(), null, Usuario.getUsuario(), null);
         if (!dao.save(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa");
         }
 
         List<String> list_log = new ArrayList();
@@ -614,7 +628,7 @@ public class CaixaFederalSigCB extends Cobranca {
 
         if (!dao.update(remessa)) {
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, "Erro ao atualizar Remessa");
         }
 
         try {
@@ -637,9 +651,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             String CONTEUDO_REMESSA = "";
 
-            if (listaBoleto.isEmpty()) {
+            if (listaBoletoRemessa.isEmpty()) {
                 dao.rollback();
-                return null;
+                return new RespostaArquivoRemessa(null, "Lista de Boleto vazia");
             }
             // header do arquivo -----------------------------------------------
             // -----------------------------------------------------------------
@@ -654,7 +668,7 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 06.0 Número de Inscrição do Beneficiário 19 32 9(014) Ver Nota Explicativa G006 *G006
             CONTEUDO_REMESSA += "00000000000000000000"; // 07.0 Uso Exclusivo CAIXA 33 52 9(020) Preencher com zeros -
 
-            Boleto boleto_rem = listaBoleto.get(0);
+            Boleto boleto_rem = listaBoletoRemessa.get(0).getBoleto();
             String agencia = boleto_rem.getContaCobranca().getContaBanco().getAgencia();
             String conta = boleto_rem.getContaCobranca().getContaBanco().getConta().replace(".", "").replace("-", "");
             String cedente = boleto_rem.getContaCobranca().getCedente();
@@ -691,7 +705,8 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
             CONTEUDO_REMESSA = "";
@@ -736,7 +751,8 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Header de Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -747,8 +763,9 @@ public class CaixaFederalSigCB extends Cobranca {
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
-            for (Integer i = 0; i < listaBoleto.size(); i++) {
-                Boleto bol = listaBoleto.get(i);
+            for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
+                Boleto bol = listaBoletoRemessa.get(i).getBoleto();
+                StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
                 List<Movimento> lista_m = bol.getListaMovimento();
 
                 // tipo 3 - segmento P -------------------------------------------------------
@@ -760,7 +777,11 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3P Serviço Nº Sequencial do Registro no Lote 9 13 9(005) Ver Nota Explicativa G038; evoluir de 1 em 1 para cada Segmento do Lote *G038
                 CONTEUDO_REMESSA += "P"; // 05.3P Cód. Segmento do Registro Detalhe 14 14 X(001) Preencher 'P’ *G039
                 CONTEUDO_REMESSA += " "; // 06.3P Filler 15 15 X(001) Preencher com espaços G004
-                CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa 16 17 9(002) Ver Nota Explicativa C004 *C004
+                if (sr.getId() == 1) {
+                    CONTEUDO_REMESSA += "01"; // 07.3P Código de Movimento Remessa 16 17 9(002) Ver Nota Explicativa C004 *C004 // REGISTRAR
+                } else {
+                    CONTEUDO_REMESSA += "02"; // 07.3P Código de Movimento Remessa 16 17 9(002) Ver Nota Explicativa C004 *C004 // BAIXAR
+                }
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.3P Código de identificação do Beneficiário Agência Mantenedora da Conta 18 22 9(005) Prencher com o código da agência detentora da conta, com um zero à esquerda *G008
                 CONTEUDO_REMESSA += moduloOnze("" + Integer.valueOf(agencia)); // 09.3P Dígito Verificador da Agência 23 23 X(001) Preencher com o dígito verificador da agência, informado pela CAIXA *G009
                 CONTEUDO_REMESSA += "000000".substring(0, 6 - codigo_cedente.length()) + codigo_cedente; // 10.3P Código do Convênio no Banco 24 29 9(006) Código fornecido pela CAIXA, através da agência de relacionamento do cliente; trata-se do código do Beneficiário (6 posições) *G007
@@ -819,7 +840,8 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento P menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -863,6 +885,10 @@ public class CaixaFederalSigCB extends Cobranca {
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 40)); // 11.3Q Endereço do Pagador 74 113 X(040) Ver Nota Explicativa G032 G032
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_bairro + "               ").substring(0, 15)); // 12.3Q Bairro do Pagador 114 128 X(015) G032
                     String cep = end_cep.replace("-", "").replace(".", "");
+                    if (cep.length() < 8) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
+                    }
                     CONTEUDO_REMESSA += cep.substring(0, 5); // 13.3Q CEP do Pagador 129 133 9(005) Preencher com o código adotado pelos CORREIOS para identificação do endereço G034
                     CONTEUDO_REMESSA += cep.substring(5, 8); // 14.3Q Sufixo do CEP do Pagador 134 136 9(003) Preencher com o código adotado pelos CORREIOS para complementação do código de CEP G035
                     CONTEUDO_REMESSA += AnaliseString.normalizeUpper((end_cidade + "               ").substring(0, 15)); // 15.3Q Cidade do Pagador 137 151 X(015) Preencher com o nome do município correspondente ao endereço do Pagador G033
@@ -886,7 +912,8 @@ public class CaixaFederalSigCB extends Cobranca {
                 //buff_writer.write(CONTEUDO_REMESSA);
                 //buff_writer.newLine();
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Q menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -918,7 +945,8 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "                                                                                                                                                                                         "; // 17.3Y CNAB Uso Exclusivo FEBRABAN/CNAB 56 240 185  Num Brancos G004
 
                 if (CONTEUDO_REMESSA.length() != 240) {
-                    return null;
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "Segmento Y-53 menor que 240: " + CONTEUDO_REMESSA);
                 }
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
@@ -935,11 +963,11 @@ public class CaixaFederalSigCB extends Cobranca {
 
                 valor_total_lote = Moeda.soma(valor_total_lote, valor_l);
 
-                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol);
+                RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
                     dao.rollback();
-                    return null;
+                    return new RespostaArquivoRemessa(null, "Erro ao salvar Remessa Banco");
                 }
 
                 list_log.add("ID: " + bol.getId());
@@ -953,9 +981,9 @@ public class CaixaFederalSigCB extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 Lote de Serviço 4 7 9(004) Ver Nota Explicativa G002; ATENÇÃO: Dentro de um mesmo Lote de Serviço, todos os Segmentos devem trazer nesse campo o mesmo número do campo equivalente a esse no Header de Lote (campo 02.1) *G002
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro 8 8 9(001) Preencher ‘5’ (equivale a Trailer de Lote) *G003
             CONTEUDO_REMESSA += "         "; // 04.5 CNAB Filler 9 17 X(009) Preencher com espaços G004
-            Integer quantidade_lote = (3 * listaBoleto.size()) + 2;
+            Integer quantidade_lote = (3 * listaBoletoRemessa.size()) + 2;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Qtde de Registros Quantidade de Registros no Lote 18 23 9(006) Preencher com a Quantidade de registros no lote; trata-se da somatória dos registros de tipo 1, 3, e 5 *G057
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoleto.size()).length()) + ("" + listaBoleto.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança Simples 24 29 9(006) Preencher com a Quantidade total de títulos informados no lote *C070
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoletoRemessa.size()).length()) + ("" + listaBoletoRemessa.size()); // 06.5 Totalização da Cobrança Simples Quantidade de Títulos em Cobrança Simples 24 29 9(006) Preencher com a Quantidade total de títulos informados no lote *C070
             String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
             CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dos Títulos em Carteiras de Cobrança Simples 30 46 9(017) Preencher com o Valor total de títulos informados no lote *C071
             CONTEUDO_REMESSA += "000000"; // 08.5 Totalização da Cobrança Caucionada Quantidade de Títulos em Cobranças Caucionadas 47 52 9(006) Preencher com zeros *C070
@@ -968,7 +996,8 @@ public class CaixaFederalSigCB extends Cobranca {
             //buff_writer.write(CONTEUDO_REMESSA);
             //buff_writer.newLine();
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé de Arquivo menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -983,13 +1012,14 @@ public class CaixaFederalSigCB extends Cobranca {
 
             CONTEUDO_REMESSA += "000001"; // 05.9 Totais Quantidade de Lotes do Arquivo 18 23 9(006) Informar o Número total de lotes enviados no arquivo; trata-se da somatória dos registros de tipo 1, incluindo header e trailer G049
 
-            Integer quantidade_registros = (3 * listaBoleto.size()) + 4;
+            Integer quantidade_registros = (3 * listaBoletoRemessa.size()) + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo 24 29 9(006) Informar o Número do total de registros enviados no arquivo; trata-se da somatória dos registros de tipo 0, 1, 3, 5 e 9 G056
             CONTEUDO_REMESSA += "      "; // 07.9 CNAB Filler 30 35 X(006) Preencher com espaços G004
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 CNAB Filler 36 240 X(105) G004
 
             if (CONTEUDO_REMESSA.length() != 240) {
-                return null;
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Rodapé de Lote menor que 240: " + CONTEUDO_REMESSA);
             }
             buff_writer.write(CONTEUDO_REMESSA + "\r\n");
 
@@ -1008,17 +1038,16 @@ public class CaixaFederalSigCB extends Cobranca {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
 
-            return new File(destino);
+            return new RespostaArquivoRemessa(new File(destino), "");
         } catch (IOException | NumberFormatException e) {
-            e.getMessage();
             dao.rollback();
-            return null;
+            return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
 
     @Override
-    public File gerarRemessa400() {
-        return null;
+    public RespostaArquivoRemessa gerarRemessa400() {
+        return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
 
 }
