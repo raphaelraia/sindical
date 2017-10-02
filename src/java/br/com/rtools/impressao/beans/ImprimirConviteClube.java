@@ -65,7 +65,11 @@ public class ImprimirConviteClube implements Serializable {
 //            download.baixar();
 //            download.remover();
         Jasper.PART_NAME = "";
-        Jasper.printReports("/Relatorios/CONVITE_CLUBE.jasper", "convite_clube", lista);
+        if(ConfiguracaoSocial.get().getConviteCartaoPvc()) {
+            Jasper.printReports("/Relatorios/CONVITE_CLUBE_CARTAO.jasper", "convite_clube", lista);            
+        } else {
+            Jasper.printReports("/Relatorios/CONVITE_CLUBE.jasper", "convite_clube", lista);            
+        }
 //        try {
 //        } catch (JRException e) {
 //            e.getMessage();
@@ -199,12 +203,17 @@ public class ImprimirConviteClube implements Serializable {
             }
             barras += "0";
         }
+        
+        String img = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoConvite.png");
+        if(ConfiguracaoSocial.get().getConviteCartaoPvc()) {
+            img = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+        }
 
         lista.add(new ConviteClube(
                 cm.getSisPessoa().getNome(),
                 cm.getDtEmissao(),
                 "VÁLIDO ATÉ " + cm.getValidade(),
-                ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoConvite.png"),
+                img,
                 barras,
                 (!cm.isCortesia()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA PARA OS DIAS: " + listSemana,
                 cm.getSisPessoa().getObservacao(),

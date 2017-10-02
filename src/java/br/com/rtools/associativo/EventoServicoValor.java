@@ -145,7 +145,7 @@ public class EventoServicoValor implements java.io.Serializable {
         if (Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString) > valor) {
             this.descontoPrimeiraVenda = new Double(0);
         } else {
-            this.descontoPrimeiraVenda = Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString);            
+            this.descontoPrimeiraVenda = Moeda.substituiVirgulaDouble(descontoPrimeiraVendaString);
         }
     }
 

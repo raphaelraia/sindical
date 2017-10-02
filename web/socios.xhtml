@@ -121,7 +121,7 @@
                                             <f:selectItems value="#{sociosBean.listSisPeriodos}"/>
                                         </p:selectOneMenu>                                 
                                     </h:panelGrid>
-                                    
+
                                     <p:panel header="Geração de Mensalidades: Gerar para meses marcados" styleClass="margin-top" id="i_block_mensalidades">
                                         <h:panelGrid columns="12" cellspacing="5">
                                             <h:outputLabel value="Jan" />
@@ -399,7 +399,7 @@
                                     <p:commandLink value="Sócio com Dependentes Inativos" id="id_dependente_inativos" rendered="#{sociosBean.listDependentesInativos.size() > 0}" style="float: right" onclick="PF('i_dlg_deps').show()" styleClass="font-color-red bold" update="i_l_d_i" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 1)}" actionListener="#{sociosBean.atualizarListaDependenteInativo}"/>
                                 </h:panelGrid>
 
-                                <p:dataTable var="listDependentes" id="tbl" value="#{sociosBean.listDependentes}" emptyMessage="Nenhum Dependente Adicionado." rowIndexVar="index" styleClass="margin-top">
+                                <p:dataTable var="listDependentes" id="tbl" value="#{sociosBean.listDependentes}" emptyMessage="Nenhum Dependente Adicionado." rowIndexVar="index" styleClass="margin-top" rowStyleClass="#{listDependentes.fisica.pessoa.existOposicao ? 'bg-salmon' : ''}">
                                     <p:column style="width: 30px; text-align: center">
                                         <p:commandButton icon="ui-icon-close" action="#{sociosBean.excluirDependente(listDependentes, index)}" update=":formSocios:i_panel_dependente" title="Excluir (DEPENDENTE 'INATIVAR' E 'REATIVAR' - LINK)" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 2)}" />
                                     </p:column>
@@ -416,7 +416,6 @@
                                     <p:column headerText="Parentesco" style="text-align: center; width: 130px">
                                         <p:selectOneMenu value="#{listDependentes.idParentesco}" style="width: 100px">
                                             <p:ajax event="change" update="i_validade_dependente i_validade_dependente2 :formSocios:i_growl :formSocios:i_panel_dependente" listener="#{sociosBean.atualizaValidadeTela(index)}"/>
-                                            <!-- <f:selectItems value="# {sociosBean.listaParentesco}"/> -->
                                             <f:selectItems value="#{listDependentes.listParentesco}"/>
                                         </p:selectOneMenu>
                                     </p:column>
@@ -441,6 +440,14 @@
                                             <p:ajax event="blur" listener="#{sociosBean.calculoDescontoDependente(listDependentes)}" update="@this" />
                                         </p:inputText>
                                     </p:column>
+                                    <f:facet name="footer">
+                                        <h:panelGrid style="margin-top: 25px;" columns="2" styleClass="sbb">
+                                            <h:column>
+                                                <div style="width: 15px; height: 15px; float: left; margin-right: 5px" class="bg-salmon"></div>
+                                                <h:outputLabel value="Contém Oposição" />
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </f:facet>
                                 </p:dataTable>
                             </p:panel>
 
@@ -601,6 +608,7 @@
                             <p:dialog header="Cadastrar ou Pesquisar um Dependente" widgetVar="dlg_dependente" modal="true" resizable="false" width="900" visible="#{sociosBean.modelVisible}">
                                 <p:ajax event="close" listener="#{sociosBean.fechaModal()}" update="formSocios"/>  
                                 <h:panelGrid id="i_panel_dados">
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{sociosBean.novoDependente.pessoa.existOposicao}" />
                                     <p:tabView id="tab_view">
                                         <p:tab  title="Cadastro de Dependente">
                                             <h:panelGrid columns="2" style="width: 400px" columnClasses="verticalAlignTop, verticalAlignTop" >

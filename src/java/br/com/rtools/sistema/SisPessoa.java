@@ -310,7 +310,7 @@ public class SisPessoa implements Serializable {
         }
         return "";
     }
-    
+
     public String getFotoResourceArquivo() {
         if (this.id != -1) {
             String foto = "";
@@ -322,5 +322,13 @@ public class SisPessoa implements Serializable {
             }
         }
         return "";
+    }
+
+    public Integer getIdade() {
+        try {
+            return new DataHoje().calcularIdade(this.getDtNascimento());
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

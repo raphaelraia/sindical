@@ -50,16 +50,16 @@ public class ConviteServicoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Cadastrar serviço!");
             return;
         }
-        
+
         ConviteDao db = new ConviteDao();
-        if (!db.listaConviteServico(Integer.parseInt(listServicos.get(idServicos).getDescription())).isEmpty()){
-            message = "Esse serviço já foi adicionado!";
+        if (!db.listaConviteServico(Integer.parseInt(listServicos.get(idServicos).getDescription()), conviteServico.isCortesia()).isEmpty()) {
+            GenericaMensagem.info("Suceso", "Esse serviço já foi adicionado!");
             return;
         }
-        
+
         NovoLog novoLog = new NovoLog();
         Dao di = new Dao();
-        
+
         conviteServico.setServicos((Servicos) di.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));
         if (conviteServico.getId() == -1) {
             di.openTransaction();
@@ -78,11 +78,11 @@ public class ConviteServicoBean implements Serializable {
                         + " [Sab][" + conviteServico.isSabado() + "]"
                         + " [Feriados][" + conviteServico.isFeriado() + "]"
                 );
-                message = "Registro inserido com sucesso";
+                GenericaMensagem.info("Sucesso", "Registro inserido");
                 listConviteServicos.clear();
             } else {
                 di.rollback();
-                message = "Erro ao adicionar registro!";
+                GenericaMensagem.warn("Erro", "Erro ao adicionar registro!");
             }
         } else {
             ConviteServico cs = (ConviteServico) di.find(conviteServico);
@@ -114,11 +114,11 @@ public class ConviteServicoBean implements Serializable {
                         + " [Sab][" + conviteServico.isSabado() + "]"
                         + " [Feriados][" + conviteServico.isFeriado() + "]"
                 );
-                message = "Registro atualizado com sucesso";
+                GenericaMensagem.info("Sucesso", "Registro atualizado");
                 listConviteServicos.clear();
             } else {
                 di.rollback();
-                message = "Erro ao atualizar registro!";
+                GenericaMensagem.warn("Erro", "Erro ao atualizar registro!");
             }
         }
         conviteServico = new ConviteServico();
@@ -211,11 +211,11 @@ public class ConviteServicoBean implements Serializable {
                         + " [Feriados][" + cs.isFeriado() + "]"
                 );
                 di.commit();
-                message = "Registro excluído com sucesso";
+                GenericaMensagem.info("Sucesso", "Registro excluído com sucesso");
                 listConviteServicos.clear();
             } else {
                 di.rollback();
-                message = "Erro ao excluir registro!";
+                GenericaMensagem.info("Erro", "Ao excluir registro! Registro possui vínculos com convites emitidos!!!");
             }
         }
     }

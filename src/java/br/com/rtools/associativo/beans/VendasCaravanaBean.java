@@ -2098,7 +2098,7 @@ public class VendasCaravanaBean implements Serializable {
 
         public Boolean getMenorIdade() {
             if (eventoServicoValor != null) {
-                if (eventoServicoValor.getIdadeInicial() >= 0 && eventoServicoValor.getIdadeInicial() <= 2 && eventoServicoValor.getValor() == 0) {
+                if (eventoServicoValor.getIdadeInicial() >= 0 && eventoServicoValor.getIdadeFinal() <= 2 && eventoServicoValor.getValor() == 0) {
                     return true;
                 }
             } else {

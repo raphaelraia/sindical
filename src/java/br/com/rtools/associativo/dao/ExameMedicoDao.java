@@ -69,17 +69,18 @@ public class ExameMedicoDao extends DB {
     public List<ExameMedico> listaExameMedico(Integer id_pessoa, String id_departamento) {
         try {
             String text_query
-                    = " SELECT em.* \n"
-                    + "  FROM soc_exame_medico em \n"
-                    + " INNER JOIN pes_pessoa p ON p.id = em.id_pessoa \n"
-                    + " INNER JOIN seg_departamento d ON d.id = em.id_departamento \n"
+                    = "     SELECT em.*                                                 \n"
+                    + "       FROM soc_exame_medico AS EM                               \n"
+                    + " INNER JOIN seg_departamento AS D  ON D.id  = EM.id_departamento \n"
+                    + "  LEFT JOIN pes_pessoa       AS P  ON P.id  = EM.id_pessoa       \n"
+                    + "  LEFT JOIN sis_pessoa       AS SP ON SP.id = EM.id_sis_pessoa   \n"
                     + " WHERE d.id IN (" + id_departamento + ") \n";
 
             if (id_pessoa != null) {
                 text_query += " AND p.id = " + id_pessoa;
             }
 
-            text_query += " ORDER BY p.ds_nome, d.ds_descricao, dt_emissao";
+            text_query += " ORDER BY em.id DESC ";
 
             Query qry = getEntityManager().createNativeQuery(
                     text_query,

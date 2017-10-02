@@ -16,6 +16,7 @@ import javax.persistence.Table;
 @Table(name = "eve_evento_servico")
 @NamedQuery(name = "EventoServico.pesquisaID", query = "select es from EventoServico es where es.id=:pid")
 public class EventoServico implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -37,6 +38,8 @@ public class EventoServico implements java.io.Serializable {
     private Categoria categoria;
     @Column(name = "is_socio", nullable = false, columnDefinition = "DEFAULT false")
     private boolean socio;
+    @Column(name = "is_responsavel")
+    private Boolean responsavel;
 
     public EventoServico() {
         this.id = -1;
@@ -47,9 +50,10 @@ public class EventoServico implements java.io.Serializable {
         this.descricao = "";
         this.categoria = null;
         this.socio = false;
+        this.responsavel = true;
     }
 
-    public EventoServico(int id, AEvento evento, Servicos servicos, boolean isMesa, boolean isIndividual, String descricao, Categoria categoria, boolean socio) {
+    public EventoServico(int id, AEvento evento, Servicos servicos, boolean isMesa, boolean isIndividual, String descricao, Categoria categoria, boolean socio, Boolean responsavel) {
         this.id = id;
         this.evento = evento;
         this.servicos = servicos;
@@ -58,6 +62,7 @@ public class EventoServico implements java.io.Serializable {
         this.descricao = descricao;
         this.categoria = categoria;
         this.socio = socio;
+        this.responsavel = responsavel;
     }
 
     public int getId() {
@@ -122,5 +127,13 @@ public class EventoServico implements java.io.Serializable {
 
     public void setSocio(boolean socio) {
         this.socio = socio;
+    }
+
+    public Boolean getResponsavel() {
+        return responsavel;
+    }
+
+    public void setResponsavel(Boolean responsavel) {
+        this.responsavel = responsavel;
     }
 }

@@ -79,7 +79,7 @@ public class Servicos implements java.io.Serializable {
     private boolean cursoRenovacao;
     @Column(name = "is_boleto", nullable = true, columnDefinition = "boolean default false")
     private boolean boleto;
-    @JoinColumn(name = "id_modelo_cartao ", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "id_modelo_cartao", referencedColumnName = "id", nullable = true)
     @ManyToOne
     private ModeloCarteirinha modeloCarteirinha;
     @Column(name = "nr_meses_debito_exclusao")
@@ -88,6 +88,8 @@ public class Servicos implements java.io.Serializable {
     private boolean mesesDebitoExclusaoTodos;
     @Column(name = "is_guia_somente_socio", nullable = true, columnDefinition = "boolean default false")
     private Boolean guiaSomenteSocio;
+    @Column(name = "nr_vagas", nullable = false, columnDefinition = "integer default 0")
+    private Integer nrVagas;
 
     @Transient
     private Boolean selected;
@@ -127,6 +129,7 @@ public class Servicos implements java.io.Serializable {
         this.selected = false;
         this.mesesDebitoExclusaoTodos = false;
         this.guiaSomenteSocio = false;
+        this.nrVagas = 0;
         // TRANSIENT
         this.valorCheio = null;
     }
@@ -160,7 +163,8 @@ public class Servicos implements java.io.Serializable {
             ModeloCarteirinha modeloCarteirinha,
             Integer mesesDebitoExclusao,
             boolean mesesDebitoExclusaoTodos,
-            boolean guiaSomenteSocio) {
+            boolean guiaSomenteSocio,
+            Integer nrVagas) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -191,6 +195,7 @@ public class Servicos implements java.io.Serializable {
         this.mesesDebitoExclusao = mesesDebitoExclusao;
         this.mesesDebitoExclusaoTodos = mesesDebitoExclusaoTodos;
         this.guiaSomenteSocio = guiaSomenteSocio;
+        this.nrVagas = nrVagas;
     }
 
     public int getId() {
@@ -519,6 +524,14 @@ public class Servicos implements java.io.Serializable {
 
     public void setGuiaSomenteSocio(Boolean guiaSomenteSocio) {
         this.guiaSomenteSocio = guiaSomenteSocio;
+    }
+
+    public Integer getNrVagas() {
+        return nrVagas;
+    }
+
+    public void setNrVagas(Integer nrVagas) {
+        this.nrVagas = nrVagas;
     }
 
 }

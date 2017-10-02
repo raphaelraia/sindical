@@ -284,6 +284,10 @@ public class HomologacaoDao extends DB {
     }
 
     public List<Agendamento> pesquisaAgendamento(Integer idStatus, Integer idFilial, Date dataInicial, Date dataFinal, Integer idUsuario, Integer idPessoaFisica, Integer idPessoaJuridica, Boolean somenteAtivos, Boolean web) {
+        return pesquisaAgendamento(idStatus, idFilial, dataInicial, dataFinal, idUsuario, idPessoaFisica, idPessoaJuridica, somenteAtivos, web, false);
+    }
+
+    public List<Agendamento> pesquisaAgendamento(Integer idStatus, Integer idFilial, Date dataInicial, Date dataFinal, Integer idUsuario, Integer idPessoaFisica, Integer idPessoaJuridica, Boolean somenteAtivos, Boolean web, Boolean comPendencias) {
 
         String dataCampo = "";
         String homologadorCampo = "";
@@ -313,30 +317,35 @@ public class HomologacaoDao extends DB {
         if (idStatus > 0) {
             statusCampo = " AND age.id_status = " + idStatus + "\n";
             if (idStatus == 8) {
-                statusCampo += " AND (age.dt_recusa1 IS NULL OR (age.dt_recusa1 IS NOT NULL AND age.dt_solicitacao2 IS NOT NULL )) \n";
+                if (comPendencias) {
+                    statusCampo += " AND age.dt_recusa1 IS NOT NULL AND age.dt_solicitacao2 IS NULL \n";
+                } else {
+                    statusCampo += " AND (age.dt_recusa1 IS NULL OR (age.dt_recusa1 IS NOT NULL AND age.dt_solicitacao2 IS NOT NULL )) \n";
+                }
             }
+        } else {
+            statusCampo += " AND age.id_status <> 8 \n";
         }
         if (somenteAtivos) {
             somenteAtivosString = " AND hor.ativo = true \n";
         }
         try {
             String textQuery
-                    = "       SELECT age.*                                      \n"
+                    = "     SELECT age.*                                        \n"
                     + "       FROM hom_agendamento age                          \n"
-                    + "      INNER JOIN hom_horarios hor ON hor.id = age.id_horario\n "
+                    + " INNER JOIN hom_horarios hor ON hor.id = age.id_horario  \n "
                     + innerPessoaEmpresa
-                    + "      WHERE age.id_horario IS NOT NULL                  \n"
+                    + "      WHERE age.id_horario IS NOT NULL                   \n"
                     + dataCampo
                     + homologadorCampo
                     + statusCampo
                     + pessoaEmpresaCampo
                     + somenteAtivosString
-                    + "        AND age.id_filial = " + idFilial + " \n";
+                    + "        AND age.id_filial = " + idFilial + "             \n";
             if (idStatus.equals(8)) {
                 textQuery += " ORDER BY age.dt_emissao ASC ";
             } else {
                 textQuery += " ORDER BY age.dt_data DESC, hor.ds_hora ASC ";
-
             }
             textQuery += " LIMIT 1000 ";
 
@@ -692,7 +701,7 @@ public class HomologacaoDao extends DB {
                     + "WHERE a.pessoaEmpresa.fisica.id = " + id_fisica + " "
                     + "  AND a.pessoaEmpresa.juridica.id = " + id_juridica + " "
                     + "  AND a.dtData >= :data "
-                    + "  AND (a.status.id = 2 OR a.status.id = 5)"
+                    + "  AND (a.status.id = 2 OR a.status.id = 5 OR a.status.id = 8) "
             );
             qry.setParameter("data", DataHoje.dataHoje());
             if (!qry.getResultList().isEmpty()) {
@@ -1230,7 +1239,7 @@ public class HomologacaoDao extends DB {
 
     public Boolean existsPedidosAgendamento(Integer filial_id) {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT * FROM hom_agendamento WHERE dt_emissao < CURRENT_DATE AND id_status = 8 AND id_filial = " + filial_id);
+            Query query = getEntityManager().createNativeQuery("SELECT * FROM hom_agendamento WHERE dt_emissao < CURRENT_DATE AND id_status = 8 AND (dt_recusa1 IS NULL OR (dt_recusa1 IS NOT NULL AND dt_solicitacao2 IS NOT NULL)) AND id_filial = " + filial_id);
             query.setMaxResults(1);
             return !query.getResultList().isEmpty();
         } catch (Exception e) {

@@ -1931,6 +1931,20 @@ public class MatriculaEscolaBean implements Serializable {
                             (String) ((Servicos) list.get(i)).getDescricao(),
                             Integer.toString(((Servicos) list.get(i)).getId())));
                 }
+                if (matriculaEscola.getId() == -1) {
+                    // TRAZ O SERVIÇO MAIS USADO
+                    Integer mainId = new MatriculaEscolaDao().findMatriculaIndivualMainId();
+                    if (mainId != null) {
+                        if (!listaIndividual.isEmpty()) {
+                            for (int i = 0; i < listaIndividual.size(); i++) {
+                                if (Integer.parseInt(listaIndividual.get(i).getDescription()) == mainId) {
+                                    idIndividual = i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 listaIndividual.add(new SelectItem(0,
                         "Sem Serviço para esta rotina",
@@ -2540,6 +2554,20 @@ public class MatriculaEscolaBean implements Serializable {
                         idCurso = list1.getCursos().getId();
                         listaCursosDisponiveis.add(new SelectItem((int) j, (String) list1.getCursos().getDescricao(), Integer.toString(list1.getCursos().getId())));
                         j++;
+                    }
+                }
+                if (matriculaEscola.getId() == -1) {
+                    // TRAZ O SERVIÇO MAIS USADO
+                    Integer mainId = new MatriculaEscolaDao().findMatriculaTurmaMainId();
+                    if (mainId != null) {
+                        if (!listaCursosDisponiveis.isEmpty()) {
+                            for (int i = 0; i < listaCursosDisponiveis.size(); i++) {
+                                if (Integer.parseInt(listaCursosDisponiveis.get(i).getDescription()) == mainId) {
+                                    idCursosDisponiveis = i;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }

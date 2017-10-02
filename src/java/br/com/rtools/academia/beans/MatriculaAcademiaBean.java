@@ -159,6 +159,8 @@ public class MatriculaAcademiaBean implements Serializable {
     private Double descontoServicoEmpresa;
     private String descontoServicoEmpresaString;
     private Boolean trocarMatriculaAcademia;
+    private String periodoString;
+    private String periodoEmissaoString;
 
     @PostConstruct
     public void init() {
@@ -178,6 +180,8 @@ public class MatriculaAcademiaBean implements Serializable {
         comoPesquisa = "";
         message = "";
         messageStatusDebito = "";
+        periodoString = "";
+        periodoEmissaoString = "";
         messageStatusEmpresa = "";
         valor = "";
         valorParcela = "";
@@ -294,21 +298,11 @@ public class MatriculaAcademiaBean implements Serializable {
         matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.livre(matriculaAcademia.getServicoPessoa().getDtEmissao(), "MM/yyyy"));
         getRegistro();
         disabled = false;
-
-        getListaModalidades();
-        pegarIdServico();
-        calculoValor();
-        calculoDesconto();
-        filial_id = 0;
-        filial_id_2 = 0;
-        liberaAcessaFilial = false;
-        loadLiberaAcessaFilial();
-        trocarMatriculaAcademia = true;
-
         AcademiaDao academiaDao = new AcademiaDao();
         List<AcademiaServicoValor> list = academiaDao.listaServicoValorPorRotina();
         int idServicoMemoria = 0;
         int b = 0;
+        getListaModalidades();
         for (int i = 0; i < list.size(); i++) {
             if (idServicoMemoria != list.get(i).getServicos().getId()) {
                 idServicoMemoria = list.get(i).getServicos().getId();
@@ -319,6 +313,23 @@ public class MatriculaAcademiaBean implements Serializable {
                 b++;
             }
         }
+        listaPeriodosGrade = new ArrayList();
+        getListaPeriodosGrade();
+        for (int i = 0; i < listaPeriodosGrade.size(); i++) {
+            if (Integer.parseInt(listaPeriodosGrade.get(i).getDescription()) == matriculaAcademiaAntiga.getAcademiaServicoValor().getId()) {
+                idPeriodoGrade = i;
+                break;
+            }
+        }
+        pegarIdServico();
+        calculoValor();
+        calculoDesconto();
+        filial_id = 0;
+        filial_id_2 = 0;
+        liberaAcessaFilial = false;
+        loadLiberaAcessaFilial();
+        trocarMatriculaAcademia = true;
+
         List<Movimento> listMovimentoInativar = new MovimentoDao().findBy("pessoa", matriculaAcademiaAntiga.getServicoPessoa().getCobranca().getId(), matriculaAcademiaAntiga.getServicoPessoa().getServicos().getId(), false, true, false);
         if (!listMovimentoInativar.isEmpty()) {
             GenericaMensagem.warn("SISTEMA", "Matrícula com movimentos em aberto!");
@@ -492,9 +503,8 @@ public class MatriculaAcademiaBean implements Serializable {
             message = "Cadastrar período grade!";
             return null;
         }
-        if (valor.isEmpty() || valor.equals("0") || valor.equals("0,00")) {
-            message = "O valor do serviço deve ser maior que R$ 0,00 !";
-            return null;
+        if (valor.isEmpty()) {
+            valor = "0";
         }
         matriculaAcademia.getServicoPessoa().setNrDiaVencimento(idDiaParcela);
         Dao dao = new Dao();
@@ -525,6 +535,14 @@ public class MatriculaAcademiaBean implements Serializable {
                 message = "Aluno já cadastrado para esta modalidade!";
                 return null;
             }
+//            Integer quantidadeAlunosAcademia = 0;
+//            if (matriculaAcademia.getAcademiaServicoValor().getServicos().getNrVagas() > 0) {
+//                quantidadeAlunosAcademia = matriculaAcademia.getAcademiaServicoValor().getServicos().getNrVagas() - new FunctionsDao().quantidadeAlunosAcademia(matriculaAcademia.getAcademiaServicoValor().getServicos().getId());
+//                if (quantidadeAlunosAcademia <= 0) {
+//                    message = "Vagas esgotadas para essa modalidade! Limite de vagas: " + matriculaAcademia.getAcademiaServicoValor().getServicos().getNrVagas();
+//                    return null;
+//                }
+//            }
             SocioCarteirinha socioCarteirinha = new SocioCarteirinha();
             SocioCarteirinhaDao scdb = new SocioCarteirinhaDao();
             // PESQUISA CARTEIRINHA SEM MODELO
@@ -1097,6 +1115,20 @@ public class MatriculaAcademiaBean implements Serializable {
                     b++;
                 }
             }
+            if (matriculaAcademia.getId() == -1) {
+                // TRAZ O SERVIÇO MAIS USADO
+                Integer mainId = academiaDao.findMainId();
+                if (mainId != null) {
+                    if (!listaModalidades.isEmpty()) {
+                        for (int i = 0; i < listaModalidades.size(); i++) {
+                            if (Integer.parseInt(listaModalidades.get(i).getDescription()) == mainId) {
+                                idModalidade = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
         return listaModalidades;
     }
@@ -1605,12 +1637,31 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void listener(String tcase) {
         if (tcase.equals("recalcular1")) {
-            recalcular1();
+            recalcular();
             loadListParceiro();
         }
         if (tcase.equals("descontoServicoEmpresa")) {
             dse();
             recalcular1();
+        }
+        if (tcase.equals("recalcular_troca")) {
+            desconto = 0;
+            // pegarIdServico();
+            // atualizaValor();
+            //calculaValorLiquido();
+            listaPeriodosGrade.clear();
+            getListaPeriodosGrade();
+            if (matriculaAcademia.getId() == -1) {
+                Dao dao = new Dao();
+                AcademiaServicoValor asv = (AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription()));
+                if (asv.getPeriodo().getId() == 3) {
+                    // ROGÉRIO PEDIU PRA COMENTAR 15/02/2016 PORQUE ESTAMOS TRATANDO A VIGORAÇÃO DE ACORDO COM O CÁLCULO DE TAXA PROPORCIONAL REFERÊNCIA #1226
+                    //DataHoje dh = new DataHoje();
+                    //String novaData = dh.incrementarMeses(1, matriculaAcademia.getServicoPessoa().getEmissao());
+                    //matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.converteDataParaReferencia(novaData));
+                }
+            }
+
         }
     }
 
@@ -1630,6 +1681,26 @@ public class MatriculaAcademiaBean implements Serializable {
         }
     }
 
+    public void recalcular() {
+        desconto = 0;
+        pegarIdServico();
+        idPeriodoGrade = 0;
+        listaPeriodosGrade = new ArrayList();
+        getListaPeriodosGrade();
+        atualizaValor();
+        //calculaValorLiquido();
+//        if (matriculaAcademia.getId() == -1) {
+//            Dao dao = new Dao();
+//            AcademiaServicoValor asv = (AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription()));
+//            if (asv.getPeriodo().getId() == 3) {
+//                // ROGÉRIO PEDIU PRA COMENTAR 15/02/2016 PORQUE ESTAMOS TRATANDO A VIGORAÇÃO DE ACORDO COM O CÁLCULO DE TAXA PROPORCIONAL REFERÊNCIA #1226
+//                //DataHoje dh = new DataHoje();
+//                //String novaData = dh.incrementarMeses(1, matriculaAcademia.getServicoPessoa().getEmissao());
+//                //matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.converteDataParaReferencia(novaData));
+//            }
+//        }
+    }
+
     public void recalcular1() {
         desconto = 0;
         pegarIdServico();
@@ -1638,33 +1709,22 @@ public class MatriculaAcademiaBean implements Serializable {
         idPeriodoGrade = 0;
         listaPeriodosGrade.clear();
         getListaPeriodosGrade();
-        if (matriculaAcademia.getId() == -1) {
-            Dao dao = new Dao();
-            AcademiaServicoValor asv = (AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription()));
-            if (asv.getPeriodo().getId() == 3) {
-                // ROGÉRIO PEDIU PRA COMENTAR 15/02/2016 PORQUE ESTAMOS TRATANDO A VIGORAÇÃO DE ACORDO COM O CÁLCULO DE TAXA PROPORCIONAL REFERÊNCIA #1226
-                //DataHoje dh = new DataHoje();
-                //String novaData = dh.incrementarMeses(1, matriculaAcademia.getServicoPessoa().getEmissao());
-                //matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.converteDataParaReferencia(novaData));
-            }
-        }
+//        if (matriculaAcademia.getId() == -1) {
+//            Dao dao = new Dao();
+//            AcademiaServicoValor asv = (AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription()));
+//            if (asv.getPeriodo().getId() == 3) {
+//                // ROGÉRIO PEDIU PRA COMENTAR 15/02/2016 PORQUE ESTAMOS TRATANDO A VIGORAÇÃO DE ACORDO COM O CÁLCULO DE TAXA PROPORCIONAL REFERÊNCIA #1226
+//                //DataHoje dh = new DataHoje();
+//                //String novaData = dh.incrementarMeses(1, matriculaAcademia.getServicoPessoa().getEmissao());
+//                //matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.converteDataParaReferencia(novaData));
+//            }
+//        }
     }
 
     public void recalcular2() {
         desconto = 0;
         pegarIdServico();
         atualizaValor();
-        //calculaValorLiquido();
-        if (matriculaAcademia.getId() == -1) {
-            Dao dao = new Dao();
-            AcademiaServicoValor asv = (AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription()));
-            if (asv.getPeriodo().getId() == 3) {
-                // ROGÉRIO PEDIU PRA COMENTAR 15/02/2016 PORQUE ESTAMOS TRATANDO A VIGORAÇÃO DE ACORDO COM O CÁLCULO DE TAXA PROPORCIONAL REFERÊNCIA #1226
-                //DataHoje dh = new DataHoje();
-                //String novaData = dh.incrementarMeses(1, matriculaAcademia.getServicoPessoa().getEmissao());
-                //matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.converteDataParaReferencia(novaData));
-            }
-        }
     }
 
     public void calculaValorLiquido() {
@@ -2533,9 +2593,9 @@ public class MatriculaAcademiaBean implements Serializable {
                 id = 0;
             }
         }
-        if (idModalidadePesquisa != null || !descricaoPesquisa.isEmpty()) {
+        if (idModalidadePesquisa != null || !descricaoPesquisa.isEmpty() || !periodoEmissaoString.isEmpty()) {
             AcademiaDao academiaDao = new AcademiaDao();
-            listaAcademia = academiaDao.pesquisaMatriculaAcademia("", porPesquisa, comoPesquisa, descricaoPesquisa, matriculaAtiva, id);
+            listaAcademia = academiaDao.pesquisaMatriculaAcademia("", porPesquisa, comoPesquisa, descricaoPesquisa, matriculaAtiva, id, periodoEmissaoString, "", "");
         }
     }
 
@@ -2929,5 +2989,49 @@ public class MatriculaAcademiaBean implements Serializable {
     public void setTrocarMatriculaAcademia(Boolean trocarMatriculaAcademia) {
         this.trocarMatriculaAcademia = trocarMatriculaAcademia;
     }
+
+    public String getPeriodoString() {
+        return periodoString;
+    }
+
+    public void setPeriodoString(String periodoString) {
+        this.periodoString = periodoString;
+    }
+
+    public String getPeriodoEmissaoString() {
+        return periodoEmissaoString;
+    }
+
+    public void setPeriodoEmissaoString(String periodoEmissaoString) {
+        this.periodoEmissaoString = periodoEmissaoString;
+    }
+
+//    public Integer getQuantidadeVagas() {
+//        try {
+//            AcademiaServicoValor asv = (AcademiaServicoValor) new Dao().find(new AcademiaServicoValor(), Integer.parseInt(listaModalidades.get(idModalidade).getDescription()));
+//            if (asv != null) {
+//                if (asv.getServicos().getNrVagas() > 0) {
+//                    return asv.getServicos().getNrVagas();
+//                }
+//            }
+//        } catch (Exception e) {
+//
+//        }
+//        return null;
+//    }
+//
+//    public Integer getQuantidadeDisponiveis() {
+//        try {
+//            AcademiaServicoValor asv = (AcademiaServicoValor) new Dao().find(new AcademiaServicoValor(), Integer.parseInt(listaModalidades.get(idModalidade).getDescription()));
+//            if (asv != null) {
+//                if (asv.getServicos().getNrVagas() > 0) {
+//                    return asv.getServicos().getNrVagas() - new FunctionsDao().quantidadeAlunosAcademia(asv.getServicos().getId());
+//                }
+//            }
+//        } catch (Exception e) {
+//
+//        }
+//        return null;
+//    }
 
 }

@@ -20,30 +20,39 @@
                     <div class="clear"></div>
                     <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                     <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
-                        <h:panelGrid columns="8">
+                        <h:panelGrid columns="8" cellspacing="10">
                             <p:inputMask id="id_desc_pesquisa" value="#{matriculaAcademiaBean.descricaoPesquisa}" size="50" mask="#{matriculaAcademiaBean.mascaraPesquisa}">
                                 <p:ajax event="change" update="i_panel_pesquisa" />
                             </p:inputMask>
-                            
+
                             <p:selectOneMenu value="#{matriculaAcademiaBean.porPesquisa}">
                                 <p:ajax event="change" update="i_panel_pesquisa" />
-                                <f:selectItem itemValue="nome"     itemLabel="Aluno"/>
+                                <f:selectItem itemValue="nome"     itemLabel="ALUNO"/>
                                 <f:selectItem itemValue="cpf"      itemLabel="CPF"/>
                             </p:selectOneMenu>
                             <p:selectBooleanCheckbox value="#{matriculaAcademiaBean.matriculaAtiva}" itemLabel="Cadastros ativos">
                                 <p:ajax event="change" update=":form_pesquisa_matricula_academia:i_panel_grid" />
                             </p:selectBooleanCheckbox>
-                            <p:commandButton value="Pesquisar" action="#{matriculaAcademiaBean.acaoPesquisaInicial}" update=":form_pesquisa_matricula_academia:i_panel_grid" rendered="#{matriculaAcademiaBean.porPesquisa.equals('cpf')}" styleClass="margin-left-max"/>
-                            <p:commandButton value="Inicial" action="#{matriculaAcademiaBean.acaoPesquisaInicial}" update=":form_pesquisa_matricula_academia:i_panel_grid" rendered="#{!matriculaAcademiaBean.porPesquisa.equals('cpf')}" styleClass="margin-left-max"/>
-                            <p:commandButton value="Parcial" action="#{matriculaAcademiaBean.acaoPesquisaParcial}" update=":form_pesquisa_matricula_academia:i_panel_grid" rendered="#{!matriculaAcademiaBean.porPesquisa.equals('cpf')}"/>
+                            <p:commandButton value="Pesquisar" action="#{matriculaAcademiaBean.acaoPesquisaInicial}" update=":form_pesquisa_matricula_academia:i_panel_grid" rendered="#{matriculaAcademiaBean.porPesquisa eq 'cpf'}" styleClass="margin-left-max"/>
+                            <p:commandButton value="Inicial" action="#{matriculaAcademiaBean.acaoPesquisaInicial}" update=":form_pesquisa_matricula_academia:i_panel_grid" rendered="#{matriculaAcademiaBean.porPesquisa ne 'cpf'}" styleClass="margin-left-max"/>
+                            <p:commandButton value="Parcial" action="#{matriculaAcademiaBean.acaoPesquisaParcial}" update=":form_pesquisa_matricula_academia:i_panel_grid" rendered="#{matriculaAcademiaBean.porPesquisa ne 'cpf'}"/>
                         </h:panelGrid>
-                        <h:panelGrid columns="3">
-                            <p:outputLabel value="Modalidade:" />
+                        <h:panelGrid columns="10" cellspacing="10">
+                            <p:outputLabel value="MODALIDADE: " />
                             <p:selectOneMenu value="#{matriculaAcademiaBean.idModalidadePesquisa}">
                                 <p:ajax event="change" update="i_panel_pesquisa" />
                                 <f:selectItem itemValue=""     itemLabel="Selecionar"/>
                                 <f:selectItems value="#{matriculaAcademiaBean.listaModalidades}" />
-                            </p:selectOneMenu>                            
+                            </p:selectOneMenu>
+                            <p:outputLabel value="EMISSÃO: " />
+                            <p:selectOneMenu value="#{matriculaAcademiaBean.periodoEmissaoString}">
+                                <p:ajax event="change" update=":form_pesquisa_matricula_academia:i_panel_grid" listener="#{matriculaAcademiaBean.acaoPesquisaInicial}"/>
+                                <f:selectItem itemValue=""                      itemLabel="Selecionar" />
+                                <f:selectItem itemValue="hoje"                  itemLabel="HOJE" />
+                                <f:selectItem itemValue="ontem"                 itemLabel="ONTEM" />
+                                <f:selectItem itemValue="ultimos_sete_dias"     itemLabel="ÚLTIMOS 7 DIAS" />
+                                <f:selectItem itemValue="este_mes"              itemLabel="ESTE MÊS" />
+                            </p:selectOneMenu>
                         </h:panelGrid>
                         <p:focus for="i_panel_pesquisa" />
                     </p:panel>
@@ -53,11 +62,17 @@
                         <h:panelGrid id="i_panel_grid">
                             <p:dataTable value="#{matriculaAcademiaBean.listaAcademia}" var="matriculaAcademia" id="tbl" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true">
                                 <f:facet name="footer">Obs: Nasc. = Nascimento</f:facet>
+                                <p:column width="15">  
+                                    <p:rowToggler />  
+                                </p:column>                                  
                                 <p:column styleClass="text-center" width="25">
                                     <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{matriculaAcademiaBean.editar(matriculaAcademia)}" title="Editar registro nº #{matriculaAcademia.id}"/>
                                 </p:column>
                                 <p:column headerText="ID" styleClass="text-center" width="25">
                                     #{matriculaAcademia.id}
+                                </p:column>
+                                <p:column headerText="Emissão" styleClass="text-center" width="100">
+                                    #{matriculaAcademia.servicoPessoa.emissao}
                                 </p:column>
                                 <p:column headerText="Nome">
                                     #{matriculaAcademia.servicoPessoa.pessoa.nome}
@@ -71,6 +86,40 @@
                                 <p:column headerText="Serviço" styleClass="text-center">
                                     #{matriculaAcademia.academiaServicoValor.servicos.descricao}
                                 </p:column>
+                                <p:column headerText="Dt Inativação" styleClass="text-center" rendered="#{!matriculaAcademiaBean.matriculaAtiva}" width="100">
+                                    #{matriculaAcademia.inativo}
+                                </p:column>
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="5" styleClass="sbb" cellspacing="15">
+                                        <h:column>
+                                            PERÍODO <br/> <strong>#{matriculaAcademia.academiaServicoValor.periodo.descricao}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            OPERADOR <br/> <strong>#{matriculaAcademia.usuario.pessoa.nome}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            REF. VIGORAÇÃO <br/> <strong>#{matriculaAcademia.servicoPessoa.referenciaVigoracao}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            COBRANÇA <br/><strong> #{matriculaAcademia.servicoPessoa.cobranca.nome}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            SERVIÇO (ID)<br/> <strong>#{matriculaAcademia.academiaServicoValor.servicos.id}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            PARENTESCO <br/> <strong>#{matriculaAcademia.servicoPessoa.pessoa.socios.parentesco.parentesco}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            CATEGORIA <br/> <strong>#{matriculaAcademia.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            PARCEIRO <br/> <strong>#{matriculaAcademia.servicoPessoa.parceiro.nome}</strong>
+                                        </h:column>
+                                        <h:column>
+                                            VALIDADE <br/> <strong>#{matriculaAcademia.academiaServicoValor.validade}</strong>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
                             </p:dataTable>
                         </h:panelGrid>
                     </h:form>

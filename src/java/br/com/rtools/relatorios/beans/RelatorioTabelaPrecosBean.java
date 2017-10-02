@@ -172,6 +172,26 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria9(object.get(5));
                         tsp.setValor9(object.get(8));
+                    } else if (tsp.getCategoria10() == null) {
+                        count++;
+                        tsp.setCategoria10(object.get(5));
+                        tsp.setValor10(object.get(8));
+                    } else if (tsp.getCategoria11() == null) {
+                        count++;
+                        tsp.setCategoria11(object.get(5));
+                        tsp.setValor11(object.get(8));
+                    } else if (tsp.getCategoria12() == null) {
+                        count++;
+                        tsp.setCategoria12(object.get(5));
+                        tsp.setValor12(object.get(8));
+                    } else if (tsp.getCategoria13() == null) {
+                        count++;
+                        tsp.setCategoria13(object.get(5));
+                        tsp.setValor13(object.get(8));
+                    } else if (tsp.getCategoria14() == null) {
+                        count++;
+                        tsp.setCategoria14(object.get(5));
+                        tsp.setValor14(object.get(8));
                     }
                 } else if (!subgrupo_descricao.equals((String) object.get(1))) {
                     add = true;
@@ -221,6 +241,26 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria9(object.get(5));
                         tsp.setValor9(object.get(8));
+                    } else if (tsp.getCategoria10() == null) {
+                        count++;
+                        tsp.setCategoria10(object.get(5));
+                        tsp.setValor10(object.get(8));
+                    } else if (tsp.getCategoria11() == null) {
+                        count++;
+                        tsp.setCategoria11(object.get(5));
+                        tsp.setValor11(object.get(8));
+                    } else if (tsp.getCategoria12() == null) {
+                        count++;
+                        tsp.setCategoria12(object.get(5));
+                        tsp.setValor12(object.get(8));
+                    } else if (tsp.getCategoria13() == null) {
+                        count++;
+                        tsp.setCategoria13(object.get(5));
+                        tsp.setValor13(object.get(8));
+                    } else if (tsp.getCategoria14() == null) {
+                        count++;
+                        tsp.setCategoria14(object.get(5));
+                        tsp.setValor14(object.get(8));
                     }
                 } else if (!servico_descricao.equals((String) object.get(3))) {
                     add = true;
@@ -270,6 +310,26 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria9(object.get(5));
                         tsp.setValor9(object.get(8));
+                    } else if (tsp.getCategoria10() == null) {
+                        count++;
+                        tsp.setCategoria10(object.get(5));
+                        tsp.setValor10(object.get(8));
+                    } else if (tsp.getCategoria11() == null) {
+                        count++;
+                        tsp.setCategoria11(object.get(5));
+                        tsp.setValor11(object.get(8));
+                    } else if (tsp.getCategoria12() == null) {
+                        count++;
+                        tsp.setCategoria12(object.get(5));
+                        tsp.setValor12(object.get(8));
+                    } else if (tsp.getCategoria13() == null) {
+                        count++;
+                        tsp.setCategoria13(object.get(5));
+                        tsp.setValor13(object.get(8));
+                    } else if (tsp.getCategoria14() == null) {
+                        count++;
+                        tsp.setCategoria14(object.get(5));
+                        tsp.setValor14(object.get(8));
                     }
                 } else if (!idade.equals((String) object.get(6))) {
                     add = true;
@@ -319,6 +379,26 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria9(object.get(5));
                         tsp.setValor9(object.get(8));
+                    } else if (tsp.getCategoria10() == null) {
+                        count++;
+                        tsp.setCategoria10(object.get(5));
+                        tsp.setValor10(object.get(8));
+                    } else if (tsp.getCategoria11() == null) {
+                        count++;
+                        tsp.setCategoria11(object.get(5));
+                        tsp.setValor11(object.get(8));
+                    } else if (tsp.getCategoria12() == null) {
+                        count++;
+                        tsp.setCategoria12(object.get(5));
+                        tsp.setValor12(object.get(8));
+                    } else if (tsp.getCategoria13() == null) {
+                        count++;
+                        tsp.setCategoria13(object.get(5));
+                        tsp.setValor13(object.get(8));
+                    } else if (tsp.getCategoria14() == null) {
+                        count++;
+                        tsp.setCategoria14(object.get(5));
+                        tsp.setValor14(object.get(8));
                     }
                 } else {
                     add = false;
@@ -364,11 +444,36 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria9(object.get(5));
                         tsp.setValor9(object.get(8));
+                    } else if (tsp.getCategoria10() == null) {
+                        count++;
+                        tsp.setCategoria10(object.get(5));
+                        tsp.setValor10(object.get(8));
+                    } else if (tsp.getCategoria11() == null) {
+                        count++;
+                        tsp.setCategoria11(object.get(5));
+                        tsp.setValor11(object.get(8));
+                    } else if (tsp.getCategoria12() == null) {
+                        count++;
+                        tsp.setCategoria12(object.get(5));
+                        tsp.setValor12(object.get(8));
+                    } else if (tsp.getCategoria13() == null) {
+                        count++;
+                        tsp.setCategoria13(object.get(5));
+                        tsp.setValor13(object.get(8));
+                    } else if (tsp.getCategoria14() == null) {
+                        count++;
+                        tsp.setCategoria14(object.get(5));
+                        tsp.setValor14(object.get(8));
                     }
                 }
                 if (count == count_categoria) {
                     tsps.add(tsp);
                     count = 0;
+                }
+                if (count == 9) {
+                    if (object.get(2).equals(1016)) {
+                        System.out.println("INICIO LOG: " + i + " - " + object.get(2) + " - " + (String) object.get(0) + " - " + (String) object.get(1) + " - " + object.get(3));
+                    }
                 }
             }
         } else {
@@ -664,6 +769,16 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         private Object valor8;
         private Object categoria9;
         private Object valor9;
+        private Object categoria10;
+        private Object valor10;
+        private Object categoria11;
+        private Object valor11;
+        private Object categoria12;
+        private Object valor12;
+        private Object categoria13;
+        private Object valor13;
+        private Object categoria14;
+        private Object valor14;
 
         public TabelaServicosPaisagem() {
             this.grupo_descricao = null;
@@ -694,9 +809,19 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             this.valor8 = null;
             this.categoria9 = null;
             this.valor9 = null;
+            this.categoria10 = null;
+            this.valor10 = null;
+            this.categoria11 = null;
+            this.valor11 = null;
+            this.categoria12 = null;
+            this.valor12 = null;
+            this.categoria13 = null;
+            this.valor13 = null;
+            this.categoria14 = null;
+            this.valor14 = null;
         }
 
-        public TabelaServicosPaisagem(Object grupo_descricao, Object subgrupo_descricao, Object servico_id, Object servico_descricao, Object categoria_id, Object categoria_descricao, Object idade, Object valor_cheio, Object valor_final, Object percentual_desconto, Object categoria1, Object valor1, Object categoria2, Object valor2, Object categoria3, Object valor3, Object categoria4, Object valor4, Object categoria5, Object valor5, Object categoria6, Object valor6, Object categoria7, Object valor7, Object categoria8, Object valor8, Object categoria9, Object valor9) {
+        public TabelaServicosPaisagem(Object grupo_descricao, Object subgrupo_descricao, Object servico_id, Object servico_descricao, Object categoria_id, Object categoria_descricao, Object idade, Object valor_cheio, Object valor_final, Object percentual_desconto, Object categoria1, Object valor1, Object categoria2, Object valor2, Object categoria3, Object valor3, Object categoria4, Object valor4, Object categoria5, Object valor5, Object categoria6, Object valor6, Object categoria7, Object valor7, Object categoria8, Object valor8, Object categoria9, Object valor9, Object categoria10, Object valor10, Object categoria11, Object valor11, Object categoria12, Object valor12, Object categoria13, Object valor13, Object categoria14, Object valor14) {
             this.grupo_descricao = grupo_descricao;
             this.subgrupo_descricao = subgrupo_descricao;
             this.servico_id = servico_id;
@@ -725,6 +850,16 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             this.valor8 = valor8;
             this.categoria9 = categoria9;
             this.valor9 = valor9;
+            this.categoria10 = categoria10;
+            this.valor10 = valor10;
+            this.categoria11 = categoria11;
+            this.valor11 = valor11;
+            this.categoria12 = categoria12;
+            this.valor12 = valor12;
+            this.categoria13 = categoria13;
+            this.valor13 = valor13;
+            this.categoria14 = categoria14;
+            this.valor14 = valor14;
         }
 
         public Object getGrupo_descricao() {
@@ -949,6 +1084,86 @@ public class RelatorioTabelaPrecosBean implements Serializable {
 
         public void setValor9(Object valor9) {
             this.valor9 = valor9;
+        }
+
+        public Object getCategoria10() {
+            return categoria10;
+        }
+
+        public void setCategoria10(Object categoria10) {
+            this.categoria10 = categoria10;
+        }
+
+        public Object getValor10() {
+            return valor10;
+        }
+
+        public void setValor10(Object valor10) {
+            this.valor10 = valor10;
+        }
+
+        public Object getCategoria11() {
+            return categoria11;
+        }
+
+        public void setCategoria11(Object categoria11) {
+            this.categoria11 = categoria11;
+        }
+
+        public Object getValor11() {
+            return valor11;
+        }
+
+        public void setValor11(Object valor11) {
+            this.valor11 = valor11;
+        }
+
+        public Object getCategoria12() {
+            return categoria12;
+        }
+
+        public void setCategoria12(Object categoria12) {
+            this.categoria12 = categoria12;
+        }
+
+        public Object getValor12() {
+            return valor12;
+        }
+
+        public void setValor12(Object valor12) {
+            this.valor12 = valor12;
+        }
+
+        public Object getCategoria13() {
+            return categoria13;
+        }
+
+        public void setCategoria13(Object categoria13) {
+            this.categoria13 = categoria13;
+        }
+
+        public Object getValor13() {
+            return valor13;
+        }
+
+        public void setValor13(Object valor13) {
+            this.valor13 = valor13;
+        }
+
+        public Object getCategoria14() {
+            return categoria14;
+        }
+
+        public void setCategoria14(Object categoria14) {
+            this.categoria14 = categoria14;
+        }
+
+        public Object getValor14() {
+            return valor14;
+        }
+
+        public void setValor14(Object valor14) {
+            this.valor14 = valor14;
         }
 
     }

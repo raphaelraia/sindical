@@ -38,7 +38,7 @@
                                     <h:panelGrid columns="5" cellspacing="5">
                                         <p:outputLabel value="CAMPEONATO" styleClass="font-size-10 bold"/>
                                         <p:selectOneMenu value="#{campeonatoEquipeBean.idCampeonato}">
-                                            <p:ajax event="change" update=":form_campeonato_equipe:" />
+                                            <p:ajax event="change" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.loadListCampeonatoEquipes()}" />
                                             <f:selectItems value="#{campeonatoEquipeBean.listCampeonatos}"/>
                                         </p:selectOneMenu>
                                         <p:outputLabel value="EQUIPE" styleClass="font-size-10 bold margin-left-max"/>
@@ -53,19 +53,16 @@
 
                             <p:dataTable value="#{campeonatoEquipeBean.listCampeonatoEquipes}" var="campeonatoEquipe" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max">
                                 <p:column width="30">
-                                    <p:commandButton icon="ui-icon-pencil" action="#{campeonatoEquipeBean.edit(campeonatoEquipe)}" title="Editar registro nº#{campeonatoEquipe.id}" update=":form_campeonato_equipe:"/>
+                                    <p:commandButton icon="ui-icon-pencil" action="#{campeonatoEquipeBean.edit(campeonatoEquipe)}" title="Editar registro nº#{campeonatoEquipe.id}" update=":form_campeonato_equipe:" />
                                 </p:column> 
                                 <p:column headerText="Campeonato">
-                                    #{campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipe.campeonato.tituloComplemento}
+                                    <h:outputLabel value="#{campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipe.campeonato.tituloComplemento}" title="##{campeonatoEquipe.campeonato.id}" />
                                 </p:column> 
                                 <p:column headerText="Modalidade">
                                     #{campeonatoEquipe.campeonato.modalidade.descricao}
                                 </p:column>
                                 <p:column headerText="Equipe">
                                     #{campeonatoEquipe.equipe.descricao}
-                                </p:column>
-                                    <p:column width="30">
-                                    <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.delete(campeonatoEquipe)}" title="Remover registro nº#{campeonatoEquipe.id}" update=":form_campeonato_equipe:"/>
                                 </p:column> 
                             </p:dataTable>
 
@@ -87,14 +84,14 @@
                                         <f:facet name="header">
                                             <h:panelGrid columns="1" cellspacing="5">
                                                 <h:column>
-                                                    <h:outputLabel value="CAMPEONATO: #{campeonatoEquipeBean.campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipeBean.campeonatoEquipe.campeonato.tituloComplemento}" styleClass="bold"/>
+                                                    <h:outputLabel value="CAMPEONATO: #{campeonatoEquipeBean.campeonatoEquipe.campeonato.evento.descricaoEvento.descricao} #{campeonatoEquipeBean.campeonatoEquipe.campeonato.tituloComplemento} ##{campeonatoEquipeBean.campeonatoEquipe.campeonato.id}" styleClass="bold"/>
                                                 </h:column>
                                                 <h:column>
                                                     <h:outputLabel value="EQUIPE:  #{campeonatoEquipeBean.campeonatoEquipe.equipe.descricao}"  styleClass="bold"/>
                                                 </h:column>
                                             </h:panelGrid>
                                         </f:facet>
-                                        
+
                                         <h:panelGrid columns="2" cellspacing="5">
                                             <p:commandButton value="PESQUISAR MEMBRO" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" ajax="false" />
                                             <p:outputLabel value="#{campeonatoEquipeBean.membroEquipe.nome}" rendered="#{campeonatoEquipeBean.membroEquipe != null}" />
@@ -104,31 +101,101 @@
                                         </f:facet>
                                     </p:panel>
 
-                                    <p:dataTable value="#{campeonatoEquipeBean.listCampeonatoEquipePessoas}" var="campeonatoEquipePessoa" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max">
+                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
                                         <p:column headerText="Membro">
-                                            #{campeonatoEquipePessoa.pessoa.nome}
+                                            #{matriculaCampeonato.servicoPessoa.pessoa.nome}
                                         </p:column>                                     
                                         <p:column headerText="CPF">
-                                            #{campeonatoEquipePessoa.pessoa.documento}
+                                            #{matriculaCampeonato.servicoPessoa.pessoa.documento}
                                         </p:column>                                     
                                         <p:column headerText="Nascimento">
-                                            #{campeonatoEquipePessoa.pessoa.fisica.nascimento}
+                                            #{matriculaCampeonato.servicoPessoa.pessoa.fisica.nascimento}
                                         </p:column>
                                         <p:column headerText="Categoria">
-                                            #{campeonatoEquipePessoa.pessoa.socios.matriculaSocios.categoria.categoria}
+                                            #{matriculaCampeonato.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
+                                        </p:column>
+                                         <p:column headerText="Valor Responsável" styleClass="text-center">
+                                            #{matriculaCampeonato.servicoPessoa.nrValorFixoString}
+                                        </p:column>  
+                                        <p:column headerText="Dependentes" styleClass="text-center">
+                                            <p:commandButton value="#{(matriculaCampeonato.listCampeonatoDependente eq null ? 0 : matriculaCampeonato.listCampeonatoDependente.size())}" action="#{campeonatoEquipeBean.defineDependente(matriculaCampeonato)}" update=":form_campeonato_equipe:" icon="ui-icon-pencil" rendered="#{matriculaCampeonato.servicoPessoa.pessoa.socios.id == -1}" />
                                         </p:column>
                                         <p:column width="30">
-                                            <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(campeonatoEquipePessoa)}" title="Remover registro nº#{campeonatoEquipePessoa.id}" update=":form_campeonato_equipe:"/>
-                                        </p:column> 
+                                            <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(matriculaCampeonato)}" title="Remover registro nº#{matriculaCampeonato.id}" update=":form_campeonato_equipe:"/>
+                                        </p:column>
+                                        <f:facet name="footer">
+                                            <h:panelGrid style="margin-top: 25px;" columns="2" styleClass="sbb">
+                                                <h:outputLabel value="Contém Oposição" />
+                                                <h:column>
+                                                    <div style="width: 15px; height: 15px; float: left; margin-right: 5px" class="bg-salmon"></div>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </f:facet>                                          
+                                    </p:dataTable>
+
+                                </h:panelGroup>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_dependentes" header="DEPENDENTES DE #{campeonatoEquipeBean.cadastrarDependente.servicoPessoa.pessoa.nome}" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editDependentes}">
+                                <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.setEditDependentes(false)}"/>
+                                <p:messages showDetail="true" showSummary="true" id="i_d_msg"/>
+                                <h:panelGroup id="i_e_dep">
+                                    <p:panel>
+                                        <h:panelGrid columns="3" cellspacing="5">
+                                            <h:column rendered="#{campeonatoEquipeBean.fisicaDependente.id ne -1}">
+                                                <p:selectOneMenu value="#{campeonatoEquipeBean.idPatentesco}">
+                                                    <p:ajax event="change" update=":form_campeonato_equipe:" />
+                                                    <f:selectItems value="#{campeonatoEquipeBean.listPatentesco}"/>
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                            <h:column>
+                                                <h:panelGrid columns="2" cellspacing="5">
+                                                    <p:commandButton action="#{fisicaGenericaBean.openModal()}" icon="ui-icon-search" />
+                                                    <p:outputLabel value="#{campeonatoEquipeBean.fisicaDependente.pessoa.nome} #{campeonatoEquipeBean.fisicaDependente.pessoa.documento}" rendered="#{campeonatoEquipeBean.fisicaDependente.id != -1}" />
+                                                </h:panelGrid>                                            
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <f:facet name="footer">
+                                            <p:commandButton value="ADICIONAR" action="#{campeonatoEquipeBean.addDependente}" update=":form_campeonato_equipe: :form_campeonato_equipe:i_d_msg" rendered="#{campeonatoEquipeBean.fisicaDependente ne null and campeonatoEquipeBean.fisicaDependente.id ne -1}" />
+                                        </f:facet>
+                                    </p:panel>
+
+                                    <p:dataTable value="#{campeonatoEquipeBean.listCampeonatoDependente}" var="cd" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{cd.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
+                                        <p:column headerText="Nome">
+                                            #{cd.servicoPessoa.pessoa.nome}
+                                        </p:column>                                     
+                                        <p:column headerText="CPF">
+                                            #{cd.servicoPessoa.pessoa.documento}
+                                        </p:column>                                     
+                                        <p:column headerText="Nascimento">
+                                            #{cd.servicoPessoa.pessoa.fisica.nascimento}
+                                        </p:column>
+                                        <p:column headerText="Parentesco">                                            
+                                            <p:selectOneMenu value="#{cd.parentesco.id}">
+                                                <p:ajax event="change" update="@this :form_campeonato_equipe:" listener="#{campeonatoEquipeBean.updateCampeonatoDependente(cd)}" />
+                                                <f:selectItems value="#{campeonatoEquipeBean.getListPatentescoEdit(cd.servicoPessoa.pessoa.fisica.sexo)}"/>
+                                            </p:selectOneMenu>                                            
+                                        </p:column>
+                                        <p:column headerText="Valor" styleClass="text-center">
+                                            #{cd.servicoPessoa.nrValorFixoString}
+                                        </p:column>
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-close" title="Remover registro nº#{cd.id}" update=":form_campeonato_equipe:" action="#{campeonatoEquipeBean.deleteCampeonatoDependente(cd)}"/>
+                                        </p:column>
+                                        <f:facet name="footer">
+                                            <h:panelGrid style="margin-top: 25px;" columns="2" styleClass="sbb">
+                                                <h:outputLabel value="Contém Oposição" />
+                                                <h:column>
+                                                    <div style="width: 15px; height: 15px; float: left; margin-right: 5px" class="bg-salmon"></div>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </f:facet>                                        
                                     </p:dataTable>
 
                                 </h:panelGroup>
                             </p:dialog>
 
-
-
                         </h:form>
-
+                        <ui:include src="templates/templateNovaPessoaFisica.xhtml"/>
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

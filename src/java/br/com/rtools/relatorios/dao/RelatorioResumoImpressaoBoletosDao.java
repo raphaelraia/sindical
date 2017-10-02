@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -70,6 +71,7 @@ public class RelatorioResumoImpressaoBoletosDao extends DB {
                     + ")                                                                                \n"
                     + "                                                                                 \n"
                     + "   ORDER BY 1                                                                    \n";
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

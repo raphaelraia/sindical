@@ -9,6 +9,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.beans.RelatorioMovimentoLocadoraBean;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -28,7 +29,7 @@ public class RelatorioMovimentoLocadoraDao extends DB {
         list_where.add("id_pessoa_filial = " + Integer.valueOf(f.getListaFilial().get(f.getIndexListaFilial()).getDescription()));
 
         if (f.getChkCliente()) {
-            if (f.getCliente().getId() != -1){
+            if (f.getCliente().getId() != -1) {
                 list_where.add("id_pessoa = " + f.getCliente().getId());
             }
         }
@@ -67,12 +68,12 @@ public class RelatorioMovimentoLocadoraDao extends DB {
 
         }
 
-        if (f.getChkFilme()){
-            if (f.getFilme().getId() != -1){
+        if (f.getChkFilme()) {
+            if (f.getFilme().getId() != -1) {
                 list_where.add("id_titulo = " + f.getFilme().getId());
             }
         }
-        
+
         if (f.getChkStatus()) {
             switch (f.getStatus()) {
                 case "atrasados":
@@ -122,7 +123,7 @@ public class RelatorioMovimentoLocadoraDao extends DB {
                 + "	  titulo AS titulo_nome \n" // 18
                 + "  FROM loc_movimento_vw mw \n";
         try {
-
+            Debugs.put("habilitaDebugQuery", SELECT + WHERE + ORDER_BY);
             Query query = getEntityManager().createNativeQuery(SELECT + WHERE + ORDER_BY);
 
             return query.getResultList();

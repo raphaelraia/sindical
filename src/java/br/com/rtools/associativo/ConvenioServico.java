@@ -15,6 +15,7 @@ import javax.persistence.Table;
 @Table(name = "soc_convenio_servico")
 @NamedQuery(name = "ConvenioServico.pesquisaID", query = "select cs from ConvenioServico cs where cs.id=:pid")
 public class ConvenioServico implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -25,17 +26,21 @@ public class ConvenioServico implements java.io.Serializable {
     @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Servicos servicos;
+    @Column(name = "is_agendamento", columnDefinition = "boolean default false")
+    private Boolean agendamento;
 
     public ConvenioServico() {
         this.id = -1;
         this.subGrupoConvenio = new SubGrupoConvenio();
         this.servicos = new Servicos();
+        this.agendamento = false;
     }
 
-    public ConvenioServico(int id, SubGrupoConvenio subGrupoConvenio, Servicos servicos) {
+    public ConvenioServico(int id, SubGrupoConvenio subGrupoConvenio, Servicos servicos, Boolean agendamento) {
         this.id = id;
         this.subGrupoConvenio = subGrupoConvenio;
         this.servicos = servicos;
+        this.agendamento = agendamento;
     }
 
     public int getId() {
@@ -60,6 +65,14 @@ public class ConvenioServico implements java.io.Serializable {
 
     public void setServicos(Servicos servicos) {
         this.servicos = servicos;
+    }
+
+    public Boolean getAgendamento() {
+        return agendamento;
+    }
+
+    public void setAgendamento(Boolean agendamento) {
+        this.agendamento = agendamento;
     }
 
 }

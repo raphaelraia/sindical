@@ -1047,7 +1047,7 @@ public class ImpressaoBoletosBean implements Serializable {
                 Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) selected.get(i).getMovimento_id());
                 Juridica juridica = (Juridica) dao.find(new Juridica(), id_empresa);
 
-                if (id_contabil != 0 && juridica.isEmailEscritorio()) {
+                if (id_contabil != 0 && juridica.isCobrancaEscritorio()) {
                     movadd.add(movimento);
                     listaValores.add(movimento.getValor());
                     listaVencimentos.add(movimento.getVencimento());

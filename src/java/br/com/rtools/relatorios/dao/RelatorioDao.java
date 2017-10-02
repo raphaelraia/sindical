@@ -22,6 +22,18 @@ public class RelatorioDao extends DB {
         return new ArrayList();
     }
 
+    public Relatorios findDefaultByRotina(Integer rotina_id, Boolean principal) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT R FROM Relatorios AS R WHERE R.rotina.id = :rotina_id AND R.principal = :principal");
+            query.setParameter("rotina_id", rotina_id);
+            query.setParameter("principal", principal);
+            query.setMaxResults(1);
+            return (Relatorios) query.getSingleResult();
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
     public Relatorios findByJasper(String relatorio_jasper) {
         try {
             Query query = getEntityManager().createQuery("SELECT R FROM Relatorios AS R WHERE R.jasper LIKE :relatorio_jasper");

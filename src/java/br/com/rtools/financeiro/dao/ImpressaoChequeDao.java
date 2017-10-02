@@ -5,6 +5,7 @@
  */
 package br.com.rtools.financeiro.dao;
 
+import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ImpressoraCheque;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.principal.DB;
@@ -32,7 +33,7 @@ public class ImpressaoChequeDao extends DB {
         }
     }
 
-    public List<Object> listaCheques(Integer conta_id, String status) {
+    public List<Object> listaCheques(Integer conta_id, String status, String numeroCheque) {
         String query
                 = "SELECT bc.nr_num_banco AS codbanco, \n"
                 + "       bc.ds_banco AS banco, \n"
@@ -53,12 +54,16 @@ public class ImpressaoChequeDao extends DB {
                 + " INNER JOIN fin_baixa AS b ON b.id = f.id_baixa \n"
                 + " INNER JOIN fin_movimento AS m ON m.id_baixa = b.id \n"
                 + " INNER JOIN pes_pessoa AS p ON p.id = m.id_pessoa \n"
-                + " WHERE p5.id = " + conta_id + " \n"
-                + "   AND ch.dt_emissao >= (\n"
-                + "    SELECT CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END\n"
-                + "      FROM fin_conta_saldo \n"
-                + "     WHERE id_plano5 = 1 \n"
-                + "    )";
+                + " WHERE p5.id = " + conta_id + " \n";
+        if (!numeroCheque.isEmpty() && !numeroCheque.equals("0")) {
+            query += " AND ch.ds_cheque = '" + numeroCheque + "' \n";
+        } else {
+            query += "   AND ch.dt_emissao >= (\n"
+                    + "    SELECT CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END\n"
+                    + "      FROM fin_conta_saldo \n"
+                    + "     WHERE id_plano5 = 1 \n"
+                    + "    )";
+        }
 
         switch (status) {
             case "emitir":
@@ -164,4 +169,5 @@ public class ImpressaoChequeDao extends DB {
             return null;
         }
     }
+
 }

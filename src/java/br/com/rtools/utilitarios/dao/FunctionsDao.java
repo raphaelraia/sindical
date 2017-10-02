@@ -412,4 +412,26 @@ public class FunctionsDao extends DB {
         }
         return v;
     }
+//    
+//        /**
+//     * Trazer o responsável
+//     *
+//     * @param servico_id
+//     * @return
+//     */
+//    public Integer quantidadeAlunosAcademia(Integer servico_id) {
+//        Integer qtde = 0;
+//        try {
+//            String queryString = " SELECT func_alunos_academia( " + servico_id + ") ";
+//            Query query = getEntityManager().createNativeQuery(queryString);
+//            List list = query.getResultList();
+//            if (!list.isEmpty()) {
+//                qtde = Integer.parseInt(((List) query.getSingleResult()).get(0).toString());
+//            }
+//        } catch (NumberFormatException e) {
+//            return -1;
+//        }
+//        return qtde;
+//    }
+    
 }

@@ -27,6 +27,41 @@ public class CampeonatoDao extends DB {
         }
     }
 
+    public List<Campeonato> findBy(String in_modalidades, String situacao) {
+        try {
+            Query query;
+            if (in_modalidades == null || in_modalidades.isEmpty()) {
+                switch (situacao) {
+                    case "ativo":
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.dtFim >= CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
+                        break;
+                    case "finalizado":
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.dtFim < CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
+                        break;
+                    default:
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C ORDER BY C.tituloComplemento ASC");
+                        break;
+                }
+            } else {
+                switch (situacao) {
+                    case "ativo":
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( :in_modalidades ) AND C.dtFim >= CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
+                        break;
+                    case "finalizado":
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( :in_modalidades ) AND C.dtFim < CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
+                        break;
+                    default:
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( :in_modalidades ) ORDER BY C.tituloComplemento ASC");
+                        break;
+                }
+                query.setParameter("in_modalidades", in_modalidades);
+            }
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List<Campeonato> findAll() {
         try {
             Query query = getEntityManager().createNativeQuery("SELECT C.* FROM eve_campeonato C WHERE C.dt_inicio > current_date ORDER BY C.dt_inicio ASC, C.ds_titulo_complemento ASC", Campeonato.class);

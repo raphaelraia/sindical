@@ -1,7 +1,11 @@
 package br.com.rtools.relatorios;
 
+import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Rotina;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.faces.model.SelectItem;
 import javax.persistence.*;
 
 @Entity
@@ -194,6 +198,38 @@ public class Relatorios implements Serializable {
     @Override
     public String toString() {
         return "Relatorios{" + "id=" + id + ", rotina=" + rotina + ", nome=" + nome + ", jasper=" + jasper + ", qry=" + qry + ", qryOrdem=" + qryOrdem + ", porFolha=" + porFolha + ", nomeGrupo=" + nomeGrupo + ", excel=" + excel + ", camposExcel=" + camposExcel + ", montaQuery=" + montaQuery + ", queryString=" + queryString + ", principal=" + principal + ", relatorioTipo=" + relatorioTipo + '}';
+    }
+
+    public List<SelectItem> loadListRelatorios() {
+        return loadListRelatorios(new Rotina().get().getId());
+    }
+
+    public List<SelectItem> loadListRelatorios(Integer rotina_id) {
+        if (rotina_id == null) {
+            return new ArrayList();
+        }
+        List<SelectItem> listRelatorios = new ArrayList();
+        List<Relatorios> list = new RelatorioDao().findByRotina(rotina_id);
+        Integer mainRotina = null;
+        for (int i = 0; i < list.size(); i++) {
+            listRelatorios.add(new SelectItem(list.get(i).getId(), list.get(i).getNome(), (mainRotina != null ? (mainRotina + "") : "")));
+        }
+        return listRelatorios;
+    }
+
+    public Integer mainRotina() {
+        return mainRotina(new Rotina().get().getId());
+    }
+
+    public Integer mainRotina(Integer rotina_id) {
+        Relatorios r = new RelatorioDao().findDefaultByRotina(rotina_id, true);
+        if (r == null) {
+            r = new RelatorioDao().findDefaultByRotina(rotina_id, false);
+        }
+        if (r != null) {
+            return r.getId();
+        }
+        return null;
     }
 
 }

@@ -326,4 +326,47 @@ public class MatriculaEscolaDao extends DB {
         }
         return new ArrayList();
     }
+
+    public Integer findMatriculaIndivualMainId() {
+        try {
+            String queryString = ""
+                    + "     SELECT SP.id_servico, count(*)                                  \n"
+                    + "       FROM matr_escola E                                            \n"
+                    + " INNER JOIN fin_servico_pessoa AS SP ON SP.id = E.id_servico_pessoa  \n"
+                    + " INNER JOIN esc_matr_individual MI ON MI.id_matr_escola = E.id       \n"
+                    + "      WHERE dt_emissao BETWEEN (CURRENT_DATE-7) AND CURRENT_DATE     \n"
+                    + "   GROUP BY SP.id_servico                                            \n"
+                    + "     HAVING COUNT(*) > 2                                             \n"
+                    + "   ORDER BY count(*) DESC ";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return Integer.parseInt(((List) list.get(0)).get(0).toString());
+            }
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return null;
+    }
+
+    public Integer findMatriculaTurmaMainId() {
+        try {
+            String queryString = ""
+                    + "     SELECT SP.id_servico, count(*)                                  \n"
+                    + "       FROM matr_escola E                                            \n"
+                    + " INNER JOIN fin_servico_pessoa AS SP ON SP.id = E.id_servico_pessoa  \n"
+                    + " INNER JOIN esc_matr_turma MT ON MT.id_matr_escola = E.id            \n"
+                    + "      WHERE dt_emissao BETWEEN (CURRENT_DATE-30) AND CURRENT_DATE     \n"
+                    + "   GROUP BY SP.id_servico                                            \n"
+                    + "   ORDER BY count(*) DESC ";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return Integer.parseInt(((List) list.get(0)).get(0).toString());
+            }
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return null;
+    }
 }

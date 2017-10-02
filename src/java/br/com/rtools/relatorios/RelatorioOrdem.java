@@ -1,6 +1,12 @@
 package br.com.rtools.relatorios;
 
+import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
+import br.com.rtools.seguranca.Rotina;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.faces.model.SelectItem;
 import javax.persistence.*;
 
 @Entity
@@ -98,6 +104,30 @@ public class RelatorioOrdem implements Serializable {
     @Override
     public String toString() {
         return "RelatorioOrdem{" + "id=" + id + ", relatorios=" + relatorios + ", nome=" + nome + ", query=" + query + ", principal=" + principal + '}';
+    }
+
+    public List<SelectItem> loadListRelatorioOrdem(Integer relatorio_id) {
+        if (relatorio_id == null) {
+            return new ArrayList();
+        }
+        List<SelectItem> listRelatorioOrdem = new ArrayList();
+        List<RelatorioOrdem> list = new RelatorioOrdemDao().findAllByRelatorio(relatorio_id);
+        Integer main = null;
+        for (int i = 0; i < list.size(); i++) {
+            listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome(), (main != null ? (main + "") : "")));
+        }
+        return listRelatorioOrdem;
+    }
+
+    public Integer mainRelatorio(Integer relatorio_id) {
+        RelatorioOrdem ro = new RelatorioOrdemDao().findDefaultByRelatorio(relatorio_id, true);
+        if (ro == null) {
+            ro = new RelatorioOrdemDao().findDefaultByRelatorio(relatorio_id, false);
+        }
+        if (ro != null) {
+            return ro.getId();
+        }
+        return null;
     }
 
 }

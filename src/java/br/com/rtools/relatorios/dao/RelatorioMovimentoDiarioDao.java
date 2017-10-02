@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -87,6 +88,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
             } else {
                 queryString += " ORDER BY data, id_movimento ";
             }
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

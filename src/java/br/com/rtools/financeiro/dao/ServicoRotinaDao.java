@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.dao;
 
+import br.com.rtools.financeiro.ServicoRotina;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
@@ -54,6 +55,40 @@ public class ServicoRotinaDao extends DB {
                     + "     FROM Servicos AS S "
                     + "    WHERE S.id IN(SELECT SR.servicos.id FROM ServicoRotina SR WHERE SR.rotina.id = " + idRotina + ")"
                     + " ORDER BY S.descricao");
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
+
+    public List findAllByRotina(Integer rotina_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    "      SELECT SR.*                                          \n"
+                    + "      FROM fin_servico_rotina AS SR                      \n"
+                    + "INNER JOIN fin_servicos S ON S.id = SR.id_servicos       \n"
+                    + "     WHERE SR.id_rotina = " + rotina_id + "              \n"
+                    + "  ORDER BY S.ds_descricao ", ServicoRotina.class);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
+
+    public List findAllByRotinaNotInServices(Integer rotina_id, String not_in_services) {
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    "   SELECT SR.*                                             \n"
+                    + "   FROM fin_servico_rotina AS SR                         \n"
+                    + "  WHERE SR.id_rotina = " + rotina_id + "                 \n"
+                    + "   AND SR.id_services NOT IN (" + not_in_services + ")   \n"
+                    + " ORDER BY S.ds_descricao ", ServicoRotina.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

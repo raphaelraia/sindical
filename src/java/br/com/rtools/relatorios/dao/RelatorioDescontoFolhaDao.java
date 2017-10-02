@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -284,6 +285,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "               t.ds_nome        \n";
             }
 
+            Debugs.put("habilitaDebugQuery", SELECT_STRING);
             Query query = getEntityManager().createNativeQuery(SELECT_STRING);
             return query.getResultList();
         } catch (Exception e) {

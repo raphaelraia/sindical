@@ -69,6 +69,14 @@ public class ConfiguracaoSocial implements Serializable {
     private Boolean bloqueiaCpf;
     @Column(name = "ds_titulo_extrato", length = 255)
     private String tituloExtrato;
+    @Column(name = "nr_validade_dia_convite")
+    private Integer validadeDiaConvite;
+    @Column(name = "is_convite_cartao_pvc", columnDefinition = "boolean default false", nullable = false)
+    private Boolean conviteCartaoPvc;
+    @Column(name = "nr_idade_bloqueio_cpf_convite")
+    private Integer idadeBloqueioCpfConvite;
+    @Column(name = "nr_idade_bloqueio_rg_convite")
+    private Integer idadeBloqueioRgConvite;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -94,9 +102,13 @@ public class ConfiguracaoSocial implements Serializable {
         this.obrigatorioEmail = false;
         this.bloqueiaCpf = false;
         this.tituloExtrato = "";
+        this.validadeDiaConvite = 30;
+        this.conviteCartaoPvc = false;
+        this.idadeBloqueioCpfConvite = 18;
+        this.idadeBloqueioRgConvite = 18;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -120,6 +132,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.obrigatorioEmail = obrigatorioEmail;
         this.bloqueiaCpf = bloqueiaCpf;
         this.tituloExtrato = tituloExtrato;
+        this.validadeDiaConvite = validadeDiaConvite;
+        this.conviteCartaoPvc = conviteCartaoPvc;
+        this.idadeBloqueioCpfConvite = idadeBloqueioCpfConvite;
+        this.idadeBloqueioRgConvite = idadeBloqueioRgConvite;
     }
 
     public Integer getId() {
@@ -309,12 +325,53 @@ public class ConfiguracaoSocial implements Serializable {
     public void setBloqueiaCpf(Boolean bloqueiaCpf) {
         this.bloqueiaCpf = bloqueiaCpf;
     }
-    
-      public String getTituloExtrato() {
+
+    public String getTituloExtrato() {
         return tituloExtrato;
     }
 
     public void setTituloExtrato(String tituloExtrato) {
         this.tituloExtrato = tituloExtrato;
     }
+
+    public Integer getValidadeDiaConvite() {
+        return validadeDiaConvite;
+    }
+
+    public void setValidadeDiaConvite(Integer validadeDiaConvite) {
+        this.validadeDiaConvite = validadeDiaConvite;
+    }
+
+    public String getValidadeDiaConviteString() {
+        return Integer.toString(validadeDiaConvite);
+    }
+
+    public void setValidadeDiaConviteString(String validadeDiaConviteString) {
+        this.validadeDiaConvite = Integer.parseInt(validadeDiaConviteString);
+    }
+
+    public Boolean getConviteCartaoPvc() {
+        return conviteCartaoPvc;
+    }
+
+    public void setConviteCartaoPvc(Boolean conviteCartaoPvc) {
+        this.conviteCartaoPvc = conviteCartaoPvc;
+    }
+
+    public Integer getIdadeBloqueioCpfConvite() {
+        return idadeBloqueioCpfConvite;
+    }
+
+    public void setIdadeBloqueioCpfConvite(Integer idadeBloqueioCpfConvite) {
+        this.idadeBloqueioCpfConvite = idadeBloqueioCpfConvite;
+    }
+
+    public Integer getIdadeBloqueioRgConvite() {
+        return idadeBloqueioRgConvite;
+    }
+
+    public void setIdadeBloqueioRgConvite(Integer idadeBloqueioRgConvite) {
+        this.idadeBloqueioRgConvite = idadeBloqueioRgConvite;
+    }
+
 }

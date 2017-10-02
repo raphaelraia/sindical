@@ -3,6 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.AutorizaImpressaoCartao;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.SocioCarteirinha;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.AutorizaImpressaoCartaoDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.impressao.CartaoSocial;
@@ -68,10 +69,26 @@ public class AutorizaCarteirinhaBean {
 
         Dao dao = new Dao();
         SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-
+        ModeloCarteirinha mc = (ModeloCarteirinha) dao.find(new ModeloCarteirinha(), Integer.valueOf(listaModelo.get(idModelo).getDescription()));
+        dao.openTransaction();
         if (db.listaSocioCarteirinhaAutoriza(fisica.getPessoa().getId(), Integer.valueOf(listaModelo.get(idModelo).getDescription())).isEmpty()) {
-            GenericaMensagem.warn("Erro", "Esta Pessoa NÃO POSSUI carteirinha para ser autorizada!");
-            return;
+            Socios s = fisica.getPessoa().getSocios();
+            if (s != null && s.getId() != -1) {
+                GenericaMensagem.warn("Erro", "Esta Pessoa NÃO POSSUI carteirinha para ser autorizada!");
+                return;
+            }
+            SocioCarteirinha socioCarteirinha = new SocioCarteirinha();
+            socioCarteirinha.setPessoa(fisica.getPessoa());
+            socioCarteirinha.setVia(1);
+            socioCarteirinha.setAtivo(true);
+            socioCarteirinha.setValidadeCarteirinha("01/01/2050");
+            socioCarteirinha.setModeloCarteirinha(mc);
+            if (!dao.save(socioCarteirinha)) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "Ao salvar sócio carteirinha!");
+                return;
+            }
+            // return;
         }
 
         if (!db.listaAutoriza(fisica.getPessoa().getId(), Integer.valueOf(listaModelo.get(idModelo).getDescription())).isEmpty()) {
@@ -83,7 +100,6 @@ public class AutorizaCarteirinhaBean {
         impressaoCartao.setUsuario(usuario);
         impressaoCartao.setPessoa(fisica.getPessoa());
 
-        dao.openTransaction();
         if (!dao.save(impressaoCartao)) {
             GenericaMensagem.warn("Erro", "Não foi possível salvar autorização!");
             dao.rollback();
@@ -117,7 +133,8 @@ public class AutorizaCarteirinhaBean {
 
     public void excluir(AutorizaImpressaoCartao linha) {
         if (linha.getHistoricoCarteirinha() != null) {
-            GenericaMensagem.warn("Erro", "Essa autorização não pode ser excluída!");
+            GenericaMensagem.warn("Erro", "Essa autorização não pode ser excluída! Histórico de impressão gerado.");
+            return;
         }
 
         Dao dao = new Dao();

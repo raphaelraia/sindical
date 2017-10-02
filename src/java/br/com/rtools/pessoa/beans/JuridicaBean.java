@@ -1994,7 +1994,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public String getColocarMascara2() {
-        if (alterType.equals("nome")) {
+        if (alterType == null || alterType.equals("nome")) {
             return "";
         } else {
             return Mask.getMascara(getListaTipoDocumento().get(idTipoDocumento).getLabel());

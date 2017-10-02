@@ -330,13 +330,13 @@
                                                     <p:column>
                                                         <h:panelGrid columns="1" style="float: right;" styleClass="text-center">
                                                             <p:column rendered="#{fisicaBean.tipoCadastro != 3}">
-                                                                <p:commandLink value="REATIVAÇÃO" onclick="PF('i_dlg_reativacao').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" styleClass="font-color-red bold"/>
+                                                                <p:commandLink value="REATIVAÇÃO" onclick="PF('i_dlg_reativacao').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" styleClass="font-color-red bold" disabled="#{fisicaBean.editar}"/>
                                                                 <br />
                                                                 <br />
                                                             </p:column>
 
                                                             <p:column>
-                                                                <p:commandButton  title="Ver Cadastro / Associar" value="#{fisicaBean.lblSocio}" action="#{fisicaBean.associarFisica}" immediate="true"/>
+                                                                <p:commandButton  title="Ver Cadastro / Associar" value="#{fisicaBean.lblSocio}" action="#{fisicaBean.associarFisica}" immediate="true" disabled="#{fisicaBean.editar}"/>
                                                             </p:column>
 
                                                         </h:panelGrid>
@@ -394,7 +394,7 @@
                                         <h:column>
                                             <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
                                             <p:panel header="EMPREGO ATUAL">
-                                                
+
                                                 <h:panelGrid columns="2">
                                                     <h:column>
                                                         <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" id="i_pesquisar_empresa"/>
@@ -690,16 +690,20 @@
                                 </p:dialog>
 
                                 <h:panelGrid columns="11">
-                                    <p:commandButton value="Voltar" action="#{chamadaPaginaBean.back()}" icon="ui-icon-arrowreturnthick-1-w" title="Voltar" immediate="true" actionListener="#{fisicaBean.editarFisica(fisicaBean.fisica)}" rendered="#{fisicaBean.cadastrar}"/>
+                                    <p:commandButton value="Voltar" action="#{chamadaPaginaBean.back()}" icon="ui-icon-arrowreturnthick-1-w" title="Voltar" immediate="true" actionListener="#{fisicaBean.editarFisica(fisicaBean.fisica)}" rendered="#{fisicaBean.cadastrar or fisicaBean.editar}"/>
                                     <h:column>
                                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" oncomplete="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id == -1}" update=":form_pessoa_fisica:i_painel_salvar" />
                                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoAlterar}" oncomplete="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id != -1}" update=":form_pessoa_fisica:i_painel_salvar" />
                                     </h:column>
-                                    <p:commandButton value="Novo" action="#{fisicaBean.novo}" rendered="#{!fisicaBean.cadastrar}"/>
-                                    <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_painel_excluir').show();" rendered="#{fisicaBean.fisica.id != -1}" />
-                                    <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" rendered="#{!fisicaBean.cadastrar}"/>
-                                    <p:commandButton value="Extrato" rendered="#{fisicaBean.fisica.id != -1}" action="#{fisicaBean.telaMovimentosReceberSocial}" ajax="false"/>
-                                    <p:commandButton value="#{fisicaBean.fisicaMei ? 'MEI - Cadastro' : 'CADASTRAR MEI'}" rendered="#{segurancaUtilitariosBean.registro.mei and fisicaBean.fisica.id != -1}" action="#{fisicaBean.pessoaJuridicaMei()}" styleClass="font-color-blue bold" icon="ui-icon-bookmark" immediate="true"/>
+                                    <h:column rendered="#{!fisicaBean.editar}">
+                                        <p:commandButton value="Novo" action="#{fisicaBean.novo}" rendered="#{!fisicaBean.cadastrar}"/>                                        
+                                    </h:column>
+                                    <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_painel_excluir').show();" rendered="#{fisicaBean.fisica.id != -1 and !fisicaBean.editar}" />
+                                    <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" rendered="#{!fisicaBean.cadastrar and !fisicaBean.editar}"/>
+                                    <p:commandButton value="Extrato" rendered="#{fisicaBean.fisica.id != -1 and !fisicaBean.editar}" action="#{fisicaBean.telaMovimentosReceberSocial}" ajax="false"/>
+                                    <h:column rendered="#{!fisicaBean.editar}">
+                                        <p:commandButton value="#{fisicaBean.fisicaMei ? 'MEI - Cadastro' : 'CADASTRAR MEI'}" rendered="#{segurancaUtilitariosBean.registro.mei and fisicaBean.fisica.id != -1}" action="#{fisicaBean.pessoaJuridicaMei()}" styleClass="font-color-blue bold" icon="ui-icon-bookmark" immediate="true"/>                                        
+                                    </h:column>
                                     <p:commandButton value="INFORMAÇÕES CADASTRAIS" rendered="#{fisicaBean.fisica.id != -1}" action="#{chamadaPaginaBean.pagina('pessoa')}" styleClass="font-color-red bold" icon="ui-icon-plus" actionListener="#{genericaSessao.putString('tipoPessoa', 'pessoaFisica')}" immediate="true"/>
                                     <h:column>
                                         <h:panelGrid id="i_app_message">

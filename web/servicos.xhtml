@@ -92,7 +92,9 @@
 
                                             <p:column>
                                                 <p:outputLabel value="Meses Débito Exclusão" /><br />
-                                                <p:inputText size="16" value="#{servicosBean.servicos.mesesDebitoExclusao}" style="text-align: right"/>
+                                                <p:inputText size="16" value="#{servicosBean.servicos.mesesDebitoExclusao}" style="text-align: right" converter="#{thisNumber}">
+                                                <p:ajax event="change" update="@this"/>
+                                                </p:inputText>
                                             </p:column>
 
                                             <p:column>
@@ -227,6 +229,14 @@
 
                                             </h:panelGrid>
                                         </p:fieldset>
+                                        <p:panel header="CURSOS/EVENTOS">
+                                            <h:panelGrid columns="2">
+                                                <h:outputLabel value="QUANTIDADE DE VAGAS" />
+                                                <p:inputText value="#{servicosBean.servicos.nrVagas}">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:inputText>
+                                            </h:panelGrid>
+                                        </p:panel>
                                     </p:tab>
                                     <p:tab title="Complemento">
                                         <h:panelGrid columns="2">

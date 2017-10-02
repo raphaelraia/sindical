@@ -21,6 +21,9 @@ import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Debugs;
+import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1535,6 +1538,7 @@ public class MovimentoDao extends DB {
                     + "      AND m.dt_Vencimento IN " + datas + "                               \n"
                     + " ORDER BY escritorio, razao              \n";
 
+            Debugs.put("habilitaDebugQuery", textQry);
             Query query = getEntityManager().createNativeQuery(textQry);
             return query.getResultList();
         } catch (Exception e) {

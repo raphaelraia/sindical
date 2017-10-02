@@ -8,6 +8,7 @@ import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -197,6 +198,9 @@ public class SocioCarteirinhaDao extends DB {
                 }
                 if (start_date != null && !start_date.isEmpty()) {
                     switch (type_date) {
+                        case "hoje":
+                            listWhere.add("SC.dt_emissao = CURRENT_DATE");
+                            break;
                         case "igual":
                             listWhere.add("SC.dt_emissao = '" + start_date + "'");
                             break;
@@ -386,6 +390,7 @@ public class SocioCarteirinhaDao extends DB {
                 default:
                     break;
             }
+            Debugs.put("habilitaDebugQuery", queryString); 
             Query qry = getEntityManager().createNativeQuery(queryString);
 
             return qry.getResultList();

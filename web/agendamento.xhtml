@@ -36,7 +36,7 @@
                             <c:set scope="request" var="object" value="${agendamentoBean.agendamento}"/>
                             <h:panelGrid style="margin: 0 auto; width: 100%; clear: both">
                                 <p:panel styleClass="fundoCinza"> 
-                                    <h:panelGrid columns="3">
+                                    <h:panelGrid columns="4">
                                         <h:panelGroup id="i_dates" layout="block">
                                             <p:calendar size="8" value="#{agendamentoBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR" mindate="#{agendamentoBean.mindate}" maxdate="#{agendamentoBean.maxdate}" rendered="#{agendamentoBean.idStatus ne 8}">
                                                 <p:ajax event="dateSelect" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
@@ -45,9 +45,17 @@
                                         </h:panelGroup>
 
                                         <p:selectOneMenu value="#{agendamentoBean.idStatus}" style="width: 200px">
-                                            <p:ajax event="change" update="@this i_dates id_count tbl" listener="#{agendamentoBean.loadListaHorariosStatus(false)}" />
+                                            <p:ajax event="change" update="@this i_dates id_count tbl i_c_p" listener="#{agendamentoBean.loadListaHorariosStatus(false)}" />
                                             <f:selectItems value="#{agendamentoBean.listaStatus}"/>
                                         </p:selectOneMenu>
+                                        
+                                        <h:column>                                            
+                                            <h:panelGroup id="i_c_p">
+                                                <p:selectBooleanCheckbox value="#{agendamentoBean.comPendencia}" style="width: 200px" itemLabel="Com pendências" rendered="#{agendamentoBean.idStatus eq 8}">
+                                                    <p:ajax event="change" update="@this i_dates id_count tbl" listener="#{agendamentoBean.loadListaHorariosStatus(false)}" />
+                                                </p:selectBooleanCheckbox>                                            
+                                            </h:panelGroup>
+                                        </h:column>
 
                                         <h:panelGrid id="id_count">
                                             <h:outputLabel value="#{agendamentoBean.listaHorarios.size()} registro(s)" />                                            

@@ -504,17 +504,41 @@ public class ConviteDao extends DB {
         }
         return new ArrayList();
     }
+    
+    public List<ConviteServico> listaConviteServico(Integer servico_id, Boolean cortesia) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT cs FROM ConviteServico cs WHERE cs.cortesia = :cortesia AND cs.servicos.id = :servico_id");
+            query.setParameter("servico_id", servico_id);
+            query.setParameter("cortesia", cortesia);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
 
     public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia) {
         try {
-            String text = "";
+            String queryString = ""
+                    + "    SELECT CV.*                                          \n"
+                    + "      FROM conv_servico CV                               \n"
+                    + "INNER JOIN fin_servicos AS S ON S.id = CV.id_servico     \n"
+                    + "     WHERE S.ds_situacao = 'A'                           \n"
+                    + "       AND (                                             \n"
+                    + "           is_segunda = true                             \n"
+                    + "        OR is_terca = true                               \n"
+                    + "        OR is_quarta = true                              \n"
+                    + "        OR is_quinta = true                              \n"
+                    + "        OR is_sexta = true                               \n"
+                    + "        OR is_sabado = true                              \n"
+                    + "        OR is_domingo = true                             \n"
+                    + ")                                                        \n"
+                    + " \n ";
             if (cortesia != null) {
-                text = "SELECT cs FROM ConviteServico cs WHERE cs.cortesia = " + cortesia;
-            } else {
-                text = "SELECT cs FROM ConviteServico cs ";
+                queryString += "AND is_cortesia = " + cortesia;
             }
 
-            Query query = getEntityManager().createQuery(text);
+            Query query = getEntityManager().createNativeQuery(queryString, ConviteServico.class);
             return query.getResultList();
         } catch (Exception e) {
             e.getMessage();

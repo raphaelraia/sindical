@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa;
 
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -71,6 +72,9 @@ public class Pessoa implements Serializable {
     @Transient
     private Boolean isTitular;
 
+    @Transient
+    private Boolean oposicao;
+
     public Pessoa() {
         this.id = -1;
         this.nome = "";
@@ -90,6 +94,7 @@ public class Pessoa implements Serializable {
         this.senha = "";
         this.dtAtualizacao = null;
         this.dtRecadastro = DataHoje.dataHoje();
+        this.oposicao = null;
     }
 
     public Pessoa(int id, String nome, TipoDocumento tipoDocumento, String obs, String site, String criacao,
@@ -112,6 +117,7 @@ public class Pessoa implements Serializable {
         this.senha = senha;
         this.dtAtualizacao = null;
         this.dtRecadastro = dtRecadastro;
+        this.oposicao = null;
     }
 
     public int getId() {
@@ -322,7 +328,7 @@ public class Pessoa implements Serializable {
             FisicaDao fisicaDB = new FisicaDao();
             fisica = fisicaDB.pesquisaFisicaPorPessoa(this.id);
             if (fisica.getId() != -1) {
-                fisica = (Fisica) new Dao().rebind( fisica);
+                fisica = (Fisica) new Dao().rebind(fisica);
             }
             fisica.setPessoa(null);
         }
@@ -473,4 +479,16 @@ public class Pessoa implements Serializable {
     public void setRecadastroString(String recadastroString) {
         this.dtRecadastro = DataHoje.converte(recadastroString);
     }
+
+    public Boolean getExistOposicao() {
+        if (this.id != -1) {
+            if (!this.documento.isEmpty()) {
+                if (oposicao == null) {
+                    oposicao = new OposicaoDao().existPessoaDocumentoPeriodo(documento);
+                }
+            }
+        }
+        return oposicao;
+    }
+
 }
