@@ -210,6 +210,27 @@
                                 </p:panel>
                             </h:panelGroup>
 
+                            <!-- EXAME MÉDICO -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'exame_medico'}">
+                                <p:panel id="i_exame_medico" header="Exame Médico">
+                                    <p:dataTable value="#{pessoaBean.listExameMedico}" var="exameMedico" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
+                                        <p:column headerText="Departamento" width="120" styleClass="text-center">
+                                            <h:outputText value="#{exameMedico.departamento.descricao}" style="font-size: 8pt!important" title="#{exameMedico.id}"/>
+                                        </p:column>
+                                        <p:column headerText="Emissão" width="100" >
+                                            <h:outputText value="#{exameMedico.dtEmissaoString}" style="font-size: 8pt!important"/>
+                                        </p:column>
+                                        <p:column headerText="Validade" width="100" >
+                                            <h:outputText value="#{exameMedico.dtValidadeString}" style="font-size: 8pt!important"/>
+                                        </p:column>
+                                        <p:column headerText="Operador" styleClass="text-center">
+                                            <h:outputText value="#{exameMedico.operador.pessoa.nome}" style="font-size: 8pt!important"/>
+                                        </p:column>                                        
+                                    </p:dataTable>
+                                </p:panel>
+                            </h:panelGroup>
+
                             <!-- SUSPENSÃO DE SÓCIOS -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'suspencao'}">

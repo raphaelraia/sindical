@@ -29,9 +29,9 @@ public class AgendaHorarios implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @JoinColumn(name = "id_convenio", referencedColumnName = "id")
+    @JoinColumn(name = "id_convenio", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private Pessoa pesssa;
+    private Pessoa convenio;
     @JoinColumn(name = "id_convenio_sub_grupo", referencedColumnName = "id")
     @ManyToOne
     private SubGrupoConvenio subGrupoConvenio;
@@ -57,7 +57,7 @@ public class AgendaHorarios implements Serializable {
 
     public AgendaHorarios() {
         this.id = null;
-        this.pesssa = null;
+        this.convenio = null;
         this.subGrupoConvenio = null;
         this.filial = null;
         this.ativo = true;
@@ -69,9 +69,9 @@ public class AgendaHorarios implements Serializable {
         this.socio = false;
     }
 
-    public AgendaHorarios(Integer id, Pessoa pesssa, SubGrupoConvenio subGrupoConvenio, Filial filial, Boolean ativo, Date data, Integer quantidade, String hora, Semana semana, Boolean web, Boolean socio) {
+    public AgendaHorarios(Integer id, Pessoa convenio, SubGrupoConvenio subGrupoConvenio, Filial filial, Boolean ativo, Date data, Integer quantidade, String hora, Semana semana, Boolean web, Boolean socio) {
         this.id = id;
-        this.pesssa = pesssa;
+        this.convenio = convenio;
         this.subGrupoConvenio = subGrupoConvenio;
         this.filial = filial;
         this.ativo = ativo;
@@ -91,12 +91,12 @@ public class AgendaHorarios implements Serializable {
         this.id = id;
     }
 
-    public Pessoa getPesssa() {
-        return pesssa;
+    public Pessoa getConvenio() {
+        return convenio;
     }
 
-    public void setPesssa(Pessoa pesssa) {
-        this.pesssa = pesssa;
+    public void setConvenio(Pessoa convenio) {
+        this.convenio = convenio;
     }
 
     public SubGrupoConvenio getSubGrupoConvenio() {
@@ -177,6 +177,14 @@ public class AgendaHorarios implements Serializable {
 
     public void setSocio(Boolean socio) {
         this.socio = socio;
+    }
+
+    public String getStatus() {
+        if (ativo) {
+            return "** ATIVO **";
+        } else {
+            return "** INATIVO **";
+        }
     }
 
 }
