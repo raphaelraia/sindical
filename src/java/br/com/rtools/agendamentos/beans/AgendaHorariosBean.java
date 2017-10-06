@@ -2,7 +2,14 @@ package br.com.rtools.agendamentos.beans;
 
 import br.com.rtools.agendamentos.AgendaHorarios;
 import br.com.rtools.agendamentos.dao.AgendaHorariosDao;
+import br.com.rtools.associativo.Convenio;
+import br.com.rtools.associativo.GrupoConvenio;
+import br.com.rtools.associativo.SubGrupoConvenio;
+import br.com.rtools.associativo.dao.ConvenioDao;
+import br.com.rtools.associativo.dao.GrupoConvenioDao;
+import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Semana;
 import br.com.rtools.utilitarios.Dao;
@@ -28,6 +35,7 @@ public class AgendaHorariosBean implements Serializable {
     private List<SelectItem> listSemana;
     private List<SelectItem> listFiliais;
     private List<SelectItem> listConvenio;
+    private List<SelectItem> listGrupoConvenio;
     private List<SelectItem> listSubGrupoConvenio;
     private String horaInicial;
     private String horaFinal;
@@ -38,6 +46,7 @@ public class AgendaHorariosBean implements Serializable {
     private int quantidade;
     private Integer idConvenio;
     private Integer idSubGrupoConvenio;
+    private Integer idGrupoConvenio;
     private Integer idFilial;
     private Integer idSemana;
 
@@ -58,9 +67,13 @@ public class AgendaHorariosBean implements Serializable {
         listFiliais = new ArrayList<>();
         listHorarios = new ArrayList<>();
         listConvenio = new ArrayList<>();
+        listGrupoConvenio = new ArrayList<>();
         listSubGrupoConvenio = new ArrayList<>();
         loadListFiliais();
         loadListSemana();
+        loadListGrupoConvenio();
+        loadListSubGrupoConvenio();
+        loadListConvenio();
         loadListHorarios();
     }
 
@@ -90,8 +103,10 @@ public class AgendaHorariosBean implements Serializable {
             horarios.setHora(strHoras + ":" + strMinutos);
             horarios.setFilial((Filial) dao.find(new Filial(), idFilial));
             horarios.setSemana((Semana) dao.find(new Semana(), idSemana));
+            horarios.setSubGrupoConvenio((SubGrupoConvenio) dao.find(new SubGrupoConvenio(), idSubGrupoConvenio));
+            horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
             quantidade = horarios.getQuantidade();
-            if (!horariosDao.findByFilial(horarios.getFilial().getId(), horarios.getHora(), horarios.getSemana().getId()).isEmpty()) {
+            if (!horariosDao.findByFilial(horarios.getFilial().getId(), horarios.getHora(), horarios.getSemana().getId(), idSubGrupoConvenio, idConvenio).isEmpty()) {
                 GenericaMensagem.warn("Validação", "Horário já cadastrado!");
                 return;
             }
@@ -121,11 +136,11 @@ public class AgendaHorariosBean implements Serializable {
                         horarios.setHora(horarioIns);
                     }
                     intInicial = Integer.parseInt(horarios.getHora().substring(0, 2) + horarios.getHora().substring(3, 5));
-                    if (horarios.getFilial().getId() == -1) {
-                        horarios.setFilial((Filial) dao.find(new Filial(), idFilial));
-                    }
+                    horarios.setFilial((Filial) dao.find(new Filial(), idFilial));
                     horarios.setSemana((Semana) dao.find(new Semana(), idSemana));
-                    if (!horariosDao.findByFilial(idFilial, horarios.getHora(), horarios.getSemana().getId()).isEmpty()) {
+                    horarios.setSubGrupoConvenio((SubGrupoConvenio) dao.find(new SubGrupoConvenio(), idSubGrupoConvenio));
+                    horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
+                    if (!horariosDao.findByFilial(idFilial, horarios.getHora(), horarios.getSemana().getId(), idSubGrupoConvenio, idConvenio).isEmpty()) {
                         horarios = new AgendaHorarios();
                         continue;
                     }
@@ -153,7 +168,7 @@ public class AgendaHorariosBean implements Serializable {
                 return;
             }
 
-            List hors = horariosDao.findByFilial(idFilial, horarios.getHora(), idSemana);
+            List hors = horariosDao.findByFilial(idFilial, horarios.getHora(), idSemana, idSubGrupoConvenio, idConvenio);
             if (horarios.getId() == null) {
                 if (!hors.isEmpty()) {
                     GenericaMensagem.warn("Validação", "Horário já cadastrado!");
@@ -161,6 +176,8 @@ public class AgendaHorariosBean implements Serializable {
                 }
                 horarios.setFilial((Filial) dao.find(new Filial(), idFilial));
                 horarios.setSemana((Semana) dao.find(new Semana(), idSemana));
+                horarios.setSubGrupoConvenio((SubGrupoConvenio) dao.find(new SubGrupoConvenio(), idSubGrupoConvenio));
+                horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
                 if (dao.save(horarios, true)) {
                     GenericaMensagem.info("Sucesso", "Registro adicionado");
                     horarios = new AgendaHorarios();
@@ -248,6 +265,16 @@ public class AgendaHorariosBean implements Serializable {
         this.listSemana = listSemana;
     }
 
+
+    public List<SelectItem> getListFiliais() {
+        return listFiliais;
+    }
+
+    public void setListFiliais(List<SelectItem> listFiliais) {
+        this.listFiliais = listFiliais;
+    }
+    
+    
     public void loadListSemana() {
         listSemana = new ArrayList();
         Dao dao = new Dao();
@@ -258,14 +285,6 @@ public class AgendaHorariosBean implements Serializable {
             }
             listSemana.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
-    }
-
-    public List<SelectItem> getListFiliais() {
-        return listFiliais;
-    }
-
-    public void setListFiliais(List<SelectItem> listFiliais) {
-        this.listFiliais = listFiliais;
     }
 
     public void loadListFiliais() {
@@ -279,16 +298,38 @@ public class AgendaHorariosBean implements Serializable {
             listFiliais.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome()));
         }
     }
-    
-    public void loadListSubGrupoConvenio() {
-        listSubGrupoConvenio = new ArrayList();
-        Dao dao = new Dao();
-        List<Filial> list = (List<Filial>) dao.list(new Filial(), true);
+
+    public void loadListGrupoConvenio() {
+        listGrupoConvenio = new ArrayList();
+        List<GrupoConvenio> list = (List<GrupoConvenio>) new GrupoConvenioDao().findAllToAgendaHorarios();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idGrupoConvenio = list.get(i).getId();
+            }
+            listGrupoConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
+    public void loadListConvenio() {
+        listConvenio = new ArrayList();
+        List<Pessoa> list = (List<Pessoa>) new ConvenioDao().findAllBySubGrupoConvenio(idSubGrupoConvenio);
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 idConvenio = list.get(i).getId();
             }
-            listSubGrupoConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome()));
+            listConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+        }
+    }
+
+    public void loadListSubGrupoConvenio() {
+        listSubGrupoConvenio = new ArrayList();
+        Dao dao = new Dao();
+        List<SubGrupoConvenio> list = new SubGrupoConvenioDao().findAllByGrupoAndAgendamento(idGrupoConvenio);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idSubGrupoConvenio = list.get(i).getId();
+            }
+            listSubGrupoConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
 
@@ -372,9 +413,21 @@ public class AgendaHorariosBean implements Serializable {
         this.idSemana = idSemana;
     }
 
+    public void listener(String tcase) {
+        if (tcase.endsWith("subgrupo_convenio")) {
+            loadListSubGrupoConvenio();
+            loadListConvenio();
+            loadListHorarios();
+        } else if (tcase.endsWith("convenio")) {
+            loadListConvenio();
+            loadListHorarios();
+        }
+
+    }
+
     public void loadListHorarios() {
         listHorarios = new ArrayList();
-        listHorarios = new AgendaHorariosDao().findBy(idFilial, idSemana, idSubGrupoConvenio, idSubGrupoConvenio);
+        listHorarios = new AgendaHorariosDao().findBy(idFilial, idSemana, idSubGrupoConvenio, idConvenio);
     }
 
     public List<AgendaHorarios> getListHorarios() {
@@ -431,6 +484,22 @@ public class AgendaHorariosBean implements Serializable {
 
     public void setIdSubGrupoConvenio(Integer idSubGrupoConvenio) {
         this.idSubGrupoConvenio = idSubGrupoConvenio;
+    }
+
+    public List<SelectItem> getListGrupoConvenio() {
+        return listGrupoConvenio;
+    }
+
+    public void setListGrupoConvenio(List<SelectItem> listGrupoConvenio) {
+        this.listGrupoConvenio = listGrupoConvenio;
+    }
+
+    public Integer getIdGrupoConvenio() {
+        return idGrupoConvenio;
+    }
+
+    public void setIdGrupoConvenio(Integer idGrupoConvenio) {
+        this.idGrupoConvenio = idGrupoConvenio;
     }
 
 }

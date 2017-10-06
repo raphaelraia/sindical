@@ -278,7 +278,7 @@ public class SubGrupoConvenioBean implements Serializable {
                     }
                 }
             }
-            
+
             loadListServicosAdicionados();
         }
         return listServicosDisponiveis;
@@ -304,6 +304,7 @@ public class SubGrupoConvenioBean implements Serializable {
                     ConvenioServico convenioServico = new ConvenioServico();
                     convenioServico.setServicos(s);
                     convenioServico.setSubGrupoConvenio((SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription())));
+                    convenioServico.setAgendamento(lssgf.getAgendamento());
                     if (di.save(convenioServico, true)) {
                         novoLog.save(
                                 "Convênio Serviço - ID: " + convenioServico.getId()
@@ -575,5 +576,9 @@ public class SubGrupoConvenioBean implements Serializable {
             clear(2);
         }
         this.enableSubGroup = enableSubGroup;
+    }
+
+    public void updateConvenioServico(ConvenioServico cs) {
+        new Dao().update(cs, true);
     }
 }

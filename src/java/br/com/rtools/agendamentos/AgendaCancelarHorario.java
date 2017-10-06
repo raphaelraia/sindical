@@ -36,22 +36,22 @@ public class AgendaCancelarHorario implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date dtData;
     @Column(name = "nr_quantidade", columnDefinition = "integer default 0", nullable = false)
-    private Integer nrQuantidade;
+    private Integer quantidade;
 
     public AgendaCancelarHorario() {
         this.id = null;
         this.horario = null;
         this.usuario = null;
         this.dtData = new Date();
-        this.nrQuantidade = 0;
+        this.quantidade = 0;
     }
 
-    public AgendaCancelarHorario(Integer id, AgendaHorarios horario, Usuario usuario, Date dtData, Integer nrQuantidade) {
+    public AgendaCancelarHorario(Integer id, AgendaHorarios horario, Usuario usuario, Date dtData, Integer quantidade) {
         this.id = id;
         this.horario = horario;
         this.usuario = usuario;
         this.dtData = dtData;
-        this.nrQuantidade = nrQuantidade;
+        this.quantidade = quantidade;
     }
 
     public Integer getId() {
@@ -94,12 +94,12 @@ public class AgendaCancelarHorario implements Serializable {
         this.dtData = DataHoje.converte(data);
     }
 
-    public Integer getNrQuantidade() {
-        return nrQuantidade;
+    public Integer getQuantidade() {
+        return quantidade;
     }
 
-    public void setNrQuantidade(Integer nrQuantidade) {
-        this.nrQuantidade = nrQuantidade;
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
     }
 
 }

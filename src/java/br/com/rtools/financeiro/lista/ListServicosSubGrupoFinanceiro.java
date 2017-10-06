@@ -11,19 +11,22 @@ public class ListServicosSubGrupoFinanceiro {
     private SubGrupoFinanceiro subGrupoFinanceiro;
     private String descricao;
     private List<Servicos> listServicos;
+    private Boolean agendamento;
 
     public ListServicosSubGrupoFinanceiro() {
         this.servicos = null;
         this.subGrupoFinanceiro = null;
         this.descricao = "";
         this.listServicos = new ArrayList();
+        this.agendamento = false;
     }
 
-    public ListServicosSubGrupoFinanceiro(Servicos servicos, SubGrupoFinanceiro subGrupoFinanceiro, String descricao, List listServicos) {
+    public ListServicosSubGrupoFinanceiro(Servicos servicos, SubGrupoFinanceiro subGrupoFinanceiro, String descricao, List listServicos, Boolean agendamento) {
         this.servicos = servicos;
         this.subGrupoFinanceiro = subGrupoFinanceiro;
         this.descricao = descricao;
         this.listServicos = listServicos;
+        this.agendamento = agendamento;
     }
 
     public Servicos getServicos() {
@@ -56,6 +59,14 @@ public class ListServicosSubGrupoFinanceiro {
 
     public void setListServicos(List<Servicos> listServicos) {
         this.listServicos = listServicos;
+    }
+
+    public Boolean getAgendamento() {
+        return agendamento;
+    }
+
+    public void setAgendamento(Boolean agendamento) {
+        this.agendamento = agendamento;
     }
 
 }

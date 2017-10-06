@@ -1,6 +1,7 @@
 package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.ConvenioServico;
+import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;
@@ -108,29 +109,19 @@ public class SubGrupoConvenioDao extends DB {
         return new ArrayList();
     }
 
-//    public List pesquisaSubGrupoConvênioComServico(int idSubGrupo) {
-//        try {
-//            Query qry = getEntityManager().createQuery(
-//                    "select s"
-//                    + "  from Servicos s"
-//                    + " where s.id not in (select cs.servicos.id from ConvenioServico cs where cs.subGrupoConvenio.id = " + idSubGrupo + ")");
-//            return qry.getResultList();
-//        } catch (EJBQLException e) {
-//            e.getMessage();
-//            return null;
-//        }
-//    }
-//
-//    public List pesquisaSubGrupoConvênioSemServico(int idSubGrupo) {
-//        try {
-//            Query qry = getEntityManager().createQuery(
-//                    "select s"
-//                    + "  from Servicos s"
-//                    + " where s.id in (select cs.servicos.id from ConvenioServico cs where cs.subGrupoConvenio.id = " + idSubGrupo + ")");
-//            return qry.getResultList();
-//        } catch (EJBQLException e) {
-//            e.getMessage();
-//            return null;
-//        }
-//    }
+    public List<SubGrupoConvenio> findAllByGrupoAndAgendamento(Integer grupo_convenio_id) {
+        String queryString = "   "
+                + "  SELECT SGC.* \n "
+                + "    FROM soc_convenio_sub_grupo AS SGC \n"
+                + "   WHERE id IN (SELECT id_convenio_sub_grupo FROM soc_convenio_servico WHERE is_agendamento = true ) \n"
+                + "     AND id_grupo_convenio = " + grupo_convenio_id + " \n"
+                + "ORDER BY ds_descricao  ";
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, SubGrupoConvenio.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+
+        }
+    }
 }

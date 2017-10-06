@@ -39,6 +39,24 @@
                                         <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.loadListHorarios}" />
                                         <f:selectItems value="#{agendaHorariosBean.listSemana}" />
                                     </p:selectOneButton>
+                                    <br /><br />
+                                    <h:panelGrid columns="3" cellspacing="5">
+                                        <h:outputLabel value="Grupo Convênio" />
+                                        <h:outputLabel value="Subgrupo Convênio" />
+                                        <h:outputLabel value="Convênio" />
+                                        <p:selectOneMenu value="#{agendaHorariosBean.idGrupoConvenio}">
+                                            <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.listener('subgrupo_convenio')}" />
+                                            <f:selectItems value="#{agendaHorariosBean.listGrupoConvenio}" />
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu value="#{agendaHorariosBean.idSubGrupoConvenio}">
+                                            <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.listener('convenio')}"  />
+                                            <f:selectItems value="#{agendaHorariosBean.listSubGrupoConvenio}" />
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu value="#{agendaHorariosBean.idConvenio}">
+                                            <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.loadListHorarios}" />
+                                            <f:selectItems value="#{agendaHorariosBean.listConvenio}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </f:facet>
                                 <p:panel>
                                     <h:panelGrid columns="10">

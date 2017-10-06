@@ -70,7 +70,7 @@ public class AgendaHorariosDao extends DB {
             return new ArrayList();
         }
     }
-    
+
     public List listaHorariosAgrupadosPorFilialSemana(Integer filial_id, Integer semana_id, Integer subgrupo_convenio_id, Integer convenio_id) {
         try {
             Query query;
@@ -105,24 +105,34 @@ public class AgendaHorariosDao extends DB {
         return new ArrayList();
     }
 
-    public List<Horarios> listaTodosHorariosDisponiveisPorFilial(int idFilial, Date date, boolean isCancelados) {
-        List result = new ArrayList();
-        int diaDaSemana;
-        String diaSemanaWhere = "";
-        String dataWhere = "";
-        if (isCancelados == false) {
-            diaDaSemana = DataHoje.diaDaSemana(date);
-            diaSemanaWhere = " AND h.semana.id = " + diaDaSemana;
-        }
+    /**
+     * 
+     * @param filial_id
+     * @param date
+     * @param isCancelados
+     * @param subgrupo_convenio_id
+     * @param convenio_id
+     * @return 
+     */
+    public List<AgendaHorarios> findBy(Integer filial_id, Date date, Boolean isCancelados, Integer subgrupo_convenio_id, Integer convenio_id) {
+        Integer semana_id = null;
+        Query query;
         try {
-            Query qry = getEntityManager().createQuery("SELECT h FROM Horarios h WHERE " + dataWhere + " h.filial.id = :pfilial" + diaSemanaWhere + " ORDER BY H.hora ASC");
-            qry.setParameter("pfilial", idFilial);
-            if (!qry.getResultList().isEmpty()) {
-                result = (qry.getResultList());
+            if (!isCancelados) {
+                semana_id = DataHoje.diaDaSemana(date);
+                query = getEntityManager().createQuery("SELECT AH FROM AgendaHorarios AH WHERE AH.filial.id = :filial_id AND AH.semana.id = :semana_id AND AH.subGrupoConvenio.id = :subgrupo_convenio_id AND AH.convenio.id = :convenio_id ORDER BY AH.hora ASC");
+            } else {
+                query = getEntityManager().createQuery("SELECT AH FROM AgendaHorarios AH WHERE AH.filial.id = :filial_id AND AH.subGrupoConvenio.id = :subgrupo_convenio_id AND AH.convenio.id = :convenio_id ORDER BY AH.hora ASC");
             }
+            query.setParameter("filial_id", filial_id);
+            query.setParameter("subgrupo_convenio_id", subgrupo_convenio_id);
+            query.setParameter("convenio_id", convenio_id);
+            if (!isCancelados) {
+                query.setParameter("semana_id", semana_id);
+            }
+            return query.getResultList();
         } catch (Exception e) {
-            return result;
+            return new ArrayList();
         }
-        return result;
     }
 }
