@@ -20,80 +20,119 @@
                 </f:subview>
                 <f:view>
                     <h:form id="form_horarios">
-                        <c:set scope="request" var="object" value="${horariosBean.horarios}"/>
+                        <c:set scope="request" var="object" value="${agendaHorariosBean.horarios}"/>
                         <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:outputLabel value="Cadastro de horários" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />                        
                             <p:panel header="Filiais" styleClass="fundoCInza">
-                                <p:selectOneMenu value="#{horariosBean.idFilial}">
-                                    <p:ajax event="change" update="@this :form_horarios:" listener="#{horariosBean.listHorarios.clear}" />
-                                    <f:selectItems value="#{horariosBean.listFiliais}"/>
+                                <p:selectOneMenu value="#{agendaHorariosBean.idFilial}">
+                                    <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.loadListHorarios}" />
+                                    <f:selectItems value="#{agendaHorariosBean.listFiliais}"/>
                                 </p:selectOneMenu>
                             </p:panel>
                             <p:panel styleClass="margin-top-max" id="i_panel_1">
                                 <f:facet name="header" >
                                     <h:outputLabel value="Dia da Semana:" />
                                     <br /><br />
-                                    <p:selectOneButton value="#{horariosBean.idSemana}">
-                                        <p:ajax event="change" update="@this :form_horarios:" listener="#{horariosBean.listHorarios.clear}" />
-                                        <f:selectItems value="#{horariosBean.listSemana}" />
+                                    <p:selectOneButton value="#{agendaHorariosBean.idSemana}">
+                                        <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.loadListHorarios}" />
+                                        <f:selectItems value="#{agendaHorariosBean.listSemana}" />
                                     </p:selectOneButton>
+                                    <br /><br />
+                                    <h:panelGrid columns="3" cellspacing="5">
+                                        <h:outputLabel value="Grupo Convênio" />
+                                        <h:outputLabel value="Subgrupo Convênio" />
+                                        <h:outputLabel value="Convênio" />
+                                        <p:selectOneMenu value="#{agendaHorariosBean.idGrupoConvenio}">
+                                            <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.listener('subgrupo_convenio')}" />
+                                            <f:selectItems value="#{agendaHorariosBean.listGrupoConvenio}" />
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu value="#{agendaHorariosBean.idSubGrupoConvenio}">
+                                            <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.listener('convenio')}"  />
+                                            <f:selectItems value="#{agendaHorariosBean.listSubGrupoConvenio}" />
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu value="#{agendaHorariosBean.idConvenio}">
+                                            <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.loadListHorarios}" />
+                                            <f:selectItems value="#{agendaHorariosBean.listConvenio}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </f:facet>
                                 <p:panel>
-                                    <h:panelGrid columns="5">
-                                        <p:selectBooleanButton value="#{horariosBean.comIntervalo}" offLabel="Sem Intervalo" onLabel="Com intervalo">
+                                    <h:panelGrid columns="10">
+                                        <p:selectBooleanButton value="#{agendaHorariosBean.comIntervalo}" offLabel="Sem Intervalo" onLabel="Com intervalo">
                                             <p:ajax event="change" update="@this i_panel_1" />
                                         </p:selectBooleanButton>
                                         <h:column>
-                                            <h:panelGrid columns="10" rendered="#{horariosBean.comIntervalo}">
+                                            <h:panelGrid columns="10" rendered="#{agendaHorariosBean.comIntervalo}" cellspacing="5">
                                                 <p:outputLabel value="Das: " />
-                                                <p:inputMask maxlength="5" size="5" value="#{horariosBean.horaInicial}"  mask="99:99"/>
+                                                <p:inputMask maxlength="5" size="5" value="#{agendaHorariosBean.horaInicial}"  mask="99:99" converter="#{isValidTimeString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>
                                                 <p:outputLabel value=" às: " />
-                                                <p:inputMask maxlength="5" size="5" value="#{horariosBean.horaFinal}"  mask="99:99"/>
+                                                <p:inputMask maxlength="5" size="5" value="#{agendaHorariosBean.horaFinal}"  mask="99:99" converter="#{isValidTimeString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>
                                                 <p:outputLabel value="Qntd Disponível: " />
-                                                <p:spinner maxlength="2" size="2" value="#{horariosBean.horarios.quantidade}" min="0" />
+                                                <p:spinner maxlength="2" size="2" value="#{agendaHorariosBean.horarios.quantidade}" min="0" />
                                                 <p:outputLabel value=" Intervalo: " />
-                                                <p:spinner maxlength="2" size="2" value="#{horariosBean.intervalo}" min="10" max="30"/>
+                                                <p:spinner maxlength="2" size="2" value="#{agendaHorariosBean.intervalo}" min="10" max="30"/>
                                                 <p:outputLabel value=" em Minutos* " />
                                             </h:panelGrid>
                                         </h:column>
                                         <h:column>
-                                            <h:panelGrid columns="10" rendered="#{!horariosBean.comIntervalo}">
+                                            <h:panelGrid columns="10" rendered="#{!agendaHorariosBean.comIntervalo}" cellspacing="5">
                                                 <p:outputLabel value="Horário: "/>
-                                                <p:inputMask size="5" maxlength="5" value="#{horariosBean.horarios.hora}" mask="99:99"/>
+                                                <p:inputMask size="5" maxlength="5" value="#{agendaHorariosBean.horarios.hora}" mask="99:99" converter="#{isValidTimeString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>
                                                 <p:outputLabel value="Qntd Disponível: " />
-                                                <p:spinner maxlength="2" size="2" value="#{horariosBean.horarios.quantidade}" min="0" />
+                                                <p:spinner maxlength="2" size="2" value="#{agendaHorariosBean.horarios.quantidade}" min="0" />
                                             </h:panelGrid>
                                         </h:column>
                                         <h:column>
-                                            <p:commandButton icon="ui-icon-plus" title="Adicionar" action="#{horariosBean.save}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_horarios: outConfirma" oncomplete="PF('dlg_message').show()" />
+                                            <h:panelGrid columns="10" cellspacing="5">
+                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.horarios.web}" itemLabel="WEB">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.horarios.socio}" itemLabel="Sócios">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <h:column>
+                                            <p:commandButton icon="ui-icon-plus" title="Adicionar" action="#{agendaHorariosBean.save}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_horarios: outConfirma" oncomplete="PF('dlg_message').show()" />
                                         </h:column>
                                     </h:panelGrid>
-                                    <p:dataTable value="#{horariosBean.listHorarios}" var="listHorarios" id="tbl" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                    <p:dataTable value="#{agendaHorariosBean.listHorarios}" var="horarios" id="tbl" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
                                         <f:facet name="header">Horários</f:facet>
                                         <p:column width="30">
-                                            <p:commandButton icon="ui-icon-trash" action="#{horariosBean.delete(listHorarios.horarios)}" oncomplete="PF('dlg_message').show()" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_horarios:"/>
+                                            <p:commandButton icon="ui-icon-trash" action="#{agendaHorariosBean.delete(horarios)}" oncomplete="PF('dlg_message').show()" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_horarios:"/>
                                         </p:column>
                                         <p:column headerText="Horário" styleClass="text-center">
-                                            <h:outputLabel  value="#{listHorarios.horarios.hora}"  />
+                                            <h:outputLabel  value="#{horarios.hora}"  />
                                         </p:column>
                                         <p:column styleClass="text-center">
-                                            <p:commandLink value="Reativar" title="** Clique para Reativar Horário" rendered="#{!listHorarios.horarios.ativo}" styleClass="font-color-red bold">
-                                                <p:ajax event="click" listener="#{horariosBean.edit(listHorarios.horarios)}" update=":form_horarios:i_grid_reativar" oncomplete="PF('dlg_reative').show();"  />
+                                            <p:commandLink value="Reativar" title="** Clique para Reativar Horário" rendered="#{!horarios.ativo}" styleClass="font-color-red bold">
+                                                <p:ajax event="click" listener="#{agendaHorariosBean.edit(horarios)}" update=":form_horarios:i_grid_reativar" oncomplete="PF('dlg_reative').show();"  />
                                             </p:commandLink>
                                         </p:column>
                                         <p:column headerText="Quantidade" styleClass="text-center">
-                                            <p:inputText value="#{listHorarios.horarios.quantidade}" size="2" styleClass="text-center" disabled="#{!listHorarios.horarios.ativo}">
-                                                <p:ajax event="change" listener="#{horariosBean.editQuantidade(listHorarios.horarios)}" update=":form_horarios:" />
+                                            <p:inputText value="#{horarios.quantidade}" size="2" styleClass="text-center" disabled="#{!horarios.ativo}">
+                                                <p:ajax event="change" listener="#{agendaHorariosBean.editQuantidade(horarios)}" update=":form_horarios:" />
                                             </p:inputText>
                                         </p:column>
                                         <p:column headerText="Status" styleClass="text-center">
-                                            <h:outputText value="#{listHorarios.ativo}"/>
+                                            <h:outputText value="#{horarios.status}"/>
                                         </p:column>
                                         <p:column headerText="Web" styleClass="text-center" width="30">
-                                            <p:selectBooleanCheckbox value="#{listHorarios.horarios.web}">
-                                                <p:ajax event="change" listener="#{horariosBean.update(listHorarios.horarios)}"  update="@this"/>
+                                            <p:selectBooleanCheckbox value="#{horarios.web}">
+                                                <p:ajax event="change" listener="#{agendaHorariosBean.update(horarios)}"  update="@this"/>
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>
+                                        <p:column headerText="Sócio" styleClass="text-center" width="30">
+                                            <p:selectBooleanCheckbox value="#{horarios.socio}">
+                                                <p:ajax event="change" listener="#{agendaHorariosBean.update(horarios)}"  update="@this"/>
                                             </p:selectBooleanCheckbox>
                                         </p:column>
                                     </p:dataTable>
@@ -101,11 +140,11 @@
                             </p:panel>                            
                             <p:dialog id="i_panel_reativar" widgetVar="dlg_reative" modal="true" width="400" closable="true" header="Deseja reativar este registro?">
                                 <p:panelGrid columns="2" id="i_grid_reativar">
-                                    <h:outputLabel value="#{horariosBean.horariosReativar.semana.descricao} - #{horariosBean.horariosReativar.hora}" />
+                                    <h:outputLabel value="#{agendaHorariosBean.horariosReativar.semana.descricao} - #{agendaHorariosBean.horariosReativar.hora}" />
                                 </p:panelGrid>
                                 <f:facet name="footer">
                                     <p:panelGrid columns="2" styleClass="sbb">
-                                        <p:commandButton value="Sim" title="Savar" action="#{horariosBean.reativar}" update=":form_horarios:" oncomplete="PF('dlg_message').show(); PF('dlg_reative').hide();"  />
+                                        <p:commandButton value="Sim" title="Savar" action="#{agendaHorariosBean.reativar}" update=":form_horarios:" oncomplete="PF('dlg_message').show(); PF('dlg_reative').hide();"  />
                                         <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_reative').hide()"/>
                                     </p:panelGrid>
                                 </f:facet>
@@ -113,7 +152,7 @@
                             <p:dialog id="i_panel_save" widgetVar="dlg_save" modal="true" width="400" closable="true" header="Deseja salvar este registro?">
                                 <f:facet name="footer">
                                     <p:panelGrid columns="2" styleClass="sbb">
-                                        <p:commandButton value="Sim" title="Savar" action="#{horariosBean.save}" update=":form_horarios:" oncomplete="PF('dlg_message').show(); PF('dlg_save').hide();"  />
+                                        <p:commandButton value="Sim" title="Savar" action="#{agendaHorariosBean.save}" update=":form_horarios:" oncomplete="PF('dlg_message').show(); PF('dlg_save').hide();"  />
                                         <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide()"/>
                                     </p:panelGrid>
                                 </f:facet>

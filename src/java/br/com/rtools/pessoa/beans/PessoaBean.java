@@ -3,12 +3,15 @@ package br.com.rtools.pessoa.beans;
 import br.com.rtools.arrecadacao.beans.RaisBean;
 import br.com.rtools.arrecadacao.beans.WebREPISBean;
 import br.com.rtools.associativo.DeclaracaoPessoa;
+import br.com.rtools.associativo.ExameMedico;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
+import br.com.rtools.associativo.beans.ExameMedicoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
 import br.com.rtools.associativo.dao.DeclaracaoPessoaDao;
+import br.com.rtools.associativo.dao.ExameMedicoDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.dao.SuspencaoDao;
 import br.com.rtools.cobranca.beans.TmktHistoricoBean;
@@ -66,6 +69,7 @@ public class PessoaBean implements Serializable {
     private List<PessoaEmpresa> listFuncionarios;
     private List<SelectItem> listAnoDeclaracaoAnualDebitos;
     private String anoDeclaracaoAnualDebitos;
+    private List<ExameMedico> listExameMedico;
 
     @PostConstruct
     public void init() {
@@ -86,6 +90,7 @@ public class PessoaBean implements Serializable {
         selectDetalhes = "";
         situacaoFuncionario = "ativos";
         listFuncionarios = new ArrayList();
+        listExameMedico = new ArrayList();
 
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
@@ -121,6 +126,11 @@ public class PessoaBean implements Serializable {
 
     public void load() {
         switch (selectDetalhes) {
+            case "exame_medico":
+                if (listExameMedico.isEmpty()) {
+                    listExameMedico = new ExameMedicoDao().findByPessoa(pessoa.getId());
+                }
+                break;
             case "sorteios":
                 GenericaSessao.remove("sorteioMovimentoBean");
                 SorteioMovimentoBean sorteioMovimentoBean = new SorteioMovimentoBean();
@@ -206,13 +216,13 @@ public class PessoaBean implements Serializable {
             case "funcionarios":
                 loadListFuncionarios();
                 break;
-            case "declaracao_anual_debitos":                
+            case "declaracao_anual_debitos":
                 listAnoDeclaracaoAnualDebitos = new ArrayList();
                 anoDeclaracaoAnualDebitos = "";
                 List<String> list = new PessoaDao().listAnoDeclaracaoAnualDebitos(pessoa.getId());
-                for(int i = 0; i < list.size(); i++) {
-                    if(i == 0) {
-                        anoDeclaracaoAnualDebitos = list.get(i);                        
+                for (int i = 0; i < list.size(); i++) {
+                    if (i == 0) {
+                        anoDeclaracaoAnualDebitos = list.get(i);
                     }
                     listAnoDeclaracaoAnualDebitos.add(new SelectItem(list.get(i), list.get(i), list.get(i)));
                 }
@@ -403,6 +413,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("sorteios", "Sorteios", "CONSULTA SORTEIOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_sorteios", 4)));
             listSelectDetalhes.add(new SelectItem("suspencao", "Suspenção", "SUSPENÇÃO", cab.verificarPermissao("consulta_suspencao", 4)));
             listSelectDetalhes.add(new SelectItem("declaracao_anual_debitos", "Dec. Anual de Débitos ", "DECLARAÇÃO ANUAL DE DÉBICOS", cab.verificarPermissao("declaracao_anual_debitos", 4)));
+            listSelectDetalhes.add(new SelectItem("exame_medico", "Exame Médico", "CONSULTA EXAME MÉDICO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_exame_medico", 4)));
         }
         // PESSOA JURÍDICA
         if (tipoPessoa.equals("pessoaJuridica")) {
@@ -556,6 +567,14 @@ public class PessoaBean implements Serializable {
         Jasper.printReports("/Relatorios/DECLARACAO_ANUAL_DEBITOS.jasper", "Declaração anual de débitos", new ArrayList(), map);
         Jasper.IS_HEADER = false;
         Jasper.FILIAL = null;
+    }
+
+    public List<ExameMedico> getListExameMedico() {
+        return listExameMedico;
+    }
+
+    public void setListExameMedico(List<ExameMedico> listExameMedico) {
+        this.listExameMedico = listExameMedico;
     }
 
 }

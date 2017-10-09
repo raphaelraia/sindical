@@ -110,4 +110,26 @@ public class ExameMedicoDao extends DB {
         return null;
     }
 
+    public List<ExameMedico> findByPessoa(Integer pessoa_id) {
+        try {
+            String text_query
+                    = "     SELECT em.*                                                 \n"
+                    + "       FROM soc_exame_medico AS EM                               \n"
+                    + " INNER JOIN seg_departamento AS D  ON D.id  = EM.id_departamento \n"
+                    + "  LEFT JOIN pes_pessoa       AS P  ON P.id  = EM.id_pessoa       \n"
+                    + "  LEFT JOIN sis_pessoa       AS SP ON SP.id = EM.id_sis_pessoa   \n"
+                    + " WHERE p.id = " + pessoa_id + " \n";
+            text_query += " ORDER BY em.id DESC ";
+
+            Query qry = getEntityManager().createNativeQuery(
+                    text_query,
+                    ExameMedico.class
+            );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
 }

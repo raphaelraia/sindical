@@ -1,4 +1,4 @@
-package br.com.rtools.agendamentos.benas;
+package br.com.rtools.agendamentos.beans;
 
 import br.com.rtools.agendamentos.AgendaServico;
 import br.com.rtools.agendamentos.dao.AgendaServicoDao;

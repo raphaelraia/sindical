@@ -2500,6 +2500,18 @@
             <redirect/>
         </navigation-case>    
         
+        <navigation-case>
+            <from-outcome>agendaHorarios</from-outcome>
+            <to-view-id>/agendaHorarios.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>    
+        
+        <navigation-case>
+            <from-outcome>agendaCancelarHorario</from-outcome>
+            <to-view-id>/agendaCancelarHorario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>    
+        
     </navigation-rule>
     
     <lifecycle>

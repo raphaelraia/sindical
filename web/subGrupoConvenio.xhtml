@@ -18,8 +18,8 @@
                 width: 48%;
             }
         </style>
-            
-            
+
+
     </h:head>
     <h:body>
         <f:subview id="header">
@@ -122,6 +122,11 @@
                                     <p:column headerText="Descrição" filterBy="#{list.descricao}" filterMatchMode="global">
                                         #{list.descricao}
                                     </p:column>
+                                    <p:column headerText="Age" styleClass="text-center" width="30">
+                                        <p:selectBooleanCheckbox value="#{list.agendamento}" title="Agendamento">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
                                     <p:rowExpansion>
                                         <h:dataTable value="#{list.listServicos}" var="servicos">
                                             <p:column>
@@ -129,9 +134,14 @@
                                             </p:column>
                                         </h:dataTable>
                                     </p:rowExpansion>                                    
+                                    <f:facet name="footer">
+                                        <label title="Agendamento">
+                                            Age = Agendamento                                            
+                                        </label>
+                                    </f:facet>
                                 </p:dataTable>
                             </h:column>
-                            
+
                             <h:column>
                                 <h:panelGrid columns="1" style="width: 100%">
                                     <p:commandButton icon="ui-icon-carat-1-e" value="Adicionar" action="#{subGrupoConvenioBean.addConvenioServico()}" update="id_subgrupos_filtro :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoSalvar}" style="width: 100%"/>
@@ -149,6 +159,17 @@
                                         #{convenioServico.servicos.descricao}
                                     </p:column>
 
+                                    <p:column headerText="Age" styleClass="text-center" width="30">
+                                        <p:selectBooleanCheckbox value="#{convenioServico.agendamento}" title="Agendamento">
+                                            <p:ajax event="change" update="@this" listener="#{subGrupoConvenioBean.updateConvenioServico(convenioServico)}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>                                    
+
+                                    <f:facet name="footer">
+                                        <label title="Agendamento">
+                                            Age = Agendamento                                            
+                                        </label>
+                                    </f:facet>
                                 </p:dataTable>
                             </h:column>
                         </h:panelGrid>
