@@ -8,6 +8,7 @@ package br.com.rtools.arrecadacao.dao;
 import br.com.rtools.financeiro.Retorno;
 import br.com.rtools.financeiro.RetornoReprocessa;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -78,4 +79,25 @@ public class RetornoDao extends DB {
         }
     }
 
+    
+    public void corrigeRetornoIncorreto() {
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    "SELECT r.* \n "
+                    + "  FROM fin_retorno r \n "
+                    + " WHERE r.id NOT IN (SELECT rb.id_retorno FROM fin_retorno_banco rb) \n "
+                    + " ORDER BY r.nr_sequencial DESC", Retorno.class
+            );
+            List<Retorno> lr = query.getResultList();
+            Dao dao = new Dao();
+            
+            lr.stream().forEach((r) -> {
+                dao.delete(r, true);
+            });
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    
 }

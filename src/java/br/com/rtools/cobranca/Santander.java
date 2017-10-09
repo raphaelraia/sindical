@@ -611,4 +611,11 @@ public class Santander extends Cobranca {
     public RespostaArquivoRemessa gerarRemessa400() {
         return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
+    
+    @Override
+    public RespostaWebService registrarBoleto() {
+        
+        return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
+        
+    }
 }

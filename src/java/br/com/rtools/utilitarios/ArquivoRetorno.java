@@ -202,30 +202,36 @@ public abstract class ArquivoRetorno {
         return "Status do Retorno não encontrado, verificar manual";
     }
 
-    public String continuaBaixaSoc(Boleto b, StatusRetorno sr) {
+    public String continuaBaixaSoc(Boleto b, StatusRetorno sr, Retorno retorno) {
         if (sr != null) {
 
             b.setStatusRetorno(sr);
             b.setDtStatusRetorno(DataHoje.dataHoje());
 
+            RetornoBanco rb = new RetornoBanco(-1, retorno, b.getBoletoComposto(), sr);
+
+            Dao dao = new Dao();
+            
+            dao.save(rb, true);
+            
             switch (sr.getId()) {
                 // BOLETO REJEITADO
                 case 1:
-                    new Dao().update(b, true);
+                    dao.update(b, true);
                     return "Boleto foi Rejeitado";
                 // BOLETO REGISTRADO
                 case 2:
                     b.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    new Dao().update(b, true);
+                    dao.update(b, true);
                     return "Boleto está Registrado";
                 // BOLETO LIQUIDADO
                 case 3:
                     b.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    new Dao().update(b, true);
+                    dao.update(b, true);
                     return "";
                 // BOLETO EXCLUIDO
                 case 6:
-                    new Dao().update(b, true);
+                    dao.update(b, true);
 //                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
 //                    List<Movimento> lm = b.getListaMovimento();
 //
@@ -798,7 +804,7 @@ public abstract class ArquivoRetorno {
                                 //movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
                                 //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
-                                String retorno_continua = continuaBaixaSoc(lista_movimento.get(0).getBoleto(), linha_segmento.getStatusRetorno());
+                                String retorno_continua = continuaBaixaSoc(lista_movimento.get(0).getBoleto(), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
 
                                 if (!retorno_continua.isEmpty()) {
                                     Object[] log = new Object[3];

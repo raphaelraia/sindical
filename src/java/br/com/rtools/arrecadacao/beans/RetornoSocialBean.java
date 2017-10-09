@@ -1,6 +1,8 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.RetornoDao;
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.Retorno;
 import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.retornos.BancoBrasil;
 import br.com.rtools.retornos.CaixaFederal;
@@ -141,42 +143,48 @@ public class RetornoSocialBean {
             }
             List<Object[]> listal = (List<Object[]>) GenericaSessao.getObject("logsRetornoSocial");
 
-            GenericaMensagem.info("Sucesso", "Arquivos Baixados");
+            if (listal != null && !listal.isEmpty()) {
+                for (Object[] obj : listal) {
+                    Object[] list_object = new Object[4];
+                    list_object[0] = obj[0];
+                    list_object[1] = obj[1];
+                    list_object[2] = obj[2];
 
-            for (Object[] obj : listal) {
-                Object[] list_object = new Object[4];
-                list_object[0] = obj[0];
-                list_object[1] = obj[1];
-                list_object[2] = obj[2];
-
-                switch ((int) obj[0]) {
-                    case 6:
-                        GenericaMensagem.warn("Atenção", obj[2].toString());
-                        list_object[3] = DataHoje.hora();
-                        listaLogs.add(list_object);
-                        break;
-                    case 7:
-                        GenericaMensagem.warn("Atenção", obj[2].toString());
-                        list_object[3] = DataHoje.hora();
-                        listaLogs.add(list_object);
-                        break;
-                    case 8:
-                        if (!obj[1].toString().isEmpty()) {
+                    switch ((int) obj[0]) {
+                        case 6:
+                            GenericaMensagem.warn("Atenção", obj[2].toString());
                             list_object[3] = DataHoje.hora();
-                            GenericaMensagem.error("Boleto não encontrado", obj[1].toString());
                             listaLogs.add(list_object);
-                        }
-                        break;
-                    default:
-                        list_object[3] = DataHoje.hora();
-                        listaLogs.add(list_object);
-                        break;
+                            break;
+                        case 7:
+                            GenericaMensagem.warn("Atenção", obj[2].toString());
+                            list_object[3] = DataHoje.hora();
+                            listaLogs.add(list_object);
+                            break;
+                        case 8:
+                            if (!obj[1].toString().isEmpty()) {
+                                list_object[3] = DataHoje.hora();
+                                GenericaMensagem.error("Boleto não encontrado", obj[1].toString());
+                                listaLogs.add(list_object);
+                            }
+                            break;
+                        default:
+                            list_object[3] = DataHoje.hora();
+                            listaLogs.add(list_object);
+                            break;
+                    }
                 }
+
+                new RetornoDao().corrigeRetornoIncorreto();
+                
+                GenericaMensagem.info("Sucesso", "Arquivos Baixados");
+            } else {
+                GenericaMensagem.error("ERRO AO BAIXAR", result);
             }
 
             loadListaArquivosBaixar();
         } catch (Exception e) {
-
+            GenericaMensagem.error("ERRO AO BAIXAR", e.getMessage());
         }
     }
 

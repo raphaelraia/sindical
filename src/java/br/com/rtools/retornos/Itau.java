@@ -61,7 +61,7 @@ public class Itau extends ArquivoRetorno {
                     for (int i = 0; i < linhas.size(); i++) {
                         LinhaSegmento linha_segmento = new LinhaSegmento();
 
-                        if (i >= 1) {
+                        if (linhas.get(i).subSequence(0, 1).equals("1")) {
                             linha_segmento.setNossoNumero(linhas.get(i).substring(62, 70).trim());
                             linha_segmento.setValorTaxa(linhas.get(i).substring(175, 188));
                             linha_segmento.setDataVencimento(linhas.get(i).substring(146, 152));
@@ -109,17 +109,20 @@ public class Itau extends ArquivoRetorno {
                                     sr = null;
                                     break;
                             }
-
+                            linha_segmento.setStatusRetorno(sr);
+                            // FIM
+                            
                             lista_linha_segmento.add(linha_segmento);
 
                         }
-                        objeto_arquivo.setLinhaSegmento(lista_linha_segmento);
-                        lista_objeto_arquivo.add(objeto_arquivo);
 
-                        // AS DUAS ÚLTIMAS LINHAS NÃO TEM NECESSIDADE DE LER
-                        // FOOTER LOTE
-                        // FOOTER ARQUIVO
                     }
+                    
+                    // A ÚLTIMA LINHA NÃO TEM NECESSIDADE DE LER
+                    // FOOTER LOTE
+                    // FOOTER ARQUIVO
+                    objeto_arquivo.setLinhaSegmento(lista_linha_segmento);
+                    lista_objeto_arquivo.add(objeto_arquivo);
                 } catch (Exception e) {
                     ObjetoRetorno objeto_retorno = new ObjetoRetorno(new ArrayList(), e.getMessage());
                     lista_objeto_retorno.add(objeto_retorno);

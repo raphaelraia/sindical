@@ -104,10 +104,10 @@ public class Sicoob240 extends ArquivoRetorno {
                             }
                             linha_segmento.setStatusRetorno(sr);
                             // FIM
+                            i++;
                         }
                         
                         // SEGMENTO U
-                        i++;
                         if (linhas.get(i).substring(13, 14).equals("U")) {
                             linha_segmento.setValorPago(linhas.get(i).substring(77, 92));
                             linha_segmento.setDataPagamento(linhas.get(i).substring(137, 145));

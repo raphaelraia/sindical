@@ -106,9 +106,10 @@ public class BancoBrasil extends ArquivoRetorno {
                             }
                             linha_segmento.setStatusRetorno(sr);
                             // FIM
+                            
+                            i++;
                         }
 
-                        i++;
                         // SEGMENTO U
                         if (linhas.get(i).substring(13, 14).equals("U")) {
                             linha_segmento.setValorPago(linhas.get(i).substring(77, 92));

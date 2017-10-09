@@ -443,7 +443,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
                                     break;
                                 case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
-                                    i = i + 2;
+                                    i++;
                                     continue;
                                 default:
                                     sr = null;
@@ -451,9 +451,10 @@ public class CaixaFederal extends ArquivoRetorno {
                             }
                             linha_segmento.setStatusRetorno(sr);
                             // FIM
+                            
+                            i++;
                         }
 
-                        i++;
                         if (linhas.get(i).substring(13, 14).equals("U")) {
                             linha_segmento.setValorPago(linhas.get(i).substring(77, 92).trim());
                             linha_segmento.setDataPagamento(linhas.get(i).substring(137, 145).trim());

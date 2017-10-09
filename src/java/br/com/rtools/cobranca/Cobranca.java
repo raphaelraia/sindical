@@ -1,9 +1,14 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.Cookie;
 
 public abstract class Cobranca {
 
@@ -23,14 +28,14 @@ public abstract class Cobranca {
     public final static int SINDICAL = 2;
     public final static int SIGCB = 3;
     protected List<BoletoRemessa> listaBoletoRemessa;
-    
+
     public Cobranca(Integer id_pessoa, double valor, Date vencimento, Boleto boleto) {
         this.id_pessoa = id_pessoa;
         this.valor = valor;
         this.vencimento = vencimento;
         this.boleto = boleto;
     }
-    
+
     public Cobranca(List<BoletoRemessa> listaBoletoRemessa) {
         this.listaBoletoRemessa = listaBoletoRemessa;
     }
@@ -111,11 +116,11 @@ public abstract class Cobranca {
         }
         return cobranca;
     }
-    
+
     public static Cobranca retornaCobrancaRemessa(List<BoletoRemessa> lista_boleto_remessa) {
         Cobranca cobranca = null;
         Boleto boletox = lista_boleto_remessa.get(0).getBoleto();
-        
+
         if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
             // ÚNICO CASO QUE UTILIZA O id_pessoa
             cobranca = new CaixaFederalSindical(lista_boleto_remessa);
@@ -159,9 +164,38 @@ public abstract class Cobranca {
     public void setBoleto(Boleto boleto) {
         this.boleto = boleto;
     }
-    
+
     public abstract RespostaArquivoRemessa gerarRemessa240();
-    
+
     public abstract RespostaArquivoRemessa gerarRemessa400();
 
+    public abstract RespostaWebService registrarBoleto();
+
+    public void voltarBoleto(Boleto boleto, String nr_ctr) {
+        boleto.setDtRegistroBaixa(null);
+        boleto.setAtivo(true);
+        boleto.setNrCtrBoleto(nr_ctr);
+        new Dao().update(boleto, true);
+    }
+
+    public Boolean testarWebService() {
+        Boolean teste = false;
+        if (!GenericaSessao.exists("webServiceBoletoTest")) {
+            try {
+                FacesContext fc = FacesContext.getCurrentInstance();
+                if (fc != null) {
+                    Map<String, Object> cookies = fc.getExternalContext().getRequestCookieMap();
+                    Cookie cookieWebServiceBoletoTest = (Cookie) cookies.get("webServiceBoletoTest");
+                    if (cookieWebServiceBoletoTest != null) {
+                        teste = Boolean.parseBoolean(cookieWebServiceBoletoTest.getValue());
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+        } else {
+            teste = GenericaSessao.getBoolean("webServiceBoletoTest");
+        }
+        return teste;
+    }
 }

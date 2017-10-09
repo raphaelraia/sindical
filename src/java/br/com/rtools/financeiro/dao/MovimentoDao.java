@@ -2254,6 +2254,7 @@ public class MovimentoDao extends DB {
             lista.add("delete from Historico h where h.movimento.id in ( " + ids + " )");
             lista.add("delete from Cobranca C where C.movimento.id IN ( " + ids + " )");
             lista.add("delete from MensagemCobranca mc where mc.movimento.id in ( " + ids + " ) and mc.movimento.acordo.id = " + idAcordo + " and mc.movimento.ativo = true");
+            lista.add("delete from MovimentoBoleto mb where mb.movimento.id in ( " + ids + " )");
             lista.add("delete from Boleto b where b.nrCtrBoleto in (" + ids_boleto + ")");
             lista.add("delete from ImpressaoWeb i where i.movimento.id in (" + ids + ")");
             lista.add("delete from Impressao i where i.movimento.id in (" + ids + ")");

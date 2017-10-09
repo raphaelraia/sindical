@@ -46,6 +46,7 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                     <ui:include src="templates/templateAcessoFilial.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 
                 <f:view>
@@ -217,7 +218,7 @@
                                 </p:dataTable>
 
                                 <h:panelGrid columns="2">
-                                    <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{baixaGeralBean.baixar}" title="Concluir Baixa" oncomplete="PF('i_dlg_s').show(); PF('dlg_confirmar').hide(); " update="i_mensagem"/>
+                                    <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{baixaGeralBean.baixar}" title="Concluir Baixa" oncomplete="PF('i_dlg_s').show(); PF('dlg_confirmar').hide(); " update="@form"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar Baixa" onclick="PF('dlg_confirmar').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>

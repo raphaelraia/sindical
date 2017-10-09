@@ -130,6 +130,7 @@ public class BaixaBoletoBean {
             for (DataObject listBoleto : getListBoletos()) {
                 if ((Boolean) listBoleto.getArgumento8() == true) {
                     mov = (Movimento) listBoleto.getArgumento1();
+                    mov.setValor(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento2())));
                     mov.setValorBaixa(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento7())));
                     mov.setMulta(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento3())));
                     mov.setJuros(Double.parseDouble(Moeda.substituiVirgula((String) listBoleto.getArgumento4())));
@@ -159,6 +160,7 @@ public class BaixaBoletoBean {
             }
         } else {
             mov = (Movimento) dob.getArgumento1();
+            mov.setValor(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento2().toString())));
             mov.setValorBaixa(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento7().toString())));
 
             mov.setMulta(Double.parseDouble(Moeda.substituiVirgula(dob.getArgumento3().toString())));

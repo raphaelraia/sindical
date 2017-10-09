@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.RetornoDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
 import br.com.rtools.financeiro.Boleto;
@@ -767,6 +768,8 @@ public final class ArquivoBancoBean implements Serializable {
                 }
             }
 
+            new RetornoDao().corrigeRetornoIncorreto();
+            
             if (result.isEmpty()) {
                 GenericaMensagem.info("SUCESSO", "ARQUIVOS BAIXADOS!");
             } else {

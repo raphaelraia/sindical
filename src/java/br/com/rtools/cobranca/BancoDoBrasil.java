@@ -899,4 +899,9 @@ public class BancoDoBrasil extends Cobranca {
             return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
+    
+    @Override
+    public RespostaWebService registrarBoleto() {
+        return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
+    }
 }
