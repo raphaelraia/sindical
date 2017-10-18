@@ -5,7 +5,6 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.StatusRemessa;
-import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -17,16 +16,45 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.ServletContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class Santander extends Cobranca {
 
@@ -615,7 +643,198 @@ public class Santander extends Cobranca {
     @Override
     public RespostaWebService registrarBoleto() {
         
+        try {
+            File flCert = new File("C:/PC201707105759.pfx");
+            KeyStore clientStore = KeyStore.getInstance("PKCS12");
+            clientStore.load(new FileInputStream(flCert.getAbsolutePath()), "sisrtools989899".toCharArray());
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(clientStore, "sisrtools989899".toCharArray());
+            KeyManager[] kms = kmf.getKeyManagers();
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(clientStore);
+            TrustManager[] tms = tmf.getTrustManagers();
+
+            SSLContext sslContext = null;
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(kms, null, new SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+            // Definir a URL Do Serviço sem a ?WSDL no fim
+            URL url = new URL("https://ymbdlb.santander.com.br/dl-ticket-services/TicketEndpointService?wsdl");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+//            // Define que a Conexão terá uma saída/retorno                        
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+//
+//            // Método a ser Consumido pela requisição
+//            //conn.setRequestProperty("SOAPAction","http://localhost:8080/WsServidor/retornarString");
+//            // Propriedades da Mensagem SOAP
+            conn.setRequestProperty("Type", "Request-Response");
+            conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
+            conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+            conn.setRequestProperty("User-Agent", "Jakarta Commons-HttpClient/3.1");
+
+            // Canal de Saída da Requisição
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+
+            // Mensagem no Formato SOAP
+            String xml = TICKET_SEG_CONSULTA();
+
+            wr.write(xml);
+            wr.flush();
+
+            System.out.println("Requisição >>  " + conn.getOutputStream());
+
+            // Leitura da Resposta do Serviço
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            // Leituras das Linhas da Resposta
+            String linhas = "";
+            while (rd.ready()) {
+                linhas += rd.readLine();
+            }
+
+            wr.close();
+            rd.close();
+            conn.getInputStream().close();
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder;
+
+            builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(linhas)));
+
+            Element rootElement = document.getDocumentElement();
+
+            String requestQueueID = getString("retCode", rootElement);
+
+            String requestQueueMessage = getString("message", rootElement);
+
+            System.out.println("Get Element ID >>  " + requestQueueID);
+            System.out.println("Get Element Message >>  " + requestQueueMessage);
+
+            if (requestQueueID.equals("0")) {
+
+                String requestTicket = getString("ticket", rootElement);
+//
+//                sslContext = null;
+//                sslContext = SSLContext.getInstance("TLS");
+//                sslContext.init(kms, null, new SecureRandom());
+//                
+//                HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+                url = new URL("https://ymbcash.santander.com.br/ymbsrv/CobrancaEndpointService?wsdl");
+                conn = (HttpsURLConnection) url.openConnection();
+
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                conn.setRequestProperty("Type", "Request-Response");
+                conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
+                conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+                conn.setRequestProperty("User-Agent", "Jakarta Commons-HttpClient/3.1");
+
+                wr = new OutputStreamWriter(conn.getOutputStream());
+
+                String xmlTicket = TICKET_CONSULTA(requestTicket);
+
+                wr.write(xmlTicket);
+                wr.flush();
+
+                System.out.println("Requisição >>  " + conn.getOutputStream());
+
+                // Leitura da Resposta do Serviço
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                // Leituras das Linhas da Resposta
+                while (rd.ready()) {
+                    linhas += rd.readLine();
+                }
+
+                wr.close();
+                rd.close();
+                conn.getInputStream().close();
+
+                factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder_2;
+
+                builder_2 = factory.newDocumentBuilder();
+                document = builder_2.parse(new InputSource(new StringReader(linhas)));
+
+                rootElement = document.getDocumentElement();
+
+            }
+
+            System.out.println("Resposta >>  " + linhas);
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | ParserConfigurationException | SAXException e) {
+            e.getMessage();
+        } finally {
+            System.out.println("Fim");
+        }
+        
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
         
     }
+    
+    protected String getString(String tagName, Element element) {
+        NodeList list = element.getElementsByTagName(tagName);
+        if (list != null && list.getLength() > 0) {
+            NodeList subList = list.item(0).getChildNodes();
+
+            if (subList != null && subList.getLength() > 0) {
+                return subList.item(0).getNodeValue();
+            }
+        }
+
+        return null;
+    }
+
+    public String TICKET_SEG_CONSULTA() {
+        return "<soapenv:Envelope\n"
+                + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
+                + "    xmlns:impl=\"http://impl.webservice.dl.app.bsbr.altec.com/\">\n"
+                + "    <soapenv:Header/>\n"
+                + "    <soapenv:Body>\n"
+                + "        <impl:create>\n"
+                + "            <TicketRequest>\n"
+                + "                <dados>\n"
+                + "                    <entry>\n"
+                + "                        <key>CONVENIO.COD-BANCO</key>\n"
+                + "                        <value>0033</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>CONVENIO.COD-CONVENIO</key>\n"
+                + "                        <value>8846170</value>\n"
+                + "                    </entry>\n"
+                + "                </dados>\n"
+                + "                <expiracao>100</expiracao>\n"
+                + "                <sistema>YMB</sistema>\n"
+                + "            </TicketRequest>\n"
+                + "        </impl:create>\n"
+                + "    </soapenv:Body>\n"
+                + "</soapenv:Envelope>";
+    }
+
+    public String TICKET_CONSULTA(String ticket_seg) {
+        return "<soapenv:Envelope\n"
+                + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
+                + "    xmlns:impl=\"http://impl.webservice.ymb.app.bsbr.altec.com/\">\n"
+                + "    <soapenv:Header/>\n"
+                + "    <soapenv:Body>\n"
+                + "        <impl:consultaTitulo>\n"
+                + "            <dto>\n"
+                + "                <dtNsu>21082017</dtNsu>\n"
+                + "                <estacao>08D1</estacao>\n"
+                + "                <nsu>0001</nsu>\n"
+                + "                <ticket>" + ticket_seg + "</ticket>\n"
+                + "                <tpAmbiente>T</tpAmbiente>\n"
+                + "            </dto>\n"
+                + "        </impl:consultaTitulo>\n"
+                + "    </soapenv:Body>\n"
+                + "</soapenv:Envelope>";
+    }
+            
 }

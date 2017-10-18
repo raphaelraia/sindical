@@ -1,6 +1,7 @@
 {
     "host": "sinecol.ddns.net",
     "database": "ComercioLimeira",
+    "user": "climeira",
     "password": "X_tub4r40#*",
     "port": "5432"
 }

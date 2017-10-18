@@ -17,19 +17,22 @@ public class DataBase {
     private String database;
     private String password;
     private Integer port;
+    private String user;
 
     public DataBase() {
         this.host = "";
         this.port = 5432;
         this.database = "";
         this.password = "";
+        this.user = "postgres";
     }
 
-    public DataBase(String host, Integer port, String database, String password) {
+    public DataBase(String host, Integer port, String database, String password, String user) {
         this.host = host;
         this.port = port;
         this.database = database;
         this.password = password;
+        this.user = user;
     }
 
     public void loadJson() {
@@ -63,6 +66,11 @@ public class DataBase {
             }
             try {
                 password = jSONObject.getString("password");
+            } catch (Exception e) {
+
+            }
+            try {
+                user = jSONObject.getString("user");
             } catch (Exception e) {
 
             }
@@ -101,5 +109,13 @@ public class DataBase {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }

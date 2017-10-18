@@ -293,7 +293,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += convenio; // 07.0 BB1 Nùmero do convênio de cobrança BB
             CONTEUDO_REMESSA += "0014"; // 07.0 BB2 Cobrança Cedente BB '0014'
             CONTEUDO_REMESSA += "17"; // 07.0 BB3 Número da carteira de cobrança BB
-            CONTEUDO_REMESSA += "027"; // 07.0 BB4 Número da variação da carteira de cobrança BB 
+            CONTEUDO_REMESSA += "035"; //  ** PIRACICABA É OBRIGATÓRIO SER 035 ** 07.0 BB4 Número da variação da carteira de cobrança BB 
             CONTEUDO_REMESSA += "  "; // 07.0 BB5 Campo reservado BB
 
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Agência Mantenedora da Conta 53575- Numérico  G008
@@ -343,7 +343,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += convenio; // 11.1 BB1 Nùmero do convênio de cobrança BB
             CONTEUDO_REMESSA += "0014"; // 11.1 BB2 Cobrança Cedente BB
             CONTEUDO_REMESSA += "17"; // 11.1 BB3 Número da carteira de cobrança BB
-            CONTEUDO_REMESSA += "027"; // 11.1 BB4 Número da variação da carteira de cobrança BB
+            CONTEUDO_REMESSA += "035"; // ** PIRACICABA É OBRIGATÓRIO SER 035 ** 11.1 BB4 Número da variação da carteira de cobrança BB
             CONTEUDO_REMESSA += "  "; // 11.1 BB5 Campo que identifica remessa de testes
 //            CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Agência Mantenedora da Conta 54585- Numérico  G008

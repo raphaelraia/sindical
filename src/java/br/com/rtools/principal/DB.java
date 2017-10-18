@@ -26,6 +26,7 @@ public class DB {
                 DataBase dataBase = new DataBase();
                 dataBase.loadJson();
                 Integer port = 5432;
+                
                 if (!dataBase.getHost().isEmpty()) {
                     configuracao.setHost(dataBase.getHost());
                 }
@@ -38,10 +39,13 @@ public class DB {
                 if (!dataBase.getPassword().isEmpty()) {
                     configuracao.setSenha(dataBase.getPassword());
                 }
+                
+                String user = dataBase.getUser();
+                
                 try {
                     Map properties = new HashMap();
                     properties.put(TopLinkProperties.CACHE_TYPE_DEFAULT, CacheType.SoftWeak);
-                    properties.put(TopLinkProperties.JDBC_USER, "postgres");
+                    properties.put(TopLinkProperties.JDBC_USER, user);
                     properties.put(TopLinkProperties.TRANSACTION_TYPE, "RESOURCE_LOCAL");
                     properties.put(TopLinkProperties.JDBC_DRIVER, "org.postgresql.Driver");
                     properties.put(TopLinkProperties.JDBC_PASSWORD, configuracao.getSenha());

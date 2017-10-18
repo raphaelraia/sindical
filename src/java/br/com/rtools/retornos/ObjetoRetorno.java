@@ -12,6 +12,7 @@ import br.com.rtools.utilitarios.Dao;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +32,16 @@ public class ObjetoRetorno {
 
     public static List<String> retornaLinhaDoArquivo(String caminho_arquivo) {
         List<String> lista = new ArrayList();
-        try (FileReader reader = new FileReader(caminho_arquivo); BufferedReader buffReader = new BufferedReader(reader)) {
+        //InputStreamReader i = new FileReader(caminho_arquivo);
+        
+        try (InputStreamReader reader = new FileReader(caminho_arquivo); BufferedReader buffReader = new BufferedReader(reader)) {
+        //try (FileReader reader = new FileReader(caminho_arquivo); BufferedReader buffReader = new BufferedReader(reader)) {
 
             String linha;
             while ((linha = buffReader.readLine()) != null) {
-                lista.add(linha);
+                if (!linha.isEmpty()){
+                    lista.add(linha);
+                }
             }
 
         } catch (Exception e) {

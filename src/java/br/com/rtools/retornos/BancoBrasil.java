@@ -128,6 +128,13 @@ public class BancoBrasil extends ArquivoRetorno {
                             lista_linha_segmento.add(linha_segmento);
                         }
                     }
+                    
+                    if (lista_linha_segmento.isEmpty()){
+                        ObjetoRetorno objeto_retorno = new ObjetoRetorno(new ArrayList(), "ARQUIVO SEM BOLETO DENTRO");
+                        lista_objeto_retorno.add(objeto_retorno);
+                        new Dao().delete(retorno, true);
+                        return lista_objeto_retorno;
+                    }
                     objeto_arquivo.setLinhaSegmento(lista_linha_segmento);
                     lista_objeto_arquivo.add(objeto_arquivo);
                     
