@@ -253,7 +253,7 @@
                                             <h:panelGrid columns="4">
                                                 <h:column>
                                                     <p:outputLabel value="Convidado" style="font-weight: bold" /><br />
-                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.nome}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 300px; opacity: 0.8">
+                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.nome}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 300px; opacity: 0.8" converter="#{toUpperCase}">
                                                         <p:ajax event="change" listener="#{conviteMovimentoBean.pesquisaSisPessoaNomeNascimento()}" update="@this i_panel_adicionar"/>
                                                     </p:inputText>
                                                 </h:column>

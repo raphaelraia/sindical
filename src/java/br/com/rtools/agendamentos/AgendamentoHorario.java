@@ -12,8 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "ag_agendamento_servico_horario", uniqueConstraints = @UniqueConstraint(columnNames = {"id_agendamento", "id_horario"}))
-public class AgendamentoServicoHorario implements Serializable {
+@Table(name = "ag_agendamento_horario", uniqueConstraints = @UniqueConstraint(columnNames = {"id_agendamento", "id_horario"}))
+public class AgendamentoHorario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +26,13 @@ public class AgendamentoServicoHorario implements Serializable {
     @ManyToOne
     private AgendaHorarios agendaHorarios;
 
-    public AgendamentoServicoHorario() {
+    public AgendamentoHorario() {
         this.id = null;
         this.agendamento = null;
         this.agendaHorarios = null;
     }
 
-    public AgendamentoServicoHorario(Integer id, Agendamentos agendamento, AgendaHorarios agendaHorarios) {
+    public AgendamentoHorario(Integer id, Agendamentos agendamento, AgendaHorarios agendaHorarios) {
         this.id = id;
         this.agendamento = agendamento;
         this.agendaHorarios = agendaHorarios;

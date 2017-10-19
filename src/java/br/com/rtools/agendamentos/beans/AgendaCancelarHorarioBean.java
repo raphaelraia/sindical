@@ -9,10 +9,6 @@ import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.associativo.dao.GrupoConvenioDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
-import br.com.rtools.homologacao.CancelarHorario;
-import br.com.rtools.homologacao.Horarios;
-import br.com.rtools.homologacao.dao.CancelarHorarioDao;
-import br.com.rtools.homologacao.dao.HorariosDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.FilialRotina;
@@ -40,7 +36,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
@@ -134,38 +129,84 @@ public class AgendaCancelarHorarioBean implements Serializable {
 
     public void listener(String tcase) {
         switch (tcase) {
+            case "clear":
+                dsHora = "";
+                data = DataHoje.dataHoje();
+                idHorariosDisponiveis = 0;
+                dataInicial = DataHoje.dataHoje();
+                dataFinal = DataHoje.dataHoje();
+                habilitaHorarios = false;
+                habilitaSemana = false;
+                nrQuantidadeDisponivel = 0;
+                nrQuantidadeCancelado = 0;
+                nrQuantidadeCancelar = 0;
+                nrQuantidadeDisponivelB = 0;
+                nrQuantidadeCanceladoB = 0;
+                nrQuantidadeCancelarB = 0;
+                break;
+            case "clear_list":
+                listSemana = new ArrayList();
+                listHorarios = new ArrayList();
+                if (getTipoCancelamento().equals("Período")) {
+                    loadListSemana();
+                    loadListHorarios();
+                }
+                break;
             case "1":
                 loadListHorarios();
                 calculaQuantidadeDisponivel();
                 loadListHorariosCancelados();
                 break;
             case "2":
+                loadListHorarios();
                 calculaQuantidadeDisponivel();
                 loadListHorariosCancelados();
                 break;
             case "filial":
+                listener("clear");
                 loadListGrupoConvenio();
                 loadListSubGrupoConvenio();
                 loadListConvenio();
                 loadListHorariosDisponiveis();
                 loadListHorariosCancelados();
                 calculaQuantidadeDisponivel();
+                listener("clear_list");
                 break;
             case "subgrupo_convenio":
+                listener("clear");
                 loadListSubGrupoConvenio();
                 loadListConvenio();
                 loadListHorariosDisponiveis();
                 calculaQuantidadeDisponivel();
                 loadListHorariosCancelados();
+                listener("clear_list");
                 break;
             case "convenio":
+                listener("clear");
                 loadListConvenio();
                 loadListHorariosDisponiveis();
                 loadListHorariosCancelados();
                 calculaQuantidadeDisponivel();
+                listener("clear_list");
                 break;
             case "habilita_semana":
                 loadListSemana();
+                if (habilitaSemana) {
+                    loadListHorarios();
+                }
+                loadListHorariosCancelados();
+                calculaQuantidadeDisponivel();
+                break;
+            case "habilita_horarios":
+                loadListHorarios();
+                loadListHorariosCancelados();
+                calculaQuantidadeDisponivel();
+                break;
+            case "change_semana":
+            case "change_horarios":
+                loadListHorarios();
+                loadListHorariosCancelados();
+                calculaQuantidadeDisponivel();
                 break;
             default:
                 break;
@@ -255,7 +296,9 @@ public class AgendaCancelarHorarioBean implements Serializable {
             return;
         } else {
             dao.commit();
-            GenericaMensagem.info("Sucesso", "Horário cancelado com sucesso.");
+            if(!listHorariosDisponiveis.isEmpty()) {
+                GenericaMensagem.info("Sucesso", "Horário cancelado com sucesso.");                
+            }
             loadListHorariosDisponiveis();
             sisProcesso.finish();
             WSSocket.send("agendamentos_" + ControleUsuarioBean.getCliente().toLowerCase());
@@ -339,7 +382,7 @@ public class AgendaCancelarHorarioBean implements Serializable {
                 if (listHorarios.isEmpty()) {
                     return null;
                 }
-                horarioses = horariosDao.pesquisaPorHorarioFilial(f.getId(), dsHora);
+                horarioses = horariosDao.findBy(f.getId(), dsHora, idSubGrupoConvenio, idConvenio);
             } else if (habilitaSemana && habilitaHorarios) {
                 if (DataHoje.diaDaSemana(DataHoje.converte(strDataInicial)) == idSemana) {
                     if (listHorarios.isEmpty() || listSemana.isEmpty()) {
@@ -533,10 +576,18 @@ public class AgendaCancelarHorarioBean implements Serializable {
                 break;
             }
             case "Período": {
-                if(habilitaSemana) {
-                    listaHorariosCancelados = achd.findAll(idFilial, dataInicial, dataFinal, idSemana, "", idSubGrupoConvenio, idConvenio);
+                if (habilitaSemana || habilitaHorarios) {
+                    String hora = "";
+                    if (habilitaHorarios) {
+                        try {
+                            hora = dsHora;
+                        } catch (Exception e) {
+
+                        }
+                    }
+                    listaHorariosCancelados = achd.findAll(idFilial, dataInicial, dataFinal, idSemana, hora, idSubGrupoConvenio, idConvenio);
                 } else {
-                    listaHorariosCancelados = achd.findAll2(idFilial, dataInicial, dataFinal, idSubGrupoConvenio, idConvenio);                    
+                    listaHorariosCancelados = achd.findAll2(idFilial, dataInicial, dataFinal, idSubGrupoConvenio, idConvenio);
                 }
                 break;
             }
@@ -848,10 +899,6 @@ public class AgendaCancelarHorarioBean implements Serializable {
     }
 
     public void setHabilitaHorarios(Boolean habilitaHorarios) {
-        if (!habilitaHorarios) {
-            listHorarios.clear();
-            dsHora = "";
-        }
         this.habilitaHorarios = habilitaHorarios;
     }
 
@@ -859,18 +906,11 @@ public class AgendaCancelarHorarioBean implements Serializable {
         return habilitaSemana;
     }
 
-    public void setHabilitaSemana(Boolean habilitaSemana) {        
+    public void setHabilitaSemana(Boolean habilitaSemana) {
         this.habilitaSemana = habilitaSemana;
     }
 
     public List<SelectItem> getListSemana() {
-        if (listSemana.isEmpty()) {
-            Dao dao = new Dao();
-            List<Semana> list = dao.list(new Semana());
-            for (int i = 0; i < list.size(); i++) {
-                listSemana.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
-            }
-        }
         return listSemana;
     }
 
@@ -984,13 +1024,15 @@ public class AgendaCancelarHorarioBean implements Serializable {
 
     public void loadListSemana() {
         listSemana = new ArrayList();
-        Dao dao = new Dao();
-        List<Semana> list = (List<Semana>) dao.list(new Semana());
-        for (int i = 0; i < list.size(); i++) {
-            if (i == 0) {
-                idSemana = list.get(i).getId();
+        if (habilitaSemana) {
+            Dao dao = new Dao();
+            List<Semana> list = (List<Semana>) dao.list(new Semana());
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idSemana = list.get(i).getId();
+                }
+                listSemana.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
-            listSemana.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
 
@@ -1057,19 +1099,22 @@ public class AgendaCancelarHorarioBean implements Serializable {
     }
 
     public void loadListHorarios() {
-        AgendaHorariosDao horariosDao = new AgendaHorariosDao();
-        List list;
-        if (habilitaSemana) {
-            list = horariosDao.listaHorariosAgrupadosPorFilialSemana(idFilial, idSemana, idSubGrupoConvenio, idConvenio);
-        } else {
-            list = horariosDao.listaHorariosAgrupadosPorFilialSemana(idFilial, null, idSubGrupoConvenio, idConvenio);
-        }
-        dsHora = "0";
-        for (int i = 0; i < list.size(); i++) {
-            if (i == 0) {
-                dsHora = list.get(i).toString();
+        listHorarios = new ArrayList();
+        if (habilitaHorarios) {
+            AgendaHorariosDao horariosDao = new AgendaHorariosDao();
+            List list;
+            dsHora = "";
+            if (habilitaSemana) {
+                list = horariosDao.listaHorariosAgrupadosPorFilialSemana(idFilial, idSemana, idSubGrupoConvenio, idConvenio);
+            } else {
+                list = horariosDao.listaHorariosAgrupadosPorFilialSemana(idFilial, null, idSubGrupoConvenio, idConvenio);
             }
-            listHorarios.add(new SelectItem(list.get(i).toString(), list.get(i).toString()));
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    dsHora = list.get(i).toString();
+                }
+                listHorarios.add(new SelectItem(list.get(i).toString(), list.get(i).toString()));
+            }
         }
     }
 

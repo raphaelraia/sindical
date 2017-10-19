@@ -43,7 +43,7 @@
                                     <h:panelGrid columns="3" cellspacing="5">
                                         <h:outputLabel value="Grupo Convênio" />
                                         <h:outputLabel value="Subgrupo Convênio" />
-                                        <h:outputLabel value="Convênio" />
+                                        <h:outputLabel value="Colaborador" />
                                         <p:selectOneMenu value="#{agendaHorariosBean.idGrupoConvenio}">
                                             <p:ajax event="change" update="@this :form_horarios:" listener="#{agendaHorariosBean.listener('subgrupo_convenio')}" />
                                             <f:selectItems value="#{agendaHorariosBean.listGrupoConvenio}" />
@@ -92,10 +92,10 @@
                                         </h:column>
                                         <h:column>
                                             <h:panelGrid columns="10" cellspacing="5">
-                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.horarios.web}" itemLabel="WEB">
+                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.web}" itemLabel="WEB">
                                                     <p:ajax event="change" update="@this" />
                                                 </p:selectBooleanCheckbox>
-                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.horarios.socio}" itemLabel="Sócios">
+                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.socio}" itemLabel="Sócios">
                                                     <p:ajax event="change" update="@this" />
                                                 </p:selectBooleanCheckbox>
                                             </h:panelGrid>

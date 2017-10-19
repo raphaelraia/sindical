@@ -133,6 +133,9 @@ public class FisicaGenericaBean implements Serializable {
         if (r.getId() == 469) {
             GenericaSessao.put("pesquisaFisicaTipo", "dependente");
             PF.update("form_campeonato_equipe");
+        } else if (r.getId() == 478) {
+            PF.update("form_person");
+            PF.update("form_agendamentos");
         }
         fisica = new Fisica();
     }
@@ -287,6 +290,9 @@ public class FisicaGenericaBean implements Serializable {
         if (r.getId() == 469) {
             GenericaSessao.put("pesquisaFisicaTipo", "dependente");
             PF.update("form_campeonato_equipe");
+        } else if (r.getId() == 478) {
+            PF.update("form_person");
+            PF.update("form_agendamentos");
         }
         closeModal();
     }
@@ -383,6 +389,9 @@ public class FisicaGenericaBean implements Serializable {
             if (r.getId() == 469) {
                 GenericaSessao.put("pesquisaFisicaTipo", "dependente");
                 PF.update("form_campeonato_equipe");
+            } else if (r.getId() == 478) {
+                PF.update("form_person");
+                PF.update("form_agendamentos");
             }
             fisicaPesquisa = new Fisica();
             fisica = new Fisica();

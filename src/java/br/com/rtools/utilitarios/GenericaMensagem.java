@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -144,11 +145,11 @@ public class GenericaMensagem implements Serializable {
     public String getHtmlMessage(String severity, String message, Boolean blink) {
         return getHtmlMessage(severity, message, "", false);
     }
-    
+
     public String getHtmlMessage(String severity, String title, String description) {
-        return getHtmlMessage(severity, title, description, false);        
+        return getHtmlMessage(severity, title, description, false);
     }
-    
+
     public String getHtmlMessage(String severity, String title, String description, Boolean blink) {
         String blinkString = "";
         switch (severity) {
@@ -186,8 +187,18 @@ public class GenericaMensagem implements Serializable {
         String html = "";
         html = ""
                 + "<div class=\"ui-rt-messages " + severity + "\" >\n"
-                + " <p class=\"ui-rt-messages-p " + blinkString + "\">" + title +  " <span class=\"ui-rt-messages-span\"> " + description + " </span></p> "
+                + " <p class=\"ui-rt-messages-p " + blinkString + "\">" + title + " <span class=\"ui-rt-messages-span\"> " + description + " </span></p> "
                 + " </div> ";
         return html;
+    }
+
+    public String getShow() {
+        if (GenericaSessao.exists("messages")) {
+            List<MessagesPut> list = GenericaSessao.getList("messages", true);
+            for (int i = 0; i < list.size(); i++) {
+                GenericaMensagem.warn(list.get(i).getTitle(), list.get(i).getDetails());
+            }
+        }
+        return null;
     }
 }

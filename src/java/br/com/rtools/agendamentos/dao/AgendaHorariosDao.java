@@ -76,12 +76,11 @@ public class AgendaHorariosDao extends DB {
             Query query;
             if (semana_id == null) {
                 query = getEntityManager().createQuery("SELECT AH.hora FROM AgendaHorarios AS AH WHERE AH.filial.id = :filial_id AND AH.subGrupoConvenio.id = :subgrupo_convenio_id AND AH.convenio.id = :convenio_id GROUP BY AH.hora ORDER BY AH.hora ");
-                query.setParameter("filial_id", filial_id);
             } else {
                 query = getEntityManager().createQuery("SELECT AH.hora FROM AgendaHorarios AS AH WHERE AH.filial.id = :filial_id AND AH.semana.id = :semana_id AND AH.subGrupoConvenio.id = :subgrupo_convenio_id AND AH.convenio.id = :convenio_id GROUP BY AH.hora ORDER BY AH.hora ");
-                query.setParameter("filial_id", filial_id);
+                query.setParameter("semana_id", semana_id);
             }
-            query.setParameter("semana_id", semana_id);
+            query.setParameter("filial_id", filial_id);
             query.setParameter("subgrupo_convenio_id", subgrupo_convenio_id);
             query.setParameter("convenio_id", convenio_id);
             return query.getResultList();
@@ -90,29 +89,41 @@ public class AgendaHorariosDao extends DB {
         }
     }
 
-    public List pesquisaPorHorarioFilial(Integer filial_id, String horario) {
+    public List<AgendaHorarios> findBy(Integer filial_id, String horario, Integer subgrupo_convenio_id, Integer convenio_id) {
         try {
-            Query qry = getEntityManager().createQuery(
-                    "   SELECT H FROM Horarios h "
-                    + "  WHERE H.hora = '" + horario + "'"
-                    + "    AND H.filial.id = " + filial_id);
-            List list = qry.getResultList();
-            if (!list.isEmpty()) {
-                return list;
-            }
+            Query query = getEntityManager().createQuery("SELECT AH FROM AgendaHorarios AH WHERE AH.hora = :horario AND AH.filial.id = :filial_id AND AH.subGrupoConvenio.id = :subgrupo_convenio_id AND AH.convenio.id = :convenio_id");
+            query.setParameter("filial_id", filial_id);
+            query.setParameter("horario", horario);
+            query.setParameter("subgrupo_convenio_id", subgrupo_convenio_id);
+            query.setParameter("convenio_id", convenio_id);
+            return query.getResultList();
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
+
+    public List<AgendaHorarios> findBy(Integer filial_id, String horario, Integer semana_id, Integer subgrupo_convenio_id, Integer convenio_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT AH FROM AgendaHorarios AH WHERE AH.hora = :horario AND AH.semana.id = :semana_id AND AH.filial.id = :filial_id AND AH.subGrupoConvenio.id = :subgrupo_convenio_id AND AH.convenio.id = :convenio_id");
+            query.setParameter("filial_id", filial_id);
+            query.setParameter("semana_id", semana_id);
+            query.setParameter("horario", horario);
+            query.setParameter("subgrupo_convenio_id", subgrupo_convenio_id);
+            query.setParameter("convenio_id", convenio_id);
+            return query.getResultList();
         } catch (Exception e) {
         }
         return new ArrayList();
     }
 
     /**
-     * 
+     *
      * @param filial_id
      * @param date
      * @param isCancelados
      * @param subgrupo_convenio_id
      * @param convenio_id
-     * @return 
+     * @return
      */
     public List<AgendaHorarios> findBy(Integer filial_id, Date date, Boolean isCancelados, Integer subgrupo_convenio_id, Integer convenio_id) {
         Integer semana_id = null;
