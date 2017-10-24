@@ -447,8 +447,6 @@ public class ConviteMovimentoBean implements Serializable {
             return null;
         }
 
-        conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
-
         Dao dao = new Dao();
         if (conviteMovimento.isCortesia()) {
             conviteMovimento.setAutorizaCortesia((ConviteAutorizaCortesia) dao.find(new ConviteAutorizaCortesia(), Integer.parseInt(listPessoaAutoriza.get(idPessoaAutoriza).getDescription())));
@@ -709,7 +707,6 @@ public class ConviteMovimentoBean implements Serializable {
                 }
             }
         }
-        conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
         atualizaDescontoValor();
     }
 
@@ -717,7 +714,7 @@ public class ConviteMovimentoBean implements Serializable {
         //if (conviteMovimento.getSisPessoa().getId() == -1) {
         // RG
         SisPessoaDao sisPessoaDB = new SisPessoaDao();
-        if (!conviteMovimento.getSisPessoa().getRg().isEmpty()) {
+        if (conviteMovimento.getSisPessoa().getId() == -1 && !conviteMovimento.getSisPessoa().getRg().isEmpty()) {
             SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
             if (sp != null) {
                 conviteMovimento.setSisPessoa(sp);
@@ -735,7 +732,6 @@ public class ConviteMovimentoBean implements Serializable {
                 }
             }
         }
-        conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
         //}
         atualizaDescontoValor();
     }
@@ -761,7 +757,6 @@ public class ConviteMovimentoBean implements Serializable {
                     }
                 }
             }
-            conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
         }
         atualizaDescontoValor();
     }

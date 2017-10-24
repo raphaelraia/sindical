@@ -28,9 +28,9 @@ public class AgendamentoCancelamento implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_data", nullable = false)
     private Date dtData;
-    @JoinColumn(name = "id_agendamento_servico_horario", referencedColumnName = "id", unique = true, nullable = false)
+    @JoinColumn(name = "id_agendamento_horario", referencedColumnName = "id", unique = true, nullable = false)
     @ManyToOne
-    private AgendamentoServicoHorario agendamentoServicoHorario;
+    private AgendamentoHorario agendamentoHorario;
     @JoinColumn(name = "id_operador", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Usuario usuario;
@@ -41,15 +41,15 @@ public class AgendamentoCancelamento implements Serializable {
     public AgendamentoCancelamento() {
         this.id = null;
         this.dtData = new Date();
-        this.agendamentoServicoHorario = null;
+        this.agendamentoHorario = null;
         this.usuario = null;
         this.motivo = "";
     }
 
-    public AgendamentoCancelamento(Integer id, Date dtData, AgendamentoServicoHorario agendamentoServicoHorario, Usuario usuario, Movimento movimento, String motivo) {
+    public AgendamentoCancelamento(Integer id, Date dtData, AgendamentoHorario agendamentoHorario, Usuario usuario, Movimento movimento, String motivo) {
         this.id = id;
         this.dtData = dtData;
-        this.agendamentoServicoHorario = agendamentoServicoHorario;
+        this.agendamentoHorario = agendamentoHorario;
         this.usuario = usuario;
         this.motivo = motivo;
     }
@@ -78,12 +78,12 @@ public class AgendamentoCancelamento implements Serializable {
         this.dtData = DataHoje.converte(data);
     }
 
-    public AgendamentoServicoHorario getAgendamentoServicoHorario() {
-        return agendamentoServicoHorario;
+    public AgendamentoHorario getAgendamentoHorario() {
+        return agendamentoHorario;
     }
 
-    public void setAgendamentoServicoHorario(AgendamentoServicoHorario agendamentoServicoHorario) {
-        this.agendamentoServicoHorario = agendamentoServicoHorario;
+    public void setAgendamentoServicoHorario(AgendamentoHorario agendamentoHorario) {
+        this.agendamentoHorario = agendamentoHorario;
     }
 
     public String getMotivo() {

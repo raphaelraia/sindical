@@ -47,9 +47,10 @@
                                     <p:menuitem value="Juridica"                action="#{chamadaPaginaBean.pessoaJuridica}" />
 
                                     <p:submenu label="Agendamentos">
-                                        <p:menuitem value="Serviços"            action="#{chamadaPaginaBean.pagina('agendaServico')}" />
-                                        <p:menuitem value="Horários"            action="#{chamadaPaginaBean.pagina('agendaHorarios')}" />
-                                        <p:menuitem value="Cancelar Horários"   action="#{chamadaPaginaBean.pagina('agendaCancelarHorario')}" />
+                                        <p:menuitem value="Serviços"             action="#{chamadaPaginaBean.pagina('agendaServico')}" />
+                                        <p:menuitem value="Horários"             action="#{chamadaPaginaBean.pagina('agendaHorarios')}" />
+                                        <p:menuitem value="Cancelar Horários"    action="#{chamadaPaginaBean.pagina('agendaCancelarHorario')}" />
+                                        <p:menuitem value="Acrescentar Horários" action="#{chamadaPaginaBean.pagina('agendaAcrescentarHorario')}" />
                                     </p:submenu>
 
                                     <p:submenu label="Convênio Empresas">
@@ -116,6 +117,11 @@
                                     <p:menuitem value="Emissão de Guias"       action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
                                     <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
                                     <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
+                                    <p:submenu label="Agendamento">
+                                        <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" />
+                                        <p:menuitem value="Cancelamentos"       action="#{chamadaPaginaBean.pagina('cancelamentos')}" />
+                                        <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" />
+                                    </p:submenu>
                                     <p:submenu label="Eventos">
                                         <p:menuitem value="Convite Clube"       action="#{chamadaPaginaBean.conviteMovimento}"/>
                                         <p:submenu label="Caravana">

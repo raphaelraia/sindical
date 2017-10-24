@@ -18,7 +18,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "ag_cancelar_horario",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"id_horarios", "dt_data"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_horario", "dt_data"})
 )
 public class AgendaCancelarHorario implements Serializable {
 
@@ -26,7 +26,7 @@ public class AgendaCancelarHorario implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @JoinColumn(name = "id_horarios", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_horario", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private AgendaHorarios horario;
     @JoinColumn(name = "id_usuario", referencedColumnName = "id", nullable = false)

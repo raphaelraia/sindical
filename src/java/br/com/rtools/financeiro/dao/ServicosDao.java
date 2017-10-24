@@ -317,7 +317,7 @@ public class ServicosDao extends DB {
         Servicos result = null;
         // String descricao = des_servicos.getDescricao().toLowerCase().toUpperCase();
         try {
-            String queryString = "SELECT S.* FROM fin_servicos AS S WHERE func_translate(UPPER(TRIM(S.ds_descricao))) LIKE func_translate(UPPER(TRIM('"+des_servicos.getDescricao()+"')))";
+            String queryString = "SELECT S.* FROM fin_servicos AS S WHERE func_translate(UPPER(TRIM(S.ds_descricao))) LIKE func_translate(UPPER(TRIM('" + des_servicos.getDescricao() + "')))";
             Query query = getEntityManager().createNativeQuery(queryString, Servicos.class);
             // query.setParameter("d_servicos", descricao);
             result = (Servicos) query.getSingleResult();
@@ -377,4 +377,32 @@ public class ServicosDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List<Servicos> findBySubgrupoConvenioAgendamentos(Integer subgrupo_id) {
+        return findBySubgrupoConvenioAgendamentos(subgrupo_id, "");
+    }
+
+    public List<Servicos> findBySubgrupoConvenioAgendamentos(Integer subgrupo_id, String not_in) {
+        try {
+            String queryString = "    "
+                    + "    SELECT SE.*                                          \n"
+                    + "      FROM fin_servicos AS SE                            \n"
+                    + "INNER JOIN soc_convenio_servico AS C ON C.id_servico = SE.id \n"
+                    + "     WHERE id_convenio_sub_grupo = " + subgrupo_id + "   \n"
+                    + "       AND C.is_agendamento = true                       \n";
+            if (not_in != null && !not_in.isEmpty()) {
+                queryString += " AND SE.id NOT IN (" + not_in + ")              \n";
+            }
+            queryString += "  ORDER BY SE.ds_descricao ";
+            Query query = getEntityManager().createNativeQuery(queryString, Servicos.class);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
 }

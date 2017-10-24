@@ -2510,7 +2510,31 @@
             <from-outcome>agendaCancelarHorario</from-outcome>
             <to-view-id>/agendaCancelarHorario.jsf</to-view-id>
             <redirect/>
-        </navigation-case>    
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>agendaAcrescentarHorario</from-outcome>
+            <to-view-id>/agendaAcrescentarHorario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>agendamentos</from-outcome>
+            <to-view-id>/agendamentos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>cancelamentos</from-outcome>
+            <to-view-id>/cancelamentos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>atendimentos</from-outcome>
+            <to-view-id>/atendimentos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
         
     </navigation-rule>
     

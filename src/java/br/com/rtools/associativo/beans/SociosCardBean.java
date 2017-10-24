@@ -16,7 +16,7 @@ public class SociosCardBean implements Serializable {
     public void load(int idPessoa) {
         if (idPessoa != -1) {
             SociosDao sociosDao = new SociosDao();
-            socios = sociosDao.pesquisaSocioPorPessoa(idPessoa);
+            socios = sociosDao.pesquisaSocioPorPessoaAtivo(idPessoa);
             if (socios == null) {
                 socios = new Socios();
             } else {

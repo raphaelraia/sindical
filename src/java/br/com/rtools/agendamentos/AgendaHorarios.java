@@ -40,9 +40,6 @@ public class AgendaHorarios implements Serializable {
     private Filial filial;
     @Column(name = "ativo", nullable = false)
     private Boolean ativo;
-    @Column(name = "dt_data", nullable = true)
-    @Temporal(TemporalType.DATE)
-    private Date data;
     @Column(name = "nr_quantidade", nullable = false, columnDefinition = "integer default 0")
     private Integer quantidade;
     @Column(name = "ds_hora", length = 5, nullable = false)
@@ -61,7 +58,6 @@ public class AgendaHorarios implements Serializable {
         this.subGrupoConvenio = null;
         this.filial = null;
         this.ativo = true;
-        this.data = null;
         this.quantidade = 0;
         this.hora = "";
         this.semana = null;
@@ -69,13 +65,12 @@ public class AgendaHorarios implements Serializable {
         this.socio = false;
     }
 
-    public AgendaHorarios(Integer id, Pessoa convenio, SubGrupoConvenio subGrupoConvenio, Filial filial, Boolean ativo, Date data, Integer quantidade, String hora, Semana semana, Boolean web, Boolean socio) {
+    public AgendaHorarios(Integer id, Pessoa convenio, SubGrupoConvenio subGrupoConvenio, Filial filial, Boolean ativo, Integer quantidade, String hora, Semana semana, Boolean web, Boolean socio) {
         this.id = id;
         this.convenio = convenio;
         this.subGrupoConvenio = subGrupoConvenio;
         this.filial = filial;
         this.ativo = ativo;
-        this.data = data;
         this.quantidade = quantidade;
         this.hora = hora;
         this.semana = semana;
@@ -121,22 +116,6 @@ public class AgendaHorarios implements Serializable {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
-    }
-
-    public Date getData() {
-        return data;
-    }
-
-    public void setData(Date data) {
-        this.data = data;
-    }
-
-    public String getDataString() {
-        return DataHoje.converteData(data);
-    }
-
-    public void setDataString(String dataString) {
-        this.data = DataHoje.converte(dataString);
     }
 
     public Integer getQuantidade() {

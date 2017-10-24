@@ -11,9 +11,11 @@ import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.associativo.beans.SociosBean;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.SuspencaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
@@ -2413,6 +2415,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaEscola":
             case "matriculaAcademia":
             case "locacaoFilme":
+            case "agendamentos":
                 // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
@@ -2455,6 +2458,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "associarFisica":
             case "conviteMovimento":
             case "campeonatoEquipe":
+            case "agendamentos":
                 GenericaSessao.remove("sessaoSisAutorizacao");
                 Boolean ignoreCase = false;
                 if (validacao.equals("emissaoGuias")) {
@@ -2528,6 +2532,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "geracaoDebitosCartao":
             case "locacaoFilme":
             case "associarFisica":
+            case "agendamentos":
                 PessoaComplemento pc = f.getPessoa().getPessoaComplemento();
                 if (pc.getBloqueiaObsAviso()) {
                     count++;

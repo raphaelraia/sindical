@@ -26,7 +26,7 @@
                             </p:column>
                             <p:column>
                                 <p:selectOneMenu id="iFilial" value="#{agendaCancelarHorarioBean.idFilial}" title="ADM. ACRESCENTAR FILIAL ROTINA E PERMISSÃO LIBERA ACESSO FILIAL" disabled="#{!agendaCancelarHorarioBean.liberaAcessaFilial}">
-                                    <p:ajax event="change" update=":form_cancelar_horario: :form_cancelar_horario_novo:" listener="#{agendaCancelarHorarioBean.listener('filial')}"/>
+                                    <p:ajax event="change" update="@this :form_cancelar_horario_novo: :form_cancelar_horario: " listener="#{agendaCancelarHorarioBean.listener('filial')}"/>
                                     <f:selectItems value="#{agendaCancelarHorarioBean.listFiliais}" />
                                 </p:selectOneMenu>
                             </p:column>
@@ -35,7 +35,7 @@
                         <h:panelGrid columns="3" cellspacing="5">
                             <h:outputLabel value="Grupo Convênio" />
                             <h:outputLabel value="Subgrupo Convênio" />
-                            <h:outputLabel value="Convênio" />
+                            <h:outputLabel value="Colaborador" />
                             <p:selectOneMenu value="#{agendaCancelarHorarioBean.idGrupoConvenio}">
                                 <p:ajax event="change" update="@this :form_cancelar_horario_novo: :form_cancelar_horario:" listener="#{agendaCancelarHorarioBean.listener('subgrupo_convenio')}" />
                                 <f:selectItems value="#{agendaCancelarHorarioBean.listGrupoConvenio}" />
@@ -79,63 +79,70 @@
                                     <p:commandButton value="Excluir cancelamentos desta data" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_s4').show();" title="Excluir cancelamentos desta data?" />
                                 </p:panelGrid>
                             </p:tab>  
-                            <p:tab title="Período" id="id_tab_periodo">  
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel value="Data inicial:"  />
-                                    <p:calendar value="#{agendaCancelarHorarioBean.dataInicial}" pattern="dd/MM/yyyy" size="8" readonlyInput="true" navigator="true">
-                                        <p:ajax event="dateSelect" update=":form_cancelar_horario:i_panel_grid_horarios" listener="#{agendaCancelarHorarioBean.loadListHorariosCancelados()}"/>
-                                    </p:calendar>
-                                    <p:outputLabel value="Data final:"  />
-                                    <p:calendar value="#{agendaCancelarHorarioBean.dataFinal}" pattern="dd/MM/yyyy" size="8" readonlyInput="true" navigator="true">
-                                        <p:ajax event="dateSelect" update=":form_cancelar_horario:i_panel_grid_horarios" listener="#{agendaCancelarHorarioBean.loadListHorariosCancelados()}"/>
-                                    </p:calendar>
-                                </h:panelGrid>
-                                <h:panelGrid id="i_p">
-                                    <h:panelGrid columns="2" styleClass="margin-top-max" cellpadding="5">
-                                        <h:column>
-                                            <p:selectBooleanCheckbox value="#{agendaCancelarHorarioBean.habilitaSemana}" itemLabel="Habilita semana">
-                                                <p:ajax event="change" update="@this :form_cancelar_horario_novo:" listener="#{agendaCancelarHorarioBean.listener('habilita_semana')}"/>
-                                            </p:selectBooleanCheckbox> 
-                                        </h:column>
-                                        <h:column>
-                                            <p:selectBooleanCheckbox value="#{agendaCancelarHorarioBean.habilitaHorarios}" itemLabel="Habilita horários">
-                                                <p:ajax event="change" update="@this :form_cancelar_horario_novo:" listener="#{agendaCancelarHorarioBean.listener('2')}"/>
-                                            </p:selectBooleanCheckbox>
-                                        </h:column>
+                            <p:tab title="Período">  
+                                <h:panelGroup  id="id_tab_periodo">
+
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="Data inicial:"  />
+                                        <p:calendar value="#{agendaCancelarHorarioBean.dataInicial}" pattern="dd/MM/yyyy" size="8" readonlyInput="true" navigator="true">
+                                            <p:ajax event="dateSelect" update=":form_cancelar_horario:i_panel_grid_horarios" listener="#{agendaCancelarHorarioBean.listener('change_semana')}"/>
+                                        </p:calendar>
+                                        <p:outputLabel value="Data final:"  />
+                                        <p:calendar value="#{agendaCancelarHorarioBean.dataFinal}" pattern="dd/MM/yyyy" size="8" readonlyInput="true" navigator="true">
+                                            <p:ajax event="dateSelect" update=":form_cancelar_horario:i_panel_grid_horarios" listener="#{agendaCancelarHorarioBean.listener('change_semana')}"/>
+                                        </p:calendar>
                                     </h:panelGrid>
-                                    <h:panelGrid columns="10" styleClass="margin-top-max" cellpadding="5" id="i_p_2">
-                                        <h:column>
-                                            <p:selectOneMenu value="#{agendaCancelarHorarioBean.idSemana}" rendered="#{agendaCancelarHorarioBean.habilitaSemana}">
-                                                <p:ajax update="@this :form_cancelar_horario_novo: :form_cancelar_horario:" event="change" listener="#{agendaCancelarHorarioBean.listener('1')}"/>
-                                                <f:selectItems value="#{agendaCancelarHorarioBean.listSemana}"/>
-                                            </p:selectOneMenu>                                   
-                                        </h:column>
-                                        <h:column>
-                                            <p:selectOneMenu value="#{agendaCancelarHorarioBean.idHorario}" rendered="#{agendaCancelarHorarioBean.habilitaHorarios}" >
-                                                <p:ajax update="@this :form_cancelar_horario_novo: :form_cancelar_horario:" event="change" listener="#{agendaCancelarHorarioBean.listener('2')}"/>
-                                                <f:selectItems value="#{agendaCancelarHorarioBean.listHorarios}"/>
-                                            </p:selectOneMenu>
-                                        </h:column>
-                                        <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
-                                            <p:outputLabel value="Quantidade Disponível:"  />
-                                        </h:column>
-                                        <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
-                                            <p:inputText id="idQuantidadeDisponivelx" value="#{agendaCancelarHorarioBean.nrQuantidadeDisponivelB}" disabled="true" size="2" title="Quantidade de horários disponíveis" />
-                                        </h:column>
-                                        <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
-                                            <p:outputLabel value="Manter:" />
-                                        </h:column>
-                                        <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
-                                            <p:spinner id="idQuantidadeHorariosx" value="#{agendaCancelarHorarioBean.nrQuantidadeCancelarB}" max="#{agendaCancelarHorarioBean.nrQuantidadeDisponivelB}" min="0" disabled="#{agendaCancelarHorarioBean.desabilitaBotoes}" title="Quantidade a ser cancelada" size="1">
-                                                <p:ajax update="idQuantidadeDisponivelx" listener="#{agendaCancelarHorarioBean.validaQuantidadeDisponivelB}" />
-                                            </p:spinner>    
-                                        </h:column>
+                                    <h:panelGrid id="i_p">
+                                        <h:panelGrid columns="2" styleClass="margin-top-max" cellpadding="5">
+                                            <h:column>
+                                                <p:selectBooleanCheckbox value="#{agendaCancelarHorarioBean.habilitaSemana}" itemLabel="Habilita semana">
+                                                    <p:ajax event="change" update="@this :form_cancelar_horario_novo:id_tab_periodo :form_cancelar_horario:" listener="#{agendaCancelarHorarioBean.listener('habilita_semana')}"/>
+                                                </p:selectBooleanCheckbox> 
+                                            </h:column>
+                                            <h:column>
+                                                <p:selectBooleanCheckbox value="#{agendaCancelarHorarioBean.habilitaHorarios}" itemLabel="Habilita horários">
+                                                    <p:ajax event="change" update="@this :form_cancelar_horario_novo:id_tab_periodo :form_cancelar_horario:" listener="#{agendaCancelarHorarioBean.listener('habilita_horarios')}"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="10" styleClass="margin-top-max" id="i_p_2">
+                                            <h:column>
+                                                <h:panelGrid columns="10" styleClass="margin-top-max" cellpadding="5">
+                                                    <p:selectOneMenu value="#{agendaCancelarHorarioBean.idSemana}" rendered="#{agendaCancelarHorarioBean.habilitaSemana}">
+                                                        <p:ajax update="@this :form_cancelar_horario_novo:i_panel_hora :form_cancelar_horario:" event="change" listener="#{agendaCancelarHorarioBean.listener('change_semana')}"/>
+                                                        <f:selectItems value="#{agendaCancelarHorarioBean.listSemana}"/>
+                                                    </p:selectOneMenu>                                                                                   
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <h:column>
+                                                <h:panelGrid columns="10" styleClass="margin-top-max" cellpadding="5" id="i_panel_hora">
+                                                    <p:selectOneMenu value="#{agendaCancelarHorarioBean.dsHora}" rendered="#{agendaCancelarHorarioBean.habilitaHorarios}" >
+                                                        <p:ajax update="@this :form_cancelar_horario_novo:i_panel_hora :form_cancelar_horario:" event="change" listener="#{agendaCancelarHorarioBean.listener('change_horarios')}"/>
+                                                        <f:selectItems value="#{agendaCancelarHorarioBean.listHorarios}"/>
+                                                    </p:selectOneMenu>                                                
+                                                    <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
+                                                        <p:outputLabel value="Quantidade Disponível:"  />
+                                                    </h:column>
+                                                    <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
+                                                        <p:inputText id="idQuantidadeDisponivelx" value="#{agendaCancelarHorarioBean.nrQuantidadeDisponivelB}" disabled="true" size="2" title="Quantidade de horários disponíveis" />
+                                                    </h:column>
+                                                    <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
+                                                        <p:outputLabel value="Manter:" />
+                                                    </h:column>
+                                                    <h:column rendered="#{agendaCancelarHorarioBean.habilitaSemana and agendaCancelarHorarioBean.habilitaHorarios}">
+                                                        <p:spinner id="idQuantidadeHorariosx" value="#{agendaCancelarHorarioBean.nrQuantidadeCancelarB}" max="#{agendaCancelarHorarioBean.nrQuantidadeDisponivelB}" min="0" disabled="#{agendaCancelarHorarioBean.desabilitaBotoes}" title="Quantidade a ser cancelada" size="1">
+                                                            <p:ajax update="idQuantidadeDisponivelx" listener="#{agendaCancelarHorarioBean.validaQuantidadeDisponivelB}" />
+                                                        </p:spinner>    
+                                                    </h:column>
+                                                </h:panelGrid>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="2" styleClass="margin-top-max">
+                                            <p:commandButton value="Cancelar Período" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('i_dlg_s3').show();" title="Cancelar este período?" />
+                                            <p:commandButton value="Excluir cancelamentos deste período" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_s5').show();" title="Excluir cancelamentos deste período?" />
+                                        </h:panelGrid>
                                     </h:panelGrid>
-                                    <h:panelGrid columns="2" styleClass="margin-top-max">
-                                        <p:commandButton value="Cancelar Período" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('i_dlg_s3').show();" title="Cancelar este período?" />
-                                        <p:commandButton value="Excluir cancelamentos deste período" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_s5').show();" title="Excluir cancelamentos deste período?" />
-                                    </h:panelGrid>
-                                </h:panelGrid>
+                                </h:panelGroup>
                             </p:tab>
                         </p:accordionPanel>
                     </p:panel>

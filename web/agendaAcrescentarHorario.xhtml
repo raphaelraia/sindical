@@ -1,0 +1,170 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Acrescentar Horários</title>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <p:outputLabel value="Acrescentar Horários" styleClass="fonteHeader" />
+                <div style="clear: both;"></div>
+                <h:form id="form_acrescentar_horario_novo">                     
+                    <h:outputScript name="tradutor_primefaces.js" library="js" />
+                    <p:growl id="growl" showDetail="true"/> 
+                    <c:set scope="request" var="object" value="${agendaAcrescentarHorarioBean.acrescentarHorario}"/>
+                    <p:panel id="id_panel_acrescimo" styleClass="fundoCinza" style="clear: both">
+                        <h:panelGrid style="width: 100%">
+                            <p:column>
+                                <p:outputLabel value="Filiais: " styleClass="fontePadrao"/>
+                            </p:column>
+                            <p:column>
+                                <p:selectOneMenu id="iFilial" value="#{agendaAcrescentarHorarioBean.idFilial}" title="ADM. ACRESCENTAR FILIAL ROTINA E PERMISSÃO LIBERA ACESSO FILIAL" disabled="#{!agendaAcrescentarHorarioBean.liberaAcessaFilial}">
+                                    <p:ajax event="change" update="@this :form_acrescentar_horario_novo: :form_acrescentar_horario:" listener="#{agendaAcrescentarHorarioBean.listener('filial')}"/>
+                                    <f:selectItems value="#{agendaAcrescentarHorarioBean.listFiliais}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                        </h:panelGrid>
+                        <br /><br />
+                        <h:panelGrid columns="3" cellspacing="5">
+                            <h:outputLabel value="Grupo Convênio" />
+                            <h:outputLabel value="Subgrupo Convênio" />
+                            <h:outputLabel value="Colaborador" />
+                            <p:selectOneMenu value="#{agendaAcrescentarHorarioBean.idGrupoConvenio}">
+                                <p:ajax event="change" update="@this :form_acrescentar_horario_novo: :form_acrescentar_horario:" listener="#{agendaAcrescentarHorarioBean.listener('grupo_convenio')}" />
+                                <f:selectItems value="#{agendaAcrescentarHorarioBean.listGrupoConvenio}" />
+                            </p:selectOneMenu>
+                            <p:selectOneMenu value="#{agendaAcrescentarHorarioBean.idSubGrupoConvenio}">
+                                <p:ajax event="change" update="@this :form_acrescentar_horario_novo: :form_acrescentar_horario:" listener="#{agendaAcrescentarHorarioBean.listener('subgrupo_convenio')}"  />
+                                <f:selectItems value="#{agendaAcrescentarHorarioBean.listSubGrupoConvenio}" />
+                            </p:selectOneMenu>
+                            <p:selectOneMenu value="#{agendaAcrescentarHorarioBean.idConvenio}">
+                                <p:ajax event="change" update="@this :form_acrescentar_horario_novo: :form_acrescentar_horario:" listener="#{agendaAcrescentarHorarioBean.listener('convenio')}" />
+                                <f:selectItems value="#{agendaAcrescentarHorarioBean.listConvenio}" />
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        <p:panel header="Dia" styleClass="margin-top-max" id="i_panel_horario"> 
+                            <p:panelGrid columns="4" id="id_panel_grid_calcula" styleClass="sbb" style="float: left;">
+                                <p:outputLabel value="Data:"  />
+                                <p:calendar value="#{agendaAcrescentarHorarioBean.data}" pattern="dd/MM/yyyy" size="8" readonlyInput="true" navigator="true">
+                                    <p:ajax event="dateSelect" update="id_panel_grid_calcula :form_acrescentar_horario:" listener="#{agendaAcrescentarHorarioBean.dataListener}" />
+                                </p:calendar>                          
+                                <h:outputLabel value="Horários:" />
+                                <p:selectOneMenu id="idHorarios" value="#{agendaAcrescentarHorarioBean.idHorariosDisponiveis}" disabled="#{agendaAcrescentarHorarioBean.desabilitaBotoes}">
+                                    <p:ajax update="id_panel_grid_calcula :form_acrescentar_horario:" listener="#{agendaAcrescentarHorarioBean.calculaQuantidadeDisponivel}" />
+                                    <f:selectItems value="#{agendaAcrescentarHorarioBean.listHorariosDisponiveis}"/>
+                                </p:selectOneMenu>                                    
+                                <p:outputLabel value="Disponível:"  />
+                                <p:inputText id="idQuantidadeDisponivel" value="#{agendaAcrescentarHorarioBean.nrQuantidadeDisponivel}" disabled="true" size="2" title="Quantidade de horários disponíveis" />
+                                <p:outputLabel value="Acrescentar" />
+                                <p:column>
+                                    <p:spinner id="idQuantidadeHorarios" value="#{agendaAcrescentarHorarioBean.nrQuantidadeAdicionar}" min="0" disabled="#{agendaAcrescentarHorarioBean.desabilitaBotoes}" title="Quantidade a ser adicionada" size="1">
+                                        <p:ajax update="idQuantidadeDisponivel idQuantidadeRestante" listener="#{agendaAcrescentarHorarioBean.validaQuantidadeDisponivel}" />
+                                    </p:spinner>    
+                                    <p:outputLabel value="Acrescidos" styleClass="margin-left-max"/>
+                                    <p:inputText id="idQuantidadeRestante" value="#{agendaAcrescentarHorarioBean.nrQuantidadeAdicionado}" disabled="true" size="2"  title="Quantidade de horários adicionais" style="margin-left: 15px;"/>
+                                </p:column>
+                            </p:panelGrid>
+                            <p:panelGrid columns="3" styleClass="sbb" style="clear: both;">
+                                <p:commandButton value="Acrescentar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('i_dlg_s').show();" title="Acrescentar este horário?" />
+                                <p:commandButton value="Acrescentar data" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('i_dlg_s2').show();" title="Acrescentar todos horários desta data?" />
+                                <p:commandButton value="Excluir acrescimos desta data" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_s4').show();" title="Excluir acrescimos desta data?" />
+                            </p:panelGrid>
+                        </p:panel>                          
+                    </p:panel>
+                    <p:dialog widgetVar="i_dlg_s" header="Deseja acrescentar este horário?" resizable="false" width="400" modal="true">
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">                        
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{agendaAcrescentarHorarioBean.acrescentarHorarios(false)}" onclick="PF('i_dlg_s').hide()"  icon="ui-icon-check" update=":form_acrescentar_horario:"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="i_dlg_s2" header="Deseja acrescentar estes horários?" resizable="false" width="400" modal="true">
+                        <h:panelGroup layout="block" id="i_s2">
+                            <h:panelGrid columns="2" cellspacing="5">
+                                <p:outputLabel value="Período: " />
+                                <p:selectOneMenu value="#{agendaAcrescentarHorarioBean.periodo}">
+                                    <p:ajax event="change" update="@this" global="false" />
+                                    <f:selectItem itemValue="todos" itemLabel="O dia todo" />
+                                    <f:selectItem itemValue="manha" itemLabel="Manhã" />
+                                    <f:selectItem itemValue="tarde" itemLabel="Tarde" />
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Quantidade: " />
+                                <p:spinner value="#{agendaAcrescentarHorarioBean.nrQuantidadeAdicionarTodos}" min="0" title="Quantidade a ser adicionada" size="1">
+                                    <p:ajax event="change" update="@this"/>
+                                </p:spinner> 
+                            </h:panelGrid>
+                        </h:panelGroup>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{agendaAcrescentarHorarioBean.acrescentarHorarios(true)}" onclick="PF('i_dlg_s2').hide()" icon="ui-icon-check" update=":form_acrescentar_horario:"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s2').hide()" icon="ui-icon-close"/>                                                            
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="i_dlg_s3" header="Deseja acrescentar todos horários deste período?" resizable="false" width="400" modal="true">
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">                        
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{agendaAcrescentarHorarioBean.acrescentarHorarioPeriodo}" onclick="PF('i_dlg_s3').hide()" icon="ui-icon-check" update=":form_acrescentar_horario:"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s3').hide()" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="i_dlg_s4" header="Deseja excluir todos horários acrescentados desta data?" resizable="false" width="400" modal="true">
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{agendaAcrescentarHorarioBean.removeAcrescimos}" onclick="PF('i_dlg_s4').hide()" icon="ui-icon-check" update=":form_acrescentar_horario:" /> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s4').hide()" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="i_dlg_s5" header="Deseja excluir todos horários acrescentados desta data?" resizable="false" width="400" modal="true">
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{agendaAcrescentarHorarioBean.removeAcrescimos()}" onclick="PF('i_dlg_s5').hide()" icon="ui-icon-check" update=":form_acrescentar_horario:"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s5').hide()" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:growl autoUpdate="true" id="i_msg" showDetail="true" />
+                </h:form>
+                <h:form id="form_acrescentar_horario">
+                    <p:dataTable value="#{agendaAcrescentarHorarioBean.listaHorariosAdicionados}" var="adicionados" scrollable="true" scrollHeight="250" emptyMessage="Não existe(m) horário(s) Adicionados(s) para essa data/período">
+                        <f:facet name="header">Horários Adicionais</f:facet>
+
+                        <p:column width="80" headerText="Data" rendered="#{agendaAcrescentarHorarioBean.tipoAcrescimo ne 'Dia'}" >#{adicionados.data}</p:column>
+
+                        <p:column width="80" headerText="Semana" styleClass="text-center">#{adicionados.horario.semana.descricao}</p:column>
+
+                        <p:column width="50" style="text-align: center;">
+                            <f:facet name="header" class="margin">
+                                <p:graphicImage value="/Imagens/horario.png" alt="Horários" title="Horários" width="20"  />
+                            </f:facet>
+                            #{adicionados.horario.hora} 
+                        </p:column>
+
+                        <p:column width="150" headerText="Qtde Disponível">#{adicionados.horario.quantidade}</p:column>
+
+                        <p:column width="150" headerText="Qtde adicionado">#{adicionados.quantidade} </p:column>
+
+                        <p:column width="150" headerText="Qtde Total">#{agendaAcrescentarHorarioBean.calculaQuantidadeDisponivel(adicionados.horario.quantidade, adicionados.quantidade)}</p:column>
+
+                        <p:column style="text-align: center; width: 40px;">
+                            <p:commandButton icon="ui-icon-trash" action="#{agendaAcrescentarHorarioBean.remove(adicionados)}" update=":form_acrescentar_horario: :form_acrescentar_horario_novo:" disabled="#{controleAcessoBean.botaoExcluir}" styleClass="ui-button-reset"/>
+                        </p:column>                             
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+        </f:view>
+        <f:subview id="footer">
+            <ui:include src="templates/templateFooter.xhtml"/>
+        </f:subview>
+    </h:body>
+</ui:composition>

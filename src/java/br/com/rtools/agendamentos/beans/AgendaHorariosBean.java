@@ -49,9 +49,13 @@ public class AgendaHorariosBean implements Serializable {
     private Integer idGrupoConvenio;
     private Integer idFilial;
     private Integer idSemana;
+    private Boolean web;
+    private Boolean socio;
 
     @PostConstruct
     public void init() {
+        web = false;
+        socio = false;
         horarios = new AgendaHorarios();
         horariosReativar = new AgendaHorarios();
         horaInicial = "";
@@ -105,6 +109,8 @@ public class AgendaHorariosBean implements Serializable {
             horarios.setSemana((Semana) dao.find(new Semana(), idSemana));
             horarios.setSubGrupoConvenio((SubGrupoConvenio) dao.find(new SubGrupoConvenio(), idSubGrupoConvenio));
             horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
+            horarios.setWeb(web);
+            horarios.setSocio(socio);
             quantidade = horarios.getQuantidade();
             if (!horariosDao.findByFilial(horarios.getFilial().getId(), horarios.getHora(), horarios.getSemana().getId(), idSubGrupoConvenio, idConvenio).isEmpty()) {
                 GenericaMensagem.warn("Validação", "Horário já cadastrado!");
@@ -140,6 +146,8 @@ public class AgendaHorariosBean implements Serializable {
                     horarios.setSemana((Semana) dao.find(new Semana(), idSemana));
                     horarios.setSubGrupoConvenio((SubGrupoConvenio) dao.find(new SubGrupoConvenio(), idSubGrupoConvenio));
                     horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
+                    horarios.setWeb(web);
+                    horarios.setSocio(socio);
                     if (!horariosDao.findByFilial(idFilial, horarios.getHora(), horarios.getSemana().getId(), idSubGrupoConvenio, idConvenio).isEmpty()) {
                         horarios = new AgendaHorarios();
                         continue;
@@ -178,6 +186,8 @@ public class AgendaHorariosBean implements Serializable {
                 horarios.setSemana((Semana) dao.find(new Semana(), idSemana));
                 horarios.setSubGrupoConvenio((SubGrupoConvenio) dao.find(new SubGrupoConvenio(), idSubGrupoConvenio));
                 horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
+                horarios.setWeb(web);
+                horarios.setSocio(socio);
                 if (dao.save(horarios, true)) {
                     GenericaMensagem.info("Sucesso", "Registro adicionado");
                     horarios = new AgendaHorarios();
@@ -265,7 +275,6 @@ public class AgendaHorariosBean implements Serializable {
         this.listSemana = listSemana;
     }
 
-
     public List<SelectItem> getListFiliais() {
         return listFiliais;
     }
@@ -273,8 +282,7 @@ public class AgendaHorariosBean implements Serializable {
     public void setListFiliais(List<SelectItem> listFiliais) {
         this.listFiliais = listFiliais;
     }
-    
-    
+
     public void loadListSemana() {
         listSemana = new ArrayList();
         Dao dao = new Dao();
@@ -500,6 +508,22 @@ public class AgendaHorariosBean implements Serializable {
 
     public void setIdGrupoConvenio(Integer idGrupoConvenio) {
         this.idGrupoConvenio = idGrupoConvenio;
+    }
+
+    public Boolean getWeb() {
+        return web;
+    }
+
+    public void setWeb(Boolean web) {
+        this.web = web;
+    }
+
+    public Boolean getSocio() {
+        return socio;
+    }
+
+    public void setSocio(Boolean socio) {
+        this.socio = socio;
     }
 
 }
