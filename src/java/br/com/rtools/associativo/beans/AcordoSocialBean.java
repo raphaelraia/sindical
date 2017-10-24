@@ -198,22 +198,17 @@ public class AcordoSocialBean implements Serializable {
                         listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getArgumento3(), null, null));
 
                         if (j == 0) {
-                            //ultimoVencimento = acordo.getData();
-                            Integer dia_atual = Integer.valueOf(ultimoVencimento.substring(0, 2));
-
-                            if (dia_atual <= Integer.valueOf(dia_vencimento)) {
-                                ultimoVencimento = dia_vencimento + ultimoVencimento.substring(2);
-                            } else if (dia_atual > Integer.valueOf(dia_vencimento)) {
-                                ultimoVencimento = dia_vencimento + ultimoVencimento.substring(2);
-                                if (frequencia == 30) {
-                                    ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
-                                    if (ultimoVencimento.substring(3, 5).equals("02")) {
-                                        ultimoVencimento = acordo.getData().substring(0, 2) + ultimoVencimento.substring(2);
-                                    }
-                                } else if (frequencia == 7) {
-                                    ultimoVencimento = data.incrementarSemanas(1, ultimoVencimento);
+                            ultimoVencimento = dia_vencimento + ultimoVencimento.substring(2);
+                            
+                            if (frequencia == 30) {
+                                ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
+                                if (ultimoVencimento.substring(3, 5).equals("02")) {
+                                    ultimoVencimento = acordo.getData().substring(0, 2) + ultimoVencimento.substring(2);
                                 }
+                            } else if (frequencia == 7) {
+                                ultimoVencimento = data.incrementarSemanas(1, ultimoVencimento);
                             }
+                            
                         } else if (frequencia == 30) {
                             ultimoVencimento = data.incrementarMeses(1, ultimoVencimento);
                             if (ultimoVencimento.substring(3, 5).equals("02")) {

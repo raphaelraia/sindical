@@ -42,7 +42,7 @@ public class Sicoob400 extends ArquivoRetorno {
                     objeto_arquivo.setRetorno(retorno);
 
                     // PRIMEIRA LINHA - HEADER ARQUIVO
-                    objeto_arquivo.setCnpj(linhas.get(1).substring(3, 7));
+                    objeto_arquivo.setCnpj(linhas.get(1).substring(3, 17));
                     objeto_arquivo.setCodigoCedente(linhas.get(0).substring(31, 40));
                     objeto_arquivo.setSequencialArquivo(linhas.get(0).substring(100, 107));
 
@@ -54,13 +54,13 @@ public class Sicoob400 extends ArquivoRetorno {
                         lista_objeto_retorno.add(new ObjetoRetorno(new ArrayList(), m_erro));
                         continue;
                     }
-                    // SEGMENTOS T - U
+                    
                     List<LinhaSegmento> lista_linha_segmento = new ArrayList();
                     for (int i = 0; i < linhas.size(); i++) {
                         LinhaSegmento linha_segmento = new LinhaSegmento();
 
-                        if ((i + 1) != linhas.size()) {
-
+                        if (linhas.get(i).substring(0, 1).equals("1")) {
+                            
                             if (linhas.get(i).substring(82, 84).equals("OU")) {
                                 linha_segmento.setNossoNumero(linhas.get(i).substring(62, 73).trim());
                             } else {
@@ -68,7 +68,7 @@ public class Sicoob400 extends ArquivoRetorno {
                             }
 
                             // VERIFICA O STATUS DO MOVIMENTO RETORNADO
-                            linha_segmento.setCodigoMovimento(linhas.get(i).substring(15, 17));
+                            linha_segmento.setCodigoMovimento(linhas.get(i).substring(108, 110));
 
                             StatusRetorno sr;
                             switch (linha_segmento.getCodigoMovimento()) {
@@ -107,24 +107,24 @@ public class Sicoob400 extends ArquivoRetorno {
                             linha_segmento.setValorPago(linhas.get(i).substring(253, 266));
                             linha_segmento.setDataPagamento(linhas.get(i).substring(110, 114) + "20" + linhas.get(i).substring(114, 116));
 
-                            // TEMPORARIO ----------
-                            SicoobDao dao = new SicoobDao(); // TEMPORÁRIO
-                            List<Object> boletox = dao.xsicoob(linha_segmento.getNossoNumero());
-
-                            if (!boletox.isEmpty()) {
-                                double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
-                                List linhaX = ((List) boletox.get(0));
-
-                                if ((((Double) linhaX.get(1)).doubleValue() - 0.05) < valor_pago && (((Double) linhaX.get(1)).doubleValue() + 0.05) > valor_pago) {
-
-                                } else {
-                                    // UPDATE
-                                    String data_pagamento = DataHoje.colocarBarras(linha_segmento.getDataPagamento());
-                                    dao.xupdate(data_pagamento, linha_segmento.getNossoNumero());
-                                    i++;
-                                    continue;
-                                }
-                            }
+                            // TEMPORARIO ---------- COMENTEI O CÓDIGO NA DATA 23/10/2017
+//                            SicoobDao dao = new SicoobDao(); // TEMPORÁRIO
+//                            List<Object> boletox = dao.xsicoob(linha_segmento.getNossoNumero());
+//
+//                            if (!boletox.isEmpty()) {
+//                                double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
+//                                List linhaX = ((List) boletox.get(0));
+//
+//                                if ((((Double) linhaX.get(1)).doubleValue() - 0.05) < valor_pago && (((Double) linhaX.get(1)).doubleValue() + 0.05) > valor_pago) {
+//
+//                                } else {
+//                                    // UPDATE
+//                                    String data_pagamento = DataHoje.colocarBarras(linha_segmento.getDataPagamento());
+//                                    dao.xupdate(data_pagamento, linha_segmento.getNossoNumero());
+//                                    i++;
+//                                    continue;
+//                                }
+//                            }
 
                             lista_linha_segmento.add(linha_segmento);
                         }

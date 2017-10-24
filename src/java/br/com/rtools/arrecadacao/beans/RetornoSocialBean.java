@@ -128,11 +128,16 @@ public class RetornoSocialBean {
                     }
                 } else if (ArquivoRetorno.SICOOB == contaCobranca.getContaBanco().getBanco().getId()) {
                     if (ArquivoRetorno.SICOB == contaCobranca.getLayout().getId()) {
+                        
                         if (tipo.equals("400")) {
                             arquivoRetorno = new Sicoob400(contaCobranca);
-                        } else {
+                        } else if (tipo.equals("240")) {
                             arquivoRetorno = new Sicoob240(contaCobranca);
+                        } else {
+                            result = "LIMPAR ARQUIVOS ENVIADOS E CARREGAR NOVAMENTE!";
+                            return;
                         }
+                        
                         result = arquivoRetorno.darBaixaSicobSocial(caminhoCompleto, usuario);
                     } else if (ArquivoRetorno.SINDICAL == contaCobranca.getLayout().getId()) {
                         result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";

@@ -299,9 +299,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
         ImpressaoWeb impressaoWeb;
         Movimento movimento;
         String data = "";
-        Dao dao = new Dao();
 
-        dao.openTransaction();
 
         String dataValida = "";
         DataHoje dh = new DataHoje();
@@ -323,6 +321,10 @@ public class WebContribuintesBean extends MovimentoValorBean {
             }
         }
 
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        
         for (DataObject listMovimento : listaMovimentoSelecionado) {
             movimento = ((Movimento) dao.find(new Movimento(), (Integer) listMovimento.getArgumento16()));
             // COM VALOR ALTERADO ---------

@@ -1204,12 +1204,14 @@ public class GerarMovimento extends DB {
                 }
                 if (movimento.getNrCtrBoleto() != null && !movimento.getNrCtrBoleto().isEmpty()) {
                     Boleto bol = movimento.getBoleto();
-                    bol.setDtCobrancaRegistrada(null);
-                    bol.setStatusRetorno(null);
-                    bol.setDtStatusRetorno(null);
-                    if (!dao.update(bol)) {
-                        dao.rollback();
-                        return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
+                    if (bol != null){
+                        bol.setDtCobrancaRegistrada(null);
+                        bol.setStatusRetorno(null);
+                        bol.setDtStatusRetorno(null);
+                        if (!dao.update(bol)) {
+                            dao.rollback();
+                            return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO ATUALIZAR BOLETO!");
+                        }
                     }
                 }
 

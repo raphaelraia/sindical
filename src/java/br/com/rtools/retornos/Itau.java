@@ -61,7 +61,7 @@ public class Itau extends ArquivoRetorno {
                     for (int i = 0; i < linhas.size(); i++) {
                         LinhaSegmento linha_segmento = new LinhaSegmento();
 
-                        if (linhas.get(i).subSequence(0, 1).equals("1")) {
+                        if (linhas.get(i).substring(0, 1).equals("1")) {
                             linha_segmento.setNossoNumero(linhas.get(i).substring(62, 70).trim());
                             linha_segmento.setValorTaxa(linhas.get(i).substring(175, 188));
                             linha_segmento.setDataVencimento(linhas.get(i).substring(146, 152));

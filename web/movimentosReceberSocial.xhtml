@@ -348,7 +348,7 @@
                                     <p:commandLink ajax="false" value="Alterar" action="#{movimentosReceberSocialBean.telaMovimento(linha.argumento1)}" disabled="#{controleAcessoBean.botaoAlterarMovimento or movimentosReceberSocialBean.porPesquisa eq 'excluidos'}"/>
                                 </p:column>
 
-                                <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
+                                <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' and linha.argumento1 != null}">
                                     <h:commandLink target="#{movimentosReceberSocialBean.targetImprimeRecibo(linha.argumento1)}" action="#{movimentosReceberSocialBean.recibo(linha.argumento1)}" rendered="#{!empty(linha.argumento10)}" title="Imprimir este Recibo">
                                         <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo"/>
                                     </h:commandLink>

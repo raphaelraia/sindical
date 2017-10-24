@@ -97,7 +97,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                         sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
                                         break;
                                     case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
-                                        i = i + 2;
+                                        i++;
                                         continue;
                                     default:
                                         sr = null;
@@ -194,7 +194,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                         sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
                                         break;
                                     case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
-                                        i = i + 2;
+                                        i++;
                                         continue;
                                     default:
                                         sr = null;
@@ -329,7 +329,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                     sr = (StatusRetorno) new Dao().find(new StatusRetorno(), 6); // REGISTRO EXCLUÍDO
                                     break;
                                 case "28": // de acordo com o manual ‘28’ Débito de Tarifas/Custas 
-                                    i = i + 2;
+                                    i++;
                                     continue;
                                 default:
                                     sr = null;

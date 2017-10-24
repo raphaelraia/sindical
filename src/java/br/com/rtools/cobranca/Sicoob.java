@@ -645,13 +645,13 @@ public class Sicoob extends Cobranca {
     public RespostaArquivoRemessa gerarRemessa400() {
         return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
-    
+
     @Override
     public RespostaWebService registrarBoleto() {
         MovimentoDao dbm = new MovimentoDao();
         MovimentosReceberSocialDao db_social = new MovimentosReceberSocialDao();
         Dao dao = new Dao();
-        
+
         Registro reg = Registro.get();
         Pessoa pessoa = db_social.responsavelBoleto(boleto.getNrCtrBoleto());
         List<Movimento> lista_movimento = db_social.listaMovimentosPorNrCtrBoleto(boleto.getNrCtrBoleto());
@@ -810,6 +810,7 @@ public class Sicoob extends Cobranca {
             params.add(new BasicNameValuePair("data_vencimento", DataHoje.converteData(vencimento).substring(0, 2) + DataHoje.converteData(vencimento).substring(3, 5) + DataHoje.converteData(vencimento).substring(6, 10)));
             params.add(new BasicNameValuePair("referencia", lista_movimento.get(0).getReferencia().replace("/", "")));
             params.add(new BasicNameValuePair("valor", Moeda.converteR$Double(valor).replace(".", "").replace(",", ".")));
+            params.add(new BasicNameValuePair("id_boleto", "" + boleto.getId()));
 
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 
@@ -871,6 +872,20 @@ public class Sicoob extends Cobranca {
                         m.setDocumento(nb);
                         new Dao().update(m, true);
                     }
+
+                    new Dao().executeQuery(
+                            " INSERT INTO fin_movimento_boleto (id_movimento, id_boleto) \n "
+                            + "( \n "
+                            + "SELECT m.id, b.id \n "
+                            + "  FROM fin_boleto AS b \n "
+                            + " INNER JOIN fin_movimento AS m ON m.nr_ctr_boleto = b.nr_ctr_boleto \n "
+                            + "  LEFT JOIN fin_movimento_boleto AS mb ON mb.id_boleto = b.id AND mb.id_movimento = m.id \n "
+                            + " WHERE b.id = " + boleto.getId() + " \n "
+                            + "   AND mb.id IS NULL \n "
+                            + "   AND m.id_baixa IS NULL \n "
+                            + " GROUP BY m.id, b.id \n "
+                            + ");"
+                    );
 
                     return new RespostaWebService(boleto, "");
                 } else {

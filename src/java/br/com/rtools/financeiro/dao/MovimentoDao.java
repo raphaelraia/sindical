@@ -1931,7 +1931,7 @@ public class MovimentoDao extends DB {
                     + "                  length('000000000000000'||bol.ds_boleto) - 16, "
                     + "                  length('000000000000000'||bol.ds_boleto))"
                     + "    and mov.is_ativo is true "
-                    + "    and mov.id_baixa is null "
+                    //+ "    and mov.id_baixa is null "
                     + "    AND mov.nr_ctr_boleto IS NOT NULL AND mov.nr_ctr_boleto <> '' "
                     + "    and mov.id_servicos NOT IN (select id_servicos from fin_servico_rotina where id_rotina = 4) "
                     + "    and bol.id_conta_cobranca = " + idContaCobranca;

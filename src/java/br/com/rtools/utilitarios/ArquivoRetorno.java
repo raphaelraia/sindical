@@ -804,6 +804,30 @@ public abstract class ArquivoRetorno {
                                 //movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
                                 //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
+                                Boolean continua = true;
+                                for (Movimento mx : lista_movimento){
+                                    if (mx.getBaixa() != null){
+                                        Object[] log = new Object[3];
+
+                                        log[0] = 8;
+                                        log[1] = mx.getDocumento();
+                                        log[2] = "Boleto com Movimento Pago não pode ser baixado - " 
+                                                + " - Data de Vencimento: " + mx.getVencimento()
+                                                + " - Data de Pagamento: " + mx.getBaixa().getBaixa()
+                                                + " - Valor Pago: " + mx.getValorBaixaString()
+                                                + " - Usuário: " + mx.getBaixa().getUsuario().getPessoa().getNome();
+                                        
+                                        lista_logs.add(log);
+                                        continua = false;
+                                        
+                                        break;
+                                    }
+                                }
+                                
+                                if (!continua){
+                                    continue;
+                                }
+                                
                                 String retorno_continua = continuaBaixaSoc(lista_movimento.get(0).getBoleto(), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
 
                                 if (!retorno_continua.isEmpty()) {
@@ -811,7 +835,7 @@ public abstract class ArquivoRetorno {
 
                                     log[0] = 8;
                                     log[1] = linha_segmento.getNossoNumero();
-                                    log[2] = "Boleto não Encontrado - " + linha_segmento.getNossoNumero()
+                                    log[2] = retorno_continua + " - " + linha_segmento.getNossoNumero()
                                             + " - Data de Vencimento: " + DataHoje.colocarBarras(linha_segmento.getDataVencimento())
                                             + " - Data de Pagamento: " + DataHoje.colocarBarras(linha_segmento.getDataPagamento())
                                             + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
@@ -829,7 +853,7 @@ public abstract class ArquivoRetorno {
                                 // 6 - VALOR DA BAIXA MENOR - [1] obj Lista Movimento
                                 // 7 - VALOR DA BAIXA MAIOR - [1] obj Lista Movimento
                                 // 8 - BOLETO NÃO ENCONTRADO - [1] string Número do Boleto
-                                // 9 - ERRO AO ALTERAR MOVIMENTO COM VALOR BAIXA CORRETO- [1] obj Movimento
+                                // 9 - ERRO AO ALTERAR MOVIMENTO COM VALOR BAIXA CORRETO - [1] obj Movimento
                                 Object[] log = GerarMovimento.baixarMovimentoSocial(
                                         lista_movimento, // lista de movimentos
                                         usuario, // usuario que esta baixando
