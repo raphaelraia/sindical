@@ -25,9 +25,14 @@ public class AgendaServicoDao extends DB {
 
     public AgendaServico findByAgendaServico(Integer servico_id, Boolean web) {
         try {
-            Query query = getEntityManager().createQuery("SELECT ASE FROM AgendaServico ASE WHERE ASE.servico.id = :servico_id AND ASE.web = :web");
+            Query query;
+            if(web) {
+                query = getEntityManager().createQuery("SELECT ASE FROM AgendaServico ASE WHERE ASE.servico.id = :servico_id AND ASE.web = :web");
+                query.setParameter("web", web);                
+            } else {
+                query = getEntityManager().createQuery("SELECT ASE FROM AgendaServico ASE WHERE ASE.servico.id = :servico_id");
+            }
             query.setParameter("servico_id", servico_id);
-            query.setParameter("web", web);
             return (AgendaServico) query.getSingleResult();
         } catch (Exception e) {
             return null;

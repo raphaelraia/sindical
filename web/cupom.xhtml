@@ -36,7 +36,7 @@
                                 <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop" >
                                     <h:column>
                                         <h:panelGrid columns="2" cellspacing="5" id="i_grid_cupom">
-                                            <h:outputLabel value="Cupom:" />
+                                            <h:outputLabel value="Descrição:" />
                                             <p:inputText value="#{cupomBean.cupom.descricao}" maxlength="250" converter="#{toUpperCase}">
                                                 <p:ajax event="change" update="@this" />                                            
                                             </p:inputText>
@@ -64,7 +64,7 @@
                                                     <h:panelGrid columns="2">
                                                         <p:commandButton icon="ui-icon-plus" action="#{cupomBean.add}" update="id_categoria" disabled="#{controleAcessoBean.botaoSalvar or empty cupomBean.listCategoria}"/>
                                                         <p:commandButton action="#{cupomBean.addAll}" value="Todas" update="id_categoria" disabled="#{controleAcessoBean.botaoSalvar or empty cupomBean.listCategoria}"/>
-                                                        
+
                                                     </h:panelGrid>
                                                 </h:panelGrid>
                                             </h:column>
@@ -81,6 +81,13 @@
                                         </h:panelGrid>
                                     </h:column>
                                 </h:panelGrid>
+                                <br />
+                                <br />
+                                <p:outputLabel value="Obs: " />
+                                <br />
+                                <p:inputTextarea value="#{cupomBean.cupom.obs}" maxlength="300" rows="3" cols="50">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputTextarea>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="3">
                                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show();" />                                        
@@ -91,6 +98,9 @@
                             </p:panel>
                             <p:panel header="Cupons" id="id_grid_cupons" styleClass="margin-top-max">
                                 <p:dataTable value="#{cupomBean.listCupom}" var="cupom" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!">                                 
+                                    <p:column width="30">  
+                                        <p:rowToggler />  
+                                    </p:column>  
                                     <p:column styleClass="text-center" width="30">
                                         <p:commandButton icon="ui-icon-pencil" action="#{cupomBean.edit(cupom)}" update=":form_cupom:" disabled="#{controleAcessoBean.botaoExcluir}" />
                                     </p:column>
@@ -102,7 +112,10 @@
                                     </p:column>
                                     <p:column headerText="Dias de inadimplência">
                                         #{cupom.carenciaInadimplenciaDias} 
-                                    </p:column>                                    
+                                    </p:column>
+                                    <p:rowExpansion>
+                                        Obs: #{cupom.obs}
+                                    </p:rowExpansion>
                                 </p:dataTable>
                             </p:panel>
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">

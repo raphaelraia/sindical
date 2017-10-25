@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,6 +30,9 @@ public class Cupom implements Serializable {
     private Integer id;
     @Column(name = "ds_descricao", nullable = false, length = 250, columnDefinition = "character varying default ''")
     private String descricao;
+    @Lob
+    @Column(name = "ds_obs", nullable = false, columnDefinition = "character varying default ''")
+    private String obs;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_data", nullable = false)
     private Date dtData;
@@ -46,6 +50,7 @@ public class Cupom implements Serializable {
     public Cupom() {
         this.id = null;
         this.descricao = "";
+        this.obs = "";
         this.dtData = null;
         this.carenciaInadimplenciaDias = 0;
         this.ativo = true;
@@ -53,9 +58,10 @@ public class Cupom implements Serializable {
         this.listCupomCategoria = null;
     }
 
-    public Cupom(Integer id, String descricao, Date dtData, Integer carenciaInadimplenciaDias, Boolean ativo) {
+    public Cupom(Integer id, String descricao, String obs, Date dtData, Integer carenciaInadimplenciaDias, Boolean ativo) {
         this.id = id;
         this.descricao = descricao;
+        this.obs = obs;
         this.dtData = dtData;
         this.carenciaInadimplenciaDias = carenciaInadimplenciaDias;
         this.ativo = ativo;
@@ -75,7 +81,7 @@ public class Cupom implements Serializable {
         return descricao;
     }
 
-    public void setDescricao(String descricao) {        
+    public void setDescricao(String descricao) {
         this.descricao = descricao.trim();
     }
 
@@ -144,6 +150,14 @@ public class Cupom implements Serializable {
 
     public void setListCupomCategoria(List listCupomCategoria) {
         this.listCupomCategoria = listCupomCategoria;
+    }
+
+    public String getObs() {
+        return obs;
+    }
+
+    public void setObs(String obs) {
+        this.obs = obs;
     }
 
 }
