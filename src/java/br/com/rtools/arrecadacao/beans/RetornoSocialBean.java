@@ -179,13 +179,13 @@ public class RetornoSocialBean {
                             break;
                     }
                 }
-
-                new RetornoDao().corrigeRetornoIncorreto();
-                
+    
                 GenericaMensagem.info("Sucesso", "Arquivos Baixados");
             } else {
                 GenericaMensagem.error("ERRO AO BAIXAR", result);
             }
+            
+            new RetornoDao().corrigeRetornoIncorreto();
 
             loadListaArquivosBaixar();
         } catch (Exception e) {

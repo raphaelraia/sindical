@@ -82,18 +82,17 @@ public class RetornoDao extends DB {
     
     public void corrigeRetornoIncorreto() {
         try {
-            Query query = getEntityManager().createNativeQuery(
-                    "SELECT r.* \n "
-                    + "  FROM fin_retorno r \n "
-                    + " WHERE r.id NOT IN (SELECT rb.id_retorno FROM fin_retorno_banco rb) \n "
-                    + " ORDER BY r.nr_sequencial DESC", Retorno.class
-            );
-            List<Retorno> lr = query.getResultList();
+            // retorno gerado errado
+//            Query query = getEntityManager().createNativeQuery(
+//                    "SELECT r.* \n "
+//                    + "  FROM fin_retorno r \n "
+//                    + " WHERE r.id NOT IN (SELECT rb.id_retorno FROM fin_retorno_banco rb) \n "
+//                    + " ORDER BY r.nr_sequencial DESC", Retorno.class
+//            );
+//            List<Retorno> lr = query.getResultList();
             Dao dao = new Dao();
             
-            lr.stream().forEach((r) -> {
-                dao.delete(r, true);
-            });
+            dao.executeQuery("DELETE FROM fin_retorno WHERE id NOT IN (SELECT rb.id_retorno FROM fin_retorno_banco rb)");
         } catch (Exception e) {
             e.getMessage();
         }
