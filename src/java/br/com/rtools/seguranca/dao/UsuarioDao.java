@@ -3,10 +3,14 @@ package br.com.rtools.seguranca.dao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 public class UsuarioDao extends DB {
 
@@ -34,6 +38,21 @@ public class UsuarioDao extends DB {
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return (Pessoa) qry.getSingleResult();
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    public Pessoa validaUsuarioWebCpfNascimento(String cpf, String nascimento) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT F.pessoa FROM Fisica F WHERE F.pessoa.documento = :cpf AND F.dtNascimento = :nascimento");
+            query.setParameter("cpf", cpf);
+            Date d = DataHoje.converte(nascimento);
+            query.setParameter("nascimento", d, TemporalType.DATE);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return (Pessoa) query.getSingleResult();
             }
         } catch (Exception e) {
         }

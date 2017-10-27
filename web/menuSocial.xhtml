@@ -118,9 +118,9 @@
                                     <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
                                     <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
                                     <p:submenu label="Agendamento">
-                                        <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" />
-                                        <p:menuitem value="Cancelamentos"       action="#{chamadaPaginaBean.pagina('cancelamentos')}" />
-                                        <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" />
+                                        <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
+                                        <p:menuitem value="Cancelamentos"       action="#{chamadaPaginaBean.pagina('cancelamentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
+                                        <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
                                     </p:submenu>
                                     <p:submenu label="Eventos">
                                         <p:menuitem value="Convite Clube"       action="#{chamadaPaginaBean.conviteMovimento}"/>

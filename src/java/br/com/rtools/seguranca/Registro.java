@@ -129,6 +129,9 @@ public class Registro implements Serializable {
     private String chaveCliente;
     @Column(name = "is_mei", columnDefinition = "boolean default false")
     private boolean mei;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_atualiza_agendamentos")
+    private Date dataAtualizaAgendamentos;
 
     public Registro() {
         this.id = -1;
@@ -185,6 +188,7 @@ public class Registro implements Serializable {
         this.acessoWebDocumentoCPF = false;
         this.acessoWebDocumentoCEI = false;
         this.mei = false;
+        this.dataAtualizaAgendamentos = null;
     }
 
     public Registro(int id,
@@ -240,7 +244,8 @@ public class Registro implements Serializable {
             boolean acessoWebDocumentoCNPJ,
             boolean acessoWebDocumentoCPF,
             boolean acessoWebDocumentoCEI,
-            boolean mei) {
+            boolean mei,
+            Date dataAtualizaAgendamentos) {
         this.id = id;
         this.filial = filial;
         this.tipoEmpresa = tipoEmpresa;
@@ -294,6 +299,7 @@ public class Registro implements Serializable {
         this.acessoWebDocumentoCPF = acessoWebDocumentoCPF;
         this.acessoWebDocumentoCEI = acessoWebDocumentoCEI;
         this.mei = mei;
+        this.dataAtualizaAgendamentos = dataAtualizaAgendamentos;
     }
 
     public int getId() {
@@ -766,5 +772,15 @@ public class Registro implements Serializable {
     public void setMei(boolean mei) {
         this.mei = mei;
     }
+
+    public Date getDataAtualizaAgendamentos() {
+        return dataAtualizaAgendamentos;
+    }
+
+    public void setDataAtualizaAgendamentos(Date dataAtualizaAgendamentos) {
+        this.dataAtualizaAgendamentos = dataAtualizaAgendamentos;
+    }
+    
+    
 
 }

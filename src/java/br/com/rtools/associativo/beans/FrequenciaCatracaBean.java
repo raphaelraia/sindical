@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.CatracaFrequencia;
 import br.com.rtools.associativo.dao.FrequenciaCatracaDao;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.sistema.SisPessoa;
@@ -28,10 +24,6 @@ import org.primefaces.model.chart.ChartSeries;
 import org.primefaces.model.chart.LineChartModel;
 import org.primefaces.model.chart.LineChartSeries;
 
-/**
- *
- * @author Claudemir Rtools
- */
 @ManagedBean
 @SessionScoped
 public class FrequenciaCatracaBean implements Serializable {
@@ -195,8 +187,8 @@ public class FrequenciaCatracaBean implements Serializable {
     }
 
     public Pessoa getPessoa() {
-        if (GenericaSessao.exists("pessoaPesquisa")) {
-            pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
+        if (GenericaSessao.exists("fisicaPesquisa")) {
+            pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
             loadListaFrequenciaCatraca();
         }
         return pessoa;

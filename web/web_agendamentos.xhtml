@@ -1,0 +1,347 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Web Agendamentos</title>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrimeWeb.xhtml"/>
+            <ui:include src="templates/templateStatus.xhtml"/>
+        </f:subview>
+
+        <f:view>
+            <h:panelGrid style="margin: 0 auto; width: 1024px">
+                <h2 class="font-size-16">Web Agendamentos</h2>
+                <h:form id="form_person">
+                    <h:outputScript name="tradutor_primefaces.js" library="js" />
+                    <p:growl id="growl" showDetail="true"/> 
+                    <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
+                    <c:set scope="request" var="object" value="${webAgendamentosBean.agendamento}"/>
+                    <p:panel id="i_panel_person" rendered="#{!webAgendamentosBean.newSched}">
+                        <p:dataTable value="#{webAgendamentosBean.listSocios}" var="socios" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" rowStyleClass="#{socios.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}">
+                            <p:column styleClass="text-center" width="30">
+                                <p:commandButton update=":form_person: :form_agendamentos:" action="#{webAgendamentosBean.selectSocios(socios.servicoPessoa.pessoa)}" icon="ui-icon-calendar" />
+                            </p:column>
+                            <p:column styleClass="text-center" headerText="Paretesco">
+                                #{socios.parentesco.parentesco}
+                            </p:column>
+                            <p:column styleClass="text-center" headerText="Sócios">
+                                #{socios.servicoPessoa.pessoa.nome}
+                            </p:column>
+                            <p:column styleClass="text-center" headerText="Documento">
+                                #{socios.servicoPessoa.pessoa.documento}
+                            </p:column>
+                        </p:dataTable> 
+                    </p:panel>
+                </h:form>                     
+                <h:form id="form_agendamentos">
+                    <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{webAgendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{webAgendamentosBean.loadListHorarios}" />
+                    <h:panelGroup rendered="#{webAgendamentosBean.pessoa.id ne -1 and webAgendamentosBean.newSched}">
+                        <h:panelGroup rendered="#{not empty webAgendamentosBean.pessoa.pessoa.pessoaComplemento.obsAviso}" >
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', webAgendamentosBean.pessoa.pessoa.pessoaComplemento.obsAviso)}" escape="false" />
+                            <br />
+                        </h:panelGroup>
+                        <p:panel>
+                            <h:panelGrid columns="2">
+                                <p:column>
+                                    <p:outputLabel value="FILIAIS: " styleClass="bold"/>
+                                </p:column>
+                                <p:column>
+                                    <p:selectOneMenu  value="#{webAgendamentosBean.idFilial}">
+                                        <p:ajax event="change" update="@this :form_agendamentos: " listener="#{webAgendamentosBean.listener('filial')}"/>
+                                        <f:selectItems value="#{webAgendamentosBean.listFiliais}" />
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </h:panelGrid>                                                            
+                        </p:panel>
+                        <p:panel styleClass="fundoCinza margin-top">
+                            <h:panelGrid columns="4" style="width: 100%">
+                                <h:column>
+                                    <label class="bold font-size-12 font-color-blue"> #{webAgendamentosBean.pessoa.pessoa.nome} </label><label class="font-color-red">(#{webAgendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
+                                    <p:commandLink title="Ver detalhes" styleClass="margin-left-max"  >
+                                        <p:ajax event="click" update=":form_agendamentos:i_pessoa_fisica_card" listener="#{pessoaCardBean.cardFisica(webAgendamentosBean.pessoa.pessoa.id)}" oncomplete="PF('dlg_pessoa_fisica_card').show()" />
+                                        <p:button icon="ui-icon-contact" />
+                                    </p:commandLink>
+                                </h:column>
+                            </h:panelGrid>
+                            <h:panelGrid columns="4" style="width: 100%">
+                                <h:column rendered="#{webAgendamentosBean.pessoa.pessoa.socios.id ne -1}">
+                                    <h:panelGrid columns="6">
+                                        <h:column>Matrícula: #{webAgendamentosBean.pessoa.pessoa.socios.matriculaSocios.nrMatricula} -</h:column>
+                                        <h:column>Categoria: #{webAgendamentosBean.pessoa.pessoa.socios.matriculaSocios.categoria.categoria} -</h:column>
+                                        <h:column>Filiação: #{webAgendamentosBean.pessoa.pessoa.socios.parentesco.parentesco}</h:column>
+                                    </h:panelGrid>
+                                </h:column>
+                                <h:column>
+                                    <p:commandButton value="AGENDADOS" styleClass="bold">
+                                        <p:ajax oncomplete="PF('dlg_schedules').show()" update=":form_agendamentos:" listener="#{webAgendamentosBean.listener('schedules')}" />
+                                    </p:commandButton>
+                                </h:column>
+                                <h:column>
+                                    <p:commandButton update=":form_person: :form_agendamentos:" action="#{genericaSessao.removeSession('webAgendamentosBean')}" value="NOVO AGENDAMENTO" style="float: right" styleClass="bold"/>
+                                </h:column>
+                            </h:panelGrid>
+                            <h:panelGrid columns="6" cellspacing="5">
+                                <p:outputLabel value="Telefone:" />
+                                <p:inputMask value="#{webAgendamentosBean.agendamento.telefone}" mask="(99) 99999-9999" size="15">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
+                                <p:outputLabel value="Email:" />
+                                <p:inputText value="#{webAgendamentosBean.agendamento.email}" maxlength="100" size="50">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>
+                            </h:panelGrid>
+                        </p:panel>
+                        <p:panel styleClass="margin-top">
+                            <f:facet name="header">
+                                <h:panelGrid columns="6" cellspacing="10">
+                                    <h:outputLabel value="Grupo Convênio:" />
+                                    <p:selectOneMenu value="#{webAgendamentosBean.idGrupoConvenio}">
+                                        <p:ajax event="change" update="@this :form_agendamentos:" listener="#{webAgendamentosBean.listener('grupo_convenio')}" />
+                                        <f:selectItems value="#{webAgendamentosBean.listGrupoConvenio}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Subgrupo Convênio:" />
+                                    <p:selectOneMenu value="#{webAgendamentosBean.idSubGrupoConvenio}">
+                                        <p:ajax event="change" update="@this :form_agendamentos:" listener="#{webAgendamentosBean.listener('subgrupo_convenio')}"  />
+                                        <f:selectItems value="#{webAgendamentosBean.listSubGrupoConvenio}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Colaborador:" />
+                                    <p:selectOneMenu value="#{webAgendamentosBean.idConvenio}">
+                                        <p:ajax event="change" update="@this :form_agendamentos:" listener="#{webAgendamentosBean.listener('convenio')}"  />
+                                        <f:selectItems value="#{webAgendamentosBean.listConvenio}" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>                                     
+                            </f:facet>
+                            <h:panelGrid columns="6" cellspacing="10">
+                                <h:outputLabel value="Serviços" />
+                                <p:selectOneMenu value="#{webAgendamentosBean.idServico}" filter="true" filterMatchMode="contains">
+                                    <p:ajax event="change" update="@this :form_agendamentos:" listener="#{webAgendamentosBean.listener('servicos')}" />
+                                    <f:selectItems value="#{webAgendamentosBean.listServicos}" />
+                                </p:selectOneMenu>
+                                <h:outputLabel value="Tempo de execução do serviço #{webAgendamentosBean.agendaServico.nrMinutos} (min)" styleClass="font-color-red"/>
+                            </h:panelGrid>     
+                            <h:panelGroup id="i_dates" layout="block" >
+                                <h:panelGrid columns="2" rendered="#{webAgendamentosBean.idServico ne null}"  cellspacing="10">
+                                    Data: 
+                                    <p:calendar size="8" value="#{webAgendamentosBean.data}" pattern="dd/MM/yyyy" navigator="true" mindate="java.util.Date" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
+                                        <p:ajax event="dateSelect" listener="#{webAgendamentosBean.dataListener}" update=":form_agendamentos:"/>
+                                        <p:ajax event="change" listener="#{webAgendamentosBean.dataListener}" update=":form_agendamentos:"/>
+                                    </p:calendar>                                            
+                                </h:panelGrid>
+                            </h:panelGroup>                                
+                            <f:facet name="footer">
+                                <h:panelGroup id="i_scheds" layout="block">
+                                    <p:dataTable value="#{webAgendamentosBean.agendamentos}" var="agendamentos" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column styleClass="text-center" width="80">
+                                            <f:facet name="header">
+                                                <h:graphicImage value="/Imagens/horario_pisca.gif" alt="Horário" title="Horário" width="20" />
+                                            </f:facet>
+                                            <p:commandLink action="#{webAgendamentosBean.scheduler(agendamentos)}" value="#{agendamentos.hora}" update=":form_agendamentos:"/>                                        
+                                        </p:column>
+                                        <p:column headerText="Quantidade" styleClass="text-center">
+                                            #{agendamentos.quantidade}
+                                        </p:column>
+                                        <p:column styleClass="text-center">
+                                            <p:outputLabel value="#{agendamentos.quantidade == 0  ? 'ENCAXE' : 'DISPONIVEL'}" styleClass="#{agendamentos.quantidade == 0  ? 'font-color-red' : 'font-color-blue bold'}" />
+                                        </p:column>
+                                    </p:dataTable>                                    
+                                </h:panelGroup>
+                            </f:facet>
+                        </p:panel>
+                    </h:panelGroup>
+                    <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                        <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                        <p:panel id="i_pessoa_fisica_card">
+                            <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                        </p:panel>
+                    </p:dialog> 
+                    <p:dialog widgetVar="dlg_sched" modal="true" resizable="false" height="400" width="1000" header="Deseja #{webAgendamentosBean.agendamento.agendaStatus.id == 2 ? 'agendar este serviço' : 'realizar este encaixe de serviço' } ?" visible="#{webAgendamentosBean.showModal}" closeOnEscape="true">
+                        <p:ajax event="close" update=":form_agendamentos:" listener="#{webAgendamentosBean.listener('close_sched')}" />
+                        <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
+                        <h:panelGrid columns="3" style="width: 100%">
+                            <h:column>
+                                <label class="bold font-size-12 font-color-blue"> #{webAgendamentosBean.pessoa.pessoa.nome} </label><label class="font-color-red">(#{webAgendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
+                            </h:column>
+                            <h:column rendered="#{webAgendamentosBean.pessoa.pessoa.socios.id ne -1}">
+                                <h:panelGrid columns="6">
+                                    <h:column>Matrícula: #{webAgendamentosBean.pessoa.pessoa.socios.matriculaSocios.nrMatricula}</h:column>
+                                    <h:column>Categoria: #{webAgendamentosBean.pessoa.pessoa.socios.matriculaSocios.categoria.categoria}</h:column>
+                                    <h:column>Filiação: #{webAgendamentosBean.pessoa.pessoa.socios.parentesco.parentesco}</h:column>
+                                </h:panelGrid>
+                            </h:column>
+                        </h:panelGrid>                            
+                        <h:panelGrid columns="6" cellspacing="5" styleClass="margin-top-max">
+                            <p:outputLabel value="Telefone: " rendered="#{not empty webAgendamentosBean.agendamento.telefone}"/>
+                            <p:outputLabel value="#{webAgendamentosBean.agendamento.telefone}" styleClass="bold font-color-blue"/>
+                            <p:outputLabel value="E-mail: " rendered="#{not empty webAgendamentosBean.agendamento.email}" />
+                            <p:outputLabel value="#{webAgendamentosBean.agendamento.email}" styleClass="text-center bold font-color-red" />
+                            <p:outputLabel value="Contato: " rendered="#{not empty webAgendamentosBean.agendamento.contato}"/>
+                            <p:outputLabel value="#{webAgendamentosBean.agendamento.contato}" styleClass="text-center bold"/>
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" cellspacing="5" styleClass="margin-top-max">
+                            <p:outputLabel value="Filial: " />
+                            <p:outputLabel value="#{webAgendamentosBean.agendamentoHorario.agendaHorarios.filial.filial.pessoa.nome} - #{webAgendamentosBean.agendamentoHorario.agendaHorarios.filial.filial.pessoa.documento}" styleClass="bold"/>
+                            <p:outputLabel value="Emissão: " />
+                            <p:outputLabel value="#{webAgendamentosBean.agendamento.emissao}" styleClass="text-center bold"/>
+                            <p:outputLabel value="Data:" />
+                            <h:column>
+                                <h:panelGrid columns="8">
+                                    <p:outputLabel value="#{webAgendamentosBean.agendamento.data}" styleClass="bold"/>
+                                    <p:outputLabel value="Horário Inicial: " styleClass="margin-left-max"/>
+                                    <p:outputLabel value="#{webAgendamentosBean.agendamentoHorario.agendaHorarios.hora}" styleClass="bold"/>                                    
+                                    <p:outputLabel value="Horário Final: " styleClass="margin-left-max"/>
+                                    <p:outputLabel value="#{webAgendamentosBean.endTime}" styleClass="bold"/>
+                                    <p:outputLabel value="Tempo: " styleClass="margin-left-max"/>
+                                    <p:outputLabel value="#{webAgendamentosBean.agendaServico.nrMinutos} (min)" styleClass="bold"/>                                    
+                                </h:panelGrid>
+                            </h:column>
+                            <p:outputLabel value="Colaborador: " />
+                            <p:outputLabel value="#{webAgendamentosBean.agendamentoHorario.agendaHorarios.convenio.nome} - #{webAgendamentosBean.agendamentoHorario.agendaHorarios.convenio.documento}" styleClass="bold" title="#{webAgendamentosBean.agendamentoHorario.agendaHorarios.convenio.id}"/>                            
+                            <p:outputLabel value="Grupo: " />
+                            <h:column>
+                                <h:panelGrid columns="8">
+                                    <p:outputLabel value="#{webAgendamentosBean.agendamentoHorario.agendaHorarios.subGrupoConvenio.grupoConvenio.descricao}" styleClass="bold"/>
+                                    <p:outputLabel value="Subgrupo: " styleClass="margin-left-max"/>
+                                    <p:outputLabel value="#{webAgendamentosBean.agendamentoHorario.agendaHorarios.subGrupoConvenio.descricao}" styleClass="bold"/>
+                                </h:panelGrid>
+                            </h:column>
+                            <p:outputLabel value="Serviço:" />
+                            <p:outputLabel value="(#{webAgendamentosBean.agendamentoServico.servico.id}) #{webAgendamentosBean.agendamentoServico.servico.descricao}" styleClass="text-center bold font-color-blue"/>
+                        </h:panelGrid>
+                        <h:panelGrid columns="3">
+
+                        </h:panelGrid>
+                        <f:facet name="footer">
+                            <h:panelGrid cellspacing="5" columns="2" rendered="#{!webAgendamentosBean.newRegister}">
+                                <p:commandButton value="Confirmar" update=":form_agendamentos:" action="#{webAgendamentosBean.save}"/>
+                                <p:commandButton value="Cancelar" update=":form_agendamentos:" action="#{webAgendamentosBean.listener('close_sched')}" />
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_sched_confirm" modal="true" resizable="false" height="100" width="400" header="Mensagem" visible="#{webAgendamentosBean.lockScheduler}" closeOnEscape="true">
+                        <p:ajax event="close" update=":form_agendamentos:" listener="#{webAgendamentosBean.listener('close_sched')}" />
+                        <h:outputLabel value="Não há quantidade disponivel na sequência do horário escolhido, deseja realizar os demais como encaixe?" styleClass="bold font-color-red"/>
+                        <f:facet name="footer">                            
+                            <h:panelGrid cellspacing="5" columns="2">
+                                <p:commandButton action="#{webAgendamentosBean.scheduler(webAgendamentosBean.objectAgendamentos, null)}" value="Sim, prosseguir com o agendamento" update=":form_agendamentos:" />
+                                <p:commandButton value="Desfazer" update=":form_agendamentos:" action="#{webAgendamentosBean.listener('close_sched')}" />
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_schedules" modal="true" resizable="false" height="400" width="1000" header="Agendados" closeOnEscape="true" visible="#{webAgendamentosBean.schedulesStatus}">
+                        <p:ajax event="close" update=":form_agendamentos:" listener="#{webAgendamentosBean.listener('close_schedules')}" />
+                        <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
+                        <p:panel header="Filtros">
+                            <h:panelGrid columns="8">
+                                <p:outputLabel value="Status: " />
+                                <p:selectOneMenu  value="#{webAgendamentosBean.idStatus}" >
+                                    <p:ajax event="change" update="@this :form_agendamentos:i_list_agendas" listener="#{webAgendamentosBean.listener('load_schedules')}"/>
+                                    <f:selectItems value="#{webAgendamentosBean.listStatus}" />
+                                </p:selectOneMenu>
+                                <p:outputLabel value="Data Inicial: " />
+                                <p:inputMask mask="99/99/9999" value="#{webAgendamentosBean.startDate}" converter="#{isDateString}">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
+                                <p:outputLabel value="Data Final: " />
+                                <p:inputMask mask="99/99/9999" value="#{webAgendamentosBean.endDate}" converter="#{isDateString}">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
+                                <p:commandButton value="FILTRAR" styleClass="bold margin-left-max">
+                                    <p:ajax update=":form_agendamentos:i_list_agendas" listener="#{webAgendamentosBean.listener('load_schedules')}" />
+                                </p:commandButton>
+                            </h:panelGrid>
+                        </p:panel>
+                        <h:panelGroup id="i_list_agendas" layout="block">
+                            <p:dataTable value="#{webAgendamentosBean.listObjectAgenda}" var="oa" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!">
+                                <p:column width="30">
+                                    <p:rowToggler />  
+                                </p:column>
+                                <p:column styleClass="text-center" width="80" headerText="Data">
+                                    #{dataHoje.converteDataMB(oa.data)}
+                                </p:column>
+                                <p:column styleClass="text-center" width="80" headerText="Hora Inicial">
+                                    #{oa.horario_inicial}
+                                </p:column>
+                                <p:column styleClass="text-center" width="80" headerText="Final">
+                                    #{oa.horario_final}
+                                </p:column>
+                                <p:column headerText="Tempo" width="80" styleClass="text-center">
+                                    #{oa.tempo_servico} (min)
+                                </p:column>
+                                <p:column headerText="Serviço" styleClass="text-center">
+                                    #{oa.servico}
+                                </p:column>
+                                <p:column headerText="Colaborador" styleClass="text-center">
+                                    #{oa.colaborador}
+                                </p:column>
+                                <p:column styleClass="text-center" width="30" >
+                                    <p:commandButton icon="ui-icon-close" rendered="#{oa.id_status eq 1 or oa.id_status eq 4}">
+                                        <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{webAgendamentosBean.removeSched(oa.id_agendamento)}" />
+                                    </p:commandButton>
+                                </p:column>
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="3" styleClass="sbb">
+                                        <h:column>
+                                            <strong>Subgrupo Convênio:</strong> #{oa.convenio_sub_grupo}                                            
+                                        </h:column>
+                                        <h:column>
+                                            <strong>Agendador:</strong>  #{oa.agendador}
+                                        </h:column>
+                                        <h:column>
+                                            <strong>Filial:</strong>  #{oa.filial} -  #{oa.documento}
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
+                            </p:dataTable>
+                        </h:panelGroup>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_sched_cancel" modal="true" resizable="false" height="200" width="600" header="Deseja cancelar este agendamento?" closeOnEscape="true">
+                        <h:panelGrid cellspacing="5" columns="1">
+                            <p:outputLabel value="Motivo do cancelamento" />
+                            <p:inputTextarea rows="3" cols="80" value="#{webAgendamentosBean.motivoCancelamento}">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputTextarea>                            
+                        </h:panelGrid>
+                        <f:facet name="footer">                            
+                            <h:panelGrid cellspacing="5" columns="2">
+                                <p:commandButton action="#{webAgendamentosBean.cancel}" value="Confirmar" update=":form_agendamentos:" />
+                                <p:commandButton value="Cancelar" onclick="PF('dlg_sched_cancel').hide()"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:commandLink style="width: 0; height: 0" id="update_grid">
+                        <p:ajax event="click" update=":form_agendamentos:i_scheds" listener="#{webAgendamentosBean.loadListHorarios}" />
+                    </p:commandLink>
+                </h:form>
+            </h:panelGrid>
+            <ui:include src="templates/templateNovaPessoaFisica.xhtml"/>
+            <span id="messageGoesHere"></span>
+            <script type="text/javascript">
+                var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamentos_#{controleUsuarioBean.clienteLowerCaseString}");
+
+                ws.onopen = function (event) {
+                    console.log("Connected ", event);
+                };
+
+                ws.onmessage = function (event) {
+                    if (event.data === "1") {
+                        document.getElementById("form_agendamentos:update_grid").click();
+                    }
+                };
+
+                ws.onerror = function (event) {
+                    console.log("Error ", event);
+                };
+
+                ws.onclose = function (event) {
+                    console.log("Error ", event);
+                };
+            </script>
+            <!-- FINALIZA div wrap main -->
+        </f:view>
+    </h:body>
+</ui:composition>

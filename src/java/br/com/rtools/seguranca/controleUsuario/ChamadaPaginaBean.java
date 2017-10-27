@@ -1867,7 +1867,7 @@ public class ChamadaPaginaBean implements Serializable {
                 carregaPg = false;
                 return null;
             }
-            if (linkAtual.equals("menuPrincipal") || linkAtual.equals("menuPrincipalAcessoWeb") || linkAtual.equals("menuPrincipalSuporteWeb")) {
+            if (linkAtual.equals("menuPrincipal") || linkAtual.equals("menuPrincipalAcessoWeb") || linkAtual.equals("menuPrincipalSuporteWeb") || linkAtual.equals("web_socios")) {
                 carregaPg = true;
                 nivelLink = 0;
             }
@@ -1881,6 +1881,9 @@ public class ChamadaPaginaBean implements Serializable {
                     } else if (((String) GenericaSessao.getString("indicaAcesso")).equals("web")) {
                         dtObject.setArgumento0("menuPrincipalAcessoWeb");
                         dtObjectLabel.setArgumento0("Menu Principal");
+                    } else if (((String) GenericaSessao.getString("indicaAcesso")).equals("webSocios")) {
+                        dtObject.setArgumento0("web_socios");
+                        dtObjectLabel.setArgumento0("Principal");
                         limpaNivel0();
                     } else if (((String) GenericaSessao.getString("indicaAcesso")).equals("suporteWeb")) {
                         dtObject.setArgumento0("menuPrincipalSuporteWeb");

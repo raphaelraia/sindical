@@ -49,10 +49,14 @@
         <from>^/web$</from>
         <to>/indexAcessoWeb.jsf</to>
     </rule>
+    <rule>
+        <from>^/web_socios$</from>
+        <to>/web_socios_login.jsf</to>
+    </rule>
     
     <rule>
-        <from>^/web/(.*)</from>
-        <to>/indexAcessoWeb.jsf?cliente=$1</to>
+        <from>^/web_socios/(.*)</from>
+        <to>/web_socios_login.jsf?cliente=$1</to>
     </rule>
     
     <!-- CAMINHOS PARA WEB SERVICE -->

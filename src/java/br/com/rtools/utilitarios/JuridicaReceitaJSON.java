@@ -91,13 +91,14 @@ public class JuridicaReceitaJSON {
                      */
                     // 2235824594887334ABV16325666555
                     cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
+                    // http://ws.hubdodesenvolvedor.com.br/cnpj/
                     if (cc == null) {
-                        url = new URL("http://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + "");
+                        url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + "");
                     } else {
                         if (cc.getDias() == 0) {
-                            url = new URL("http://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
                         } else {
-                            url = new URL("http://ws.hubdodesenvolvedor.com.br/cnpj/?cnpj=" + documento + "&token=" + cc.getToken());
+                            url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + cc.getToken());
                         }
                     }
                     con = (HttpURLConnection) url.openConnection();

@@ -17,6 +17,7 @@ import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.associativo.dao.GrupoConvenioDao;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
@@ -24,13 +25,10 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.beans.FisicaUtils;
-import br.com.rtools.seguranca.FilialRotina;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.MacFilial;
-import br.com.rtools.seguranca.Rotina;
-import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -52,7 +50,7 @@ import org.primefaces.event.SelectEvent;
 
 @ManagedBean
 @SessionScoped
-public class AgendamentosBean implements Serializable {
+public class WebAgendamentosBean implements Serializable {
 
     // OBJETOS
     private AgendaHorarios acrescentarHorario;
@@ -62,6 +60,7 @@ public class AgendamentosBean implements Serializable {
     private AgendamentoHorario agendamentoHorario;
     private AgendamentoServico agendamentoServico;
     private Fisica pessoa;
+    private Socios socios;
     private Filial filial;
     private ConfiguracaoSocial configuracaoSocial;
     private ObjectAgendamentos objectAgendamentos;
@@ -78,6 +77,7 @@ public class AgendamentosBean implements Serializable {
     private List<SelectItem> listStatus;
     private List<AgendamentoServico> listAgendamentoServico;
     private List<AgendamentoHorario> listAgendamentoHorario;
+    private List<Socios> listSocios;
 
     // INTEGER
     private Integer idFilial;
@@ -103,7 +103,8 @@ public class AgendamentosBean implements Serializable {
     private Boolean newRegister;
     private Boolean schedulesStatus;
 
-    public AgendamentosBean() {
+    public WebAgendamentosBean() {
+        verificaNaoAtendidos();
         motivoCancelamento = "";
         reservaDao = new AgendaHorarioReservaDao();
         configuracaoSocial = ConfiguracaoSocial.get();
@@ -113,10 +114,12 @@ public class AgendamentosBean implements Serializable {
         agendamentoHorario = new AgendamentoHorario();
         agendamentosEdit = new Agendamentos();
         agendamentoServico = new AgendamentoServico();
+        socios = new Socios();
 
         agendamentos = new ArrayList();
         listAgendamentoServico = new ArrayList();
         listFiliais = new ArrayList();
+        listSocios = new ArrayList();
         listGrupoConvenio = new ArrayList();
         listSubGrupoConvenio = new ArrayList();
         listConvenio = new ArrayList();
@@ -140,8 +143,32 @@ public class AgendamentosBean implements Serializable {
         newRegister = false;
         schedulesStatus = false;
         reservaDao.begin();
-        loadLiberaAcessaFilial();
+        // loadLiberaAcessaFilial();
         loadListFilial();
+        socios = new Socios();
+        if (Sessions.exists("sessaoWebSocios")) {
+            newSched = false;
+            agendamento = new Agendamentos();
+            agendamentoHorario = new AgendamentoHorario();
+            pessoa = new Fisica();
+            Pessoa p = (Pessoa) GenericaSessao.getObject("sessaoWebSocios");
+            Fisica f = new FisicaDao().pesquisaFisicaPorPessoa(p.getId());
+            pessoa = f;
+            Socios s = pessoa.getPessoa().getSocios();
+            if (s.getId() != -1) {
+                socios = (Socios) new Dao().find(new Socios(), s.getId());
+            }
+            listener("new");
+        }
+    }
+
+    public void selectSocios(Pessoa p) {
+        pessoa = new FisicaDao().pesquisaFisicaPorPessoa(p.getId());
+        agendamento = new Agendamentos();
+        agendamentoHorario = new AgendamentoHorario();
+        agendamentoServico = new AgendamentoServico();
+        listener("init");
+        newSched = true;
     }
 
     public void scheduler(ObjectAgendamentos oa) {
@@ -192,7 +219,7 @@ public class AgendamentosBean implements Serializable {
             agendamento.setDtData(data);
             agendamento.setDtEmissao(new Date());
             agendamento.setPessoa(pessoa.getPessoa());
-            agendamento.setAgendador(Usuario.getUsuario());
+            agendamento.setAgendador(null);
             if (agendamento.getEmail().trim().isEmpty()) {
                 agendamento.setEmail(pessoa.getPessoa().getEmail1());
             }
@@ -298,7 +325,7 @@ public class AgendamentosBean implements Serializable {
             AgendamentoCancelamento ac = new AgendamentoCancelamento();
             ac.setDtData(new Date());
             ac.setMotivo(motivoCancelamento);
-            ac.setUsuario(Usuario.getUsuario());
+            ac.setUsuario(null);
             ac.setAgendamentoHorario(list.get(i));
             if (!dao.save(ac)) {
                 dao.rollback();
@@ -390,35 +417,18 @@ public class AgendamentosBean implements Serializable {
     public final void loadListFilial() {
         listFiliais = new ArrayList();
         Filial f = MacFilial.getAcessoFilial().getFilial();
-        if (f.getId() != -1) {
-            if (liberaAcessaFilial || Usuario.getUsuario().getId() == 1) {
-                liberaAcessaFilial = true;
-                // ROTINA MATRÍCULA ESCOLA
-                Rotina r = new Rotina().get();
-                List<FilialRotina> list = new ArrayList();
-                if (r != null) {
-                    list = new FilialRotinaDao().findByRotina(new Rotina().get().getId());
-                }
-                // ID DA FILIAL
-                if (!list.isEmpty()) {
-                    for (int i = 0; i < list.size(); i++) {
-                        if (i == 0) {
-                            idFilial = list.get(i).getFilial().getId();
-                            filial = f;
-                        }
-                        if (Objects.equals(f.getId(), list.get(i).getFilial().getId())) {
-                            idFilial = f.getId();
-                            filial = f;
-                        }
-                        listFiliais.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getFilial().getPessoa().getNome()));
-                    }
-                } else {
-                    listFiliais.add(new SelectItem(f.getId(), f.getFilial().getPessoa().getNome() + " / " + f.getFilial().getPessoa().getDocumento()));
-                }
-            } else {
-                idFilial = f.getId();
-                listFiliais.add(new SelectItem(f.getId(), f.getFilial().getPessoa().getNome() + " / " + f.getFilial().getPessoa().getDocumento()));
+        List<Filial> list = new Dao().list(new Filial());
+        // ID DA FILIAL
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idFilial = list.get(i).getId();
+                filial = f;
             }
+            if (Objects.equals(f.getId(), list.get(i).getId())) {
+                idFilial = f.getId();
+                filial = f;
+            }
+            listFiliais.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome()));
         }
     }
 
@@ -530,7 +540,7 @@ public class AgendamentosBean implements Serializable {
             }
             tempoServico = agendaServico.getNrMinutos();
             Socios s = pessoa.getPessoa().getSocios();
-            List list = new AgendamentosDao().findSchedules(DataHoje.converteData(data), filial.getId(), idSubGrupoConvenio, idConvenio, (s.getId() != -1));
+            List list = new AgendamentosDao().findSchedules(DataHoje.converteData(data), filial.getId(), idSubGrupoConvenio, idConvenio, (s.getId() != -1), true);
             Dao dao = new Dao();
             // AgendaServico as = (AgendaServico) new Dao().find(new Servicos(), idServico);
             // as.getNrMinutos();
@@ -623,6 +633,21 @@ public class AgendamentosBean implements Serializable {
                 agendamentoHorario = new AgendamentoHorario();
                 agendamentoServico = new AgendamentoServico();
                 listener("init");
+                if (socios.getId() == -1) {
+                    newSched = true;
+                } else {
+                    newSched = false;
+                    if (socios.getMatriculaSocios().getTitular().getId() == pessoa.getPessoa().getId()) {
+                        listSocios = new ArrayList();
+                        listSocios.add(socios);
+                        List<Socios> ls = new SociosDao().listaDependentes(socios.getMatriculaSocios().getId());
+                        if (!ls.isEmpty()) {
+                            listSocios.addAll(ls);
+                        }
+                    } else {
+                        newSched = true;
+                    }
+                }
                 break;
             case "init":
                 showModal = false;
@@ -668,7 +693,7 @@ public class AgendamentosBean implements Serializable {
                 String telefone = agendamento.getTelefone();
                 String obs = agendamento.getObs();
                 agendamento = new Agendamentos();
-                agendamento = new AgendamentosDao().findBy(DataHoje.converteData(data), filial.getId(), pessoa.getPessoa().getId());
+                agendamento = new AgendamentosDao().findBy(DataHoje.converteData(data), null, pessoa.getPessoa().getId());
                 if (agendamento == null) {
                     agendamento = new Agendamentos();
                     agendamento.setEmail(email);
@@ -678,6 +703,9 @@ public class AgendamentosBean implements Serializable {
                 break;
             case "filial":
                 filial = (Filial) new Dao().find(new Filial(), idFilial);
+                if (idConvenio != null && data != null) {
+                    loadListHorarios();
+                }
                 break;
             case "close_sched":
                 agendamento.setAgendaStatus(null);
@@ -735,21 +763,6 @@ public class AgendamentosBean implements Serializable {
     }
 
     public Fisica getPessoa() {
-        if (Sessions.exists("fisicaPesquisa") || Sessions.exists("fisicaPesquisaGenerica")) {
-            newSched = false;
-            agendamento = new Agendamentos();
-            agendamentoHorario = new AgendamentoHorario();
-            pessoa = new Fisica();
-            Fisica f;
-            if (Sessions.exists("fisicaPesquisaGenerica")) {
-                f = (Fisica) GenericaSessao.getObject("fisicaPesquisaGenerica", true);
-            } else {
-                f = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
-            }
-            listener("new");
-            newSched = true;
-            pessoa = f;
-        }
         return pessoa;
     }
 
@@ -1001,6 +1014,22 @@ public class AgendamentosBean implements Serializable {
 
     public void setMotivoCancelamento(String motivoCancelamento) {
         this.motivoCancelamento = motivoCancelamento;
+    }
+
+    public List<Socios> getListSocios() {
+        return listSocios;
+    }
+
+    public void setListSocios(List<Socios> listSocios) {
+        this.listSocios = listSocios;
+    }
+
+    public Socios getSocios() {
+        return socios;
+    }
+
+    public void setSocios(Socios socios) {
+        this.socios = socios;
     }
 
     public class ObjectAgendamentos {

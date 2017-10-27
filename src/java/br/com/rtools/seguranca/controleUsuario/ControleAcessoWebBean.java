@@ -2,6 +2,7 @@ package br.com.rtools.seguranca.controleUsuario;
 
 import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.DescricaoEndereco;
@@ -38,6 +39,7 @@ import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.PesquisaCNPJ;
 import br.com.rtools.utilitarios.SelectTranslate;
+import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -96,6 +98,8 @@ public class ControleAcessoWebBean implements Serializable {
 
     private List<SelectItem> listaDocumentoAcesso = new ArrayList();
     private Integer indexDocumentoAcesso = 0;
+
+    private String senha = "";
 
     public ControleAcessoWebBean() {
         loadListaDocumentoAcesso();
@@ -815,7 +819,7 @@ public class ControleAcessoWebBean implements Serializable {
             }
         }
 
-        List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId()); 
+        List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId());
 
         if (!listax.isEmpty()) {
             // 11 - DATA DE INATIVACAO
@@ -938,6 +942,64 @@ public class ControleAcessoWebBean implements Serializable {
 //           pessoaContribuinte = new Pessoa();
 //           pessoaContabilidade = new Pessoa();
         }
+        return pagina;
+    }
+
+    public String validacaoWebSocios() throws IOException {
+        if (login.isEmpty()) {
+            GenericaMensagem.error("Login Inválido", "Digite um LOGIN válido!");
+            return null;
+        }
+
+        if (senha.isEmpty()) {
+            GenericaMensagem.error("Login Inválido", "Digite uma SENHA válida!");
+            return null;
+        }
+
+        if (login.equals("socio") && senha.equals("sindical")) {
+            pessoa = new PessoaDao().pessoaRandon();
+        }
+
+        String pagina = null;
+        UsuarioDao db = new UsuarioDao();
+        pessoa = db.validaUsuarioWebCpfNascimento(login, senha);
+        if (pessoa == null) {
+            GenericaMensagem.error("Login Inválido", "Dados não conferem!");
+            login = "";
+            senha = "";
+            return null;
+        }
+        Sessions.put("indicaAcesso", "webSocios");
+        Sessions.put("sessaoWebSocios", pessoa);
+        Socios s = pessoa.getSocios();
+        if(s.getId() == -1) {
+            status = "Não Sócio";            
+        } else {
+            status = "Sócio - Matrícula nº" + s.getMatriculaSocios().getNrMatricula();                        
+        }
+        pagina = "web_socios";
+
+        if (pessoa.getTipoDocumento().getId() == 4) {
+            login = pessoa.getNome() + " ( " + status + " )";
+        } else {
+            login = pessoa.getNome() + " - "
+                    + pessoa.getTipoDocumento().getDescricao() + ": "
+                    + pessoa.getDocumento() + " ( "
+                    + status + " )";
+        }
+        if (pessoa != null) {
+            GenericaSessao.put("userName", "WEB - " + pessoa.getLogin() + " (" + GenericaSessao.getString("sessaoCliente") + ")");
+        }
+        // pessoa = new Pessoa();
+//           pessoaContribuinte = new Pessoa();
+//           pessoaContabilidade = new Pessoa();
+        Sessions.put("linkClicado", true);
+        if (pessoa != null) {
+            GenericaSessao.put("userName", "WEB - " + pessoa.getLogin() + " (" + GenericaSessao.getString("sessaoCliente") + ")");
+        }
+        // pessoa = new Pessoa();
+//           pessoaContribuinte = new Pessoa();
+//           pessoaContabilidade = new Pessoa();
         return pagina;
     }
 
@@ -1127,8 +1189,12 @@ public class ControleAcessoWebBean implements Serializable {
         }
         String retorno = "";
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente") != null) {
+            if(Sessions.getString("indicaAcesso").equals("web")) {
+                retorno = "web/" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");                
+            } else if(Sessions.getString("indicaAcesso").equals("webSocios")) { 
+                retorno = "web_socios/" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");
+            }
             //retorno = "indexAcessoWeb.jsf?cliente=" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");
-            retorno = "web/" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");
         }
         limparSessaoAcessoWeb();
         FacesContext.getCurrentInstance().getExternalContext().redirect(retorno);
@@ -1437,6 +1503,14 @@ public class ControleAcessoWebBean implements Serializable {
 
     public void setIndexDocumentoAcesso(Integer indexDocumentoAcesso) {
         this.indexDocumentoAcesso = indexDocumentoAcesso;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
 }

@@ -63,6 +63,10 @@ public class DataHoje {
         }
     }
 
+    public String converteDataMB(Date data) {
+        return converteData(data);
+    }
+
     public static String converteHora(Date data) {
         if (data != null) {
             String a = data.toString();
@@ -81,6 +85,14 @@ public class DataHoje {
         } else {
             return "";
         }
+    }
+
+    public String converteDataMB(String data) {
+        return converteData(data);
+    }
+
+    public Date converteMB(String data) {
+        return converte(data);
     }
 
     public static Date converte(String data) {
