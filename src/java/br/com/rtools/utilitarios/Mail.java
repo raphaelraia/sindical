@@ -346,6 +346,9 @@ public class Mail extends MailTemplate implements Serializable {
                             strings[1] = "" + e.getCause().toString();                            
                         } else {
                             strings[1] = "" + returnExceptionText(e.getMessage());
+                            if(strings[1].contains("Invalid Addresses")) {
+                                strings[1] += ":" + emailPessoas.get(i).getDestinatario();
+                            }
                         }
                     } catch (UnsupportedEncodingException ex) {
                         strings[1] = "Erro ";

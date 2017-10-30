@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.arrecadacao.Convencao;
+import br.com.rtools.arrecadacao.dao.ConvencaoDao;
 import br.com.rtools.homologacao.Demissao;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.pessoa.Filial;
@@ -75,6 +76,9 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     private Boolean exportExcel;
     private String tipoPeriodo;
+
+    private List selectedConvencao;
+    private Map<String, Integer> listConvencoes;
 
     @PostConstruct
     public void init() {
@@ -296,10 +300,11 @@ public class RelatorioHomologacaoBean implements Serializable {
             }
         }
 
-        Integer idConvencao = null;
+        String inIdConvencao = "";
         if (listFilters.get(10).getActive()) {
-            idConvencao = Integer.parseInt(listSelectItem[5].get(index[5]).getDescription());
-            listDetalhePesquisa.add("Convenção: " + ((Convencao) dao.find(new Convencao(), idConvencao)).getDescricao());
+            // idConvencao = Integer.parseInt(listSelectItem[5].get(index[5]).getDescription());
+            // listDetalhePesquisa.add("Convenção: " + ((Convencao) dao.find(new Convencao(), idConvencao)).getDescricao());
+            inIdConvencao = inIdConvencao();
         }
 
         if (order == null) {
@@ -315,7 +320,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             operadorHeader = "AGENDADOR";
         }
         relatorioHomologacaoDao.setRelatorios(relatorios);
-        List list = relatorioHomologacaoDao.find(inIdEmpresas, inIdFuncionarios, tipoUsuarioOperacional, idUsuarioOperacional, inIdStatus, idFilial, tipoPeriodo, pIStringI, pFStringI, idMotivoDemissao, tipoAviso, tipoAgendador, sexo, webAgendamento, idConvencao, inIdFuncao);
+        List list = relatorioHomologacaoDao.find(inIdEmpresas, inIdFuncionarios, tipoUsuarioOperacional, idUsuarioOperacional, inIdStatus, idFilial, tipoPeriodo, pIStringI, pFStringI, idMotivoDemissao, tipoAviso, tipoAgendador, sexo, webAgendamento, inIdConvencao, inIdFuncao);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -348,6 +353,9 @@ public class RelatorioHomologacaoBean implements Serializable {
                         break;
                     case 89:
                         ph_por_escritorio.add(new ParametroHomologacaoPorEscritorio(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10)));
+                        break;
+                    case 126:
+                        phs.add(new ParametroHomologacao(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6)));
                         break;
                     default:
                         if (tipoUsuarioOperacional == null || tipoUsuarioOperacional.equals("id_homologador")) {
@@ -474,8 +482,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             order = "";
         }
         if (!listFilters.get(10).getActive()) {
-            listSelectItem[5] = new ArrayList();
-            index[5] = null;
+            // listSelectItem[5] = new ArrayList();
+            // index[5] = null;
+            loadListConvencoes();
         }
         if (!listFilters.get(11).getActive()) {
             loadListFuncao();
@@ -541,8 +550,9 @@ public class RelatorioHomologacaoBean implements Serializable {
                 order = "";
                 break;
             case "convencao":
-                listSelectItem[5] = new ArrayList();
-                index[5] = null;
+                // listSelectItem[5] = new ArrayList();
+                // index[5] = null;
+                loadListConvencoes();
                 break;
             case "funcao":
                 listFuncao = new HashMap();
@@ -669,17 +679,43 @@ public class RelatorioHomologacaoBean implements Serializable {
         return listSelectItem[1];
     }
 
-    public List<SelectItem> getListConvencao() {
-        if (listSelectItem[5].isEmpty()) {
-            List<Convencao> list = new Dao().list(new Convencao());
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[5].add(new SelectItem(
-                        i,
-                        list.get(i).getDescricao(),
-                        Integer.toString(list.get(i).getId())));
+    public final void loadListConvencoes() {
+        listConvencoes = new LinkedHashMap<>();
+        selectedConvencao = new ArrayList();
+        List<Convencao> list = new Dao().list(new Convencao());
+        for (int i = 0; i < list.size(); i++) {
+            listConvencoes.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
+    public Map<String, Integer> getListConvencaos() {
+        return listConvencoes;
+    }
+
+    public void setListConvencaos(Map<String, Integer> listConvencoes) {
+        this.listConvencoes = listConvencoes;
+    }
+
+    public List getSelectedConvencao() {
+        return selectedConvencao;
+    }
+
+    public void setSelectedConvencao(List selectedConvencao) {
+        this.selectedConvencao = selectedConvencao;
+    }
+
+    public String inIdConvencao() {
+        String ids = "";
+        if (selectedConvencao != null) {
+            for (int i = 0; i < selectedConvencao.size(); i++) {
+                if (ids.isEmpty()) {
+                    ids = "" + selectedConvencao.get(i);
+                } else {
+                    ids += "," + selectedConvencao.get(i);
+                }
             }
         }
-        return listSelectItem[5];
+        return ids;
     }
 
     public void loadListStatus() {
@@ -892,6 +928,10 @@ public class RelatorioHomologacaoBean implements Serializable {
         private Object demissao;
         private Object dispensa;
         private Object funcao;
+        private Object grupo_cidade;
+        private Object motivo;
+        private Object sexo;
+        private Object quantidade;
 
         public ParametroHomologacao(Object cnpj, Object empresa, Object status, Object quantidade_status) {
             this.cnpj = cnpj;
@@ -901,6 +941,21 @@ public class RelatorioHomologacaoBean implements Serializable {
                 this.quantidade_status = Integer.parseInt(quantidade_status.toString());
             } catch (Exception e) {
                 this.quantidade_status = 0;
+                e.getMessage();
+            }
+        }
+
+        public ParametroHomologacao(Object convencao, Object grupo_cidade, Object sexo, Object dispensa, Object motivo, Object status, Object quantidade) {
+            this.convencao = convencao;
+            this.grupo_cidade = grupo_cidade;
+            this.sexo = sexo;
+            this.dispensa = dispensa;
+            this.motivo = motivo;
+            this.status = status;
+            try {
+                this.quantidade = Integer.parseInt(quantidade.toString());
+            } catch (Exception e) {
+                this.quantidade = 0;
                 e.getMessage();
             }
         }
@@ -1111,6 +1166,38 @@ public class RelatorioHomologacaoBean implements Serializable {
 
         public void setFuncao(Object funcao) {
             this.funcao = funcao;
+        }
+
+        public Object getGrupo_cidade() {
+            return grupo_cidade;
+        }
+
+        public void setGrupo_cidade(Object grupo_cidade) {
+            this.grupo_cidade = grupo_cidade;
+        }
+
+        public Object getMotivo() {
+            return motivo;
+        }
+
+        public void setMotivo(Object motivo) {
+            this.motivo = motivo;
+        }
+
+        public Object getSexo() {
+            return sexo;
+        }
+
+        public void setSexo(Object sexo) {
+            this.sexo = sexo;
+        }
+
+        public Object getQuantidade() {
+            return quantidade;
+        }
+
+        public void setQuantidade(Object quantidade) {
+            this.quantidade = quantidade;
         }
     }
 

@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class RelatorioHomologacaoDao extends DB {
      * @param idConvencao
      * @return 
      */
-    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Integer filial, String tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao, String inIdFuncao) {
+    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Integer filial, String tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, String in_convencoes, String inIdFuncao) {
         List listQuery = new ArrayList();
         String queryString = ""
                 + " -- RelatorioHomologacaoDao->find() \n\n "
@@ -99,6 +100,15 @@ public class RelatorioHomologacaoDao extends DB {
                             + "      PROF.ds_profissao  AS funcao,      \n" // 09 - Profissão
                             + "      A.ds_contato       AS contato      \n"; // 10 - Contato
                     break;
+                case 126:
+                    queryString += " CONTR.ds_descricao AS convencao,   \n" // 00 - Convenção
+                            + "      CONTR.ds_grupo_cidade AS grupo_cidade,        \n" // 01 - Grupo Cidade
+                            + "      F.ds_sexo          AS sexo,        \n" // 02 - sexo
+                            + "      case when pe.aviso_trabalhado THEN 'Trabalhado' ELSE 'Indenizado' END AS dispensa,  \n" // 03 - Dispensa
+                            + "      D.ds_descricao     AS motivo,      \n" // 04 - Motivo
+                            + "      S.ds_descricao     AS status,      \n" // 05 - Status
+                            + "      count(*)           AS quantidade  \n"; // 06 - Quantidade
+                    break;
                 default:
                     queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
                             + "     A.dt_data        AS data_final,                     \n" /*  01 - Data Final                     */
@@ -133,18 +143,19 @@ public class RelatorioHomologacaoDao extends DB {
                     + "  LEFT JOIN pes_pessoa         AS UO      ON UO.id   = U.id_pessoa   \n";
 
         }
-        queryString += " INNER JOIN pes_pessoa_empresa AS PE      ON PE.id   = A.id_pessoa_empresa   \n"
-                + " INNER JOIN pes_juridica       AS J       ON J.id    = PE.id_juridica \n"
-                + " INNER JOIN pes_fisica         AS F       ON F.id    = PE.id_fisica   \n"
-                + " INNER JOIN pes_pessoa         AS FUNC    ON FUNC.id = F.id_pessoa    \n"
-                + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa    \n"
-                + "  LEFT JOIN hom_cancelamento   AS C       ON C.id_agendamento  = A.id \n"
-                + "  LEFT JOIN seg_usuario        AS CU      ON CU.id   = C.id_usuario   \n"
-                + "  LEFT JOIN pes_pessoa         AS CPU     ON CPU.id  = CU.id_pessoa   \n"
+        queryString += " "
+                + " INNER JOIN pes_pessoa_empresa AS PE      ON PE.id   = A.id_pessoa_empresa   \n"
+                + " INNER JOIN pes_juridica       AS J       ON J.id    = PE.id_juridica    \n"
+                + " INNER JOIN pes_fisica         AS F       ON F.id    = PE.id_fisica      \n"
+                + " INNER JOIN pes_pessoa         AS FUNC    ON FUNC.id = F.id_pessoa       \n"
+                + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa       \n"
+                + "  LEFT JOIN hom_cancelamento   AS C       ON C.id_agendamento  = A.id    \n"
+                + "  LEFT JOIN seg_usuario        AS CU      ON CU.id   = C.id_usuario      \n"
+                + "  LEFT JOIN pes_pessoa         AS CPU     ON CPU.id  = CU.id_pessoa      \n"
                 + "  LEFT JOIN pes_juridica       AS JC      ON JC.id  = J.id_contabilidade \n"
                 + "  LEFT JOIN pes_pessoa         AS PC      ON PC.id  = JC.id_pessoa \n";
 
-        if (idConvencao != null) {
+        if (in_convencoes != null && !in_convencoes.isEmpty()) {
             queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
         } else {
             queryString += "  LEFT JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
@@ -235,8 +246,8 @@ public class RelatorioHomologacaoDao extends DB {
                     listQuery.add("PE.aviso_trabalhado = false");
                 }
             }
-            if (idConvencao != null) {
-                listQuery.add("CONTR.id_convencao = " + idConvencao);
+            if (in_convencoes != null && !in_convencoes.isEmpty()) {
+                listQuery.add("CONTR.id_convencao IN (" + in_convencoes + ")");
             }
             for (int i = 0; i < listQuery.size(); i++) {
                 if (i == 0) {
@@ -246,19 +257,35 @@ public class RelatorioHomologacaoDao extends DB {
                 }
                 queryString += " " + listQuery.get(i).toString() + " \n";
             }
+
         } else {
             queryString += " WHERE" + relatorios.getQry() + " \n";
         }
 
+        switch (relatorios.getId()) {
+            case 126:
+                queryString += " GROUP BY CONTR.ds_descricao,                   \n"
+                        + "               CONTR.ds_grupo_cidade,                \n"
+                        + "               F.ds_sexo,                            \n"
+                        + "               PE.aviso_trabalhado,                  \n"
+                        + "               S.ds_descricao,d.ds_descricao         \n"; 
+                relatorios.setQryOrdem("CONTR.ds_descricao,CONTR.ds_grupo_cidade,S.ds_descricao");
+                break;
+
+        }
+
         // ORDEM DA QRY
-        if (relatorios.getId() == 70) {
+        if (relatorios.getId()
+                == 70) {
             queryString += ""
                     + " GROUP BY PPE.ds_documento,  \n"
                     + "          PPE.ds_nome,       \n"
                     + "          S.ds_descricao     \n";
             relatorios.setQryOrdem("PPE.ds_nome, PPE.ds_documento, S.ds_descricao");
         }
-        if (relatorios.getQryOrdem() == null || relatorios.getQryOrdem().isEmpty()) {
+
+        if (relatorios.getQryOrdem()
+                == null || relatorios.getQryOrdem().isEmpty()) {
             if (!order.isEmpty()) {
                 switch (order) {
                     case "data":
@@ -277,7 +304,7 @@ public class RelatorioHomologacaoDao extends DB {
                         queryString += " ORDER BY A.dt_emissao, PPE.ds_nome ";
                         break;
                 }
-            }else{
+            } else {
                 queryString += " ORDER BY A.dt_data DESC, H.ds_hora, PPE.ds_nome";
             }
         } else {

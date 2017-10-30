@@ -54,6 +54,7 @@
                             </p:dialog>
 
                             <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                            <p:messages id="id_messages" showDetail="true" showSummary="true" />
                             <h:outputText value="Envio de e-mail - Contabilidade" styleClass="fonteHeader"/>
 
                             <div class="clear"></div>
@@ -128,7 +129,7 @@
                                 </p:panel>                                
 
                                 <h:panelGrid columns="2" style="margin-top: 30px">
-                                    <p:commandButton value="Enviar" action="#{enviarArquivosBean.enviarArquivos('contabilidade')}" update="id_messages_growl" />
+                                    <p:commandButton value="Enviar" action="#{enviarArquivosBean.enviarArquivos('contabilidade')}" update="id_messages_growl id_messages" />
                                     <p:commandButton ajax="false" value="Novo" action="#{enviarArquivosBean.novaContabilidade}" />                            
                                 </h:panelGrid>
 
