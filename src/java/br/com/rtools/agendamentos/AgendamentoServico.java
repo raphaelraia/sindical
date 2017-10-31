@@ -37,19 +37,19 @@ public class AgendamentoServico implements Serializable {
     @JoinColumn(name = "id_movimento", referencedColumnName = "id")
     @ManyToOne
     private Movimento movimento;
-    @Column(name = "nr_qtde", columnDefinition = "integer default 0", nullable = false)
-    private Integer nrQrde;
-    @Column(name = "dt_data", columnDefinition = "integer default 0", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dtData;
+//    @Column(name = "nr_qtde", columnDefinition = "integer default 0", nullable = false)
+//    private Integer nrQrde;
+//    @Column(name = "dt_data", columnDefinition = "integer default 0", nullable = false)
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date dtData;
 
     public AgendamentoServico() {
         this.id = null;
         this.agendamento = null;
         this.servico = null;
         this.movimento = null;
-        this.nrQrde = 0;
-        this.dtData = new Date();
+//        this.nrQrde = 0;
+//        this.dtData = new Date();
     }
 
     public AgendamentoServico(Integer id, Agendamentos agendamento, Servicos servico, Movimento movimento, Integer nrQrde, Date dtData) {
@@ -57,8 +57,8 @@ public class AgendamentoServico implements Serializable {
         this.agendamento = agendamento;
         this.servico = servico;
         this.movimento = movimento;
-        this.nrQrde = nrQrde;
-        this.dtData = dtData;
+//        this.nrQrde = nrQrde;
+//        this.dtData = dtData;
     }
 
     public Integer getId() {
@@ -92,33 +92,33 @@ public class AgendamentoServico implements Serializable {
     public void setMovimento(Movimento movimento) {
         this.movimento = movimento;
     }
-
-    public Integer getNrQrde() {
-        return nrQrde;
-    }
-
-    public void setNrQrde(Integer nrQrde) {
-        this.nrQrde = nrQrde;
-    }
-
-    public Date getDtData() {
-        return dtData;
-    }
-
-    public void setDtData(Date dtData) {
-        this.dtData = dtData;
-    }
-
-    public String getData() {
-        return DataHoje.converteData(dtData);
-    }
-
-    public void setData(String data) {
-        this.dtData = DataHoje.converte(data);
-    }
-
-    public String getHora() {
-        return DataHoje.converteHora(dtData);
-    }
+//
+//    public Integer getNrQrde() {
+//        return nrQrde;
+//    }
+//
+//    public void setNrQrde(Integer nrQrde) {
+//        this.nrQrde = nrQrde;
+//    }
+//
+//    public Date getDtData() {
+//        return dtData;
+//    }
+//
+//    public void setDtData(Date dtData) {
+//        this.dtData = dtData;
+//    }
+//
+//    public String getData() {
+//        return DataHoje.converteData(dtData);
+//    }
+//
+//    public void setData(String data) {
+//        this.dtData = DataHoje.converte(data);
+//    }
+//
+//    public String getHora() {
+//        return DataHoje.converteHora(dtData);
+//    }
 
 }

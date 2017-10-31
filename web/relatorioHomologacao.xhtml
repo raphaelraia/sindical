@@ -199,10 +199,9 @@
                                 <p:column rendered="#{relatorioHomologacaoBean.listFilters[10].active}">
                                     <h:panelGrid columns="4">
                                         <p:outputLabel value="Convenção:" />
-                                        <p:selectOneMenu value="#{relatorioHomologacaoBean.index[5]}">
-                                            <p:ajax event="change" update="@this" />
-                                            <f:selectItems value="#{relatorioHomologacaoBean.listConvencao}"/>
-                                        </p:selectOneMenu>
+                                        <p:selectCheckboxMenu label="Selecionar convenção" value="#{relatorioHomologacaoBean.selectedConvencao}">
+                                            <f:selectItems value="#{relatorioHomologacaoBean.listConvencaos}" />
+                                        </p:selectCheckboxMenu>
                                         <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[10])}" title="Remover listFilters"/>
                                     </h:panelGrid>
                                 </p:column>
@@ -241,11 +240,11 @@
                         <p:selectBooleanCheckbox itemLabel="Mostrar cabeçalho" value="#{relatorioHomologacaoBean.printHeader}" styleClass="margin-top-max">
                             <p:ajax event="change" update="@this" />
                         </p:selectBooleanCheckbox>
-                        
+
                         <p:selectBooleanCheckbox itemLabel="Exportar para Excel" value="#{relatorioHomologacaoBean.exportExcel}" styleClass="margin-top-max">
                             <p:ajax event="change" update="@this" />
                         </p:selectBooleanCheckbox>
-                        
+
                         <p:commandButton value="Visualizar" icon="ui-icon-print" title="Visualizar" action="#{relatorioHomologacaoBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
                     </h:panelGrid>
                 </h:form>                          

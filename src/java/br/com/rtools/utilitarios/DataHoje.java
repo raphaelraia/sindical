@@ -63,6 +63,10 @@ public class DataHoje {
         }
     }
 
+    public String converteDataMB(Date data) {
+        return converteData(data);
+    }
+
     public static String converteHora(Date data) {
         if (data != null) {
             String a = data.toString();
@@ -81,6 +85,14 @@ public class DataHoje {
         } else {
             return "";
         }
+    }
+
+    public String converteDataMB(String data) {
+        return converteData(data);
+    }
+
+    public Date converteMB(String data) {
+        return converte(data);
     }
 
     public static Date converte(String data) {
@@ -1335,4 +1347,23 @@ public class DataHoje {
 
     }
 
+    public static Integer diffHour(String startTime, String endTime) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            Calendar calStart = Calendar.getInstance();
+            Calendar calEnd = Calendar.getInstance();
+
+            calStart.setTime(sdf.parse(startTime));
+            calEnd.setTime(sdf.parse(endTime));
+
+            int minutes = (int) ((calEnd.getTimeInMillis() - calStart.getTimeInMillis())) / 60000;
+//            long horas = (calEnd.getTimeInMillis() - calStart.getTimeInMillis()) / 3600000;
+//            String diferenca = horas + ":" + resto;
+//            int rest = minutes % 60;
+//            int hours = minutes / 60;
+            return minutes;
+        } catch (ParseException e) {
+            return 0;
+        }
+    }
 }

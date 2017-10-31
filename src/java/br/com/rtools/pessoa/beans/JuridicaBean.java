@@ -1314,6 +1314,7 @@ public class JuridicaBean implements Serializable {
         listaEnd = new ArrayList();
         enderecoCobranca = "NENHUM";
         getListaEnderecos();
+        loadListDataVencimento();
         pessoaComplemento = new PessoaComplemento();
         pessoaComplemento = juridica.getPessoa().getPessoaComplemento();
         if (pessoaComplemento.getId() == -1) {
@@ -3466,7 +3467,7 @@ public class JuridicaBean implements Serializable {
     public void loadListDataVencimento() {
         listDataVencimento = new ArrayList();
         for (int i = 1; i <= 31; i++) {
-            if (diaVencimento == 0) {
+            if (diaVencimento == null || diaVencimento == 0) {
                 diaVencimento = i;
             }
             listDataVencimento.add(new SelectItem(Integer.toString(i)));

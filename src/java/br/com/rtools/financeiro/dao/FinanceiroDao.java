@@ -712,7 +712,7 @@ public class FinanceiroDao extends DB {
         }
     }
 
-    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String tipo, String documento, String boletoRegistrado, String mesAno) {
+    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String dataEnd, String tipo, String documento, String boletoRegistrado, String mesAno) {
 
         String text_qry = "", where = "", inner_join = "";
 
@@ -748,8 +748,10 @@ public class FinanceiroDao extends DB {
         }
 
         // DATA --
-        if (!data.isEmpty()) {
+        if (!data.isEmpty() && dataEnd.isEmpty()) {
             where += " AND b.processamento = '" + data + "' \n ";
+        } else if (!data.isEmpty() && !dataEnd.isEmpty()) {
+            where += " AND b.processamento BETWEEN '" + data + "' AND \n '" + dataEnd + "'";
         }
 
         // COBRANÇA REGISTRADA
@@ -1698,7 +1700,7 @@ public class FinanceiroDao extends DB {
 
     public String dataFechamentoCaixa(Integer id_caixa) {
         try {
-            
+
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT MIN(dt_baixa) FROM \n "
                     + "( \n "
@@ -1712,7 +1714,7 @@ public class FinanceiroDao extends DB {
                     + "         WHERE id_caixa = " + id_caixa + " AND id_fechamento_caixa IS NULL AND dt_baixa >= '11/10/2016' AND is_movimento = TRUE \n "
                     + ") AS x"
             );
-            
+
             List<Object> result = qry.getResultList();
             if (!result.isEmpty() && ((List) result.get(0)).get(0) != null) {
                 return DataHoje.converteData((Date) ((List) result.get(0)).get(0));

@@ -120,13 +120,24 @@
                                     </p:column>
 
                                     <p:column>
-                                        <h:outputLabel value="Data Proc." /><br />
-                                        <p:inputMask value="#{impressaoBoletoSocialBean.strData}" mask="99/99/9999" size="8" style="background: #ffc8c8; font-weight: bold; text-align: center"/>
+                                        
+                                        <h:panelGrid columns="2">
+                                            <h:outputLabel value="Data Proc Ini." />
+                                            <h:outputLabel value="Final." />
+                                            <p:inputMask value="#{impressaoBoletoSocialBean.strData}" mask="99/99/9999" size="7" style="background: #ffc8c8; font-weight: bold; text-align: center" converter="#{isDateString}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>                                            
+                                            <p:inputMask value="#{impressaoBoletoSocialBean.strDataEnd}" mask="99/99/9999" size="7" style="background: #ffc8c8; font-weight: bold; text-align: center" converter="#{isDateString}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>                                            
+                                        </h:panelGrid>
                                     </p:column>
                                     
                                     <p:column>
-                                        <h:outputLabel value="Mês / Ano (vencto)" /><br />
-                                        <p:inputMask value="#{impressaoBoletoSocialBean.strMesAno}" mask="99/9999" style="width: 130px; text-align: center"/>
+                                        <h:outputLabel value="Mês/Ano(vencto)" /><br />
+                                        <p:inputMask value="#{impressaoBoletoSocialBean.strMesAno}" mask="99/9999" style="width: 110px; text-align: center" converter="#{isDateReference}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
                                     </p:column>
                                     
                                     <p:column>

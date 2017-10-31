@@ -15,6 +15,7 @@ import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -36,6 +37,7 @@ public class ControleAcessoBean implements Serializable {
     // static final long serialVersionUID = 7220145288109489651L;
     private String login = "";
     private Pessoa loginContribuinte = null;
+    private Pessoa loginSocio = null;
     private int idModulo = 0;
     private String urlDestino;
     private HttpServletRequest paginaRequerida;
@@ -84,6 +86,13 @@ public class ControleAcessoBean implements Serializable {
             }
         } else if (((String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("indicaAcesso")).equals("web")) {
             if ((!verificarUsuarioAcessoWeb()) || !verificarTipoPagina()) {
+                redirectAcessoNegado();
+            } else {
+                controleInterno(urlDestino);
+                return null;
+            }
+        } else if (Sessions.getString("indicaAcesso").equals("webSocios")) {
+            if ((!verificarWebSocios()) || !verificarTipoPaginaSocios()) {
                 redirectAcessoNegado();
             } else {
                 controleInterno(urlDestino);
@@ -160,6 +169,15 @@ public class ControleAcessoBean implements Serializable {
         }
     }
 
+    public boolean verificarWebSocios() {
+        if (Sessions.exists("sessaoWebSocios")) {
+            loginSocio = (Pessoa) Sessions.getObject("sessaoWebSocios");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean verificarTipoPagina() {
         String conv = converteURL(urlDestino);
         if (tipo == 0) {
@@ -171,6 +189,18 @@ public class ControleAcessoBean implements Serializable {
         } else if ((tipo == 2) && (conv.equals("webPessoaJuridica") || conv.equals("webContabilidade") || conv.equals("webAgendamentoContabilidade") || conv.equals("webSolicitaREPIS"))) {
             return true;
         } else if ((tipo == 3) && (conv.equals("webLiberacaoREPIS") || conv.equals("webRelatorioCertificados"))) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean verificarTipoPaginaSocios() {
+        String conv = converteURL(urlDestino);
+        if (tipo == 0) {
+            return true;
+        } else if (conv.equals("web_socios") || conv.equals("web_socios_configuracoes")) {
+            return true;
+        } else if (conv.equals("web_agendamentos")) {
             return true;
         }
         return false;
@@ -1561,5 +1591,13 @@ public class ControleAcessoBean implements Serializable {
             }
         }
         return clienteString;
+    }
+
+    public Pessoa getLoginSocio() {
+        return loginSocio;
+    }
+
+    public void setLoginSocio(Pessoa loginSocio) {
+        this.loginSocio = loginSocio;
     }
 }

@@ -108,11 +108,11 @@
                             <h:panelGrid columns="1">
                                 <h:panelGrid columns="3" rendered="#{frequenciaCatracaBean.sisPessoa.id eq -1}">
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoa()}" ajax="false" />
+                                        <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false" />
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandLink value="#{(frequenciaCatracaBean.pessoa.id eq -1) ? 'PESQUISA PESSOA' : frequenciaCatracaBean.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaPessoa()}" ajax="false" style="font-size: 12pt!important; #{(frequenciaCatracaBean.pessoa.id eq -1) ? '' : 'font-weight: bold'}"/>
+                                        <p:commandLink value="#{(frequenciaCatracaBean.pessoa.id eq -1) ? 'PESQUISA PESSOA' : frequenciaCatracaBean.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false" style="font-size: 12pt!important; #{(frequenciaCatracaBean.pessoa.id eq -1) ? '' : 'font-weight: bold'}"/>
                                     </h:column>
 
                                     <h:column>

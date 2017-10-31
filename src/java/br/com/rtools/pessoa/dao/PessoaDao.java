@@ -326,6 +326,20 @@ public class PessoaDao extends DB {
         }
     }
 
+    public Pessoa pessoaRandon() {
+        try {
+            Query query = getEntityManager().createNativeQuery(""
+                    + "     SELECT P.* FROM pes_pessoa AS P                     \n"
+                    + " INNER JOIN pes_fisica AS F ON F.id_pessoa = P.id        \n"
+                    + "   ORDER BY RANDOM()                                     \n"
+                    + "      LIMIT 1                                            \n"
+                    + "", Pessoa.class);
+            return (Pessoa) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // R28576
     public Boolean existLogin(String login) {
         try {

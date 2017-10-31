@@ -13,9 +13,11 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -177,6 +179,20 @@ public class CupomMovimentoBean implements Serializable {
         }
     }
 
+    public void print(CupomMovimento cm) {
+        ReciboCupom reciboCupom = new ReciboCupom();
+        Collection lista = new ArrayList();
+        reciboCupom.setCodigo(cm.getId() + "");
+        reciboCupom.setDescricao(cm.getCupom().getDescricao());
+        reciboCupom.setObs(cm.getCupom().getObs());
+        reciboCupom.setNome(cm.getPessoa().getNome());
+        lista.add(reciboCupom);
+        Jasper.PART_NAME = "";
+         Jasper.TYPE = "recibo_com_logo";
+        Jasper.IS_HEADER = true;
+        Jasper.printReports("/Relatorios/CUPOM.jasper", "CUPOM", lista);
+    }
+
     public List<CupomMovimento> getListCupomMovimento() {
         return listCupomMovimento;
     }
@@ -251,6 +267,61 @@ public class CupomMovimentoBean implements Serializable {
 
     public void loadListCupomMovimento(Integer pessoa_id) {
         listCupomMovimento = new CupomMovimentoDao().findByPessoa(pessoa_id);
+    }
+
+    public class ReciboCupom {
+
+        private Object codigo;
+        private Object nome;
+        private Object descricao;
+        private Object obs;
+
+        public ReciboCupom() {
+            this.codigo = null;
+            this.nome = null;
+            this.descricao = null;
+            this.obs = null;
+        }
+
+        public ReciboCupom(Object codigo, Object nome, Object descricao, Object obs) {
+            this.codigo = codigo;
+            this.nome = nome;
+            this.descricao = descricao;
+            this.obs = obs;
+        }
+
+        public Object getCodigo() {
+            return codigo;
+        }
+
+        public void setCodigo(Object codigo) {
+            this.codigo = codigo;
+        }
+
+        public Object getNome() {
+            return nome;
+        }
+
+        public void setNome(Object nome) {
+            this.nome = nome;
+        }
+
+        public Object getDescricao() {
+            return descricao;
+        }
+
+        public void setDescricao(Object descricao) {
+            this.descricao = descricao;
+        }
+
+        public Object getObs() {
+            return obs;
+        }
+
+        public void setObs(Object obs) {
+            this.obs = obs;
+        }
+
     }
 
 }

@@ -119,6 +119,9 @@
                                     <p:column width="30">
                                         <p:commandButton icon="ui-icon-contact" update=":form_cupom_movimento:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(cupomMovimento.pessoa.id)}" title="Ver detalhes" />
                                     </p:column>
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-print" action="#{cupomMovimentoBean.print(cupomMovimento)}" title="Ver detalhes" ajax="false"/>
+                                    </p:column>
                                     <p:rowExpansion>
 
                                     </p:rowExpansion>

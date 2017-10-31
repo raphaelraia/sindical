@@ -35,6 +35,7 @@ public class Boleto implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_vencimento_original")
     private Date dtVencimentoOriginal;
+    @Lob
     @Column(name = "ds_mensagem", length = 1000)
     private String mensagem;
     @Temporal(TemporalType.DATE)

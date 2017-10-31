@@ -31,7 +31,7 @@ public class AgendamentoCancelamento implements Serializable {
     @JoinColumn(name = "id_agendamento_horario", referencedColumnName = "id", unique = true, nullable = false)
     @ManyToOne
     private AgendamentoHorario agendamentoHorario;
-    @JoinColumn(name = "id_operador", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Usuario usuario;
     @Lob
@@ -82,7 +82,7 @@ public class AgendamentoCancelamento implements Serializable {
         return agendamentoHorario;
     }
 
-    public void setAgendamentoServicoHorario(AgendamentoHorario agendamentoHorario) {
+    public void setAgendamentoHorario(AgendamentoHorario agendamentoHorario) {
         this.agendamentoHorario = agendamentoHorario;
     }
 

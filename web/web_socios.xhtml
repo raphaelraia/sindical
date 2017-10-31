@@ -1,0 +1,114 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+    <h:head>
+        <title>Sindical - Página Principal</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+    </h:head>
+    <h:body>
+        <f:view>
+            <f:subview id="header">
+                <ui:include src="templates/templatePrimeWeb.xhtml"/>
+            </f:subview>
+
+            <h:panelGrid style="margin: 0 auto; width: 1024px">
+                <h:form id="form_menu_principal_web">
+                    <h:panelGrid style="margin-top: 20px; float: left">
+                        <p:menu>
+                            <p:submenu label="Menu" rendered="#{controleAcessoWebBean.pessoa != null}">
+                                <p:submenu label="Serviços">
+                                    <p:menuitem value="Agendamentos" action="#{chamadaPaginaBean.pagina('web_agendamentos', 'webAgendamentosBean')}" ajax="false"/>
+                                </p:submenu>
+                            </p:submenu>
+                            <p:menuitem value="Extrato Financeiro" disabled="true"/>                            
+                        </p:menu>
+                    </h:panelGrid>
+
+                    <h:panelGrid style="margin-top: 20px; float: left; width: 850px">
+                        <p:panel>
+                            <h:outputLabel value="Nenhuma notificação pendente" />
+                        </p:panel>
+                    </h:panelGrid>
+                </h:form>
+
+            </h:panelGrid>
+            <h:form id="form_usuario_login">
+                <p:dialog widgetVar="dlg_alterar_usuario" header="Alterar usuário" resizable="false" modal="true" width="900">
+                    <p:panel>
+                        <h:panelGrid columns="2">
+                            <p:outputLabel value="Login Atual: " styleClass="fontePadrao"/>
+                            <p:outputLabel value="#{controleAcessoWebBean.loginAtual}" />
+                            <p:outputLabel value="Novo Login: " styleClass="fontePadrao"/>
+                            <p:inputText value="#{controleAcessoWebBean.alteraLogin}" maxlength="50" size="60">
+                                <p:ajax event="change" />
+                            </p:inputText>
+                        </h:panelGrid>
+                        <h:panelGrid columns="4" styleClass="margin-top-max">
+                            <p:commandButton value="Confirma" onclick="PF('dlg_login_confirma').show();" type="button" />
+                        </h:panelGrid>
+                    </p:panel>
+                </p:dialog>
+                <p:dialog modal="true" widgetVar="dlg_login_confirma" header="Confirma a alteração de login?">                        
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2" styleClass="margin-top">
+                            <p:commandButton value="Sim" title="Alterar" action="#{controleAcessoWebBean.updatePessoaWeb('login')}" update=":form_usuario_login:" oncomplete="PF('dlg_login_confirma').hide(); PF('dlg_message_login').show();" />
+                            <p:commandButton value="Não" title="Voltar" onclick="PF('dlg_login_confirma').hide();"/>
+                        </h:panelGrid>                            
+                    </f:facet>
+                </p:dialog>
+                <p:dialog widgetVar="dlg_message_login" modal="true" header="mensagem">
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                    <f:facet name="footer">
+                        <h:panelGrid columns="1">
+                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_alterar_usuario').hide();" update=":form_usuario_login: :form_menu_principal_web:"/>                                
+                        </h:panelGrid>
+                    </f:facet>
+                </p:dialog>                      
+            </h:form>
+            <h:form id="form_usuario_senha">
+                <p:dialog widgetVar="dlg_alterar_senha" header="Alterar senha" resizable="false" modal="true" width="900">
+                    <p:panel>
+                        <h:panelGrid columns="2">
+                            <p:outputLabel value="Login Atual: " styleClass="fontePadrao"/>
+                            <p:outputLabel value="#{controleAcessoWebBean.loginAtual}" />
+                            <p:outputLabel value="Nova senha: " styleClass="fontePadrao"/>
+                            <p:inputText value="#{controleAcessoWebBean.alteraSenha}" maxlength="50" size="60" type="password">
+                                <p:ajax event="change" />
+                            </p:inputText>
+                            <p:outputLabel value="Confirma senha: " styleClass="fontePadrao"/>
+                            <p:inputText value="#{controleAcessoWebBean.alteraSenha2}" maxlength="50" size="60" type="password">
+                                <p:ajax event="change" />
+                            </p:inputText>
+                        </h:panelGrid>
+                        <h:panelGrid columns="4" styleClass="margin-top-max">
+                            <p:commandButton value="Confirma" onclick="PF('dlg_senha_confirma').show();" type="button" />
+                        </h:panelGrid>
+                    </p:panel>
+                </p:dialog>
+                <p:dialog modal="true" widgetVar="dlg_senha_confirma" header="Confirma a alteração de senha?">                        
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2" styleClass="margin-top">
+                            <p:commandButton value="Sim" title="Alterar" action="#{controleAcessoWebBean.updatePessoaWeb('senha')}" update=":form_usuario_senha:" oncomplete="PF('dlg_senha_confirma').hide(); PF('dlg_message_senha').show();" />
+                            <p:commandButton value="Não" title="Voltar" onclick="PF('dlg_senha_confirma').hide();"/>
+                        </h:panelGrid>                            
+                    </f:facet>
+                </p:dialog>
+                <p:dialog widgetVar="dlg_message_senha" modal="true" header="mensagem">
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                    <f:facet name="footer">
+                        <h:panelGrid columns="1">
+                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_alterar_senha').hide();" update=":form_usuario_senha: :form_menu_principal_web:"/>                                
+                        </h:panelGrid>
+                    </f:facet>
+                </p:dialog>                      
+            </h:form>
+
+
+
+        </f:view>
+    </h:body>
+</html>

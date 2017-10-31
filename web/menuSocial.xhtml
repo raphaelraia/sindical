@@ -118,9 +118,9 @@
                                     <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
                                     <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
                                     <p:submenu label="Agendamento">
-                                        <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" />
-                                        <p:menuitem value="Cancelamentos"       action="#{chamadaPaginaBean.pagina('cancelamentos')}" />
-                                        <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" />
+                                        <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
+                                        <p:menuitem value="Cancelamentos"       action="#{chamadaPaginaBean.pagina('cancelamentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
+                                        <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
                                     </p:submenu>
                                     <p:menuitem value="Autoriza Repro. Retorno" action="#{chamadaPaginaBean.pagina('autorizaReprocessamentoRetorno')}" />
                                     <p:submenu label="Eventos">
@@ -147,6 +147,7 @@
                                         <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
                                         <p:menuitem value="Cartas"                   action="#{chamadaPaginaBean.pagina('sisCarta')}" />
                                     </p:submenu>
+                                    <p:menuitem value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing', 'tmktHistoricoBean')}"/>
                                     <p:menuitem value="Sócios Demissionados" action="#{chamadaPaginaBean.pagina('atualizaSocioDemissionado')}" title="Sócios Demissionados "/>
                                 </p:submenu>    
 

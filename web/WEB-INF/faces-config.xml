@@ -2536,6 +2536,24 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>web_socios_login</from-outcome>
+            <to-view-id>/web_socios_login.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>web_socios</from-outcome>
+            <to-view-id>/web_socios.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>web_agendamentos</from-outcome>
+            <to-view-id>/web_agendamentos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
