@@ -25,6 +25,7 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.beans.FisicaUtils;
+import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
@@ -144,7 +145,6 @@ public class WebAgendamentosBean implements Serializable {
         schedulesStatus = false;
         reservaDao.begin();
         // loadLiberaAcessaFilial();
-        loadListFilial();
         socios = new Socios();
         if (Sessions.exists("sessaoWebSocios")) {
             newSched = false;
@@ -160,6 +160,7 @@ public class WebAgendamentosBean implements Serializable {
             }
             listener("new");
         }
+        loadListFilial(true, (socios.getId() != -1));
     }
 
     public void selectSocios(Pessoa p) {
@@ -414,10 +415,10 @@ public class WebAgendamentosBean implements Serializable {
         }
     }
 
-    public final void loadListFilial() {
+    public final void loadListFilial(Boolean web, Boolean socios) {
         listFiliais = new ArrayList();
+        List<Filial> list = new AgendamentosDao().findAllFilial(web, socios);
         Filial f = MacFilial.getAcessoFilial().getFilial();
-        List<Filial> list = new Dao().list(new Filial());
         // ID DA FILIAL
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {

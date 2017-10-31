@@ -62,6 +62,7 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Pessoa Jurídica" styleClass="fonteHeader" />
                         <h:form id="formPessoaJuridica">
+                            <p:growl id="i_msg_callback" autoUpdate="false" showDetail="true" showSummary="true" life="3000"/>
                             <p:growl id="i_msg" autoUpdate="true" showDetail="true"/>
                             <c:set scope="request" var="object" value="${juridicaBean.juridica}"/> 
                             <div class="clear"></div>
@@ -376,7 +377,7 @@
                                                 <p:column headerText="Cidade / UF" width="250" style="text-align: center">
                                                     <h:outputText value="#{linha.argumento1.endereco.cidade.cidade} - #{linha.argumento1.endereco.cidade.uf}"/>
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="Cobrança no Escritório" width="100" style="text-align: center">
                                                     <p:selectBooleanCheckbox value="#{linha.argumento0.cobrancaEscritorio}">
                                                         <p:ajax event="change" update="@this" listener="#{juridicaBean.updateCobrancaEscritorio(linha.argumento0)}"/>
@@ -852,9 +853,41 @@
                                         <p:commandButton value="Fechar" title="Fechar" onclick="PF('dlg_solicitacoes').hide();" />                                        
                                     </h:panelGrid>
                                 </f:facet>
-                            </p:dialog>
+                            </p:dialog>                            
                         </h:form>
                     </p:panel>
+                    <h:form id="form_ws_pj">
+                        <p:commandLink style="width: 0; height: 0" id="update_autorizacao_true">
+                            <p:ajax event="click" listener="#{juridicaBean.refreshSisAutorizacao(true)}" />
+                        </p:commandLink>
+                        <p:commandLink style="width: 0; height: 0" id="update_autorizacao_false">
+                            <p:ajax event="click" listener="#{juridicaBean.refreshSisAutorizacao(false)}" />
+                        </p:commandLink>
+                        <span id="messageGoesHere"></span>
+                        <script type="text/javascript">
+                            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},pj:id:#{juridicaBean.juridica.id}");
+
+                            ws.onopen = function (event) {
+                                console.log("Connected ", event);
+                            };
+
+                            ws.onmessage = function (event) {
+                                if (event.data === "true") {
+                                    document.getElementById("form_ws_pj:update_autorizacao_true").click();
+                                } else if (event.data === "false") {
+                                    document.getElementById("form_ws_pj:update_autorizacao_false").click();
+                                }
+                            };
+
+                            ws.onerror = function (event) {
+                                console.log("Error ", event);
+                            };
+
+                            ws.onclose = function (event) {
+                                console.log("Error ", event);
+                            };
+                        </script>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

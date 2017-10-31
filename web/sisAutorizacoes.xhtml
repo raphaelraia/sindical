@@ -84,7 +84,7 @@
                                             </h:column>
                                         </h:column>
                                     </h:column>
-                                    <p:commandButton value="Filtrar" action="#{sisAutorizacoesBean.loadListSisAutorizacoes}" update=":form_autorizacoes:" />
+                                    <p:commandButton value="Filtrar" action="#{sisAutorizacoesBean.loadListSisAutorizacoes}" update=":form_autorizacoes:" id="i_filter"/>
                                 </h:panelGrid>
                             </p:panel>
                             <p:dataTable value="#{sisAutorizacoesBean.listSisAutorizacoes}" var="sisAutorizacoes" paginator="true" rows="10" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
@@ -190,6 +190,33 @@
                             </p:dialog>                            
                         </h:form>
                     </p:panel>
+                    <h:form id="form_ws_sa">
+                        <p:commandLink style="width: 0; height: 0" id="update_filter">
+                            <p:ajax event="click" update=":form_autorizacoes:i_filter"/>
+                        </p:commandLink>                        
+                        <span id="messageGoesHere"></span>
+                        <script type="text/javascript">
+                            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},sisautorizacoes");
+
+                            ws.onopen = function (event) {
+                                console.log("Connected ", event);
+                            };
+
+                            ws.onmessage = function (event) {
+                                if (event.data === "1") {
+                                    document.getElementById("form_ws_sa:update_filter").click();
+                                }
+                            };
+
+                            ws.onerror = function (event) {
+                                console.log("Error ", event);
+                            };
+
+                            ws.onclose = function (event) {
+                                console.log("Error ", event);
+                            };
+                        </script>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

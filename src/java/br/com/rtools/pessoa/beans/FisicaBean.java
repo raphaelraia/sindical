@@ -430,6 +430,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 fisica.getPessoa().setDocumento(f.getPessoa().getDocumento());
             }
              */
+            fisica.getPessoa().setNome(f.getPessoa().getNome());
             if (fisica.getPessoa().getEmail1().isEmpty()) {
                 if (configuracaoSocial.getObrigatorioEmail()) {
                     if (fisica.getPessoa().getSocios().getId() != -1) {
@@ -3269,6 +3270,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
         } else {
             GenericaMensagem.info("Sucesso", "SOLICITAÇÃO ENVIADA");
+            String ws = "client:" + ControleUsuarioBean.getCliente().toLowerCase() + ",sisautorizacoes";
+            WSSocket.send(ws, "1");
         }
     }
 
@@ -3461,6 +3464,24 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return new PessoaEmpresaDao().findSocioProprietario(fisica.getId()) != null;
         }
         return false;
+    }
+
+    public void refreshSisAutorizacao(Boolean b) {
+        try {
+            if (b) {
+                Fisica f = (Fisica) new Dao().rebind(fisica);
+                fisica.getPessoa().setNome(f.getPessoa().getNome());
+                fisica.getPessoa().setDocumento(f.getPessoa().getDocumento());
+                fisica.getPessoa().setTipoDocumento(f.getPessoa().getTipoDocumento());
+                Messages.info("Sucesso", "Correção cadastral autorizada");
+            } else {
+                Messages.warn("Recusada", "Correção cadastral recusada! Consulte detalhes em sua requisição.");
+            }
+            PF.update("form_pessoa_fisica");
+        } catch (Exception e) {
+
+        }
+
     }
 
 }

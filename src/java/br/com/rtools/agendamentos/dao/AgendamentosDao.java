@@ -1,6 +1,7 @@
 package br.com.rtools.agendamentos.dao;
 
 import br.com.rtools.agendamentos.Agendamentos;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -219,6 +220,35 @@ public class AgendamentosDao extends DB {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Retorna as filiais que tem horário...
+     *
+     * @param web
+     * @param socios
+     * @return
+     */
+    public List<Filial> findAllFilial(Boolean web, Boolean socios) {
+        try {
+            Query query;
+            if (web) {
+                if (socios) {
+                    query = getEntityManager().createQuery("SELECT F FROM Filial F WHERE F.id IN ( SELECT AH.filial.id FROM AgendaHorarios AH WHERE AH.web = true GROUP BY AH.filial.id)");
+                } else {
+                    query = getEntityManager().createQuery("SELECT F FROM Filial F WHERE F.id IN ( SELECT AH.filial.id FROM AgendaHorarios AH WHERE AH.web = true AND AH.socio = false GROUP BY AH.filial.id)");
+                }
+            } else {
+                if (socios) {
+                    query = getEntityManager().createQuery("SELECT F FROM Filial F WHERE F.id IN ( SELECT AH.filial.id FROM AgendaHorarios AH GROUP BY AH.filial.id)");
+                } else {
+                    query = getEntityManager().createQuery("SELECT F FROM Filial F WHERE F.id IN ( SELECT AH.filial.id FROM AgendaHorarios AH WHERE AH.socio = false GROUP BY AH.filial.id) ");
+                }
+            }
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
 }

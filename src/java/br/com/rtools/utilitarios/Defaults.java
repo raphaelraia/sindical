@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.seguranca.Rotina;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -100,13 +101,26 @@ public class Defaults implements Serializable {
         Integer port = hsr.getLocalPort();
         String url = "";
         String urlx = ((HttpServletRequest) hsr).getRequestURL().toString();
-        urlx = urlx.replace("http://", "");
-        urlx = urlx.replace("/", "");
-        urlx = urlx.replace(":", "");
-        urlx = urlx.replace("Sindical", "");
-        urlx = urlx.replace("senha.jsf", "");
-        urlx = urlx.replace("ws", "");
-        urlx = urlx.replace(port + "", "");
+        if(urlx.contains("senha")) {
+            urlx = urlx.replace("http://", "");
+            urlx = urlx.replace("/", "");
+            urlx = urlx.replace(":", "");
+            urlx = urlx.replace("Sindical", "");
+            urlx = urlx.replace("senha.jsf", "");
+            urlx = urlx.replace("ws", "");
+            urlx = urlx.replace(port + "", "");
+        } else {
+            urlx = urlx.replace("http://", "");
+            urlx = urlx.replace("/", "");
+            urlx = urlx.replace(":", "");
+            Rotina r = new Rotina().get();
+            String page = r.converteURL(r.getPagina());
+            urlx = urlx.replace("Sindical", "");
+            urlx = urlx.replace(page + ".jsf", "");
+            // urlx = urlx.replace("ws", "");
+            urlx = urlx.replace(port + "", "");
+            
+        }
         String queryString = ((HttpServletRequest)hsr).getQueryString();        
         if (host_local.isEmpty()) {
             if (host != null) {

@@ -1026,10 +1026,13 @@ public class JuridicaBean implements Serializable {
                 dao.rollback();
                 return null;
             }
+            juridica.getPessoa().setNome(jur.getPessoa().getNome());
 
             if (Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription()) == 4) {
                 juridica.getPessoa().setDocumento("0");
             } else {
+                juridica.getPessoa().setTipoDocumento(jur.getPessoa().getTipoDocumento());
+                juridica.getPessoa().setDocumento(jur.getPessoa().getDocumento());
                 listDocumento = db.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
                 for (int i = 0; i < listDocumento.size(); i++) {
                     if (!listDocumento.isEmpty() && ((Juridica) listDocumento.get(i)).getId() != juridica.getId()) {
@@ -1038,7 +1041,13 @@ public class JuridicaBean implements Serializable {
                         return null;
                     }
                 }
-                juridica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription())));
+                //juridica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription())));
+                for (int i = 0; i < listaTipoDocumento.size(); i++) {
+                    if (juridica.getPessoa().getTipoDocumento().getId() == Integer.parseInt(listaTipoDocumento.get(i).getDescription())) {
+                        idTipoDocumento = i;
+                        break;
+                    }
+                }
             }
             if (!validaTipoDocumento(Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription()), juridica.getPessoa().getDocumento())) {
                 GenericaMensagem.error("Erro", "Documento Invalido!");
@@ -1371,7 +1380,7 @@ public class JuridicaBean implements Serializable {
                 }
             }
         }
- 
+
         if (url != null) {
             if (!getListaTipoDocumento().isEmpty()) {
                 for (int o = 0; o < listaTipoDocumento.size(); o++) {
@@ -2262,10 +2271,10 @@ public class JuridicaBean implements Serializable {
 
     public void updateCobrancaEscritorio(Juridica j) {
         new Dao().update(j, true);
-        if(j.isCobrancaEscritorio()) {
-             GenericaMensagem.info("Sucesso", "A COBRANÇA SERÁ REALIZADA NESTE ESCRITÓRIO");
+        if (j.isCobrancaEscritorio()) {
+            GenericaMensagem.info("Sucesso", "A COBRANÇA SERÁ REALIZADA NESTE ESCRITÓRIO");
         } else {
-             GenericaMensagem.info("Sucesso", "A COBRANÇA SERÁ FEITA DIRETA NA EMPRESA");
+            GenericaMensagem.info("Sucesso", "A COBRANÇA SERÁ FEITA DIRETA NA EMPRESA");
         }
         listaEmpresasPertencentes = new ArrayList();
         getListaEmpresasPertencentes();
@@ -3395,6 +3404,8 @@ public class JuridicaBean implements Serializable {
             PF.update("formPessoaJuridica");
             GenericaMensagem.info("Sucesso", "DADOS ALTERADOS COM SUCESSO");
         } else {
+            String ws = "client:" + ControleUsuarioBean.getCliente().toLowerCase() + ",sisautorizacoes";
+            WSSocket.send(ws, "1");
             GenericaMensagem.info("Sucesso", "SOLICITAÇÃO ENVIADA");
         }
     }
@@ -3721,5 +3732,29 @@ public class JuridicaBean implements Serializable {
 
     public void setJuridicaReceita(JuridicaReceita juridicaReceita) {
         this.juridicaReceita = juridicaReceita;
+    }
+
+    public void refreshSisAutorizacao(Boolean b) {
+        try {
+            if (b) {
+                Juridica j = (Juridica) new Dao().rebind(juridica);
+                juridica.getPessoa().setNome(j.getPessoa().getNome());
+                juridica.getPessoa().setDocumento(j.getPessoa().getDocumento());
+                juridica.getPessoa().setTipoDocumento(j.getPessoa().getTipoDocumento());
+                for (int i = 0; i < listaTipoDocumento.size(); i++) {
+                    if (j.getPessoa().getTipoDocumento().getId() == Integer.parseInt(listaTipoDocumento.get(i).getDescription())) {
+                        idTipoDocumento = i;
+                        break;
+                    }
+                }
+                Messages.info("Sucesso", "Correção cadastral autorizada");
+            } else {
+                Messages.warn("Recusada", "Correção cadastral recusada! Consulte detalhes em sua requisição.");
+            }
+            PF.update("formPessoaJuridica");
+        } catch (Exception e) {
+
+        }
+
     }
 }

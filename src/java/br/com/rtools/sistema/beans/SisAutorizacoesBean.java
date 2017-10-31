@@ -2,6 +2,7 @@ package br.com.rtools.sistema.beans;
 
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.SisAutorizacoes;
@@ -10,6 +11,7 @@ import br.com.rtools.sistema.dao.SisAutorizacoesDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Messages;
+import br.com.rtools.utilitarios.WSSocket;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,6 +64,7 @@ public class SisAutorizacoesBean implements Serializable {
             Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
             return;
         }
+        Rotina r = new Rotina();
         List<SisAutorizacoes> list = sad.findByAutorizacao(sa.getId());
         for (int i = 0; i < list.size(); i++) {
             if (!sad.execute(dao, list.get(i))) {
@@ -89,6 +92,7 @@ public class SisAutorizacoesBean implements Serializable {
         if (sa.getTabela().equals("pes_pessoa")) {
             new Dao().refresh(sa.getPessoa());
         }
+        complete(sa);
     }
 
     public void refused(SisAutorizacoes sa) {
@@ -114,6 +118,7 @@ public class SisAutorizacoesBean implements Serializable {
             Messages.warn("Erro", "AO REALIZAR AUTORIZAÇÃO!");
             return;
         }
+        complete(sisAutorizacoes);
         sisAutorizacoes = new SisAutorizacoes();
         Messages.info("Sucesso", "SOLICITAÇÃO RECUSADA");
         refusedMotive = "";
@@ -305,6 +310,28 @@ public class SisAutorizacoesBean implements Serializable {
 
     public void setIdTipoAutorizacao(Integer idTipoAutorizacao) {
         this.idTipoAutorizacao = idTipoAutorizacao;
+    }
+
+    public void complete(SisAutorizacoes s) {
+        try {
+            if (s.getRotina().getId() == 82) {
+                String ws = "client:" + ControleUsuarioBean.getCliente().toLowerCase() + ",pf:id:" + s.getPessoa().getJuridica().getId();
+                if (s.getAutorizado()) {
+                    WSSocket.send(ws, "true");
+                } else {
+                    WSSocket.send(ws, "false");
+                }
+            } else if (s.getRotina().getId() == 71) {
+                String ws = "client:" + ControleUsuarioBean.getCliente().toLowerCase() + ",pf:id:" + s.getPessoa().getFisica().getId();
+                if (s.getAutorizado()) {
+                    WSSocket.send(ws, "true");
+                } else {
+                    WSSocket.send(ws, "false");
+                }
+            }
+        } catch (Exception e) {
+
+        }
     }
 
 }

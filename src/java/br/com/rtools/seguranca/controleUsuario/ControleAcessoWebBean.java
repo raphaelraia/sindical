@@ -972,10 +972,10 @@ public class ControleAcessoWebBean implements Serializable {
         Sessions.put("indicaAcesso", "webSocios");
         Sessions.put("sessaoWebSocios", pessoa);
         Socios s = pessoa.getSocios();
-        if(s.getId() == -1) {
-            status = "Não Sócio";            
+        if (s.getId() == -1) {
+            status = "Não Sócio";
         } else {
-            status = "Sócio - Matrícula nº" + s.getMatriculaSocios().getNrMatricula();                        
+            status = "Sócio - Matrícula nº" + s.getMatriculaSocios().getNrMatricula();
         }
         pagina = "web_socios";
 
@@ -1000,6 +1000,8 @@ public class ControleAcessoWebBean implements Serializable {
         // pessoa = new Pessoa();
 //           pessoaContribuinte = new Pessoa();
 //           pessoaContabilidade = new Pessoa();
+        login = "";
+        senha = "";
         return pagina;
     }
 
@@ -1189,9 +1191,9 @@ public class ControleAcessoWebBean implements Serializable {
         }
         String retorno = "";
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente") != null) {
-            if(Sessions.getString("indicaAcesso").equals("web")) {
-                retorno = "web/" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");                
-            } else if(Sessions.getString("indicaAcesso").equals("webSocios")) { 
+            if (Sessions.getString("indicaAcesso").equals("web")) {
+                retorno = "web/" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");
+            } else if (Sessions.getString("indicaAcesso").equals("webSocios")) {
                 retorno = "web_socios/" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");
             }
             //retorno = "indexAcessoWeb.jsf?cliente=" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");

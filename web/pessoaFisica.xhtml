@@ -41,6 +41,7 @@
                     </f:metadata>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_pessoa_fisica">
+                            <p:growl id="i_msg_callback" autoUpdate="false" showDetail="true" showSummary="true" life="5000" />
                             <h:outputScript name="tradutor_primefaces.js" library="js" /> 
                             <p:outputLabel value="Cadastro Física" styleClass="fonteHeader"/>
                             <c:set scope="request" var="object" value="${fisicaBean.fisica}"/>
@@ -1081,7 +1082,39 @@
                                 </p:dataTable>
                             </h:panelGroup>
                         </p:dialog>
-                    </h:form>            
+                    </h:form>
+                    <h:form id="form_ws_pf">
+                        <p:commandLink style="width: 0; height: 0" id="update_autorizacao_true">
+                            <p:ajax event="click" listener="#{juridicaBean.refreshSisAutorizacao(true)}" />
+                        </p:commandLink>
+                        <p:commandLink style="width: 0; height: 0" id="update_autorizacao_false">
+                            <p:ajax event="click" listener="#{juridicaBean.refreshSisAutorizacao(false)}" />
+                        </p:commandLink>
+                        <span id="messageGoesHere"></span>
+                        <script type="text/javascript">
+                            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},pf:id:#{fisicaBean.fisica.id}");
+
+                            ws.onopen = function (event) {
+                                console.log("Connected ", event);
+                            };
+
+                            ws.onmessage = function (event) {
+                                if (event.data === "true") {
+                                    document.getElementById("form_ws_pf:update_autorizacao_true").click();
+                                } else if (event.data === "false") {
+                                    document.getElementById("form_ws_pf:update_autorizacao_false").click();
+                                }
+                            };
+
+                            ws.onerror = function (event) {
+                                console.log("Error ", event);
+                            };
+
+                            ws.onclose = function (event) {
+                                console.log("Error ", event);
+                            };
+                        </script>
+                    </h:form>
                 </f:view>
 
                 <!-- FINALIZA div wrap main -->
