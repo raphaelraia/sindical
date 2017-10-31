@@ -72,8 +72,9 @@ public class RemessaDao extends DB {
                 = "SELECT b.* \n "
                 + "  FROM fin_boleto AS b \n "
                 + "  LEFT JOIN fin_remessa_banco AS rb ON rb.id_boleto = b.id AND rb.id_status_remessa = 1 \n "
+                + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = b.id_conta_cobranca \n "
                 + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno <> 2) \n "
-                + "   AND (b.dt_vencimento >= CURRENT_DATE - 20 AND b.dt_vencimento >= '11/09/2017') \n "
+                + "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos AND b.dt_vencimento >= '11/09/2017') \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
                 + "   AND rb.id IS NULL \n "
                 + " LIMIT 2000";
@@ -90,8 +91,9 @@ public class RemessaDao extends DB {
                 = "SELECT count(b.id) \n "
                 + "  FROM fin_boleto AS b \n "
                 + "  LEFT JOIN fin_remessa_banco AS rb ON rb.id_boleto = b.id AND rb.id_status_remessa = 1 \n "
+                + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = b.id_conta_cobranca \n "
                 + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno <> 2) \n "
-                + "   AND (b.dt_vencimento >= CURRENT_DATE - 20 AND b.dt_vencimento >= '11/09/2017') \n "
+                + "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos AND b.dt_vencimento >= '11/09/2017') \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
                 + "   AND rb.id IS NULL ";
         try {

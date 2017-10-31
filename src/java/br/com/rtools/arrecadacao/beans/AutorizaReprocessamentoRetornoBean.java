@@ -48,12 +48,15 @@ public class AutorizaReprocessamentoRetornoBean implements Serializable {
 
         ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
         List<ContaCobranca> result = servDB.listaContaCobrancaAtivoArrecadacao();
+        List<ContaCobranca> result_soc = servDB.listaContaCobrancaAtivoAssociativo();
 
+        Integer contador = 0;
+        
         for (int i = 0; i < result.size(); i++) {
             if (result.get(i).getLayout().getId() == 2) {
                 listaContaCobranca.add(
                         new SelectItem(
-                                i,
+                                contador,
                                 result.get(i).getApelido() + " - " + result.get(i).getSicasSindical() + " - " + result.get(i).getContaBanco().getBanco().getBanco(),
                                 Integer.toString(result.get(i).getId())
                         )
@@ -61,15 +64,28 @@ public class AutorizaReprocessamentoRetornoBean implements Serializable {
             } else {
                 listaContaCobranca.add(
                         new SelectItem(
-                                i,
+                                contador,
                                 result.get(i).getApelido() + " - " + result.get(i).getCodCedente() + " - " + result.get(i).getContaBanco().getBanco().getBanco(),
                                 Integer.toString(result.get(i).getId())
                         )
                 );
             }
-
+            
+            contador++;
         }
+        
+        for (int i = 0; i < result_soc.size(); i++) {
 
+            listaContaCobranca.add(
+                    new SelectItem(
+                            contador,
+                            result_soc.get(i).getApelido() + " - " + result_soc.get(i).getCodCedente() + " - " + result_soc.get(i).getContaBanco().getBanco().getBanco(),
+                            Integer.toString(result_soc.get(i).getId())
+                    )
+            );
+            contador++;
+        }
+        
         loadListaRetorno();
     }
 

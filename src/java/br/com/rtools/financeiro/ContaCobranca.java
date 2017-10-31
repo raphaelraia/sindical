@@ -70,6 +70,8 @@ public class ContaCobranca implements java.io.Serializable {
     private CobrancaRegistrada cobrancaRegistrada;
     @Column(name = "is_layout_barras_novo", columnDefinition = "boolean default false")
     private Boolean layoutBarrasNovo;
+    @Column(name = "nr_registros_dias_vencidos", columnDefinition = "integer default 0")
+    private Integer registrosDiasVencidos;
     
     public ContaCobranca() {
         this.id = -1;
@@ -101,9 +103,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.nrLayout = 240;
         this.cobrancaRegistrada = new CobrancaRegistrada();
         this.layoutBarrasNovo = false;
+        this.registrosDiasVencidos = 0;
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo, Integer registrosDiasVencidos) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -133,6 +136,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.nrLayout = nrLayout;
         this.cobrancaRegistrada = cobrancaRegistrada;
         this.layoutBarrasNovo = layoutBarrasNovo;
+        this.registrosDiasVencidos = registrosDiasVencidos;
     }
 
     public int getId() {
@@ -365,6 +369,14 @@ public class ContaCobranca implements java.io.Serializable {
 
     public void setLayoutBarrasNovo(Boolean layoutBarrasNovo) {
         this.layoutBarrasNovo = layoutBarrasNovo;
+    }
+
+    public Integer getRegistrosDiasVencidos() {
+        return registrosDiasVencidos;
+    }
+
+    public void setRegistrosDiasVencidos(Integer registrosDiasVencidos) {
+        this.registrosDiasVencidos = registrosDiasVencidos;
     }
 
 }
