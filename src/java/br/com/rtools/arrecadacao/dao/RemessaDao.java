@@ -122,9 +122,10 @@ public class RemessaDao extends DB {
         String queryString
                 = "SELECT b.* \n"
                 + "  FROM fin_boleto AS b \n "
+                + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = b.id_conta_cobranca \n "
                 + " WHERE b.dt_cobranca_registrada IS NOT NULL \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
-                + "   AND b.dt_vencimento <= CURRENT_DATE - 20";
+                + "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos)";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
             return qry.getResultList();

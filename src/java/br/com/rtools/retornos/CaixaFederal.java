@@ -42,8 +42,9 @@ public class CaixaFederal extends ArquivoRetorno {
                     objeto_arquivo.setRetorno(retorno);
 
                     // O LAYOUT É ANTIGO
-                    String teste_layout = linhas.get(0).substring(72, 73).trim();
-                    if (!teste_layout.isEmpty() && !AnaliseString.isString(teste_layout)) {
+                    String teste_layout = linhas.get(1).substring(53, 54).trim();
+                    //if (!teste_layout.isEmpty() && AnaliseString.isString(teste_layout)) {
+                    if (!teste_layout.isEmpty()) {
                         // PRIMEIRA LINHA - HEADER ARQUIVO
                         objeto_arquivo.setCnpj(linhas.get(0).substring(18, 32));
                         objeto_arquivo.setCodigoCedente(linhas.get(0).substring(33, 38));

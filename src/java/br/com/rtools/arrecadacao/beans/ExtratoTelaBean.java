@@ -197,15 +197,25 @@ public class ExtratoTelaBean implements Serializable {
         List<Movimento> lista_movimento_validado = new ArrayList();
         if (!listaMovimentos.isEmpty()) {
             for (DataObject dob : listaMovimentos) {
-                Movimento m = ((Movimento) dob.getArgumento29());
                 // BOLETOS QUE ESTÃO SELECIONADO
                 if ((Boolean) dob.getArgumento0()) {
+                    
+                    Movimento m = ((Movimento) dob.getArgumento29());
+                    Boleto b = m.getBoleto();
+                    
                     // SE O BOLETO ESTA QUITADO
                     if (dob.getArgumento15() != null) {
                         if (!dob.getArgumento15().equals("")) {
                             GenericaMensagem.error("Atenção", "BOLETOS QUITADOS NÃO PODEM SER REGISTRADOS!");
                             return null;
                         }
+                    }
+                    
+                    String data_calculo = new DataHoje().decrementarDias(b.getContaCobranca().getRegistrosDiasVencidos(), DataHoje.data());
+                    
+                    if (DataHoje.menorData(b.getVencimento(), data_calculo)){
+                        GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " ESTÁ VENCIDO A MAIS TEMPO QUE O PERMITIDO ( " + b.getContaCobranca().getRegistrosDiasVencidos() + " DIAS )");
+                        return null;
                     }
 
                     // SE O TIPO DE DOCUMENTO É 1 ou 2 (CPF, CNPJ)
@@ -244,7 +254,7 @@ public class ExtratoTelaBean implements Serializable {
                         return null;
                     }
 
-                    if (m.getBoleto().getStatusRetorno() != null) {
+                    if (b.getStatusRetorno() != null) {
                         switch (opcao) {
                             case "registrar":
                                 if (m.getBoleto().getStatusRetorno().getId() == 2) {
@@ -291,6 +301,8 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public void adicionarRemessa(String opcao) {
+        id_boleto_adicionado_remessa = "";
+        
         if (contaSelecionada.getId() == -1) {
             GenericaMensagem.error("ATENÇÃO", "Selecione uma Conta Cobrança para continuar!");
             PF.update("formExtratoTela");
