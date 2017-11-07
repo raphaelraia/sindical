@@ -191,9 +191,6 @@
                         </h:form>
                     </p:panel>
                     <h:form id="form_ws_sa">
-                        <p:commandLink style="width: 0; height: 0" id="update_filter">
-                            <p:ajax event="click" update=":form_autorizacoes:i_filter"/>
-                        </p:commandLink>                        
                         <span id="messageGoesHere"></span>
                         <script type="text/javascript">
                             var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},sisautorizacoes");
@@ -204,7 +201,7 @@
 
                             ws.onmessage = function (event) {
                                 if (event.data === "1") {
-                                    document.getElementById("form_ws_sa:update_filter").click();
+                                    document.getElementById("form_autorizacoes:i_filter").click();
                                 }
                             };
 

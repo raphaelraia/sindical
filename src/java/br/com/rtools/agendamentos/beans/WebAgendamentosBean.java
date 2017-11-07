@@ -204,7 +204,7 @@ public class WebAgendamentosBean implements Serializable {
                     for (int i = 0; i < agendamentos.size(); i++) {
                         if (DataHoje.convertTimeToInteger(agendamentos.get(i).getHora()) > DataHoje.convertTimeToInteger(ah.getHora())) {
                             if (amoutTime < totalTime) {
-                                amoutTime += DataHoje.diffHour(ah.getHora(), agendamentos.get(i).getHora());
+                                amoutTime = DataHoje.diffHour(ah.getHora(), agendamentos.get(i).getHora());
                                 if (Integer.parseInt(agendamentos.get(i).getQuantidade()) == 0) {
                                     objectAgendamentos = oa;
                                     lockScheduler = true;
@@ -249,7 +249,10 @@ public class WebAgendamentosBean implements Serializable {
                 AgendamentoHorario ah1 = new AgendamentoHorario();
                 if (DataHoje.convertTimeToInteger(agendamentos.get(i).getHora()) > DataHoje.convertTimeToInteger(agendamentoHorario.getAgendaHorarios().getHora())) {
                     if (amoutTime < totalTime) {
-                        amoutTime += DataHoje.diffHour(agendamentoHorario.getAgendaHorarios().getHora(), agendamentos.get(i).getHora());
+                        amoutTime = DataHoje.diffHour(agendamentoHorario.getAgendaHorarios().getHora(), agendamentos.get(i).getHora());
+                        if (amoutTime >= totalTime) {
+                            break;
+                        }
                         ah1.setAgendaHorarios((AgendaHorarios) dao.find(new AgendaHorarios(), agendamentos.get(i).getHorario_id()));
                         if (Integer.parseInt(agendamentos.get(i).getQuantidade()) > 0) {
                             reservaDao.reserveMultiples(agendamentos.get(i).getHorario_id());
@@ -273,7 +276,7 @@ public class WebAgendamentosBean implements Serializable {
 
     public void save() {
         Dao dao = new Dao();
-        Boolean newRegister = false;
+        newRegister = false;
         dao.openTransaction();
         if (agendamento.getId() == null) {
             newRegister = true;
@@ -294,6 +297,7 @@ public class WebAgendamentosBean implements Serializable {
             listAgendamentoServico.get(i).setAgendamento(agendamento);
             if (!dao.save(listAgendamentoServico.get(i))) {
                 listAgendamentoServico.get(i).setId(null);
+                agendamento.setId(null);
                 dao.rollback();
                 Messages.warn("Erro", "SERVIÇO JÁ CADASTRADO PARA ESSA AGENDA!");
                 return;
@@ -304,6 +308,7 @@ public class WebAgendamentosBean implements Serializable {
             if (!dao.save(listAgendamentoHorario.get(i))) {
                 listAgendamentoHorario.get(i).setId(null);
                 dao.rollback();
+                agendamento.setId(null);
                 Messages.warn("Erro", "AO SALVAR HORÁRIO DA AGENDA!");
                 return;
             }
@@ -311,6 +316,7 @@ public class WebAgendamentosBean implements Serializable {
         Messages.info("Sucesso", "AGENDA CRIADA!");
         dao.commit();
         reservaDao.commit();
+        agendamento.setId(null);
         newRegister = true;
     }
 
@@ -343,6 +349,9 @@ public class WebAgendamentosBean implements Serializable {
         dao.commit();
         Messages.info("Sucesso", "AGENDAMENTO CANCELADO!");
         loadListObjectAgenda();
+        GlobalSync.load();
+        this.loadListHorarios();
+        WSSocket.send("agendamentos_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void remove() {
@@ -436,6 +445,8 @@ public class WebAgendamentosBean implements Serializable {
     public void loadListStatus() {
         listStatus = new ArrayList();
         List<AgendaStatus> list = (List<AgendaStatus>) new Dao().list(new AgendaStatus());
+        idStatus = null;
+        listStatus.add(new SelectItem(null, "TODOS"));
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 idStatus = list.get(i).getId();
@@ -667,6 +678,7 @@ public class WebAgendamentosBean implements Serializable {
                 newSched = false;
                 showModal = false;
                 lockScheduler = false;
+                agendamento.setId(null);
                 break;
             case "grupo_convenio":
                 loadListSubGrupoConvenio();

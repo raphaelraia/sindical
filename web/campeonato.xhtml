@@ -74,7 +74,6 @@
                                                 <p:commandButton update=":form_campeonato:" value="Novo" action="#{campeonatoBean.clear}"/>
                                                 <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" />
                                                 <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaCampeonato')}" />
-                                                <p:outputLabel value="##{campeonatoBean.campeonato.id}" styleClass="font-color-gray" title="Código do campeonato #{campeonatoBean.campeonato.id} Evento ##{campeonatoBean.campeonato.evento.id}" rendered="#{campeonatoBean.campeonato.id ne null}"/>
                                             </h:panelGrid> 
                                         </f:facet>
                                     </p:panel>

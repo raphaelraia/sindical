@@ -50,15 +50,17 @@
         <to>/indexAcessoWeb.jsf</to>
     </rule>
     <rule>
+        <from>^/web/(.*)</from>
+        <to>/indexAcessoWeb.jsf?cliente=$1</to>
+    </rule>
+    <rule>
         <from>^/web_socios$</from>
         <to>/web_socios_login.jsf</to>
     </rule>
-    
     <rule>
         <from>^/web_socios/(.*)</from>
         <to>/web_socios_login.jsf?cliente=$1</to>
-    </rule>
-    
+    </rule>    
     <!-- CAMINHOS PARA WEB SERVICE -->
     <rule>
         <from>^/ws/(.*)/verifica_impressora/(.*)$</from>

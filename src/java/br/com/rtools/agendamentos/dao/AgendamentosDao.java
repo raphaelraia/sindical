@@ -88,6 +88,7 @@ public class AgendamentosDao extends DB {
      * @param convenio_sub_grupo_id
      * @param convenio_id
      * @param pessoa_id
+     * @param status_id
      * @return
      */
     public List findBy(String date, String date_end, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Integer pessoa_id, Integer status_id) {

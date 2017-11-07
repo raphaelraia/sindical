@@ -35,6 +35,20 @@
                                         <p:menuitem value="Suspensão"           action="#{chamadaPaginaBean.conviteSuspencao}" />
                                         <p:menuitem value="Motivo de Suspensão"    action="#{chamadaPaginaBean.paginaSimples('conviteMotivoSuspencao', 'Convite Motivo Suspenção')}" />
                                     </p:submenu>
+                                    <p:submenu label="Eventos">
+                                        <p:submenu label="Baile">
+                                            <p:menuitem value="Baile"               action="#{chamadaPaginaBean.baile}" />
+                                            <p:menuitem value="Banda"               action="#{chamadaPaginaBean.bandas}" />
+                                        </p:submenu>
+                                        <p:submenu label="Campeonatos">
+                                            <p:menuitem value="Agenda"                  action="#{chamadaPaginaBean.pagina('campeonato')}" />
+                                            <p:menuitem value="Equipes"                 action="#{chamadaPaginaBean.pagina('equipe')}" />
+                                            <p:menuitem value="Equipes do Campeonato"   action="#{chamadaPaginaBean.pagina('campeonatoEquipe')}" />
+                                            <p:separator style="border-top: 1px solid #999999"/> 
+                                            <p:menuitem value="Modalidade"              action="#{chamadaPaginaBean.paginaSimples('CampeonatoModalidade', 'CAMPEONATO MODALIDADE')}" />
+                                            <p:menuitem value="Campeonato"              action="#{chamadaPaginaBean.pagina('descricaoEvento')}" />
+                                        </p:submenu> 
+                                    </p:submenu>                                    
                                     <p:submenu label="Suporte">
                                         <p:menuitem value="Serviços"                    action="#{chamadaPaginaBean.servicos}"/>
                                         <p:menuitem value="Serviço Rotina"              action="#{chamadaPaginaBean.servicoRotina}"/>                                
@@ -66,9 +80,17 @@
                                 </p:submenu>
 
                                 <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px">  
-                                    <p:menuitem value="Convites"              action="#{chamadaPaginaBean.relatorioConviteClube}"/>
-                                    <p:menuitem value="Cartão Social"         action="#{chamadaPaginaBean.pagina('cartaoSocial')}" />
-                                    <p:menuitem value="Frequência Catraca"    action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false" />
+                                    <p:submenu label="Cadastral">
+                                        <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonato')}" ajax="false"/>
+                                        <p:menuitem value="Convites"              action="#{chamadaPaginaBean.relatorioConviteClube}"/>
+                                    </p:submenu>
+                                    <p:submenu label="Rotina">
+                                        <p:menuitem value="Cartão Social"         action="#{chamadaPaginaBean.pagina('cartaoSocial')}" />
+                                        <p:menuitem value="Frequência Catraca"    action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false" />
+                                    </p:submenu>
+                                    <p:submenu label="Financeiro">
+                                        <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonatoFinanceiro', 'relatorioCampeonato')}" ajax="false"/>
+                                    </p:submenu>
                                 </p:submenu>
                             </p:menubar> 
                         </p:panel>

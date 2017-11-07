@@ -67,8 +67,8 @@ public class JuridicaReceitaJSON {
             URL url;
             Charset charset = Charset.forName("UTF8");
             Integer status;
-            Boolean statusBoolean;
-            String error;
+            String statusBoolean = "OK";
+            String error = "";
             String message = "";
 
             List<String> list_cnae = new ArrayList();
@@ -114,15 +114,24 @@ public class JuridicaReceitaJSON {
 
                         // String str = org.apache.commons.io.IOUtils.toString(in);
                         JSONObject result = new JSONObject(sb.toString());
-                        statusBoolean = result.getBoolean("status");
-                        error = result.getString("return");
+                        try {
+                            statusBoolean = "" + result.getBoolean("status");
+                            error = result.getString("return");
+                        } catch (Exception e) {
+                            try {
+                                statusBoolean = result.getString("status");
+                                // error = result.getString("return");
+                            } catch (Exception e2) {
+
+                            }
+                        }
                         try {
                             message = result.getString("message");
                         } catch (Exception e) {
 
                         }
                         // ERRO PARA FALTA DE CRÉDITOS
-                        if (statusBoolean && !error.equals("OK")) {
+                        if (!statusBoolean.equals("OK")) {
                             jro.setStatus(-1);
                             error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!";
                             jro.setMsg(error);
@@ -133,7 +142,7 @@ public class JuridicaReceitaJSON {
                         }
 
                         // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
-                        if (statusBoolean && !error.equals("OK")) {
+                        if (!statusBoolean.equals("OK")) {
                             jro.setStatus(-1);
                             jro.setMsg(error.toUpperCase());
 
@@ -143,7 +152,7 @@ public class JuridicaReceitaJSON {
                         }
 
                         // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
-                        if (!statusBoolean && error.equals("NOK")) {
+                        if (statusBoolean.equals("NOK")) {
                             jro.setStatus(-1);
                             jro.setMsg(message);
 
@@ -152,12 +161,34 @@ public class JuridicaReceitaJSON {
                             return jro;
                         }
 
-                        JSONObject obj = result.getJSONObject("result");
+                        JSONObject obj = result;
+                        // JSONObject obj = result.getJSONObject("result");
+//                        String cnaeAtividadePrincipal = "";
+//                        try {
+//                            JSONArray atividade_principal = obj.getJSONArray("atividade_principal");
+//                            cnaeAtividadePrincipal = atividade_principal.getString("text") + " (" + atividade_principal.getString("code") + ")";
+//                            list_cnae.add(atividade_principal.getString("code").replace(".", "").replace("-", ""));
+//                        } catch (JSONException e) {
+//                            if (GenericaSessao.exists("habilitaLog")) {
+//                                GenericaMensagem.warn("JSONException", e.getMessage());
+//                            }
+//                        }
                         String cnaeAtividadePrincipal = "";
                         try {
-                            JSONObject atividade_principal = obj.getJSONObject("atividade_principal");
-                            cnaeAtividadePrincipal = atividade_principal.getString("text") + " (" + atividade_principal.getString("code") + ")";
-                            list_cnae.add(atividade_principal.getString("code").replace(".", "").replace("-", ""));
+                            JSONArray atividade_principal = obj.getJSONArray("atividade_principal");
+                            for (int i = 0; i < atividade_principal.length(); i++) {
+
+                                try {
+                                    JSONObject as = atividade_principal.getJSONObject(i);
+                                    cnaeAtividadePrincipal += as.getString("text") + " (" + as.getString("code") + ") ";
+                                    list_cnae.add(as.getString("code"));
+                                } catch (Exception e) {
+                                    if (GenericaSessao.exists("habilitaLog")) {
+                                        GenericaMensagem.warn("JSONException", e.getMessage());
+                                    }
+                                    break;
+                                }
+                            }
                         } catch (JSONException e) {
                             if (GenericaSessao.exists("habilitaLog")) {
                                 GenericaMensagem.warn("JSONException", e.getMessage());
@@ -203,7 +234,7 @@ public class JuridicaReceitaJSON {
                                 obj.getString("uf"),
                                 obj.getString("email"),
                                 obj.getString("telefone"),
-                                obj.getString("dt_situacao_cadastral"),
+                                obj.getString("data_situacao_especial"),
                                 ""
                         );
                         in.close();
