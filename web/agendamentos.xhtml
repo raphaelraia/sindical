@@ -56,6 +56,11 @@
                             <strong>FILIAL: #{agendamentosBean.filial.filial.pessoa.nome}</strong>
                         </p:panel>
                         <p:panel styleClass="fundoCinza margin-top">
+                            <h:panelGrid columns="1" rendered="#{not empty agendamentosBean.pessoa.pessoa.documento}">
+                                <h:column>
+                                    <label class="bold font-size-10 font-color-red">#{empty agendamentosBean.pessoa.pessoa.documento ? '' : (('CPF: ').concat(agendamentosBean.pessoa.pessoa.documento))}</label>
+                                </h:column>
+                            </h:panelGrid>
                             <h:panelGrid columns="4" style="width: 100%">
                                 <h:column>
                                     <label class="bold font-size-12 font-color-blue"> #{agendamentosBean.pessoa.pessoa.nome} </label><label class="font-color-red">(#{agendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
@@ -84,7 +89,7 @@
                             </h:panelGrid>
                             <h:panelGrid columns="6" cellspacing="5">
                                 <p:outputLabel value="Telefone:" />
-                                <p:inputMask value="#{agendamentosBean.agendamento.telefone}" mask="(99) 99999-9999" size="15">
+                                <p:inputMask value="#{agendamentosBean.agendamento.telefone}" mask="#{mask.getTelefone(agendamentosBean.agendamento.telefone)}" size="15">
                                     <p:ajax event="change" update="@this" />
                                 </p:inputMask>
                                 <p:outputLabel value="Email:" />
@@ -143,7 +148,7 @@
                                             #{agendamentos.quantidade}
                                         </p:column>
                                         <p:column styleClass="text-center">
-                                            <p:outputLabel value="#{agendamentos.quantidade == 0  ? 'ENCAXE' : 'DISPONIVEL'}" styleClass="#{agendamentos.quantidade == 0  ? 'font-color-red' : 'font-color-blue bold'}" />
+                                            <p:outputLabel value="#{agendamentos.quantidade == 0  ? 'ENCAIXE' : 'DISPONIVEL'}" styleClass="#{agendamentos.quantidade == 0  ? 'font-color-red' : 'font-color-blue bold'}" />
                                         </p:column>
                                     </p:dataTable>                                    
                                 </h:panelGroup>
@@ -159,9 +164,14 @@
                     <p:dialog widgetVar="dlg_sched" modal="true" resizable="false" height="400" width="1000" header="Deseja #{agendamentosBean.agendamento.agendaStatus.id == 2 ? 'agendar este serviço' : 'realizar este encaixe de serviço' } ?" visible="#{agendamentosBean.showModal}" closeOnEscape="true">
                         <p:ajax event="close" update=":form_agendamentos:" listener="#{agendamentosBean.listener('close_sched')}" />
                         <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
+                        <h:panelGrid columns="1" rendered="#{not empty agendamentosBean.pessoa.pessoa.documento}">
+                            <h:column>
+                                <label class="bold font-size-10 font-color-red">#{empty agendamentosBean.pessoa.pessoa.documento ? '' : (('CPF: ').concat(agendamentosBean.pessoa.pessoa.documento))}</label>
+                            </h:column>
+                        </h:panelGrid>
                         <h:panelGrid columns="3" style="width: 100%">
                             <h:column>
-                                <label class="bold font-size-12 font-color-blue"> #{agendamentosBean.pessoa.pessoa.nome} </label><label class="font-color-red">(#{agendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
+                                <label class="bold font-size-12 font-color-blue"> #{agendamentosBean.pessoa.pessoa.nome}</label><label class="font-color-red">(#{agendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
                             </h:column>
                             <h:column rendered="#{agendamentosBean.pessoa.pessoa.socios.id ne -1}">
                                 <h:panelGrid columns="6">
@@ -213,9 +223,9 @@
 
                         </h:panelGrid>
                         <f:facet name="footer">
-                            <h:panelGrid cellspacing="5" columns="2" rendered="#{!agendamentosBean.newRegister}">
-                                <p:commandButton value="Confirmar" update=":form_agendamentos:" action="#{agendamentosBean.save}"/>
-                                <p:commandButton value="Cancelar" update=":form_agendamentos:" action="#{agendamentosBean.listener('close_sched')}" />
+                            <h:panelGrid cellspacing="5" columns="2" >
+                                <p:commandButton value="Confirmar" update=":form_agendamentos:" action="#{agendamentosBean.save}" rendered="#{!agendamentosBean.newRegister}"/>
+                                <p:commandButton value="Voltar" update=":form_agendamentos:" action="#{agendamentosBean.listener('close_sched')}" />
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>
@@ -236,7 +246,7 @@
                             <h:panelGrid columns="8">
                                 <p:outputLabel value="Status: " />
                                 <p:selectOneMenu  value="#{agendamentosBean.idStatus}" >
-                                    <p:ajax event="change" update="@this :form_agendamentos:i_list_agendas" />
+                                    <p:ajax event="change" update="@this :form_agendamentos:i_list_agendas" listener="#{agendamentosBean.listener('load_schedules')}"/>
                                     <f:selectItems value="#{agendamentosBean.listStatus}" />
                                 </p:selectOneMenu>
                                 <p:outputLabel value="Data Inicial: " />
@@ -256,6 +266,9 @@
                             <p:dataTable value="#{agendamentosBean.listObjectAgenda}" var="oa" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!">
                                 <p:column width="30">
                                     <p:rowToggler />  
+                                </p:column>
+                                <p:column styleClass="text-center" width="100" headerText="Status" rendered="#{agendamentosBean.idStatus eq null}">
+                                    #{oa.status}
                                 </p:column>
                                 <p:column styleClass="text-center" width="80" headerText="Data">
                                     #{dataHoje.converteDataMB(oa.data)}
@@ -282,6 +295,9 @@
                                 </p:column>
                                 <p:rowExpansion>
                                     <h:panelGrid columns="3" styleClass="sbb">
+                                        <h:column>
+                                            <strong>#</strong>  #{oa.id_agendamento}
+                                        </h:column>
                                         <h:column>
                                             <strong>Subgrupo Convênio:</strong> #{oa.convenio_sub_grupo}                                            
                                         </h:column>

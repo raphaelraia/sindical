@@ -51,11 +51,15 @@ public class CatracaBean implements Serializable {
             GenericaMensagem.warn("ATENÇÃO", "Digite um IP!");
             return;
         }
+        if (catraca.getMac().isEmpty()) {
+            GenericaMensagem.warn("ATENÇÃO", "Digite o MAC do servidor válido!");
+            return;
+        }
         Dao dao = new Dao();
 
         catraca.setDepartamento((Departamento) dao.find(new Departamento(), Integer.valueOf(listaDepartamento.get(indexDepartamento).getDescription())));
         catraca.setNrNumero(Integer.valueOf(catraca.getNumero()));
-        
+
         dao.openTransaction();
         if (catraca.getId() == -1) {
             if (!dao.save(catraca)) {
@@ -126,8 +130,8 @@ public class CatracaBean implements Serializable {
         listaCatraca.clear();
         CatracaDao dao = new CatracaDao();
         List<Catraca> result = dao.listaCatraca();
-        
-        for (Catraca c : result){
+
+        for (Catraca c : result) {
             listaCatraca.add(new ObjectCatraca(c, (CatracaMonitora) new Dao().rebind(dao.pesquisaCatracaMonitora(c.getId()))));
         }
     }
@@ -163,8 +167,9 @@ public class CatracaBean implements Serializable {
     public void setListaCatraca(List<ObjectCatraca> listaCatraca) {
         this.listaCatraca = listaCatraca;
     }
-    
-    public class ObjectCatraca{
+
+    public class ObjectCatraca {
+
         private Catraca catraca;
         private CatracaMonitora catracaMonitora;
 

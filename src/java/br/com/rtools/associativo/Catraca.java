@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.associativo;
 
 import br.com.rtools.seguranca.Departamento;
@@ -16,10 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-/**
- *
- * @author Claudemir Rtools
- */
 @Entity
 @Table(name = "soc_catraca")
 public class Catraca implements Serializable {
@@ -63,6 +54,10 @@ public class Catraca implements Serializable {
     private Boolean verificaLiberacao;
     @Column(name = "is_ativo")
     private Boolean ativo;
+    @Column(name = "ds_mac", length = 30)
+    private String mac;
+    @Column(name = "nr_servidor")
+    private Integer servidor;
 
     public Catraca() {
         this.id = -1;
@@ -83,9 +78,11 @@ public class Catraca implements Serializable {
         this.verificaBiometria = false;
         this.verificaLiberacao = true;
         this.ativo = true;
+        this.mac = "";
+        this.servidor = null;
     }
 
-    public Catraca(Integer id, Departamento departamento, String numero, String ip, Integer nrNumero, Integer porta, Integer quantidadeDigitos, Boolean bloquearSemFoto, Integer tipoGiroCatraca, String ladoGiroCatraca, String servidorFoto, Boolean servidorBeep, Boolean biometrico, Boolean leitorBiometricoExterno, Boolean gravaFrequenciaCatraca, Boolean verificaBiometria, Boolean verificaLiberacao, Boolean ativo) {
+    public Catraca(Integer id, Departamento departamento, String numero, String ip, Integer nrNumero, Integer porta, Integer quantidadeDigitos, Boolean bloquearSemFoto, Integer tipoGiroCatraca, String ladoGiroCatraca, String servidorFoto, Boolean servidorBeep, Boolean biometrico, Boolean leitorBiometricoExterno, Boolean gravaFrequenciaCatraca, Boolean verificaBiometria, Boolean verificaLiberacao, Boolean ativo, String mac, Integer servidor) {
         this.id = id;
         this.departamento = departamento;
         this.numero = numero;
@@ -104,6 +101,8 @@ public class Catraca implements Serializable {
         this.verificaBiometria = verificaBiometria;
         this.verificaLiberacao = verificaLiberacao;
         this.ativo = ativo;
+        this.mac = mac;
+        this.servidor = servidor;
     }
 
     public Integer getId() {
@@ -145,7 +144,7 @@ public class Catraca implements Serializable {
     public void setNrNumero(Integer nrNumero) {
         this.nrNumero = nrNumero;
     }
-    
+
     public Integer getPorta() {
         return porta;
     }
@@ -153,7 +152,7 @@ public class Catraca implements Serializable {
     public void setPorta(Integer porta) {
         this.porta = porta;
     }
-    
+
     public Integer getQuantidadeDigitos() {
         return quantidadeDigitos;
     }
@@ -249,4 +248,21 @@ public class Catraca implements Serializable {
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
+    public Integer getServidor() {
+        return servidor;
+    }
+
+    public void setServidor(Integer servidor) {
+        this.servidor = servidor;
+    }
+
 }
