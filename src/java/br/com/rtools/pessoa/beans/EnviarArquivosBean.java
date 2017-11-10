@@ -27,7 +27,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
-import java.io.Serializable; 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,6 +78,9 @@ public class EnviarArquivosBean implements Serializable {
     private String cobrarAteVencimento = "";
     private List<DataObject> listaServicosAteVencimento = new ArrayList();
     private boolean marcarServicos = true;
+    private String tipoContabilidade = "";
+    private Integer qtdeIni = 0;
+    private Integer qtdeFim = 0;
 
     public EnviarArquivosBean() {
         DataHoje dh = new DataHoje();
@@ -277,14 +280,12 @@ public class EnviarArquivosBean implements Serializable {
             emailPessoa = new EmailPessoa();
         }
         ConfiguracaoDepartamento configuracaoDepartamento = null;
-       
-        
-        
-        if (MacFilial.getAcessoFilial().getFilial().getId() != -1) { 
-            
-            configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(14, MacFilial.getAcessoFilial().getFilial().getId()); 
-            
-        }  
+
+        if (MacFilial.getAcessoFilial().getFilial().getId() != -1) {
+
+            configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(14, MacFilial.getAcessoFilial().getFilial().getId());
+
+        }
         if (configuracaoDepartamento != null) {
             mail.setConfiguracaoDepartamento(configuracaoDepartamento);
         }
@@ -461,7 +462,12 @@ public class EnviarArquivosBean implements Serializable {
     }
 
     public List<Juridica> getListaContribuintes() {
-        if (listaContribuintes.isEmpty() && !adicionar) {
+        return listaContribuintes;
+    }
+
+    public void loadListContribuintes() {
+        listaContribuintes = new ArrayList();
+        if (!adicionar) {
             EnviarArquivosDao db = new EnviarArquivosDao();
             String ids_servicos = "";
             if (empresaDebito && !cobrarAteVencimento.isEmpty()) {
@@ -480,7 +486,7 @@ public class EnviarArquivosBean implements Serializable {
             if (empresaDebito && ids_servicos.isEmpty()) {
                 list = new ArrayList();
             } else {
-                list = db.pesquisaContribuintes(convencoesSelecionadasId(), gruposCidadeSelecionadosId(), cnaesSelecionadosId(), empresaDebito, ids_servicos, cobrarAteVencimento);
+                list = db.pesquisaContribuintes(convencoesSelecionadasId(), gruposCidadeSelecionadosId(), cnaesSelecionadosId(), empresaDebito, ids_servicos, cobrarAteVencimento, tipoContabilidade, qtdeIni, qtdeFim);
             }
 
             for (int i = 0; i < list.size(); i++) {
@@ -488,7 +494,6 @@ public class EnviarArquivosBean implements Serializable {
                 listaContribuintes.add(juridica);
             }
         }
-        return listaContribuintes;
     }
 
     public List<Juridica> getListaContribuintesPesquisa() {
@@ -506,7 +511,7 @@ public class EnviarArquivosBean implements Serializable {
                     }
                 }
             }
-            List list = db.pesquisaContribuintes(convencoesSelecionadasId(), gruposCidadeSelecionadosId(), cnaesSelecionadosId(), empresaDebito, ids_servicos, cobrarAteVencimento);
+            List list = db.pesquisaContribuintes(convencoesSelecionadasId(), gruposCidadeSelecionadosId(), cnaesSelecionadosId(), empresaDebito, ids_servicos, cobrarAteVencimento, tipoContabilidade, qtdeIni, qtdeFim);
             for (int i = 0; i < list.size(); i++) {
                 Juridica juridica = db.pesquisaCodigo((Integer) ((List) list.get(i)).get(0));
                 listaContribuintesPesquisa.add(juridica);
@@ -746,5 +751,29 @@ public class EnviarArquivosBean implements Serializable {
 
     public void setMarcarServicos(boolean marcarServicos) {
         this.marcarServicos = marcarServicos;
+    }
+
+    public String getTipoContabilidade() {
+        return tipoContabilidade;
+    }
+
+    public void setTipoContabilidade(String tipoContabilidade) {
+        this.tipoContabilidade = tipoContabilidade;
+    }
+
+    public Integer getQtdeIni() {
+        return qtdeIni;
+    }
+
+    public void setQtdeIni(Integer qtdeIni) {
+        this.qtdeIni = qtdeIni;
+    }
+
+    public Integer getQtdeFim() {
+        return qtdeFim;
+    }
+
+    public void setQtdeFim(Integer qtdeFim) {
+        this.qtdeFim = qtdeFim;
     }
 }

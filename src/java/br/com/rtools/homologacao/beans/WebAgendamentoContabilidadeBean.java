@@ -1044,14 +1044,23 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
             // SOLICITAÇÃO CONFORME CHAMADO #1813 
             /*
-            if (pe != null && pe.getJuridica().getId() != empresa.getId()) {
-                GenericaMensagem.warn("Atenção", "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome());
-                fisica = new Fisica();
-                enderecoFisica = new PessoaEndereco();
-                return;
-            }
+                if (pe != null && pe.getJuridica().getId() != empresa.getId()) {
+                    GenericaMensagem.warn("Atenção", "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome());
+                    fisica = new Fisica();
+                    enderecoFisica = new PessoaEndereco();
+                    return;
+                }
              */
+            FisicaDao fd = new FisicaDao();
             List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(fisica.getPessoa().getDocumento());
+            if (listFisica.isEmpty()) {
+                if (!fisica.getPessoa().getNome().isEmpty() && fisica.getDtNascimento() != null) {
+                    Fisica f = (Fisica) fd.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome().trim(), fisica.getDtNascimento());
+                    if (f != null) {
+                        listFisica.add(f);
+                    }
+                }
+            }
             if (!listFisica.isEmpty()) {
                 for (int i = 0; i < listFisica.size(); i++) {
                     if (listFisica.get(i).getId() != fisica.getId()) {
@@ -1078,22 +1087,22 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             }
 
             // VERIFICAÇÃO DE PESSOA EMPRESA SEM DEMISSAO
-//            if (fisica.getId() != -1){
-//                PessoaEmpresaDao dbx = new PessoaEmpresaDao();
-//                List<PessoaEmpresa> list_pe = dbx.listaPessoaEmpresaPorFisicaEmpresaDemissao(fisica.getId(), empresa.getId());
-//
-//                if (!list_pe.isEmpty()){
-//                    pessoaEmpresa = list_pe.get(0);
-//                    
-//                    if (pessoaEmpresa.getFuncao() != null)
-//                        profissao = pessoaEmpresa.getFuncao();
-//                }else{
-//                    if (validaAdmissao() && validaDemissao()){
-////                        pessoaEmpresa = new PessoaEmpresa();
-//  //                      profissao = new Profissao();
-//                    }
-//                }
-//            }
+            //            if (fisica.getId() != -1){
+            //                PessoaEmpresaDao dbx = new PessoaEmpresaDao();
+            //                List<PessoaEmpresa> list_pe = dbx.listaPessoaEmpresaPorFisicaEmpresaDemissao(fisica.getId(), empresa.getId());
+            //
+            //                if (!list_pe.isEmpty()){
+            //                    pessoaEmpresa = list_pe.get(0);
+            //                    
+            //                    if (pessoaEmpresa.getFuncao() != null)
+            //                        profissao = pessoaEmpresa.getFuncao();
+            //                }else{
+            //                    if (validaAdmissao() && validaDemissao()){
+            ////                        pessoaEmpresa = new PessoaEmpresa();
+            //  //                      profissao = new Profissao();
+            //                    }
+            //                }
+            //            }
             if (op.getId() != -1) {
                 //msgConfirma = "Este CPF possui carta de oposição em "+op.getEmissao();
                 //return;

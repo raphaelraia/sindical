@@ -967,6 +967,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
     public void pesquisarFuncionarioCPF() {
         try {
+            FisicaDao fd = new FisicaDao();
             if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
                 String documento = fisica.getPessoa().getDocumento();
                 FisicaDao dbFis = new FisicaDao();
@@ -977,16 +978,24 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 PessoaEmpresa pe = db.pesquisaPessoaEmpresaPertencente(documento);
 
                 /*
-                SOLICITAÇÃO CONFORME CHAMADO #1813 
-                if (pe != null && pe.getJuridica().getId() != juridica.getId()) {
-                    //msgConfirma = "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome();
-                    GenericaMensagem.warn("Atenção", "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome());
-                    fisica = new Fisica();
-                    enderecoFisica = new PessoaEndereco();
-                    return;
-                }
+                    SOLICITAÇÃO CONFORME CHAMADO #1813 
+                    if (pe != null && pe.getJuridica().getId() != juridica.getId()) {
+                        //msgConfirma = "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome();
+                        GenericaMensagem.warn("Atenção", "Esta pessoa pertence a Empresa " + pe.getJuridica().getPessoa().getNome());
+                        fisica = new Fisica();
+                        enderecoFisica = new PessoaEndereco();
+                        return;
+                    }
                  */
                 List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(fisica.getPessoa().getDocumento());
+                if (listFisica.isEmpty()) {
+                    if (!fisica.getPessoa().getNome().isEmpty() && fisica.getDtNascimento() != null) {
+                        Fisica f = (Fisica) fd.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome().trim(), fisica.getDtNascimento());
+                        if (f != null) {
+                            listFisica.add(f);
+                        }
+                    }
+                }
                 if (!listFisica.isEmpty()) {
                     for (int i = 0; i < listFisica.size(); i++) {
                         if (listFisica.get(i).getId() != fisica.getId()) {
