@@ -186,14 +186,14 @@
                             <h:column>
                                 <h:outputLabel value="Funcionário" style="color: red; font-weight: bold"/><br />
                                 <p:inputText value="#{webAgendamentoContribuinteBean.fisica.pessoa.nome}" readonly="#{webAgendamentoContribuinteBean.fisica.id != -1}" size="60" converter="#{toUpperCase}">
-                                    <p:ajax event="change" update="@this" global="false"/>
+                                    <p:ajax event="change" global="false" listener="#{webAgendamentoContribuinteBean.pesquisarFuncionarioCPF()}" update="@this i_panel_agendamento"/>
                                 </p:inputText>
                             </h:column>
 
                             <h:column>
                                 <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.webValidaDataNascimento ? 'font-color-red' : ''}"/><br />
                                 <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.nascimento}" readonly="#{webAgendamentoContribuinteBean.fisica.id != -1 and webAgendamentoContribuinteBean.fisica.nascimento ne '01/01/1900'}" size="8" mask="99/99/9999">
-                                    <p:ajax event="change" update="@this" global="false"/>
+                                    <p:ajax event="change" global="false" listener="#{webAgendamentoContribuinteBean.pesquisarFuncionarioCPF()}" update="@this i_panel_agendamento"/>
                                 </p:inputMask>
                             </h:column>
 

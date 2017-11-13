@@ -2622,7 +2622,7 @@ public class MatriculaAcademiaBean implements Serializable {
     public String semanaResumo(String descricao) {
         descricao = descricao.substring(0, 3);
         return descricao;
-    }
+    } 
 
     public Registro getRegistro() {
         if (registro != null) {

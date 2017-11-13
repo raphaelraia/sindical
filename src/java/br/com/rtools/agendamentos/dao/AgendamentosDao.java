@@ -51,6 +51,9 @@ public class AgendamentosDao extends DB {
             if (!is_socio) {
                 queryString += " AND H.is_socio = false                                         \n";
             }
+            if(is_web) {
+                queryString += " AND func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) > 0 \n";                
+            }
             queryString += " ORDER BY H.ds_hora";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();

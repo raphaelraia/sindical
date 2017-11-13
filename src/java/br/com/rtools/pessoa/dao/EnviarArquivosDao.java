@@ -8,6 +8,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
@@ -88,59 +89,98 @@ public class EnviarArquivosDao extends DB {
         }
     }
 
-    public List pesquisaContribuintes(String listaConvencao, String listaGrupoCidade, String listaCnae, boolean empresasDebito, String ids_servicos, String data_vencimento) {
-
-        String caso = "";
-        String inStringCnae = "";
-        String textQuery = "";
-        String textQuery1;
+    public List pesquisaContribuintes(String in_convencao, String in_grupo_cidade, String in_cnae, boolean empresasDebito, String ids_servicos, String data_vencimento, String tipoContabilidade, Integer qtdeIni, Integer qtdeFim) {
+        List listWhere = new ArrayList();
+        String queryString = "";
+        String subQueryString = "";
+//        String caso = "";
+//        String inStringCnae = "";
+//        String textQuery = "";
+//        String textQuery1;
         try {
             String inner_join = "";
+
+            queryString = " SELECT DISTINCT(c.id_juridica),                     \n"
+                    + "            p.ds_nome        AS nome,                    \n"
+                    + "            p.ds_telefone1   AS telefone,                \n"
+                    + "            p.ds_email1      AS email                    \n"
+                    + "       FROM arr_contribuintes_vw AS C                    \n"
+                    + " INNER JOIN pes_pessoa   AS P  ON P.id  = C.id_pessoa    \n"
+                    + " INNER JOIN pes_juridica AS J  ON J.id  = C.id_juridica  \n"
+                    + " INNER JOIN pes_cnae     AS CN ON CN.id = J.id_cnae      \n";
+
             if (empresasDebito) {
                 if (!ids_servicos.isEmpty()) {
-                    inner_join = " INNER JOIN fin_movimento m ON m.id_pessoa = p.id AND m.dt_vencimento < '" + data_vencimento + "' AND m.id_servicos IN (" + ids_servicos + ") AND m.is_ativo = TRUE";
+                    queryString += " INNER JOIN fin_movimento M ON M.id_pessoa = P.id AND M.dt_vencimento < '" + data_vencimento + "' AND M.id_servicos IN (" + ids_servicos + ") AND M.is_ativo = true \n";
+                }
+            }
+            listWhere.add("C.dt_inativacao IS NULL");
+            listWhere.add("length(rtrim(P.ds_email1)) > 0");
+            if (!in_convencao.isEmpty() && in_grupo_cidade.isEmpty() && in_cnae.isEmpty()) {
+                listWhere.add("C.id_convencao IN (" + in_convencao + ") ");
+            } else if (!in_convencao.isEmpty() && !in_grupo_cidade.isEmpty() && in_cnae.isEmpty()) {
+                listWhere.add("C.id_grupo_cidade IN (" + in_grupo_cidade + ") ");
+            } else if (!in_convencao.isEmpty() && !in_grupo_cidade.isEmpty() && !in_cnae.isEmpty()) {
+                listWhere.add("J.id_cnae IN (" + in_cnae + ") ");
+            }
+            if (tipoContabilidade.equals("sem")) {
+                listWhere.add("(J.id_contabilidade IS NULL OR J.id_contabilidade = 0)");
+            } else if (tipoContabilidade.equals("com")) {
+                listWhere.add("J.id_contabilidade > 0");
+            } else if (tipoContabilidade.equals("faixa") && qtdeIni > 0 || tipoContabilidade.equals("apartir")) {
+                listWhere.add("J.id_contabilidade > 0");
+                inner_join = "";
+                subQueryString += " ("
+                        + "     SELECT count(DISTINCT(C2.id_juridica))                  \n"
+                        + "       FROM arr_contribuintes_vw AS C2                       \n"
+                        + " INNER JOIN pes_pessoa   AS P2  ON P2.id  = C2.id_pessoa     \n"
+                        + " INNER JOIN pes_juridica AS J2  ON J2.id  = C2.id_juridica   \n"
+                        + " INNER JOIN pes_cnae     AS CN2 ON CN2.id = J2.id_cnae       \n";
+                if (empresasDebito) {
+                    if (!ids_servicos.isEmpty()) {
+                        subQueryString += " INNER JOIN fin_movimento M2 ON M2.id_pessoa = P2.id AND M2.dt_vencimento < '" + data_vencimento + "' AND M2.id_servicos IN (" + ids_servicos + ") AND M2.is_ativo = true \n";
+
+                    }
+                }
+                subQueryString += " WHERE c2.dt_inativacao IS NULL \n";
+                subQueryString += " AND length(rtrim(p2.ds_email1)) > 0 \n";
+                if (!in_convencao.isEmpty() && in_grupo_cidade.isEmpty() && in_cnae.isEmpty()) {
+                    subQueryString += " AND C2.id_convencao IN (" + in_convencao + ") \n";
+                } else if (!in_convencao.isEmpty() && !in_grupo_cidade.isEmpty() && in_cnae.isEmpty()) {
+                    subQueryString += " AND C2.id_grupo_cidade IN(" + in_grupo_cidade + ") \n";
+                } else if (!in_convencao.isEmpty() && !in_grupo_cidade.isEmpty() && !in_cnae.isEmpty()) {
+                    subQueryString += " AND J2.id_cnae IN(" + in_cnae + ") \n";
+                }
+                if (qtdeFim < qtdeIni) {
+                    qtdeFim = 0;
+                }
+                if (tipoContabilidade.equals("faixa")) {
+                    if ((qtdeIni > 0 && qtdeFim <= 0) || (Objects.equals(qtdeIni, qtdeFim))) {
+                        subQueryString += " AND C2.id_contabilidade = C.id_contabilidade) = " + qtdeIni + " \n";
+                    } else if (qtdeIni > 0 && qtdeFim > 0) {
+                        subQueryString += " AND C2.id_contabilidade = C.id_contabilidade) BETWEEN " + qtdeIni + " AND " + qtdeFim + " \n";
+                    } else {
+                        subQueryString += " AND C2.id_contabilidade = C.id_contabilidade) = " + qtdeIni + " \n";
+                    }
+                } else {
+                    if ((qtdeIni > 0 && qtdeFim <= 0) || (Objects.equals(qtdeIni, qtdeFim))) {
+                        subQueryString += " AND C2.id_contabilidade = c.id_contabilidade) >= " + qtdeIni + " \n";
+                    }
+                }
+            }
+            if (!subQueryString.isEmpty()) {
+                listWhere.add(subQueryString);
+            }
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + "\n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + "\n";
                 }
             }
 
-            textQuery1 = "     SELECT DISTINCT(c.id_juridica),                  "
-                    + "            p.ds_nome as nome,                           "
-                    + "            p.ds_telefone1 as telefone,                  "
-                    + "            p.ds_email1 as email                         "
-                    + "       FROM arr_contribuintes_vw as c                    "
-                    + " INNER JOIN pes_pessoa as p on p.id = c.id_pessoa        "
-                    + " INNER JOIN pes_juridica AS j on j.id = c.id_juridica    "
-                    + " INNER JOIN pes_cnae as cn ON cn.id = j.id_cnae          "
-                    + inner_join
-                    + "      WHERE c.dt_inativacao is null                      "
-                    + "        AND length(rtrim(p.ds_email1)) > 0               ";
-
-            if (!listaConvencao.isEmpty() && caso.equals("") && listaGrupoCidade.isEmpty() && listaCnae.isEmpty()) {
-                caso = "3";
-                inStringCnae += " AND c.id_convencao IN (" + listaConvencao + ") ";
-                textQuery += textQuery1 + "  " + inStringCnae + " ";
-            }
-            if (!listaConvencao.isEmpty() && caso.equals("") && !listaGrupoCidade.isEmpty() && listaCnae.isEmpty()) {
-                caso = "2";
-                inStringCnae += " AND c.id_grupo_cidade IN(" + listaGrupoCidade + ") ";
-                textQuery += textQuery1 + "  " + inStringCnae + " ";
-            }
-            if (!listaConvencao.isEmpty() && caso.equals("") && !listaGrupoCidade.isEmpty() && !listaCnae.isEmpty()) {
-                caso = "1";
-                inStringCnae += " AND j.id_cnae IN(" + listaCnae + ") ";
-                textQuery += textQuery1 + "  " + inStringCnae + " ";
-            }
-//            if (caso.equals("1")) {
-//                textQuery += textQuery1 + "  " + inStringCnae + " ";
-//            } else if (caso.equals("2")) {
-//                textQuery += textQuery1 + " " + inStringCnae + " ";
-//            } else if (caso.equals("3")) {
-//                textQuery += textQuery1 + " " + inStringCnae + " ";
-//            } else {
-//                textQuery += textQuery1;
-//            }
-
-            textQuery += inStringCnae + "   ORDER BY p.ds_nome  ;";
-            Query qry = getEntityManager().createNativeQuery(textQuery);
+            queryString += " ORDER BY P.ds_nome ";
+            Query qry = getEntityManager().createNativeQuery(queryString);
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return list;

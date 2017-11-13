@@ -4,6 +4,7 @@ import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.MotivoInativacao;
 import br.com.rtools.associativo.CatracaFrequencia;
 import br.com.rtools.associativo.CupomMovimento;
+import br.com.rtools.associativo.ExameMedico;
 import br.com.rtools.associativo.HistoricoCarteirinha;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
@@ -11,6 +12,7 @@ import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.dao.CupomMovimentoDao;
 import br.com.rtools.associativo.dao.EmissaoGuiasDao;
+import br.com.rtools.associativo.dao.ExameMedicoDao;
 import br.com.rtools.associativo.dao.FrequenciaCatracaDao;
 import br.com.rtools.associativo.dao.HistoricoEmissaoGuiasDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
@@ -218,6 +220,15 @@ public class PessoaFisicaMesclarBean implements Serializable {
             if (!dao.update(listCatracaFrequencia.get(i))) {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA CATRACA FREQUÊNCIA!");
+                return;
+            }
+        }
+        List<ExameMedico> listExameMedico = new ExameMedicoDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listExameMedico.size(); i++) {
+            listExameMedico.get(i).setPessoa(manter.getPessoa());
+            if (!dao.update(listExameMedico.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR EXAME MÉDICO!");
                 return;
             }
         }
@@ -577,6 +588,14 @@ public class PessoaFisicaMesclarBean implements Serializable {
                     return;
                 }
                 novoLog.save("REMOVER PESSOA ENDEREÇO: " + pesRemover.get(i).toString());
+            }
+        }
+        List<ExameMedico> listExameMedico = new ExameMedicoDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listExameMedico.size(); i++) {
+            if (!dao.delete(listExameMedico.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER EXAME MÉDICO!");
+                return;
             }
         }
         PessoaComplemento pc = new PessoaComplementoDao().findByPessoa(remover.getPessoa().getId());

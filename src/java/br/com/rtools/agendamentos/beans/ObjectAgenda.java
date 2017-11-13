@@ -1,5 +1,7 @@
 package br.com.rtools.agendamentos.beans;
 
+import br.com.rtools.agendamentos.Agendamentos;
+
 public class ObjectAgenda {
 
     private Object data;
@@ -23,6 +25,7 @@ public class ObjectAgenda {
     private Object colaborador_documento;
     private Object id_convenio_sub_grupo;
     private Object convenio_sub_grupo;
+    private Agendamentos agendamentos;
 
     public ObjectAgenda() {
         this.data = null;
@@ -46,6 +49,7 @@ public class ObjectAgenda {
         this.colaborador_documento = null;
         this.id_convenio_sub_grupo = null;
         this.convenio_sub_grupo = null;
+        this.agendamentos = null;
     }
 
     /**
@@ -72,7 +76,7 @@ public class ObjectAgenda {
      * @param id_convenio_sub_grupo
      * @param convenio_sub_grupo
      */
-    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo) {
+    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos) {
         this.data = data;
         this.horario_inicial = horario_inicial;
         this.horario_final = horario_final;
@@ -94,6 +98,7 @@ public class ObjectAgenda {
         this.colaborador_documento = colaborador_documento;
         this.id_convenio_sub_grupo = id_convenio_sub_grupo;
         this.convenio_sub_grupo = convenio_sub_grupo;
+        this.agendamentos = agendamentos;
     }
 
     public Object getData() {
@@ -262,6 +267,14 @@ public class ObjectAgenda {
 
     public void setConvenio_sub_grupo(Object convenio_sub_grupo) {
         this.convenio_sub_grupo = convenio_sub_grupo;
+    }
+
+    public Agendamentos getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamentos(Agendamentos agendamentos) {
+        this.agendamentos = agendamentos;
     }
 
 }
