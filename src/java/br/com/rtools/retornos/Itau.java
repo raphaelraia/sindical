@@ -42,10 +42,10 @@ public class Itau extends ArquivoRetorno {
 
                     // PRIMEIRA LINHA - HEADER ARQUIVO
                     objeto_arquivo.setCodigoCedente(linhas.get(0).substring(32, 37));
+                    objeto_arquivo.setSequencialArquivo(linhas.get(0).substring(108, 113));
 
                     // SEGUNDA LINHA JÁ NO SEGMENTO
                     objeto_arquivo.setCnpj(linhas.get(1).substring(3, 17));
-                    objeto_arquivo.setSequencialArquivo(linhas.get(1).substring(108, 113));
 
                     Integer sequencial_arquivo = Integer.parseInt(objeto_arquivo.getSequencialArquivo());
 

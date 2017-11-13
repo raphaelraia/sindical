@@ -407,7 +407,12 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "0"; // 18.3P Identificação da Distribuição 62621-  Alfanumérico  C010
                 CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + bol.getId()).length()) + bol.getId(); // 19.3P Número do Documento de Cobrança 637715-  Alfanumérico  C011
                 CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título 78858-  Numérico  C012
-
+                
+                if (bol.getVencimento().replace("/", "").isEmpty()) {
+                    dao.rollback();
+                    return new RespostaArquivoRemessa(null, "BOLETO: " + bol.getBoletoComposto() + " NÃO TEM VENCIMENTO!");
+                }
+                
                 Double valor_titulo_double = new Double(0);
 
                 for (Movimento m : lista_m) {

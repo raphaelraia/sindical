@@ -213,6 +213,11 @@ public class ExtratoTelaBean implements Serializable {
                     
                     String data_calculo = new DataHoje().decrementarDias(b.getContaCobranca().getRegistrosDiasVencidos(), DataHoje.data());
                     
+                    if (b.getVencimento().isEmpty()){
+                        GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
+                        return null;
+                    }
+                    
                     if (DataHoje.menorData(b.getVencimento(), data_calculo)){
                         GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " ESTÁ VENCIDO A MAIS TEMPO QUE O PERMITIDO ( " + b.getContaCobranca().getRegistrosDiasVencidos() + " DIAS )");
                         return null;
