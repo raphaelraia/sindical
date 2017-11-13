@@ -15,7 +15,7 @@
                     <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop" style="overflow: hidden">
                         <h:column>
                             <p:panel header="Câmera" style="width: 350px; height: 300px" styleClass="text-center" >
-                                <p:photoCam widgetVar="pc_photocam" listener="#{photoCamBean.capture}" update=":form_photocam_files:i_photocam_preview :form_photocam_files:i_panel_photocam_actions" rendered="#{photoCamBean.visible}" />
+                                <p:photoCam widgetVar="pc_photocam" listener="#{photoCamBean.capture}" update=":form_photocam_files:i_photocam_preview :form_photocam_files:i_panel_photocam_actions" rendered="#{photoCamBean.visible}" forceFlash="true"/>
                             </p:panel>
                         </h:column>
                         <h:column>
