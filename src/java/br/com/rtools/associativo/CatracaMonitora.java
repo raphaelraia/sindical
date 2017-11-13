@@ -52,6 +52,8 @@ public class CatracaMonitora implements Serializable {
     private Integer via;
     @Column(name = "is_liberado")
     private Boolean liberado;
+    @Column(name = "is_atualizar")
+    private Boolean atualizar;
 
     public CatracaMonitora() {
         this.id = -1;
@@ -67,9 +69,10 @@ public class CatracaMonitora implements Serializable {
         this.mensagem = "";
         this.via = null;
         this.liberado = false;
+        this.atualizar = true;
     }
 
-    public CatracaMonitora(Integer id, Catraca catraca, Integer ping, Boolean ativo, String status, String observacao, Integer pessoa, String nome, String foto, Integer codigoErro, String mensagem, Integer via, Boolean liberado) {
+    public CatracaMonitora(Integer id, Catraca catraca, Integer ping, Boolean ativo, String status, String observacao, Integer pessoa, String nome, String foto, Integer codigoErro, String mensagem, Integer via, Boolean liberado, Boolean atualizar) {
         this.id = id;
         this.catraca = catraca;
         this.ping = ping;
@@ -83,6 +86,7 @@ public class CatracaMonitora implements Serializable {
         this.mensagem = mensagem;
         this.via = via;
         this.liberado = liberado;
+        this.atualizar = atualizar;
     }
 
     public Integer getId() {
