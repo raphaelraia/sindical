@@ -32,7 +32,9 @@ public class Usuario implements Serializable {
     @Column(name = "ds_email", length = 255)
     private String email;
     @Column(name = "is_autenticado", columnDefinition = "boolean default false", nullable = false)
-    private Boolean autenticado;
+    private boolean autenticado;
+    @Column(name = "is_camera_flash_player", columnDefinition = "boolean default true", nullable = false)
+    private boolean cameraFlashPlayer;
 
     @Transient
     private List<UsuarioHistoricoAcesso> listUsuarioHistoricoAcesso;
@@ -45,10 +47,11 @@ public class Usuario implements Serializable {
         this.ativo = false;
         this.email = "";
         this.autenticado = false;
+        this.cameraFlashPlayer = true;
         this.listUsuarioHistoricoAcesso = new ArrayList();
     }
 
-    public Usuario(int id, Pessoa pessoa, String login, String senha, boolean ativo, String email, Boolean autenticado) {
+    public Usuario(int id, Pessoa pessoa, String login, String senha, boolean ativo, String email, Boolean autenticado, boolean cameraFlashPlayer) {
         this.id = id;
         this.pessoa = pessoa;
         this.login = login;
@@ -57,6 +60,7 @@ public class Usuario implements Serializable {
         this.email = email;
         this.autenticado = autenticado;
         this.listUsuarioHistoricoAcesso = new ArrayList();
+        this.cameraFlashPlayer = cameraFlashPlayer;
     }
 
     public int getId() {
@@ -140,6 +144,14 @@ public class Usuario implements Serializable {
 
     public void setListUsuarioHistoricoAcesso(List<UsuarioHistoricoAcesso> listUsuarioHistoricoAcesso) {
         this.listUsuarioHistoricoAcesso = listUsuarioHistoricoAcesso;
+    }
+
+    public boolean getCameraFlashPlayer() {
+        return cameraFlashPlayer;
+    }
+
+    public void setCameraFlashPlayer(boolean cameraFlashPlayer) {
+        this.cameraFlashPlayer = cameraFlashPlayer;
     }
 
 }

@@ -96,53 +96,89 @@ public class Defaults implements Serializable {
     public String getURLLocal() {
         loadJson();
         HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        String scheme = hsr.getScheme();
-        String host = hsr.getLocalAddr();
-        Integer port = hsr.getLocalPort();
-        String url = "";
-        String urlx = ((HttpServletRequest) hsr).getRequestURL().toString();
-        if(urlx.contains("senha")) {
-            urlx = urlx.replace("http://", "");
-            urlx = urlx.replace("/", "");
-            urlx = urlx.replace(":", "");
-            urlx = urlx.replace("Sindical", "");
-            urlx = urlx.replace("senha.jsf", "");
-            urlx = urlx.replace("ws", "");
-            urlx = urlx.replace(port + "", "");
-        } else {
-            urlx = urlx.replace("http://", "");
-            urlx = urlx.replace("/", "");
-            urlx = urlx.replace(":", "");
-            Rotina r = new Rotina().get();
-            String page = r.converteURL(r.getPagina());
-            urlx = urlx.replace("Sindical", "");
-            urlx = urlx.replace(page + ".jsf", "");
-            // urlx = urlx.replace("ws", "");
-            urlx = urlx.replace(port + "", "");
-            
-        }
-        String queryString = ((HttpServletRequest)hsr).getQueryString();        
-        if (host_local.isEmpty()) {
-            if (host != null) {
-                if (port == 0) {
-                    url = urlx + "/";
-                } else {
-                    url = urlx + ":" + port;
-                }
-            }
-        } else {
-            if (!host_local.isEmpty()) {
-                url += host_local;
-            }
-            if (port > 0 && port != 80) {
-                url += ":" + port;
-            }
-        }
+        // String scheme = hsr.getScheme();
+        // String host = hsr.getLocalAddr();
+        // Integer port = hsr.getLocalPort();
+        // String ports = hsr.getHeader("host");
+        String url = hsr.getHeader("host");
+//        String urlx = ((HttpServletRequest) hsr).getRequestURL().toString();
+//        if (urlx.contains("senha")) {
+//            urlx = urlx.replace("http://", "");
+//            urlx = urlx.replace("https://", "");
+//            urlx = urlx.replace("/", "");
+//            urlx = urlx.replace(":", "");
+//            urlx = urlx.replace("Sindical", "");
+//            urlx = urlx.replace("senha.jsf", "");
+//            urlx = urlx.replace("ws", "");
+//            urlx = urlx.replace(port + "", "");
+//        } else {
+//            urlx = urlx.replace("http://", "");
+//            urlx = urlx.replace("https://", "");
+//            urlx = urlx.replace("/", "");
+//            urlx = urlx.replace(":", "");
+//            Rotina r = new Rotina().get();
+//            String page = r.converteURL(r.getPagina());
+//            urlx = urlx.replace("Sindical", "");
+//            urlx = urlx.replace(page + ".jsf", "");
+//            // urlx = urlx.replace("ws", "");
+//            urlx = urlx.replace(port + "", "");
+//
+//        }
+//        String queryString = ((HttpServletRequest) hsr).getQueryString();
+//        if (host_local.isEmpty()) {
+//            if (host != null) {
+//                if (port == 0) {
+//                    url = urlx + "/";
+//                } else {
+//                    url = urlx + ":" + port;
+//                }
+//            }
+//        } else {
+//            if (!host_local.isEmpty()) {
+//                url += host_local;
+//            }
+//            if (port > 0 && port != 80) {
+//                url += ":" + port;
+//            }
+//        }
         return url;
     }
 
-    public String getURLWeb() {
+    public String getURLLocalContextPath() {
         loadJson();
+        HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String url = hsr.getHeader("host") + hsr.getContextPath();
+        return url;
+    }
+
+    public String getUrl() {
+        HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String url = hsr.getScheme() + "://" + hsr.getHeader("host");
+        return url;
+    }
+
+    public String getUrlContextPath() {
+        HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String url = hsr.getScheme() + "://" + hsr.getHeader("host") + hsr.getContextPath();
+        return url;
+    }
+
+    public String getWsScheme() {
+        HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        if (hsr.getScheme().equals("http")) {
+            return "ws";
+        } else {
+            return "wss";
+        }
+    }
+
+    public String getScheme() {
+        HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        return hsr.getScheme();
+    }
+
+    public String getURLWeb() {
+        // loadJson();
         String url = "";
         if (!host_web.isEmpty()) {
             url += host_web;

@@ -23,6 +23,7 @@ import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -259,6 +260,7 @@ public class LancamentoIndividualBean implements Serializable {
         lote.setCondicaoPagamento(cp);
         lote.setPlano5(serv.getPlano5());
         lote.setDescontoFolha(descontoFolha.equals("sim"));
+        lote.setUsuario(Usuario.getUsuario());
 
         dao.openTransaction();
         if (!dao.save(lote)) {

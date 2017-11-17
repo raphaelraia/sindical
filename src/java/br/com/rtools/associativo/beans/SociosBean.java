@@ -1678,6 +1678,7 @@ public class SociosBean implements Serializable {
             return "pessoaFisica";
         }
         FisicaDao db = new FisicaDao();
+        GenericaSessao.remove("photoCapture");
         GenericaSessao.put("fisicaBean", new FisicaBean());
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).editarFisicaParametro(db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId()));

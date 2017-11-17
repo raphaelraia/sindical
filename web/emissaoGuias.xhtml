@@ -20,7 +20,7 @@
 
         </script>        
     </h:head>
-    
+
     <f:metadata>  
         <f:event type="preRenderView" listener="#{emissaoGuiasBean.validaProdutoPesquisa}"/>
     </f:metadata>
@@ -77,35 +77,58 @@
                                         <p:outputLabel value="#{emissaoGuiasBean.calculoIdade()}" style="font-size: 9pt!important" />
                                     </h:column>
                                 </h:panelGrid>
+                                <f:facet name="footer" rendered="#{emissaoGuiasBean.lote.id eq -1}">
+                                    <p:accordionPanel prependId="false" activeIndex="#{emissaoGuiasBean.activeIndex}" style="background: #cccccc" >
+                                        <p:tab title="Sugestões ..." id="i_clich_dsds" >
+                                            <p:dataTable value="#{emissaoGuiasBean.listGuiasSuggestions}" var="sug" scrollable="true" scrollHeight="150" emptyMessage="Nenhuma guia emitida recentemente!">
+                                                <p:column width="30">
+                                                    <p:commandButton icon="ui-icon-arrowreturnthick-1-e" action="#{emissaoGuiasBean.selectedSuggestions(sug)}" update=":form_eg:" />
+                                                </p:column>
+                                                <p:column headerText="Serviço">
+                                                    #{sug.servico}
+                                                </p:column>
+                                                <p:column headerText="Sub Grupo">
+                                                    #{sug.convenio_sub_grupo}
+                                                </p:column>
+                                                <p:column headerText="Grupo">
+                                                    #{sug.convenio_grupo}
+                                                </p:column>
+                                                <p:column headerText="Convênio">
+                                                    #{sug.convenio}
+                                                </p:column>
+                                            </p:dataTable>
+                                        </p:tab>
+                                    </p:accordionPanel>                                    
+                                </f:facet>
                             </p:panel>
                             <p:panel id="i_panel_convenio" header="Empresa Convêniada" styleClass="margin-top-max">
                                 <h:panelGrid id="i_panel_grupos" columns="6">
                                     <p:outputLabel value="Grupo: " />
-                                    <p:selectOneMenu id="idGrupo" value="#{emissaoGuiasBean.index[0]}" disabled="#{emissaoGuiasBean.lote.id != -1}">
-                                        <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.clear(1)}"/>
-                                        <f:selectItems value="#{emissaoGuiasBean.listGrupo}"/>
+                                    <p:selectOneMenu id="idGrupo" value="#{emissaoGuiasBean.idGrupo}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                        <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.listener('grupo')}"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listGrupos}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Sub Grupo: " />
-                                    <p:selectOneMenu id="idSubGrupo" value="#{emissaoGuiasBean.index[1]}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                    <p:selectOneMenu id="idSubGrupo" value="#{emissaoGuiasBean.idSubgrupo}" disabled="#{emissaoGuiasBean.lote.id != -1}">
                                         <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.clear(2)}"/>
-                                        <f:selectItems value="#{emissaoGuiasBean.listSubGrupo}"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listSubgrupos}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Razão: " />
-                                    <p:selectOneMenu id="idEmpresasConv" value="#{emissaoGuiasBean.index[3]}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                    <p:selectOneMenu id="idEmpresasConv" value="#{emissaoGuiasBean.idConvenio}" disabled="#{emissaoGuiasBean.lote.id != -1}">
                                         <p:ajax event="change"  update="@this"/>
-                                        <f:selectItems value="#{emissaoGuiasBean.listJuridica}" />
+                                        <f:selectItems value="#{emissaoGuiasBean.listJuridicas}" />
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:panel>
 
                             <p:panel header="Serviços" id="i_panel_servicos" styleClass="margin-top-max">
                                 <h:panelGrid>
-                                    <p:selectOneMenu id="idServicos" value="#{emissaoGuiasBean.index[2]}" disabled="#{emissaoGuiasBean.lote.id != -1}" filter="true" filterMatchMode="startsWith">
+                                    <p:selectOneMenu id="idServicos" value="#{emissaoGuiasBean.idServico}" disabled="#{emissaoGuiasBean.lote.id != -1}" filter="true" filterMatchMode="startsWith">
                                         <p:ajax event="change" update="i_panel_servicos i_parceiros" listener="#{emissaoGuiasBean.listenerEnabledItensPedidoListener}"/>
                                         <f:selectItems value="#{emissaoGuiasBean.listServicos}" />
                                     </p:selectOneMenu>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid>
                                     <h:column>
                                         <h:panelGroup layout="block" rendered="#{emissaoGuiasBean.socios.id == -1 and emissaoGuiasBean.pessoa.id ne -1}">
@@ -193,9 +216,10 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <h:panelGrid columns="2" styleClass="margin-top-max">
+                            <h:panelGrid columns="3" styleClass="margin-top-max">
                                 <p:commandButton onclick="PF('dlg_save').show()" value="Salvar" rendered="#{emissaoGuiasBean.lote.id == -1}"  title="Salvar este Lançamento"/>
-                                <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Novo" update=":form_eg:" title="Novo Lançamento" />
+                                <p:commandButton action="#{emissaoGuiasBean.listener('force_clean')}" value="Limpar e manter" update=":form_eg:" title="Limpar e manter convênios" rendered="false"/>
+                                <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Limpar" update=":form_eg:" title="Novo Lançamento" />
                                 <p:commandButton action="#{emissaoGuiasBean.imprimirEncaminhamento()}" value="Imprimir Encaminhamento" title="Imprimir este Encaminhamento" rendered="#{emissaoGuiasBean.renderedEncaminhamento eq true}" ajax="false"/>
                             </h:panelGrid>                    
 
@@ -285,12 +309,12 @@
                                         <p:commandButton value="Pesquisar" icon="ui-icon-search" title="Pesquisar Produto" action="#{chamadaPaginaBean.pesquisa('pesquisaProduto', 'produtoBean')}" disabled="#{emissaoGuiasBean.lote.id != -1}" actionListener="#{genericaSessao.putString('type', 'all')}"/>
                                         <p:outputLabel value="#{emissaoGuiasBean.pedido.produto.descricao} -  Marca: #{emissaoGuiasBean.pedido.produto.marca} - #{emissaoGuiasBean.pedido.produto.fabricante}" />
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid columns="2">
                                         <p:outputLabel value="Estoque Disponível:" />
                                         <p:outputLabel value="#{emissaoGuiasBean.estoque.estoque} (#{emissaoGuiasBean.estoque.produto.produtoUnidade.descricao} (S))" />
                                     </h:panelGrid>                                    
-                                    
+
                                     <h:panelGrid columns="4">
                                         <p:outputLabel value="Qtde" />
                                         <p:outputLabel value="Valor Unit." />

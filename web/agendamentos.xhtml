@@ -361,25 +361,25 @@
             </p:panel>
             <span id="messageGoesHere"></span>
             <script type="text/javascript">
-                var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamentos_#{controleUsuarioBean.clienteLowerCaseString}");
+                var ws = new WebSocket("#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/agendamentos_#{controleUsuarioBean.clienteLowerCaseString}");
 
-                ws.onopen = function (event) {
-                    console.log("Connected ", event);
-                };
+                    ws.onopen = function (event) {
+                        console.log("Connected ", event);
+                    };
 
-                ws.onmessage = function (event) {
-                    if (event.data === "1") {
-                        document.getElementById("form_agendamentos:update_grid").click();
-                    }
-                };
+                    ws.onmessage = function (event) {
+                        if (event.data === "1") {
+                            document.getElementById("form_agendamentos:update_grid").click();
+                        }
+                    };
 
-                ws.onerror = function (event) {
-                    console.log("Error ", event);
-                };
+                    ws.onerror = function (event) {
+                        console.log("Error ", event);
+                    };
 
-                ws.onclose = function (event) {
-                    console.log("Error ", event);
-                };
+                    ws.onclose = function (event) {
+                        console.log("Error ", event);
+                    };
             </script>
             <!-- FINALIZA div wrap main -->
         </f:view>

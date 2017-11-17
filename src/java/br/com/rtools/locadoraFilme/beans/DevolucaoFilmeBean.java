@@ -283,6 +283,167 @@ public class DevolucaoFilmeBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Devolução concluída!");
     }
 
+    public void relocar() {
+        if (locadoraStatus == null) {
+            locadoraStatus = new LocadoraStatusDao().findByFilialSemana(MacFilial.getAcessoFilial().getFilial().getId());
+            if (locadoraStatus == null) {
+                GenericaMensagem.warn("Erro", "Nenhuma regra de locação e serviço definido para esta filial! Vá no Menu Locadora > Cadastro > Status");
+                return;
+            }
+        }
+        if (listLocadoraMovimento.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Adicione filmes para concluir esta locação!");
+            return;
+        }
+        ConfiguracaoLocadora cf = ConfiguracaoLocadoraBean.get();
+        if (cf == null || cf.getServicos() == null) {
+            GenericaMensagem.warn("Validação", "Informar serviço da locadora! Menu Principal > Segurança > Departamentos");
+            return;
+        }
+        Servicos servicoLocadora = cf.get().getServicos();
+        if (servicoLocadora == null) {
+            GenericaMensagem.warn("Validação", "Informar serviço da locadora!");
+            return;
+        }
+        int nrQtRelocacao = 0;
+        int nrQtRelocacaoLancamentos = 0;
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            nrQtRelocacao++;
+            if (listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
+                nrQtRelocacaoLancamentos++;
+            }
+        }
+        if (nrQtRelocacao > cf.getNrQtRelocacao()) {
+            GenericaMensagem.warn("Validação", "Número de relocação excedido, limite é de !" + cf.getNrQtRelocacao() + " filmes!");
+            return;
+        }
+        if (nrQtRelocacaoLancamentos > cf.getNrQtRelocacaoLancamento()) {
+            GenericaMensagem.warn("Validação", "Número de relocação para lançamentos excedido, limite é de !" + cf.getNrQtRelocacaoLancamento() + " filmes!");
+            return;
+        }
+        Dao dao = new Dao();
+        Lote lote = new Lote();
+        Double valorTotal = new Double(0);
+        FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), 3);
+        Departamento departamento = (Departamento) dao.find(new Departamento(), 19);
+        dao.openTransaction();
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                if (listLocadoraMovimento.get(i).getDtDevolucao() == null) {
+                    listLocadoraMovimento.get(i).setSelected(false);
+                    listLocadoraMovimento.get(i).setDtDevolucao(DataHoje.dataHoje());
+                    listLocadoraMovimento.get(i).setOperadorDevolucao(Usuario.getUsuario());
+                    listLocadoraMovimento.get(i).setHoraDevolucaoString(DataHoje.hora());
+                    if (listLocadoraMovimento.get(i).getValorTotal() > 0) {
+                        if (listLocadoraMovimento.get(i).getMovimento() == null) {
+                            valorTotal += listLocadoraMovimento.get(i).getValorTotal();
+                            if (lote.getId() == -1) {
+                                lote = new Lote(
+                                        -1,
+                                        new Rotina().get(),
+                                        "R",
+                                        DataHoje.data(),
+                                        listLocadoraMovimento.get(i).getLocadoraLote().getPessoa(),
+                                        servicoLocadora.getPlano5(),
+                                        false,
+                                        "",
+                                        0,
+                                        locadoraStatus.getFilial(),
+                                        departamento,
+                                        null,
+                                        "",
+                                        fTipoDocumento,
+                                        (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1),
+                                        (FStatus) dao.find(new FStatus(), 1),
+                                        null,
+                                        false,
+                                        0,
+                                        null,
+                                        null,
+                                        null,
+                                        false,
+                                        "",
+                                        null,
+                                        ""
+                                );
+                                if (!dao.save(lote)) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("Erro", "Ao salvar lote!");
+                                    return;
+                                }
+                            }
+                            String vencimento = listLocadoraMovimento.get(i).getLocadoraLote().getDataLocacaoString();
+                            String referencia;
+                            Pessoa pessoaTitular = listLocadoraMovimento.get(i).getLocadoraLote().getPessoa();
+                            try {
+                                String mes = vencimento.substring(3, 5);
+                                String ano = vencimento.substring(6, 10);
+                                referencia = mes + "/" + ano;
+                                Movimento movimento = new Movimento(
+                                        -1,
+                                        lote,
+                                        servicoLocadora.getPlano5(),
+                                        pessoaTitular,
+                                        servicoLocadora,
+                                        null,
+                                        (TipoServico) dao.find(new TipoServico(), 1),
+                                        null,
+                                        listLocadoraMovimento.get(i).getValorTotal(),
+                                        referencia,
+                                        DataHoje.data(),
+                                        1,
+                                        true,
+                                        "E",
+                                        false,
+                                        pessoaTitular, // TITULAR / RESPONSÁVEL
+                                        pessoaTitular, // BENEFICIÁRIO
+                                        "",
+                                        null,
+                                        vencimento,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        fTipoDocumento,
+                                        0, new MatriculaSocios()
+                                );
+                                if (!dao.save(movimento)) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("Erro", "Ao salvar movimento!");
+                                    return;
+                                }
+                                listLocadoraMovimento.get(i).setMovimento(movimento);
+                                if (!dao.update(listLocadoraMovimento.get(i))) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("Erro", "Ao salvar locadora movimento!");
+                                    return;
+                                }
+                            } catch (Exception e) {
+                                dao.rollback();
+                                GenericaMensagem.warn("Erro", e.getMessage());
+                                return;
+                            }
+                        }
+                    } else if (!dao.update(listLocadoraMovimento.get(i))) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "Ao salvar locadora movimento!");
+                        return;
+                    }
+                }
+            }
+        }
+        dao.commit();
+        if (lote.getId() != -1) {
+            lote.setValor(valorTotal);
+            dao.update(lote, true);
+        }
+        GenericaSessao.remove("menuLocadoraBean");
+        GenericaMensagem.info("Sucesso", "Devolução concluída!");
+    }
+
     public void rollBack() {
         if (desfazerDevolucao == null) {
             return;

@@ -302,7 +302,7 @@ public class RelatorioMovimentosDao extends DB {
                             listWhere.add("mov.ds_referencia <= '" + ini + "'");
                             break;
                         case "faixa":
-                            listWhere.add("mov.ds_referencia BETWEEN '" + ini + "' AND '" + fin + "'");
+                            listWhere.add("right(mov.ds_referencia,4)||left(mov.ds_referencia,2) BETWEEN right('" + ini + "',4)||left('" + ini + "',2) AND right('" + fin + "',4)||left('" + fin + "',2)");
                             break;
                         default:
                             break;

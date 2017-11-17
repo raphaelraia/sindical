@@ -322,7 +322,7 @@
                                                         <p:commandButton ajax="false" value="Etiqueta das Empresas" action="#{impressaoBoletosBean.etiquetaEmpresa}" disabled="#{impressaoBoletosBean.habilitarComunicado}"/>
                                                         <p:commandButton ajax="false" value="Etiqueta dos Escritórios" action="#{impressaoBoletosBean.etiquetaEscritorio}" disabled="#{impressaoBoletosBean.habilitarComunicado}"/>
                                                         <h:column rendered="#{impressaoBoletosBean.habilitarComunicado}">
-                                                            <p:commandButton value="Comunicado" title="Visualizar Comunicado" icon="ui-icon-print" ajax="false" action="#{impressaoBoletosBean.printComunicado}" rendered="#{impressaoBoletosBean.cbEmail ne 'com'}"/>                                                            
+                                                            <p:commandButton value="Comunicado" title="Visualizar Comunicado" icon="ui-icon-print" ajax="false" action="#{impressaoBoletosBean.printComunicado}" rendered="#{impressaoBoletosBean.cbEmail ne 'com'}"/>
                                                             <p:commandButton value="Comunicado" title="Enviar Comunicado" icon="ui-icon-mail-closed" action="#{impressaoBoletosBean.sendComunicado}" rendered="#{impressaoBoletosBean.cbEmail eq 'com'}"/>
                                                         </h:column>
                                                         <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(90)}" />

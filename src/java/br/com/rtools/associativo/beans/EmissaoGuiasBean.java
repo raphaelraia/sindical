@@ -30,6 +30,7 @@ import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.GuiasDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.lista.ListMovimentoEmissaoGuias;
 import br.com.rtools.logSistema.NovoLog;
@@ -41,6 +42,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -56,6 +58,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
@@ -106,8 +109,16 @@ public class EmissaoGuiasBean implements Serializable {
      * <li>[3] Jurídica </li>
      * </ul>
      */
-    private List<SelectItem>[] listSelectItem;
-    private Integer[] index;
+    // private List<SelectItem>[] listSelectItem;
+    private List<SelectItem> listGrupos;
+    private List<SelectItem> listSubgrupos;
+    private List<SelectItem> listJuridicas;
+    private List<SelectItem> listServicos;
+    private Integer idGrupo;
+    private Integer idSubgrupo;
+    private Integer idConvenio;
+    private Integer idServico;
+    // private Integer[] index;
 
     /**
      * <ul>
@@ -135,9 +146,12 @@ public class EmissaoGuiasBean implements Serializable {
     private Integer idParceiro;
 
     private Boolean renderedEncaminhamento = false;
+    private List<GuiasSuggestions> listGuiasSuggestions;
+    private Integer activeIndex;
 
     @PostConstruct
     public void init() {
+        activeIndex = -1;
         estoque = new Estoque();
         filial = MacFilial.getAcessoFilial().getFilial();
         pessoa = new Pessoa();
@@ -161,31 +175,64 @@ public class EmissaoGuiasBean implements Serializable {
         message = "";
         juridica = new Juridica();
         pedido = new Pedido();
-        listSelectItem = new ArrayList[]{
-            new ArrayList(),
-            new ArrayList(),
-            new ArrayList(),
-            new ArrayList()
-        };
+        listGrupos = new ArrayList();
+        listSubgrupos = new ArrayList();
+        listServicos = new ArrayList();
+        listJuridicas = new ArrayList();
         listParceiro = new ArrayList();
         //enabledItensPedido = false;
-        index = new Integer[]{0, 0, 0, 0};
+//         index = new Integer[]{0, 0, 0, 0};
         var = new String[]{"", "", "", "", ""};
         idParceiro = -1;
 
-        getListGrupo();
-        getListSubGrupo();
-        if (!listSelectItem[0].isEmpty() && !listSelectItem[1].isEmpty()) {
-            SubGrupoConvenio sgc = (SubGrupoConvenio) (new Dao()).find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
+        Rotina r = new Rotina().get();
+        if (r.getId() == 132) {
+            loadListGrupos();
+            loadListSubgrupos();
+            loadListJuridicas();
+            loadListServicos();
+        }
+//        Integer idGrupo2 = null;
+//        Integer idSubgrupo2 = null;
+//        Integer idConvenio2 = null;
+//        Integer idServico2 = null;
+//        if (Sessions.exists("egIdGrupo")) {
+//            idGrupo2 = Sessions.getInteger("egIdGrupo");
+//            if (Sessions.exists("egIdSubgrupo")) {
+//                idSubgrupo2 = Sessions.getInteger("egIdSubgrupo");
+//                if (Sessions.exists("egIdConvenio")) {
+//                    idConvenio2 = Sessions.getInteger("egIdConvenio");
+//                    if (Sessions.exists("egIdServico")) {
+//                        idServico2 = Sessions.getInteger("egIdServico");
+//                    }
+//                }
+//            }
+//            if (idConvenio2 == null) {
+//                idSubgrupo2 = null;
+//                idConvenio2 = null;
+//                idServico2 = null;
+//            } else {
+//                idGrupo = idGrupo2;
+//                loadListSubgrupos();
+//                idSubgrupo = idSubgrupo2;
+//                loadListJuridicas();
+//                idConvenio = idConvenio2;
+//                loadListServicos();
+//                idServico = idServico2;
+//            }
+//        }
+        if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
+            SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
             //lote.setHistorico(sgc.getObservacao());
             observacao = sgc.getObservacao();
         }
 
         socios = new Socios();
         listaMovimentosEmitidos = new ArrayList();
-        servicox = (Servicos) new Dao().find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+        servicox = (Servicos) new Dao().find(new Servicos(), idServico);
 
         atualizarHistorico();
+        loadListGuiasSuggestions();
     }
 
     @PreDestroy
@@ -371,39 +418,68 @@ public class EmissaoGuiasBean implements Serializable {
      *
      * @param tcase
      */
+    public void listener(String tcase) {
+        switch (tcase) {
+            case "grupo":
+                //index[0] = 0;
+                idSubgrupo = 0;
+                idServico = 0;
+                idConvenio = 0;
+                loadListSubgrupos();
+                loadListServicos();
+                loadListJuridicas();
+                listenerEnabledItensPedido();
+                if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
+                    SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
+                    //lote.setHistorico(sgc.getObservacao());
+                    observacao = sgc.getObservacao();
+                }
+                break;
+            case "force_clean":
+                GenericaSessao.remove("egIdGrupo");
+                GenericaSessao.remove("egIdSubgrupo");
+                GenericaSessao.remove("egIdConvenio");
+                GenericaSessao.remove("egIdServico");
+                GenericaSessao.remove("emissaoGuiasBean");
+                GenericaSessao.exists("sessaoSisAutorizacao");
+                break;
+        }
+
+    }
+
     public void clear(int tcase) {
         switch (tcase) {
             case 1:
                 //listSelectItem[0] = new ArrayList();
-                listSelectItem[1] = new ArrayList();
-                listSelectItem[2] = new ArrayList();
-                listSelectItem[3] = new ArrayList();
+                listSubgrupos = new ArrayList();
+                listServicos = new ArrayList();
+                listServicos = new ArrayList();
                 //index[0] = 0;
-                index[1] = 0;
-                index[2] = 0;
-                index[3] = 0;
-                getListSubGrupo();
-                getListServicos();
-                getListJuridica();
+                idSubgrupo = 0;
+                idServico = 0;
+                idConvenio = 0;
+                loadListSubgrupos();
+                loadListServicos();
+                loadListJuridicas();
                 listenerEnabledItensPedido();
-                if (!listSelectItem[0].isEmpty() && !listSelectItem[1].isEmpty()) {
-                    SubGrupoConvenio sgc = (SubGrupoConvenio) (new Dao()).find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
+                if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
+                    SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
                     //lote.setHistorico(sgc.getObservacao());
                     observacao = sgc.getObservacao();
                 }
                 break;
             case 2:
                 //listSelectItem[0] = new ArrayList();
-                listSelectItem[2] = new ArrayList();
-                listSelectItem[3] = new ArrayList();
-                index[2] = 0;
-                index[3] = 0;
-                getListSubGrupo();
-                getListServicos();
-                getListJuridica();
+                listServicos = new ArrayList();
+                listJuridicas = new ArrayList();
+                idServico = 0;
+                idConvenio = 0;
+                loadListSubgrupos();
+                loadListServicos();
+                loadListJuridicas();
                 listenerEnabledItensPedido();
-                if (!listSelectItem[0].isEmpty() && !listSelectItem[1].isEmpty()) {
-                    SubGrupoConvenio sgc = (SubGrupoConvenio) (new Dao()).find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
+                if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
+                    SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
                     //lote.setHistorico(sgc.getObservacao());
                     observacao = sgc.getObservacao();
                 }
@@ -478,25 +554,25 @@ public class EmissaoGuiasBean implements Serializable {
             PF.update("form_eg:i_panel_sem_cadastro");
             return;
         }
-        
+
         if (fisicaNovoCadastro.getPessoa().getDocumento().isEmpty()) {
             GenericaMensagem.error("ATENÇÃO", "Digite o CPF!");
             PF.update("form_eg:i_panel_sem_cadastro");
             return;
-        }        
-        
+        }
+
         if (fisicaNovoCadastro.getPessoa().getNome().isEmpty()) {
             GenericaMensagem.error("ATENÇÃO", "Nome não pode estar vazio!");
             PF.update("form_eg:i_panel_sem_cadastro");
             return;
         }
-        
+
         if (fisicaNovoCadastro.getNascimento().isEmpty()) {
             GenericaMensagem.error("ATENÇÃO", "Data de Nascimento não pode estar vazia!");
             PF.update("form_eg:i_panel_sem_cadastro");
             return;
         }
-        
+
         Dao di = new Dao();
 
         //fisicaNovoCadastro.setPessoa(pessoa);
@@ -505,7 +581,7 @@ public class EmissaoGuiasBean implements Serializable {
         if (fisicaNovoCadastro.getPessoa().getId() == -1 && fisicaNovoCadastro.getId() == -1) {
             List<String> list_log = new ArrayList();
             di.openTransaction();
-            
+
             if (!di.save(fisicaNovoCadastro.getPessoa())) {
                 GenericaMensagem.error("ATENÇÃO", "Não foi possível salvar Pessoa!");
                 di.rollback();
@@ -536,7 +612,7 @@ public class EmissaoGuiasBean implements Serializable {
                 di.rollback();
                 return;
             }
-            
+
             di.commit();
 
             list_log.add("** SALVAR NOVA PESSOA FÍSICA **");
@@ -566,7 +642,7 @@ public class EmissaoGuiasBean implements Serializable {
             fisicaNovoCadastro = new Fisica();
             GenericaMensagem.info("SUCESSO", "Pessoa Salva!");
         }
-        
+
         PF.update("form_eg");
     }
 
@@ -581,7 +657,7 @@ public class EmissaoGuiasBean implements Serializable {
             GenericaMensagem.warn("Validação", "Pesquise uma pessoa para gerar Parcelas");
             return;
         }
-        if (getListServicos().isEmpty() || listSelectItem[2].get(index[2]).getDescription().equals("0")) {
+        if (getListServicos().isEmpty() || idServico == null || idServico == 0) {
             GenericaMensagem.warn("Validação", "A lista de serviços não pode estar vazia!");
             return;
         }
@@ -590,7 +666,7 @@ public class EmissaoGuiasBean implements Serializable {
         Dao di = new Dao();
         FTipoDocumento fTipoDocumento = (FTipoDocumento) di.find(new FTipoDocumento(), 2); // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         double valorx = Moeda.converteUS$(valor);
-        Servicos servicos = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+        Servicos servicos = (Servicos) di.find(new Servicos(), idServico);
         if (servicos.getGuiaSomenteSocio()) {
             if (pessoa.getSocios().getId() == -1) {
                 GenericaMensagem.warn("Validação", "Permitido Somente para Sócios!");
@@ -678,7 +754,7 @@ public class EmissaoGuiasBean implements Serializable {
                 return;
             }
         }
-        
+
         if (servicos.isProduto()) {
             for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
                 if (listaMovimento1.getMovimento().getServicos().isProduto()) {
@@ -687,7 +763,7 @@ public class EmissaoGuiasBean implements Serializable {
                 }
             }
         }
-        
+
         double descontox = Moeda.converteUS$(desconto);
         Pessoa pessoa_movimento = null;
 
@@ -700,7 +776,7 @@ public class EmissaoGuiasBean implements Serializable {
         } else {
             pessoa_movimento = pessoa;
         }
-        
+
         listaMovimento.add(
                 new ListMovimentoEmissaoGuias(
                         new Movimento(
@@ -741,12 +817,12 @@ public class EmissaoGuiasBean implements Serializable {
                 ));
 
         total = "0";
-        
+
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             String total_desconto = listaMovimento1.getTotal();
             total = Moeda.converteR$Double(Moeda.soma(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
         }
-        
+
         desconto = "0";
 
     }
@@ -765,7 +841,7 @@ public class EmissaoGuiasBean implements Serializable {
         }
 
         total = "0";
-        
+
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             String total_desconto = listaMovimento1.getTotal();
             total = Moeda.converteR$Double(Moeda.soma(Moeda.converteUS$(total), Moeda.converteUS$(total_desconto)));
@@ -781,11 +857,11 @@ public class EmissaoGuiasBean implements Serializable {
             message = "Pesquise uma pessoa para gerar!";
             return null;
         }
-        if (getListServicos().isEmpty() || listSelectItem[2].get(index[2]).getDescription().equals("0")) {
+        if (getListServicos().isEmpty() || idServico == null) {
             message = "A lista de serviços não pode estar vazia!";
             return null;
         }
-        if (getListJuridica().isEmpty() || listSelectItem[3].get(index[3]).getDescription().equals("0")) {
+        if (getListJuridicas().isEmpty() || idConvenio == null) {
             message = "Empresa Conveniada não encontrada!";
             return null;
         }
@@ -794,11 +870,11 @@ public class EmissaoGuiasBean implements Serializable {
             return null;
         }
         Dao di = new Dao();
-        Servicos serv = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+        Servicos serv = (Servicos) di.find(new Servicos(), idServico);
 
         List<String> list_log = new ArrayList();
         // CODICAO DE PAGAMENTO
-        CondicaoPagamento cp = null;
+        CondicaoPagamento cp;
         if (DataHoje.converteDataParaInteger(listaMovimento.get(0).getMovimento().getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())) {
             cp = (CondicaoPagamento) di.find(new CondicaoPagamento(), 2);
         } else {
@@ -823,6 +899,7 @@ public class EmissaoGuiasBean implements Serializable {
         lote.setCondicaoPagamento(cp);
         lote.setPlano5(serv.getPlano5());
         lote.setDescontoFolha(false);
+        lote.setUsuario(Usuario.getUsuario());
 
         di.openTransaction();
         if (!di.save(lote)) {
@@ -880,7 +957,7 @@ public class EmissaoGuiasBean implements Serializable {
             list_log.add("Pedido Desconto Unitário: " + listPedido.getDescontoUnitarioString());
         }
 
-        Juridica empresaConvenio = (Juridica) di.find(new Juridica(), Integer.valueOf(listSelectItem[3].get(index[3]).getDescription()));
+        Juridica empresaConvenio = (Juridica) di.find(new Juridica(), idConvenio);
         Pessoa parceiro = null;
         if (idParceiro != null && idParceiro != -1) {
             parceiro = (Pessoa) di.find(new Pessoa(), idParceiro);
@@ -889,7 +966,7 @@ public class EmissaoGuiasBean implements Serializable {
                 -1,
                 lote,
                 empresaConvenio.getPessoa(),
-                (SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription())),
+                (SubGrupoConvenio) di.find(new SubGrupoConvenio(), idSubgrupo),
                 observacao,
                 parceiro
         );
@@ -926,7 +1003,7 @@ public class EmissaoGuiasBean implements Serializable {
             movimento.setDesconto(descontox);
             movimento.setValor(Moeda.multiplicar(listaMovimento.get(i).getMovimento().getQuantidade(), listaMovimento.get(i).getMovimento().getValor()));
 
-            movimento.setValorBaixa(Moeda.subtracao(movimento.getValor(), movimento.getDesconto()));            
+            movimento.setValorBaixa(Moeda.subtracao(movimento.getValor(), movimento.getDesconto()));
             listaMovimentoAuxiliar.add(movimento);
             heg.setMovimento(movimento);
             heg.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
@@ -1076,7 +1153,7 @@ public class EmissaoGuiasBean implements Serializable {
             SociosDao dbs = new SociosDao();
             socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
             listenerEnabledItensPedido();
-            listSelectItem[2].clear();
+            listServicos.clear();
             getListServicos();
             listenerEnabledItensPedido();
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
@@ -1104,81 +1181,105 @@ public class EmissaoGuiasBean implements Serializable {
         this.pessoa = pessoa;
     }
 
-    public List<SelectItem> getListGrupo() {
-        if (listSelectItem[0].isEmpty()) {
-            Dao di = new Dao();
-            List<GrupoConvenio> list = (List<GrupoConvenio>) di.list(new GrupoConvenio());
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[0].add(new SelectItem(i, (String) list.get(i).getDescricao(), Integer.toString(list.get(i).getId())
-                ));
+    public void loadListGrupos() {
+        listGrupos = new ArrayList();
+        List<GrupoConvenio> list = (List<GrupoConvenio>) new Dao().list(new GrupoConvenio());
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idGrupo = list.get(i).getId();
             }
-            if (listSelectItem[0].isEmpty()) {
-                listSelectItem[0] = new ArrayList();
-            }
+            listGrupos.add(new SelectItem(list.get(i).getId(), (String) list.get(i).getDescricao()));
         }
-        return listSelectItem[0];
     }
 
-    public List<SelectItem> getListSubGrupo() {
-        if (listSelectItem[1].isEmpty()) {
-            if (!listSelectItem[0].isEmpty()) {
-                SubGrupoConvenioDao db = new SubGrupoConvenioDao();
-                List<SubGrupoConvenio> list = (List<SubGrupoConvenio>) db.listaSubGrupoConvenioPorGrupo(Integer.parseInt(listSelectItem[0].get(index[0]).getDescription()));
-                for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getPrincipal()) {
-                        index[1] = i;
+    public List<SelectItem> getListGrupos() {
+        return listGrupos;
+    }
+
+    public void setListGrupos(List<SelectItem> listGrupos) {
+        this.listGrupos = listGrupos;
+    }
+
+    public void loadListSubgrupos() {
+        listSubgrupos = new ArrayList();
+        SubGrupoConvenioDao db = new SubGrupoConvenioDao();
+        List<SubGrupoConvenio> list = (List<SubGrupoConvenio>) db.listaSubGrupoConvenioPorGrupo(idGrupo);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idSubgrupo = list.get(i).getId();
+            }
+            if (list.get(i).getPrincipal()) {
+                idSubgrupo = list.get(i).getId();
+            }
+            listSubgrupos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
+    public List<SelectItem> getListSubgrupos() {
+        return listSubgrupos;
+    }
+
+    public void setListSubgrupos(List<SelectItem> listSubgrupos) {
+        this.listSubgrupos = listSubgrupos;
+    }
+
+    public void loadListServicos() {
+        idServico = null;
+        listServicos = new ArrayList();
+
+        ConvenioServicoDao db = new ConvenioServicoDao();
+
+        listServicos.add(new SelectItem(null, "-- Selecione um Serviço --", "0"));
+        int b = 0;
+        SisAutorizacoes sa = ((SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao"));
+        if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
+            List<Servicos> list = (List<Servicos>) db.pesquisaServicosSubGrupoConvenio(idSubgrupo);
+            for (int i = 0; i < list.size(); i++) {
+                if (GenericaSessao.exists("sessaoSisAutorizacao")) {
+                    if (list.get(i).getId() == sa.getServicos().getId()) {
+                        if (b == 0) {
+                            idServico = list.get(i).getId();
+                        }
+                        listServicos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
+                        b++;
                     }
-                    listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
-                }
-                if (listSelectItem[1].isEmpty()) {
-                    listSelectItem[1] = new ArrayList();
+                } else {
+                    listServicos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
                 }
             }
-
         }
-        return listSelectItem[1];
     }
 
     public List<SelectItem> getListServicos() {
-        if (listSelectItem[2].isEmpty()) {
-            ConvenioServicoDao db = new ConvenioServicoDao();
-
-            listSelectItem[2].add(new SelectItem(0, "-- Selecione um Serviço --", "0"));
-            int b = 0;
-            index[2] = 0;
-            SisAutorizacoes sa = ((SisAutorizacoes) GenericaSessao.getObject("sessaoSisAutorizacao"));
-            if (!getListGrupo().isEmpty() && !getListSubGrupo().isEmpty()) {
-                List<Servicos> list = (List<Servicos>) db.pesquisaServicosSubGrupoConvenio(Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
-                for (int i = 0; i < list.size(); i++) {
-                    if (GenericaSessao.exists("sessaoSisAutorizacao")) {
-                        if (list.get(i).getId() == sa.getServicos().getId()) {
-                            if (b == 0) {
-                                index[2] = b + 1;
-                            }
-                            listSelectItem[2].add(new SelectItem(b + 1, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
-                            b++;
-                        }
-                    } else {
-                        listSelectItem[2].add(new SelectItem(i + 1, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
-                    }
-                }
-            }
-        }
-        return listSelectItem[2];
+        return listServicos;
     }
 
-    public List<SelectItem> getListJuridica() {
-        if (listSelectItem[3].isEmpty()) {
-            LancamentoIndividualDao db = new LancamentoIndividualDao();
-            if (getListSubGrupo().isEmpty()) {
-                return listSelectItem[3];
-            }
-            List<Juridica> list = (List<Juridica>) db.listaEmpresaConveniadaPorSubGrupo(Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[3].add(new SelectItem(i, list.get(i).getPessoa().getNome(), Integer.toString(list.get(i).getId())));
-            }
+    public void setListServicos(List<SelectItem> listServicos) {
+        this.listServicos = listServicos;
+    }
+
+    public void loadListJuridicas() {
+        listJuridicas = new ArrayList();
+        LancamentoIndividualDao db = new LancamentoIndividualDao();
+        if (listSubgrupos.isEmpty()) {
+            return;
         }
-        return listSelectItem[3];
+        idConvenio = null;
+        List<Juridica> list = (List<Juridica>) db.listaEmpresaConveniadaPorSubGrupo(idSubgrupo);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idConvenio = list.get(i).getId();
+            }
+            listJuridicas.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome()));
+        }
+    }
+
+    public List<SelectItem> getListJuridicas() {
+        return listJuridicas;
+    }
+
+    public void setListJuridicas(List<SelectItem> listJuridicas) {
+        this.listJuridicas = listJuridicas;
     }
 
     public String getDesconto() {
@@ -1253,25 +1354,23 @@ public class EmissaoGuiasBean implements Serializable {
         this.lote = lote;
     }
 
-    public Integer[] getIndex() {
-        return index;
-    }
-
-    public void setIndex(Integer[] index) {
-        this.index = index;
-    }
-
+//    public Integer[] getIndex() {
+//        return index;
+//    }
+//
+//    public void setIndex(Integer[] index) {
+//        this.index = index;
+//    }
     public void addItemPedido() {
         if (pedido.getProduto().getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquisar um produto!");
             return;
         }
-        
+
         pedido.setValorUnitario(Moeda.substituiVirgulaDouble(valorUnitarioPedido));
         pedido.setQuantidade(quantidadePedido);
-        
+
         //pedido.setDescontoUnitario(Moeda.substituiVirgulaDouble(descontoUnitarioPedido));
-        
         if (pedido.getQuantidade() < 1) {
             GenericaMensagem.warn("Validação", "Adicionar quantidade!");
             return;
@@ -1287,7 +1386,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
         }
         Dao dao = new Dao();
-        Servicos serv = (Servicos) dao.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+        Servicos serv = (Servicos) dao.find(new Servicos(), idServico);
 
         pedido.setServicos(serv);
 
@@ -1300,7 +1399,7 @@ public class EmissaoGuiasBean implements Serializable {
             dao.commit();
             listPedidos.add(pedido);
         }
-        
+
         pedido = new Pedido();
         estoque = new Estoque();
         valorUnitarioPedido = "";
@@ -1330,10 +1429,10 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void removeItemPedido(int index) {
         boolean erro = false;
-        
+
         Dao dao = new Dao();
         dao.openTransaction();
-        
+
         for (int i = 0; i < listPedidos.size(); i++) {
             if (i == index) {
                 if (listPedidos.get(i).getId() != -1) {
@@ -1347,7 +1446,7 @@ public class EmissaoGuiasBean implements Serializable {
                 break;
             }
         }
-        
+
         if (erro) {
             dao.rollback();
         } else {
@@ -1491,21 +1590,21 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void listenerEnabledItensPedido() {
-        if (!getListServicos().isEmpty() && !listSelectItem[2].get(index[2]).getDescription().equals("0")) {
+        if (!listServicos.isEmpty() && idServico != null) {
             Dao di = new Dao();
-            servicox = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+            servicox = (Servicos) di.find(new Servicos(), idServico);
 
             if (pessoa.getId() != -1) {
                 //if (!enabledItensPedido) {
                 if (!servicox.isProduto()) {
                     LancamentoIndividualDao db = new LancamentoIndividualDao();
-                    List<Vector> valorx = db.pesquisaServicoValor(pessoa.getId(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
+                    List<Vector> valorx = db.pesquisaServicoValor(pessoa.getId(), idServico);
                     if (!valorx.isEmpty()) {
                         double vl = Double.valueOf(((Double) valorx.get(0).get(0)).toString());
                         valor = Moeda.converteR$Double(vl);
                         if (idParceiro != null && idParceiro != -1) {
                             DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
-                            DescontoServicoEmpresa dse = dsed.findByGrupo(2, Integer.parseInt(getListServicos().get(index[2]).getDescription()), idParceiro);
+                            DescontoServicoEmpresa dse = dsed.findByGrupo(2, idServico, idParceiro);
                             if (dse != null) {
                                 valor = Moeda.converteR$Double(Moeda.converteUS$(Moeda.valorDoPercentual(valor, dse.getDescontoString())));
                             }
@@ -1620,7 +1719,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     private void loadListParceiro() {
         if (socios.getId() == -1 && pessoa.getId() != -1) {
-            Integer servido_id = Integer.parseInt(getListServicos().get(index[2]).getDescription());
+            Integer servido_id = idServico;
             listParceiro = new ArrayList();
             DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
             List<DescontoServicoEmpresa> list = dsed.findByGrupo(2, servido_id);
@@ -1666,6 +1765,205 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void setRenderedEncaminhamento(Boolean renderedEncaminhamento) {
         this.renderedEncaminhamento = renderedEncaminhamento;
+    }
+
+    public List<Movimento> getListaMovimentoAuxiliar() {
+        return listaMovimentoAuxiliar;
+    }
+
+    public void setListaMovimentoAuxiliar(List<Movimento> listaMovimentoAuxiliar) {
+        this.listaMovimentoAuxiliar = listaMovimentoAuxiliar;
+    }
+
+    public Juridica getJuridica() {
+        return juridica;
+    }
+
+    public void setJuridica(Juridica juridica) {
+        this.juridica = juridica;
+    }
+
+    public Integer getIdGrupo() {
+        return idGrupo;
+    }
+
+    public void setIdGrupo(Integer idGrupo) {
+        this.idGrupo = idGrupo;
+    }
+
+    public Integer getIdSubgrupo() {
+        return idSubgrupo;
+    }
+
+    public void setIdSubgrupo(Integer idSubgrupo) {
+        this.idSubgrupo = idSubgrupo;
+    }
+
+    public Integer getIdConvenio() {
+        return idConvenio;
+    }
+
+    public void setIdConvenio(Integer idConvenio) {
+        this.idConvenio = idConvenio;
+    }
+
+    public Integer getIdServico() {
+        return idServico;
+    }
+
+    public void setIdServico(Integer idServico) {
+        this.idServico = idServico;
+    }
+
+    public List<GuiasSuggestions> getListGuiasSuggestions() {
+        return listGuiasSuggestions;
+    }
+
+    public void setListGuiasSuggestions(List<GuiasSuggestions> listGuiasSuggestions) {
+        this.listGuiasSuggestions = listGuiasSuggestions;
+    }
+
+    public void loadListGuiasSuggestions() {
+        listGuiasSuggestions = new ArrayList();
+        Integer usuario_id = Usuario.getUsuario().getId();
+        List list = new GuiasDao().findByUsuarioSuggestions(10, 14, usuario_id);
+        for (int i = 0; i < list.size(); i++) {
+            List o = (List) list.get(i);
+            listGuiasSuggestions.add(new GuiasSuggestions(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8)));
+        }
+    }
+
+    public void selectedSuggestions(GuiasSuggestions gs) {
+        activeIndex = -1;
+        SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), Integer.parseInt(gs.getConvenio_sub_grupo_id().toString()));
+        idGrupo = sgc.getGrupoConvenio().getId();
+        loadListSubgrupos();
+        idSubgrupo = sgc.getId();
+        loadListJuridicas();
+        Juridica j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(gs.getConvenio_id().toString()));
+        idConvenio = j.getId();
+        loadListServicos();
+        idServico = Integer.parseInt(gs.getServico_id().toString());
+        listenerEnabledItensPedidoListener();
+
+    }
+
+    public Integer getActiveIndex() {
+        return activeIndex;
+    }
+
+    public void setActiveIndex(Integer activeIndex) {
+        this.activeIndex = activeIndex;
+    }
+
+    public class GuiasSuggestions {
+
+        private Object servico_id;
+        private Object servico;
+        private Object convenio_grupo_id;
+        private Object convenio_grupo;
+        private Object convenio_sub_grupo_id;
+        private Object convenio_sub_grupo;
+        private Object convenio_id;
+        private Object convenio;
+        private Object max_date;
+
+        public GuiasSuggestions() {
+            this.servico_id = null;
+            this.servico = null;
+            this.convenio_grupo_id = null;
+            this.convenio_grupo = null;
+            this.convenio_sub_grupo_id = null;
+            this.convenio_sub_grupo = null;
+            this.convenio_id = null;
+            this.convenio = null;
+            this.max_date = null;
+        }
+
+        public GuiasSuggestions(Object servico_id, Object servico, Object convenio_grupo_id, Object convenio_grupo, Object convenio_sub_grupo_id, Object convenio_sub_grupo, Object convenio_id, Object convenio, Object max_date) {
+            this.servico_id = servico_id;
+            this.servico = servico;
+            this.convenio_grupo_id = convenio_grupo_id;
+            this.convenio_grupo = convenio_grupo;
+            this.convenio_sub_grupo_id = convenio_sub_grupo_id;
+            this.convenio_sub_grupo = convenio_sub_grupo;
+            this.convenio_id = convenio_id;
+            this.convenio = convenio;
+            this.max_date = max_date;
+        }
+
+        public Object getServico_id() {
+            return servico_id;
+        }
+
+        public void setServico_id(Object servico_id) {
+            this.servico_id = servico_id;
+        }
+
+        public Object getConvenio_sub_grupo_id() {
+            return convenio_sub_grupo_id;
+        }
+
+        public void setConvenio_sub_grupo_id(Object convenio_sub_grupo_id) {
+            this.convenio_sub_grupo_id = convenio_sub_grupo_id;
+        }
+
+        public Object getConvenio_id() {
+            return convenio_id;
+        }
+
+        public void setConvenio_id(Object convenio_id) {
+            this.convenio_id = convenio_id;
+        }
+
+        public Object getServico() {
+            return servico;
+        }
+
+        public void setServico(Object servico) {
+            this.servico = servico;
+        }
+
+        public Object getConvenio_sub_grupo() {
+            return convenio_sub_grupo;
+        }
+
+        public void setConvenio_sub_grupo(Object convenio_sub_grupo) {
+            this.convenio_sub_grupo = convenio_sub_grupo;
+        }
+
+        public Object getConvenio() {
+            return convenio;
+        }
+
+        public void setConvenio(Object convenio) {
+            this.convenio = convenio;
+        }
+
+        public Object getConvenio_grupo_id() {
+            return convenio_grupo_id;
+        }
+
+        public void setConvenio_grupo_id(Object convenio_grupo_id) {
+            this.convenio_grupo_id = convenio_grupo_id;
+        }
+
+        public Object getConvenio_grupo() {
+            return convenio_grupo;
+        }
+
+        public void setConvenio_grupo(Object convenio_grupo) {
+            this.convenio_grupo = convenio_grupo;
+        }
+
+        public Object getMax_date() {
+            return max_date;
+        }
+
+        public void setMax_date(Object max_date) {
+            this.max_date = max_date;
+        }
+
     }
 
 }

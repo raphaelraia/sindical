@@ -865,7 +865,7 @@
                         </p:commandLink>
                         <span id="messageGoesHere"></span>
                         <script type="text/javascript">
-                            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},pj:id:#{juridicaBean.juridica.id}");
+                            var ws = new WebSocket("#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},pj:id:#{juridicaBean.juridica.id}");
 
                             ws.onopen = function (event) {
                                 console.log("Connected ", event);

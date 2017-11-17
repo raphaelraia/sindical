@@ -304,7 +304,7 @@
                                                 </p:panel>
 
                                                 <h:panelGrid columns="4">
-                                                    <p:commandButton icon="photocam" value="Capturar" action="#{photoCapture.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                                    <p:commandButton icon="photocam" value="Capturar" action="pessoaFisica" actionListener="#{photoCapture.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
                                                     <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}"/>
                                                     <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or (fisicaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
                                                     <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaBean.apagarImagem()}" update="i_panel_imagens" disabled="#{fisicaBean.fisica.id == -1 or fisicaBean.fisica.foto == null or fisicaBean.fisica.foto eq ''}"/>
@@ -1092,27 +1092,27 @@
                         </p:commandLink>
                         <span id="messageGoesHere"></span>
                         <script type="text/javascript">
-                            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},pf:id:#{fisicaBean.fisica.id}");
+                            var urlWs = "#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},pf:id:#{fisicaBean.fisica.id}";
+                                var ws = new WebSocket(urlWs);
+                                ws.onopen = function (event) {
+                                    console.log("Connected ", event);
+                                };
 
-                            ws.onopen = function (event) {
-                                console.log("Connected ", event);
-                            };
+                                ws.onmessage = function (event) {
+                                    if (event.data === "true") {
+                                        document.getElementById("form_ws_pf:update_autorizacao_true").click();
+                                    } else if (event.data === "false") {
+                                        document.getElementById("form_ws_pf:update_autorizacao_false").click();
+                                    }
+                                };
 
-                            ws.onmessage = function (event) {
-                                if (event.data === "true") {
-                                    document.getElementById("form_ws_pf:update_autorizacao_true").click();
-                                } else if (event.data === "false") {
-                                    document.getElementById("form_ws_pf:update_autorizacao_false").click();
-                                }
-                            };
+                                ws.onerror = function (event) {
+                                    console.log("Error ", event);
+                                };
 
-                            ws.onerror = function (event) {
-                                console.log("Error ", event);
-                            };
-
-                            ws.onclose = function (event) {
-                                console.log("Error ", event);
-                            };
+                                ws.onclose = function (event) {
+                                    console.log("Error ", event);
+                                };
                         </script>
                     </h:form>
                 </f:view>

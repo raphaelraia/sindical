@@ -104,6 +104,7 @@
         <location>/login</location>
     </error-page>   
     
+    <!-- 
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Sindical</web-resource-name>
@@ -112,7 +113,7 @@
         <user-data-constraint>
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
-    </security-constraint>
+    </security-constraint> -->
     
         
 </web-app>

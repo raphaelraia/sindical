@@ -15,6 +15,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.MenuLinks;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -374,6 +375,7 @@ public class ChamadaPaginaBean implements Serializable {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoNum");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoComp");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaComplementoBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("photoCapture");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("photoCamBean");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaBean");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("sorteioMovimentoBean");
@@ -1025,11 +1027,12 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public synchronized String conviteMovimento() {
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("conviteClubeBean");
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("conviteMovimentoBean");
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("fisicaPesquisa");
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("sisPessoaPesquisa");
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoPesquisa");
+        Sessions.remove("photoCapture");
+        Sessions.remove("conviteClubeBean");
+        Sessions.remove("conviteMovimentoBean");
+        Sessions.remove("fisicaPesquisa");
+        Sessions.remove("sisPessoaPesquisa");
+        Sessions.remove("enderecoPesquisa");
         return metodoGenerico(2, "conviteMovimento");
     }
 
