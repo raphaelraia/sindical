@@ -912,8 +912,15 @@ public class ImpressaoParaSocios {
         String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/fichas");
         PessoaEnderecoDao enderecoDB = new PessoaEnderecoDao();
         Dao dao = new Dao();
+        
+        FacesContext faces = FacesContext.getCurrentInstance();
+        File logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPersonalizado.png"));
+        
+        if (!logo_cliente.exists()){
+            logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+        }
+        
         try {
-            FacesContext faces = FacesContext.getCurrentInstance();
             Collection listaSocios = new ArrayList<>();
             Juridica sindicato = (Juridica) dao.find(new Juridica(), 1);
             PessoaEndereco pessoaEndereco = enderecoDB.pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 2);
@@ -972,7 +979,7 @@ public class ImpressaoParaSocios {
                         "",
                         "",
                         "",
-                        ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                        logo_cliente.getAbsolutePath(),
                         registro.getFichaSocial(), // obs
                         "",
                         sindicato.getPessoa().getNome(),

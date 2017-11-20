@@ -27,9 +27,10 @@ public class ParametroCertificado {
     private String empEndereco;
     private String periodoConvencao;
     private String imagemFundo;
+    private String sindicatoPeriodo;
 
     public ParametroCertificado(String patNome, String patLogo, String patBaseTerr, String sinNome, String sinLogo, String empNome, String empDoc, String empPorte, String descPisoSal, BigDecimal valorPisoSal, String mensagem,
-            String validade, String sinCidade, int ano, String patLogoSelo, String patLogoFundo, String certificado, String barras, String emissao, String empEndereco, String periodoConvencao, String imagemFundo) {
+            String validade, String sinCidade, int ano, String patLogoSelo, String patLogoFundo, String certificado, String barras, String emissao, String empEndereco, String periodoConvencao, String imagemFundo, String sindicatoPeriodo) {
         this.patNome = patNome;
         this.patLogo = patLogo;
         this.patBaseTerr = patBaseTerr;
@@ -52,7 +53,7 @@ public class ParametroCertificado {
         this.empEndereco = empEndereco;
         this.periodoConvencao = periodoConvencao;
         this.imagemFundo = imagemFundo;
-        
+        this.sindicatoPeriodo = sindicatoPeriodo;
     }
 
     public String getPatNome() {
@@ -229,5 +230,13 @@ public class ParametroCertificado {
 
     public void setImagemFundo(String imagemFundo) {
         this.imagemFundo = imagemFundo;
+    }
+
+    public String getSindicatoPeriodo() {
+        return sindicatoPeriodo;
+    }
+
+    public void setSindicatoPeriodo(String sindicatoPeriodo) {
+        this.sindicatoPeriodo = sindicatoPeriodo;
     }
 }

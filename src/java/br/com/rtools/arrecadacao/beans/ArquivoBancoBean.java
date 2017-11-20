@@ -826,6 +826,7 @@ public final class ArquivoBancoBean implements Serializable {
             Reader reader = new FileReader(filex);
             BufferedReader buffReader = new BufferedReader(reader);
             String linha = buffReader.readLine();
+            String linha_2 = buffReader.readLine();
 
             reader.close();
             buffReader.close();
@@ -840,11 +841,19 @@ public final class ArquivoBancoBean implements Serializable {
                             return false;
                         }
                     } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
+                        
                         if (linha.substring(33, 38).equals(scc.getSicasSindical())) {
                             return true;
                         } else {
                             return false;
                         }
+                        
+                        // teste codcedente novo
+//                        if (linha_2.substring(33, 39).equals(scc.getCodCedente())) {
+//                            return true;
+//                        } else {
+//                            return false;
+//                        }
                     } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                         if (linha.substring(58, 64).equals(scc.getCodCedente())) {
                             return true;

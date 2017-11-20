@@ -6,10 +6,13 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,11 +42,16 @@ public class ConvencaoBean implements Serializable {
     private int idIndex = -1;
     private List<Convencao> listaConvencao = new ArrayList();
     private UploadedFile file;
+    private Pessoa sindicato = new Pessoa();
 
     public void set(DataObject linha) {
         dolinha = linha;
     }
 
+    public void removerPessoa(){
+        sindicato = new Pessoa();
+    }
+    
     public void upload() {
         if (file != null) {
             if (dolinha == null) {
@@ -178,6 +186,12 @@ public class ConvencaoBean implements Serializable {
         conCidade.setConvencao(convencao);
         conCidade.setGrupoCidade(gpCid);
 
+        if (sindicato.getId() != -1){
+            conCidade.setSindicato(sindicato);
+        }else{
+            conCidade.setSindicato(null);
+        }
+        
         if (convencao.getId() == -1) {
             if (!dao.save(convencao)) {
                 dao.rollback();
@@ -333,6 +347,7 @@ public class ConvencaoBean implements Serializable {
     public String novo() {
         convencao = new Convencao();
         listaGpCidade.clear();
+        sindicato = new Pessoa();
         return "convencao";
     }
 
@@ -373,6 +388,7 @@ public class ConvencaoBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Convenção excluida com Sucesso!");
             convencao = new Convencao();
             listaGpCidade.clear();
+            sindicato = new Pessoa();
             dao.commit();
         } else {
             GenericaMensagem.warn("Erro", "Pesquise uma Convenção para ser excluida!");
@@ -478,5 +494,16 @@ public class ConvencaoBean implements Serializable {
 
     public void setFile(UploadedFile file) {
         this.file = file;
+    }
+
+    public Pessoa getSindicato() {
+        if (GenericaSessao.exists("juridicaPesquisa")){
+            sindicato = ((Juridica) GenericaSessao.getObject("juridicaPesquisa", true)).getPessoa();
+        }
+        return sindicato;
+    }
+
+    public void setSindicato(Pessoa sindicato) {
+        this.sindicato = sindicato;
     }
 }

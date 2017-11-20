@@ -21,27 +21,74 @@ import javax.faces.model.SelectItem;
 public class ConvencaoPeriodoBean {
 
     private ConvencaoPeriodo convencaoPeriodo;
-    private String message;
     private int idConvencao;
-    private int idGrupoCidade;
+    private int idConvencaoCidade;
     private List<ConvencaoPeriodo> listConvencaoPeriodos;
     private List<SelectItem> listConvencao;
-    private List<SelectItem> listGrupoCidade;
+    private List<SelectItem> listConvencaoCidade;
+
+    private ConvencaoCidade convencaoCidade;
 
     @PostConstruct
     public void init() {
         convencaoPeriodo = new ConvencaoPeriodo();
-        message = "";
         idConvencao = 0;
-        idGrupoCidade = 0;
-        listConvencaoPeriodos = new ArrayList<ConvencaoPeriodo>();
+        idConvencaoCidade = 0;
+        listConvencaoPeriodos = new ArrayList();
         listConvencao = new ArrayList();
-        listGrupoCidade = new ArrayList();
+        listConvencaoCidade = new ArrayList();
+        convencaoCidade = new ConvencaoCidade();
+        
+        loadListConvencao();
+        loadListConvencaoCidade();
     }
 
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("convencaoPeriodoBean");
+    }
+
+    public void atualizaConvencaoCidade() {
+        if (listConvencaoCidade.isEmpty()) {
+            convencaoCidade = new ConvencaoCidade();
+        }
+
+        convencaoCidade = (ConvencaoCidade) new Dao().find(new ConvencaoCidade(), Integer.parseInt(listConvencaoCidade.get(idConvencaoCidade).getDescription()));
+        convencaoPeriodo.setSindicato(convencaoCidade.getSindicato());
+    }
+
+    public void loadListConvencao() {
+        listConvencao.clear();
+        idConvencao = 0;
+        
+        Dao di = new Dao();
+        List<Convencao> list = di.list("Convencao", true);
+        for (int i = 0; i < list.size(); i++) {
+            listConvencao.add(new SelectItem(i,
+                    list.get(i).getDescricao().toUpperCase(),
+                    Integer.toString(list.get(i).getId())));
+        }
+    }
+    
+    public void loadListConvencaoCidade() {
+        listConvencaoCidade.clear();
+        idConvencaoCidade = 0;
+        
+        if (listConvencao.isEmpty()) {
+            return;
+        }
+
+        ConvencaoPeriodoDao db = new ConvencaoPeriodoDao();
+        List<ConvencaoCidade> list = db.listaGrupoCidadePorConvencao(Integer.parseInt(listConvencao.get(idConvencao).getDescription()));
+        for (int i = 0; i < list.size(); i++) {
+            listConvencaoCidade.add(new SelectItem(
+                    i,
+                    list.get(i).getGrupoCidade().getDescricao(),
+                    Integer.toString(list.get(i).getId()))
+            );
+        }
+        
+        atualizaConvencaoCidade();
     }
 
     public void clear() {
@@ -56,58 +103,67 @@ public class ConvencaoPeriodoBean {
                 break;
             }
         }
-        for (int i = 0; i < getListGrupoCidade().size(); i++) {
-            if (Integer.parseInt(getListGrupoCidade().get(i).getDescription()) == convencaoPeriodo.getGrupoCidade().getId()) {
-                idGrupoCidade = i;
+        
+        loadListConvencaoCidade();
+        
+        Dao dao = new Dao();
+        for (int i = 0; i < listConvencaoCidade.size(); i++) {
+            ConvencaoCidade cc = (ConvencaoCidade) dao.find(new ConvencaoCidade(), Integer.parseInt(listConvencaoCidade.get(i).getDescription()));
+            //if (Integer.parseInt(listConvencaoCidade.get(i).getDescription()) == convencaoPeriodo.getGrupoCidade().getId()) {
+            if (cc.getGrupoCidade().getId() == convencaoPeriodo.getGrupoCidade().getId()) {
+                idConvencaoCidade = i;
                 break;
             }
         }
+        
+        convencaoPeriodo.setSindicato(cp.getSindicato());
     }
 
     public void save() {
         ConvencaoPeriodoDao convencaoPeriodoDB = new ConvencaoPeriodoDao();
-        if (getConvencaoPeriodo().getReferenciaInicial().equals("__/____") || getConvencaoPeriodo().getReferenciaInicial().equals("")) {
-            setMessage("Informar a referência inicial!");
+        if (convencaoPeriodo.getReferenciaInicial().equals("__/____") || convencaoPeriodo.getReferenciaInicial().equals("")) {
             GenericaMensagem.warn("Sistema", "Informar a referência inicial!");
             return;
         }
-        if (getConvencaoPeriodo().getReferenciaFinal().equals("__/____") || getConvencaoPeriodo().getReferenciaFinal().equals("")) {
-            setMessage("Informar a referência final!");
+        if (convencaoPeriodo.getReferenciaFinal().equals("__/____") || convencaoPeriodo.getReferenciaFinal().equals("")) {
             GenericaMensagem.warn("Sistema", "Informar a referência final!");
             return;
         }
-        getConvencaoPeriodo().getGrupoCidade().setId(Integer.parseInt(listGrupoCidade.get(idGrupoCidade).getDescription()));
-        
-        if (listConvencao.isEmpty()){
+
+        convencaoPeriodo.setGrupoCidade(convencaoCidade.getGrupoCidade());
+
+        if (listConvencao.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Nenhuma Convenção Cadastrada!");
             return;
         }
-        getConvencaoPeriodo().getConvencao().setId(Integer.parseInt(listConvencao.get(idConvencao).getDescription()));
-        if (convencaoPeriodoDB.convencaoPeriodoExiste(getConvencaoPeriodo())) {
-            setMessage("Convenção período já existe!");
+
+        convencaoPeriodo.setConvencao((Convencao) new Dao().find(new Convencao(), Integer.parseInt(listConvencao.get(idConvencao).getDescription())));
+
+        if (convencaoPeriodoDB.convencaoPeriodoExiste(convencaoPeriodo)) {
             GenericaMensagem.warn("Sistema", "Convenção período já existe!");
             return;
         }
+
+        convencaoPeriodo.setSindicato(convencaoCidade.getSindicato());
+
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
-        if (getConvencaoPeriodo().getId() == -1) {
+        if (convencaoPeriodo.getId() == -1) {
             di.openTransaction();
-            if (di.save(getConvencaoPeriodo())) {
+            if (di.save(convencaoPeriodo)) {
                 di.commit();
                 novoLog.save(
-                        "ID: " + getConvencaoPeriodo().getId()
-                        + " - Convencao: (" + getConvencaoPeriodo().getConvencao().getId() + ") " + getConvencaoPeriodo().getConvencao().getDescricao()
-                        + " - Grupo Cidade: (" + getConvencaoPeriodo().getGrupoCidade().getId() + ") " + getConvencaoPeriodo().getGrupoCidade().getDescricao()
-                        + " - Ref: " + getConvencaoPeriodo().getReferenciaInicial() + " - " + getConvencaoPeriodo().getReferenciaFinal()
+                        "ID: " + convencaoPeriodo.getId()
+                        + " - Convencao: (" + convencaoPeriodo.getConvencao().getId() + ") " + convencaoPeriodo.getConvencao().getDescricao()
+                        + " - Grupo Cidade: (" + convencaoPeriodo.getGrupoCidade().getId() + ") " + convencaoPeriodo.getGrupoCidade().getDescricao()
+                        + " - Ref: " + convencaoPeriodo.getReferenciaInicial() + " - " + convencaoPeriodo.getReferenciaFinal()
                 );
                 convencaoPeriodo = new ConvencaoPeriodo();
                 listConvencaoPeriodos.clear();
                 GenericaMensagem.info("Sucesso", "Registro inserido");
-                setMessage("Registro inserido com sucesso");
             } else {
                 di.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao inserir esse registro!");
-                setMessage("Erro ao inserir esse registro!");
             }
         } else {
             ConvencaoPeriodo cp = (ConvencaoPeriodo) di.find(convencaoPeriodo);
@@ -117,20 +173,18 @@ public class ConvencaoPeriodoBean {
                     + " - Grupo Cidade: (" + cp.getGrupoCidade().getId() + ") " + cp.getGrupoCidade().getDescricao()
                     + " - Ref: " + cp.getReferenciaInicial() + " - " + cp.getReferenciaFinal();
             di.openTransaction();
-            if (di.update(getConvencaoPeriodo())) {
+            if (di.update(convencaoPeriodo)) {
                 di.commit();
                 novoLog.update(beforeUpdate,
                         "ID: " + convencaoPeriodo.getId()
                         + " - Convencao: (" + convencaoPeriodo.getConvencao().getId() + ") " + convencaoPeriodo.getConvencao().getDescricao()
                         + " - Grupo Cidade: (" + convencaoPeriodo.getGrupoCidade().getId() + ") " + convencaoPeriodo.getGrupoCidade().getDescricao()
                         + " - Ref: " + convencaoPeriodo.getReferenciaInicial() + " - " + convencaoPeriodo.getReferenciaFinal()
-                );                
+                );
                 GenericaMensagem.info("Sucesso", "Registro atualizado");
-                setMessage("Sucesso registro atualizado");
             } else {
                 di.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao atualizar esse registro!");
-                setMessage("Erro ao atualizar este registro!");
             }
         }
     }
@@ -138,7 +192,7 @@ public class ConvencaoPeriodoBean {
     public void delete() {
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
-        if (getConvencaoPeriodo().getId() != -1) {
+        if (convencaoPeriodo.getId() != -1) {
             di.openTransaction();
             if (di.delete(convencaoPeriodo)) {
                 novoLog.delete(
@@ -146,31 +200,19 @@ public class ConvencaoPeriodoBean {
                         + " - Convencao: (" + convencaoPeriodo.getConvencao().getId() + ") " + convencaoPeriodo.getConvencao().getDescricao()
                         + " - Grupo Cidade: (" + convencaoPeriodo.getGrupoCidade().getId() + ") " + convencaoPeriodo.getGrupoCidade().getDescricao()
                         + " - Ref: " + convencaoPeriodo.getReferenciaInicial() + " - " + convencaoPeriodo.getReferenciaFinal()
-                );                
+                );
                 di.commit();
                 convencaoPeriodo = new ConvencaoPeriodo();
                 listConvencaoPeriodos.clear();
                 GenericaMensagem.info("Sucesso", "Registro excluído");
-                setMessage("Registro excluído com sucesso");
             } else {
                 di.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao excluir esse registro!");
-                setMessage("Erro ao excluir esse registro!");
             }
         }
     }
 
     public List<SelectItem> getListConvencao() {
-        if (listConvencao.isEmpty()) {
-            Dao di = new Dao();
-            List<Convencao> list = di.list("Convencao", true);
-            for (int i = 0; i < list.size(); i++) {
-                listConvencao.add(new SelectItem(i,
-                        list.get(i).getDescricao().toUpperCase(),
-                        Integer.toString(list.get(i).getId())));
-            }
-
-        }
         return listConvencao;
     }
 
@@ -178,32 +220,12 @@ public class ConvencaoPeriodoBean {
         this.listConvencao = listConvencao;
     }
 
-    public List<SelectItem> getListGrupoCidade() {
-        listGrupoCidade.clear();
-        if (listConvencao.isEmpty()){
-            return new ArrayList();
-        }
-        
-        ConvencaoPeriodoDao db = new ConvencaoPeriodoDao();
-        List<ConvencaoCidade> list = db.listaGrupoCidadePorConvencao(Integer.parseInt(listConvencao.get(idConvencao).getDescription()));
-        for (int i = 0; i < list.size(); i++) {
-            listGrupoCidade.add(new SelectItem(i,
-                    list.get(i).getGrupoCidade().getDescricao(),
-                    Integer.toString(list.get(i).getGrupoCidade().getId())));
-        }
-        return listGrupoCidade;
+    public List<SelectItem> getListConvencaoCidade() {
+        return listConvencaoCidade;
     }
 
-    public void setListGrupoCidade(List<SelectItem> listGrupoCidade) {
-        this.listGrupoCidade = listGrupoCidade;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String msg) {
-        this.message = msg;
+    public void setListConvencaoCidade(List<SelectItem> listConvencaoCidade) {
+        this.listConvencaoCidade = listConvencaoCidade;
     }
 
     public int getIdConvencao() {
@@ -214,12 +236,12 @@ public class ConvencaoPeriodoBean {
         this.idConvencao = idConvencao;
     }
 
-    public int getIdGrupoCidade() {
-        return idGrupoCidade;
+    public int getIdConvencaoCidade() {
+        return idConvencaoCidade;
     }
 
-    public void setIdGrupoCidade(int idGrupoCidade) {
-        this.idGrupoCidade = idGrupoCidade;
+    public void setIdConvencaoCidade(int idConvencaoCidade) {
+        this.idConvencaoCidade = idConvencaoCidade;
     }
 
     public List<ConvencaoPeriodo> getListConvencaoPeriodos() {
@@ -240,5 +262,13 @@ public class ConvencaoPeriodoBean {
 
     public void setConvencaoPeriodo(ConvencaoPeriodo convencaoPeriodo) {
         this.convencaoPeriodo = convencaoPeriodo;
+    }
+
+    public ConvencaoCidade getConvencaoCidade() {
+        return convencaoCidade;
+    }
+
+    public void setConvencaoCidade(ConvencaoCidade convencaoCidade) {
+        this.convencaoCidade = convencaoCidade;
     }
 }

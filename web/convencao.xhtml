@@ -30,15 +30,21 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Convenção" styleClass="fonteHeader" />
                         <h:form id="formConvencao">
                             <c:set scope="request" var="object" value="${convencaoBean.convencao}"/>
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid columns="4">
                                     <p:column>
+                                        <h:outputLabel value="Sindicato"/><br />
+                                        <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" ajax="false"/>
+                                        <p:inputText disabled="true" style="opacity: .8; width: 350px" value="#{convencaoBean.sindicato.nome}"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{convencaoBean.removerPessoa()}" update="@form"/>
+                                    </p:column>
+                                    <p:column>
                                         <h:outputLabel value="Convenção"/><br />
-                                        <p:inputText size="50" value="#{convencaoBean.convencao.descricao}"/>
+                                        <p:inputText size="30" value="#{convencaoBean.convencao.descricao}"/>
                                     </p:column>
                                     <p:column>
                                         <h:outputLabel value="Grupo Cidade" styleClass="fontePadrao"/><br />
@@ -48,7 +54,7 @@
                                     </p:column>
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="Adicionar" action="#{convencaoBean.adicionar}" update="tbl i_msg"/>
+                                        <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{convencaoBean.adicionar}" update="tbl i_msg"/>
                                     </p:column>
                                 </h:panelGrid> 
                             </p:panel>
@@ -56,15 +62,19 @@
                             <p:messages id="i_msg" showDetail="true" />  
 
                             <p:dataTable  value="#{convencaoBean.listaGpCidade}" var="linha" id="tbl" emptyMessage="Nenhum Grupo Cidade encontrada!">
-                                <p:column style="text-align: center">
+                                <p:column style="text-align: center; width: 30px">
                                     <p:commandButton icon="ui-icon-trash" action="#{convencaoBean.btnExcluir(linha)}" update="tbl :formConvencao:i_msg"/>
                                 </p:column>
 
+                                <p:column headerText="Sindicato">
+                                    <h:outputText value="#{linha.argumento1.sindicato.nome}"/>
+                                </p:column>
+                                
                                 <p:column headerText="Grupo de Cidade">
                                     <h:outputText value="#{linha.argumento0.descricao}"/>
                                 </p:column>
 
-                                <p:column headerText="PDF" style="text-align: center">
+                                <p:column headerText="PDF" style="text-align: center; width: 100">
                                     <h:outputText value="#{linha.argumento1.caminho}" style="font-size: 11pt!important"/>
                                     <p:commandButton icon="ui-icon-closethick" rendered="#{linha.argumento1.caminho != ''}" title="Excluir PDF" action="#{convencaoBean.excluirApenasPDF(linha.argumento1)}" style="margin-left: 10px"/>
                                     
@@ -75,7 +85,7 @@
                             <h:panelGrid columns="4">
                                 <p:commandButton value="Salvar" onclick="PF('i_dlg_s').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                 <p:commandButton ajax="false" value="Novo" action="#{convencaoBean.novo}" />
-                                <p:commandButton value="Excluir" onclick="PF('i_dlg_e').show()" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                <p:commandButton value="Excluir" onclick="PF('i_dlg_e').show()" disabled="#{controleAcessoBean.botaoExcluir}" />
                                 <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisaConvencao}"/>
                             </h:panelGrid>
 

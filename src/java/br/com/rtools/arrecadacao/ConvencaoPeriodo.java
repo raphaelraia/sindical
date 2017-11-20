@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao;
 
+import br.com.rtools.pessoa.Pessoa;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import java.io.Serializable;
+import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "arr_convencao_periodo")
@@ -30,13 +32,17 @@ public class ConvencaoPeriodo implements Serializable {
     private String referenciaInicial;
     @Column(name = "ds_referencia_final", length = 7)
     private String referenciaFinal;
+    @JoinColumn(name = "id_sindicato", referencedColumnName = "id")
+    @OneToOne
+    private Pessoa sindicato;
 
-    public ConvencaoPeriodo(int id, Convencao convencao, GrupoCidade grupoCidade, String referenciaInicial, String referenciaFinal) {
+    public ConvencaoPeriodo(int id, Convencao convencao, GrupoCidade grupoCidade, String referenciaInicial, String referenciaFinal, Pessoa sindicato) {
         this.id = id;
         this.convencao = convencao;
         this.grupoCidade = grupoCidade;
         this.referenciaInicial = referenciaInicial;
         this.referenciaFinal = referenciaFinal;
+        this.sindicato = sindicato;
     }
 
     public ConvencaoPeriodo() {
@@ -45,6 +51,7 @@ public class ConvencaoPeriodo implements Serializable {
         this.grupoCidade = new GrupoCidade();
         this.referenciaInicial = "";
         this.referenciaFinal = "";
+        this.sindicato = sindicato;
     }
 
     public int getId() {
@@ -85,5 +92,13 @@ public class ConvencaoPeriodo implements Serializable {
 
     public void setReferenciaFinal(String referenciaFinal) {
         this.referenciaFinal = referenciaFinal;
+    }
+
+    public Pessoa getSindicato() {
+        return sindicato;
+    }
+
+    public void setSindicato(Pessoa sindicato) {
+        this.sindicato = sindicato;
     }
 }

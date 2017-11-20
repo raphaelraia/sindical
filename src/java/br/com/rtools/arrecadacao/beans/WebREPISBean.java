@@ -678,6 +678,8 @@ public class WebREPISBean implements Serializable {
                         }
                     }
 
+                    String sindicatoPeriodo = (result.get(0).getSindicato() != null) ? result.get(0).getSindicato().getNome() : "xxxxxxxxxxxxxxxxxxxx";
+                    
                     for (PisoSalarial piso : listapiso) {
                         BigDecimal valor = new BigDecimal(piso.getValor());
                         if (valor.toString().equals("0")) {
@@ -707,7 +709,8 @@ public class WebREPISBean implements Serializable {
                                         DataHoje.dataExtenso(repis.getDataEmissaoString(), 3),
                                         ende,
                                         ref,
-                                        imagemFundo
+                                        imagemFundo,
+                                        sindicatoPeriodo
                                 )
                         );
                     }

@@ -9,7 +9,17 @@
         <title>Convenção Período</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
     </h:head>
+    
     <h:body>
         <!-- INICIA DIV wrap e main -->
         <div id="wrapx">
@@ -25,22 +35,30 @@
                         <h:form id="form_cp">
                             <c:set scope="request" var="object" value="${convencaoPeriodoBean.convencaoPeriodo}"/>
                             <p:messages showDetail="true" showSummary="true" autoUpdate="true" id="i_messagex"/>
+
                             <p:panel id="id_panel_formulario_novo" style="border: 0;" styleClass="fundoCinza">
-                                <h:panelGrid columns="4">
-                                    <p:outputLabel value="Convenção: " />
-                                    <p:selectOneMenu value="#{convencaoPeriodoBean.idConvencao}" id="idComboConvencao" >
-                                        <p:ajax event="change" update="idGrupoCidade" />
+                                <h:panelGrid columns="6">
+                                    <p:outputLabel value="Convenção: " style="font-weight: bold"/>
+                                    <p:selectOneMenu value="#{convencaoPeriodoBean.idConvencao}" id="idComboConvencao" style="margin-right: 15px">
+                                        <p:ajax event="change" update="id_panel_formulario_novo" listener="#{convencaoPeriodoBean.loadListConvencaoCidade()}" />
                                         <f:selectItems value="#{convencaoPeriodoBean.listConvencao}" />                                    
                                     </p:selectOneMenu>
-                                    <p:outputLabel value="Grupo Cidade: " />
-                                    <p:selectOneMenu value="#{convencaoPeriodoBean.idGrupoCidade}" id="idGrupoCidade"  style="text-transform: uppercase;">
-                                        <f:selectItems value="#{convencaoPeriodoBean.listGrupoCidade}" />
+
+                                    <p:outputLabel value="Grupo Cidade: " style="font-weight: bold;"/>
+                                    <p:selectOneMenu value="#{convencaoPeriodoBean.idConvencaoCidade}" id="idGrupoCidade" style="text-transform: uppercase; margin-right: 15px">
+                                        <p:ajax event="change" update="id_panel_formulario_novo" listener="#{convencaoPeriodoBean.atualizaConvencaoCidade()}" />
+                                        <f:selectItems value="#{convencaoPeriodoBean.listConvencaoCidade}" />
                                     </p:selectOneMenu>
+                                    
+                                    <p:outputLabel value="Sindicato: " style="font-weight: bold" rendered="#{convencaoPeriodoBean.convencaoPeriodo.sindicato != null}"/>
+                                    <p:outputLabel value="#{convencaoPeriodoBean.convencaoPeriodo.sindicato.nome}" />
                                 </h:panelGrid>
+
                                 <hr />
+
                                 <h:panelGrid columns="5">
                                     <p:column>
-                                        <p:outputLabel value="Período de referência" />
+                                        <p:outputLabel value="Período de Referência" />
                                     </p:column>
                                     <p:column>
                                         <p:outputLabel value="Inicial : " />
@@ -69,34 +87,34 @@
                                     <p:column width="25" styleClass="text-center">
                                         <p:commandButton icon="ui-icon-link" action="#{convencaoPeriodoBean.edit(linha)}" title="Editar id: #{linha.id}" update=":form_cp:" />
                                     </p:column>                                 
-                                    <p:column headerText="Convenção">
+                                    <p:column headerText="Convenção" style="width: 250px">
                                         <p:outputLabel value="#{linha.convencao.descricao}" style="text-transform: uppercase;"/>
                                     </p:column>
                                     <p:column headerText="Grupo Cidade">
                                         <p:outputLabel value="#{linha.grupoCidade.descricao}" style="text-transform: uppercase;"/>
                                     </p:column>
-                                    <p:column headerText="Ref. Inicial" width="80">
+                                    <p:column headerText="Ref. Inicial" style="text-align: center; width: 80px">
                                         <p:outputLabel value="#{linha.referenciaInicial}" />
                                     </p:column>
-                                    <p:column headerText="Ref. Final" width="80">
+                                    <p:column headerText="Ref. Final" style="text-align: center; width: 80px">
                                         <p:outputLabel value="#{linha.referenciaFinal}" />
                                     </p:column>                                        
                                 </p:dataTable>
                             </p:panel>
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" width="400" modal="true" resizable="false">
                                 <f:facet name="footer">
-                                    <p:commandButton value="Sim" title="Salvar" action="#{convencaoPeriodoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show()" update=":form_cp: i_message i_messagex"/>
+                                    <p:commandButton value="Sim" title="Salvar" action="#{convencaoPeriodoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show()" update=":form_cp: i_messagex"/>
                                     <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();" />
                                 </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" width="400" modal="true" resizable="false">
                                 <f:facet name="footer">
-                                    <p:commandButton value="Sim" title="Excluir" action="#{convencaoPeriodoBean.delete}" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show()" update=":form_cp: i_message i_messagex" />
+                                    <p:commandButton value="Sim" title="Excluir" action="#{convencaoPeriodoBean.delete}" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show()" update=":form_cp: i_messagex" />
                                     <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();" />
                                 </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_message" header="Mensagem" width="400" modal="true" resizable="false">
-                                <p:outputLabel value="#{convencaoPeriodoBean.message}" id="i_message"/>
+                                <p:messages showDetail="true" showSummary="true" autoUpdate="true" />
                                 <f:facet name="footer">
                                     <p:commandButton value="OK" title="OK" onclick="PF('dlg_message').hide();"/>
                                 </f:facet>

@@ -84,16 +84,6 @@ import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.primefaces.json.JSONObject;
 
 @ManagedBean
 @ViewScoped
@@ -160,7 +150,8 @@ public class ImprimirBoleto implements Serializable {
                 return hash;
         }
 
-        Cobranca cobranca = Cobranca.retornaCobranca(null, boleto.getValor(), boleto.getDtVencimento(), boleto);
+        //Cobranca cobranca = Cobranca.retornaCobranca(null, boleto.getValor(), boleto.getDtVencimento(), boleto);
+        Cobranca cobranca = Cobranca.retornaCobranca(null, valor, boleto.getDtVencimento(), boleto);
 
         if (cobranca == null) {
             hash.put("boleto", null);
@@ -181,6 +172,7 @@ public class ImprimirBoleto implements Serializable {
         return hash;
     }
 
+    
     public HashMap registrarMovimentos(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos) {
         MovimentoDao dbm = new MovimentoDao();
         Registro reg = Registro.get();
@@ -2838,7 +2830,7 @@ public class ImprimirBoleto implements Serializable {
     public void setPathPasta(String pathPasta) {
         this.pathPasta = pathPasta;
     }
-    
+
     public Boolean getTeste() {
         Boolean teste = false;
         if (!GenericaSessao.exists("webServiceBoletoTest")) {

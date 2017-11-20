@@ -654,6 +654,12 @@ public class Sicoob extends Cobranca {
 
         Registro reg = Registro.get();
         Pessoa pessoa = db_social.responsavelBoleto(boleto.getNrCtrBoleto());
+        
+        
+        if (pessoa.getPessoaEndereco() == null){
+            return new RespostaWebService(null, "Pessoa: " + pessoa.getNome() + " NÃO TEM ENDEREÇO TIPO 2");
+        }
+        
         List<Movimento> lista_movimento = db_social.listaMovimentosPorNrCtrBoleto(boleto.getNrCtrBoleto());
 
         if (valor < 1) {
