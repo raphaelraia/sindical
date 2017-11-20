@@ -49,8 +49,8 @@ public class LocadoraMovimento implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_devolucao")
     private Date dtDevolucao;
-    @Column(name = "nr_relocacao")
-    private Integer relocacao;
+    @Column(name = "nr_qt_relocacao")
+    private Integer ntQtRelocacao;
 
     @Transient
     private Boolean selected;
@@ -70,10 +70,10 @@ public class LocadoraMovimento implements Serializable {
         this.dtDevolucaoPrevisao = null;
         this.dtDevolucao = null;
         this.selected = false;
-        this.relocacao = 0;
+        this.ntQtRelocacao = 0;
     }
 
-    public LocadoraMovimento(Integer id, LocadoraLote locadoraLote, Titulo titulo, Usuario operadorDevolucao, Movimento movimento, Date dtDevolucaoPrevisao, Date dtDevolucao, Integer relocacao) {
+    public LocadoraMovimento(Integer id, LocadoraLote locadoraLote, Titulo titulo, Usuario operadorDevolucao, Movimento movimento, Date dtDevolucaoPrevisao, Date dtDevolucao, Integer ntQtRelocacao) {
         this.id = id;
         this.locadoraLote = locadoraLote;
         this.titulo = titulo;
@@ -81,7 +81,7 @@ public class LocadoraMovimento implements Serializable {
         this.movimento = movimento;
         this.dtDevolucaoPrevisao = dtDevolucaoPrevisao;
         this.dtDevolucao = dtDevolucao;
-        this.relocacao = relocacao;
+        this.ntQtRelocacao = ntQtRelocacao;
     }
 
     public Integer getId() {
@@ -201,8 +201,8 @@ public class LocadoraMovimento implements Serializable {
 
     public Double getValorTotal() {
         if (valorTotal == null) {
-            if(movimento == null) {
-                valorTotal = getDiasAtraso() * valorMultaDiaria;                
+            if (movimento == null) {
+                valorTotal = getDiasAtraso() * valorMultaDiaria;
             } else {
                 valorTotal = movimento.getValor();
             }
@@ -231,12 +231,12 @@ public class LocadoraMovimento implements Serializable {
         return "LocadoraMovimento{" + "id=" + id + ", locadoraLote=" + locadoraLote + ", titulo=" + titulo + ", operadorDevolucao=" + operadorDevolucao + ", movimento=" + movimento + ", dtDevolucaoPrevisao=" + dtDevolucaoPrevisao + ", dtDevolucao=" + dtDevolucao + '}';
     }
 
-    public Integer getRelocacao() {
-        return relocacao;
+    public Integer getNrQtRelocacao() {
+        return ntQtRelocacao;
     }
 
-    public void setRelocacao(Integer relocacao) {
-        this.relocacao = relocacao;
+    public void setNtQtRelocacao(Integer ntQtRelocacao) {
+        this.ntQtRelocacao = ntQtRelocacao;
     }
 
 }

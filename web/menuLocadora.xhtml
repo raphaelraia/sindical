@@ -12,7 +12,7 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }
-            .ui-selectonemenu-label .ui-inputfield{}
+            .ui-selectonemenu-label .ui-inputfield{}            
         </style>          
     </h:head>
     <h:body>
@@ -68,7 +68,7 @@
                                 </h:panelGrid>
                                 <br />
                                 <h:panelGroup id="i_history" styleClass="margin-top-max">
-                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{menuLocadoraBean.listLocadoraMovimento}" var="locadoraMovimento" paginator="true" rows="10">
+                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{menuLocadoraBean.listLocadoraMovimento}" var="locadoraMovimento" paginator="true" rows="10" rowStyleClass="#{locadoraMovimento.titulo.lancamento ? 'font-color-blue' : ''}">
                                         <p:column style="width:15px">  
                                             <p:rowToggler />  
                                         </p:column>
@@ -118,6 +118,11 @@
                                                 <h:column>VALOR PAGO: #{locadoraMovimento.movimento != null ? locadoraMovimento.movimento.valorBaixaString : ''}</h:column>
                                             </p:panelGrid>
                                         </p:rowExpansion>
+                                        <f:facet name="footer">
+                                            <div>
+                                                <i style="background: #194C7F!important; width: 16px; height: 16px; display: block;" /> * Lançamentos
+                                            </div>
+                                        </f:facet>
                                     </p:dataTable>
                                 </h:panelGroup>
 
