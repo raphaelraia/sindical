@@ -206,7 +206,11 @@
                                             </h:panelGrid>
                                         </p:panel>
 
-                                        <p:panel header="CONVIDADO" styleClass="margin-top-max" id="i_panel_convidado">
+                                        <p:panel styleClass="margin-top-max" id="i_panel_convidado">
+                                            <f:facet name="header">
+                                                <i style="font-size: 6pt!important; color: red; float: right">*#{(conviteMovimentoBean.conviteMovimento.sisPessoa.id eq -1 and conviteMovimentoBean.conviteMovimento.sisPessoa.fisica.id eq -1) ? 'Cadastrar' : (conviteMovimentoBean.conviteMovimento.sisPessoa.fisica.id eq -1 ? 'Editar cadastro existente' : 'Importado do cadastro de pessoa física #('.concat(conviteMovimentoBean.conviteMovimento.sisPessoa.fisica.pessoa.id).concat(') - Atualizado em ').concat(conviteMovimentoBean.conviteMovimento.sisPessoa.fisica.pessoa.atualizacao))}</i>
+                                                CONVIDADO
+                                            </f:facet>
                                             <h:panelGrid columns="5">
                                                 <h:column>
                                                     <p:outputLabel value="Emissão" style="font-weight: bold"/><br />

@@ -17,6 +17,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -110,9 +111,10 @@ public class UsuarioBean implements Serializable {
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("usuarioBean");
-        GenericaSessao.remove("usuarioPesquisa");
-        GenericaSessao.remove("pessoaPesquisa");
+        Sessions.remove("usuarioBean");
+        Sessions.remove("usuarioPesquisa");
+        Sessions.remove("pessoaPesquisa");
+        Sessions.remove("photoCapture");
         clear(1);
         clear(2);
     }

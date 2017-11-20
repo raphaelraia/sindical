@@ -204,7 +204,7 @@
                 </h:form>
                 <h:form id="form_sound">
                     <audio id="audiotag1" style="width: 10px; height: 10px">
-                        <source src="http://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>
+                        <source src="#{defaults.urlContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>
                     </audio>
                 </h:form>
             </div>
@@ -218,8 +218,8 @@
                 function sing() {
                     som.autoplay = true;
                     som.play();
-		}          
-                var urlws = "ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}_#{senhaBean.macFilial.filial.id}";
+		}  
+                var urlws = "#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}_#{senhaBean.macFilial.filial.id}";
                 var ws = new WebSocket(urlws);
 
                 ws.onopen = function (event) {

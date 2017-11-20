@@ -29,6 +29,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.ImageConverter;
+import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.Serializable;
@@ -77,17 +78,16 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("geracaoDebitosCartaoBean");
-//        GenericaSessao.remove("uploadBean");
-//        GenericaSessao.remove("photoCamBean");
-        GenericaSessao.remove("cartaoSocialBean");
-        GenericaSessao.remove("fisicaPesquisa");
-        GenericaSessao.remove("fisicaBean");
-        GenericaSessao.remove("baixa_sucesso");
-        GenericaSessao.remove("cartao_social_sucesso");
-        GenericaSessao.remove("listaMovimento");
-        GenericaSessao.remove("lista_movimentos_baixados");
-        GenericaSessao.remove("pessoaUtilitariosBean");
+        Sessions.remove("photoCapture");
+        Sessions.remove("geracaoDebitosCartaoBean");
+        Sessions.remove("cartaoSocialBean");
+        Sessions.remove("fisicaPesquisa");
+        Sessions.remove("fisicaBean");
+        Sessions.remove("baixa_sucesso");
+        Sessions.remove("cartao_social_sucesso");
+        Sessions.remove("listaMovimento");
+        Sessions.remove("lista_movimentos_baixados");
+        Sessions.remove("pessoaUtilitariosBean");
         clear(2);
     }
 

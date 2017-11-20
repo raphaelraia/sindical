@@ -370,7 +370,7 @@
             <ui:include src="templates/templateNovaPessoaFisica.xhtml"/>
             <span id="messageGoesHere"></span>
             <script type="text/javascript">
-                var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamentos_#{controleUsuarioBean.clienteLowerCaseString}");
+                var ws = new WebSocket("#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/agendamentos_#{controleUsuarioBean.clienteLowerCaseString}");
 
                 ws.onopen = function (event) {
                     console.log("Connected ", event);

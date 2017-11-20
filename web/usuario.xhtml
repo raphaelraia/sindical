@@ -104,6 +104,12 @@
                                             </h:column>
                                             <h:column />
                                             <h:column>
+                                                <p:selectBooleanCheckbox id="idCamera"  value="#{usuarioBean.usuario.cameraFlashPlayer}" itemLabel="Webcam com Flash Player">
+                                                    <p:ajax event="change" update="idCamera"  global="false"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:column>
+                                            <h:column />
+                                            <h:column>
                                                 <p:selectBooleanCheckbox id="idAtivaUsuario"  value="#{usuarioBean.usuario.ativo}" itemLabel="Ativo?">
                                                     <p:ajax event="change" update="idAtivaUsuario"  global="false"/>
                                                 </p:selectBooleanCheckbox>
@@ -115,7 +121,7 @@
                                             <p:graphicImage name="#{usuarioBean.usuario.pessoa.foto}" cache="false" width="130" />
                                             <h:panelGrid columns="2" style="width: 100%" columnClasses="text-center" styleClass="margin-top-max">
                                                 <p:commandButton action="#{photoUpload.openAndSave(usuarioBean.usuario.pessoa, 'form_u')}" icon="ui-icon-arrowthick-1-n" title="Enviar Foto" global="false" disabled="#{controleAcessoBean.verificarPermissao('libera_upload', 1)}" />
-                                                <p:commandButton action="#{photoCapture.openAndSave(usuarioBean.usuario.pessoa, 'form_u')}" icon="photocam"  title="Capturar Foto" global="false" disabled="#{controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                                <p:commandButton action="usuario" actionListener="#{photoCapture.openAndSave(usuarioBean.usuario.pessoa, 'form_u')}" icon="photocam"  title="Capturar Foto" global="false" disabled="#{controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
                                             </h:panelGrid>
                                         </p:panel>
                                     </h:column>

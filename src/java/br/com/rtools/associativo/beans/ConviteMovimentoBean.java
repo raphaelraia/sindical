@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -633,15 +634,31 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         if (!lf.isEmpty()) {
+            String doc = "";
+            String rg = "";
+            if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
+                doc = conviteMovimento.getSisPessoa().getDocumento();
+            }
+            if (!conviteMovimento.getSisPessoa().getRg().isEmpty()) {
+                rg = conviteMovimento.getSisPessoa().getRg();
+            }
             conviteMovimento.setSisPessoa(new SisPessoa());
-            conviteMovimento.getSisPessoa().setDocumento(lf.get(0).getPessoa().getDocumento());
+            if (!lf.get(0).getPessoa().getDocumento().isEmpty()) {
+                conviteMovimento.getSisPessoa().setDocumento(lf.get(0).getPessoa().getDocumento());
+            } else {
+                conviteMovimento.getSisPessoa().setDocumento(doc);
+            }
+            if (!lf.get(0).getRg().isEmpty()) {
+                conviteMovimento.getSisPessoa().setRg(lf.get(0).getRg());
+            } else {
+                conviteMovimento.getSisPessoa().setRg(rg);
+            }
             conviteMovimento.getSisPessoa().setNome(lf.get(0).getPessoa().getNome());
             conviteMovimento.getSisPessoa().setNascimento(lf.get(0).getNascimento());
             conviteMovimento.getSisPessoa().setCelular(lf.get(0).getPessoa().getTelefone3());
             conviteMovimento.getSisPessoa().setEmail1(lf.get(0).getPessoa().getEmail1());
             conviteMovimento.getSisPessoa().setEmail2(lf.get(0).getPessoa().getEmail2());
             conviteMovimento.getSisPessoa().setObservacao(lf.get(0).getPessoa().getObs());
-            conviteMovimento.getSisPessoa().setRg(lf.get(0).getRg());
             conviteMovimento.getSisPessoa().setSexo(lf.get(0).getSexo());
             conviteMovimento.getSisPessoa().setTipoDocumento(lf.get(0).getPessoa().getTipoDocumento());
             conviteMovimento.getSisPessoa().setTelefone(lf.get(0).getPessoa().getTelefone1());
@@ -660,50 +677,52 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void pesquisaSisPessoaDocumento() {
         // APENAS COM CPF
-        SisPessoaDao sisPessoaDB = new SisPessoaDao();
-        if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
+        if (conviteMovimento.getSisPessoa().getId() == -1 && (conviteMovimento.getSisPessoa().getFisica() == null || conviteMovimento.getSisPessoa().getFisica().getId() == -1)) {
+            SisPessoaDao sisPessoaDB = new SisPessoaDao();
+            if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
 
-            // VALIDA SE CONVIDADO TEM OPOSIÇÃO --------------------------------
-            OposicaoDao odbt = new OposicaoDao();
-            if (configuracaoSocial.getBloqueiaConviteOposicao()) {
-                Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
-                // BLOQUEIA SE TIVER OPOSIÇÃO
-                if (temOposicao) {
-                    GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
-                    PF.openDialog("dgl_panel_mensagem");
+                // VALIDA SE CONVIDADO TEM OPOSIÇÃO --------------------------------
+                OposicaoDao odbt = new OposicaoDao();
+                if (configuracaoSocial.getBloqueiaConviteOposicao()) {
+                    Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
+                    // BLOQUEIA SE TIVER OPOSIÇÃO
+                    if (temOposicao) {
+                        GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
+                        PF.openDialog("dgl_panel_mensagem");
 
-                    // LIMPA SE TIVER OPOSIÇÃO
-                    conviteMovimento.setSisPessoa(new SisPessoa());
-                    return;
-                }
-            } else {
-                // APENAS MOSTRA A MENSAGEM
-                Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
-                if (temOposicao) {
-                    GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
-                    PF.update("form_convite:out_mensagem");
-                    PF.openDialog("dgl_panel_mensagem");
-                }
-            }
-            // -----------------------------------------------------------------
-
-            SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
-            if (sp != null) {
-                conviteMovimento.setSisPessoa(sp);
-            } else {
-                List<Fisica> lf = retornaFisicaSisPessoa("cpf");
-                // SE FOR VAZIO NÃO ENCONTROU O CPF EM PESSOA FÍSICA
-                // SE FOR CHEIO PESSOA FISICA JÁ SETADA EM SIS PESSOA
-                if (lf.isEmpty()) {
-                    String d = conviteMovimento.getSisPessoa().getDocumento();
-
-                    // LIMPA SE NÃO ENCONTROU O DOCUMENTO
-                    if (!conviteMovimento.getSisPessoa().getNome().isEmpty() || !conviteMovimento.getSisPessoa().getRg().isEmpty() || !conviteMovimento.getSisPessoa().getNascimento().isEmpty()) {
-
-                    } else {
+                        // LIMPA SE TIVER OPOSIÇÃO
                         conviteMovimento.setSisPessoa(new SisPessoa());
+                        return;
                     }
-                    conviteMovimento.getSisPessoa().setDocumento(d);
+                } else {
+                    // APENAS MOSTRA A MENSAGEM
+                    Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
+                    if (temOposicao) {
+                        GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
+                        PF.update("form_convite:out_mensagem");
+                        PF.openDialog("dgl_panel_mensagem");
+                    }
+                }
+                // -----------------------------------------------------------------
+
+                SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
+                if (sp != null) {
+                    conviteMovimento.setSisPessoa(sp);
+                } else {
+                    List<Fisica> lf = retornaFisicaSisPessoa("cpf");
+                    // SE FOR VAZIO NÃO ENCONTROU O CPF EM PESSOA FÍSICA
+                    // SE FOR CHEIO PESSOA FISICA JÁ SETADA EM SIS PESSOA
+                    if (lf.isEmpty()) {
+                        String d = conviteMovimento.getSisPessoa().getDocumento();
+
+                        // LIMPA SE NÃO ENCONTROU O DOCUMENTO
+                        if (!conviteMovimento.getSisPessoa().getNome().isEmpty() || !conviteMovimento.getSisPessoa().getRg().isEmpty() || !conviteMovimento.getSisPessoa().getNascimento().isEmpty()) {
+
+                        } else {
+                            conviteMovimento.setSisPessoa(new SisPessoa());
+                        }
+                        conviteMovimento.getSisPessoa().setDocumento(d);
+                    }
                 }
             }
         }
@@ -711,33 +730,33 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public void pesquisaSisPessoaRG() {
-        //if (conviteMovimento.getSisPessoa().getId() == -1) {
-        // RG
-        SisPessoaDao sisPessoaDB = new SisPessoaDao();
-        if (conviteMovimento.getSisPessoa().getId() == -1 && !conviteMovimento.getSisPessoa().getRg().isEmpty()) {
-            SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
-            if (sp != null) {
-                conviteMovimento.setSisPessoa(sp);
-            } else {
-                List<Fisica> lf = retornaFisicaSisPessoa("rg");
-                // SE FOR VAZIO NÃO ENCONTROU O RG EM PESSOA FÍSICA
-                // SE FOR CHEIO PESSOA FISICA JÁ SETADA EM SIS PESSOA
-                if (lf.isEmpty()) {
-                    String d = conviteMovimento.getSisPessoa().getDocumento();
-                    String r = conviteMovimento.getSisPessoa().getRg();
-                    // LIMPA SE NÃO ENCONTROU O DOCUMENTO
-                    conviteMovimento.setSisPessoa(new SisPessoa());
-                    conviteMovimento.getSisPessoa().setDocumento(d);
-                    conviteMovimento.getSisPessoa().setRg(r);
+        if (conviteMovimento.getSisPessoa().getId() == -1 && (conviteMovimento.getSisPessoa().getFisica() == null || conviteMovimento.getSisPessoa().getFisica().getId() == -1)) {
+            // RG
+            SisPessoaDao sisPessoaDB = new SisPessoaDao();
+            if (conviteMovimento.getSisPessoa().getId() == -1 && !conviteMovimento.getSisPessoa().getRg().isEmpty()) {
+                SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
+                if (sp != null) {
+                    conviteMovimento.setSisPessoa(sp);
+                } else {
+                    List<Fisica> lf = retornaFisicaSisPessoa("rg");
+                    // SE FOR VAZIO NÃO ENCONTROU O RG EM PESSOA FÍSICA
+                    // SE FOR CHEIO PESSOA FISICA JÁ SETADA EM SIS PESSOA
+                    if (lf.isEmpty()) {
+                        String d = conviteMovimento.getSisPessoa().getDocumento();
+                        String r = conviteMovimento.getSisPessoa().getRg();
+                        // LIMPA SE NÃO ENCONTROU O DOCUMENTO
+                        conviteMovimento.setSisPessoa(new SisPessoa());
+                        conviteMovimento.getSisPessoa().setDocumento(d);
+                        conviteMovimento.getSisPessoa().setRg(r);
+                    }
                 }
             }
         }
-        //}
         atualizaDescontoValor();
     }
 
     public void pesquisaSisPessoaNomeNascimento() {
-        if (conviteMovimento.getSisPessoa().getId() == -1) {
+        if (conviteMovimento.getSisPessoa().getId() == -1 && (conviteMovimento.getSisPessoa().getFisica() == null || conviteMovimento.getSisPessoa().getFisica().getId() == -1)) {
             // NOME / DATA DE NASCIMENTO    
             SisPessoaDao sisPessoaDB = new SisPessoaDao();
             if (!conviteMovimento.getSisPessoa().getNome().isEmpty() && !conviteMovimento.getSisPessoa().getNascimento().isEmpty()) {
@@ -754,6 +773,29 @@ public class ConviteMovimentoBean implements Serializable {
                         // LIMPA SE NÃO ENCONTROU PELO NOME E NASCIMENTO
                         //conviteMovimento.setSisPessoa(new SisPessoa());
                         //conviteMovimento.getSisPessoa().setDocumento(d);
+                    } else {
+//                        if (conviteMovimento.getSisPessoa().getId() == -1) {
+//                            Fisica f = (Fisica) new Dao().find(lf.get(0));
+//                            conviteMovimento.getSisPessoa().setFisica(lf.get(0));
+//                            conviteMovimento.getSisPessoa().setSexo(f.getSexo());
+//                            if (!f.getPessoa().getDocumento().isEmpty()) {
+//                                conviteMovimento.getSisPessoa().setDocumento(f.getPessoa().getDocumento());
+//                            }
+//                            if (!f.getRg().isEmpty()) {
+//                                conviteMovimento.getSisPessoa().setRg(f.getRg());
+//                            }
+//                            if (!f.getPessoa().getTelefone1().isEmpty()) {
+//                                conviteMovimento.getSisPessoa().setTelefone(f.getPessoa().getTelefone1());
+//                            }
+//                            if (!f.getPessoa().getTelefone3().isEmpty()) {
+//                                conviteMovimento.getSisPessoa().setCelular(f.getPessoa().getTelefone3());
+//                            }
+//                            if (f.getPessoa().getPessoaEndereco() != null && f.getPessoa().getPessoaEndereco().getId() != -1) {
+//                                conviteMovimento.getSisPessoa().setEndereco(f.getPessoa().getPessoaEndereco().getEndereco());
+//                                conviteMovimento.getSisPessoa().setNumero(f.getPessoa().getPessoaEndereco().getNumero());
+//                                conviteMovimento.getSisPessoa().setComplemento(f.getPessoa().getPessoaEndereco().getComplemento());
+//                            }
+//                        }
                     }
                 }
             }
@@ -918,30 +960,52 @@ public class ConviteMovimentoBean implements Serializable {
 
     public List<SelectItem> getConviteServicos() {
         if (conviteServicos.isEmpty()) {
-            Dao dao = new Dao();
+            int diaDaSemana = DataHoje.diaDaSemana(new Date());
             List<ConviteServico> list = new ConviteDao().listaConviteServicoCortesia(conviteMovimento.isCortesia());
             int i = 0;
+            boolean ok = false;
             for (ConviteServico cs : list) {
                 List listSemana = new ArrayList();
                 if (cs.isDomingo()) {
                     listSemana.add("Dom");
+                    if (diaDaSemana == 1 && !ok) {
+                        idServico = i;
+                    }
                 }
                 if (cs.isSegunda()) {
                     listSemana.add("Seg");
+                    if (diaDaSemana == 2 && !ok) {
+                        idServico = i;
+                    }
                 }
                 if (cs.isTerca()) {
                     listSemana.add("Ter");
+                    if (diaDaSemana == 3 && !ok) {
+                        idServico = i;
+                    }
                 }
                 if (cs.isQuarta()) {
                     listSemana.add("Qua");
+                    if (diaDaSemana == 4 && !ok) {
+                        idServico = i;
+                    }
                 }
                 if (cs.isQuinta()) {
                     listSemana.add("Qui");
+                    if (diaDaSemana == 5 && !ok) {
+                        idServico = i;
+                    }
                 }
                 if (cs.isSexta()) {
                     listSemana.add("Sex");
+                    if (diaDaSemana == 6 && !ok) {
+                        idServico = i;
+                    }
                 }
                 if (cs.isSabado()) {
+                    if (diaDaSemana == 7 && !ok) {
+                        idServico = i;
+                    }
                     listSemana.add("Sáb");
                 }
                 if (cs.isFeriado()) {

@@ -60,7 +60,7 @@ public class PhotoCapture implements Serializable {
         renderedPhotoCapture = true;
 
         PF.openDialog("dlg_photo_capture");
-        PF.update("form_photo_capture");
+        // PF.update("form_photo_capture");
     }
 
     public void openAndSave(Fisica aFisica, String aUpdate) {
@@ -70,7 +70,7 @@ public class PhotoCapture implements Serializable {
         renderedPhotoCapture = true;
 
         PF.openDialog("dlg_photo_capture");
-        PF.update("form_photo_capture");
+        // PF.update("form_photo_capture");
     }
 
     public void openAndSave(Juridica aJuridica, String aUpdate) {
@@ -80,7 +80,7 @@ public class PhotoCapture implements Serializable {
         renderedPhotoCapture = true;
 
         PF.openDialog("dlg_photo_capture");
-        PF.update("form_photo_capture");
+        // PF.update("form_photo_capture");
     }
 
     public void openAndSave(SisPessoa aSisPessoa, String aTipo, String aUpdate) {
@@ -91,13 +91,13 @@ public class PhotoCapture implements Serializable {
         renderedPhotoCapture = true;
 
         PF.openDialog("dlg_photo_capture");
-        PF.update("form_photo_capture");
+        // PF.update("form_photo_capture");
     }
 
     public void close() {
         renderedPhotoCapture = false;
         PF.closeDialog("dlg_photo_capture");
-        PF.update("form_photo_capture");
+        // PF.update("form_photo_capture");
     }
 
     public void unload() {

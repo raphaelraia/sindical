@@ -68,7 +68,7 @@
                                 </h:panelGrid>
                                 <br />
                                 <h:panelGroup id="i_history" styleClass="margin-top-max">
-                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{menuLocadoraBean.listLocadoraMovimento}" var="locadoraMovimento">
+                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{menuLocadoraBean.listLocadoraMovimento}" var="locadoraMovimento" paginator="true" rows="10">
                                         <p:column style="width:15px">  
                                             <p:rowToggler />  
                                         </p:column>

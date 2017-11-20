@@ -193,7 +193,7 @@
                     <h:form id="form_ws_sa">
                         <span id="messageGoesHere"></span>
                         <script type="text/javascript">
-                            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},sisautorizacoes");
+                            var ws = new WebSocket("#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/client:#{controleUsuarioBean.clienteLowerCaseString},sisautorizacoes");
 
                             ws.onopen = function (event) {
                                 console.log("Connected ", event);
