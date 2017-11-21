@@ -295,6 +295,14 @@ public class DevolucaoFilmeBean implements Serializable {
             GenericaMensagem.warn("Validação", "Adicione filmes para concluir esta locação!");
             return;
         }
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                if (listLocadoraMovimento.get(i).getDiasAtraso() > 0) {
+                    GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL RELOCAR FILMES EM ATRASO!");
+                    return;
+                }
+            }
+        }
         ConfiguracaoLocadora cf = ConfiguracaoLocadoraBean.get();
         if (cf == null || cf.getServicos() == null) {
             GenericaMensagem.warn("Validação", "Informar serviço da locadora! Menu Principal > Segurança > Departamentos");
@@ -305,30 +313,64 @@ public class DevolucaoFilmeBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar serviço da locadora!");
             return;
         }
-        int nrQtRelocacao = 0;
-        int nrQtRelocacaoLancamentos = 0;
+        if (cf.getNrQtRelocacao().equals(0)) {
+            GenericaMensagem.warn("Sistema", "Não há quantidade de relocações configurada!");
+            return;
+        }
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
-            nrQtRelocacao++;
-            if (listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
-                nrQtRelocacaoLancamentos++;
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                if (DataHoje.data().equals(listLocadoraMovimento.get(i).getLocadoraLote().getDataLocacaoString())) {
+                    listLocadoraMovimento.get(i).setSelected(false);
+                    GenericaMensagem.warn("Validação", "Não é possível relocar o título no dia da locação! Título: " + listLocadoraMovimento.get(i).getTitulo().getDescricao());
+                    return;
+                }
             }
         }
-        if (nrQtRelocacao > cf.getNrQtRelocacao()) {
-            GenericaMensagem.warn("Validação", "Número de relocação excedido, limite é de !" + cf.getNrQtRelocacao() + " filmes!");
-            return;
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                if (listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
+                    if (listLocadoraMovimento.get(i).getNrQtRelocacao().equals(cf.getNrQtRelocacao())) {
+                        listLocadoraMovimento.get(i).setSelected(false);
+                        GenericaMensagem.warn("Validação", "Número de relocação excedido, limite é de !" + cf.getNrQtRelocacao() + " para o título " + listLocadoraMovimento.get(i).getTitulo().getDescricao());
+                        return;
+                    }
+                }
+            }
         }
-        if (nrQtRelocacaoLancamentos > cf.getNrQtRelocacaoLancamento()) {
-            GenericaMensagem.warn("Validação", "Número de relocação para lançamentos excedido, limite é de !" + cf.getNrQtRelocacaoLancamento() + " filmes!");
-            return;
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                if (listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
+                    if (listLocadoraMovimento.get(i).getNrQtRelocacao().equals(cf.getNrQtRelocacaoLancamento())) {
+                        listLocadoraMovimento.get(i).setSelected(false);
+                        GenericaMensagem.warn("Validação", "Número de relocação para lançamentos excedido, limite é de !" + cf.getNrQtRelocacaoLancamento() + " para o título " + listLocadoraMovimento.get(i).getTitulo().getDescricao());
+                        return;
+                    }
+                }
+            }
         }
+        DataHoje dataHoje = new DataHoje();
         Dao dao = new Dao();
         Lote lote = new Lote();
         Double valorTotal = new Double(0);
         FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), 3);
         Departamento departamento = (Departamento) dao.find(new Departamento(), 19);
         dao.openTransaction();
+        LocadoraLote loteRelocacao = new LocadoraLote();
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            LocadoraMovimento movimentoRelocacao = new LocadoraMovimento();
             if (listLocadoraMovimento.get(i).getSelected()) {
+                if (loteRelocacao.getId() == null) {
+                    loteRelocacao.setId(null);
+                    loteRelocacao.setDtLocacao(new Date());
+                    loteRelocacao.setUsuario(Usuario.getUsuario());
+                    loteRelocacao.setFilial(listLocadoraMovimento.get(i).getLocadoraLote().getFilial());
+                    loteRelocacao.setPessoa(listLocadoraMovimento.get(i).getLocadoraLote().getPessoa());
+                    if (!dao.save(loteRelocacao)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "Ao salvar locadora lote para relocação!");
+                        return;
+                    }
+                }
                 if (listLocadoraMovimento.get(i).getDtDevolucao() == null) {
                     listLocadoraMovimento.get(i).setSelected(false);
                     listLocadoraMovimento.get(i).setDtDevolucao(DataHoje.dataHoje());
@@ -432,6 +474,31 @@ public class DevolucaoFilmeBean implements Serializable {
                         GenericaMensagem.warn("Erro", "Ao salvar locadora movimento!");
                         return;
                     }
+                    if (loteRelocacao.getId() != null) {
+                        if (movimentoRelocacao.getId() == null) {
+                            movimentoRelocacao.setId(null);
+                            movimentoRelocacao.setDtDevolucao(null);
+                            movimentoRelocacao.setLocadoraLote(loteRelocacao);
+                            movimentoRelocacao.setMovimento(null);
+                            movimentoRelocacao.setOperadorDevolucao(null);
+                            movimentoRelocacao.setTitulo(listLocadoraMovimento.get(i).getTitulo());
+                            movimentoRelocacao.setValorTotal(listLocadoraMovimento.get(i).getValorTotal());
+                            movimentoRelocacao.setValorMultaDiaria(listLocadoraMovimento.get(i).getValorMultaDiaria());
+                            int nrQtRelocacao = listLocadoraMovimento.get(i).getNrQtRelocacao();
+                            if (nrQtRelocacao == 0) {
+                                movimentoRelocacao.setNtQtRelocacao(1);
+                            } else {
+                                movimentoRelocacao.setNtQtRelocacao(nrQtRelocacao++);
+                            }
+                            movimentoRelocacao.setDataDevolucaoPrevisaoString(dataHoje.incrementarDias(locadoraStatus.getDiasDevolucao(), DataHoje.data()));
+                            if (!dao.save(movimentoRelocacao)) {
+                                dao.rollback();
+                                GenericaMensagem.warn("Sistema", "Ao salvar locadora movimento para relocação!");
+                                return;
+                            }
+
+                        }
+                    }
                 }
             }
         }
@@ -440,8 +507,9 @@ public class DevolucaoFilmeBean implements Serializable {
             lote.setValor(valorTotal);
             dao.update(lote, true);
         }
+        loadLocadoraMovimento();
         GenericaSessao.remove("menuLocadoraBean");
-        GenericaMensagem.info("Sucesso", "Devolução concluída!");
+        GenericaMensagem.info("Sucesso", "Relocação concluída!");
     }
 
     public void rollBack() {

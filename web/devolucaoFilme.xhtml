@@ -73,7 +73,7 @@
                                 <h:panelGrid rendered="#{devolucaoFilmeBean.locatario.id ne -1}" styleClass="margin-top-max">
                                     <h:panelGrid id="i_history">
                                         <p:panel>
-                                            <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{devolucaoFilmeBean.listLocadoraMovimento}" var="locadoraMovimento">
+                                            <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{devolucaoFilmeBean.listLocadoraMovimento}" var="locadoraMovimento" rowStyleClass="#{locadoraMovimento.titulo.lancamento ? 'font-color-blue' : ''}">
                                                 <p:column style="width:15px">  
                                                     <p:rowToggler />  
                                                 </p:column>                                              
@@ -109,6 +109,7 @@
                                                         <h:column>Autorizado: #{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</h:column>                                                    
                                                         <h:column>Lote: #{locadoraMovimento.movimento.lote != null ? locadoraMovimento.movimento.lote.id : ''}</h:column>
                                                         <h:column>OPERADOR: #{locadoraMovimento.operadorDevolucao.pessoa.nome}</h:column>
+                                                        <h:column>NÚMERO DE RELOCAÇÕES: #{locadoraMovimento.nrQtRelocacao}</h:column>
                                                         <h:column>#{locadoraMovimento.titulo.lancamento ? 'LANÇAMENTO' : ''}</h:column>
                                                     </p:panelGrid>
                                                 </p:rowExpansion>
@@ -116,7 +117,7 @@
                                             <f:facet name="header">
                                                 <h:panelGrid id="i_devolver" columns="3" cellspacing="5">
                                                     <p:commandButton onclick="PF('dlg_save').show();" value="DEVOLVER" disabled="#{controleAcessoBean.botaoSalvar or !devolucaoFilmeBean.devolver}" title="Devolver esses titulos" styleClass="font-color-red" style="font-weight: bold;"/>
-                                                    <p:commandButton onclick="PF('dlg_relocar').show();" value="RELOCAÇÃO" disabled="#{controleAcessoBean.botaoSalvar or !devolucaoFilmeBean.devolver}" title="Relocar esses titulos" styleClass="font-color-red" style="font-weight: bold;" rendered="false" />
+                                                    <p:commandButton onclick="PF('dlg_relocar').show();" value="RELOCAÇÃO" disabled="#{controleAcessoBean.botaoSalvar or !devolucaoFilmeBean.devolver}" title="Relocar esses titulos" styleClass="font-color-red" style="font-weight: bold;" />
                                                 </h:panelGrid>
                                             </f:facet>
                                             <f:facet name="footer">

@@ -72,7 +72,7 @@
                                         <h:column>
                                             <h:panelGrid columns="5">
                                                 <p:inputText size="15" maxlength="18" value="#{locacaoFilmeBean.codigoBarras}" styleClass="font-size-14 input-text-med bg-yellow-ligth text-center" onkeypress="return event.keyCode !== 13;" placeholder="Código" id="barcode">
-                                                    <p:ajax event="change" update="@this i_panel_filme" listener="#{locacaoFilmeBean.listener(2)}" />
+                                                    <p:ajax event="change" update="@this :form_locacao_filmes:" listener="#{locacaoFilmeBean.listener(2)}" />
                                                 </p:inputText>
                                                 <h:column>
                                                     <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaTitulo', 'tituloBean')}" title="Pesquisar" icon="ui-icon-search" actionListener="#{locacaoFilmeBean.listener(3)}" />
@@ -90,7 +90,7 @@
                                                 </h:panelGroup>
                                             </h:column>
                                             <p:outputLabel value="(Lançamento)" styleClass="bold font-color-red" rendered="#{locacaoFilmeBean.titulo.id ne null and locacaoFilmeBean.titulo.lancamento}"/>
-                                            <p:commandButton type="button" icon="ui-icon-info" onclick="PF('dlg_detalhes_filme').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_filme :form_locacao_filmes:i_detalhes_filme_t" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
+                                            <p:commandButton type="button" icon="ui-icon-info" onclick="PF('dlg_detalhes_filme').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_filme_t :form_locacao_filmes:i_detalhes_filme" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
                                             <p:commandButton icon="ui-icon-close" action="#{locacaoFilmeBean.listener(5)}"  title="Limpar" update=":form_locacao_filmes:" styleClass="margin-left-max" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
                                         </h:panelGrid>
                                     </h:panelGrid>
