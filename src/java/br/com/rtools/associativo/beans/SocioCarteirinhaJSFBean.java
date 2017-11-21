@@ -244,7 +244,13 @@ public class SocioCarteirinhaJSFBean {
 
             sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             pesEndSindicato = dbEnd.pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 2);
+            
+            File logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPersonalizado.png"));
 
+            if (!logo_cliente.exists()){
+                logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            }
+            
             for (int i = 0; i < listaSoc.size(); i++) {
                 if ((Boolean) ((DataObject) listaSoc.get(i)).getArgumento0()) {
                     fisica = db.pesquisaFisicaPorPessoa(((Socios) ((DataObject) listaSoc.get(i)).getArgumento1()).getServicoPessoa().getPessoa().getId());
@@ -388,7 +394,7 @@ public class SocioCarteirinhaJSFBean {
                                 dados[23],
                                 dados[24],
                                 dados[25],
-                                ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Imagens/LogoCliente.png"),
+                                logo_cliente.getAbsolutePath(),
                                 "", // obs
                                 ((Socios) ((DataObject) listaSoc.get(i)).getArgumento1()).getParentesco().getParentesco(),
                                 sindicato.getPessoa().getNome(),
@@ -474,7 +480,7 @@ public class SocioCarteirinhaJSFBean {
                                     "",
                                     "",
                                     "",
-                                    ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Imagens/LogoCliente.png"),
+                                    logo_cliente.getAbsolutePath(),
                                     "",
                                     deps.get(n).getParentesco().getParentesco(),
                                     "",
@@ -546,6 +552,12 @@ public class SocioCarteirinhaJSFBean {
 
             sindicato = (Juridica) new Dao().find(new Juridica(), 1);
             pesEndSindicato = dbEnd.pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 2);
+            
+            File logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPersonalizado.png"));
+            
+            if (!logo_cliente.exists()){
+                logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            }
 
             for (int i = 0; i < listaSoc.size(); i++) {
                 if ((Boolean) ((DataObject) listaSoc.get(i)).getArgumento0()) {
@@ -690,7 +702,7 @@ public class SocioCarteirinhaJSFBean {
                                 dados[23],
                                 dados[24],
                                 dados[25],
-                                ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Imagens/LogoCliente.png"),
+                                logo_cliente.getAbsolutePath(),
                                 "", // obs
                                 ((Socios) ((DataObject) listaSoc.get(i)).getArgumento1()).getParentesco().getParentesco(),
                                 sindicato.getPessoa().getNome(),

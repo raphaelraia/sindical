@@ -264,10 +264,10 @@ public class ImpressaoParaSocios {
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(entry.getValue());
                 jasper = (JasperReport) JRLoader.loadObject(file);
                 File subreportFile = new File(subreport);
-                if(subreportFile.exists()) {
+                if (subreportFile.exists()) {
                     if (subreport != null) {
                         map.put("template_dir", subreport);
-                    }                    
+                    }
                 }
 
                 // EM PRODUÇÃO COMPACTA CARTÕES EM GRANDES QUANTIDADES E PARTICIONA - BRUNO
@@ -304,7 +304,7 @@ public class ImpressaoParaSocios {
                     );
                     if (fileVerso.exists()) {
                         //* ADD LISTA DE JASPERS *//
-                            dtSource = new JRBeanCollectionDataSource(entry.getValue());
+                        dtSource = new JRBeanCollectionDataSource(entry.getValue());
                         jasperVerso = (JasperReport) JRLoader.loadObject(fileVerso);
                         ljasper.add(Jasper.fillObject(jasperVerso, map, dtSource));
                     }
@@ -375,6 +375,13 @@ public class ImpressaoParaSocios {
         fisica = db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId());
         pesEndereco = dbEnd.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
         sindicato = (Juridica) dao.find(new Juridica(), 1);
+
+        File logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPersonalizado.png"));
+
+        if (!logo_cliente.exists()) {
+            logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+        }
+
         if (pessoaEmpresa != null) {
             if (pessoaEmpresa.getId() != -1) {
                 pesEndEmpresa = dbEnd.pesquisaEndPorPessoaTipo(pessoaEmpresa.getJuridica().getPessoa().getId(), 2);
@@ -526,7 +533,7 @@ public class ImpressaoParaSocios {
                     dados[23],
                     dados[24],
                     dados[25],
-                    ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                    logo_cliente.getAbsolutePath(),
                     registro.getFichaSocial(), // obs
                     socios.getParentesco().getParentesco(),
                     sindicato.getPessoa().getNome(),
@@ -610,7 +617,7 @@ public class ImpressaoParaSocios {
                         "",
                         "",
                         "",
-                        ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                        logo_cliente.getAbsolutePath(),
                         registro.getFichaSocial(), // obs
                         deps.get(n).getParentesco().getParentesco(),
                         "",
@@ -688,6 +695,12 @@ public class ImpressaoParaSocios {
         Dao dao = new Dao();
         try {
             FacesContext faces = FacesContext.getCurrentInstance();
+            File logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPersonalizado.png"));
+
+            if (!logo_cliente.exists()) {
+                logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            }
+
             //HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
             Collection listaSocios = new ArrayList<FichaSocial>();
             JasperReport jasper = (JasperReport) JRLoader.loadObject(
@@ -840,7 +853,7 @@ public class ImpressaoParaSocios {
                             dados[23],
                             dados[24],
                             dados[25],
-                            ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                            logo_cliente.getAbsolutePath(),
                             "", // obs
                             listaSocs.get(i).getParentesco().getParentesco(),
                             sindicato.getPessoa().getNome(),
@@ -912,14 +925,14 @@ public class ImpressaoParaSocios {
         String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/fichas");
         PessoaEnderecoDao enderecoDB = new PessoaEnderecoDao();
         Dao dao = new Dao();
-        
+
         FacesContext faces = FacesContext.getCurrentInstance();
         File logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPersonalizado.png"));
-        
-        if (!logo_cliente.exists()){
+
+        if (!logo_cliente.exists()) {
             logo_cliente = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
         }
-        
+
         try {
             Collection listaSocios = new ArrayList<>();
             Juridica sindicato = (Juridica) dao.find(new Juridica(), 1);
