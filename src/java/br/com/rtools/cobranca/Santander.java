@@ -5,6 +5,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.StatusRemessa;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -40,8 +41,6 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -50,9 +49,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.ServletContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -639,12 +636,13 @@ public class Santander extends Cobranca {
     public RespostaArquivoRemessa gerarRemessa400() {
         return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
-    
+
     @Override
     public RespostaWebService registrarBoleto() {
-        
+
         try {
-            File flCert = new File("C:/PC201707105759.pfx");
+            //File flCert = new File("C:/PC201707105759.pfx");
+            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
             KeyStore clientStore = KeyStore.getInstance("PKCS12");
             clientStore.load(new FileInputStream(flCert.getAbsolutePath()), "sisrtools989899".toCharArray());
 
@@ -682,13 +680,53 @@ public class Santander extends Cobranca {
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 
             // Mensagem no Formato SOAP
-            String xml = TICKET_SEG_CONSULTA();
+            //String xml = TICKET_SEG_CONSULTA();
+            Pessoa pessoa = boleto.getPessoa();
+            String td = "";
+            if (pessoa.getTipoDocumento().getId() == 1) { // CPF
+                td = "01"; // CPF
+            } else if (pessoa.getTipoDocumento().getId() == 2) { // CNPJ
+                td = "02"; // CNPJ
+            }
+
+            String endereco = pessoa.getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + pessoa.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao();
+            String bairro = pessoa.getPessoaEndereco().getEndereco().getBairro().getDescricao();
+            String cidade = pessoa.getPessoaEndereco().getEndereco().getCidade().getCidade();
+            String uf = pessoa.getPessoaEndereco().getEndereco().getCidade().getUf();
+            String cep = pessoa.getPessoaEndereco().getEndereco().getCep().replace(".", "").replace("-", "");
+
+//            String valor_titulo = boleto.getValorString().replace(".", "").replace(",", "");
+            String valor_titulo = Moeda.converteDoubleToString(valor).replace(".", "").replace(",", "");
+            valor_titulo = "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo;
+
+            String pagador_nome = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(pessoa.getNome()));
+            String pagador_endereco = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(endereco));
+            String pagador_bairro = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(bairro));
+
+            pagador_nome = (pagador_nome + "                                        ").substring(0, 40).trim();
+            pagador_endereco = (pagador_endereco + "                                        ").substring(0, 40).trim();
+
+            String xml = TICKET_SEG_ENTRADA_TITULO(
+                    boleto.getContaCobranca().getCodCedente(),
+                    td,
+                    pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", ""),
+                    pagador_nome,
+                    pagador_endereco,
+                    pagador_bairro,
+                    AnaliseString.normalizeUpper(cidade),
+                    uf,
+                    cep,
+                    getNossoNumeroFormatado().replace("-", ""),
+                    DataHoje.converteData(vencimento).replace("/", ""),
+                    DataHoje.data().replace("/", ""),
+                    "02", // CÓDIGO PARA 'DM'(duplicata mercantil)) NO MANUAL SANTANDER //boleto.getContaCobranca().getEspecieDoc().toUpperCase(),
+                    valor_titulo
+            );
 
             wr.write(xml);
             wr.flush();
 
-            System.out.println("Requisição >>  " + conn.getOutputStream());
-
+//            System.out.println("Requisição >>  " + conn.getOutputStream());
             // Leitura da Resposta do Serviço
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
@@ -712,11 +750,9 @@ public class Santander extends Cobranca {
 
             String requestQueueID = getString("retCode", rootElement);
 
-            String requestQueueMessage = getString("message", rootElement);
-
-            System.out.println("Get Element ID >>  " + requestQueueID);
-            System.out.println("Get Element Message >>  " + requestQueueMessage);
-
+//            String requestQueueMessage = getString("message", rootElement);
+//            System.out.println("Get Element ID >>  " + requestQueueID);
+//            System.out.println("Get Element Message >>  " + requestQueueMessage);
             if (requestQueueID.equals("0")) {
 
                 String requestTicket = getString("ticket", rootElement);
@@ -739,17 +775,20 @@ public class Santander extends Cobranca {
 
                 wr = new OutputStreamWriter(conn.getOutputStream());
 
-                String xmlTicket = TICKET_CONSULTA(requestTicket);
+                //String xmlTicket = TICKET_CONSULTA(requestTicket, "TST");
+                String nsu = "" + boleto.getId();
+
+                String xmlTicket = TICKET_ENTRADA(requestTicket, nsu);
 
                 wr.write(xmlTicket);
                 wr.flush();
 
-                System.out.println("Requisição >>  " + conn.getOutputStream());
-
+                //System.out.println("Requisição >>  " + conn.getOutputStream());
                 // Leitura da Resposta do Serviço
                 rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
                 // Leituras das Linhas da Resposta
+                linhas = "";
                 while (rd.ready()) {
                     linhas += rd.readLine();
                 }
@@ -766,19 +805,52 @@ public class Santander extends Cobranca {
 
                 rootElement = document.getDocumentElement();
 
+                String resultSituacao = getString("situacao", rootElement);
+
+                if (resultSituacao.equals("00")) { // BOLETO REGISTRADO
+                    if (boleto.getDtCobrancaRegistrada() == null) {
+                        Dao dao = new Dao();
+
+                        boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                        boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                        boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+                        dao.update(boleto, true);
+                    }
+                    return new RespostaWebService(boleto, "");
+                } else {
+
+                    String resultMessage = getString("descricaoErro", rootElement);
+
+                    if (resultMessage.contains("@ERYKE0001")) {
+                        if (boleto.getDtCobrancaRegistrada() == null) {
+                            Dao dao = new Dao();
+
+                            boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                            boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                            boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+                            dao.update(boleto, true);
+                        }
+                        return new RespostaWebService(boleto, "");
+                    }
+
+                    return new RespostaWebService(null, resultMessage);
+                }
             }
 
-            System.out.println("Resposta >>  " + linhas);
+            //System.out.println("Resposta >>  " + linhas);
+            return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | ParserConfigurationException | SAXException e) {
             e.getMessage();
         } finally {
             System.out.println("Fim");
         }
-        
+
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
-        
+
     }
-    
+
     protected String getString(String tagName, Element element) {
         NodeList list = element.getElementsByTagName(tagName);
         if (list != null && list.getLength() > 0) {
@@ -790,6 +862,132 @@ public class Santander extends Cobranca {
         }
 
         return null;
+    }
+
+    public String TICKET_SEG_ENTRADA_TITULO(String CONVENIO, String TIPO_DOCUMENTO, String NUM_DOCUMENTO, String NOME, String ENDERECO, String BAIRRO, String CIDADE, String UF, String CEP, String NOSSO_NUMERO, String VENCIMENTO, String EMISSAO, String ESPECIE, String VALOR) {
+        return "<soapenv:Envelope\n"
+                + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
+                + "    xmlns:impl=\"http://impl.webservice.dl.app.bsbr.altec.com/\">\n"
+                + "    <soapenv:Header/>\n"
+                + "    <soapenv:Body>\n"
+                + "        <impl:create>\n"
+                + "            <TicketRequest>\n"
+                + "                <dados>\n"
+                + "                    <entry>\n"
+                + "                        <key>CONVENIO.COD-BANCO</key>\n"
+                + "                        <value>0033</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>CONVENIO.COD-CONVENIO</key>\n"
+                + "                        <value>" + CONVENIO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.TP-DOC</key>\n"
+                + "                        <value>" + TIPO_DOCUMENTO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.NUM-DOC</key>\n"
+                + "                        <value>" + NUM_DOCUMENTO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.NOME</key>\n"
+                + "                        <value>" + NOME + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.ENDER</key>\n"
+                + "                        <value>" + ENDERECO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.BAIRRO</key>\n"
+                + "                        <value>" + BAIRRO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.CIDADE</key>\n"
+                + "                        <value>" + CIDADE + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.UF</key>\n"
+                + "                        <value>" + UF + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>PAGADOR.CEP</key>\n"
+                + "                        <value>" + CEP + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>TITULO.NOSSO-NUMERO</key>\n"
+                + "                        <value>" + NOSSO_NUMERO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>TITULO.SEU-NUMERO </key>\n"
+                + "                        <value>" + NOSSO_NUMERO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>TITULO.DT-VENCTO</key>\n"
+                + "                        <value>" + VENCIMENTO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>TITULO.DT-EMISSAO</key>\n"
+                + "                        <value>" + EMISSAO + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>TITULO.ESPECIE</key>\n"
+                + "                        <value>" + ESPECIE + "</value>\n"
+                + "                    </entry>\n"
+                + "                    <entry>\n"
+                + "                        <key>TITULO.VL-NOMINAL</key>\n"
+                + "                        <value>" + VALOR + "</value>\n"
+                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.PC-MULTA</key>\n"
+                //                + "                        <value>00000</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.QT-DIAS-MULTA</key>\n"
+                //                + "                        <value>00</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.PC-JURO</key>\n"
+                //                + "                        <value>00000</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.TP-DESC</key>\n"
+                //                + "                        <value>0</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.VL-DESC</key>\n"
+                //                + "                        <value>000000000000000</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.DT-LIMI-DESC</key>\n"
+                //                + "                        <value>00000000</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.VL-ABATIMENTO</key>\n"
+                //                + "                        <value>000000000000000</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.TP-PROTESTO</key>\n"
+                //                + "                        <value>0</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.QT-DIAS-PROTESTO</key>\n"
+                //                + "                        <value>0</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>TITULO.QT-DIAS-BAIXA</key>\n"
+                //                + "                        <value>0</value>\n"
+                //                + "                    </entry>\n"
+                //                + "                    <entry>\n"
+                //                + "                        <key>MENSAGEM</key>\n"
+                //                + "                        <value></value>\n"
+                //                + "                    </entry>\n"
+                + "                </dados>\n"
+                + "                <expiracao>100</expiracao>\n"
+                + "                <sistema>YMB</sistema>\n"
+                + "            </TicketRequest>\n"
+                + "        </impl:create>\n"
+                + "    </soapenv:Body>\n"
+                + "</soapenv:Envelope>";
     }
 
     public String TICKET_SEG_CONSULTA() {
@@ -818,7 +1016,7 @@ public class Santander extends Cobranca {
                 + "</soapenv:Envelope>";
     }
 
-    public String TICKET_CONSULTA(String ticket_seg) {
+    public String TICKET_CONSULTA(String ticket_seg, String NSU) {
         return "<soapenv:Envelope\n"
                 + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
                 + "    xmlns:impl=\"http://impl.webservice.ymb.app.bsbr.altec.com/\">\n"
@@ -826,9 +1024,9 @@ public class Santander extends Cobranca {
                 + "    <soapenv:Body>\n"
                 + "        <impl:consultaTitulo>\n"
                 + "            <dto>\n"
-                + "                <dtNsu>21082017</dtNsu>\n"
+                + "                <dtNsu>" + DataHoje.data().replace("/", "") + "</dtNsu>\n"
                 + "                <estacao>08D1</estacao>\n"
-                + "                <nsu>0001</nsu>\n"
+                + "                <nsu>" + NSU + "</nsu>\n" // 'TST' PARA TESTE, EM PRODUÇÃO NÃO SEI O QUE COLOCAR, APARENTEMENTE DEIXA VAZIO
                 + "                <ticket>" + ticket_seg + "</ticket>\n"
                 + "                <tpAmbiente>T</tpAmbiente>\n"
                 + "            </dto>\n"
@@ -836,5 +1034,24 @@ public class Santander extends Cobranca {
                 + "    </soapenv:Body>\n"
                 + "</soapenv:Envelope>";
     }
-            
+
+    public String TICKET_ENTRADA(String ticket_seg, String NSU) {
+        return "<soapenv:Envelope\n"
+                + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
+                + "    xmlns:impl=\"http://impl.webservice.ymb.app.bsbr.altec.com/\">\n"
+                + "    <soapenv:Header/>\n"
+                + "    <soapenv:Body>\n"
+                + "        <impl:registraTitulo>\n"
+                + "            <dto>\n"
+                + "                <dtNsu>" + DataHoje.data().replace("/", "") + "</dtNsu>\n"
+                + "                <estacao>08D1</estacao>\n"
+                + "                <nsu>" + NSU + "</nsu>\n" // 'TST' PARA TESTE, EM PRODUÇÃO NÃO SEI O QUE COLOCAR, APARENTEMENTE DEIXA VAZIO
+                + "                <ticket>" + ticket_seg + "</ticket>\n"
+                + "                <tpAmbiente>P</tpAmbiente>\n"
+                + "            </dto>\n"
+                + "        </impl:registraTitulo>\n"
+                + "    </soapenv:Body>\n"
+                + "</soapenv:Envelope>";
+    }
+
 }

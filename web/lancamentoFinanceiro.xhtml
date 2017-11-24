@@ -581,6 +581,12 @@
                                             <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo"/>
                                         </h:commandLink>
                                     </p:column>
+                                    
+                                    <p:column style="text-align: center; width: 45px" headerText="Editar">
+                                        <h:commandLink action="#{lancamentoFinanceiroBean.editarParcela(parcela.movimento)}" title="Editar esta Parcela" rendered="#{parcela.movimento.baixa ne null}">
+                                            <p:commandButton icon="ui-icon-edit" title="Editar esta Parcela"/>
+                                        </h:commandLink>
+                                    </p:column>
 
                                     <p:rowExpansion>
                                         <h:panelGrid columns="4" style="height: 40px">
