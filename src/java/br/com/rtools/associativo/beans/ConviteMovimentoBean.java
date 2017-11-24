@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.ConfiguracaoSocial;
@@ -106,6 +107,7 @@ public class ConviteMovimentoBean implements Serializable {
     private String dataFinal = "";
 
     private ConfiguracaoSocial configuracaoSocial;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
     //private double desconto = 0;
 
     private Integer indexTipoDocumento = 0;
@@ -115,6 +117,7 @@ public class ConviteMovimentoBean implements Serializable {
         loadUsuario();
         configuracaoSocial = new ConfiguracaoSocial();
         configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
         //PhotoCapture.load("temp/convite/" + usuario.getId(), "form_convite:panel_foto");
         loadListTipoDocumento();
     }
@@ -354,7 +357,7 @@ public class ConviteMovimentoBean implements Serializable {
 
         OposicaoDao odbt = new OposicaoDao();
         if (configuracaoSocial.getBloqueiaConviteOposicao()) {
-            Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getPessoa().getDocumento());
+            Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getPessoa().getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
             if (temOposicao) {
                 //message = "Sócio cadastrado em Oposição!";
                 GenericaMensagem.fatal("ATENÇÃO", "SÓCIO CADASTRADO EM OPOSIÇÃO!");

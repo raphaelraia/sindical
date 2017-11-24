@@ -14,13 +14,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import static javax.print.attribute.standard.ReferenceUriSchemesSupported.HTTPS;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
+import sun.net.www.http.HttpClient;
 
 /**
  *
@@ -65,7 +71,7 @@ public class JuridicaReceitaJSON {
         try {
             JuridicaReceitaObject jro = new JuridicaReceitaObject();
             URL url;
-            Charset charset = Charset.forName("UTF8");
+            Charset charset = Charset.forName("UTF-8");
             Integer status;
             String statusBoolean = "OK";
             String error = "";
@@ -77,7 +83,8 @@ public class JuridicaReceitaJSON {
             HttpURLConnection con;
             switch (tipo) {
                 case "hubdodesenvolvedor":
-                    /*
+                    try {
+                        /*
                      * 0 (zero): requisição feita com sucesso.
                      * 1: requisição feita com sucesso, porém dados estão sendo atualizados; aguarde o tempo indicado e refaça exatamente a mesma requisição.
                      * 2: requisição feita com sucesso, porém dado requisitado não existe no site fonte.
@@ -88,76 +95,140 @@ public class JuridicaReceitaJSON {
                      * 7: erro, você não possui acessos restantes para realizar a requisição; adquira mais acessos.
                      * 8: erro, ocorreu um erro ao processar sua requisição; contate o suporte técnico.
                      * 9: erro, é necessário realizar todas as requisições utilizando oprotocolo HTTPS.
-                     */
-                    // 2235824594887334ABV16325666555
-                    cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
-                    // http://ws.hubdodesenvolvedor.com.br/cnpj/
-                    if (cc == null) {
-                        url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + "");
-                    } else {
-                        if (cc.getDias() == 0) {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
-                        } else {
-                            url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + cc.getToken());
+                         */
+                        // 2235824594887334ABV16325666555
+                        cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
+                        if (cc == null) {
+                            GenericaMensagem.warn("Sistema", "Configuração do CNPJ não encontrada!");
+                            return null;
                         }
-                    }
-                    con = (HttpURLConnection) url.openConnection();
-                    con.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36");
-                    con.setRequestMethod("GET");
-                    con.connect();
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
-                        StringBuilder sb = new StringBuilder();
-                        String line;
-                        while ((line = in.readLine()) != null) {
-                            sb.append(line);
+                        String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?";
+                        query += "cnpj=" + URLEncoder.encode(documento, "UTF-8");
+                        query += "&";
+                        query += "token=" + URLEncoder.encode(cc.getToken(), "UTF-8");
+                        if (cc.getDias() == 0) {
+                            query += "&";
+                            query += "ignore_db=" + URLEncoder.encode("true", "UTF-8");
                         }
 
+                        // http://ws.hubdodesenvolvedor.com.br/cnpj/
+//                        if (cc == null) {
+//                            url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + "");
+//                        } else {
+//                            if (cc.getDias() == 0) {
+//                                //url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + cc.getToken() + "&ignore_db=true");
+//                                url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/");
+//                            } else {
+//                                // url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?cnpj=" + documento + "&token=" + cc.getToken());
+//                                url = new URL("https://ws.hubdodesenvolvedor.com.br/v2/cnpj2/");
+//                            }
+//                        }
+                        // HttpGet requestget = new HttpGet(query);
+                        url = new URL(query);
+                        con = (HttpURLConnection) url.openConnection();
+                        con.setRequestMethod("GET");
+                        // con.setRequestProperty("Content-length", String.valueOf(query.length()));
+                        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+                        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                        con.setDoInput(true);
+                        con.setDoOutput(true);
+
+                        int responseCode = con.getResponseCode();
+
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.warn("Sending", "GET request to URL : " + url);
+                            GenericaMensagem.warn("Response Code", "" + responseCode);
+                        }
+
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.info("DEBUG", "Conexão realizada");
+                        }
+                        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), charset));
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.info("DEBUG", "BufferedReader");
+                        }
+                        String inputLine;
+                        StringBuilder response = new StringBuilder();
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.info("DEBUG", "StringBuilder response");
+                        }
+                        try {
+                            while ((inputLine = br.readLine()) != null) {
+                                response.append(inputLine);
+                            }
+                            br.close();
+                        } catch (Exception e) {
+
+                        }
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.info("DEBUG", "StringBuilder OK");
+                        }
+//                    
+                        String rensponseString = response.toString();
+
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.info("DEBUG", "Response: " + rensponseString);
+                        }
+
+                        // try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
+//                        StringBuilder sb = new StringBuilder();
+//                        String line;
+//                        while ((line = in.readLine()) != null) {
+//                            sb.append(line);
+//                        }
                         // String str = org.apache.commons.io.IOUtils.toString(in);
-                        JSONObject result = new JSONObject(sb.toString());
+                        JSONObject result = new JSONObject(rensponseString);
                         try {
                             statusBoolean = "" + result.getBoolean("status");
                             error = result.getString("return");
                         } catch (Exception e) {
+                            if (GenericaSessao.exists("habilitaLog")) {
+                                GenericaMensagem.warn("JSONException", e.getMessage());
+                            }
                             try {
                                 statusBoolean = result.getString("status");
                                 // error = result.getString("return");
                             } catch (Exception e2) {
-
+                                if (GenericaSessao.exists("habilitaLog")) {
+                                    GenericaMensagem.warn("JSONException", e.getMessage());
+                                }
                             }
                         }
                         try {
                             message = result.getString("message");
                         } catch (Exception e) {
-
+                            if (GenericaSessao.exists("habilitaLog")) {
+                                GenericaMensagem.warn("JSONException", e.getMessage());
+                            }
                         }
                         // ERRO PARA FALTA DE CRÉDITOS
                         if (!statusBoolean.equals("OK")) {
                             jro.setStatus(-1);
-                            error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!";
+                            error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!" + message;
                             jro.setMsg(error);
 
-                            in.close();
-                            con.disconnect();
+                            //in.close();
+                            // con.disconnect();
                             return jro;
                         }
 
                         // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
                         if (!statusBoolean.equals("OK")) {
                             jro.setStatus(-1);
-                            jro.setMsg(error.toUpperCase());
+                            jro.setMsg(error.toUpperCase() + " " + message);
 
-                            in.close();
-                            con.disconnect();
+                            //in.close();
+                            // con.disconnect();
                             return jro;
                         }
 
                         // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
                         if (statusBoolean.equals("NOK")) {
                             jro.setStatus(-1);
-                            jro.setMsg(message);
+                            jro.setMsg(error.toUpperCase() + " " + message);
 
-                            in.close();
-                            con.disconnect();
+                            //in.close();
+                            // con.disconnect();
                             return jro;
                         }
 
@@ -189,7 +260,7 @@ public class JuridicaReceitaJSON {
                                     break;
                                 }
                             }
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
                             if (GenericaSessao.exists("habilitaLog")) {
                                 GenericaMensagem.warn("JSONException", e.getMessage());
                             }
@@ -210,7 +281,7 @@ public class JuridicaReceitaJSON {
                                     break;
                                 }
                             }
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
                             if (GenericaSessao.exists("habilitaLog")) {
                                 GenericaMensagem.warn("JSONException", e.getMessage());
                             }
@@ -237,9 +308,14 @@ public class JuridicaReceitaJSON {
                                 obj.getString("data_situacao_especial"),
                                 ""
                         );
-                        in.close();
+                        //in.close();
+                    } catch (Exception e) {
+                        if (GenericaSessao.exists("habilitaLog")) {
+                            GenericaMensagem.warn("JSONException", e.getMessage());
+                        }
                     }
-                    con.disconnect();
+                    // con.disconnect();
+
                     break;
                 case "wooki":
                     /*
@@ -268,6 +344,7 @@ public class JuridicaReceitaJSON {
                     con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
                     con.setRequestMethod("GET");
                     con.connect();
+
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
                         String str = in.readLine();
                         JSONObject obj = new JSONObject(str);
@@ -309,6 +386,9 @@ public class JuridicaReceitaJSON {
                                 cnae_sec = cnae_sec.substring(pos2 + 1);
                                 list_cnae_sec.add(cnae);
                             } catch (Exception e) {
+                                if (GenericaSessao.exists("habilitaLog")) {
+                                    GenericaMensagem.warn("JSONException", e.getMessage());
+                                }
                                 break;
                             }
                         }
@@ -602,7 +682,7 @@ public class JuridicaReceitaJSON {
             jro.setPessoaEndereco(listpe);
 
             return jro;
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             if (GenericaSessao.exists("habilitaLog")) {
                 GenericaMensagem.warn("JSONException", e.getMessage());
             }
@@ -1071,4 +1151,12 @@ public class JuridicaReceitaJSON {
         }
 
     }
+
+//    protected void carregarContextoSSL(HttpClient httpClient) throws Exception {
+//        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+//        trustStore.load(null, null);
+//        SSLSocketFactory sf = new CustomSSLSocketFactory(trustStore);
+//        sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+//        httpClient.getConnectionManager().getSchemeRegistry().register(new Scheme(HTTPS, sf, 443));
+//    }
 }

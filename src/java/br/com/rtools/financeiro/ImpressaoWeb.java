@@ -25,6 +25,9 @@ public class ImpressaoWeb implements java.io.Serializable {
     private Date data;
     @Column(name = "ds_hora", nullable = false)
     private String hora;
+    @Column(name = "dt_vencimento", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date dtVencimento;
 
     public ImpressaoWeb() {
         this.id = -1;
@@ -32,14 +35,16 @@ public class ImpressaoWeb implements java.io.Serializable {
         this.pessoa = null;
         setData(DataHoje.dataHoje());
         setHora(DataHoje.hora());
+        dtVencimento = null;
     }
 
-    public ImpressaoWeb(int id, Movimento movimento, Pessoa pessoa, Date data, String hora) {
+    public ImpressaoWeb(int id, Movimento movimento, Pessoa pessoa, Date data, String hora, Date dtVencimento) {
         this.id = id;
         this.movimento = movimento;
         this.pessoa = pessoa;
         this.data = data;
         this.hora = hora;
+        this.dtVencimento = dtVencimento;
     }
 
     public int getId() {
@@ -80,5 +85,13 @@ public class ImpressaoWeb implements java.io.Serializable {
 
     public void setHora(String hora) {
         this.hora = hora;
+    }
+
+    public Date getDtVencimento() {
+        return dtVencimento;
+    }
+
+    public void setDtVencimento(Date dtVencimento) {
+        this.dtVencimento = dtVencimento;
     }
 }

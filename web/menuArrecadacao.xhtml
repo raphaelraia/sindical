@@ -73,7 +73,7 @@
                                     <p:menuitem value="Autoriza Repro. Retorno"    action="#{chamadaPaginaBean.pagina('autorizaReprocessamentoRetorno')}" />
                                     <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
                                     <p:menuitem value="Retorno Padrao"             action="#{chamadaPaginaBean.retornoPadrao}" rendered="false"/>
-                                    <p:submenu label="Envio de Arquivos">
+                                    <p:submenu label="Envio de Emails">
                                         <p:menuitem value="Contribuinte" action="#{chamadaPaginaBean.enviarArquivosContribuinte}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contribuinte')}"/>
                                         <p:menuitem value="Escritório" action="#{chamadaPaginaBean.enviarArquivosContabilidade}" actionListener="#{enviarArquivosBean.defineIipoEnvio('contabilidade')}" />
                                     </p:submenu>

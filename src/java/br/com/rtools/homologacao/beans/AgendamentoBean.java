@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
@@ -97,6 +98,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private PessoaEndereco enderecoFilial = new PessoaEndereco();
     private boolean imprimirPro = false;
     private ConfiguracaoHomologacao configuracaoHomologacao = new ConfiguracaoHomologacao();
+    private ConfiguracaoArrecadacao configuracaoArrecadacao = new ConfiguracaoArrecadacao();
     private int counter = 0;
 
     private Registro registro = new Registro();
@@ -116,7 +118,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String motivoRecusa2;
     private Boolean comPendencia;
 
-    public AgendamentoBean() {
+    public AgendamentoBean() {        
         if (configuracaoHomologacao.getId() == null) {
             configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
         }
@@ -127,6 +129,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (configuracaoHomologacao.getWebValidaAgendamento()) {
             idStatus = 8;
         }
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
         motivoRecusaDireto = "";
         motivoRecusa1 = "";
         motivoRecusa2 = "";
@@ -344,7 +347,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 }
 
                 AtendimentoDao dbat = new AtendimentoDao();
-                if (dbat.pessoaOposicao(listaAgendamento.getAgendamento().getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
+                if (dbat.pessoaOposicao(listaAgendamento.getAgendamento().getPessoaEmpresa().getFisica().getPessoa().getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
                     listaAgendamento.setTblEstilo("tblAgendamentoOposicaox");
                 }
 
@@ -1325,7 +1328,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 }
             }
 
-            List<Oposicao> listao = db.pesquisaFisicaOposicaoSemEmpresa(documento);
+            List<Oposicao> listao = db.pesquisaFisicaOposicaoSemEmpresa(documento, configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
             PessoaEmpresa pem = db.pesquisaPessoaEmpresaPertencente(documento);
 
             if (!listFisica.isEmpty()) {
@@ -2174,6 +2177,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setComPendencia(Boolean comPendencia) {
         this.comPendencia = comPendencia;
+    }
+
+    public ConfiguracaoArrecadacao getConfiguracaoArrecadacao() {
+        return configuracaoArrecadacao;
+    }
+
+    public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
+        this.configuracaoArrecadacao = configuracaoArrecadacao;
     }
 
 }

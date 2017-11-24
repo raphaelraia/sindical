@@ -11,6 +11,7 @@ import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Impressao;
+import br.com.rtools.financeiro.ImpressaoWeb;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
@@ -2734,14 +2735,19 @@ public class MovimentoDao extends DB {
     }
 
     public List<Impressao> listaImpressao(int id_movimento) {
-        String text_qry
-                = "SELECT i "
-                + "  FROM Impressao i "
-                + " WHERE i.movimento.id = " + id_movimento
-                + " ORDER BY i.dtImpressao, i.dtVencimento DESC";
         try {
-            Query qry = getEntityManager().createQuery(text_qry);
+            Query qry = getEntityManager().createQuery("SELECT I FROM Impressao I WHERE I.movimento.id = :id_movimento ORDER BY I.dtImpressao DESC, I.dtVencimento ASC");
+            qry.setParameter("id_movimento", id_movimento);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 
+    public List<ImpressaoWeb> listaImpressaoWeb(int id_movimento) {
+        try {
+            Query qry = getEntityManager().createQuery("SELECT IW FROM ImpressaoWeb IW WHERE IW.movimento.id = :id_movimento ORDER BY IW.data DESC, IW.hora ASC");
+            qry.setParameter("id_movimento", id_movimento);
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();

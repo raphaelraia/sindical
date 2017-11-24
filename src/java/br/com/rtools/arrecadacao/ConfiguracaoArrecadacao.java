@@ -38,6 +38,8 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private String comunicado;
     @Column(name = "is_cobranca_email", columnDefinition = "boolean default true", nullable = false)
     private Boolean cobrancaEmail;
+    @Column(name = "is_ignora_periodo_convencao_oposicao", columnDefinition = "boolean default false", nullable = false)
+    private Boolean ignoraPeriodoConvencaoOposicao;
 
     public ConfiguracaoArrecadacao() {
         this.id = null;
@@ -49,9 +51,10 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.visualizaCertificadoRecusado = false;
         this.comunicado = "";
         this.cobrancaEmail = false;
+        this.ignoraPeriodoConvencaoOposicao = false;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado, Boolean cobrancaEmail) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado, Boolean cobrancaEmail, Boolean ignoraPeriodoConvencaoOposicao) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
@@ -61,6 +64,7 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
         this.comunicado = comunicado;
         this.cobrancaEmail = cobrancaEmail;
+        this.ignoraPeriodoConvencaoOposicao = ignoraPeriodoConvencaoOposicao;
     }
 
     public Integer getId() {
@@ -142,6 +146,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
 
     public void setCobrancaEmail(Boolean cobrancaEmail) {
         this.cobrancaEmail = cobrancaEmail;
+    }
+
+    public Boolean getIgnoraPeriodoConvencaoOposicao() {
+        return ignoraPeriodoConvencaoOposicao;
+    }
+
+    public void setIgnoraPeriodoConvencaoOposicao(Boolean ignoraPeriodoConvencaoOposicao) {
+        this.ignoraPeriodoConvencaoOposicao = ignoraPeriodoConvencaoOposicao;
     }
 
 }

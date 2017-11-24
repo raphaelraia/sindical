@@ -35,6 +35,9 @@ public class ConfiguracaoLocadoraBean implements Serializable {
         }
         listServico = new ArrayList();
         getListServico();
+        if (configuracaoLocadora.getServicos() != null) {
+            idServico = configuracaoLocadora.getServicos().getId();
+        }
     }
 
     @PreDestroy
@@ -48,7 +51,7 @@ public class ConfiguracaoLocadoraBean implements Serializable {
 
     public void update() {
         Dao dao = new Dao();
-            if (configuracaoLocadora.getId() != -1) {
+        if (configuracaoLocadora.getId() != -1) {
             if (idServico == null) {
                 configuracaoLocadora.setServicos(null);
             } else {
@@ -78,7 +81,7 @@ public class ConfiguracaoLocadoraBean implements Serializable {
             List<Servicos> list = servicosDao.findAll();
             listServico.add(new SelectItem("", "Selecionar serviço"));
             for (int i = 0; i < list.size(); i++) {
-                if(configuracaoLocadora.getServicos() != null) {
+                if (configuracaoLocadora.getServicos() != null) {
                     if (list.get(i).getId() == configuracaoLocadora.getServicos().getId()) {
                         setIdServico((Integer) i);
                     }

@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
@@ -11,17 +12,14 @@ import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.associativo.beans.SociosBean;
 import br.com.rtools.associativo.dao.SociosDao;
-import br.com.rtools.associativo.dao.SuspencaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
-import br.com.rtools.financeiro.ServicoRotina;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
@@ -178,6 +176,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private String alterType;
     private List<SisAutorizacoes> listSisAutorizacoes;
     private ConfiguracaoSocial configuracaoSocial;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
     private List<String> listSugestion;
     private String selectedSugestion;
     private String solicitarAutorizacao;
@@ -190,6 +189,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         solicitarAutorizacao = "";
         sisAutorizacoes = new SisAutorizacoes();
         configuracaoSocial = ConfiguracaoSocial.get();
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
         listSisAutorizacoes = new ArrayList();
         alterType = "";
         listSugestion = new ArrayList();
@@ -2250,14 +2250,14 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void existePessoaOposicaoPorPessoa() {
         if (!fisica.getPessoa().getDocumento().isEmpty()) {
             OposicaoDao odbt = new OposicaoDao();
-            pessoaOposicao = odbt.existPessoaDocumentoPeriodo(fisica.getPessoa().getDocumento());
+            pessoaOposicao = odbt.existPessoaDocumentoPeriodo(fisica.getPessoa().getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
         }
     }
 
     public boolean existePessoaOposicaoPorDocumento(String documento) {
         if (!documento.isEmpty()) {
             OposicaoDao odbt = new OposicaoDao();
-            return odbt.existPessoaDocumentoPeriodo(documento);
+            return odbt.existPessoaDocumentoPeriodo(documento, configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
         }
         return false;
     }
@@ -2420,7 +2420,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
-                    if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {
+                    if (odbt.existPessoaDocumentoPeriodo(p.getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
                         count++;
                         pessoaOposicao = true;
                         GenericaMensagem.warn("Mensagem: (" + count + ")", "Contém carta(s) de oposição!");
@@ -3482,6 +3482,14 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
         }
 
+    }
+
+    public ConfiguracaoArrecadacao getConfiguracaoArrecadacao() {
+        return configuracaoArrecadacao;
+    }
+
+    public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
+        this.configuracaoArrecadacao = configuracaoArrecadacao;
     }
 
 }

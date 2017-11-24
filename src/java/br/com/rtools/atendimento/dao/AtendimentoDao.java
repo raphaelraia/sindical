@@ -7,6 +7,7 @@
  */
 package br.com.rtools.atendimento.dao;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.homologacao.Senha;
 import br.com.rtools.sistema.SisPessoa;
@@ -31,22 +32,31 @@ public class AtendimentoDao extends DB {
     }
 
     public boolean pessoaOposicao(String cpf) {
+        return pessoaOposicao(cpf, null);
+    }
+
+    public boolean pessoaOposicao(String cpf, Boolean ignoraPeriodoConvencaoOposicao) {
         try {
             String data = DataHoje.livre(new Date(), "yyyyMM");
-            Query qry = getEntityManager().createNativeQuery(""
+            String queryString = ""
                     + "     SELECT * "
                     + "       FROM arr_oposicao opo "
                     + " INNER JOIN arr_oposicao_pessoa pes on pes.id = opo.id_oposicao_pessoa "
                     + " INNER JOIN arr_convencao_periodo per on per.id = opo.id_convencao_periodo "
-                    + "      WHERE pes.ds_cpf = '" + cpf + "' "
-                    + "        AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2)) "
-                    + "        AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2)) "
-                    + "        AND opo.dt_inativacao IS NULL");
+                    + "      WHERE pes.ds_cpf = '" + cpf + "' ";
+            if (ignoraPeriodoConvencaoOposicao == null || !ignoraPeriodoConvencaoOposicao) {
+                queryString += " AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2)) ";
+                queryString += " AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2)) ";
+            }
+            queryString += " AND opo.dt_inativacao IS NULL";
+            Query qry = getEntityManager().createNativeQuery(queryString);
             if (!qry.getResultList().isEmpty()) {
-                return true;
+                return true; 
             }
         } catch (Exception e) {
+                return false;
         }
+
         return false;
     }
 
@@ -58,7 +68,8 @@ public class AtendimentoDao extends DB {
                 + "                translate(upper(sp.ds_rg),'./-', '') = translate(upper('" + valor + "'),'./-','')";
 
         try {
-            Query query = getEntityManager().createNativeQuery(queryString, SisPessoa.class);
+            Query query = getEntityManager().createNativeQuery(queryString, SisPessoa.class
+            );
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return (SisPessoa) query.getSingleResult();

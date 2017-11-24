@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteStatus;
@@ -125,6 +126,7 @@ public class RecepcaoBean implements Serializable {
     private List<SelectItem> listHomologadores;
     private Integer idHomologador;
     private String motivoAlteracaoHomologador;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
 
     public RecepcaoBean() {
         agendamento = new Agendamento();
@@ -191,7 +193,7 @@ public class RecepcaoBean implements Serializable {
         dataFinalAtendimento = DataHoje.data();
 
         listFiles = new ArrayList();
-
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
         getListaStatusAtendimento();
         loadListHorarios();
         loadListaAtendimentoSimples();
@@ -1120,7 +1122,7 @@ public class RecepcaoBean implements Serializable {
             String oposicaoString = "";
             boolean isOposicao = false;
             AtendimentoDao dbat = new AtendimentoDao();
-            if (dbat.pessoaOposicao(ag.get(i).getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
+            if (dbat.pessoaOposicao(ag.get(i).getPessoaEmpresa().getFisica().getPessoa().getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
                 isOposicao = true;
                 oposicaoString = "tblAgendamentoOposicaox";
             }
@@ -1374,7 +1376,7 @@ public class RecepcaoBean implements Serializable {
     public Boolean getExisteOposicao() {
         if (agendamentoEdit.getId() != -1) {
             OposicaoDao oposicaoDao = new OposicaoDao();
-            return oposicaoDao.existPessoaOposicao(agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getDocumento());
+            return oposicaoDao.existPessoaOposicao(agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
         }
         return false;
     }

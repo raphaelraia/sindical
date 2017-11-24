@@ -1,5 +1,6 @@
 package br.com.rtools.atendimento;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.pessoa.Filial;
@@ -176,7 +177,7 @@ public class AteMovimento implements java.io.Serializable {
         AtendimentoDao atendimentoDao = new AtendimentoDao();
         try {
             if (!this.getPessoa().getDocumento().isEmpty()) {
-                return atendimentoDao.pessoaOposicao(this.getPessoa().getDocumento());
+                return atendimentoDao.pessoaOposicao(this.getPessoa().getDocumento(), ConfiguracaoArrecadacao.get().getIgnoraPeriodoConvencaoOposicao());
             }
         } catch (Exception e) {
             return false;

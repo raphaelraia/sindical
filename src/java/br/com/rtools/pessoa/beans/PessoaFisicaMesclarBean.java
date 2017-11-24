@@ -10,6 +10,7 @@ import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.SocioCarteirinha;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.CupomMovimentoDao;
 import br.com.rtools.associativo.dao.EmissaoGuiasDao;
 import br.com.rtools.associativo.dao.ExameMedicoDao;
@@ -17,6 +18,7 @@ import br.com.rtools.associativo.dao.FrequenciaCatracaDao;
 import br.com.rtools.associativo.dao.HistoricoEmissaoGuiasDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.cobranca.TmktHistorico;
 import br.com.rtools.cobranca.dao.TmktHistoricoDao;
 import br.com.rtools.digitalizacao.Documento;
@@ -187,12 +189,23 @@ public class PessoaFisicaMesclarBean implements Serializable {
         List<PessoaEndereco> pesRemover = new PessoaEnderecoDao().pesquisaEndPorPessoa(remover.getPessoa().getId());
         if (pesManter.isEmpty()) {
             for (int i = 0; i < pesRemover.size(); i++) {
-                pesRemover.get(i).setPessoa(manter.getPessoa());
-                if (!dao.update(pesRemover)) {
+                PessoaEndereco pe = new PessoaEndereco();
+                pe.setEndereco(pesRemover.get(i).getEndereco());
+                pe.setTipoEndereco(pesRemover.get(i).getTipoEndereco());
+                pe.setNumero(pesRemover.get(i).getNumero());
+                pe.setComplemento(pesRemover.get(i).getComplemento());
+                pe.setPessoa(manter.getPessoa());
+                if (!dao.save(pe)) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA ENDEREÇO!");
                     return;
                 }
+                if (!dao.delete(pesRemover.get(i))) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA ENDEREÇO!");
+                    return;
+                }
+                pesRemover.get(i).setId(-1);
                 novoLog.save("ATUALIZAR PESSOA ENDEREÇO: " + pesRemover.get(i).toString());
             }
         } else {
@@ -679,6 +692,15 @@ public class PessoaFisicaMesclarBean implements Serializable {
             }
             novoLog.save("DELETAR PESSOA PROFISSÃO: " + listPessoaProfissao.get(i).toString());
         }
+        List<Socios> listSocios = new SociosDao().listaPorPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listSocios.size(); i++) {
+            if (!dao.delete(listSocios.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER SÓCIO! " + dao.EXCEPCION);
+                return;
+            }
+        }
+
         String servicoPessoaLog = "";
         // SERVIÇO PESSOA -> PESSOA
         List<ServicoPessoa> listServicoPessoaRemover = new ServicoPessoaDao().listAllByPessoa(remover.getPessoa().getId());
@@ -693,29 +715,33 @@ public class PessoaFisicaMesclarBean implements Serializable {
             }
         }
         // SERVIÇO PESSOA -> COBRANÇA
-        listServicoPessoaRemover = new ServicoPessoaDao().listAllByCobranca(remover.getPessoa().getId());
-        if (!listServicoPessoaRemover.isEmpty()) {
+        List<ServicoPessoa> listServicoPessoaCobranca = new ServicoPessoaDao().listAllByCobranca(remover.getPessoa().getId());
+        if (!listServicoPessoaCobranca.isEmpty()) {
             servicoPessoaLog = "";
-            for (int i = 0; i < listServicoPessoaRemover.size(); i++) {
-                if (!dao.delete(listServicoPessoaRemover.get(i))) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER SERVIÇO PESSOA!");
-                    return;
+            for (int i = 0; i < listServicoPessoaCobranca.size(); i++) {
+                for (int x = 0; x < listServicoPessoaRemover.size(); x++) {
+                    if (listServicoPessoaCobranca.get(i).getId() != listServicoPessoaRemover.get(x).getId()) {
+                        if (!dao.delete(listServicoPessoaCobranca.get(i))) {
+                            dao.rollback();
+                            GenericaMensagem.warn("Erro", "AO REMOVER SERVIÇO PESSOA!");
+                            return;
+                        }
+                    }
                 }
-                servicoPessoaLog += listServicoPessoaRemover.get(i).toString() + ";";
+                servicoPessoaLog += listServicoPessoaCobranca.get(i).toString() + ";";
             }
         }
         // SERVIÇO PESSOA -> COBRANÇA MOVIMENTO
-        listServicoPessoaRemover = new ServicoPessoaDao().listAllByCobrancaMovimento(remover.getPessoa().getId());
-        if (!listServicoPessoaRemover.isEmpty()) {
+        List<ServicoPessoa> listServicoPessoaCobrancaMovimento = new ServicoPessoaDao().listAllByCobrancaMovimento(remover.getPessoa().getId());
+        if (!listServicoPessoaCobrancaMovimento.isEmpty()) {
             servicoPessoaLog = "";
-            for (int i = 0; i < listServicoPessoaRemover.size(); i++) {
-                if (!dao.delete(listServicoPessoaRemover.get(i))) {
+            for (int i = 0; i < listServicoPessoaCobrancaMovimento.size(); i++) {
+                if (!dao.delete(listServicoPessoaCobrancaMovimento.get(i))) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "AO REMOVER SERVIÇO PESSOA!");
                     return;
                 }
-                servicoPessoaLog += listServicoPessoaRemover.get(i).toString() + ";";
+                servicoPessoaLog += listServicoPessoaCobrancaMovimento.get(i).toString() + ";";
             }
         }
         if (!servicoPessoaLog.isEmpty()) {
@@ -779,6 +805,15 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 return;
             }
             novoLog.save("DELETAR PESSOA EMPRESA: " + listTmktHistorico.get(i).toString());
+        }
+        List<SisAutorizacoes> listSisAutorizacoes = new SisAutorizacoesDao().findByPessoa(remover.getPessoa().getId(), true);
+        for (int i = 0; i < listSisAutorizacoes.size(); i++) {
+            if (!dao.delete(listSisAutorizacoes.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER AUTORIZAÇÃO! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("DELETAR AUTORIZAÇÃO: " + listSisAutorizacoes.get(i).toString());
         }
         List<Links> listLinks = new LinksDao().findAllByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listLinks.size(); i++) {

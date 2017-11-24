@@ -941,6 +941,7 @@ public class RelatorioSociosDao extends DB {
         }
         try {
             queryString = queryString + ordem;
+            Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

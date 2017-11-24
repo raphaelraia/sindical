@@ -70,6 +70,10 @@
                                     <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.cobrancaEmail}" itemLabel="Cobrança por E-mail (Padrão de Cobrança da Entidade)">
                                         <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
                                     </p:selectBooleanCheckbox>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.ignoraPeriodoConvencaoOposicao}" itemLabel="Ignorar Oposição por Período de Oposição">
+                                        <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
+                                    </p:selectBooleanCheckbox>
 
                                 </h:panelGrid>
                                 <p:panel styleClass="margin-top-max">
