@@ -233,6 +233,10 @@ public class LancamentoFinanceiroBean implements Serializable {
         GenericaSessao.remove("juridicaPesquisa");
     }
 
+    public void editarParcela(Movimento mov){
+        
+    }
+    
     public void actAdicionarParcela() {
 
     }

@@ -185,6 +185,15 @@ public class AnaliseString {
         return value;
     }
 
+    public static String normalizeSpecial(String value) {
+        
+        value = value.replaceAll("[^a-zA-Z]+", " ");
+        
+        value = value.replace(",", " ");
+
+        return value;
+    }
+
     public static String mascaraCep(final String cep) {
         String cepMask = cep;
         if (!cep.isEmpty() && cep.length() == 8) {
