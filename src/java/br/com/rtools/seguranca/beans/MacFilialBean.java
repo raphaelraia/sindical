@@ -13,6 +13,8 @@ import br.com.rtools.seguranca.dao.MacFilialDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Messages;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,31 +30,36 @@ import javax.faces.model.SelectItem;
 public class MacFilialBean implements Serializable {
 
     private MacFilial macFilial;
-    private int idFilial;
-    private int idDepartamento;
-    private int idCaixa = 0;
-    private List<MacFilial> listaMacs;
-    public List<SelectItem> listaFiliais;
-    public List<SelectItem> listaDepartamentos;
-    private List<SelectItem> listaCaixa;
+    private Integer idFilial;
+    private Integer idDepartamento;
+    private Integer idCaixa;
+    private List<MacFilial> listMacs;
+    private List<SelectItem> listFiliais;
+    private List<SelectItem> listDepartamentos;
+    private List<SelectItem> listCaixa;
     private Boolean mostrarTodos;
 
     @PostConstruct
     public void init() {
         macFilial = new MacFilial();
-        idFilial = 0;
-        idDepartamento = 0;
-        idCaixa = 0;
-        listaMacs = new ArrayList<>();
-        listaFiliais = new ArrayList<>();
-        listaDepartamentos = new ArrayList<>();
-        listaCaixa = new ArrayList<>();
+        idFilial = null;
+        idDepartamento = null;
+        idCaixa = null;
+        listMacs = new ArrayList<>();
+        listFiliais = new ArrayList<>();
+        listDepartamentos = new ArrayList<>();
+        listCaixa = new ArrayList<>();
         mostrarTodos = false;
         ConfiguracaoFinanceiroBean cfb = new ConfiguracaoFinanceiroBean();
 
         cfb.init();
 
         macFilial.setCaixaOperador(cfb.getConfiguracaoFinanceiro().isCaixaOperador());
+
+        loadListFiliais();
+        loadListDepartamentos();
+        loadListCaixa();
+        loadListMacs();
     }
 
     @PreDestroy
@@ -65,8 +72,8 @@ public class MacFilialBean implements Serializable {
     }
 
     public void alterarCaixa() {
-        if (macFilial.isCaixaOperador()) {
-            idCaixa = 0;
+        if (macFilial.getCaixaOperador()) {
+            idCaixa = null;
         }
     }
 
@@ -74,18 +81,12 @@ public class MacFilialBean implements Serializable {
         MacFilialDao macFilialDao = new MacFilialDao();
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        Filial filial = (Filial) dao.find(new Filial(), Integer.parseInt(getListaFiliais().get(idFilial).getDescription()));
-        Departamento departamento = (Departamento) dao.find(new Departamento(), Integer.parseInt(getListaDepartamentos().get(idDepartamento).getDescription()));
+        Filial filial = (Filial) dao.find(new Filial(), idFilial);
+        Departamento departamento = (Departamento) dao.find(new Departamento(), idDepartamento);
         if (macFilial.getMac().isEmpty()) {
             GenericaMensagem.warn("Validação", "Digite um mac válido!");
             return;
         }
-
-//        Registro registro = (Registro) di.find(new Registro(), 1);
-//        if (registro.isSenhaHomologacao() && macFilial.getMesa() <= 0) {
-//            GenericaMensagem.warn("Validação", "O campo mesa é obrigatório devido Senha Homologação em Registro ser verdadeiro");
-//            return;
-//        }
         if (!macFilial.getMac().matches("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")) {
             GenericaMensagem.warn("Validação", "Digite um mac válido!");
             return;
@@ -93,20 +94,20 @@ public class MacFilialBean implements Serializable {
         macFilial.setDepartamento(departamento);
         macFilial.setFilial(filial);
 
-        if (listaCaixa.get(idCaixa).getDescription().equals("-1")) {
+        if (idCaixa == null) {
             macFilial.setCaixa(null);
         } else {
-            for (int i = 0; i < listaMacs.size(); i++) {
-                if (listaMacs.get(i).getCaixa() != null
-                        && listaMacs.get(i).getCaixa().getId() == Integer.valueOf(listaCaixa.get(idCaixa).getDescription())
+            for (int i = 0; i < listMacs.size(); i++) {
+                if (listMacs.get(i).getCaixa() != null
+                        && listMacs.get(i).getCaixa().getId() == idCaixa
                         && macFilial.getId() == -1) {
                     GenericaMensagem.warn("Validação", "Já existe uma filial cadastrada para este Caixa");
                     return;
                 }
             }
-            macFilial.setCaixa((Caixa) dao.find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription())));
+            macFilial.setCaixa((Caixa) dao.find(new Caixa(), idCaixa));
         }
-               
+
         dao.openTransaction();
 
         if (macFilial.getId() == -1) {
@@ -114,7 +115,6 @@ public class MacFilialBean implements Serializable {
                 GenericaMensagem.warn("Validação", "Este computador ja está registrado!");
                 return;
             }
-            
 
             if (dao.save(macFilial)) {
                 novoLog.save(
@@ -129,7 +129,7 @@ public class MacFilialBean implements Serializable {
                 novoLog.setTabela("seg_mac_filial");
                 novoLog.setCodigo(macFilial.getId());
                 macFilial = new MacFilial();
-                listaMacs.clear();
+                loadListMacs();
             } else {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao inserir esse registro!");
@@ -162,7 +162,7 @@ public class MacFilialBean implements Serializable {
                 dao.commit();
                 GenericaMensagem.info("Atualizado", "Computador atualizado com sucesso!");
                 macFilial = new MacFilial();
-                listaMacs.clear();
+                loadListMacs();
             } else {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao inserir esse registro!");
@@ -173,27 +173,13 @@ public class MacFilialBean implements Serializable {
 
     public void edit(MacFilial mf) {
         macFilial = mf;
-
-        for (int i = 0; i < listaDepartamentos.size(); i++) {
-            if (Objects.equals(Integer.valueOf(listaDepartamentos.get(i).getDescription()), macFilial.getDepartamento().getId())) {
-                idDepartamento = i;
-            }
-        }
-
-        for (int i = 0; i < listaFiliais.size(); i++) {
-            if (Objects.equals(Integer.valueOf(listaFiliais.get(i).getDescription()), macFilial.getFilial().getId())) {
-                idFilial = i;
-            }
-        }
+        idDepartamento = macFilial.getDepartamento().getId();
+        idFilial = macFilial.getFilial().getId();
 
         if (macFilial.getCaixa() == null) {
-            idCaixa = 0;
+            idCaixa = null;
         } else {
-            for (int i = 0; i < listaCaixa.size(); i++) {
-                if (Integer.valueOf(listaCaixa.get(i).getDescription()) == macFilial.getCaixa().getId()) {
-                    idCaixa = i;
-                }
-            }
+            idCaixa = macFilial.getCaixa().getId();
         }
     }
 
@@ -212,7 +198,7 @@ public class MacFilialBean implements Serializable {
             );
             dao.commit();
             GenericaMensagem.info("Sucesso", "Este Registro excluído com sucesso!");
-            listaMacs.clear();
+            loadListMacs();
         } else {
             dao.rollback();
             GenericaMensagem.info("Sucesso", "Erro ao excluir computador!");
@@ -221,44 +207,36 @@ public class MacFilialBean implements Serializable {
         macFilial = new MacFilial();
     }
 
-    public List<SelectItem> getListaFiliais() {
-        if (listaFiliais.isEmpty()) {
-            Dao di = new Dao();
-            Boolean isFilial = false;
+    public void loadListFiliais() {
+        listFiliais = new ArrayList();
+        List<Filial> list = (List<Filial>) new Dao().list(new Filial(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idFilial = list.get(i).getId();
+            }
             if (GenericaSessao.exists("acessoFilial")) {
-                isFilial = true;
-            }
-            List<Filial> list = (List<Filial>) di.list(new Filial(), true);
-            Integer index = null;
-            for (int i = 0; i < list.size(); i++) {
-                if (isFilial) {
-                    if (index == null) {
-                        if (Objects.equals(((MacFilial) GenericaSessao.getObject("acessoFilial")).getFilial().getId(), list.get(i).getId())) {
-                            index = i;
-                        }
-                    }
+                if (Objects.equals(((MacFilial) GenericaSessao.getObject("acessoFilial")).getFilial().getId(), list.get(i).getId())) {
+                    idFilial = list.get(i).getId();
                 }
-                listaFiliais.add(new SelectItem(i,
-                        list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome(),
-                        Integer.toString(list.get(i).getId())));
             }
-            if (index != null) {
-                idFilial = index;
-            }
+            listFiliais.add(
+                    new SelectItem(
+                            list.get(i).getId(),
+                            list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome()
+                    )
+            );
         }
-        return listaFiliais;
     }
 
-    public List<SelectItem> getListaDepartamentos() {
-        if (listaDepartamentos.isEmpty()) {
-            List<Departamento> list = new Dao().list(new Departamento(), true);
-            for (int i = 0; i < list.size(); i++) {
-                listaDepartamentos.add(new SelectItem(i,
-                        list.get(i).getDescricao(),
-                        Integer.toString(list.get(i).getId())));
+    public void loadListDepartamentos() {
+        listDepartamentos = new ArrayList();
+        List<Departamento> list = new Dao().list(new Departamento(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idDepartamento = list.get(i).getId();
             }
+            listDepartamentos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
-        return listaDepartamentos;
     }
 
     public void refreshForm() {
@@ -273,62 +251,51 @@ public class MacFilialBean implements Serializable {
         this.macFilial = macFilial;
     }
 
-    public int getIdFilial() {
-        return idFilial;
-    }
-
-    public void setIdFilial(int idFilial) {
-        this.idFilial = idFilial;
-    }
-
-    public int getIdDepartamento() {
-        return idDepartamento;
-    }
-
-    public void setIdDepartamento(int idDepartamento) {
-        this.idDepartamento = idDepartamento;
-    }
-
-    public List<MacFilial> getListaMacs() {
-        if (listaMacs.isEmpty()) {
-            MacFilialDao macFilialDao = new MacFilialDao();
-            if (mostrarTodos) {
-                listaMacs = macFilialDao.listaTodosPorFilial(null);
-            } else {
-                listaMacs = macFilialDao.listaTodosPorFilial(Integer.parseInt(listaFiliais.get(idFilial).getDescription()));
-            }
+    public void loadListMacs() {
+        listMacs = new ArrayList();
+        MacFilialDao macFilialDao = new MacFilialDao();
+        if (mostrarTodos) {
+            listMacs = macFilialDao.listaTodosPorFilial(null);
+        } else {
+            listMacs = macFilialDao.listaTodosPorFilial(idFilial);
         }
-        return listaMacs;
     }
 
-    public void setListaMacs(List<MacFilial> listaMacs) {
-        this.listaMacs = listaMacs;
+    public List<MacFilial> getListMacs() {
+        return listMacs;
     }
 
-    public int getIdCaixa() {
+    public void setListMacs(List<MacFilial> listaMacs) {
+        this.listMacs = listaMacs;
+    }
+
+    public Integer getIdCaixa() {
         return idCaixa;
     }
 
-    public void setIdCaixa(int idCaixa) {
+    public void setIdCaixa(Integer idCaixa) {
         this.idCaixa = idCaixa;
     }
 
-    public List<SelectItem> getListaCaixa() {
-        if (listaCaixa.isEmpty()) {
-            Dao dao = new Dao();
-            List<Caixa> result = dao.list(new Caixa());
-            listaCaixa.add(new SelectItem(0, "NENHUM CAIXA", "-1"));
-            for (int i = 0; i < result.size(); i++) {
-                listaCaixa.add(new SelectItem(i + 1,
-                        ((String.valueOf(result.get(i).getCaixa()).length() == 1) ? ("0" + String.valueOf(result.get(i).getCaixa())) : result.get(i).getCaixa()) + " - " + result.get(i).getDescricao(),
-                        Integer.toString(result.get(i).getId())));
-            }
+    public void loadListCaixa() {
+        listCaixa = new ArrayList();
+        Dao dao = new Dao();
+        List<Caixa> list = dao.list(new Caixa());
+        idCaixa = null;
+        listCaixa.add(new SelectItem(null, "NENHUM CAIXA"));
+        for (int i = 0; i < list.size(); i++) {
+            listCaixa.add(new SelectItem(list.get(i).getId(),
+                    ((String.valueOf(list.get(i).getCaixa()).length() == 1) ? ("0" + String.valueOf(list.get(i).getCaixa())) : list.get(i).getCaixa()) + " - " + list.get(i).getDescricao(),
+                    Integer.toString(list.get(i).getId())));
         }
-        return listaCaixa;
     }
 
-    public void setListaCaixa(List<SelectItem> listaCaixa) {
-        this.listaCaixa = listaCaixa;
+    public List<SelectItem> getListCaixa() {
+        return listCaixa;
+    }
+
+    public void setListCaixa(List<SelectItem> listCaixa) {
+        this.listCaixa = listCaixa;
     }
 
     public String selecionaFilial(MacFilial mf) {
@@ -359,4 +326,37 @@ public class MacFilialBean implements Serializable {
     public void setMostrarTodos(Boolean mostrarTodos) {
         this.mostrarTodos = mostrarTodos;
     }
+
+    public List<SelectItem> getListFiliais() {
+        return listFiliais;
+    }
+
+    public void setListFiliais(List<SelectItem> listFiliais) {
+        this.listFiliais = listFiliais;
+    }
+
+    public List<SelectItem> getListDepartamentos() {
+        return listDepartamentos;
+    }
+
+    public void setListDepartamentos(List<SelectItem> listDepartamentos) {
+        this.listDepartamentos = listDepartamentos;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
+    }
+
+    public Integer getIdDepartamento() {
+        return idDepartamento;
+    }
+
+    public void setIdDepartamento(Integer idDepartamento) {
+        this.idDepartamento = idDepartamento;
+    }
+
 }

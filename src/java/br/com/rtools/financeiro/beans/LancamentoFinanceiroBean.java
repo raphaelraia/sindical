@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
@@ -269,7 +270,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void openDialogImposto() {
-        if(chkImposto) {
+        if (chkImposto) {
             adicionarImposto = chkImposto;
             loadListPlano5Imposto();
             PF.openDialog("dlg_conta");
@@ -279,7 +280,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void closeDialogImposto() {
         listaPlano5 = new ArrayList();
         adicionarImposto = false;
-        if(idPlano5 == 0) {
+        if (idPlano5 == 0) {
             chkImposto = false;
         }
     }
@@ -325,10 +326,10 @@ public class LancamentoFinanceiroBean implements Serializable {
         ImprimirRecibo ir = new ImprimirRecibo();
 
         List<Movimento> l = new ArrayList();
-        
+
         l.add(mov);
-        
-        if (ir.gerar_recibo_generico(l, null)){
+
+        if (ir.gerar_recibo_generico(l, null)) {
             ir.imprimir();
         }
 
@@ -523,21 +524,19 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
         }
-        
-        if (motivoInativacao.isEmpty() || motivoInativacao.length() < 5){
+
+        if (motivoInativacao.isEmpty() || motivoInativacao.length() < 5) {
             GenericaMensagem.warn("Atenção", "Digite um motivo para exclusão válido!");
             return;
         }
-        
+
         Dao dao = new Dao();
 
         //Map<Integer, EstornoCaixa> hashEc = new LinkedHashMap<>();
         //Map<Integer, EstornoCaixaLote> hashEcl = new LinkedHashMap<>();
-
         dao.openTransaction();
 
         //EstornoCaixaDao estornoCaixaDao = new EstornoCaixaDao();
-
         // NOVA EXCLUSÃO NÃO CONTÉM EXCLUSÃO DE ESTORNO
 //        for (Parcela p : listaParcela) {
 //            List<EstornoCaixa> listEc = estornoCaixaDao.findAllByMovimento(p.getMovimento().getId());
@@ -564,9 +563,8 @@ public class LancamentoFinanceiroBean implements Serializable {
 //                }
 //            }
 //        }
-
         List<Movimento> list_m_excluir = new ArrayList();
-        
+
         for (Parcela p : listaParcela) {
             list_m_excluir.add(p.getMovimento());
 //            if (!dao.delete(p.getMovimento())) {
@@ -583,24 +581,22 @@ public class LancamentoFinanceiroBean implements Serializable {
 //                return;
 //            }
 //        }
-
 //        if (!dao.delete(dao.find(lote))) {
 //            GenericaMensagem.warn("Erro", "Lote não pode ser Excluído!");
 //            dao.rollback();
 //            return;
 //        }
-
         String retorno = GerarMovimento.inativarArrayMovimento(list_m_excluir, motivoInativacao, dao);
-        
-        if (!retorno.isEmpty()){
+
+        if (!retorno.isEmpty()) {
             GenericaMensagem.error("Atenção", retorno);
             return;
         }
 
         GenericaMensagem.info("Sucesso", "Lançamento excluído com Sucesso!");
-        
+
         dao.commit();
-        
+
         limpar();
     }
 
@@ -656,7 +652,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             return null;
         }
 
-        if (!macFilial.isCaixaOperador()) {
+        if (!macFilial.getCaixaOperador()) {
             if (macFilial.getCaixa() == null) {
                 GenericaMensagem.warn("Erro", "Configurar CAIXA nesta estação de trabalho!");
                 return null;
@@ -841,7 +837,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
 
             soma = Moeda.converteDoubleR$Double(soma);
-            
+
             if (soma < Moeda.converteUS$(total)) {
                 GenericaMensagem.warn("Erro", "Valor das Parcelas é MENOR que soma Total!");
                 return;
@@ -1425,7 +1421,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         soma = Moeda.converteDoubleR$Double(soma);
-        
+
         if (soma < Moeda.converteUS$(total)) {
             GenericaMensagem.warn("Erro", "Valor das Parcelas é MENOR que soma Total!");
             modalVisivel = true;
@@ -2124,8 +2120,8 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void setIdPlano5(Integer idPlano5) {
-        if(idPlano5 != null) {
-            this.idPlano5 = idPlano5;            
+        if (idPlano5 != null) {
+            this.idPlano5 = idPlano5;
         }
     }
 
@@ -2616,7 +2612,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     public boolean existePessoaOposicaoPorDocumento(String documento) {
         if (!documento.isEmpty()) {
             OposicaoDao odbt = new OposicaoDao();
-            return odbt.existPessoaDocumentoPeriodo(documento);
+            return odbt.existPessoaDocumentoPeriodo(documento, ConfiguracaoArrecadacao.get().getIgnoraPeriodoConvencaoOposicao());
         }
         return false;
     }

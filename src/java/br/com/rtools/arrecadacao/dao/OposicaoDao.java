@@ -51,7 +51,11 @@ public class OposicaoDao extends DB {
     }
 
     public Boolean existsPorPessoaEmpresa(String cpf, Integer empresa_id) {
-        return !pesquisaListaPorPessoaEmpresa(cpf, empresa_id).isEmpty();
+        return !pesquisaListaPorPessoaEmpresa(cpf, empresa_id, null).isEmpty();
+    }
+
+    public Boolean existsPorPessoaEmpresa(String cpf, Integer empresa_id, Boolean ignoraPeriodoConvencaoOposicao) {
+        return !pesquisaListaPorPessoaEmpresa(cpf, empresa_id, ignoraPeriodoConvencaoOposicao).isEmpty();
     }
 
     public Oposicao pesquisaPorPessoa(String cpf) {
@@ -83,17 +87,24 @@ public class OposicaoDao extends DB {
     }
 
     public boolean existPessoaOposicao(String cpf) {
+        return existPessoaOposicao(cpf, null);
+    }
+
+    public boolean existPessoaOposicao(String cpf, Boolean ignoraPeriodoConvencaoOposicao) {
         try {
             String data = DataHoje.livre(new Date(), "yyyyMM");
-            Query qry = getEntityManager().createNativeQuery(""
-                    + "     SELECT * "
+            String queryString
+                    = "     SELECT * "
                     + "       FROM arr_oposicao opo "
                     + " INNER JOIN arr_oposicao_pessoa pes on pes.id = opo.id_oposicao_pessoa "
                     + " INNER JOIN arr_convencao_periodo per on per.id = opo.id_convencao_periodo "
-                    + "      WHERE pes.ds_cpf = '" + cpf + "' "
-                    + "        AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2)) "
-                    + "        AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2)) "
-                    + "        AND opo.dt_inativacao IS NULL");
+                    + "      WHERE pes.ds_cpf = '" + cpf + "' ";
+            if (ignoraPeriodoConvencaoOposicao == null || !ignoraPeriodoConvencaoOposicao) {
+                queryString += " AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2))";
+                queryString += " AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2))";
+            }
+            queryString += " AND opo.dt_inativacao IS NULL ";
+            Query qry = getEntityManager().createNativeQuery(queryString);
             if (!qry.getResultList().isEmpty()) {
                 return true;
             }
@@ -108,6 +119,10 @@ public class OposicaoDao extends DB {
     }
 
     public List pesquisaListaPorPessoaEmpresa(String cpf, Integer empresa_id) {
+        return pesquisaListaPorPessoaEmpresa(cpf, empresa_id, null);
+    }
+
+    public List pesquisaListaPorPessoaEmpresa(String cpf, Integer empresa_id, Boolean ignoraPeriodoConvencaoOposicao) {
         try {
             String data = DataHoje.livre(new Date(), "yyyyMM");
             String queryString = ""
@@ -116,10 +131,13 @@ public class OposicaoDao extends DB {
                     + "       FROM arr_oposicao opo                             \n"
                     + " INNER JOIN arr_oposicao_pessoa pes on pes.id = opo.id_oposicao_pessoa       \n"
                     + " INNER JOIN arr_convencao_periodo per on per.id = opo.id_convencao_periodo   \n"
-                    + "      WHERE pes.ds_cpf = '" + cpf + "'                                       \n"
-                    + "        AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2))   \n"
-                    + "        AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2))       \n"
-                    + "        AND opo.dt_inativacao IS NULL \n";
+                    + "      WHERE pes.ds_cpf = '" + cpf + "'                                       \n";
+            if (ignoraPeriodoConvencaoOposicao == null || !ignoraPeriodoConvencaoOposicao) {
+                queryString += ""
+                        + " AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2)) \n"
+                        + " AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2)) \n";
+            }
+            queryString += " AND opo.dt_inativacao IS NULL \n";
             if (empresa_id != null) {
                 queryString += " AND opo.id_juridica = " + empresa_id + " \n";
             }
@@ -397,20 +415,31 @@ public class OposicaoDao extends DB {
     }
 
     public boolean existPessoaDocumentoPeriodo(String cpf) {
+        return existPessoaDocumentoPeriodo(cpf, null);
+    }
+
+    public boolean existPessoaDocumentoPeriodo(String cpf, Boolean ignoraPeriodoConvencaoOposicao) {
         String dataReferencia = DataHoje.DataToArray(DataHoje.dataHoje())[2] + DataHoje.DataToArray(DataHoje.dataHoje())[1];
         String queryString = ""
                 + "     SELECT O.*                                                                                  "
                 + "       FROM arr_oposicao AS O                                                                    "
                 + " INNER JOIN arr_convencao_periodo AS CP ON CP.id = O.id_convencao_periodo                        "
                 + " INNER JOIN arr_oposicao_pessoa AS OP ON OP.id = O.id_oposicao_pessoa                            "
-                + "      WHERE ('" + dataReferencia + "' >= CAST(SUBSTRING(CP.ds_referencia_inicial,4,4) || SUBSTRING(CP.ds_referencia_inicial,1,2)  AS int)    "
-                + "         AND '" + dataReferencia + "' <= CAST(SUBSTRING(CP.ds_referencia_final,4,4) || SUBSTRING(CP.ds_referencia_final  ,1,2) AS int))        "
-                + "        AND OP.ds_cpf = '" + cpf + "'                                                            "
-                + "        AND O.dt_inativacao IS NULL                                                             "
-                + "      LIMIT 1                                                                                    ";
-        Query query = getEntityManager().createNativeQuery(queryString);
-        List list = query.getResultList();
-        return !list.isEmpty();
+                + "      WHERE OP.ds_cpf = '" + cpf + "'                                                        ";
+        if (ignoraPeriodoConvencaoOposicao == null || !ignoraPeriodoConvencaoOposicao) {
+            queryString += " AND ('" + dataReferencia + "' >= CAST(SUBSTRING(CP.ds_referencia_inicial,4,4) || SUBSTRING(CP.ds_referencia_inicial,1,2)  AS int)  ";
+            queryString += " AND '" + dataReferencia + "' <= CAST(SUBSTRING(CP.ds_referencia_final,4,4) || SUBSTRING(CP.ds_referencia_final  ,1,2) AS int))     ";
+
+        }
+        queryString += " AND O.dt_inativacao IS NULL ";
+        queryString += " LIMIT 1                     ";
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            return !list.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean existOposicaoEmpresa(int idJuridica) {

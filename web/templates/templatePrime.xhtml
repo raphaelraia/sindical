@@ -71,18 +71,22 @@
                     <p:selectBooleanCheckbox value="#{controleUsuarioBean.habilitaDebugQuery}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" itemLabel="Debug Query" title="Se houver configuração no Bean" styleClass="margin-left-max">
                         <p:ajax update="@this :header:form_debug_query" />
                     </p:selectBooleanCheckbox>
-                    <p:menuButton value="Opções" style="float: right">
-                        <p:menuitem value="Meu Perfil" action="#{chamadaPaginaBean.usuarioPerfil}" />
-                        <p:menuitem value="Resolução" onclick="PF('dlg_resolucao').show()"/>
-                        <p:menuitem value="Meus Logs" action="#{chamadaPaginaBean.pesquisa('pesquisaLog', 'rotinaPesquisaLog', segurancaUtilitariosBean.rotina.id, 'pesquisaLogBean')}"  />
-                        <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
-                        <p:menuitem value="Rotinas Vínculadas" action="#{rotinaBean.loadShowRotinas}" onclick="PF('dlg_show_rotinas').show()" update=":header:form_show_rotinas:i_list_show_rotinas" />
-                        <p:menuitem value="Relação de Erros" onclick="PF('dlg_show_erros').show()" update=":header:form_show_erros:i_list_show_erros" />
-                        <p:menuitem value="Emails" icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(-1)}"/>
-                        <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
-                        <p:separator />
-                        <p:menuitem value="Sair" action="#{usuarioBean.sairSistema}" icon="ui-icon-extlink"/>
-                    </p:menuButton>
+                    <h:panelGrid style="float: right" columns="2">
+                        <p:menuButton value="Opções" >
+                            <p:menuitem value="Meu Perfil" action="#{chamadaPaginaBean.usuarioPerfil}" />
+                            <p:menuitem value="Resolução" onclick="PF('dlg_resolucao').show()"/>
+                            <p:menuitem value="Meus Logs" action="#{chamadaPaginaBean.pesquisa('pesquisaLog', 'rotinaPesquisaLog', segurancaUtilitariosBean.rotina.id, 'pesquisaLogBean')}"  />
+                            <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
+                            <p:menuitem value="Rotinas Vínculadas" action="#{rotinaBean.loadShowRotinas}" onclick="PF('dlg_show_rotinas').show()" update=":header:form_show_rotinas:i_list_show_rotinas" />
+                            <p:menuitem value="Relação de Erros" onclick="PF('dlg_show_erros').show()" update=":header:form_show_erros:i_list_show_erros" />
+                            <p:menuitem value="Emails" icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(-1)}"/>
+                            <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
+                            <p:separator />
+                            <p:menuitem value="Sair" action="#{usuarioBean.sairSistema}" icon="ui-icon-extlink"/>
+                        </p:menuButton>
+                        <p:commandButton actionListener="#{segurancaUtilitariosBean.enableWebCam}" action="#{chamadaPaginaBean.currentPage}" styleClass="margin-left-max" icon="photocam" style="#{segurancaUtilitariosBean.macFilial.webcam ? 'background: #00ff00' : 'background: #cccccc'};" title="#{segurancaUtilitariosBean.macFilial.webcam ? 'Webcam Ativa' : 'Webcam Desabilitada'}" />
+
+                    </h:panelGrid>
                 </h:column>
                 <h:column rendered="false">
                     <div class="clear"></div>

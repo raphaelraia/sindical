@@ -30,10 +30,14 @@ public class MacFilial implements Serializable {
     private Caixa caixa;
     @Column(name = "ds_descricao", nullable = true, length = 100)
     private String descricao;
-    @Column(name = "is_caixa_operador", columnDefinition = "boolean default true")
-    private boolean caixaOperador;
+    @Column(name = "is_caixa_operador", columnDefinition = "boolean default true", nullable = false)
+    private Boolean caixaOperador;
     @Column(name = "ds_nome_dispositivo", nullable = true, length = 100)
     private String nomeDispositivo;
+    @Column(name = "is_webcam", columnDefinition = "boolean default false", nullable = false)
+    private Boolean webcam;
+    @Column(name = "is_webcam_flash_player", columnDefinition = "boolean default false", nullable = false)
+    private Boolean webcamFlashPlayer;
 
     public MacFilial() {
         this.id = -1;
@@ -45,9 +49,11 @@ public class MacFilial implements Serializable {
         this.descricao = "";
         this.caixaOperador = true;
         this.nomeDispositivo = "";
+        this.webcam = false;
+        this.webcamFlashPlayer = false;
     }
 
-    public MacFilial(int id, Departamento departamento, Filial filial, String mac, Integer mesa, Caixa caixa, String descricao, boolean caixaOperador, String nomeDispositivo) {
+    public MacFilial(int id, Departamento departamento, Filial filial, String mac, Integer mesa, Caixa caixa, String descricao, boolean caixaOperador, String nomeDispositivo, Boolean webcam, Boolean webcamFlashPlayer) {
         this.id = id;
         this.departamento = departamento;
         this.filial = filial;
@@ -56,6 +62,8 @@ public class MacFilial implements Serializable {
         this.caixa = caixa;
         this.descricao = descricao;
         this.caixaOperador = caixaOperador;
+        this.webcam = webcam;
+        this.webcamFlashPlayer = webcamFlashPlayer;
     }
 
     public int getId() {
@@ -114,11 +122,11 @@ public class MacFilial implements Serializable {
         this.descricao = descricao;
     }
 
-    public boolean isCaixaOperador() {
+    public Boolean getCaixaOperador() {
         return caixaOperador;
     }
 
-    public void setCaixaOperador(boolean caixaOperador) {
+    public void setCaixaOperador(Boolean caixaOperador) {
         this.caixaOperador = caixaOperador;
     }
 
@@ -136,6 +144,22 @@ public class MacFilial implements Serializable {
             macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         }
         return macFilial;
+    }
+
+    public Boolean getWebcam() {
+        return webcam;
+    }
+
+    public void setWebcam(Boolean webcam) {
+        this.webcam = webcam;
+    }
+
+    public Boolean getWebcamFlashPlayer() {
+        return webcamFlashPlayer;
+    }
+
+    public void setWebcamFlashPlayer(Boolean webcamFlashPlayer) {
+        this.webcamFlashPlayer = webcamFlashPlayer;
     }
 
 }

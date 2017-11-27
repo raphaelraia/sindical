@@ -281,7 +281,7 @@ public class ControleUsuarioBean implements Serializable {
             string_filial += " - Computador: " + mf.getDescricao();
         }
 
-        if (!mf.isCaixaOperador()) {
+        if (!mf.getCaixaOperador()) {
             if (mf.getCaixa() != null) {
                 if (string_filial.isEmpty()) {
                     string_filial = "Caixa: " + mf.getCaixa().getDescricao();

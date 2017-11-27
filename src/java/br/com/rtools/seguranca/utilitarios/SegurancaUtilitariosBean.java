@@ -9,6 +9,8 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Messages;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
@@ -70,7 +72,7 @@ public class SegurancaUtilitariosBean implements Serializable {
     public boolean getExisteMacFilialComCaixa() {
         MacFilial macFilial = MacFilial.getAcessoFilial();
         if (macFilial.getId() != -1) {
-            if (!macFilial.isCaixaOperador()) {
+            if (!macFilial.getCaixaOperador()) {
                 if (macFilial.getCaixa() != null) {
                     return true;
                 }
@@ -114,6 +116,25 @@ public class SegurancaUtilitariosBean implements Serializable {
 
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
+    }
+
+    public void enableWebCam() {
+        if (!Sessions.exists("acessoFilial")) {
+            Messages.warn("Sistema", "Nenhum Mac Configurado!");
+            return;
+        }
+        MacFilial mc = (MacFilial) Sessions.getObject("acessoFilial");
+        if (mc.getWebcam()) {
+            mc.setWebcam(false);
+            Messages.info("Sucesso", "Webcam Desabilitada");
+            new Dao().update(mc, true);
+        } else {
+            mc.setWebcam(true);
+            Messages.info("Sucesso", "Webcam Habilitada");
+            new Dao().update(mc, true);
+        }
+        Sessions.remove("acessoFilial");
+        Sessions.put("acessoFilial", mc);
     }
 
 }

@@ -2721,4 +2721,9 @@ public class ChamadaPaginaBean implements Serializable {
         return null;
     }
 
+    public String currentPage() {
+        Rotina r = new Rotina().get();
+        return r.getCurrentPage();        
+    }
+
 }

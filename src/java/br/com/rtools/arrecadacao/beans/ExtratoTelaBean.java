@@ -86,6 +86,7 @@ public class ExtratoTelaBean implements Serializable {
     private String tipoEnvio = "empresa";
     private String valorExtenso = "";
     private List<Impressao> listaImpressao = new ArrayList();
+    private List<ImpressaoWeb> listaImpressaoWeb = new ArrayList();
 
     private boolean movimentosDasEmpresas = false;
     private List<Juridica> listaEmpresasPertencentes = new ArrayList();
@@ -199,10 +200,10 @@ public class ExtratoTelaBean implements Serializable {
             for (DataObject dob : listaMovimentos) {
                 // BOLETOS QUE ESTÃO SELECIONADO
                 if ((Boolean) dob.getArgumento0()) {
-                    
+
                     Movimento m = ((Movimento) dob.getArgumento29());
                     Boleto b = m.getBoleto();
-                    
+
                     // SE O BOLETO ESTA QUITADO
                     if (dob.getArgumento15() != null) {
                         if (!dob.getArgumento15().equals("")) {
@@ -210,15 +211,15 @@ public class ExtratoTelaBean implements Serializable {
                             return null;
                         }
                     }
-                    
+
                     String data_calculo = new DataHoje().decrementarDias(b.getContaCobranca().getRegistrosDiasVencidos(), DataHoje.data());
-                    
-                    if (b.getVencimento().isEmpty()){
+
+                    if (b.getVencimento().isEmpty()) {
                         GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
                         return null;
                     }
-                    
-                    if (DataHoje.menorData(b.getVencimento(), data_calculo)){
+
+                    if (DataHoje.menorData(b.getVencimento(), data_calculo)) {
                         GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " ESTÁ VENCIDO A MAIS TEMPO QUE O PERMITIDO ( " + b.getContaCobranca().getRegistrosDiasVencidos() + " DIAS )");
                         return null;
                     }
@@ -307,7 +308,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public void adicionarRemessa(String opcao) {
         id_boleto_adicionado_remessa = "";
-        
+
         if (contaSelecionada.getId() == -1) {
             GenericaMensagem.error("ATENÇÃO", "Selecione uma Conta Cobrança para continuar!");
             PF.update("formExtratoTela");
@@ -945,6 +946,7 @@ public class ExtratoTelaBean implements Serializable {
     public String verUltimaImpressão(int id_movimento) {
         MovimentoDao db = new MovimentoDao();
         listaImpressao = db.listaImpressao(id_movimento);
+        listaImpressaoWeb = db.listaImpressaoWeb(id_movimento);
         return null;
     }
 
@@ -1291,15 +1293,31 @@ public class ExtratoTelaBean implements Serializable {
             return null;
         }
 
-
+        Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+        Dao dao = new Dao();
+        dao.openTransaction();
         for (DataObject listaMovimento : listaMovimentos) {
             if ((Boolean) listaMovimento.getArgumento0()) {
-                Movimento mov = db.pesquisaCodigo((Integer) listaMovimento.getArgumento1());
-                listaC.add(mov);
-                listaValores.add(mov.getValor());
-                listaVencimentos.add(mov.getVencimento());
+                Movimento m = db.pesquisaCodigo((Integer) listaMovimento.getArgumento1());
+                listaC.add(m);
+                listaValores.add(m.getValor());
+                listaVencimentos.add(m.getVencimento());
+
+                Impressao impressao = new Impressao();
+
+                impressao.setUsuario(usuario);
+                impressao.setDtVencimento(m.getDtVencimento());
+                impressao.setMovimento(m);
+
+                if (!dao.save(impressao)) {
+                    dao.rollback();
+                    GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
+                    return null;
+                }
+
             }
         }
+        dao.commit();
 
         ImprimirBoleto imp = new ImprimirBoleto();
 
@@ -2347,6 +2365,14 @@ public class ExtratoTelaBean implements Serializable {
 
     public void setStatusRemessa(StatusRemessa statusRemessa) {
         this.statusRemessa = statusRemessa;
+    }
+
+    public List<ImpressaoWeb> getListaImpressaoWeb() {
+        return listaImpressaoWeb;
+    }
+
+    public void setListaImpressaoWeb(List<ImpressaoWeb> listaImpressaoWeb) {
+        this.listaImpressaoWeb = listaImpressaoWeb;
     }
 
     public class ExtratoTelaObject {

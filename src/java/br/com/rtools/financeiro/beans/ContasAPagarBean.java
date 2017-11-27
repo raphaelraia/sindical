@@ -176,7 +176,7 @@ public class ContasAPagarBean implements Serializable {
             return null;
         }
 
-        if (!macFilial.isCaixaOperador()) {
+        if (!macFilial.getCaixaOperador()) {
             if (macFilial.getCaixa() == null) {
                 GenericaMensagem.warn("Erro", "Configurar Caixa nesta estação de trabalho!");
                 return null;

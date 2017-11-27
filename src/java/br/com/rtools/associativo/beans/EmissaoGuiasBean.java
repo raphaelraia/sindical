@@ -422,16 +422,30 @@ public class EmissaoGuiasBean implements Serializable {
         switch (tcase) {
             case "grupo":
                 //index[0] = 0;
-                idSubgrupo = 0;
-                idServico = 0;
-                idConvenio = 0;
+                idSubgrupo = null;
+                idServico = null;
+                idConvenio = null;
                 loadListSubgrupos();
-                loadListServicos();
                 loadListJuridicas();
+                loadListServicos();
                 listenerEnabledItensPedido();
                 if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
                     SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
                     //lote.setHistorico(sgc.getObservacao());
+                    observacao = sgc.getObservacao();
+                }
+                break;
+            case "sub_grupo":
+                    //listSelectItem[0] = new ArrayList();
+                listServicos = new ArrayList();
+                listJuridicas = new ArrayList();
+                idServico = null;
+                idConvenio = null;
+                loadListJuridicas();
+                loadListServicos();
+                listenerEnabledItensPedido();
+                if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
+                    SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
                     observacao = sgc.getObservacao();
                 }
                 break;
@@ -1065,7 +1079,7 @@ public class EmissaoGuiasBean implements Serializable {
                 return null;
             }
 
-            if (!mf.isCaixaOperador()) {
+            if (!mf.getCaixaOperador()) {
                 caixa = mf.getCaixa();
 
                 if (caixa == null) {
@@ -1149,12 +1163,9 @@ public class EmissaoGuiasBean implements Serializable {
             pessoa = new Pessoa();
             pessoa = fisica.getPessoa();
             isFisica = true;
-
             SociosDao dbs = new SociosDao();
             socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
-            listenerEnabledItensPedido();
-            listServicos.clear();
-            getListServicos();
+            loadListServicos();
             listenerEnabledItensPedido();
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
                 GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");

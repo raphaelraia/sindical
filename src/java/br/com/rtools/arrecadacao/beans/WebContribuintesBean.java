@@ -348,7 +348,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
             impressaoWeb = new ImpressaoWeb(-1,
                     movimento,
                     pessoa,
-                    DataHoje.dataHoje(), DataHoje.hora());
+                    DataHoje.dataHoje(), DataHoje.hora(), movimento.getDtVencimento());
             if (!dao.save(impressaoWeb)) {
                 GenericaMensagem.error("Erro", "Erro ao salvar Impressão Web, tente novamente!");
                 dao.rollback();

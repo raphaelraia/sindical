@@ -656,22 +656,27 @@ public class HomologacaoDao extends DB {
     }
 
     public List<Oposicao> pesquisaFisicaOposicaoSemEmpresa(String cpf) {
-        List<Oposicao> result = new ArrayList();
+        return pesquisaFisicaOposicaoSemEmpresa(cpf, null);
+    }
+
+    public List<Oposicao> pesquisaFisicaOposicaoSemEmpresa(String cpf, Boolean ignoraPeriodoConvencaoOposicao) {
         try {
             String referencia = DataHoje.livre(new Date(), "yyyyMM");
-            Query qry = getEntityManager().createQuery("select o "
-                    + "  from Oposicao o where o.oposicaoPessoa.cpf = '" + cpf + "' "
-                    + "   and '" + referencia + "' BETWEEN CONCAT( SUBSTRING(o.convencaoPeriodo.referenciaInicial, 4, 8), SUBSTRING(o.convencaoPeriodo.referenciaInicial, 0, 3) ) "
-                    + "   and                   CONCAT( SUBSTRING(o.convencaoPeriodo.referenciaFinal, 4, 8), SUBSTRING(o.convencaoPeriodo.referenciaFinal, 0, 3) )"
-                    + "   and o.dtInativacao IS NULL  order by o.id desc");
-            List list = qry.getResultList();
-            if (!list.isEmpty()) {
-                return list;
+            String queryString = "";
+            queryString = "   "
+                    + " SELECT O "
+                    + "   FROM Oposicao O WHERE O.oposicaoPessoa.cpf = '" + cpf + "' ";
+            if (ignoraPeriodoConvencaoOposicao == null || !ignoraPeriodoConvencaoOposicao) {
+                queryString += " AND '" + referencia + "' BETWEEN CONCAT(SUBSTRING(O.convencaoPeriodo.referenciaInicial, 4, 8), SUBSTRING(O.convencaoPeriodo.referenciaInicial, 0, 3)) "
+                        + " AND CONCAT(SUBSTRING(O.convencaoPeriodo.referenciaFinal, 4, 8), SUBSTRING(O.convencaoPeriodo.referenciaFinal, 0, 3))";
             }
+            queryString += " AND O.dtInativacao IS NULL "
+                    + " ORDER BY O.id DESC";
+            Query qry = getEntityManager().createQuery(queryString);
+            return qry.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ArrayList();
         }
-        return result;
     }
 
     public Oposicao pesquisaFisicaOposicaoAgendamento(String cpf, int id_juridica, String referencia) {

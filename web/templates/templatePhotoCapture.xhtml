@@ -8,8 +8,22 @@
     <f:view>
         <h:form id="form_photo_capture">
             <p:dialog widgetVar="dlg_photo_capture" header="Captura de Imagem" visible="#{photoCapture.renderedPhotoCapture}">
-                <c:if test="#{!controleAcessoBean.verificarPermissao('libera_camera', 1)}">
+                <p:ajax event="close" listener="#{photoCapture.close()}" />
+                <c:if test="#{!segurancaUtilitariosBean.macFilial.webcam}">
+                    <strong class="font-color-red">WEBCAM DESABILITADA</strong>
+                </c:if>
+                <c:if test="#{segurancaUtilitariosBean.macFilial.webcam}">
                     <script type="text/javascript">
+                       /* Webcam.set({
+                            width: 320,
+                            height: 240,
+                            dest_width: 320,
+                            dest_height: 240,
+                            image_format: 'jpeg',
+                            jpeg_quality: 90,
+                            force_flash: false
+                        });
+                        Webcam.attach('#my_camera'); */
                         try {
                             navigator.getMedia = (navigator.getUserMedia ||
                                     navigator.webkitGetUserMedia ||
@@ -17,11 +31,7 @@
                                     navigator.msGetUserMedia);
 
                             // permissoes
-                            navigator.getMedia(
-                                    {
-                                        video: true
-                                                // audio: true
-                                    },
+                            navigator.getMedia({video: true, audio: false, geolocation: true},
                                     function (localMediaStream) {
                                         var video = document.querySelector('video');
                                         video.src = window.URL.createObjectURL(localMediaStream);
@@ -37,9 +47,9 @@
                         }
                     </script>
                 </c:if>
-                <p:ajax event="close" listener="#{photoCapture.close()}" />
-                <h:panelGrid id="photo_capture_panel_imagem" columns="1" rendered="#{!controleAcessoBean.verificarPermissao('libera_camera', 1)}">
-                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.update}" style="width: 500px" forceFlash="#{segurancaUtilitariosBean.sessaoUsuario.cameraFlashPlayer}" />
+                <!-- <div class="my_camera"></div> -->
+                <h:panelGrid id="photo_capture_panel_imagem" columns="1" rendered="#{segurancaUtilitariosBean.macFilial.webcam}">
+                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.update}" style="width: 500px" forceFlash="#{segurancaUtilitariosBean.macFilial.webcamFlashPlayer}" />
                     <h:column> 
                         <p:commandButton type="button" value="CAPTURAR">
                             <p:ajax event="click" oncomplete="PF('pc').capture();"/>

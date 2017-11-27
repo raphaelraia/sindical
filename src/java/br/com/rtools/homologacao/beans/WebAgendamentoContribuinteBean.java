@@ -113,6 +113,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(DataHoje.dataHoje())));
             }
             configuracaoArrecadacao = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+            configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
             loadListFiliais();
             if (!listFilial.isEmpty() && listFilial.size() > 1) {
                 showFilial = true;
@@ -649,7 +650,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 }
             }
         }
-        Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId());
+        Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
         if (bloqueiaOposicao) {
             if (configuracaoArrecadacao != null) {
                 bloqueiaOposicao = configuracaoArrecadacao.getBloqueiaOposição();

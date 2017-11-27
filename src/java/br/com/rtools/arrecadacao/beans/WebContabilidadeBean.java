@@ -444,7 +444,9 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             impressaoWeb = new ImpressaoWeb(-1,
                     movimento,
                     pessoa,
-                    DataHoje.dataHoje(), DataHoje.hora());
+                    DataHoje.dataHoje(), DataHoje.hora(),
+                    movimento.getDtVencimento()
+            );
             if (!dao.save(impressaoWeb)) {
                 GenericaMensagem.error("Erro", "Não foi possível salvar impressão web");
                 dao.rollback();

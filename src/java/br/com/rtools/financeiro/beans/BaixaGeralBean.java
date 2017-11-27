@@ -707,7 +707,7 @@ public class BaixaGeralBean implements Serializable {
             return mensagem = "Não é foi possível encontrar a filial no sistema!";
         }
 
-        if (!macFilial.isCaixaOperador()) {
+        if (!macFilial.getCaixaOperador()) {
             if (tipo.equals("caixa")) {
                 if (macFilial.getCaixa() == null) {
                     caixa = new Caixa();

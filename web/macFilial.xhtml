@@ -6,7 +6,7 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>Sindical - Mac Filial</title>
+        <title>Sindical - Mac Filial / Estação de Trabalho</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <style type="text/css">
@@ -29,7 +29,7 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="formMacFilial1">
                             <c:set scope="request" var="object" value="${macFilialBean.macFilial}"/>
-                            <h:outputText value="Mac Filial" styleClass="fonteHeader" />
+                            <h:outputText value="Mac Filial / Estação de Trabalho" styleClass="fonteHeader" />
 
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid style="width: 100%" columns="2">
@@ -37,60 +37,70 @@
                                     <h:column>
                                         <h:panelGrid columns="2">
                                             <p:selectOneMenu value="#{macFilialBean.idFilial}">
-                                                <p:ajax event="change" update="@this :formMacFilial2:" listener="#{macFilialBean.listaMacs.clear()}"/>
-                                                <f:selectItems value="#{macFilialBean.listaFiliais}" />
+                                                <p:ajax event="change" update="@this :formMacFilial2:" listener="#{macFilialBean.loadListMacs}"/>
+                                                <f:selectItems value="#{macFilialBean.listFiliais}" />
                                             </p:selectOneMenu>
                                             <p:selectBooleanCheckbox value="#{macFilialBean.mostrarTodos}" itemLabel="Mostrar todas filiais" styleClass="margin-left-max">
-                                                <p:ajax event="change" update="@this :formMacFilial2:" listener="#{macFilialBean.listaMacs.clear()}"/>
+                                                <p:ajax event="change" update="@this :formMacFilial2:" listener="#{macFilialBean.loadListMacs}"/>
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>
                                     </h:column>
                                     <h:outputLabel value="Departamentos" />
                                     <p:selectOneMenu value="#{macFilialBean.idDepartamento}" style="width: 200px">
-                                        <f:selectItems value="#{macFilialBean.listaDepartamentos}"/>
+                                        <f:selectItems value="#{macFilialBean.listDepartamentos}"/>
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:panel>
                             <p:panel styleClass="margin-top-max">
                                 <h:panelGrid columns="5" cellpadding="5">
-                                <p:column>
-                                    <h:outputLabel value="Mac "/>
-                                    <br />
-                                    <h:panelGrid columns="2">
-                                        <p:inputMask value="#{macFilialBean.macFilial.mac}" size="15" mask="**-**-**-**-**-**"/>
-                                    </h:panelGrid> 
-                                </p:column>
+                                    <p:column>
+                                        <h:outputLabel value="Mac "/>
+                                        <br />
+                                        <h:panelGrid columns="2">
+                                            <p:inputMask value="#{macFilialBean.macFilial.mac}" size="15" mask="**-**-**-**-**-**"/>
+                                        </h:panelGrid> 
+                                    </p:column>
 
-                                <p:column>
-                                    <h:outputLabel value="Nr Mesa "/>
-                                    <br />
-                                    <h:panelGrid columns="2">
-                                        <p:inputText value="#{macFilialBean.macFilial.mesa}" size="5"/>
-                                    </h:panelGrid>
-                                </p:column>
+                                    <p:column>
+                                        <h:outputLabel value="Nr Mesa "/>
+                                        <br />
+                                        <h:panelGrid columns="2">
+                                            <p:inputText value="#{macFilialBean.macFilial.mesa}" size="5"/>
+                                        </h:panelGrid>
+                                    </p:column>
 
-                                <p:column>
-                                    <h:outputLabel value="Caixa "/>
-                                    <br />
-                                    <p:selectOneMenu id="id_caixa" value="#{macFilialBean.idCaixa}" style="width: 200px" disabled="#{macFilialBean.macFilial.caixaOperador}">
-                                        <f:selectItems value="#{macFilialBean.listaCaixa}"/>
-                                    </p:selectOneMenu>
-                                </p:column>
-                                
-                                <p:column>
-                                    <br />
-                                    <p:selectBooleanCheckbox value="#{macFilialBean.macFilial.caixaOperador}" itemLabel="Caixa por Operador" style="margin-right: 20px; opacity: 0.5" disabled="true">
-                                        <p:ajax event="change" update="@this id_caixa" listener="#{macFilialBean.alterarCaixa}"/>
+                                    <p:column>
+                                        <h:outputLabel value="Caixa "/>
+                                        <br />
+                                        <p:selectOneMenu id="id_caixa" value="#{macFilialBean.idCaixa}" style="width: 200px" disabled="#{macFilialBean.macFilial.caixaOperador}">
+                                            <f:selectItems value="#{macFilialBean.listCaixa}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{macFilialBean.macFilial.caixaOperador}" itemLabel="Caixa por Operador" style="margin-right: 20px; opacity: 0.5" disabled="true">
+                                            <p:ajax event="change" update="@this id_caixa" listener="#{macFilialBean.alterarCaixa}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+
+                                </h:panelGrid>
+                                <hr />
+                                <h:panelGrid columns="2">
+                                    <h:outputLabel value="Descrição"/>
+                                    <h:outputLabel value="Nome do dispositivo (Se web service)"/>
+                                    <p:inputText value="#{macFilialBean.macFilial.descricao}" maxlength="100" size="25"/>
+                                    <p:inputText value="#{macFilialBean.macFilial.nomeDispositivo}" maxlength="100" size="25"/>
+                                </h:panelGrid>
+                                <hr />
+                                <h:panelGrid columns="1">
+                                    <p:selectBooleanCheckbox value="#{macFilialBean.macFilial.webcam}" itemLabel="Habilitar WebCam">
+                                       <p:ajax event="change" update="@this" /> 
                                     </p:selectBooleanCheckbox>
-                                </p:column>
-
-                            </h:panelGrid>
-                                <h:panelGrid columns="2" styleClass="margin-top">
-                                <h:outputLabel value="Descrição"/>
-                                <h:outputLabel value="Nome do dispositivo (Se web service)"/>
-                                <p:inputText value="#{macFilialBean.macFilial.descricao}" maxlength="100" size="25"/>
-                                <p:inputText value="#{macFilialBean.macFilial.nomeDispositivo}" maxlength="100" size="25"/>
-                            </h:panelGrid>
+                                    <p:selectBooleanCheckbox value="#{macFilialBean.macFilial.webcamFlashPlayer}" disabled="#{!macFilialBean.macFilial.webcam}" itemLabel="WebCam com Flash Player">
+                                       <p:ajax event="change" update="@this" /> 
+                                    </p:selectBooleanCheckbox>
+                                </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="3">
                                         <p:commandButton value="Salvar" action="#{macFilialBean.add}" disabled="#{controleAcessoBean.botaoSalvar}" update=":formMacFilial1: :formMacFilial2:tbl" rendered="#{macFilialBean.macFilial.id == -1}"/>
@@ -110,7 +120,7 @@
                         <h:form id="formMacFilial2">
                             <p:growl id="i_msg_f2" showDetail="true" />  
                             <h:panelGrid id="tbl" style="width:100%; border: 0px; clear: both" columns="1">
-                                <p:dataTable value="#{macFilialBean.listaMacs}" var="macFilial" emptyMessage="Nenhum Mac Filial encontrado">
+                                <p:dataTable value="#{macFilialBean.listMacs}" var="macFilial" emptyMessage="Nenhum Mac Filial encontrado">
 
                                     <p:column headerText="" style="text-align: center; width: 30px">
                                         <p:commandButton icon="ui-icon-trash" title="Excluir LINHA" action="#{macFilialBean.delete(macFilial)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":formMacFilial2:i_msg_f2 :formMacFilial2:tbl" />

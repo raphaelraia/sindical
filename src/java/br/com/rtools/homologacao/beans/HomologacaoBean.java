@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteStatus;
@@ -65,6 +66,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     private Senha senhaAtendimento = new Senha();
     private List<Senha> listaAtendimentoSimples = new ArrayList();
     private List listFiles = new ArrayList();
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
 
     private boolean visibleModal = false;
     private String tipoTelefone = "telefone";
@@ -75,6 +77,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         manutencao = false;
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         registro = (Registro) new Dao().find(new Registro(), 1);
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
         idStatusManutencao = 0;
         if (macFilial != null) {
             this.loadListaHomologacao();
@@ -93,7 +96,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
     public String retornaOposicaoPessoa(String documento) {
         AtendimentoDao atendimentoDB = new AtendimentoDao();
-        if (atendimentoDB.pessoaOposicao(documento)) {
+        if (atendimentoDB.pessoaOposicao(documento, configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
             return "tblOposicaox";
         } else {
             return "";
@@ -161,7 +164,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             }
 
             AtendimentoDao dbat = new AtendimentoDao();
-            if (dbat.pessoaOposicao(agendamentos.get(i).getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
+            if (dbat.pessoaOposicao(agendamentos.get(i).getPessoaEmpresa().getFisica().getPessoa().getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
                 listaAgendamento.setTblEstilo("tblAgendamentoOposicaox");
             }
 

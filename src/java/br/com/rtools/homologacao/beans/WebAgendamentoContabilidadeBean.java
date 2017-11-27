@@ -103,6 +103,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             DataHoje dh = new DataHoje();
             data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(DataHoje.dataHoje())));
         }
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
         getListaStatus();
         listFiles = new ArrayList();
         this.loadListEmpresa();
@@ -895,7 +896,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 }
             }
         }
-        Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId());
+        Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao());
         if (bloqueiaOposicao) {
             if (configuracaoArrecadacao != null) {
                 bloqueiaOposicao = configuracaoArrecadacao.getBloqueiaOposição();

@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.MatriculaConvenioMedico;
 import br.com.rtools.associativo.dao.MatriculaConvenioMedicoDao;
@@ -263,7 +264,7 @@ public class MatriculaConvenioMedicoBean implements Serializable {
 
     public Boolean getPessoaOposicao() {
         OposicaoDao odbt = new OposicaoDao();
-        if (odbt.existPessoaDocumentoPeriodo(servicoPessoaBean.getServicoPessoa().getPessoa().getDocumento())) {
+        if (odbt.existPessoaDocumentoPeriodo(servicoPessoaBean.getServicoPessoa().getPessoa().getDocumento(), ConfiguracaoArrecadacao.get().getIgnoraPeriodoConvencaoOposicao())) {
             pessoaOposicao = true;
         }
         return pessoaOposicao;

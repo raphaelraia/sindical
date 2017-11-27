@@ -110,7 +110,7 @@
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Sub Grupo: " />
                                     <p:selectOneMenu id="idSubGrupo" value="#{emissaoGuiasBean.idSubgrupo}" disabled="#{emissaoGuiasBean.lote.id != -1}">
-                                        <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.clear(2)}"/>
+                                        <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.listener('sub_grupo')}"/>
                                         <f:selectItems value="#{emissaoGuiasBean.listSubgrupos}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Razão: " />

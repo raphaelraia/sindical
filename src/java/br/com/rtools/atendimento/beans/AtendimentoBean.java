@@ -1,5 +1,6 @@
 package br.com.rtools.atendimento.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteOperacao;
 import br.com.rtools.atendimento.AteStatus;
@@ -85,9 +86,11 @@ public class AtendimentoBean implements Serializable {
     private List<SelectItem> listaUsuarios = new ArrayList<SelectItem>();
     private int index_usuario = 0;
     private boolean chkReserva = false;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
 
     public AtendimentoBean() {
         usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
     }
 
     public void alterarTipoMascara() {
@@ -554,7 +557,7 @@ public class AtendimentoBean implements Serializable {
 
     public String retornaOposicaoPessoa(String documento) {
         AtendimentoDao atendimentoDB = new AtendimentoDao();
-        if (atendimentoDB.pessoaOposicao(documento)) {
+        if (atendimentoDB.pessoaOposicao(documento, configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
             return "tblOposicaox";
         } else {
             return "";
@@ -563,7 +566,7 @@ public class AtendimentoBean implements Serializable {
 
     public void verificaPessoaOposicao() {
         AtendimentoDao atendimentoDB = new AtendimentoDao();
-        if (atendimentoDB.pessoaOposicao(sisPessoa.getDocumento())) {
+        if (atendimentoDB.pessoaOposicao(sisPessoa.getDocumento(), configuracaoArrecadacao.getIgnoraPeriodoConvencaoOposicao())) {
             RequestContext.getCurrentInstance().execute("PF('dlg_mensagem_oposicao').show();");
         }
     }

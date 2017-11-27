@@ -16,7 +16,7 @@
 
             .tblExtratoTelaX{ background-color: #ff9587!important; }
             .tblExtratoTelaX:hover{ background-color: #fe887f!important; }
-            
+
             .tblExtratoTelaT1{ background-color: #c7ffc7!important; }
             .tblExtratoTelaT2{  }
         </style>
@@ -633,23 +633,55 @@
 
                             <p:dialog widgetVar="dlg_ultima_impressao" header="Últimas Impressões desse movimento" resizable="false" modal="true" width="700">
                                 <h:panelGrid id="i_tbl_impressao" columns="2">
-                                    <p:dataTable value="#{extratoTelaBean.listaImpressao}" var="linha" style="width: 100%" emptyMessage="Nenhuma Impressão encontrada!">
-                                        <p:column headerText="Impressão" style="text-align: center; width: 85px">
-                                            <h:outputText value="#{linha.impressao}"/>
-                                        </p:column> 
+                                    <p:tabView prependId="false">
+                                        <p:tab title="Interno">
+                                            <p:dataTable value="#{extratoTelaBean.listaImpressao}" var="linha" style="width: 100%" emptyMessage="Nenhuma Impressão encontrada!">
+                                                <p:column headerText="Impressão" style="text-align: center; width: 85px">
+                                                    <h:outputText value="#{linha.impressao}"/>
+                                                </p:column> 
 
-                                        <p:column headerText="Vencimento" style="text-align: center; width: 85px">
-                                            <h:outputText value="#{linha.vencimento}"/>
-                                        </p:column> 
+                                                <p:column headerText="Vencimento" style="text-align: center; width: 85px">
+                                                    <h:outputText value="#{linha.vencimento}"/>
+                                                </p:column> 
 
-                                        <p:column headerText="Valor" style="text-align: right; width: 80px">
-                                            <h:outputText value="#{linha.movimento.valorString}"/>
-                                        </p:column> 
+                                                <p:column headerText="Valor" style="text-align: right; width: 80px">
+                                                    <h:outputText value="#{linha.movimento.valorString}"/>
+                                                </p:column> 
 
-                                        <p:column headerText="Usuário">
-                                            <h:outputText value="#{linha.usuario.pessoa.nome}"/>
-                                        </p:column> 
-                                    </p:dataTable>
+                                                <p:column headerText="Usuário">
+                                                    <h:outputText value="#{linha.usuario.pessoa.nome}"/>
+                                                </p:column> 
+                                            </p:dataTable>                                            
+                                        </p:tab>
+                                        <p:tab title="Web">
+                                            <p:dataTable value="#{extratoTelaBean.listaImpressaoWeb}" var="impressaoWeb" style="width: 100%" emptyMessage="Nenhuma Impressão encontrada!">
+                                                <p:column headerText="Impressão" style="text-align: center; width: 85px">
+                                                    <h:outputText value="#{impressaoWeb.data}">
+                                                        <f:convertDateTime />
+                                                    </h:outputText>
+                                                </p:column> 
+
+                                                <p:column headerText="Vencimento" style="text-align: center; width: 85px">
+                                                    <h:outputText value="#{impressaoWeb.dtVencimento}">
+                                                        <f:convertDateTime />
+                                                    </h:outputText>
+                                                </p:column> 
+
+                                                <p:column headerText="Horário" style="text-align: center; width: 85px">
+                                                    <h:outputText value="#{impressaoWeb.hora}"/>
+                                                </p:column> 
+
+                                                <p:column headerText="Valor" style="text-align: right; width: 80px">
+                                                    <h:outputText value="#{impressaoWeb.movimento.valorString}"/>
+                                                </p:column> 
+
+                                                <p:column headerText="Pessoa">
+                                                    <h:outputText value="#{impressaoWeb.pessoa.nome}"/>
+                                                </p:column> 
+                                            </p:dataTable>                                            
+
+                                        </p:tab>
+                                    </p:tabView>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="1">
@@ -762,18 +794,18 @@
 
                             <p:dialog widgetVar="dlg_gerar_remessa" header="Gerador Arquivo Remessa" resizable="false" draggable="false" width="950" position="top" visible="#{extratoTelaBean.visibleModalRemessa}">
                                 <p:ajax event="close" update="formExtratoTela" listener="#{extratoTelaBean.fecharModalRemessa}"/>
-                                
+
                                 <h:panelGrid id="dlg_gerar_remessa" style="width: 100%">
                                     <p:messages autoUpdate="true" closable="true" showDetail="true" />
-                                    
+
                                     <h:panelGrid columns="2">
                                         <p:selectBooleanButton value="#{extratoTelaBean.verListaRemessa}" onLabel="NÃO VER LISTA DE BOLETO" offLabel="VER LISTA DE BOLETO" onIcon="ui-icon-close" offIcon="ui-icon-check" style="margin-right: 15px">
                                             <p:ajax update="dlg_gerar_remessa" />
                                         </p:selectBooleanButton>
-                                        
+
                                         <p:outputLabel value="#{extratoTelaBean.contaSelecionada.apelido} - #{extratoTelaBean.contaSelecionada.codCedente} - #{extratoTelaBean.contaSelecionada.contaBanco.banco.banco}" style="font-weight: bold; font-size: 11pt!important; "/>
                                     </h:panelGrid>
-                                    
+
                                     <p:separator />
 
                                     <h:panelGrid rendered="#{extratoTelaBean.verListaRemessa}">
@@ -785,7 +817,7 @@
                                             <p:column headerText="Boleto" style="width: 150px; text-align: center">
                                                 <h:outputText value="#{linha_remessa.boleto.boletoComposto}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Pessoa">
                                                 <h:outputText value="#{linha_remessa.boleto.pessoa.nome}" />
                                             </p:column>
@@ -793,12 +825,12 @@
                                             <p:column headerText="Vencimento" style="width: 80px; text-align: center">
                                                 <h:outputText value="#{linha_remessa.boleto.vencimento}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Status" style="width: 80px; text-align: center">
                                                 <h:outputText value="#{linha_remessa.statusRemessa.descricao}" style="font-weight: bold"/>
                                             </p:column>
                                         </p:dataTable>
-                                        
+
                                         <h:panelGrid columns="4">
                                             <h:column>
                                                 <div style="width: 15px; height: 15px; border:1px solid black;" class="tblExtratoTelaT1"></div>
@@ -806,7 +838,7 @@
                                             <h:column>
                                                 <b>Adicionados Automáticamente</b>
                                             </h:column>
-                                            
+
                                             <h:column>
                                                 <div style="width: 15px; height: 15px; border:1px solid black;"></div>
                                             </h:column>
@@ -814,14 +846,14 @@
                                                 <b>Adicionados por mim</b>
                                             </h:column>
                                         </h:panelGrid>
-                                            
+
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <p:outputLabel value="Quantidade de Boletos: " /><p:outputLabel value="#{extratoTelaBean.listaBoletoRemessa.size()}" style="font-weight: bold"/>
                                         </h:column>
-                                        
+
                                         <h:column>
                                             <p:outputLabel value="Limite médio de Arquivo: " /><p:outputLabel value="2000" style="font-weight: bold"/>
                                         </h:column>
