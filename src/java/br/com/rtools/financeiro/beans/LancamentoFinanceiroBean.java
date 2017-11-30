@@ -10,7 +10,6 @@ import br.com.rtools.estoque.Produto;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.CentroCustoDao;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
-import br.com.rtools.financeiro.dao.EstornoCaixaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.PedidoDao;
@@ -48,11 +47,8 @@ import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
-import static java.lang.Integer.reverse;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -134,9 +130,9 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     private Filtro filtro;
     private Boolean adicionarImposto;
-    private Boolean mostrarAdicionarParcela;
 
     private String motivoInativacao;
+    private String acaoParcela;
 
     @PostConstruct
     public void init() {
@@ -207,6 +203,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         modalPedido = false;
         produtos = true;
         filtro = new Filtro();
+        acaoParcela = "nova";
 
         loadLiberaAcessaFilial();
         lote.setEmissao(DataHoje.data());
@@ -223,7 +220,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaSocios = new ArrayList();
         atualizaHistorico();
         adicionarImposto = false;
-        mostrarAdicionarParcela = true;
         motivoInativacao = "";
     }
 
@@ -234,12 +230,86 @@ public class LancamentoFinanceiroBean implements Serializable {
         GenericaSessao.remove("juridicaPesquisa");
     }
 
-    public void editarParcela(Movimento mov){
-        
-    }
-    
-    public void actAdicionarParcela() {
+    public void editarParcela(Parcela p, Integer index) {
+        indexParcela = index;
+        acaoParcela = "editar";
 
+        documentoMovimento = p.getMovimento().getDocumento();
+        // PEGAR CONTA OPERAÇÃO AQUI --
+//        if (!listaContaOperacao.isEmpty() && idContaOperacao.equals(0)) {
+//            GenericaMensagem.warn("Erro", "Selecione uma CONTA PRIMÁRIA para adicionar parcela!");
+//            return;
+//        }
+//        ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
+        vencimento = p.getVencimento();
+
+        valor = p.getValor();
+
+        for (int i = 0; i < listaFTipoMovimento.size(); i++) {
+            if (Integer.valueOf(listaFTipoMovimento.get(i).getValue().toString()) == p.getMovimento().getTipoDocumento().getId()) {
+                idFTipoMovimento = p.getMovimento().getTipoDocumento().getId();
+                break;
+            }
+        }
+
+        acrescimo = p.getAcrescimo();
+        multa = p.getMovimento().getMultaString();
+        juros = p.getMovimento().getJurosString();
+        correcao = p.getMovimento().getCorrecaoString();
+        //acrescimo = Moeda.converteDoubleToString(Moeda.soma(Moeda.soma(p.getMovimento().getCorrecao(), p.getMovimento().getJuros()), p.getMovimento().getMulta()));
+
+        desconto = p.getDesconto();
+
+        // PEGAR 
+        //chkImposto = ??;
+        //condicao = ??;
+    }
+
+    public void atualizarParcela() {
+        if (!validaParcela()) {
+            return;
+        }
+
+        // ATUALIZA LISTA
+        listaParcela.get(indexParcela).setVencimento(vencimento);
+        listaParcela.get(indexParcela).setValor(valor);
+        listaParcela.get(indexParcela).setAcrescimo(acrescimo);
+        listaParcela.get(indexParcela).setMulta(multa);
+        listaParcela.get(indexParcela).setJuros(juros);
+        listaParcela.get(indexParcela).setCorrecao(correcao);
+        listaParcela.get(indexParcela).setDesconto(desconto);
+
+        // ATUALIZA MOVIMENTO DA LISTA
+        listaParcela.get(indexParcela).getMovimento().setVencimento(vencimento);
+        listaParcela.get(indexParcela).getMovimento().setValorString(valor);
+        listaParcela.get(indexParcela).getMovimento().setMultaString(multa);
+        listaParcela.get(indexParcela).getMovimento().setJurosString(juros);
+        listaParcela.get(indexParcela).getMovimento().setCorrecaoString(correcao);
+        listaParcela.get(indexParcela).getMovimento().setDescontoString(desconto);
+        listaParcela.get(indexParcela).getMovimento().setDocumento(documentoMovimento);
+        listaParcela.get(indexParcela).getMovimento().setFTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), idFTipoMovimento));
+
+        novaParcela();
+    }
+
+    public void novaParcela() {
+        acaoParcela = "nova";
+
+        vencimento = DataHoje.data();
+
+        valor = "0,00";
+
+        idFTipoMovimento = 0;
+
+        acrescimo = "0,00";
+
+        desconto = "0,00";
+
+        documentoMovimento = "";
+
+        parcela = new Parcela();
+
+        indexParcela = 0;
     }
 
     public void openDialogImposto() {
@@ -689,9 +759,10 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void edit(Lote l) {
+        novaParcela();
+
         lote = new Lote();
         lote = l;
-        mostrarAdicionarParcela = false;
         pessoa = lote.getPessoa();
         descricao = pessoa.getDocumento();
         modalVisivel = true;
@@ -948,6 +1019,8 @@ public class LancamentoFinanceiroBean implements Serializable {
                         movimento.setPlano5(lote.getPlano5());
                     }
 
+                    movimento.setVencimento(p.getVencimento());
+
                     if (!dao.update(movimento)) {
                         GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
                         dao.rollback();
@@ -1016,6 +1089,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             GenericaMensagem.info("OK", "Lançamento SALVO com Sucesso!");
             dao.commit();
             telaSalva = true;
+            parcela = new Parcela();
             loadListaLancamento();
         } catch (Exception e) {
             GenericaMensagem.error("ERROR", e.getMessage());
@@ -1031,7 +1105,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void excluirParcela() {
         if (parcela.getMovimento().getId() == -1) {
             listaParcela.remove(indexParcela);
-            GenericaMensagem.info("Sucesso", "Item removido!");
+            GenericaMensagem.info("Sucesso", "Item Removido!");
         } else {
             if (parcela.getMovimento().getBaixa() != null) {
                 GenericaMensagem.warn("Erro", "Não é possivel excluir parcela BAIXADA, para fazer isso ESTORNE os lançamentos!");
@@ -1039,14 +1113,14 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
             Dao dao = new Dao();
             if (dao.find(new Movimento(), parcela.getMovimento().getId()) == null) {
-                GenericaMensagem.info("Sucesso", "Item removido!");
+                GenericaMensagem.info("Sucesso", "Item Removido!");
                 listaParcela.remove(indexParcela);
                 return;
             }
             dao.openTransaction();
             if (dao.delete((parcela.getMovimento()))) {
                 dao.commit();
-                GenericaMensagem.info("Sucesso", "Item removido!");
+                GenericaMensagem.info("Sucesso", "Item Removido!");
                 listaParcela.remove(indexParcela);
             } else {
                 dao.rollback();
@@ -1055,25 +1129,34 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
     }
 
-    public void adicionarParcela() {
+    public boolean validaParcela() {
 
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Erro", "PESQUISE ou CADASTRE uma pessoa para adicionar uma parcela!");
-            return;
+            return false;
         }
 
         if (!listaContaOperacao.isEmpty() && idContaOperacao.equals(0)) {
             GenericaMensagem.warn("Erro", "Selecione uma CONTA PRIMÁRIA para adicionar parcela!");
-            return;
+            return false;
         }
 
         if (vencimento.isEmpty()) {
             GenericaMensagem.warn("Validação", "INFORMAR A DATA DE VENCIMENTO!");
-            return;
+            return false;
         }
 
         if (valor.equals("0,00") || valor.equals("0.00")) {
             GenericaMensagem.warn("Validação", "O VALOR NÃO PODE SER 0,00!");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void adicionarParcela() {
+
+        if (!validaParcela()) {
             return;
         }
 
@@ -1488,10 +1571,16 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void openModalAcrescimo() {
-        multa = "0,00";
-        juros = "0,00";
-        correcao = "0,00";
-        acrescimo = "0,00";
+        if (acaoParcela.equals("nova")) {
+            multa = "0,00";
+            juros = "0,00";
+            correcao = "0,00";
+            acrescimo = "0,00";
+        } else {
+            multa = listaParcela.get(indexParcela).getMovimento().getMultaString();
+            juros = listaParcela.get(indexParcela).getMovimento().getJurosString();
+            correcao = listaParcela.get(indexParcela).getMovimento().getCorrecaoString();
+        }
     }
 
     public void alterarListaLancamento(Usuario u) {
@@ -2307,14 +2396,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.adicionarImposto = adicionarImposto;
     }
 
-    public Boolean getMostrarAdicionarParcela() {
-        return mostrarAdicionarParcela;
-    }
-
-    public void setMostrarAdicionarParcela(Boolean mostrarAdicionarParcela) {
-        this.mostrarAdicionarParcela = mostrarAdicionarParcela;
-    }
-
     public String getMotivoInativacao() {
         return motivoInativacao;
     }
@@ -2725,4 +2806,11 @@ public class LancamentoFinanceiroBean implements Serializable {
 //                13 - Moeda.converteR$Double(movimento.getJuros()),
 //                14 - Moeda.converteR$Double(movimento.getCorrecao()),
 //                15 - null.   
+    public String getAcaoParcela() {
+        return acaoParcela;
+    }
+
+    public void setAcaoParcela(String acaoParcela) {
+        this.acaoParcela = acaoParcela;
+    }
 }

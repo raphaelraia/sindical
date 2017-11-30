@@ -23,6 +23,7 @@ public class ObjetoArquivo {
     private String erroArquivo;
     private Retorno retorno;
     private List<LinhaSegmento> linhaSegmento;
+    private Boolean arquivoComErro = false;
 
     public ObjetoArquivo() {
         this.cnpj = "";
@@ -33,9 +34,10 @@ public class ObjetoArquivo {
         this.erroArquivo = "";
         this.retorno = null;
         this.linhaSegmento = new ArrayList();
+        this.arquivoComErro = false;
     }
 
-    public ObjetoArquivo(String cnpj, String codigoCedente, String sequencialArquivo, String nomePasta, String nomeArquivo, String erroArquivo, Retorno retorno, List<LinhaSegmento> linhaSegmento) {
+    public ObjetoArquivo(String cnpj, String codigoCedente, String sequencialArquivo, String nomePasta, String nomeArquivo, String erroArquivo, Retorno retorno, List<LinhaSegmento> linhaSegmento, Boolean arquivoComErro) {
         this.cnpj = cnpj;
         this.codigoCedente = codigoCedente;
         this.sequencialArquivo = sequencialArquivo;
@@ -44,6 +46,7 @@ public class ObjetoArquivo {
         this.erroArquivo = erroArquivo;
         this.retorno = retorno;
         this.linhaSegmento = linhaSegmento;
+        this.arquivoComErro = arquivoComErro;
     }
 
     public String getCnpj() {
@@ -108,6 +111,14 @@ public class ObjetoArquivo {
 
     public void setLinhaSegmento(List<LinhaSegmento> linhaSegmento) {
         this.linhaSegmento = linhaSegmento;
+    }
+
+    public Boolean getArquivoComErro() {
+        return arquivoComErro;
+    }
+
+    public void setArquivoComErro(Boolean arquivoComErro) {
+        this.arquivoComErro = arquivoComErro;
     }
 
 }

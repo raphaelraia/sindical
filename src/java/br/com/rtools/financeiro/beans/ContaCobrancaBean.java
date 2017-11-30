@@ -187,7 +187,7 @@ public class ContaCobrancaBean {
             String entidade = filialDB.pesquisaRegistroPorFilial(1).getTipoEntidade();
             codigoSindical = contaCobranca.getCodigoSindical();
             if (entidade.equals("S")) {
-                contaCobranca.setSicasSindical(codigoSindical.substring(6, 11));
+                contaCobranca.setSicasSindical(codigoSindical.substring(codigoSindical.length() - 5, codigoSindical.length()));
             } else if (entidade.equals("C")) {
                 contaCobranca.setSicasSindical("00" + codigoSindical.substring(0, 3));
             } else if (entidade.equals("F")) {

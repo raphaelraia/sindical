@@ -35,19 +35,24 @@ public class RetornoBanco implements Serializable {
     @JoinColumn(name = "id_status_retorno", referencedColumnName = "id")
     @ManyToOne
     private StatusRetorno statusRetorno;
+    @JoinColumn(name = "id_movimento", referencedColumnName = "id")
+    @ManyToOne
+    private Movimento movimento;
 
     public RetornoBanco() {
         this.id = -1;
         this.retorno = new Retorno();
         this.boleto = "";
         this.statusRetorno = new StatusRetorno();
+        this.movimento = null;
     }
 
-    public RetornoBanco(int id, Retorno retorno, String boleto, StatusRetorno statusRetorno) {
+    public RetornoBanco(int id, Retorno retorno, String boleto, StatusRetorno statusRetorno, Movimento movimento) {
         this.id = id;
         this.retorno = retorno;
         this.boleto = boleto;
         this.statusRetorno = statusRetorno;
+        this.movimento = movimento;
     }
 
     public int getId() {
@@ -80,6 +85,14 @@ public class RetornoBanco implements Serializable {
 
     public void setStatusRetorno(StatusRetorno statusRetorno) {
         this.statusRetorno = statusRetorno;
+    }
+
+    public Movimento getMovimento() {
+        return movimento;
+    }
+
+    public void setMovimento(Movimento movimento) {
+        this.movimento = movimento;
     }
 
 }

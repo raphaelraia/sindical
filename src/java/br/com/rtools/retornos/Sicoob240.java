@@ -31,7 +31,7 @@ public class Sicoob240 extends ArquivoRetorno {
         if (arquivos != null) {
             
             for (int u = 0; u < arquivos.length; u++) {
-                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null);
+                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null, "");
                 
                 List<ObjetoArquivo> lista_objeto_arquivo = new ArrayList();
                 ObjetoArquivo objeto_arquivo = new ObjetoArquivo();

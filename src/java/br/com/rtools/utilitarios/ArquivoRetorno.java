@@ -107,7 +107,7 @@ public abstract class ArquivoRetorno {
 
             Dao dao = new Dao();
 
-            RetornoBanco rb = new RetornoBanco(-1, retorno, bol.getBoletoComposto(), sr);
+            RetornoBanco rb = new RetornoBanco(-1, retorno, bol.getBoletoComposto(), sr, m);
 
             dao.save(rb, true);
 
@@ -208,7 +208,7 @@ public abstract class ArquivoRetorno {
             b.setStatusRetorno(sr);
             b.setDtStatusRetorno(DataHoje.dataHoje());
 
-            RetornoBanco rb = new RetornoBanco(-1, retorno, b.getBoletoComposto(), sr);
+            RetornoBanco rb = new RetornoBanco(-1, retorno, b.getBoletoComposto(), sr, null);
 
             Dao dao = new Dao();
             

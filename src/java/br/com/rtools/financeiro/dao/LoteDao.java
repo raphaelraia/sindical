@@ -6,6 +6,7 @@ import br.com.rtools.financeiro.beans.LancamentoFinanceiroBean.Filtro;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -306,7 +307,7 @@ public class LoteDao extends DB {
                     + "  WHERE l.id_pessoa = " + pessoa_id + " \n"
                     + "    AND l.ds_documento = '" + documento + "' \n"
                     + "    AND l.id_tipo_documento = " + tipo_documento_id + " \n"
-                    + "    AND CAST((l.nr_valor * 100) AS int) = " + Integer.valueOf(valor.toString().replaceAll(",", "").replace(".", ""))
+                    + "    AND CAST((l.nr_valor * 100) AS int) = " + Integer.valueOf(Moeda.converteR$Double(valor).replaceAll(",", "").replace(".", ""))
                     + "    AND l.id IN ( \n "
                         + "SELECT m.id_lote \n "
                         + "  FROM fin_movimento m \n "

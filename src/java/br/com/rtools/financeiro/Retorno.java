@@ -36,6 +36,8 @@ public class Retorno implements Serializable {
     private String arquivo;
     @Column(name = "nr_sequencial")
     private Integer sequencial;
+    @Column(name = "ds_observacao")
+    private String observacao;
 
     public Retorno() {
         this.id = -1;
@@ -43,14 +45,16 @@ public class Retorno implements Serializable {
         this.dtRetorno = null;
         this.arquivo = "";
         this.sequencial = 0;
+        this.observacao = "";
     }
 
-    public Retorno(int id, ContaCobranca contaCobranca, Date dtRetorno, String arquivo, Integer sequencial) {
+    public Retorno(int id, ContaCobranca contaCobranca, Date dtRetorno, String arquivo, Integer sequencial, String observacao) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.dtRetorno = dtRetorno;
         this.arquivo = arquivo;
         this.sequencial = sequencial;
+        this.observacao = observacao;
     }
 
     public int getId() {
@@ -99,6 +103,14 @@ public class Retorno implements Serializable {
 
     public void setSequencial(Integer sequencial) {
         this.sequencial = sequencial;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 
 }
