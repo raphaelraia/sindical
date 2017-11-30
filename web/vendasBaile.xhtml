@@ -35,6 +35,7 @@
                             <h:outputText value="Vendas Baile" styleClass="fonteHeader" />
 
                             <div class="clear"></div>
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{vendaBaileBean.pessoa.existOposicao}" />
                             <p:panel>
                                 <f:facet name="header">
                                     <h:panelGrid columns="6" cellspacing="5">

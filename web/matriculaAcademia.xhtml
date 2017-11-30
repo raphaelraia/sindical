@@ -197,7 +197,7 @@
                                             <p:panel header="Foto Aluno" rendered="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.pessoa.id != -1}" id="i_photo_cam">
                                                 <p:graphicImage name="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.pessoa.fotoResource}" cache="false" width="130"/>
                                                 <h:panelGrid columns="2" style="width: 100%" columnClasses="text-center" styleClass="margin-top-max">
-                                                    <p:commandButton icon="photocam" value="Capturar Foto" action="#{photoCapture.openAndSave(matriculaAcademiaBean.matriculaAcademia.servicoPessoa.pessoa, 'form_matricula_academia')}" title="Capturar Foto" global="false" />
+                                                    <p:commandButton icon="photocam" value="Capturar Foto" action="matriculaAcademia" actionListener="#{photoCapture.openAndSave(matriculaAcademiaBean.matriculaAcademia.servicoPessoa.pessoa, 'form_matricula_academia')}" title="Capturar Foto" global="false" />
                                                     <br />
                                                     <p:commandButton icon="ui-icon-arrowthick-1-n" value="Enviar Foto" action="#{photoUpload.openAndSave(matriculaAcademiaBean.matriculaAcademia.servicoPessoa.pessoa, 'form_matricula_academia')}" title="Enviar Foto" global="false" />
                                                 </h:panelGrid>

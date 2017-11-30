@@ -8,6 +8,10 @@
     <f:view>
         <h:form id="form_photo_capture">
             <p:dialog widgetVar="dlg_photo_capture" header="Captura de Imagem" visible="#{photoCapture.renderedPhotoCapture}">
+                <style type="text/css">
+                    #form_photo_capture:id_photo_capture_modal {background: #ffffff!important}
+                    
+                </style>
                 <p:ajax event="close" listener="#{photoCapture.close()}" />
                 <c:if test="#{!segurancaUtilitariosBean.macFilial.webcam}">
                     <strong class="font-color-red">WEBCAM DESABILITADA</strong>
@@ -34,9 +38,9 @@
                             navigator.getMedia({video: true, audio: false, geolocation: true},
                                     function (localMediaStream) {
                                         var video = document.querySelector('video');
-                                        video.src = window.URL.createObjectURL(localMediaStream);
-                                        video.onloadedmetadata = function (e) {
-                                        };
+                                        // video.src = window.URL.createObjectURL(localMediaStream);
+                                        // video.onloadedmetadata = function (e) {
+                                        // };
                                     },
                                     function (err) {
                                         console.log("O seguinte erro ocorreu: " + err);

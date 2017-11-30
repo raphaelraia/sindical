@@ -2413,10 +2413,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         // OPOSIÇÃO
         switch (validacao) {
+            case "convenioMedico":
             case "matriculaEscola":
             case "matriculaAcademia":
             case "locacaoFilme":
             case "agendamentos":
+            case "cupomMovimento":
                 // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();

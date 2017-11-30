@@ -18,7 +18,7 @@ public class RelatorioSociosDao extends DB {
 
     /**
      *
-     * 
+     *
      * @param in_tipo_cobranca
      * @param in_grupo_categoria
      * @param in_categoria
@@ -70,7 +70,7 @@ public class RelatorioSociosDao extends DB {
      * @param ref_validade_dependente_final
      * @return
      */
-    public List find( 
+    public List find(
             /**
              * IN
              */
@@ -843,9 +843,7 @@ public class RelatorioSociosDao extends DB {
                         subfiltro += " HAVING COUNT(*) = " + minQtdeFuncionario + " ";
                     } else if (Integer.parseInt(minQtdeFuncionario) > 0 && Integer.parseInt(maxQtdeFuncionario) == 0) {
                         subfiltro += " HAVING COUNT(*) <= " + minQtdeFuncionario + " ";
-                    } else if (Integer.parseInt(minQtdeFuncionario) == 0 && Integer.parseInt(maxQtdeFuncionario) > 0) {
-                        subfiltro += " HAVING COUNT(*) >= " + maxQtdeFuncionario + " ";
-                    } else if (Integer.parseInt(minQtdeFuncionario) > 0 && Integer.parseInt(maxQtdeFuncionario) > 0) {
+                    } else if (Integer.parseInt(minQtdeFuncionario) >= 0 && Integer.parseInt(maxQtdeFuncionario) > 0) {
                         subfiltro += " HAVING COUNT(*) >= " + minQtdeFuncionario + " AND COUNT(*) <= " + maxQtdeFuncionario + " ";
                     }
                     subfiltro += " )";

@@ -33,6 +33,8 @@
                         <h:outputText value="Lançamento Individual" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'BENEFICIÁRIO CADASTRADO EM OPOSIÇÃO', '')}" escape="false" rendered="#{lancamentoIndividualBean.fisica.pessoa.existOposicao}" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'RESPONSÁVEL CADASTRADO EM OPOSIÇÃO', '')}" escape="false" rendered="#{lancamentoIndividualBean.responsavel.existOposicao}" />
                             <p:panel id="i_panel_pessoa" styleClass="fundoCinza">
                                 <h:panelGrid columns="2">
                                     <p:column>

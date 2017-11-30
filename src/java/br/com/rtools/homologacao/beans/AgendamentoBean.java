@@ -738,6 +738,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     } else {
                         agendamento.setData(DataHoje.converteData(getData()));
                         agendamento.setHorarios(a.getHorarios());
+                        agendamento.setEncaixe(true);
                     }
                 }
 

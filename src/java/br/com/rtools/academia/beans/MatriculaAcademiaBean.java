@@ -65,6 +65,7 @@ import br.com.rtools.utilitarios.ImageConverter;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.IOException;
@@ -164,6 +165,8 @@ public class MatriculaAcademiaBean implements Serializable {
 
     @PostConstruct
     public void init() {
+        Sessions.remove("photoCapture");
+        Sessions.remove("photoCamBean");
         matriculaAcademia = new MatriculaAcademia();
         matriculaAcademiaAntiga = new MatriculaAcademia();
         aluno = new Fisica();

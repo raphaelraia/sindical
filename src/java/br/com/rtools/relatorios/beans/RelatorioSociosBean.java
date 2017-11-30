@@ -25,19 +25,31 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.relatorios.dao.RelatorioSociosDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
+import br.com.rtools.sistema.ConfiguracaoUpload;
+import br.com.rtools.sistema.Email;
+import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.Mensagem;
 import br.com.rtools.sistema.Mes;
+import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.DateFilters;
+import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Mail;
+import br.com.rtools.utilitarios.Upload;
 import br.com.rtools.utilitarios.Zip;
 import com.google.common.io.Files;
 import java.io.File;
@@ -59,6 +71,7 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
+import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -167,12 +180,22 @@ public class RelatorioSociosBean implements Serializable {
 
     private Map<String, Integer> listCnaes;
     private List selectedCnae;
+    private List<ParametroSocios> listParametroSocios;
+    private List<ParametroSocios> parametroSociosSelecionado;
+    private Boolean modal;
+
+    private List listFiles;
+    private Integer amount;
+    private String subject;
+    private Mensagem mensagem;
+    private Boolean selectAll;
 
     public RelatorioSociosBean() {
         idRelatorio = null;
         idRelatorioOrdem = null;
         listRelatorio = new ArrayList();
         listRelatorioOrdem = new ArrayList();
+        listParametroSocios = new ArrayList();
         situacaoString = null;
         compactar = false;
         carenciaDias = null;
@@ -222,6 +245,10 @@ public class RelatorioSociosBean implements Serializable {
         loadRelatoriosOrdem();
         loadFilters();
         loadGroups();
+        modal = false;
+        listFiles = new ArrayList();
+        subject = "";
+        selectAll = false;
 
     }
 
@@ -264,6 +291,13 @@ public class RelatorioSociosBean implements Serializable {
         } else if (tcase.equals("reload_relatorios")) {
             loadRelatorios(false);
             loadRelatoriosOrdem();
+        } else if (tcase.equals("select_all")) {
+            if (selectAll) {
+                parametroSociosSelecionado = new ArrayList();
+                parametroSociosSelecionado = listParametroSocios;
+            } else {
+                parametroSociosSelecionado = new ArrayList();
+            }
         }
     }
 
@@ -605,6 +639,32 @@ public class RelatorioSociosBean implements Serializable {
 
     public void removeSocio(Pessoa p) {
         listSocios.remove(socio);
+    }
+
+    public void openSendMail() {
+        tipoEmail = "com";
+        mensagem = new Mensagem();
+        listParametroSocios = new ArrayList();
+        parametroSociosSelecionado  = new ArrayList();
+        modal = true;
+        listParametroSocios = loadListParametroSocios();
+        listFiles = new ArrayList();
+        subject = "";
+        if (listParametroSocios.isEmpty()) {
+            GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
+            return;
+        }
+    }
+
+    public void closeSendMail() {
+        parametroSociosSelecionado  = new ArrayList();
+        tipoEmail = "";
+        mensagem = new Mensagem();
+        modal = false;
+        listFiles = new ArrayList();
+        subject = "";
+        listParametroSocios = new ArrayList();
+        modal = false;
     }
 
     public void print() {
@@ -2555,4 +2615,169 @@ public class RelatorioSociosBean implements Serializable {
     public void setTipoBeneficio(String tipoBeneficio) {
         this.tipoBeneficio = tipoBeneficio;
     }
+
+    public List<ParametroSocios> getListParametroSocios() {
+        return listParametroSocios;
+    }
+
+    public void setListParametroSocios(List<ParametroSocios> listParametroSocios) {
+        this.listParametroSocios = listParametroSocios;
+    }
+
+    public Boolean getModal() {
+        return modal;
+    }
+
+    public void setModal(Boolean modal) {
+        this.modal = modal;
+    }
+
+    public void uploadFiles(FileUploadEvent event) {
+        ConfiguracaoUpload configuracaoUpload = new ConfiguracaoUpload();
+        configuracaoUpload.setArquivo(event.getFile().getFileName());
+        configuracaoUpload.setDiretorio("Arquivos/Anexos/Pendentes/ArquivoSocios");
+        configuracaoUpload.setEvent(event);
+        if (Upload.enviar(configuracaoUpload, true)) {
+            listFiles.clear();
+        }
+        getListFiles();
+    }
+
+    public void deleteFiles(int index) {
+        String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/Anexos/Pendentes/ArquivoSocios/" + (String) ((DataObject) listFiles.get(index)).getArgumento1());
+        File fl = new File(caminho);
+        fl.delete();
+        listFiles.remove(index);
+        listFiles.clear();
+        getListFiles();
+    }
+
+    public List getListFiles() {
+        if (listFiles.isEmpty()) {
+            listFiles = Diretorio.listaArquivos("Arquivos/Anexos/Pendentes/ArquivoSocios");
+            if (listFiles.size() > 0) {
+                setAmount(listFiles.size());
+            } else {
+                setAmount(0);
+            }
+            // itens.clear();
+        }
+        return listFiles;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public Mensagem getMensagem() {
+        return mensagem;
+    }
+
+    public void setMensagem(Mensagem mensagem) {
+        this.mensagem = mensagem;
+    }
+
+    public void send() {
+        if(parametroSociosSelecionado == null || parametroSociosSelecionado.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Selecionar um destinatário!");
+            return;
+        }
+        if (mensagem.getAssunto().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informa assunto!");
+            return;
+        }
+        if (mensagem.getMensagem().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informar mensagem!");
+            return;
+        }
+        List<Pessoa> aux = new ArrayList();
+        Rotina r = new Rotina().get();
+        for (ParametroSocios ps : parametroSociosSelecionado) {
+            Integer.parseInt(ps.getCodsocio());
+            Pessoa pessoa = (Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(ps.getCodsocio()));
+            aux.add(pessoa);
+        }
+        List aux2 = new ArrayList();
+        for (int i = 0; i < listFiles.size(); i++) {
+            aux2.add((File) ((DataObject) listFiles.get(i)).getArgumento0());
+        }
+        Dao di = new Dao();
+        Mail mail = new Mail();
+        mail.setFiles(aux2);
+        mail.setEmail(
+                new Email(
+                        -1,
+                        DataHoje.dataHoje(),
+                        DataHoje.livre(new Date(), "HH:mm"),
+                        (Usuario) GenericaSessao.getObject("sessaoUsuario"),
+                        r,
+                        null,
+                        mensagem.getAssunto(),
+                        mensagem.getMensagem(),
+                        false,
+                        false
+                )
+        );
+        List<EmailPessoa> emailPessoas = new ArrayList<>();
+        EmailPessoa emailPessoa = new EmailPessoa();
+        List<Pessoa> pessoas = (List<Pessoa>) aux;
+        for (Pessoa p : pessoas) {
+            emailPessoa.setDestinatario(p.getEmail1());
+            emailPessoa.setPessoa(p);
+            emailPessoa.setRecebimento(null);
+            emailPessoas.add(emailPessoa);
+            mail.setEmailPessoas(emailPessoas);
+            emailPessoa = new EmailPessoa();
+        }
+        ConfiguracaoDepartamento configuracaoDepartamento = null;
+
+        if (MacFilial.getAcessoFilial().getFilial().getId() != -1) {
+
+            configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(6, MacFilial.getAcessoFilial().getFilial().getId());
+
+        }
+        if (configuracaoDepartamento != null) {
+            mail.setConfiguracaoDepartamento(configuracaoDepartamento);
+        }
+        String[] retorno = mail.send("personalizado");
+
+        if (retorno[1].isEmpty()) {
+            if (!listFiles.isEmpty()) {
+                GenericaMensagem.info("Sucesso", "Email(s) " + retorno[0]);
+            } else {
+                GenericaMensagem.info("Sucesso", "Email " + retorno[0]);
+            }
+        } else {
+            GenericaMensagem.warn("Falha", "Email(s) " + retorno[1]);
+        }
+    }
+
+    public List<ParametroSocios> getParametroSociosSelecionado() {
+        return parametroSociosSelecionado;
+    }
+
+    public void setParametroSociosSelecionado(List<ParametroSocios> parametroSociosSelecionado) {
+        this.parametroSociosSelecionado = parametroSociosSelecionado;
+    }
+
+    public Boolean getSelectAll() {
+        return selectAll;
+    }
+
+    public void setSelectAll(Boolean selectAll) {
+        this.selectAll = selectAll;
+    }
+
 }

@@ -35,8 +35,23 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 <f:view>
+                    <h:form id="form_relatorio_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
+                        <p:dialog widgetVar="dlg_upload" modal="true" width="500" height="400" header="Anexar arquivos" closable="true">
+                            <p:fileUpload label="Procurar"
+                                          cancelLabel="Cancelar"
+                                          uploadLabel="Anexar"
+                                          mode="advanced"                                          
+                                          dragDropSupport="true"
+                                          multiple="false"
+                                          fileUploadListener="#{relatorioSociosBean.uploadFiles}" update=":form_relatorio_email:i_files_list :form_relatorio_email:i_anexos" 
+                                          oncomplete="PF('dg_upload').hide()" 
+                                          />
+                        </p:dialog>
+                    </h:form>             
+                    <!-- update=":form_relatorio:i_files_list :form_relatorio:id_btn_anexo"  -->
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Relatório Sócios" styleClass="fonteHeader" />
                         <h:form id="form_relatorio">
@@ -44,17 +59,17 @@
                                 <h:panelGrid columns="6" id="i_p_r">
                                     <p:outputLabel value="Tipo de Relatório: " />
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorio}">
-                                        <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioSociosBean.listener('reload')}"/>
+                                        <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioSociosBean.listener('reload')}" global="false"/>
                                         <f:selectItems value="#{relatorioSociosBean.listRelatorio}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}"/>
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorioOrdem}" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}">
-                                        <p:ajax event="change" update="@this"/>
+                                        <p:ajax event="change" update="@this" global="false"/>
                                         <f:selectItems value="#{relatorioSociosBean.listRelatorioOrdem}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Grupos: " styleClass="margin-left-max" rendered="#{relatorioSociosBean.idRelatorio eq 107}" />
                                     <p:selectOneMenu value="#{relatorioSociosBean.selectedGroups}" rendered="#{relatorioSociosBean.idRelatorio eq 107}" >
-                                        <p:ajax event="change" update="@this"/>
+                                        <p:ajax event="change" update="@this" global="false"/>
                                         <f:selectItems value="#{relatorioSociosBean.listGroups}"/>
                                     </p:selectOneMenu>
                                     <p:selectBooleanCheckbox itemLabel="Imprimir por folha" value="#{jasperBean.IS_BY_LEAF}" rendered="#{relatorioSociosBean.enableFolha}"/>
@@ -72,7 +87,7 @@
                                                 <h:panelGrid>
                                                     <c:forEach items="#{relatorioSociosBean.filtersSocio}" var="filterSocio" varStatus="loop" id="i_foreach_1">
                                                         <p:selectBooleanButton value="#{filterSocio.active}" onLabel="#{filterSocio.value}" offLabel="#{filterSocio.value}" style="width: 180px; text-align: left" disabled="#{filterSocio.disabled}">
-                                                            <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_p_r" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersSocio[loop.index])}" />
+                                                            <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_p_r" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersSocio[loop.index])}" global="false"/>
                                                         </p:selectBooleanButton>
                                                     </c:forEach>                                                
                                                 </h:panelGrid>
@@ -81,7 +96,7 @@
                                                 <h:panelGrid>
                                                     <c:forEach items="#{relatorioSociosBean.filtersEmpresa}" var="filtersEmpresa" varStatus="loop" id="i_foreach_2">                                            
                                                         <p:selectBooleanButton value="#{filtersEmpresa.active}" onLabel="#{filtersEmpresa.value}" offLabel="#{filtersEmpresa.value}" style="width: 180px; text-align: left" disabled="#{filtersEmpresa.disabled}">
-                                                            <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersEmpresa[loop.index])}" />
+                                                            <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersEmpresa[loop.index])}" global="false"/>
                                                         </p:selectBooleanButton>
                                                     </c:forEach>
                                                 </h:panelGrid>
@@ -90,7 +105,7 @@
                                                 <h:panelGrid>
                                                     <c:forEach items="#{relatorioSociosBean.filtersFinanceiro}" var="filtersFinanceiro" varStatus="loop" id="i_foreach_3">                                            
                                                         <p:selectBooleanButton value="#{filtersFinanceiro.active}" onLabel="#{filtersFinanceiro.value}" offLabel="#{filtersFinanceiro.value}" style="width: 180px; text-align: left">
-                                                            <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersFinanceiro[loop.index])}" />
+                                                            <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersFinanceiro[loop.index])}" global="false"/>
                                                         </p:selectBooleanButton>
                                                     </c:forEach>                                                
                                                 </h:panelGrid>
@@ -122,12 +137,12 @@
                                                                 #{socios.nome}                                                                
                                                             </p:column>
                                                             <p:column width="30" styleClass="text-center">
-                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeSocio(socios)}" title="Remover" update=":form_relatorio:i_list_socios"/> 
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeSocio(socios)}" title="Remover" update=":form_relatorio:i_list_socios" global="false"/> 
                                                             </p:column>
                                                         </p:dataTable>
                                                     </h:panelGroup>
                                                     <f:facet name="footer">
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('socios')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('socios')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </f:facet>
                                                 </p:panel>
                                             </h:column>                                            
@@ -140,7 +155,7 @@
                                                             <f:selectItem itemValue="nao_socio" itemLabel="Não Sócio"/>
                                                             <f:selectItem itemValue="todos" itemLabel="Todos"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('status')}" title="Remover filtro" update="form_relatorio" disabled="true"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('status')}" title="Remover filtro" update="form_relatorio" disabled="true" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>                                            
@@ -149,13 +164,13 @@
                                                     <h:panelGrid columns="6" cellspacing="5">
                                                         <p:outputLabel value="NÚMERO MATRÍCULA: " styleClass="bold font-color-red"/>
                                                         <p:inputText value="#{relatorioSociosBean.matriculaInicial}" size="8" styleClass="text-center" converter="#{thisNumber}">
-                                                            <p:ajax event="change" update="@this" />
+                                                            <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
                                                         <p:outputLabel value=" até " style="font-weight: bold"/>
                                                         <p:inputText value="#{relatorioSociosBean.matriculaFinal}" size="8" styleClass="text-center" converter="#{thisNumber}">
-                                                            <p:ajax event="change" update="@this" />
+                                                            <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('numero_matricula')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('numero_matricula')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>                                            
                                                 </p:panel>                                                
                                             </h:column>
@@ -164,13 +179,13 @@
                                                     <h:panelGrid columns="6" cellspacing="5">
                                                         <p:outputLabel value="IDADE: " styleClass="bold"/>
                                                         <p:inputText value="#{relatorioSociosBean.idadeInicial}" size="8" styleClass="text-center" converter="#{thisNumber}">
-                                                            <p:ajax event="change" update="@this" />
+                                                            <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
                                                         <p:outputLabel value=" até " style="font-weight: bold"/>
                                                         <p:inputText value="#{relatorioSociosBean.idadeFinal}" size="8" styleClass="text-center" converter="#{thisNumber}">
-                                                            <p:ajax event="change" update="@this" />
+                                                            <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('idade')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('idade')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -179,7 +194,7 @@
                                                     <h:panelGrid columns="5" cellspacing="5">
                                                         <h:column>
                                                             <p:selectCheckboxMenu label="Selecionar grupo categoria" value="#{relatorioSociosBean.selectedGrupoCategoria}" filter="true" filterMatchMode="startsWith">
-                                                                <p:ajax event="toggleSelect"  update="i_categoria" global="false" listener="#{relatorioSociosBean.loadCategoria()}"/>
+                                                                <p:ajax event="toggleSelect"  update="i_categoria" global="false" listener="#{relatorioSociosBean.loadCategoria()}" />
                                                                 <p:ajax event="change" update="i_categoria" global="false" listener="#{relatorioSociosBean.loadCategoria()}"/>
                                                                 <f:selectItems value="#{relatorioSociosBean.listGrupoCategoria}" />
                                                             </p:selectCheckboxMenu> 
@@ -195,7 +210,7 @@
                                                             </h:panelGroup>
                                                         </h:column>
 
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('grupo_categoria')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('grupo_categoria')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -228,7 +243,7 @@
                                                     <h:panelGrid columns="6" cellspacing="5">
                                                         <p:outputLabel value="FOTOS: " styleClass="bold"/>
                                                         <p:selectOneMenu value="#{relatorioSociosBean.tipoFotos}">
-                                                            <p:ajax event="change" update="@this :form_relatorio:i_fts" /> 
+                                                            <p:ajax event="change" update="@this :form_relatorio:i_fts" global="false"/> 
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                         </p:selectOneMenu>
@@ -252,7 +267,7 @@
                                                             <p:ajax event="change" global="false"/>
                                                             <f:selectItems value="#{relatorioSociosBean.listCidadesSocio}" />
                                                         </p:selectCheckboxMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('cidade_socio')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('cidade_socio')}" title="Remover filtro" update="form_relatorio" global="false"/>                                                        
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -264,7 +279,7 @@
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('carteirinha')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('carteirinha')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -288,7 +303,7 @@
                                                         </h:panelGrid>
                                                     </h:column>
                                                     <f:facet name="footer">
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('aniversario')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('aniversario')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </f:facet>
                                                 </p:panel>
                                             </h:column>
@@ -300,7 +315,7 @@
                                                             <p:ajax event="change" global="false"/>
                                                             <f:selectItems value="#{relatorioSociosBean.listEstadoCivil}" />
                                                         </p:selectCheckboxMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('estado_civil')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('estado_civil')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>                                                    
                                                 </p:panel>
                                             </h:column>
@@ -312,7 +327,7 @@
                                                             <f:selectItem itemValue="votante" itemLabel="Votantes"/>
                                                             <f:selectItem itemValue="naoVotante" itemLabel="Não Votantes"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('votante')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('votante')}" title="Remover filtro" update="form_relatorio" global="false"/>                                                        
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -324,7 +339,7 @@
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('email')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('email')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>                                                    
                                             </h:column>
@@ -336,7 +351,7 @@
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('telefone')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('telefone')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -348,7 +363,7 @@
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('biometria')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('biometria')}" title="Remover filtro" update="form_relatorio" global="false"/>                                                        
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -373,11 +388,11 @@
                                                                     <f:selectItem itemValue="todos" itemLabel="Todos" />
                                                                 </p:selectOneButton>                                                
                                                                 <p:inputText value="#{relatorioSociosBean.carenciaDiasString}" maxlength="3" size="2" styleClass="margin-left-max text-center" converter="#{thisNumber}">
-                                                                    <p:ajax event="change" update="@this" />
+                                                                    <p:ajax event="change" update="@this" global="false"/>
                                                                 </p:inputText>
                                                             </h:panelGrid>
                                                         </h:column>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('situacao')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('situacao')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>                                                
                                             </h:column>
@@ -386,7 +401,7 @@
                                                     <h:panelGrid columns="3" cellspacing="5">
                                                         <p:outputLabel value="SUSPENSOS"  styleClass="bold font-color-red"/>
                                                         <p:selectOneMenu value="#{relatorioSociosBean.tipoSuspencao}">
-                                                            <p:ajax event="change" update=":form_relatorio:i_p_r" listener="#{relatorioSociosBean.listener('reload_relatorios')}" />
+                                                            <p:ajax event="change" update=":form_relatorio:i_p_r" listener="#{relatorioSociosBean.listener('reload_relatorios')}" global="false"/>
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                             <f:selectItem itemValue="foram_suspensos" itemLabel="Foram suspensos" itemDisabled="true"/>
@@ -403,7 +418,7 @@
                                                             <f:selectItem itemValue="com" itemLabel="Com"/>
                                                             <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('oposicao')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('oposicao')}" title="Remover filtro" update="form_relatorio" global="false"/>                                                        
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -425,7 +440,7 @@
                                                             <f:selectItem itemValue="ano_passado" itemLabel="Ano passado" />
                                                             <f:selectItem itemValue="nunca_utilizou" itemLabel="Nunca utilizou" />
                                                         </p:selectOneMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('frequencia')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('frequencia')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -438,7 +453,7 @@
                                                         <h:panelGrid  styleClass="margin-top-max">
                                                             <h:panelGrid columns="2">
                                                                 <p:selectOneRadio id="idRadioEmpresas" value="#{relatorioSociosBean.tipoEmpresas}">
-                                                                    <p:ajax event="change" update="@this i_panel_filtro2 :form_relatorio:i_tab_empresa" listener="#{relatorioSociosBean.listener('empresas')}"/>
+                                                                    <p:ajax event="change" update="@this i_panel_filtro2 :form_relatorio:i_tab_empresa" listener="#{relatorioSociosBean.listener('empresas')}" global="false"/>
                                                                     <f:selectItem itemValue="com"         itemLabel="Com"/>
                                                                     <f:selectItem itemValue="sem"         itemLabel="Sem"/>
                                                                     <f:selectItem itemValue="especificas" itemLabel="Específicas"/>
@@ -452,11 +467,11 @@
                                                             <h:panelGrid columns="5" rendered="#{relatorioSociosBean.tipoEmpresas eq 'com'}">
                                                                 <p:outputLabel value="Número de funcionários a partir de:" />                                                
                                                                 <p:inputText value="#{relatorioSociosBean.minQtdeFuncionarioString}" size="3" converter="#{thisNumber}" styleClass="text-center">
-                                                                    <p:ajax event="change" update="@this" />
+                                                                    <p:ajax event="change" update="@this" global="false"/>
                                                                 </p:inputText>
                                                                 <p:outputLabel value=" até " />
                                                                 <p:inputText value="#{relatorioSociosBean.maxQtdeFuncionarioString}" size="3" converter="#{thisNumber}" styleClass="text-center">
-                                                                    <p:ajax event="change" update="@this" />
+                                                                    <p:ajax event="change" update="@this" global="false"/>
                                                                 </p:inputText>
                                                             </h:panelGrid>
                                                         </h:panelGrid>
@@ -464,14 +479,14 @@
                                                             <p:panel header="Cnae"  style="margin-top-max">
                                                                 <h:panelGrid columns="8" cellpadding="5">
                                                                     <p:selectCheckboxMenu label="Selecionar cnae" value="#{relatorioSociosBean.selectedCnae}" disabled="#{relatorioSociosBean.listCnaes == null}" filter="true" filterMatchMode="contains">
-                                                                        <p:ajax event="toggleSelect" update="@this" />
+                                                                        <p:ajax event="toggleSelect" update="@this" global="false"/>
                                                                         <f:selectItems value="#{relatorioSociosBean.listCnaes}" />
                                                                     </p:selectCheckboxMenu>
                                                                 </h:panelGrid>
                                                             </p:panel>                                                         
                                                         </h:panelGroup>
                                                         <f:facet name="footer">
-                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('empresas')}" title="Remover filtro" update="form_relatorio"/>
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('empresas')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                         </f:facet>
                                                     </p:panel>                                                                                                 
                                                 </h:panelGroup>
@@ -484,14 +499,14 @@
                                                             <p:ajax event="change" global="false"/>
                                                             <f:selectItems value="#{relatorioSociosBean.listCidadesEmpresa}" />
                                                         </p:selectCheckboxMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('cidade_empresa')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('cidade_empresa')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
                                             <h:column rendered="#{relatorioSociosBean.getShow('validade_dependente')}">
                                                 <p:panel header="Validade do Dependente">
                                                     <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkValidadeDependente}" itemLabel="Dependentes Sem Validade">
-                                                        <p:ajax event="change" update="panel_validade_dependente" />
+                                                        <p:ajax event="change" update="panel_validade_dependente" global="false"/>
                                                     </p:selectBooleanCheckbox>
                                                     <br />
                                                     <h:panelGrid id="panel_validade_dependente">
@@ -558,12 +573,12 @@
                                                                 </h:column>
                                                             </h:panelGrid>
                                                             <p:selectOneRadio value="#{relatorioSociosBean.contemServicos}">
-                                                                <p:ajax event="change" update="@this" />
+                                                                <p:ajax event="change" update="@this" global="false"/>
                                                                 <f:selectItem itemValue="true" itemLabel="Contém" />
                                                                 <f:selectItem itemValue="false" itemLabel="Não Contém" />
                                                             </p:selectOneRadio>
                                                             <f:facet name="footer">
-                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('servicos')}" title="Remover filtro" update="form_relatorio"/>                                                                
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('servicos')}" title="Remover filtro" update="form_relatorio" global="false"/>                                                                
                                                             </f:facet>
                                                         </p:panel>
                                                     </h:column> 
@@ -577,7 +592,7 @@
                                                             <p:ajax event="change" global="false"/>
                                                             <f:selectItems value="#{relatorioSociosBean.listTipoCobranca}" />
                                                         </p:selectCheckboxMenu>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('tipo_cobranca')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('tipo_cobranca')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </h:panelGrid>
                                                 </p:panel>
                                             </h:column>
@@ -590,7 +605,7 @@
                                                                 <f:selectItems value="#{relatorioSociosBean.listDates}"/>
                                                             </p:selectOneMenu>
                                                             <p:selectOneMenu label="Data" value="#{relatorioSociosBean.typeDate}">
-                                                                <p:ajax event="change" update="@this i_panel_datas" />
+                                                                <p:ajax event="change" update="@this i_panel_datas" global="false"/>
                                                                 <f:selectItem itemValue="todos" itemLabel="Todos" />
                                                                 <f:selectItem itemValue="igual" itemLabel="Igual" />
                                                                 <f:selectItem itemValue="apartir" itemLabel="A partir" />
@@ -614,7 +629,7 @@
                                                             </p:column>
                                                             <p:column headerText="Tipo" styleClass="text-center">                                                                
                                                                 <p:selectOneMenu label="Data" value="#{dateFilters.type}">
-                                                                    <p:ajax event="change" update="@this i_tbl_data" />
+                                                                    <p:ajax event="change" update="@this i_tbl_data" global="false"/>
                                                                     <f:selectItem itemValue="todos" itemLabel="Todos" />
                                                                     <f:selectItem itemValue="igual" itemLabel="Igual" />
                                                                     <f:selectItem itemValue="apartir" itemLabel="A partir" />
@@ -635,12 +650,12 @@
                                                                 </p:inputMask>
                                                             </p:column>
                                                             <p:column width="30" styleClass="text-center">
-                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeFilterDate(dateFilters)}" title="Remover filtro" update=":form_relatorio:i_panel_datas"/>
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeFilterDate(dateFilters)}" title="Remover filtro" update=":form_relatorio:i_panel_datas" global="false"/>
                                                             </p:column>
                                                         </p:dataTable>
                                                     </h:panelGroup>
                                                     <f:facet name="footer">
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('datas')}" title="Remover filtro" update="form_relatorio"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('datas')}" title="Remover filtro" update="form_relatorio" global="false"/>
                                                     </f:facet>
                                                 </p:panel>
                                             </h:column>                                            
@@ -674,13 +689,14 @@
                             </h:panelGrid>                            
                             <h:panelGrid>
                                 <h:column>
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="3" cellspacing="5">
                                         <p:commandLink action="#{relatorioSociosBean.print}" title="Imprimir Relatório" ajax="false">
                                             <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório"/>
                                         </p:commandLink>                                 
                                         <p:commandLink action="#{relatorioSociosBean.export}" title="Exportar" ajax="false">
                                             <p:commandButton icon="ui-icon-send" value="Exportar para reunião" title="Enviar para reunião"/>
-                                        </p:commandLink>                                 
+                                        </p:commandLink>
+                                        <p:commandButton value="Abrir Email" update=":form_relatorio: :form_relatorio_email:" action="#{relatorioSociosBean.openSendMail}"/>
                                     </h:panelGrid>                                    
                                 </h:column>
                                 <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar Arquivo (ZIP)" />
@@ -701,6 +717,87 @@
                             </h:column>
                         </h:form>
                     </p:panel>
+
+                    <h:form id="form_relatorio_email">
+                        <p:dialog widgetVar="dlg_send_email" modal="true" width="1000" height="600" header="Enviar Email" closable="true" visible="#{relatorioSociosBean.modal}">
+                            <p:ajax event="close" listener="#{relatorioSociosBean.closeSendMail}" update=":form_relatorio: :form_relatorio_email:" />
+                            <h:panelGroup  id="i_anexos" layout="block">
+                                <p:messages showDetail="true" showSummary="true" autoUpdate="true" />
+
+
+
+                                <h:panelGrid columns="5" cellpadding="5">
+                                    <p:outputLabel value="Assunto: " for="id_email_assunto" />
+                                    <p:inputText id="id_email_assunto" size="110" value="#{relatorioSociosBean.mensagem.assunto}"/>
+                                </h:panelGrid>
+
+                                <h:panelGroup id="i_panel" layout="block">
+                                    <p:dataTable value="#{relatorioSociosBean.listParametroSocios}" var="parametroSocios" rows="100" paginator="true" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="200" selection="#{relatorioSociosBean.parametroSociosSelecionado}" rowKey="#{parametroSocios.codigo}" rowIndexVar="index">
+                                        <p:ajax event="rowSelect" update=":form_relatorio_email:i_panel"/>
+                                        <p:ajax event="rowSelectCheckbox" update=":form_relatorio_email:i_panel"/>
+                                        <p:ajax event="rowUnselect" update=":form_relatorio_email:i_panel"/>
+                                        <p:ajax event="rowUnselectCheckbox" update=":form_relatorio_email:i_panel"/>
+                                        <p:ajax event="toggleSelect" update=":form_relatorio_email:i_panel"/>
+
+                                        <p:column selectionMode="multiple" width="20" styleClass="text-center"/>
+
+                                        <p:column headerText="" width="30" styleClass="text-center">#{index+1}</p:column>
+
+                                        <p:column headerText="Sócio">
+                                            #{parametroSocios.nome}
+                                        </p:column>
+                                        <p:column headerText="Titular">
+                                            #{parametroSocios.nome}
+                                        </p:column>
+                                        <p:column headerText="Email">
+                                            #{parametroSocios.email}
+                                        </p:column>
+                                        <p:column headerText="Empresa">
+                                            #{parametroSocios.empresa}
+                                        </p:column>
+                                        <f:facet name="footer">
+                                            <h:panelGrid columns="5" cellspacing="5" styleClass="sbb">
+                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.selectAll}" itemLabel="Selecionar tudo">
+                                                    <p:ajax event="change" update="@this :form_relatorio_email:i_panel" listener="#{relatorioSociosBean.listener('select_all')}" />
+                                                </p:selectBooleanCheckbox>
+                                                <h:outputText value="Total de Registros: #{relatorioSociosBean.listParametroSocios.size()}" />
+                                                <h:outputText value="Selecionados: #{relatorioSociosBean.parametroSociosSelecionado.size()}" />
+                                            </h:panelGrid>
+                                        </f:facet>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <p:panel header="Mensagem e anexos" styleClass="margin-top-max">
+                                    <p:editor controls="bold italic underline strikethrough" value="#{relatorioSociosBean.mensagem.mensagem}"  height="150"/>
+                                </p:panel>
+
+                                <h:panelGrid columns="5" cellpadding="5">
+                                    <p:commandButton value="Anexar arquivos" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads"/>
+                                    <p:commandButton value="Anexos (#{relatorioSociosBean.listFiles.size()}" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo"/>
+                                    <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(171)}"/>
+                                </h:panelGrid>
+                            </h:panelGroup>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="5" cellpadding="5">
+                                    <p:commandButton value="Enviar" action="#{relatorioSociosBean.send}"  />
+                                </h:panelGrid>
+                            </f:facet>
+
+                        </p:dialog>
+
+                        <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true">
+                            <h:panelGrid id="i_files_list" style="width: 350px">
+                                <p:dataTable value="#{relatorioSociosBean.listFiles}" var="file" emptyMessage="Nenhum arquivo encontrado">
+                                    <f:facet name="header">Arquivos anexados (#{relatorioSociosBean.listFiles.size()})</f:facet>
+                                    <p:column headerText="Nome arquivo" width="300">
+                                        #{file.argumento1}
+                                    </p:column>
+                                    <p:column width="25">
+                                        <p:commandButton action="#{relatorioSociosBean.deleteFiles(file.argumento2)}" icon="ui-icon-trash" update=":form_relatorio_email:i_files_list :form_relatorio_email:id_btn_anexo"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
+                        </p:dialog>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

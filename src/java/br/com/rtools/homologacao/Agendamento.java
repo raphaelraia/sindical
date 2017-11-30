@@ -94,6 +94,8 @@ public class Agendamento implements Serializable {
     @Lob
     @Column(name = "ds_motivo_recusa2")
     private String motivoRecusa2;
+    @Column(name = "is_encaixe")
+    private Boolean encaixe;
 
     public Agendamento() {
         this.id = -1;
@@ -119,9 +121,10 @@ public class Agendamento implements Serializable {
         this.dtRecusa2 = null;
         this.dtSolicitacao2 = null;
         this.motivoRecusa2 = "";
+        this.encaixe = false;
     }
 
-    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo, String motivoRecusa, Usuario operadorRecusa, Usuario operadorRecusa2, Date dtRecusa1, Date dtRecusa2, Date dtSolicitacao2, String motivoRecusa2) {
+    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo, String motivoRecusa, Usuario operadorRecusa, Usuario operadorRecusa2, Date dtRecusa1, Date dtRecusa2, Date dtSolicitacao2, String motivoRecusa2, Boolean encaixe) {
         this.id = id;
         this.setData(data);
         this.horarios = horarios;
@@ -379,5 +382,13 @@ public class Agendamento implements Serializable {
 
     public void setMotivoRecusa2(String motivoRecusa2) {
         this.motivoRecusa2 = motivoRecusa2;
+    }
+
+    public Boolean getEncaixe() {
+        return encaixe;
+    }
+
+    public void setEncaixe(Boolean encaixe) {
+        this.encaixe = encaixe;
     }
 }

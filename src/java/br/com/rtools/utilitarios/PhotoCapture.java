@@ -43,7 +43,7 @@ public class PhotoCapture implements Serializable {
     }
 
     public void openAndSave(Pessoa aPessoa, String aUpdate) {
-        unload();
+        unload();        
         FisicaDao fisicaDB = new FisicaDao();
         Fisica fisica_x = fisicaDB.pesquisaFisicaPorPessoa(aPessoa.getId());
         if (fisica_x != null) {
@@ -84,12 +84,16 @@ public class PhotoCapture implements Serializable {
     }
 
     public void openAndSave(SisPessoa aSisPessoa, String aTipo, String aUpdate) {
+        if(renderedPhotoCapture) {
+            renderedPhotoCapture = false;
+            PF.closeDialog("dlg_photo_capture");
+            return;
+        }
         unload();
         sisPessoa = aSisPessoa;
         tipo = aTipo;
         update = aUpdate;
         renderedPhotoCapture = true;
-
         PF.openDialog("dlg_photo_capture");
         // PF.update("form_photo_capture");
     }
@@ -100,7 +104,7 @@ public class PhotoCapture implements Serializable {
         // PF.update("form_photo_capture");
     }
 
-    public void unload() {
+    public void unload() {        
         savePath = "";
         update = "";
         nameFile = "";

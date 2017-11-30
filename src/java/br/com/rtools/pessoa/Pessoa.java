@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
@@ -484,7 +485,11 @@ public class Pessoa implements Serializable {
         if (this.id != -1) {
             if (!this.documento.isEmpty()) {
                 if (oposicao == null) {
-                    oposicao = new OposicaoDao().existPessoaDocumentoPeriodo(documento);
+                    oposicao = new OposicaoDao().existPessoaDocumentoPeriodo(documento, ConfiguracaoArrecadacao.get().getIgnoraPeriodoConvencaoOposicao());
+                }
+            } else {
+                if (oposicao == null) {
+                    oposicao = false;
                 }
             }
         }

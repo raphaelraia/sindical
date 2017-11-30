@@ -59,7 +59,7 @@ public class RelatorioHomologacaoDao extends DB {
      * @param idConvencao
      * @return 
      */
-    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Integer filial, String tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, String in_convencoes, String inIdFuncao) {
+    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Boolean encaixe, Integer filial, String tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, String in_convencoes, String inIdFuncao) {
         List listQuery = new ArrayList();
         String queryString = ""
                 + " -- RelatorioHomologacaoDao->find() \n\n "
@@ -230,6 +230,9 @@ public class RelatorioHomologacaoDao extends DB {
             if (inIdStatus != null) {
                 listQuery.add("A.id_status IN ( " + inIdStatus + ") ");
             }
+            if (encaixe != null) {
+                listQuery.add("A.is_encaixe = " + encaixe);
+            }
             if (inIdFuncao != null) {
                 listQuery.add("PE.id_funcao IN ( " + inIdFuncao + ") ");
             }
@@ -268,7 +271,7 @@ public class RelatorioHomologacaoDao extends DB {
                         + "               CONTR.ds_grupo_cidade,                \n"
                         + "               F.ds_sexo,                            \n"
                         + "               PE.aviso_trabalhado,                  \n"
-                        + "               S.ds_descricao,d.ds_descricao         \n"; 
+                        + "               S.ds_descricao,d.ds_descricao         \n";
                 relatorios.setQryOrdem("CONTR.ds_descricao,CONTR.ds_grupo_cidade,S.ds_descricao");
                 break;
 

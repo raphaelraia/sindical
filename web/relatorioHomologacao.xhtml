@@ -76,13 +76,16 @@
                                 </p:column>
                                 <p:column rendered="#{relatorioHomologacaoBean.listFilters[2].active}">
                                     <h:column>
-                                        <h:panelGrid columns="4">
+                                        <h:panelGrid columns="4" cellspacing="5">
                                             <p:outputLabel value="Status:" />
                                             <p:selectCheckboxMenu label="Selecionar status" value="#{relatorioHomologacaoBean.selectedStatus}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="toggleSelect" global="false" listener="#{relatorioHomologacaoBean.loadRelatoriosStatus}" update="i_panel_relatorios"/>
                                                 <p:ajax event="change" global="false" listener="#{relatorioHomologacaoBean.loadRelatoriosStatus}" update="i_panel_relatorios"/>
                                                 <f:selectItems value="#{relatorioHomologacaoBean.listStatus}" />
                                             </p:selectCheckboxMenu>
+                                            <p:selectBooleanCheckbox value="#{relatorioHomologacaoBean.encaixe}" itemLabel="Encaixe" rendered="#{relatorioHomologacaoBean.listFilters[12].active}">
+                                                <p:ajax event="change" global="false" update="@this"/>                                            
+                                            </p:selectBooleanCheckbox>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[2])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>

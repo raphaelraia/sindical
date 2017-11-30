@@ -133,6 +133,10 @@
                                                 <h:outputLabel value="Usuário" style="font-weight: bold"/><br />
                                                 <h:outputText value="#{objeto.usuarioAgendador}"/>
                                             </p:column>
+                                            
+                                            <p:column>
+                                                <h:outputLabel value="#{objeto.agendamento.encaixe ? 'ENCAIXE' : ''}" styleClass="#{objeto.agendamento.encaixe ? 'font-color-red bold' : ''}"/>
+                                            </p:column>
                                         </h:panelGrid>
                                     </p:rowExpansion>
                                     <f:facet name="footer">

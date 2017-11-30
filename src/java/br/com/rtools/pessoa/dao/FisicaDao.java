@@ -794,9 +794,8 @@ public class FisicaDao extends DB {
         }
 
         Query qry = getEntityManager().createNativeQuery(textQuery);
-        DatabaseQuery databaseQuery = ((EJBQueryImpl)qry).getDatabaseQuery(); 
+        DatabaseQuery databaseQuery = ((EJBQueryImpl) qry).getDatabaseQuery();
         String sqlString = databaseQuery.getSQLString();
-
 
         try {
             return qry.getResultList();
@@ -929,4 +928,15 @@ public class FisicaDao extends DB {
     public void setInCategoriaSocio(String inCategoriaSocio) {
         this.inCategoriaSocio = inCategoriaSocio;
     }
+
+    public Fisica findByDocumento(String documento) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT F FROM Fisica AS F WHERE F.pessoa.documento LIKE :documento");
+            query.setParameter("documento", documento);
+            return (Fisica) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

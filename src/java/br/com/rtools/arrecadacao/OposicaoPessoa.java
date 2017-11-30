@@ -1,6 +1,8 @@
 package br.com.rtools.arrecadacao;
 
 import br.com.rtools.endereco.Endereco;
+import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 import javax.persistence.Column;
@@ -15,6 +17,7 @@ import javax.persistence.TemporalType;
 import java.io.Serializable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "arr_oposicao_pessoa")
@@ -57,6 +60,9 @@ public class OposicaoPessoa implements Serializable {
     @ManyToOne
     private Endereco endereco;
 
+    @Transient
+    private Fisica fisica; 
+
     public OposicaoPessoa() {
         this.id = -1;
         this.dataCadastro = DataHoje.dataHoje();
@@ -72,6 +78,8 @@ public class OposicaoPessoa implements Serializable {
         this.complemento = "";
         this.numero = "";
         this.endereco = null;
+        this.fisica = null;
+        // this.configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
     }
 
     public OposicaoPessoa(Integer id, Date dataCadastro, String nome, String cpf, String rg, String observacao, String email1, String telefone1, String telefone2, Date dataNascimento, String carteira, String serie, String complemento, String numero, Endereco endereco) {
@@ -89,6 +97,7 @@ public class OposicaoPessoa implements Serializable {
         this.complemento = complemento;
         this.numero = numero;
         this.endereco = endereco;
+        this.fisica = null; 
     }
 
     public Integer getId() {
@@ -225,5 +234,22 @@ public class OposicaoPessoa implements Serializable {
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public Fisica getFisica() {
+        if (fisica == null) {
+            fisica = new Fisica();
+            if (!this.getCpf().isEmpty()) {
+                fisica = new FisicaDao().findByDocumento(this.getCpf());
+                if (fisica == null) {
+                    fisica = new Fisica();
+                }
+            }
+        }
+        return fisica;
+    }
+
+    public void setFisica(Fisica fisica) {
+        this.fisica = fisica;
     }
 }

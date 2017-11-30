@@ -52,6 +52,7 @@ import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.PhotoCapture;
+import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
@@ -114,6 +115,8 @@ public class ConviteMovimentoBean implements Serializable {
     private List<SelectItem> listTipoDocumento = new ArrayList();
 
     public ConviteMovimentoBean() {
+        Sessions.remove("photoCapture");
+        Sessions.remove("photoCamBean");
         loadUsuario();
         configuracaoSocial = new ConfiguracaoSocial();
         configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
@@ -157,6 +160,8 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public void novo() {
+        Sessions.remove("photoCapture");
+        Sessions.remove("photoCamBean");
         boolean cc = conviteMovimento.isCortesia();
         Pessoa pe = conviteMovimento.getPessoa();
         conviteMovimento = new ConviteMovimento();
@@ -221,14 +226,17 @@ public class ConviteMovimentoBean implements Serializable {
         //conviteMovimento.setDesconto(0);
     }
 
-    public void openDialog() {
+    public String openDialog() {
         visibility = true;
         porPesquisa = "hoje";
         conviteMovimentos = new ArrayList();
-        PF.update("form_convite");
+        // PF.update("form_convite");
+        // PF.update("form_photo_capture");
+        return "conviteMovimento";
     }
 
     public void close() {
+        ((PhotoCapture) Sessions.getObject("photoCapture")).setRenderedPhotoCapture(false);
         valorString = "";
         idServico = 0;
         conviteMovimento = new ConviteMovimento();
@@ -253,6 +261,7 @@ public class ConviteMovimentoBean implements Serializable {
         visibility = false;
         indexTipoDocumento = 0;
         PF.update("form_convite");
+        PF.update("form_photo_capture");
     }
 
     public boolean validaSave() {
@@ -847,7 +856,9 @@ public class ConviteMovimentoBean implements Serializable {
         GenericaMensagem.info("SUCESSO", "CONVITE INATIVADO!");
     }
 
-    public void edit(ConviteMovimento cm) {
+    public String edit(ConviteMovimento cm) {
+        Sessions.remove("photoCapture");
+        Sessions.remove("photoCamBean");
         conviteMovimento = (ConviteMovimento) new Dao().find(cm);
         getConviteMovimento();
         carregaSocio(conviteMovimento.getPessoa());
@@ -890,6 +901,7 @@ public class ConviteMovimentoBean implements Serializable {
         //valorString = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
 
         visibility = true;
+        return "conviteMovimento";
     }
 
     public List<ConviteMovimento> getConviteMovimentos() {

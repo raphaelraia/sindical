@@ -207,7 +207,7 @@
                                                 </p:column>  
 
                                                 <p:rowExpansion>
-                                                    <h:panelGrid columns="5" styleClass="sbb">
+                                                    <h:panelGrid columns="5" styleClass="sbb" cellspacing="5">
                                                         <p:column rendered="false">
                                                             <h:outputLabel value="Escritório" style="font-weight: bold"/><br />
                                                             <h:outputLabel value="#{linha.argumento14}" style="font-size: 8pt!important"/>
@@ -231,6 +231,9 @@
                                                         <p:column>
                                                             <h:outputLabel value="Usuário" style="font-weight: bold"/><br />
                                                             <h:outputLabel value="#{linha.argumento6}" style="font-size: 8pt!important"/>
+                                                        </p:column>
+                                                        <p:column>
+                                                            <h:outputLabel value="#{linha.argumento9.encaixe ? 'ENCAIXE' : ''}" styleClass="#{linha.argumento9.encaixe ? 'font-color-red bold' : ''}"/>
                                                         </p:column>
                                                     </h:panelGrid>
                                                 </p:rowExpansion>
@@ -473,7 +476,7 @@
                                                         </p:inputMask>
                                                     </h:column>
                                                 </h:column>
-                                                
+
                                                 <h:column>
                                                     <h:outputLabel value="Celular"/><br />
                                                     <h:column>
@@ -720,23 +723,23 @@
         <script type="text/javascript">
             var ws = new WebSocket("#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/agendamento_#{controleUsuarioBean.clienteLowerCaseString}");
 
-            ws.onopen = function (event) {
-                console.log("Connected ", event);
-            };
+                ws.onopen = function (event) {
+                    console.log("Connected ", event);
+                };
 
-            ws.onmessage = function (event) {
-                if (event.data === "1") {
-                    document.getElementById("formRecepcao:update_grid").click();
-                }
-            };
+                ws.onmessage = function (event) {
+                    if (event.data === "1") {
+                        document.getElementById("formRecepcao:update_grid").click();
+                    }
+                };
 
-            ws.onerror = function (event) {
-                console.log("Error ", event);
-            };
+                ws.onerror = function (event) {
+                    console.log("Error ", event);
+                };
 
-            ws.onclose = function (event) {
-                console.log("Error ", event);
-            };
+                ws.onclose = function (event) {
+                    console.log("Error ", event);
+                };
         </script>
         <div id="footerx">
             <f:subview id="footer">

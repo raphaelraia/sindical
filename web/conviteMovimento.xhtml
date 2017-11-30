@@ -127,22 +127,22 @@
                                         * Cod = Código - Selecione um convidado para editar
                                     </f:facet>
                                     <p:column headerText="Cod." width="25" styleClass="text-center">
-                                        <p:commandLink value="#{conviteMovimento.id}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" update="form_convite"/>
+                                        <p:commandLink value="#{conviteMovimento.id}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" />
                                     </p:column>
                                     <p:column headerText="Emissão" width="80" styleClass="text-center">
-                                        <p:commandLink value="#{conviteMovimento.emissao}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" update="form_convite"/>
+                                        <p:commandLink value="#{conviteMovimento.emissao}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar"/>
                                     </p:column>
                                     <p:column headerText="Validade" width="80" styleClass="text-center">
-                                        <p:commandLink value="#{conviteMovimento.validade}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" update="form_convite"/>
+                                        <p:commandLink value="#{conviteMovimento.validade}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" />
                                     </p:column>
                                     <p:column headerText="Convidado" width="100">
-                                        <p:commandLink value="#{conviteMovimento.sisPessoa.nome}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" update="form_convite"/>
+                                        <p:commandLink value="#{conviteMovimento.sisPessoa.nome}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" />
                                     </p:column>
                                     <p:column headerText="Sexo" styleClass="text-center" width="50">
                                         <p:commandLink value="#{conviteMovimento.sisPessoa.sexo}" action="#"/>
                                     </p:column>
                                     <p:column headerText="Sócio">
-                                        <p:commandLink value="#{conviteMovimento.pessoa.nome}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" update="form_convite"/>
+                                        <p:commandLink value="#{conviteMovimento.pessoa.nome}" action="#{conviteMovimentoBean.edit(conviteMovimento)}" title="Editar" />
                                     </p:column>
                                     <p:column headerText="Emissor" styleClass="text-center">
                                         <h:outputText value="#{conviteMovimento.usuario.pessoa.nome}"/>
@@ -150,8 +150,9 @@
                                 </p:dataTable>
                             </p:panel>
 
-                            <p:dialog id="i_adicionar" widgetVar="dlg_adicionar" modal="true" header="Cadastro de Convite" width="1050" visible="#{conviteMovimentoBean.visibility}" position="top" height="620">
+                            <p:dialog id="i_adicionar" widgetVar="dlg_adicionar" modal="true" header="Cadastro de Convite" width="1050" visible="#{conviteMovimentoBean.visibility}" position="top" height="620" closeOnEscape="true">
                                 <p:ajax event="close" listener="#{conviteMovimentoBean.close}"/> 
+                                
 
                                 <p:panel >
                                     <p:outputLabel value="Usuário: " style="font-weight: bold"/>
@@ -159,6 +160,8 @@
                                 </p:panel>
 
                                 <p:panel id="i_panel_adicionar" styleClass="no-border">
+                                    
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{conviteMovimentoBean.socios.servicoPessoa.pessoa.existOposicao}" />
 
                                     <div style="float: left; width: 600px; margin-right: 15px;">
                                         <p:panel header="SÓCIO">
@@ -362,7 +365,7 @@
                                             <p:panel header="Perfil">
                                                 <p:graphicImage name="#{conviteMovimentoBean.conviteMovimento.sisPessoa.fotoResourcePerfil}" width="310" rendered="#{not empty conviteMovimentoBean.conviteMovimento.sisPessoa.fotoResourcePerfil}" cache="false"/>
                                                 <div class="clear"></div>
-                                                <p:commandButton value="Capturar Foto" action="#{photoCapture.openAndSave(conviteMovimentoBean.conviteMovimento.sisPessoa, 'perfil', 'form_convite:panel_foto')}" disabled="#{conviteMovimentoBean.conviteMovimento.id == -1}"/>
+                                                <p:commandButton value="Capturar Foto" action="#{photoCapture.openAndSave(conviteMovimentoBean.conviteMovimento.sisPessoa, 'perfil', 'form_convite:panel_foto')}" disabled="#{conviteMovimentoBean.conviteMovimento.id == -1}" oncomplete="#{photoCapture.renderedPhotoCapture ? 'PF(\'dlg_photo_capture\').show()' : ''}"/>
                                                 <p:commandButton icon="ui-icon-trash" title="Remover imagem"  action="#{conviteMovimentoBean.apagarImagem('perfil', null)}" rendered="#{not empty conviteMovimentoBean.conviteMovimento.sisPessoa.fotoResourcePerfil}" update="panel_foto"/>
                                             </p:panel>
 
@@ -398,7 +401,7 @@
                             <p:dialog id="i_panel_salvar" widgetVar="dgl_panel_salvar" modal="true" header="Deseja salvar este registro?" width="300">
                                 <center>
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Sim" title="Salvar" action="#{conviteMovimentoBean.save()}" update="@form" oncomplete="PF('dgl_panel_mensagem').show();"/>
+                                        <p:commandButton value="Sim" title="Salvar" action="#{conviteMovimentoBean.save()}" update=":form_convite:" oncomplete="PF('dgl_panel_mensagem').show();"/>
                                         <p:commandButton value="Não" title="Cancelar" onclick="PF('dgl_panel_salvar').hide();"/>
                                     </h:panelGrid>
                                 </center>

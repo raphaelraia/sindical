@@ -85,8 +85,12 @@
                             </h:column>
                         </h:panelGrid>   
                     </p:panel>
-                
+
                     <p:dataTable id="i_tbl" value="#{oposicaoBean.listaOposicaos}" var="oposicao" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
+                        <p:column width="15">  
+                            <p:rowToggler />  
+                        </p:column>  
+
                         <p:column headerText="Data" width="60" styleClass="text-center">
                             <p:commandLink action="#{oposicaoBean.edit(oposicao)}" value="#{oposicao.emissao}" style="font-size: 8pt!important" />
                         </p:column>                                    
@@ -111,21 +115,24 @@
                         <p:column headerText="Grupo Cidade" width="80" styleClass="text-center">
                             <h:outputText value="#{oposicao.convencaoPeriodo.grupoCidade.descricao}" style="font-size: 8pt!important" />
                         </p:column>                                    
-                        <p:column rendered="#{!oposicaoBean.porPesquisa.equals('observacao')}" headerText="Ref. Inicial" width="50" styleClass="text-center">
+                        <p:column rendered="#{oposicaoBean.porPesquisa ne 'observacao'}" headerText="Ref. Inicial" width="50" styleClass="text-center">
                             <h:outputText value="#{oposicao.convencaoPeriodo.referenciaInicial}" style="font-size: 8pt!important" />
                         </p:column>                                    
-                        <p:column rendered="#{!oposicaoBean.porPesquisa.equals('observacao')}" headerText="Ref. Final" width="50" styleClass="text-center">
+                        <p:column rendered="#{oposicaoBean.porPesquisa ne 'observacao'}" headerText="Ref. Final" width="50" styleClass="text-center">
                             <h:outputText value="#{oposicao.convencaoPeriodo.referenciaFinal}" style="font-size: 8pt!important" />
                         </p:column>
-                        <p:column rendered="#{oposicaoBean.porPesquisa.equals('observacao')}" headerText="Ref. Inicial / Final" styleClass="text-center">
+                        <p:column rendered="#{oposicaoBean.porPesquisa eq 'observacao'}" headerText="Ref. Inicial / Final" styleClass="text-center">
                             <h:outputText value="#{oposicao.convencaoPeriodo.referenciaInicial} / #{oposicao.convencaoPeriodo.referenciaFinal}" style="font-size: 8pt!important" />
                         </p:column>                                    
-                        <p:column rendered="#{oposicaoBean.porPesquisa.equals('observacao')}" headerText="Observação">
+                        <p:column rendered="#{oposicaoBean.porPesquisa eq 'observacao'}" headerText="Observação">
                             <h:outputText value="#{oposicao.observacao}" style="font-size: 8pt!important" />
                         </p:column>
                         <p:column headerText="Sócio">
                             <h:outputText value="#{oposicaoBean.pessoaSocio(oposicao.oposicaoPessoa.cpf)}" style="font-size: 8pt!important" />
                         </p:column>
+                        <p:rowExpansion>
+                            #{oposicao.oposicaoPessoa.fisica.id eq -1 ? '' : 'OBS: CPF CADASTRADO INTERNAMENTE'}
+                        </p:rowExpansion>
                     </p:dataTable>
                 </p:panel>
             </h:form>                     

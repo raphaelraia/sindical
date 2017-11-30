@@ -80,6 +80,8 @@ public class RelatorioHomologacaoBean implements Serializable {
     private List selectedConvencao;
     private Map<String, Integer> listConvencoes;
 
+    private Boolean encaixe;
+
     @PostConstruct
     public void init() {
         listSelectItem = new ArrayList[6];
@@ -116,6 +118,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         loadListaFiltro();
         loadRelatorios();
         tipoPeriodo = "";
+        encaixe = false;
     }
 
     @PreDestroy
@@ -142,6 +145,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         /*  09 */ listFilters.add(new Filters("order", "Ordem", false));
         /*  10 */ listFilters.add(new Filters("convencao", "Convenção", false));
         /*  11 */ listFilters.add(new Filters("funcao", "Função", false));
+        /*  12 */ listFilters.add(new Filters("encaixe", "Encaixe", false, true));
 
     }
 
@@ -274,11 +278,18 @@ public class RelatorioHomologacaoBean implements Serializable {
             idFilial = Integer.parseInt(listSelectItem[1].get(index[1]).getDescription());
             listDetalhePesquisa.add("Filial: " + ((Filial) dao.find(new Filial(), idFilial)).getFilial().getPessoa().getNome());
         }
-        if (selectedStatus != null && !selectedStatus.isEmpty()) {
-            inIdStatus = inIdStatus();
-            if (selectedStatus.size() == 1) {
-                listDetalhePesquisa.add("Status: " + ((Status) dao.find(new Status(), Integer.parseInt(selectedStatus.get(0).toString()))).getDescricao());
+        Boolean enc = null;
+        if (listFilters.get(2).getActive()) {
+            if (selectedStatus != null && !selectedStatus.isEmpty()) {
+                inIdStatus = inIdStatus();
+                if (selectedStatus.size() == 1) {
+                    listDetalhePesquisa.add("Status: " + ((Status) dao.find(new Status(), Integer.parseInt(selectedStatus.get(0).toString()))).getDescricao());
+                }
             }
+        }
+        if (listFilters.get(12).getActive()) {
+            enc = encaixe;
+            listDetalhePesquisa.add("Com Encaixe: " + (encaixe ? "SIM" : "NÃO"));
         }
         if (selectedFuncao != null && !selectedFuncao.isEmpty()) {
             inIdFuncao = GenericaString.returnInList(selectedFuncao);
@@ -320,7 +331,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             operadorHeader = "AGENDADOR";
         }
         relatorioHomologacaoDao.setRelatorios(relatorios);
-        List list = relatorioHomologacaoDao.find(inIdEmpresas, inIdFuncionarios, tipoUsuarioOperacional, idUsuarioOperacional, inIdStatus, idFilial, tipoPeriodo, pIStringI, pFStringI, idMotivoDemissao, tipoAviso, tipoAgendador, sexo, webAgendamento, inIdConvencao, inIdFuncao);
+        List list = relatorioHomologacaoDao.find(inIdEmpresas, inIdFuncionarios, tipoUsuarioOperacional, idUsuarioOperacional, inIdStatus, enc, idFilial, tipoPeriodo, pIStringI, pFStringI, idMotivoDemissao, tipoAviso, tipoAgendador, sexo, webAgendamento, inIdConvencao, inIdFuncao);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -453,6 +464,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             dataFinal = null;
         }
         if (!listFilters.get(2).getActive()) {
+            encaixe = false;
+            listFilters.get(12).setDisabled(true);
+            listFilters.get(12).setActive(false);
             loadListStatus();
         }
         if (!listFilters.get(3).getActive()) {
@@ -489,6 +503,9 @@ public class RelatorioHomologacaoBean implements Serializable {
         if (!listFilters.get(11).getActive()) {
             loadListFuncao();
         }
+        if (!listFilters.get(12).getActive()) {
+            encaixe = false;
+        }
 
     }
 
@@ -512,6 +529,8 @@ public class RelatorioHomologacaoBean implements Serializable {
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "status":
+                listFilters.get(12).setDisabled(false);
+                encaixe = false;
                 listStatus = new HashMap();
                 selectedStatus = new ArrayList();
                 loadListStatus();
@@ -560,6 +579,9 @@ public class RelatorioHomologacaoBean implements Serializable {
                 if (filter.getActive()) {
                     loadListFuncao();
                 }
+                break;
+            case "encaixe":
+                encaixe = false;
                 break;
         }
         PF.update("form_relatorio:id_panel");
@@ -724,7 +746,9 @@ public class RelatorioHomologacaoBean implements Serializable {
         Dao dao = new Dao();
         List<Status> list = (List<Status>) dao.list(new Status(), true);
         for (int i = 0; i < list.size(); i++) {
-            listStatus.put(list.get(i).getDescricao(), list.get(i).getId());
+            if(list.get(i).getId() != 6) {
+                listStatus.put(list.get(i).getDescricao(), list.get(i).getId());                
+            }
         }
     }
 
@@ -901,6 +925,22 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     public void setSelectedFuncao(List selectedFuncao) {
         this.selectedFuncao = selectedFuncao;
+    }
+
+    public Map<String, Integer> getListConvencoes() {
+        return listConvencoes;
+    }
+
+    public void setListConvencoes(Map<String, Integer> listConvencoes) {
+        this.listConvencoes = listConvencoes;
+    }
+
+    public Boolean getEncaixe() {
+        return encaixe;
+    }
+
+    public void setEncaixe(Boolean encaixe) {
+        this.encaixe = encaixe;
     }
 
     public class ParametroHomologacao {
@@ -1318,4 +1358,5 @@ public class RelatorioHomologacaoBean implements Serializable {
         }
 
     }
+
 }

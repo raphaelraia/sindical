@@ -904,6 +904,11 @@ public class VendaBaileBean implements Serializable {
 
         Boolean update_log = false;
         if (venda.getId() == -1) {
+            if (chkCortesia && pessoa.getExistOposicao()) {
+                GenericaMensagem.warn("Validação", "Não foi possível salvar Venda Cortesia, para cadastro com oposição!");
+                dao.rollback();
+                return null;
+            }
             venda.setEvento(eb.getEvento());
             venda.setPessoa(pessoa);
             venda.setResponsavel(responsavel);
