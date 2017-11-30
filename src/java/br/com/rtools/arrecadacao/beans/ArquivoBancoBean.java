@@ -769,7 +769,7 @@ public final class ArquivoBancoBean implements Serializable {
             }
 
             new RetornoDao().corrigeRetornoIncorreto();
-            
+
             if (result.isEmpty()) {
                 GenericaMensagem.info("SUCESSO", "ARQUIVOS BAIXADOS!");
             } else {
@@ -841,13 +841,24 @@ public final class ArquivoBancoBean implements Serializable {
                             return false;
                         }
                     } else if (ArquivoRetorno.SINDICAL == scc.getLayout().getId()) {
-                        
+                        String cod_cedente = "";
+                        try {
+                            cod_cedente = "0000000".substring(0, 7 - scc.getCodCedente().length()) + scc.getCodCedente();
+                        } catch (Exception e) {
+                            return false;
+                        }
+
                         if (linha.substring(33, 38).equals(scc.getSicasSindical())) {
+                            return true;
+                        } else if (linha.substring(58, 65).equals(cod_cedente)) {
+                            return true;
+                        } else if (linha.substring(60, 67).equals(cod_cedente)) {
+                            // ARQUIVO COM ERRO
                             return true;
                         } else {
                             return false;
                         }
-                        
+
                         // teste codcedente novo
 //                        if (linha_2.substring(33, 39).equals(scc.getCodCedente())) {
 //                            return true;

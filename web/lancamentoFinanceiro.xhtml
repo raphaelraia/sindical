@@ -432,7 +432,7 @@
                                 <p:panel id="panel_nova_parcela" styleClass="fundoCinza margin-top-max">
                                     <h:panelGrid>
                                         <p:outputLabel value="NOVA PARCELA" style="font-size: 11pt!important; text-decoration: underline; font-weight: bold" rendered="#{lancamentoFinanceiroBean.acaoParcela eq 'nova'}"/>
-                                        <p:outputLabel value="EDITAR PARCELA" style="font-size: 11pt!important; text-decoration: underline; font-weight: bold" rendered="#{lancamentoFinanceiroBean.acaoParcela eq 'editar'}"/>
+                                        <p:outputLabel value="EDITAR PARCELA" style="font-size: 11pt!important; text-decoration: underline; font-weight: bold" rendered="#{lancamentoFinanceiroBean.acaoParcela eq 'editar'}" />
                                     </h:panelGrid>
 
                                     <h:panelGrid id="i_para_conta" columns="3">
@@ -444,11 +444,11 @@
                                         </p:selectBooleanCheckbox>
                                     </h:panelGrid>
 
-                                    <h:panelGrid id="i_valor" columns="8">
+                                    <h:panelGrid id="i_valor" columns="9">
                                         <p:column>
                                             <h:panelGrid id="i_vencimento">
                                                 <h:outputText value="Vencimento" style="font-weight: bold"/>
-                                                <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}" styleClass="text-center" readonly="#{lancamentoFinanceiroBean.condicao eq 'vista' and lancamentoFinanceiroBean.listaParcela.size() eq 1 and !lancamentoFinanceiroBean.chkImposto}">
+                                                <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}" styleClass="text-center" readonly="#{lancamentoFinanceiroBean.condicao eq 'vista' and lancamentoFinanceiroBean.listaParcela.size() eq 1 and !lancamentoFinanceiroBean.chkImposto and lancamentoFinanceiroBean.acaoParcela eq 'nova'}">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputMask>
                                             </h:panelGrid>
@@ -503,7 +503,17 @@
                                                 <h:column>
                                                     <br />
                                                 </h:column>
-                                                <p:commandButton value="#{lancamentoFinanceiroBean.acaoParcela eq 'nova' ? 'ADICIONAR NOVA PARCELA' : 'EDITAR PARCELA'}" title="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.adicionarParcela()}" update="@form"/>
+                                                <p:commandButton value="ADICIONAR NOVA PARCELA" title="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.adicionarParcela()}" update="@form" rendered="#{lancamentoFinanceiroBean.acaoParcela eq 'nova'}"/>
+                                                <p:commandButton value="ATUALIZAR" title="Atualizar" icon="ui-icon-refresh" action="#{lancamentoFinanceiroBean.atualizarParcela()}" update="@form" rendered="#{lancamentoFinanceiroBean.acaoParcela eq 'editar'}"/>
+                                            </h:panelGrid>
+                                        </p:column>
+                                        
+                                        <p:column>
+                                            <h:panelGrid>
+                                                <h:column>
+                                                    <br />
+                                                </h:column>
+                                                <p:commandButton value="CANCELAR" icon="ui-icon-cancel" title="CANCELAR" action="#{lancamentoFinanceiroBean.novaParcela()}" update="@form" rendered="#{lancamentoFinanceiroBean.acaoParcela eq 'editar'}"/>
                                             </h:panelGrid>
                                         </p:column>
                                     </h:panelGrid>
@@ -583,7 +593,7 @@
                                     </p:column>
 
                                     <p:column style="text-align: center; width: 45px" headerText="Editar">
-                                        <p:commandButton action="#{lancamentoFinanceiroBean.editarParcela(parcela)}" icon="ui-icon-edit" title="Editar esta Parcela" oncomplete="PF('spot').show()" rendered="#{parcela.movimento.baixa eq null}" update="@form form_lf:panel_nova_parcela"/>
+                                        <p:commandButton action="#{lancamentoFinanceiroBean.editarParcela(parcela, index)}" icon="ui-icon-edit" title="Editar esta Parcela" rendered="#{parcela.movimento.baixa eq null}" update="form_lf:panel_nova_parcela" />
                                     </p:column>
 
                                     <p:rowExpansion>
@@ -759,7 +769,7 @@
                                 </h:panelGrid>
 
                             </p:dialog>                             
-
+                            
                             <p:dialog widgetVar="i_dlg_salvar" header="Deseja realmente SALVAR este lançamento?" resizable="false" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
@@ -813,7 +823,7 @@
                                     <p:column>
                                         <h:panelGrid>
                                             <h:outputText value="Multa" />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.multa}" size="8" styleClass="text-right" converter="#{toCurrency}">
+                                            <p:inputText value="#{lancamentoFinanceiroBean.multa}" size="8" styleClass="text-right">
                                                 <p:ajax event="change" update="@this" global="false"/>
                                             </p:inputText>                                            
                                         </h:panelGrid>

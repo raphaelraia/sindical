@@ -1028,7 +1028,8 @@ public class ImpressaoParaSocios {
             Jasper.PATH = "ficha";
             //Jasper.printReports("/Relatorios/FICHACADASTROBRANCO.jasper", "ficha_branco", listaSocios);
             //String jasper_path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath();
-            String jasper_path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROBRANCO.jasper";
+            String jasper_path = "/Relatorios/FICHA_DE_SINDICALIZACAO.jasper";
+            //String jasper_path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROBRANCO.jasper";
             Jasper.printReports(jasper_path, "ficha_branco", listaSocios);
         } catch (Exception e) {
         }

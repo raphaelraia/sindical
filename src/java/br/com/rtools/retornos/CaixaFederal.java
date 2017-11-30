@@ -4,7 +4,6 @@ import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Retorno;
 import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -29,7 +28,7 @@ public class CaixaFederal extends ArquivoRetorno {
         if (arquivos != null) {
 
             for (int u = 0; u < arquivos.length; u++) {
-                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null);
+                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null, "");
 
                 List<ObjetoArquivo> lista_objeto_arquivo = new ArrayList();
                 ObjetoArquivo objeto_arquivo = new ObjetoArquivo();
@@ -41,13 +40,32 @@ public class CaixaFederal extends ArquivoRetorno {
                     objeto_arquivo.setNomeArquivo(arquivos[u].getName());
                     objeto_arquivo.setRetorno(retorno);
 
-                    // O LAYOUT É ANTIGO
-                    String teste_layout = linhas.get(1).substring(53, 54).trim();
-                    //if (!teste_layout.isEmpty() && AnaliseString.isString(teste_layout)) {
-                    if (!teste_layout.isEmpty()) {
+                    String cod_cedente = "0000000".substring(0, 7 - super.getContaCobranca().getCodCedente().length()) + super.getContaCobranca().getCodCedente();
+
+                    Boolean layout_antigo = true;
+
+                    if (linhas.get(0).substring(33, 38).equals(super.getContaCobranca().getSicasSindical())) {
+                        objeto_arquivo.setCodigoCedente(linhas.get(0).substring(33, 38));
+                        layout_antigo = true;
+                        objeto_arquivo.setArquivoComErro(false);
+                    } else if (linhas.get(0).substring(58, 65).equals(cod_cedente)) {
+                        objeto_arquivo.setCodigoCedente(linhas.get(0).substring(58, 65));
+                        layout_antigo = false;
+                        objeto_arquivo.setArquivoComErro(false);
+                    } else if (linhas.get(0).substring(60, 67).equals(cod_cedente)) {
+                        // ARQUIVO COM ERRO ( bug na primeira linha do arquivo retorno )
+                        objeto_arquivo.setCodigoCedente(linhas.get(0).substring(60, 67));
+                        layout_antigo = false;
+                        objeto_arquivo.setArquivoComErro(true);
+                        retorno.setObservacao("Arquivo com erro no Header de Arquivo ( Dois espaços à esquerda do cedente )");
+                    }
+
+                    // O LAYOUT É ANTIGO ?
+                    
+                    if (layout_antigo) {
                         // PRIMEIRA LINHA - HEADER ARQUIVO
                         objeto_arquivo.setCnpj(linhas.get(0).substring(18, 32));
-                        objeto_arquivo.setCodigoCedente(linhas.get(0).substring(33, 38));
+
                         objeto_arquivo.setSequencialArquivo(linhas.get(0).substring(157, 163));
 
                         Integer sequencial_arquivo = Integer.parseInt(objeto_arquivo.getSequencialArquivo());
@@ -76,7 +94,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                     if (Integer.parseInt(linha_segmento.getDataVencimento()) == 0) {
                                         linha_segmento.setDataVencimento("11111111");
                                     }
-                                } catch (Exception e) {
+                                } catch (NumberFormatException e) {
                                 }
 
                                 // VERIFICA O STATUS DO MOVIMENTO RETORNADO
@@ -141,10 +159,11 @@ public class CaixaFederal extends ArquivoRetorno {
                         // AS DUAS ÚLTIMAS LINHAS NÃO TEM NECESSIDADE DE LER
                         // FOOTER LOTE
                         // FOOTER ARQUIVO
+                    // O LAYOUT É ANTIGO ?
                     } else {
                         // PRIMEIRA LINHA - HEADER ARQUIVO
                         objeto_arquivo.setCnpj(linhas.get(0).substring(18, 32));
-                        objeto_arquivo.setCodigoCedente(linhas.get(0).substring(33, 38));
+                        
                         objeto_arquivo.setSequencialArquivo(linhas.get(0).substring(158, 164));
 
                         Integer sequencial_arquivo = Integer.parseInt(objeto_arquivo.getSequencialArquivo());
@@ -173,7 +192,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                     if (Integer.parseInt(linha_segmento.getDataVencimento()) == 0) {
                                         linha_segmento.setDataVencimento("11111111");
                                     }
-                                } catch (Exception e) {
+                                } catch (NumberFormatException e) {
                                 }
 
                                 // VERIFICA O STATUS DO MOVIMENTO RETORNADO
@@ -264,7 +283,7 @@ public class CaixaFederal extends ArquivoRetorno {
         if (arquivos != null) {
 
             for (int u = 0; u < arquivos.length; u++) {
-                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null);
+                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null, "");
 
                 List<ObjetoArquivo> lista_objeto_arquivo = new ArrayList();
                 ObjetoArquivo objeto_arquivo = new ObjetoArquivo();
@@ -354,7 +373,7 @@ public class CaixaFederal extends ArquivoRetorno {
                     // AS DUAS ÚLTIMAS LINHAS NÃO TEM NECESSIDADE DE LER
                     // FOOTER LOTE
                     // FOOTER ARQUIVO
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     ObjetoRetorno objeto_retorno = new ObjetoRetorno(new ArrayList(), e.getMessage());
                     lista_objeto_retorno.add(objeto_retorno);
                     new Dao().delete(retorno, true);
@@ -379,7 +398,7 @@ public class CaixaFederal extends ArquivoRetorno {
         if (arquivos != null) {
 
             for (int u = 0; u < arquivos.length; u++) {
-                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null);
+                Retorno retorno = new Retorno(-1, super.getContaCobranca(), DataHoje.dataHoje(), arquivos[u].getName(), null, "");
 
                 List<ObjetoArquivo> lista_objeto_arquivo = new ArrayList();
                 ObjetoArquivo objeto_arquivo = new ObjetoArquivo();
@@ -422,7 +441,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                 if (Integer.parseInt(linha_segmento.getDataVencimento()) == 0) {
                                     linha_segmento.setDataVencimento("11111111");
                                 }
-                            } catch (Exception e) {
+                            } catch (NumberFormatException e) {
                             }
 
                             // VERIFICA O STATUS DO MOVIMENTO RETORNADO
@@ -452,7 +471,7 @@ public class CaixaFederal extends ArquivoRetorno {
                             }
                             linha_segmento.setStatusRetorno(sr);
                             // FIM
-                            
+
                             i++;
                         }
 
@@ -470,7 +489,7 @@ public class CaixaFederal extends ArquivoRetorno {
                     // AS DUAS ÚLTIMAS LINHAS NÃO TEM NECESSIDADE DE LER
                     // FOOTER LOTE
                     // FOOTER ARQUIVO
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     ObjetoRetorno objeto_retorno = new ObjetoRetorno(new ArrayList(), e.getMessage());
                     lista_objeto_retorno.add(objeto_retorno);
                     new Dao().delete(retorno, true);
