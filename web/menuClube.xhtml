@@ -82,11 +82,12 @@
                                 <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:submenu label="Cadastral">
                                         <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonato')}" ajax="false"/>
-                                        <p:menuitem value="Convites"              action="#{chamadaPaginaBean.relatorioConviteClube}"/>
+                                        <p:menuitem value="Convites"            action="#{chamadaPaginaBean.relatorioConviteClube}"/>
+                                        <p:menuitem value="Exame Médico"        action="#{chamadaPaginaBean.pagina('relatorioExameMedico')}" ajax="false"/>
                                     </p:submenu>
                                     <p:submenu label="Rotina">
-                                        <p:menuitem value="Cartão Social"         action="#{chamadaPaginaBean.pagina('cartaoSocial')}" />
-                                        <p:menuitem value="Frequência Catraca"    action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false" />
+                                        <p:menuitem value="Cartão Social"       action="#{chamadaPaginaBean.pagina('cartaoSocial')}" />
+                                        <p:menuitem value="Frequência Catraca"  action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false" />
                                     </p:submenu>
                                     <p:submenu label="Financeiro">
                                         <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonatoFinanceiro', 'relatorioCampeonato')}" ajax="false"/>
