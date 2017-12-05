@@ -211,9 +211,9 @@ public abstract class ArquivoRetorno {
             RetornoBanco rb = new RetornoBanco(-1, retorno, b.getBoletoComposto(), sr, null);
 
             Dao dao = new Dao();
-            
+
             dao.save(rb, true);
-            
+
             switch (sr.getId()) {
                 // BOLETO REJEITADO
                 case 1:
@@ -304,7 +304,6 @@ public abstract class ArquivoRetorno {
 
         for (ObjetoRetorno ob : lista_objeto_retorno) {
 
-            
             if (!ob.getErro().isEmpty()) {
                 lista_detalhe.add(new ObjectDetalheRetorno(null, 7, ob.getErro()));
                 continue;
@@ -805,29 +804,29 @@ public abstract class ArquivoRetorno {
                                 //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaDouble(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
                                 Boolean continua = true;
-                                for (Movimento mx : lista_movimento){
-                                    if (mx.getBaixa() != null){
+                                for (Movimento mx : lista_movimento) {
+                                    if (mx.getBaixa() != null) {
                                         Object[] log = new Object[3];
 
                                         log[0] = 8;
                                         log[1] = mx.getDocumento();
-                                        log[2] = "Boleto com Movimento Pago não pode ser baixado - " 
+                                        log[2] = "Boleto com Movimento Pago não pode ser baixado - "
                                                 + " - Data de Vencimento: " + mx.getVencimento()
                                                 + " - Data de Pagamento: " + mx.getBaixa().getBaixa()
                                                 + " - Valor Pago: " + mx.getValorBaixaString()
                                                 + " - Usuário: " + mx.getBaixa().getUsuario().getPessoa().getNome();
-                                        
+
                                         lista_logs.add(log);
                                         continua = false;
-                                        
+
                                         break;
                                     }
                                 }
-                                
-                                if (!continua){
+
+                                if (!continua) {
                                     continue;
                                 }
-                                
+
                                 String retorno_continua = continuaBaixaSoc(lista_movimento.get(0).getBoleto(), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
 
                                 if (!retorno_continua.isEmpty()) {

@@ -210,7 +210,7 @@ public class MatriculaAcademiaBean implements Serializable {
         ocultaBotaoTarifaCartao = true;
         matriculaAtiva = true;
         taxaCartao = false;
-        idDiaVencimento = Integer.parseInt(DataHoje.data().substring(0, 2));
+        loadListaDiaVencimento();
         idModalidade = 0;
         idModalidadePesquisa = null;
         idPeriodoGrade = 0;
@@ -220,7 +220,6 @@ public class MatriculaAcademiaBean implements Serializable {
         vTaxa = 0;
         desconto = 0;
         valorCartao = 0;
-        idDiaParcela = 0;
         dataValidade = "";
         descontoServicoEmpresa = new Double(0);
         matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.livre(matriculaAcademia.getServicoPessoa().getDtEmissao(), "MM/yyyy"));
@@ -236,6 +235,71 @@ public class MatriculaAcademiaBean implements Serializable {
         liberaAcessaFilial = false;
         loadLiberaAcessaFilial();
         trocarMatriculaAcademia = false;
+    }
+
+    public void loadListaDiaParcela() {
+        listaDiaParcela.clear();
+        idDiaParcela = 0;
+        for (int i = 1; i <= 31; i++) {
+            listaDiaParcela.add(new SelectItem(Integer.toString(i)));
+        }
+
+        idDiaParcela = idDiaVencimento;
+    }
+
+    public void loadListaDiaVencimento() {
+        listaDiaVencimento.clear();
+        idDiaVencimento = 0;
+        
+        if (listaDiaVencimento.isEmpty() || matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
+            if (matriculaAcademia.getServicoPessoa().getId() == -1) {
+                listaDiaVencimento.clear();
+                int dia;
+                if (matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
+                    PessoaDao dbp = new PessoaDao();
+                    pessoaComplemento = dbp.pesquisaPessoaComplementoPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
+
+                    if (pessoaComplemento.getId() == -1) {
+                        dia = getRegistro().getFinDiaVencimentoCobranca();
+                    } else {
+                        dia = pessoaComplemento.getNrDiaVencimento();
+                    }
+
+                } else {
+                    dia = DataHoje.DataToArrayInt(matriculaAcademia.getServicoPessoa().getEmissao())[0];
+                }
+
+                for (int i = 1; i <= 31; i++) {
+                    listaDiaVencimento.add(new SelectItem(Integer.toString(i)));
+                    if (dia == i) {
+                        idDiaVencimento = i;
+                    }
+                }
+            } else {
+                int dia = matriculaAcademia.getServicoPessoa().getNrDiaVencimento();
+                for (int i = 1; i <= 31; i++) {
+                    listaDiaVencimento.add(new SelectItem(Integer.toString(i)));
+                    if (dia == i) {
+                        idDiaVencimento = i;
+                    }
+                }
+            }
+        }
+
+        loadListaDiaParcela();
+//        listaDiaVencimento.clear();
+//        idDiaVencimento = 0;
+//        if (listaDiaVencimento.isEmpty()) {
+//            for (int i = 1; i <= 31; i++) {
+//                listaDiaVencimento.add(new SelectItem(Integer.toString(i)));
+//            }
+//        }
+//
+//        idDiaVencimento = Integer.parseInt(DataHoje.data().substring(0, 2));
+    }
+
+    public void atualizarDiaVencimento() {
+        idDiaParcela = idDiaVencimento;
     }
 
     public void cancelarTrocaMatricula() {
@@ -472,6 +536,8 @@ public class MatriculaAcademiaBean implements Serializable {
                 pc.setNrDiaVencimento(idDiaVencimento);
                 dao.update(pc, true);
             }
+
+            idDiaParcela = idDiaVencimento;
         }
     }
 
@@ -485,6 +551,7 @@ public class MatriculaAcademiaBean implements Serializable {
             message = "Pesquisar uma pessoa!";
             return null;
         }
+        
         ConfiguracaoSocial cs = ConfiguracaoSocial.get();
         if (cs.getObrigatorioEmail()) {
             if (matriculaAcademia.getServicoPessoa().getPessoa().getEmail1().isEmpty()) {
@@ -513,6 +580,14 @@ public class MatriculaAcademiaBean implements Serializable {
         Dao dao = new Dao();
         matriculaAcademia.getServicoPessoa().setTipoDocumento((FTipoDocumento) dao.find(new FTipoDocumento(), 1));
         matriculaAcademia.setAcademiaServicoValor((AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription())));
+        
+        List<ServicoValor> lsv = new MatriculaEscolaDao().listServicoValorPorServicoIdade(matriculaAcademia.getAcademiaServicoValor().getServicos().getId(), aluno.getIdade());
+        
+        if (lsv.isEmpty()){
+            message = "Idade do aluno não pertence à esta modalidade!";
+            return null;
+        }
+        
         if (cobranca != null) {
             matriculaAcademia.getServicoPessoa().setCobranca(cobranca);
         } else {
@@ -609,6 +684,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 message = "Erro ao adicionar registro!";
                 return null;
             }
+            
             MatriculaEscolaDao med = new MatriculaEscolaDao();
             pessoaComplemento = med.pesquisaDataRefPessoaComplemto(matriculaAcademia.getServicoPessoa().getCobranca().getId());
             if (pessoaComplemento == null) {
@@ -912,8 +988,7 @@ public class MatriculaAcademiaBean implements Serializable {
         atualizaValor();
 
         GenericaSessao.put("linkClicado", true);
-        listaDiaParcela.clear();
-        getListaDiaParcela();
+        loadListaDiaParcela();
         clear(1);
         clear(2);
         showImagemFisica();
@@ -1093,11 +1168,6 @@ public class MatriculaAcademiaBean implements Serializable {
     }
 
     public List<SelectItem> getListaDiaVencimento() {
-        if (listaDiaVencimento.isEmpty()) {
-            for (int i = 1; i <= 31; i++) {
-                listaDiaVencimento.add(new SelectItem(Integer.toString(i)));
-            }
-        }
         return listaDiaVencimento;
     }
 
@@ -1295,6 +1365,8 @@ public class MatriculaAcademiaBean implements Serializable {
         pegarIdServico();
         //calculaValorLiquido();        
         atualizaValor();
+        loadListaDiaVencimento();
+                
         return aluno;
     }
 
@@ -1887,26 +1959,39 @@ public class MatriculaAcademiaBean implements Serializable {
                         if (Moeda.converteUS$(valorLiquido) > Moeda.converteUS$(valorLiquidoAntigo)) {
                             Double valor_taxa = Moeda.subtracao(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(valorLiquidoAntigo));
                             if (valor_taxa > 0) {
-                                if (!gerarTaxaMovimento(valor_taxa, true)) {
+                                if (!gerarTaxaMovimento(valor_taxa, true, false)) {
                                     GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                     return null;
                                 }
                             }
                         }
-                    } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
-                    // METODO NOVO PARA O CHAMADO 1226
-                    if (Moeda.converteUS$(valorLiquido) > 0) {
-                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
+                    } else if (Moeda.converteUS$(valorLiquido) > 0) {
+                        // TAXA PROPORCIONAL ATÉ O VENCIMENTO
+                        // METODO NOVO PARA O CHAMADO 1226
+
+                        // PARA GERAR PROPORCIONAL
+                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true, false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                             return null;
                         }
-                    } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
+                    } // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
+
                     if (Moeda.converteUS$(valorLiquido) > 0) {
-                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
+                        // PARA GERAR DO MÊS
+                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false, false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                             return null;
                         }
                     } // --------------
+
+                    if (Moeda.converteUS$(valorLiquido) > 0) {
+                        // PARA GERAR DO PRÓXIMO MÊS
+                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false, true)) {
+                            GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                            return null;
+                        }
+                    } // --------------
+
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
                         desabilitaDiaVencimento = true;
@@ -2156,7 +2241,7 @@ public class MatriculaAcademiaBean implements Serializable {
         return null;
     }
 
-    public Boolean gerarTaxaMovimento(Double valor_calculo, Boolean proporcional) {
+    public Boolean gerarTaxaMovimento(Double valor_calculo, Boolean proporcional, Boolean geraProximoMes) {
 
         DescontoPromocional descontoPromocional = new DescontoPromocionalDao().findByServicoMatricula(matriculaAcademia.getServicoPessoa().getServicos().getId());
         if (descontoPromocional != null && descontoPromocional.getDesconto() > 0) {
@@ -2177,6 +2262,12 @@ public class MatriculaAcademiaBean implements Serializable {
         DataHoje dh = new DataHoje();
         String data_hoje = DataHoje.data();
         Integer dia_hoje = Integer.valueOf(data_hoje.substring(0, 2));
+
+        if (geraProximoMes) {
+            if (dia_hoje != idDiaParcela) {
+                return true;
+            }
+        }
 
         Dao dao = new Dao();
         TipoServico tipoServico;
@@ -2204,7 +2295,13 @@ public class MatriculaAcademiaBean implements Serializable {
             if (dia_hoje < idDiaParcela) {
                 vencimento = proximo_vencimento;
             } else if (dia_hoje == idDiaParcela) {
-                vencimento = DataHoje.data();
+                // CHAMADO #2226 LINHA COMENTADA PARA NOVA
+                if (!geraProximoMes) {
+                    vencimento = DataHoje.data();
+                } else {
+                    proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
+                    vencimento = proximo_vencimento;
+                }
             } else {
                 proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
                 vencimento = proximo_vencimento;
@@ -2625,7 +2722,7 @@ public class MatriculaAcademiaBean implements Serializable {
     public String semanaResumo(String descricao) {
         descricao = descricao.substring(0, 3);
         return descricao;
-    } 
+    }
 
     public Registro getRegistro() {
         if (registro != null) {
@@ -2693,42 +2790,6 @@ public class MatriculaAcademiaBean implements Serializable {
     }
 
     public List<SelectItem> getListaDiaParcela() {
-        if (listaDiaParcela.isEmpty() || matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
-            if (matriculaAcademia.getServicoPessoa().getId() == -1) {
-                listaDiaParcela.clear();
-                int dia;
-                if (matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
-                    PessoaDao dbp = new PessoaDao();
-                    pessoaComplemento = dbp.pesquisaPessoaComplementoPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
-
-                    if (pessoaComplemento.getId() == -1) {
-                        dia = getRegistro().getFinDiaVencimentoCobranca();
-                    } else {
-                        dia = pessoaComplemento.getNrDiaVencimento();
-                    }
-
-                } else {
-                    dia = DataHoje.DataToArrayInt(matriculaAcademia.getServicoPessoa().getEmissao())[0];
-                }
-
-                for (int i = 1; i <= 31; i++) {
-                    listaDiaParcela.add(new SelectItem(Integer.toString(i)));
-                    if (dia == i) {
-                        idDiaParcela = i;
-                    }
-                }
-            } else {
-                int dia = matriculaAcademia.getServicoPessoa().getNrDiaVencimento();
-                for (int i = 1; i <= 31; i++) {
-                    listaDiaParcela.add(new SelectItem(Integer.toString(i)));
-                    if (dia == i) {
-                        idDiaParcela = i;
-                    }
-                }
-
-            }
-
-        }
         return listaDiaParcela;
     }
 
@@ -3036,5 +3097,4 @@ public class MatriculaAcademiaBean implements Serializable {
 //        }
 //        return null;
 //    }
-
 }

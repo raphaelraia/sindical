@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.retornos;
 
 import br.com.rtools.arrecadacao.dao.RetornoDao;
@@ -33,13 +28,13 @@ public class ObjetoRetorno {
     public static List<String> retornaLinhaDoArquivo(String caminho_arquivo) {
         List<String> lista = new ArrayList();
         //InputStreamReader i = new FileReader(caminho_arquivo);
-        
+
         try (InputStreamReader reader = new FileReader(caminho_arquivo); BufferedReader buffReader = new BufferedReader(reader)) {
-        //try (FileReader reader = new FileReader(caminho_arquivo); BufferedReader buffReader = new BufferedReader(reader)) {
+            //try (FileReader reader = new FileReader(caminho_arquivo); BufferedReader buffReader = new BufferedReader(reader)) {
 
             String linha;
             while ((linha = buffReader.readLine()) != null) {
-                if (!linha.isEmpty()){
+                if (!linha.isEmpty()) {
                     lista.add(linha);
                 }
             }
@@ -74,7 +69,7 @@ public class ObjetoRetorno {
 
             new Dao().save(retorno, true);
         }
-        
+
         return "";
     }
 

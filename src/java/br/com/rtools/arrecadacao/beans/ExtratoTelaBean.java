@@ -215,8 +215,14 @@ public class ExtratoTelaBean implements Serializable {
                     String data_calculo = new DataHoje().decrementarDias(b.getContaCobranca().getRegistrosDiasVencidos(), DataHoje.data());
 
                     if (b.getVencimento().isEmpty()) {
-                        GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
-                        return null;
+                        
+                        b.setVencimento(m.getVencimento());
+                        b.setVencimentoOriginal(m.getVencimentoOriginal());
+                        
+                        new Dao().save(b, true);
+                        
+                        //GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
+                        //return null;
                     }
 
                     if (DataHoje.menorData(b.getVencimento(), data_calculo)) {

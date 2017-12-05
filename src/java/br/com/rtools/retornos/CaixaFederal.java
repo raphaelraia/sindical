@@ -61,7 +61,6 @@ public class CaixaFederal extends ArquivoRetorno {
                     }
 
                     // O LAYOUT É ANTIGO ?
-                    
                     if (layout_antigo) {
                         // PRIMEIRA LINHA - HEADER ARQUIVO
                         objeto_arquivo.setCnpj(linhas.get(0).substring(18, 32));
@@ -159,11 +158,11 @@ public class CaixaFederal extends ArquivoRetorno {
                         // AS DUAS ÚLTIMAS LINHAS NÃO TEM NECESSIDADE DE LER
                         // FOOTER LOTE
                         // FOOTER ARQUIVO
-                    // O LAYOUT É ANTIGO ?
+                        // O LAYOUT É ANTIGO ?
                     } else {
                         // PRIMEIRA LINHA - HEADER ARQUIVO
                         objeto_arquivo.setCnpj(linhas.get(0).substring(18, 32));
-                        
+
                         objeto_arquivo.setSequencialArquivo(linhas.get(0).substring(158, 164));
 
                         Integer sequencial_arquivo = Integer.parseInt(objeto_arquivo.getSequencialArquivo());

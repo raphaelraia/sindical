@@ -2,7 +2,6 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.dao.RetornoDao;
 import br.com.rtools.financeiro.ContaCobranca;
-import br.com.rtools.financeiro.Retorno;
 import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.retornos.BancoBrasil;
 import br.com.rtools.retornos.CaixaFederal;
@@ -128,7 +127,7 @@ public class RetornoSocialBean {
                     }
                 } else if (ArquivoRetorno.SICOOB == contaCobranca.getContaBanco().getBanco().getId()) {
                     if (ArquivoRetorno.SICOB == contaCobranca.getLayout().getId()) {
-                        
+
                         if (tipo.equals("400")) {
                             arquivoRetorno = new Sicoob400(contaCobranca);
                         } else if (tipo.equals("240")) {
@@ -137,7 +136,7 @@ public class RetornoSocialBean {
                             result = "LIMPAR ARQUIVOS ENVIADOS E CARREGAR NOVAMENTE!";
                             return;
                         }
-                        
+
                         result = arquivoRetorno.darBaixaSicobSocial(caminhoCompleto, usuario);
                     } else if (ArquivoRetorno.SINDICAL == contaCobranca.getLayout().getId()) {
                         result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
@@ -179,12 +178,12 @@ public class RetornoSocialBean {
                             break;
                     }
                 }
-    
+
                 GenericaMensagem.info("Sucesso", "Arquivos Baixados");
             } else {
                 GenericaMensagem.error("ERRO AO BAIXAR", result);
             }
-            
+
             new RetornoDao().corrigeRetornoIncorreto();
 
             loadListaArquivosBaixar();

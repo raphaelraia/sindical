@@ -259,7 +259,18 @@ public class LancamentoFinanceiroBean implements Serializable {
         //acrescimo = Moeda.converteDoubleToString(Moeda.soma(Moeda.soma(p.getMovimento().getCorrecao(), p.getMovimento().getJuros()), p.getMovimento().getMulta()));
 
         desconto = p.getDesconto();
+        loadListPlano5Imposto();
+        for (int i = 0; i < listaPlano5.size(); i++){
+            if (Integer.valueOf(listaPlano5.get(i).getValue().toString()) == p.getMovimento().getPlano5().getId()){
+                idPlano5 = p.getMovimento().getPlano5().getId();
+                chkImposto = true;
+                break;
+            }
+        }
+        
+        telaSalva = false;
 
+        
         // PEGAR 
         //chkImposto = ??;
         //condicao = ??;
@@ -289,6 +300,15 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaParcela.get(indexParcela).getMovimento().setDocumento(documentoMovimento);
         listaParcela.get(indexParcela).getMovimento().setFTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), idFTipoMovimento));
 
+        Dao dao = new Dao();
+        
+        if (chkImposto) {
+            listaParcela.get(indexParcela).getMovimento().setPlano5((Plano5) dao.find(new Plano5(), idPlano5));
+        } else {
+            ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
+            listaParcela.get(indexParcela).getMovimento().setPlano5(co.getPlano5());
+        }
+        
         novaParcela();
     }
 
@@ -310,6 +330,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         parcela = new Parcela();
 
         indexParcela = 0;
+        
+        chkImposto = false;
     }
 
     public void openDialogImposto() {
@@ -1091,6 +1113,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             telaSalva = true;
             parcela = new Parcela();
             loadListaLancamento();
+            novaParcela();
         } catch (Exception e) {
             GenericaMensagem.error("ERROR", e.getMessage());
             dao.rollback();
@@ -1577,9 +1600,15 @@ public class LancamentoFinanceiroBean implements Serializable {
             correcao = "0,00";
             acrescimo = "0,00";
         } else {
-            multa = listaParcela.get(indexParcela).getMovimento().getMultaString();
-            juros = listaParcela.get(indexParcela).getMovimento().getJurosString();
-            correcao = listaParcela.get(indexParcela).getMovimento().getCorrecaoString();
+            if (!telaSalva) {
+                multa = listaParcela.get(indexParcela).getMulta();
+                juros = listaParcela.get(indexParcela).getJuros();
+                correcao = listaParcela.get(indexParcela).getCorrecao();
+            } else {
+                multa = listaParcela.get(indexParcela).getMovimento().getMultaString();
+                juros = listaParcela.get(indexParcela).getMovimento().getJurosString();
+                correcao = listaParcela.get(indexParcela).getMovimento().getCorrecaoString();
+            }
         }
     }
 
