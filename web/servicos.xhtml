@@ -36,34 +36,7 @@
                                             <p:inputText id="idDSServicos" value="#{servicosBean.servicos.descricao}" maxlength="100" size="100"/>                       
                                         </p:panelGrid>
 
-                                        <h:panelGrid columns="2">
-                                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPlano}" value="Conta Contábil" id="id_pesquisa_plano"/>
-                                            <p:column>
-                                                <p:outputLabel value="Pesquisar conta contábil" for="id_pesquisa_plano" rendered="#{servicosBean.servicos.plano5.id == -1}" style="border-bottom: 1px dashed #888"/>
-                                                <p:outputLabel value="Conta Contábil: #{servicosBean.servicos.plano5.numero} - #{servicosBean.servicos.plano5.conta}" title="#{servicosBean.servicos.plano5.conta}" rendered="#{servicosBean.servicos.plano5.id != -1}"/><br />
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="2">
-                                            <h:column>
-                                                <p:outputLabel value="Grupo Financeiro " rendered="#{servicosBean.servicos.plano5.id != -1}"/><br />
-                                                <p:selectOneMenu value="#{servicosBean.idGrupo}" style="margin-right: 10px; width: 450px" rendered="#{servicosBean.servicos.plano5.id != -1}">
-                                                    <p:ajax event="change" listener="#{servicosBean.listSubGrupo.clear()}" update="i_subgrupo"/>
-                                                    <f:selectItems value="#{servicosBean.listGrupo}"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-
-                                            <h:column>
-                                                <p:outputLabel value="Sub Grupo Financeiro " rendered="#{servicosBean.servicos.plano5.id != -1}"/><br />
-                                                <p:selectOneMenu id="i_subgrupo" value="#{servicosBean.idSubGrupo}" style="margin-right: 10px; width: 450px" rendered="#{servicosBean.servicos.plano5.id != -1}">
-                                                    <f:selectItems value="#{servicosBean.listSubGrupo}"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <p:separator />
-
-                                        <h:panelGrid columns="6">
+                                        <h:panelGrid columns="2" styleClass="margin-top-max" cellspacing="5">
                                             <h:column>
                                                 <p:outputLabel value="Código" for="idCodigo"/><br />
                                                 <p:inputText id="idCodigo" size="10" value="#{servicosBean.servicos.codigo}"/>
@@ -72,74 +45,189 @@
                                             <p:column>
                                                 <p:outputLabel value="Situação" /><br />
                                                 <p:selectOneMenu value="#{servicosBean.servicos.situacao}" style="width: 50px">
-                                                    <f:selectItem itemValue="A" itemLabel="A" />
-                                                    <f:selectItem itemValue="I" itemLabel="I" />
+                                                    <f:selectItem itemValue="A" itemLabel="A" itemDescription="Ativo" />
+                                                    <f:selectItem itemValue="I" itemLabel="I" itemDescription="Inativo"/>
                                                 </p:selectOneMenu>
                                             </p:column>
 
-                                            <p:column>
-                                                <p:outputLabel value="Administradora" /><br />
+                                        </h:panelGrid>
+
+                                        <p:panel header="Arrecadação" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="2" cellspacing="5">
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.boleto}" itemLabel="Sair Descrição no Boleto">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                        </p:panel>
+
+
+                                        <p:panel header="Escola" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="2" cellspacing="5">
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.cursoRenovacao}" itemLabel="Renovação Automática Escola">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                            <h3>CURSOS/EVENTOS</h3>
+                                            <h:panelGrid columns="2">
+                                                <h:outputLabel value="QUANTIDADE DE VAGAS" />
+                                                <p:inputText value="#{servicosBean.servicos.nrVagas}">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:inputText>
+                                            </h:panelGrid>
+                                        </p:panel>
+
+                                        <p:panel header="Finançeiro" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="2">
+                                                <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPlano}" value="Conta Contábil" id="id_pesquisa_plano"/>
+                                                <p:column>
+                                                    <p:outputLabel value="Pesquisar conta contábil" for="id_pesquisa_plano" rendered="#{servicosBean.servicos.plano5.id == -1}" style="border-bottom: 1px dashed #888"/>
+                                                    <p:outputLabel value="Conta Contábil: #{servicosBean.servicos.plano5.numero} - #{servicosBean.servicos.plano5.conta}" title="#{servicosBean.servicos.plano5.conta}" rendered="#{servicosBean.servicos.plano5.id != -1}"/><br />
+                                                </p:column>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid columns="2" cellspacing="5">
+                                                <p:outputLabel value="Grupo " rendered="#{servicosBean.servicos.plano5.id != -1}"/>
+                                                <p:outputLabel value="Sub Grupo" rendered="#{servicosBean.servicos.plano5.id != -1}"/>
+                                                <p:selectOneMenu value="#{servicosBean.idGrupo}" style="margin-right: 10px; width: 450px" rendered="#{servicosBean.servicos.plano5.id != -1}">
+                                                    <p:ajax event="change" listener="#{servicosBean.listSubGrupo.clear()}" update="i_subgrupo"/>
+                                                    <f:selectItems value="#{servicosBean.listGrupo}"/>
+                                                </p:selectOneMenu>
+                                                <p:selectOneMenu id="i_subgrupo" value="#{servicosBean.idSubGrupo}" style="margin-right: 10px; width: 450px" rendered="#{servicosBean.servicos.plano5.id != -1}">
+                                                    <f:selectItems value="#{servicosBean.listSubGrupo}"/>
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>                                            
+
+                                            <h:panelGrid columns="2" styleClass="margin-top-max" cellspacing="5">
+                                                <p:outputLabel value="Administradora" />
                                                 <p:selectOneMenu id="i_administradora" value="#{servicosBean.idAdministradora}" style="margin-right: 10px;">
                                                     <f:selectItem itemValue="" itemLabel="Nenhuma" />
                                                     <f:selectItems value="#{servicosBean.listAdministradora}"/>
                                                 </p:selectOneMenu>
-                                            </p:column>
+                                            </h:panelGrid>
 
-                                            <p:column>
-                                                <br />
-
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:outputLabel value="Meses Débito Exclusão" /><br />
+                                            <h:panelGrid columns="7" styleClass="margin-top-max" cellspacing="5">
+                                                <p:selectBooleanCheckbox id="idServAdmin" value="#{servicosBean.servicos.adm}" itemLabel="ADM" disabled="true">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.tabela}" itemLabel="Tabela" title="Visualiza este serviço na tabela de preços">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.agrupaBoleto}" itemLabel="Agrupa boletos" disabled="true">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                            <h:panelGrid columns="7" styleClass="margin-top-max" cellspacing="5">
+                                                <p:outputLabel value="Prazo de Exclusão para Débito" />
                                                 <p:inputText size="16" value="#{servicosBean.servicos.mesesDebitoExclusao}" style="text-align: right" converter="#{thisNumber}">
-                                                <p:ajax event="change" update="@this"/>
-                                                </p:inputText>
-                                            </p:column>
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:inputText>                                                
+                                                <p:outputLabel value="(Meses)" />
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.mesesDebitoExclusaoTodos}" itemLabel="Após atingir o prazo de exclusão, excluir todos registros em aberto" style="text-align: right; margin-left: 50px"/>
+                                            </h:panelGrid>
+                                        </p:panel>
 
-                                            <p:column>
-                                                <br />
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.mesesDebitoExclusaoTodos}" itemLabel="Após caducar o primeiro registro, excluir todos em aberto?" style="text-align: right"/>
-                                            </p:column>
-                                        </h:panelGrid>
+                                        <p:panel header="Guias" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="4" cellpadding="5">
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.produto}" itemLabel="Produto" title="Disponibiliza lista de produtos">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                            <h:panelGroup id="i_panel_opcoes" layout="span">
+                                                <h:panelGrid columns="10" cellpadding="5">
+                                                    <h:column>
+                                                        <p:outputLabel value="Periodo de fornecimento gratuito "/><br />
+                                                        <p:selectOneMenu id="i_periodo" value="#{servicosBean.idPeriodo}" style="margin-right: 10px; width: 200px">
+                                                            <f:selectItems value="#{servicosBean.listPeriodo}"/>
+                                                        </p:selectOneMenu>
+                                                    </h:column>
 
-                                        <p:panelGrid columns="9" styleClass="sbb">
-                                            <p:selectBooleanCheckbox id="idServDebito" value="#{servicosBean.servicos.debito}" itemLabel="Débito">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox id="idServValor" value="#{servicosBean.servicos.alterarValor}" itemLabel="Alterar valor">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox id="idServAdmin" value="#{servicosBean.servicos.adm}" itemLabel="ADM">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.tabela}" itemLabel="Tabela">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.eleicao}" itemLabel="Eleição">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.agrupaBoleto}" itemLabel="Agrupa boletos">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.produto}" itemLabel="Produto">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorFixo}" itemLabel="Valor Fixo">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.cursoRenovacao}" itemLabel="Renovação Automática Escola">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:selectBooleanCheckbox>
-                                        </p:panelGrid>
-                                        <p:panelGrid columns="9" styleClass="sbb">
-                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.boleto}" itemLabel="Sair Descrição no Boleto">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:selectBooleanCheckbox>
-                                        </p:panelGrid>
+                                                    <h:column>
+                                                        <p:outputLabel value="Quantidade por Periodo"/><br />
+                                                        <p:inputText value="#{servicosBean.servicos.quantidadePeriodo}" size="18" styleClass="text-center"/>
+                                                    </h:column>                                              
+                                                    <h:column>
+                                                        <br />
+                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.familiarPeriodo}" itemLabel="Controle Familiar" title="Quantidade por Periodo é referente a familia ou a pessoa">
+                                                            <p:ajax event="change" update="@this"/>
+                                                        </p:selectBooleanCheckbox>
+                                                    </h:column>                                              
+                                                </h:panelGrid>
+                                                <h:panelGrid columns="9" cellspacing="5" styleClass="sbb">
+                                                    <h:column>
+                                                        <br />
+                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuias}" itemLabel="Serviço com validade"   >
+                                                            <p:ajax event="change" update="@this i_panel_opcoes"/>
+                                                        </p:selectBooleanCheckbox>
+                                                    </h:column>
+
+                                                    <h:column>
+                                                        <br />
+                                                        <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuiasVigente}" itemLabel="Validade somente dentro do mês vigente">
+                                                            <p:ajax event="change" update="@this i_panel_opcoes"/>
+                                                        </p:selectBooleanCheckbox>
+                                                    </h:column>
+
+                                                    <h:column>
+                                                        <br />
+
+                                                    </h:column>
+
+                                                    <h:column rendered="#{!servicosBean.servicos.validadeGuiasVigente and servicosBean.servicos.validadeGuias}">
+                                                        <p:outputLabel value="Dias validos da guia" for="idDiaValido" style="font-weight: bold"/><br />
+                                                        <p:spinner id="idDiaValido" size="14" value="#{servicosBean.servicos.validade}" min="0" max="360"/>
+                                                    </h:column>
+                                                </h:panelGrid>
+                                            </h:panelGroup>
+                                            <h:panelGrid columns="9" cellspacing="5" styleClass="sbb">
+
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.guiaSomenteSocio}" itemLabel="Guias Somente p/ Sócios" title="Emissão de guias somente para Sócios">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+
+
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorZerado}" itemLabel="Valor zerado Guias">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+
+                                            </h:panelGrid>
+                                        </p:panel>
+                                        <p:panel header="Homologação" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="7" cellspacing="5">
+                                                <p:selectBooleanCheckbox id="idServDebitoHom" value="#{servicosBean.servicos.debitoHomologacao}" itemLabel="Verifica Débito Homologação">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                        </p:panel>
+
+                                        <p:panel header="Social" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="7" cellspacing="5">
+                                                <p:selectBooleanCheckbox id="idServValor" value="#{servicosBean.servicos.alterarValor}" itemLabel="Alterar valor">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.eleicao}" itemLabel="Eleição">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox id="idServDebito" value="#{servicosBean.servicos.debitoClube}" itemLabel="Verifica Débito Clube">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorFixo}" itemLabel="Valor Fixo">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid columns="2" styleClass="margin-top-max">
+                                                <p:outputLabel value="Modelo de Carterinha: " />
+                                                <p:selectOneMenu value="#{servicosBean.idModeloCarteirinha}">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItem itemValue="" itemLabel="Nenhum" />
+                                                    <f:selectItems value="#{servicosBean.listModeloCarteirinha}"/>
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
+
+                                        </p:panel>
                                         <p:panel styleClass="margin-top-max">
                                             <f:facet name="header">
-                                                <p:selectBooleanCheckbox value="#{servicosBean.descontoMatricula}" itemLabel="Desconto na Matrícula">
+                                                <p:selectBooleanCheckbox value="#{servicosBean.descontoMatricula}" itemLabel="Desconto Promocional">
                                                     <p:ajax event="change" update="@this id_desconto_matricula"/>
                                                 </p:selectBooleanCheckbox>                                                   
                                             </f:facet>
@@ -173,80 +261,6 @@
                                                 </h:panelGrid>
                                             </h:panelGroup>
                                         </p:panel>
-
-                                        <p:separator />
-                                        <br />
-                                        <p:fieldset legend="Opções da GUIA" toggleable="true" collapsed="true" toggleSpeed="500">
-                                            <h:panelGrid id="i_panel_opcoes" columns="10" cellpadding="5">
-                                                <h:column>
-                                                    <p:outputLabel value="Periodo de fornecimento gratuito "/><br />
-                                                    <p:selectOneMenu id="i_periodo" value="#{servicosBean.idPeriodo}" style="margin-right: 10px; width: 200px">
-                                                        <f:selectItems value="#{servicosBean.listPeriodo}"/>
-                                                    </p:selectOneMenu>
-                                                </h:column>
-
-                                                <h:column>
-                                                    <p:outputLabel value="Quantidade por Periodo"/><br />
-                                                    <p:inputText value="#{servicosBean.servicos.quantidadePeriodo}" size="18" styleClass="text-center"/>
-                                                </h:column>
-                                                <h:column>
-                                                    <br />
-                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuias}" itemLabel="Serviço com validade"   >
-                                                        <p:ajax event="change" update="@this"/>
-                                                    </p:selectBooleanCheckbox>
-                                                </h:column>
-
-                                                <h:column>
-                                                    <br />
-                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuiasVigente}" itemLabel="Validade somente dentro do mês vigente">
-                                                        <p:ajax event="change" update="@this i_panel_opcoes"/>
-                                                    </p:selectBooleanCheckbox>
-                                                </h:column>
-
-                                                <h:column>
-                                                    <br />
-
-                                                </h:column>
-
-                                                <h:column rendered="#{!servicosBean.servicos.validadeGuiasVigente}">
-                                                    <p:outputLabel value="Dias validos da guia" for="idDiaValido" style="font-weight: bold"/><br />
-                                                    <p:spinner id="idDiaValido" size="14" value="#{servicosBean.servicos.validade}" min="0" max="360"/>
-                                                </h:column>
-                                            </h:panelGrid>
-                                            <h:panelGrid columns="9" cellspacing="5" styleClass="sbb">
-
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.guiaSomenteSocio}" itemLabel="Guias Somente p/ Sócios" title="Emissão de guias somente para Sócios">
-                                                    <p:ajax event="change" update="@this"/>
-                                                </p:selectBooleanCheckbox>
-
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.familiarPeriodo}" itemLabel="Controle Familiar">
-                                                    <p:ajax event="change" update="@this"/>
-                                                </p:selectBooleanCheckbox>
-
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorZerado}" itemLabel="Valor zerado Guias">
-                                                    <p:ajax event="change" update="@this"/>
-                                                </p:selectBooleanCheckbox>
-
-                                            </h:panelGrid>
-                                        </p:fieldset>
-                                        <p:panel header="CURSOS/EVENTOS">
-                                            <h:panelGrid columns="2">
-                                                <h:outputLabel value="QUANTIDADE DE VAGAS" />
-                                                <p:inputText value="#{servicosBean.servicos.nrVagas}">
-                                                    <p:ajax event="change" update="@this"/>
-                                                </p:inputText>
-                                            </h:panelGrid>
-                                        </p:panel>
-                                    </p:tab>
-                                    <p:tab title="Complemento">
-                                        <h:panelGrid columns="2">
-                                            <p:outputLabel value="Modelo de Carterinha" /><br />
-                                            <p:selectOneMenu value="#{servicosBean.idModeloCarteirinha}" style="margin-right: 10px;">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItem itemValue="" itemLabel="Nenhum" />
-                                                <f:selectItems value="#{servicosBean.listModeloCarteirinha}"/>
-                                            </p:selectOneMenu>
-                                        </h:panelGrid>
                                     </p:tab>
                                     <p:tab id="valor" disabled="#{servicosBean.desabilitaValor}" title="Serviço Valor">                                    
                                         <p:messages id="id_messages_growl" showDetail="true" autoUpdate="true" closable="true" />

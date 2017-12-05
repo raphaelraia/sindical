@@ -1,13 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.ExameMedico;
 import br.com.rtools.associativo.ValidadeExameMedico;
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Usuario;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -130,6 +127,15 @@ public class ExameMedicoDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public List<Usuario> findAllOperadores() {
+        try {
+            Query qry = getEntityManager().createQuery("SELECT U FROM Usuario U WHERE U.id IN(SELECT EM.operador.id FROM ExameMedico EM GROUP BY EM.operador.id) ORDER BY U.pessoa.nome ASC");
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
 }

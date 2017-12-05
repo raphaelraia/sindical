@@ -153,16 +153,33 @@ public class ImprimirRecibo {
 
                 DataHoje dh = new DataHoje();
 
+//                  if (lista.get(i).getServicos().isValidadeGuias() && !lista.get(i).getServicos().isValidadeGuiasVigente()) {
+//                        lblVencimento = "Validade";
+//                        vencimento = dataHoje.incrementarDias(lista.get(i).getServicos().getValidade(), lista.get(i).getLote().getEmissao());
+//                    } else if (lista.get(i).getServicos().isValidadeGuias() && lista.get(i).getServicos().isValidadeGuiasVigente()) {
+//                        lblVencimento = "Validade";
+//                        vencimento = DataHoje.converteData(DataHoje.lastDayOfMonth(DataHoje.dataHoje()));
+//                    } else {
+//                        lblVencimento = "Validade";
+//                        vencimento = "";
+//                    }
+//            }
                 if (linha.get(12) != null) { // SE FOR PRODUTO
                     if ((Boolean) linha.get(14)) { // SE is_validade_guias_mes_vigente
                         str_validade = dh.ultimoDiaDoMes(guia.getLote().getEmissao());
                     } else {
                         str_validade = dh.incrementarDias((Integer) linha.get(15), guia.getLote().getEmissao());
                     }
-                } else if ((Boolean) linha.get(10)) { // SE FOR SERVIÇO
-                    str_validade = dh.ultimoDiaDoMes(guia.getLote().getEmissao()); // SE is_validade_guias_mes_vigente
                 } else {
-                    str_validade = dh.incrementarDias((Integer) linha.get(11), guia.getLote().getEmissao());
+                    // SE FOR SERVIÇO
+                    if ((Boolean) linha.get(16) && !(Boolean) linha.get(10)) {
+                        str_validade = dh.incrementarDias((Integer) linha.get(11), guia.getLote().getEmissao());
+                    } else if ((Boolean) linha.get(16) && (Boolean) linha.get(10)) {
+                        // SE is_validade_guias_mes_vigente
+                        str_validade = dh.ultimoDiaDoMes(guia.getLote().getEmissao());
+                    } else {
+                        str_validade = "";
+                    }
                 }
 
 //                if (hash.containsKey(str_validade)) {

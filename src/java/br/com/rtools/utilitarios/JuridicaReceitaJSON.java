@@ -225,7 +225,7 @@ public class JuridicaReceitaJSON {
                         // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
                         if (statusBoolean.equals("NOK")) {
                             jro.setStatus(-1);
-                            jro.setMsg(error.toUpperCase() + " " + message);
+                            jro.setMsg(error.toUpperCase() + ". TENTE NOVAMENTE MAIS TARDE!!! SISTEMA DA RECEITA ESTA APRESENTANDO INSTABILIDADE NO MOMENTO!!!. " + message);
 
                             //in.close();
                             // con.disconnect();

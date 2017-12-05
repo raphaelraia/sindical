@@ -1,0 +1,255 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Relatório Exame Médico</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+
+            .column01{
+                width: 300px;
+                vertical-align: top;
+            }
+
+            .column02{
+                vertical-align: top;
+            }            
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Relatório Exame Médico" styleClass="fonteHeader" />
+                        <h:form id="form_relatorio">
+                            <p:panel styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="6">
+                                    <p:outputLabel value="Tipo de Relatório: " />
+                                    <p:selectOneMenu value="#{relatorioExameMedicoBean.idRelatorio}">
+                                        <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioExameMedicoBean.listener('relatorios')}"/>
+                                        <f:selectItems value="#{relatorioExameMedicoBean.listRelatorio}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioExameMedicoBean.listRelatorioOrdem}"/>
+                                    <p:selectOneMenu value="#{relatorioExameMedicoBean.idRelatorioOrdem}" rendered="#{not empty relatorioExameMedicoBean.listRelatorioOrdem}">
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{relatorioExameMedicoBean.listRelatorioOrdem}"/>
+                                    </p:selectOneMenu>                                                                     
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:messages autoUpdate="true" closable="true" showDetail="true" />
+                            <p:growl autoUpdate="true" showDetail="true" />
+
+                            <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max" style="width: 100%!important">
+                                <h:column>
+                                    <h:panelGroup layout="block" style="width: 225px; float: left" id="i_panel_avancado">
+                                        <p:accordionPanel prependId="false" activeIndex="0">
+                                            <p:tab title="Filtros">
+                                                <h:panelGrid>
+                                                    <c:forEach items="#{relatorioExameMedicoBean.filters}" var="filter" varStatus="loop" id="i_foreach_1">
+                                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 180px; text-align: left" disabled="#{filter.disabled}">
+                                                            <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioExameMedicoBean.load(relatorioExameMedicoBean.filters[loop.index])}" />
+                                                        </p:selectBooleanButton>
+                                                    </c:forEach>                                                
+                                                </h:panelGrid>
+                                            </p:tab>                                            
+                                        </p:accordionPanel>
+                                    </h:panelGroup>
+                                </h:column>
+                                <h:column>
+                                    <h:panelGroup layout="block" id="id_panel_relatorio" style="min-width: 800px!important; width: 100%!important;" >
+                                        <!-- SÓCIOS -->
+                                        <h:panelGrid style="width: 100%!important">                                           
+                                            <h:column rendered="#{relatorioExameMedicoBean.getShow('tipo')}">                                                
+                                                <p:panel header="Tipo">
+                                                    <h:panelGrid columns="6" cellspacing="5">
+                                                        <p:selectOneMenu label="Data" value="#{relatorioExameMedicoBean.type}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                            <f:selectItem itemValue="all" itemLabel="Todos" />
+                                                            <f:selectItem itemValue="socio" itemLabel="Sócio" />
+                                                            <f:selectItem itemValue="convidado" itemLabel="Convidado" />                                                                
+                                                        </p:selectOneMenu>
+
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioExameMedicoBean.close('tipo')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioExameMedicoBean.getShow('operador')}">
+                                                <p:panel header="Operador">
+                                                    <h:panelGrid columns="2" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar" value="#{relatorioExameMedicoBean.selectedOperador}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioExameMedicoBean.listOperadores}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioExameMedicoBean.close('operador')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>                                                    
+                                                </p:panel>
+                                            </h:column>
+
+                                            <h:column rendered="#{relatorioExameMedicoBean.getShow('departamento')}">
+                                                <p:panel header="Departamento">
+                                                    <h:panelGrid columns="2" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar" value="#{relatorioExameMedicoBean.selectedDepartamento}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioExameMedicoBean.listDepartamentos}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioExameMedicoBean.close('departamento')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioExameMedicoBean.getShow('pessoa')}">
+                                                <p:panel header="Pessoa">
+
+                                                    <h:panelGrid columns="3">
+                                                        <h:column>
+                                                            <p:commandButton icon="ui-icon-search" oncomplete="PF('dlg_tipo_pesquisa').show()"/>
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandLink action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" value="#{(relatorioExameMedicoBean.pessoa.id eq -1) ? 'PESQUISA PESSOA' : relatorioExameMedicoBean.pessoa.nome} (#{relatorioExameMedicoBean.pessoa.fisica.idade} anos)" style="font-size: 11pt!important" rendered="#{relatorioExameMedicoBean.pessoa.id ne -1}"/>
+                                                            <p:commandLink action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" value="#{(relatorioExameMedicoBean.sisPessoa.id eq -1) ? '' : relatorioExameMedicoBean.sisPessoa.nome} (#{relatorioExameMedicoBean.sisPessoa.idade} anos)" style="font-size: 11pt!important" rendered="#{relatorioExameMedicoBean.sisPessoa.id ne -1}"/>
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioExameMedicoBean.close('pessoa')}" title="Remover filtro" update="form_relatorio"/>
+                                                        </h:column> 
+                                                    </h:panelGrid>
+
+
+                                                </p:panel>
+                                            </h:column>                                            
+                                            <h:column rendered="#{relatorioExameMedicoBean.getShow('datas')}">
+                                                <p:panel header="Datas">
+                                                    <h:panelGroup layout="block" id="i_panel_datas">
+                                                        <h:panelGrid columns="5" cellspacing="5">
+                                                            <p:selectOneMenu value="#{relatorioExameMedicoBean.selectedDate}">
+                                                                <p:ajax event="change" update="@this i_panel_datas" />
+                                                                <f:selectItems value="#{relatorioExameMedicoBean.listDates}"/>
+                                                            </p:selectOneMenu>
+                                                            <p:selectOneMenu label="Data" value="#{relatorioExameMedicoBean.typeDate}">
+                                                                <p:ajax event="change" update="@this i_panel_datas" global="false"/>
+                                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                                <f:selectItem itemValue="com" itemLabel="Com data" />
+                                                                <f:selectItem itemValue="sem" itemLabel="Sem data" />
+                                                            </p:selectOneMenu>
+                                                            <p:inputMask mask="#{relatorioExameMedicoBean.selectedDate eq 'idade' ? '' : '99/99/9999'}" value="#{relatorioExameMedicoBean.startDate}" converter="#{relatorioExameMedicoBean.selectedDate eq 'idade' ? thisNumber : isDateString}" rendered="#{relatorioExameMedicoBean.typeDate ne 'todos' and relatorioExameMedicoBean.typeDate ne 'com' and relatorioExameMedicoBean.typeDate ne 'sem'}" size="10" styleClass="text-center">
+                                                                <p:ajax event="change" global="false" />
+                                                            </p:inputMask>
+                                                            <p:outputLabel value="até" rendered="#{relatorioChequesBean.typeDate eq 'faixa'}" styleClass="margin-left-max"/>
+                                                            <p:inputMask mask="#{relatorioExameMedicoBean.selectedDate eq 'idade' ? '' : '99/99/9999'}" value="#{relatorioExameMedicoBean.finishDate}" converter="#{relatorioExameMedicoBean.selectedDate eq 'idade' ? thisNumber : isDateString}" rendered="#{relatorioExameMedicoBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
+                                                                <p:ajax event="change" global="false" />
+                                                            </p:inputMask>
+                                                            <p:commandButton icon="ui-icon-plus" action="#{relatorioExameMedicoBean.addFilterDate()}" title="Adicionar data" update="i_panel_datas"/>
+                                                        </h:panelGrid>
+                                                        <p:dataTable value="#{relatorioExameMedicoBean.listDateFilters}" var="dateFilters" emptyMessage="Nenhuma data adicionada" styleClass="margin-top-max" id="i_tbl_data">
+                                                            <p:column headerText="Titulo" styleClass="text-center">
+                                                                #{relatorioExameMedicoBean.getDateItemDescription(dateFilters.title)}
+                                                            </p:column>
+                                                            <p:column headerText="Tipo" styleClass="text-center">                                                                
+                                                                <p:selectOneMenu label="Data" value="#{dateFilters.type}">
+                                                                    <p:ajax event="change" update="@this i_tbl_data" global="false"/>
+                                                                    <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                    <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                                    <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                                    <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                                    <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                                    <f:selectItem itemValue="com" itemLabel="Com data" />
+                                                                    <f:selectItem itemValue="sem" itemLabel="Sem data" />
+                                                                </p:selectOneMenu>                                                                
+                                                            </p:column>
+                                                            <p:column headerText="Inicial" styleClass="text-center">
+                                                                <p:inputMask mask="#{dateFilters.title eq 'idade' ? '' : '99/99/9999'}"  value="#{dateFilters.start}" converter="#{dateFilters.title eq 'idade' ? thisNumber : isDateString}" rendered="#{dateFilters.type ne 'todos' and dateFilters.type ne 'sem' and dateFilters.type ne 'com'}" size="10" styleClass="text-center">
+                                                                    <p:ajax event="change" global="false" />
+                                                                </p:inputMask>                                                                
+                                                            </p:column>
+                                                            <p:column headerText="Final" styleClass="text-center">
+                                                                <p:inputMask mask="#{dateFilters.title eq 'idade' ? '' : '99/99/9999'}"  value="#{dateFilters.finish}" converter="#{dateFilters.title eq 'idade' ? thisNumber : isDateString}" rendered="#{dateFilters.type eq 'faixa'}"  size="10" styleClass="text-center">
+                                                                    <p:ajax event="change" global="false" />
+                                                                </p:inputMask>
+                                                            </p:column>
+                                                            <p:column width="30" styleClass="text-center">
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioExameMedicoBean.removeFilterDate(dateFilters)}" title="Remover filtro" update=":form_relatorio:i_panel_datas" global="false"/>
+                                                            </p:column>
+                                                        </p:dataTable>
+                                                    </h:panelGroup>
+                                                    <f:facet name="footer">
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioExameMedicoBean.close('datas')}" title="Remover filtro" update="form_relatorio" global="false"/>
+                                                    </f:facet>
+                                                </p:panel>
+                                            </h:column>  
+
+                                        </h:panelGrid>                                        
+                                    </h:panelGroup>
+                                </h:column>
+                            </h:panelGrid>                            
+                            <h:panelGrid>
+                                <h:column>
+                                    <h:panelGrid columns="2">
+                                        <p:commandLink action="#{relatorioExameMedicoBean.print}" title="Imprimir Relatório" ajax="false">
+                                            <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório"/>
+                                        </p:commandLink>                               
+                                    </h:panelGrid>                                    
+                                </h:column>
+                                <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar Arquivo (ZIP)" />
+                                <p:selectBooleanCheckbox value="#{jasperBean.IS_HEADER}" itemLabel="Com cabeçalho">
+                                    <p:ajax event="change" update="@this" listener="#{jasperBean.setTYPE('paisagem')}" />
+                                </p:selectBooleanCheckbox>
+                            </h:panelGrid>
+                            <h:column>
+                                <h:panelGrid id="i_e_e_r_s" columns="2">
+                                    <p:selectBooleanCheckbox itemLabel="Exportar" value="#{jasperBean.EXPORT_TO}">
+                                        <p:ajax event="change" update="@this i_e_e_r_s" />
+                                    </p:selectBooleanCheckbox>
+                                    <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                                    </p:selectOneMenu>                                            
+                                </h:panelGrid>                                            
+                            </h:column>
+                            <p:dialog widgetVar="dlg_tipo_pesquisa" header="Pesquisar Sócio/Convidado" resizable="false" width="400" modal="true">
+                                <center>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" value="SÓCIO" />
+                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaSisPessoa')}" value="CONVIDADO" />
+                                    </h:panelGrid>                                    
+                                </center>
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>
