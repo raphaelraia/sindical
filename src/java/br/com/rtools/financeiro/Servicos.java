@@ -41,7 +41,7 @@ public class Servicos implements java.io.Serializable {
     @Column(name = "ds_situacao", length = 1, nullable = true)
     private String situacao;
     @Column(name = "is_debito_clube", nullable = true, columnDefinition = "boolean default false")
-    private boolean debito;
+    private boolean debitoClube;
     @Column(name = "is_altera_valor", nullable = true, columnDefinition = "boolean default false")
     private boolean alterarValor;
     @Column(name = "is_adm", nullable = true, columnDefinition = "boolean default false")
@@ -90,6 +90,8 @@ public class Servicos implements java.io.Serializable {
     private Boolean guiaSomenteSocio;
     @Column(name = "nr_vagas", nullable = false, columnDefinition = "integer default 0")
     private Integer nrVagas;
+    @Column(name = "is_debito_homologacao", nullable = false, columnDefinition = "boolean default true")
+    private boolean debitoHomologacao;
 
     @Transient
     private Boolean selected;
@@ -106,7 +108,7 @@ public class Servicos implements java.io.Serializable {
         this.validade = 0;
         this.codigo = "";
         this.situacao = "A";
-        this.debito = false;
+        this.debitoClube = false;
         this.alterarValor = false;
         this.adm = false;
         this.tabela = false;
@@ -132,6 +134,7 @@ public class Servicos implements java.io.Serializable {
         this.nrVagas = 0;
         // TRANSIENT
         this.valorCheio = null;
+        this.debitoHomologacao = true;
     }
 
     public Servicos(int id,
@@ -164,7 +167,8 @@ public class Servicos implements java.io.Serializable {
             Integer mesesDebitoExclusao,
             boolean mesesDebitoExclusaoTodos,
             boolean guiaSomenteSocio,
-            Integer nrVagas) {
+            Integer nrVagas,
+            boolean debitoHomologacao) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -173,7 +177,7 @@ public class Servicos implements java.io.Serializable {
         this.validade = validade;
         this.codigo = codigo;
         this.situacao = situacao;
-        this.debito = debito;
+        this.debitoClube = debitoClube;
         this.alterarValor = alterarValor;
         this.adm = adm;
         this.tabela = tabela;
@@ -196,6 +200,7 @@ public class Servicos implements java.io.Serializable {
         this.mesesDebitoExclusaoTodos = mesesDebitoExclusaoTodos;
         this.guiaSomenteSocio = guiaSomenteSocio;
         this.nrVagas = nrVagas;
+        this.debitoHomologacao = debitoHomologacao;
     }
 
     public int getId() {
@@ -254,12 +259,12 @@ public class Servicos implements java.io.Serializable {
         this.situacao = situacao;
     }
 
-    public boolean isDebito() {
-        return debito;
+    public boolean isDebitoClube() {
+        return debitoClube;
     }
 
-    public void setDebito(boolean debito) {
-        this.debito = debito;
+    public void setDebitoClube(boolean debitoClube) {
+        this.debitoClube = debitoClube;
     }
 
     public boolean isAlterarValor() {
@@ -450,7 +455,7 @@ public class Servicos implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "Servicos{" + "id=" + id + ", descricao=" + descricao + ", filial=" + filial + ", plano5=" + plano5 + ", departamento=" + departamento + ", validade=" + validade + ", codigo=" + codigo + ", situacao=" + situacao + ", debito=" + debito + ", alterarValor=" + alterarValor + ", adm=" + adm + ", tabela=" + tabela + ", eleicao=" + eleicao + ", agrupaBoleto=" + agrupaBoleto + ", produto=" + produto + ", subGrupoFinanceiro=" + subGrupoFinanceiro + ", valorFixo=" + valorFixo + ", periodo=" + periodo + ", quantidadePeriodo=" + quantidadePeriodo + ", familiarPeriodo=" + familiarPeriodo + ", valorZerado=" + valorZerado + ", validadeGuiasVigente=" + validadeGuiasVigente + ", administradora=" + administradora + ", validadeGuias=" + validadeGuias + ", cursoRenovacao=" + cursoRenovacao + ", boleto=" + boleto + ", modeloCarteirinha=" + modeloCarteirinha + '}';
+        return "Servicos{" + "id=" + id + ", descricao=" + descricao + ", filial=" + filial + ", plano5=" + plano5 + ", departamento=" + departamento + ", validade=" + validade + ", codigo=" + codigo + ", situacao=" + situacao + ", debitoClube=" + debitoClube + ", alterarValor=" + alterarValor + ", adm=" + adm + ", tabela=" + tabela + ", eleicao=" + eleicao + ", agrupaBoleto=" + agrupaBoleto + ", produto=" + produto + ", subGrupoFinanceiro=" + subGrupoFinanceiro + ", valorFixo=" + valorFixo + ", periodo=" + periodo + ", quantidadePeriodo=" + quantidadePeriodo + ", familiarPeriodo=" + familiarPeriodo + ", valorZerado=" + valorZerado + ", validadeGuiasVigente=" + validadeGuiasVigente + ", administradora=" + administradora + ", validadeGuias=" + validadeGuias + ", cursoRenovacao=" + cursoRenovacao + ", boleto=" + boleto + ", modeloCarteirinha=" + modeloCarteirinha + '}';
     }
 
     public boolean isMesesDebitoExclusaoTodos() {
@@ -532,6 +537,14 @@ public class Servicos implements java.io.Serializable {
 
     public void setNrVagas(Integer nrVagas) {
         this.nrVagas = nrVagas;
+    }
+
+    public boolean isDebitoHomologacao() {
+        return debitoHomologacao;
+    }
+
+    public void setDebitoHomologacao(boolean debitoHomologacao) {
+        this.debitoHomologacao = debitoHomologacao;
     }
 
 }

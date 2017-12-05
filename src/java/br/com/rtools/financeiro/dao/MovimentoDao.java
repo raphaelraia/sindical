@@ -2118,12 +2118,13 @@ public class MovimentoDao extends DB {
                     + "       pes_usu.ds_nome, \n "
                     + "       ser.id, \n "
                     + "       ser.ds_descricao, \n "
-                    + "       ser.is_validade_guias_vigente, \n "
-                    + "       ser.nr_validade_guia_dias, \n "
-                    + "       pro.id, \n "
-                    + "       pro.ds_descricao, \n "
-                    + "       pro.is_validade_guias_mes_vigente, \n "
-                    + "       pro.nr_validade_guias_dias \n "
+                    + "       ser.is_validade_guias_vigente,                    \n " // 10
+                    + "       ser.nr_validade_guia_dias,                        \n " // 11
+                    + "       pro.id,                                           \n " // 12
+                    + "       pro.ds_descricao,                                 \n " // 13
+                    + "       pro.is_validade_guias_mes_vigente,                \n " // 14
+                    + "       pro.nr_validade_guias_dias,                       \n " // 15
+                    + "       ser.is_validade_guias                             \n " // 16 
                     + "  FROM fin_movimento mov \n "
                     + " INNER JOIN fin_lote lot ON lot.id = mov.id_lote \n "
                     + " INNER JOIN fin_guia gui ON gui.id_lote = lot.id \n "

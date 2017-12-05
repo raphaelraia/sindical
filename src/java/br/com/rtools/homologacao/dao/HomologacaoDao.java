@@ -595,18 +595,20 @@ public class HomologacaoDao extends DB {
     public List pesquisaPessoaDebito(int id_pessoa, String vencimento) {
         try {
             String queryString = ""
-                    + "     SELECT id                                                                               "
-                    + "       FROM fin_movimento                                                                    "
-                    + "      WHERE id_pessoa = " + id_pessoa
-                    + "        AND dt_vencimento < '" + vencimento + "'                                             "
-                    + "        AND is_ativo = true                                                                  "
-                    + "        AND id_baixa IS NULL                                                                 "
-                    + "        AND id_servicos IN(                                                                  "
-                    + "             SELECT id_servicos                                                              "
-                    + "               FROM fin_servico_rotina                                                       "
-                    + "              WHERE id_rotina = 4                                                            "
-                    + "   )                                                                                         "
-                    + "   ORDER BY dt_vencimento                                                                    ";
+                    + "     SELECT M.id                                         \n"
+                    + "       FROM fin_movimento M                              \n"
+                    + " INNER JOIN fin_servicos S ON S.id = M.id_servicos       \n"
+                    + "      WHERE M.id_pessoa = " + id_pessoa + "              \n"
+                    + "        AND M.dt_vencimento < '" + vencimento + "'       \n"
+                    + "        AND M.is_ativo = true                            \n"
+                    + "        AND M.id_baixa IS NULL                           \n"
+                    + "        AND S.is_debito_homologacao = true               \n"
+                    + "        AND M.id_servicos IN(                            \n"
+                    + "             SELECT id_servicos                          \n"
+                    + "               FROM fin_servico_rotina                   \n"
+                    + "              WHERE id_rotina = 4                        \n"
+                    + "   )                                                     \n"
+                    + "   ORDER BY M.dt_vencimento                              \n";
             Query qry = getEntityManager().createNativeQuery(queryString);
             List list = qry.getResultList();
             if (!list.isEmpty()) {
