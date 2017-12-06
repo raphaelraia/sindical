@@ -92,6 +92,8 @@ public class Servicos implements java.io.Serializable {
     private Integer nrVagas;
     @Column(name = "is_debito_homologacao", nullable = false, columnDefinition = "boolean default true")
     private boolean debitoHomologacao;
+    @Column(name = "is_cobrar_proporcionalidade_academia", nullable = false, columnDefinition = "boolean default true")
+    private boolean cobrarProporcionalidadeAcademia;
 
     @Transient
     private Boolean selected;
@@ -128,13 +130,14 @@ public class Servicos implements java.io.Serializable {
         this.boleto = false;
         this.modeloCarteirinha = null;
         this.mesesDebitoExclusao = 60;
-        this.selected = false;
         this.mesesDebitoExclusaoTodos = false;
         this.guiaSomenteSocio = false;
         this.nrVagas = 0;
-        // TRANSIENT
-        this.valorCheio = null;
         this.debitoHomologacao = true;
+        this.cobrarProporcionalidadeAcademia = true;
+        // TRANSIENT
+        this.selected = false;
+        this.valorCheio = null;
     }
 
     public Servicos(int id,
@@ -145,7 +148,7 @@ public class Servicos implements java.io.Serializable {
             int validade,
             String codigo,
             String situacao,
-            boolean debito,
+            boolean debitoClube,
             boolean alterarValor,
             boolean adm,
             boolean tabela,
@@ -168,7 +171,8 @@ public class Servicos implements java.io.Serializable {
             boolean mesesDebitoExclusaoTodos,
             boolean guiaSomenteSocio,
             Integer nrVagas,
-            boolean debitoHomologacao) {
+            boolean debitoHomologacao,
+            boolean cobrarProporcionalidadeAcademia) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -201,6 +205,7 @@ public class Servicos implements java.io.Serializable {
         this.guiaSomenteSocio = guiaSomenteSocio;
         this.nrVagas = nrVagas;
         this.debitoHomologacao = debitoHomologacao;
+        this.cobrarProporcionalidadeAcademia = cobrarProporcionalidadeAcademia;
     }
 
     public int getId() {
@@ -545,6 +550,14 @@ public class Servicos implements java.io.Serializable {
 
     public void setDebitoHomologacao(boolean debitoHomologacao) {
         this.debitoHomologacao = debitoHomologacao;
+    }
+
+    public boolean isCobrarProporcionalidadeAcademia() {
+        return cobrarProporcionalidadeAcademia;
+    }
+
+    public void setCobrarProporcionalidadeAcademia(boolean cobrarProporcionalidadeAcademia) {
+        this.cobrarProporcionalidadeAcademia = cobrarProporcionalidadeAcademia;
     }
 
 }

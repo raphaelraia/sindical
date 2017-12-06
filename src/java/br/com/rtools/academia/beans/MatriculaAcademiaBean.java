@@ -1958,10 +1958,14 @@ public class MatriculaAcademiaBean implements Serializable {
                         trocarMatricula();
                         if (Moeda.converteUS$(valorLiquido) > Moeda.converteUS$(valorLiquidoAntigo)) {
                             Double valor_taxa = Moeda.subtracao(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(valorLiquidoAntigo));
+                            
+                            // PARA GERAR PROPORCIONAL
                             if (valor_taxa > 0) {
-                                if (!gerarTaxaMovimento(valor_taxa, true, false)) {
-                                    GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
-                                    return null;
+                                if (matriculaAcademia.getServicoPessoa().getServicos().isCobrarProporcionalidadeAcademia()){
+                                    if (!gerarTaxaMovimento(valor_taxa, true, false)) {
+                                        GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                                        return null;
+                                    }
                                 }
                             }
                         }
@@ -1970,9 +1974,11 @@ public class MatriculaAcademiaBean implements Serializable {
                         // METODO NOVO PARA O CHAMADO 1226
 
                         // PARA GERAR PROPORCIONAL
-                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true, false)) {
-                            GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
-                            return null;
+                        if (matriculaAcademia.getServicoPessoa().getServicos().isCobrarProporcionalidadeAcademia()){
+                            if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true, false)) {
+                                GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                                return null;
+                            }
                         }
                     } // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
 

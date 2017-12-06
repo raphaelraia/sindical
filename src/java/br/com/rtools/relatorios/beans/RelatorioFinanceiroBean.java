@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
@@ -25,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -93,7 +95,7 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     private List<ListaPlanos> listaPlanos = new ArrayList();
     private List<ListaPlano5> listaPlano5 = new ArrayList();
-    
+
     private boolean chkTodos = false;
     private boolean chkTodosPlano5 = false;
     private boolean chkExcel = false;
@@ -106,7 +108,10 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     private Integer idRelatorioOrdem = 0;
     private List<SelectItem> listaRelatorioOrdem = new ArrayList();
-    
+
+    private Integer indexListaFilial = 0;
+    private List<SelectItem> listaFilial = new ArrayList();
+
     @PostConstruct
     public void init() {
         loadListaRelatorio();
@@ -117,18 +122,32 @@ public class RelatorioFinanceiroBean implements Serializable {
     public void destroy() {
         GenericaSessao.remove("relatorioFinanceiroBean");
     }
-    
-    public void loadListaRelatorioOrdem(){
+
+    public void loadListaFilial() {
+        listaFilial.clear();
+        indexListaFilial = 0;
+
+        List<Filial> list = new Dao().list(new Filial(), true);
+        for (int i = 0; i < list.size(); i++) {
+            listaFilial.add(new SelectItem(
+                    i,
+                    list.get(i).getFilial().getPessoa().getNome(),
+                    "" + list.get(i).getId())
+            );
+        }
+    }
+
+    public void loadListaRelatorioOrdem() {
         listaRelatorioOrdem.clear();
-        
+
         RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
         List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
-        
+
         for (int i = 0; i < list.size(); i++) {
             listaRelatorioOrdem.add(
                     new SelectItem(
-                            i, 
-                            list.get(i).getNome(), 
+                            i,
+                            list.get(i).getNome(),
                             "" + list.get(i).getId()
                     )
             );
@@ -162,7 +181,7 @@ public class RelatorioFinanceiroBean implements Serializable {
 
         loadListaPlano5();
     }
-    
+
     public void marcarTodosPlano5() {
         for (ListaPlano5 listaPlano : listaPlano5) {
             listaPlano.setSelecionado(chkTodosPlano5);
@@ -190,7 +209,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             for (int i = 0; i < result.size(); i++) {
                 listaPlano5.add(
                         new ListaPlano5(
-                                false, 
+                                false,
                                 result.get(i)
                         )
                 );
@@ -463,8 +482,9 @@ public class RelatorioFinanceiroBean implements Serializable {
         String tipo_caixa = "";
         if (listaFiltros.get(6).ativo) {
             tipo_caixa = tipoCaixa;
-            if (tipoCaixa.equals("com"))
+            if (tipoCaixa.equals("com")) {
                 id_caixa = Integer.valueOf(listaCaixa.get(idCaixa).getDescription());
+            }
         }
 
         // OPERADOR
@@ -488,17 +508,23 @@ public class RelatorioFinanceiroBean implements Serializable {
         if (listaFiltros.get(10).ativo) {
             tipo_es = tipoES;
         }
-        
+
         // PESSOA
         String tipo_pessoa = "";
         if (listaFiltros.get(11).ativo) {
             tipo_pessoa = tipoPessoa;
         }
-        
+
         // SITUAÇÃO
         String tipo_situacao = "";
         if (listaFiltros.get(12).ativo) {
             tipo_situacao = tipoSituacao;
+        }
+
+        // FILIAL
+        Integer id_filial = null;
+        if (listaFiltros.get(13).ativo) {
+            id_filial = Integer.valueOf(listaFilial.get(indexListaFilial).getDescription());
         }
 
         Map params = new HashMap();
@@ -517,11 +543,11 @@ public class RelatorioFinanceiroBean implements Serializable {
         //params.put("logo_sindicato", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
 
         String ordem = "";
-        if (!listaRelatorioOrdem.isEmpty()){
+        if (!listaRelatorioOrdem.isEmpty()) {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
-        
-        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, tipo_pessoa, tipo_situacao, ordem, relatorios);
+
+        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, tipo_pessoa, tipo_situacao, id_filial, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -531,7 +557,7 @@ public class RelatorioFinanceiroBean implements Serializable {
         List<RelatorioParametros> listaRL = new RelatorioDao().listaRelatorioParametro(relatorios.getId());
 
         List<HashMap> list_hash = new ArrayList();
-         
+
         String[] param_query = new String[listaRL.size()];
         for (int i = 0; i < listaRL.size(); i++) {
             param_query[i] = listaRL.get(i).getApelido();
@@ -549,7 +575,7 @@ public class RelatorioFinanceiroBean implements Serializable {
 
         Jasper.EXPORT_TO = chkExcel;
         Jasper.IS_HEADER_PARAMS = true;
-        
+
         //Jasper.printReportsHashMap(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
     }
@@ -592,6 +618,9 @@ public class RelatorioFinanceiroBean implements Serializable {
                 break;
             case "situacao":
                 break;
+            case "filial":
+                loadListaFilial();
+                break;
         }
     }
 
@@ -611,6 +640,7 @@ public class RelatorioFinanceiroBean implements Serializable {
         listaFiltros.add(new Filtros("es", "Entrada/Saída", false));
         listaFiltros.add(new Filtros("pessoa", "Pessoa", false));
         listaFiltros.add(new Filtros("situacao", "Situação", false));
+        listaFiltros.add(new Filtros("filial", "Filial", false));
     }
 
     public void loadListaRelatorio() {
@@ -631,7 +661,7 @@ public class RelatorioFinanceiroBean implements Serializable {
                     )
             );
         }
-        
+
         loadListaRelatorioOrdem();
     }
 
@@ -667,6 +697,7 @@ public class RelatorioFinanceiroBean implements Serializable {
      * <br />10 ENTRADA / SAÍDA
      * <br />11 PESSOA
      * <br />12 SITUAÇÃO
+     * <br />13 FILIAL
      *
      * @return Lista de Filtros
      */
@@ -1124,8 +1155,9 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
 
     }
-    
+
     public class ListaPlano5 {
+
         private boolean selecionado = false;
         private Plano5 pl5 = new Plano5();
 
@@ -1133,7 +1165,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             this.selecionado = selecionado;
             this.pl5 = plano5;
         }
-        
+
         public boolean isSelecionado() {
             return selecionado;
         }
@@ -1149,5 +1181,21 @@ public class RelatorioFinanceiroBean implements Serializable {
         public void setPl5(Plano5 pl5) {
             this.pl5 = pl5;
         }
-    }    
+    }
+
+    public List<SelectItem> getListaFilial() {
+        return listaFilial;
+    }
+
+    public void setListaFilial(List<SelectItem> listaFilial) {
+        this.listaFilial = listaFilial;
+    }
+
+    public Integer getIndexListaFilial() {
+        return indexListaFilial;
+    }
+
+    public void setIndexListaFilial(Integer indexListaFilial) {
+        this.indexListaFilial = indexListaFilial;
+    }
 }
