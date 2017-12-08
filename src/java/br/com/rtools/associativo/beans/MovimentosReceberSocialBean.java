@@ -458,6 +458,8 @@ public class MovimentosReceberSocialBean implements Serializable {
         ImprimirBoleto ib = new ImprimirBoleto();
         ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", false);
         if (download) {
+            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
+            ib.setPathPasta(pathPasta);
             ib.baixarArquivo();
         } else {
             ib.visualizar(null);
