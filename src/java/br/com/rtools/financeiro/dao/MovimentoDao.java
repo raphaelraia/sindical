@@ -3197,4 +3197,22 @@ public class MovimentoDao extends DB {
         return new ArrayList();
     }
 
+    public List<Movimento> listaPorRotinaMatricula(Integer rotina_id, Integer matricula_socios_id) {
+        String queryString = " "
+                + "    SELECT M.* \n"
+                + "      FROM fin_movimento M \n"
+                + "INNER JOIN fin_lote L ON L.id = M.id_lote \n"
+                + "     WHERE L.id_rotina = " + rotina_id + " \n"
+                + "       AND M.id_matricula_socios = " + matricula_socios_id + " \n"
+                + "  ORDER BY M.dt_vencimento ASC \n";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Movimento.class); 
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
 }

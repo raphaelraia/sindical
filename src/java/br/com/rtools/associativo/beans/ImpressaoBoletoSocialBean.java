@@ -314,6 +314,10 @@ public class ImpressaoBoletoSocialBean {
     METODO ATUAL EM USO
      */
     public void imprimir2() {
+        imprimir2(false);
+    }
+
+    public void imprimir2(Boolean download) {
         if (!listaPessoaSemEndereco.isEmpty()) {
             GenericaMensagem.fatal("Atenção", "Existem pessoas sem endereço, favor cadastra-las!");
             return;
@@ -339,7 +343,11 @@ public class ImpressaoBoletoSocialBean {
         ImprimirBoleto ib = new ImprimirBoleto();
 
         ib.imprimirBoletoSocial_2(lista, "soc_boletos_vw", tipo, imprimeVerso);
-        ib.visualizar(null);
+        if (download) {
+            ib.baixarArquivo();
+        } else {
+            ib.visualizar(null);
+        }
     }
 
     public void etiquetaParaContabilidade() {

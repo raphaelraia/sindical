@@ -86,6 +86,10 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     }
 
     public String imprimir() {
+        return imprimir(false);
+    }
+
+    public String imprimir(Boolean download) {
         MovimentoReceberDao db = new MovimentoReceberDao();
         List<Movimento> lista = new ArrayList();
         List<Double> listaValores = new ArrayList();
@@ -137,7 +141,11 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         ImprimirBoleto imp = new ImprimirBoleto();
         lista = imp.atualizaContaCobrancaMovimento(lista);
         imp.imprimirBoleto(lista, listaValores, listaVencimentos, false);
-        imp.visualizar(null);
+        if (download) {
+            imp.baixarArquivo();
+        } else {
+            imp.visualizar(null);
+        }
         listaMovimentos.clear();
         listMovimentoReceber.clear();
         return null;
@@ -602,5 +610,5 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         }
         return false;
     }
-    
+
 }

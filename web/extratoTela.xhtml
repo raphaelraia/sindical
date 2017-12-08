@@ -724,7 +724,7 @@
                             <p:messages id="i_msg" closable="true" showDetail="true" autoUpdate="true"/>
                             <p:panel styleClass="fundoCinza" header="Opções do Boleto">
                                 <h:panelGroup id="i_reativar_bol">
-                                    <h:panelGrid columns="12" rendered="#{extratoTelaBean.porPesquisa eq 'excluidos'}">
+                                    <h:panelGrid columns="13" rendered="#{extratoTelaBean.porPesquisa eq 'excluidos'}">
                                         <p:column>
                                             <br />
                                             <p:commandButton value="Reativar" title="Reativar movimentos selecionados" onclick="PF('i_dlg_reativar').show()" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
@@ -737,13 +737,19 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandLink action="#{extratoTelaBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false" target="_BLANK" styleClass="margin-left-max">
-                                            <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false"/>
+                                        <p:commandLink action="#{extratoTelaBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false" target="_BLANK" >
+                                            <p:commandButton icon="ui-icon-print" value="Visualizar" title="Imprimir Boletos Selecionados" ajax="false"/>
+                                        </p:commandLink>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:commandLink action="#{extratoTelaBean.imprimir(true)}" title="Salvar Boletos Selecionados" ajax="false" target="_BLANK">
+                                            <p:commandButton icon="ui-icon-disk" value="Download" title="Salvar boletos selecionados" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-print" value="Criar Remessa" title="Gerar Remessa de Boletos" action="#{extratoTelaBean.adicionarRemessa()}"/>
+                                        <p:commandButton icon="ui-icon-print" value="Criar Remessa" title="Gerar Remessa de Boletos" action="#{extratoTelaBean.adicionarRemessa()}"  styleClass="margin-left-max"/>
                                     </h:column>
 
                                     <h:column>

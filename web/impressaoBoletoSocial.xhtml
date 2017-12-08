@@ -231,6 +231,7 @@
                             <h:panelGrid columns="6">
                                 <p:commandButton ajax="false" value="Imprimirxx" action="#{impressaoBoletoSocialBean.imprimir()}" onclick="this.form.target = '_blank'" rendered="false"/>
                                 <p:commandButton ajax="false" value="Imprimir" action="#{impressaoBoletoSocialBean.imprimir2()}" onclick="this.form.target = '_blank'"/>
+                                <p:commandButton ajax="false" value="Download" action="#{impressaoBoletoSocialBean.imprimir2(true)}" onclick="this.form.target = '_blank'"/>
                                 <p:selectBooleanCheckbox value="#{impressaoBoletoSocialBean.imprimeVerso}" style="margin-left: 30px" itemLabel="Imprimir Verso"/>
                                 <p:commandButton ajax="false" value="Etiquetas" action="#{impressaoBoletoSocialBean.etiqueta()}" style="margin-left: 30px" onclick="this.form.target = '_blank'"/>
                                 <p:commandButton ajax="false" value="Etiquetas para Contabilidade" action="#{impressaoBoletoSocialBean.etiquetaParaContabilidade()}" style="margin-left: 30px" onclick="this.form.target = '_blank'" rendered="#{impressaoBoletoSocialBean.tipo eq 'juridica'}"/>

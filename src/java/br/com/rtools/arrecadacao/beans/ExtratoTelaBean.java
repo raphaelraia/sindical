@@ -215,12 +215,12 @@ public class ExtratoTelaBean implements Serializable {
                     String data_calculo = new DataHoje().decrementarDias(b.getContaCobranca().getRegistrosDiasVencidos(), DataHoje.data());
 
                     if (b.getVencimento().isEmpty()) {
-                        
+
                         b.setVencimento(m.getVencimento());
                         b.setVencimentoOriginal(m.getVencimentoOriginal());
-                        
+
                         new Dao().save(b, true);
-                        
+
                         //GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
                         //return null;
                     }
@@ -1289,6 +1289,10 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String imprimir() {
+        return imprimir(false);
+    }
+
+    public String imprimir(Boolean download) {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> listaC = new ArrayList();
         List<Double> listaValores = new ArrayList();
@@ -1331,7 +1335,11 @@ public class ExtratoTelaBean implements Serializable {
 
         imp.imprimirBoleto(listaC, listaValores, listaVencimentos, imprimirVerso);
 
-        imp.visualizar(null);
+        if (download) {
+            imp.baixarArquivo();
+        } else {
+            imp.visualizar(null);
+        }
 
         loadListBeta(0);
         return null;

@@ -8,7 +8,7 @@
 
     <h:head>
         <title>Sindical - Sócios</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <meta http-equiv="X-UA-Compatible" content="IE=9" /> 
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
@@ -113,6 +113,52 @@
                                         <p:inputText value="#{sociosBean.matriculaSocios.nrMatricula}" onclick="PF('i_dlg_matricula').show();" size="17" readonly="true" style="margin-left: 30px; font-weight: bold; font-size: 10pt!important; cursor: pointer; background: #9ccaaa; text-align: center"/>
                                     </p:column>
                                 </h:panelGrid>
+                                <h:panelGroup rendered="#{sociosBean.categoria.servicoTaxaMatricula ne null}" >
+                                    <h:panelGroup  rendered="#{sociosBean.matriculaSocios.id == -1}">
+                                        <hr />
+                                        <h:panelGrid columns="8" cellspacing="10"  id="i_tax">
+                                            <h:outputLabel value="Taxa de matrícula: " />
+                                            <h:outputLabel value="#{sociosBean.valorTaxaInscricao}" styleClass="bold font-color-red font-size-14">
+                                                <f:convertNumber type="currency" currencySymbol="R$" />
+                                            </h:outputLabel>
+                                            <h:outputLabel value="Parcelar taxa em " />
+                                            <p:selectOneMenu value="#{sociosBean.nrParcerlasTxInscricao}">
+                                                <p:ajax event="change" update="@this formSocios:i_tax" />
+                                                <f:selectItems value="#{sociosBean.listParcerlasTxInscricao}"/>
+                                            </p:selectOneMenu>
+                                            <h:outputLabel value="X" />
+                                            <h:outputLabel value="#{sociosBean.valorTaxaInscricao / sociosBean.nrParcerlasTxInscricao}" styleClass="bold font-color-blue font-size-14">
+                                                <f:convertNumber type="currency" currencySymbol="R$" />
+                                            </h:outputLabel>
+                                        </h:panelGrid>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                                <h:panelGroup  rendered="#{sociosBean.matriculaSocios.id != -1 and not empty sociosBean.listMovimentosTaxaInscricao}">
+                                    <hr />
+                                    <p:accordionPanel prependId="false" activeIndex="5">
+                                        <p:ajax event="tabChange" listener="#{sociosBean.loadListMovimentoTaxaMatricula}" update="formSocios:i_list_mov_tax"/>
+                                        <p:tab title="#{sociosBean.listMovimentosTaxaInscricao.get(0).servicos.descricao} - #{sociosBean.listMovimentosTaxaInscricao.size()} PARCELA(S)">
+                                            <h:panelGroup id="i_list_mov_tax">
+                                                <p:dataTable value="#{sociosBean.listMovimentosTaxaInscricao}" var="movtaxa">
+                                                    <p:column headerText="Vencimento" width="100" styleClass="text-center">
+                                                        #{movtaxa.vencimento}
+                                                    </p:column>
+                                                    <p:column headerText="Serviço">
+                                                        #{movtaxa.servicos.descricao}
+                                                    </p:column>
+                                                    <p:column headerText="Valor" width="100" styleClass="text-center">
+                                                        <h:outputLabel value="#{movtaxa.valor}">
+                                                            <f:convertNumber type="currency" currencySymbol="R$" />
+                                                        </h:outputLabel>
+                                                    </p:column>
+                                                    <p:column width="100" styleClass="text-center">
+                                                        <h:outputLabel value="#{movtaxa.ativo ? (movtaxa.baixa ne null ? 'QUITADO' : 'EM ABERTO') : 'MOVIMENTO INÁTIVO'}" styleClass="#{movtaxa.baixa ne null ? 'font-color-blue' : 'font-color-red'}" />
+                                                    </p:column>
+                                                </p:dataTable>                                                    
+                                            </h:panelGroup>
+                                        </p:tab>
+                                    </p:accordionPanel>
+                                </h:panelGroup>
                                 <h:panelGroup layout="block" rendered="#{sociosBean.categoria != null and sociosBean.categoria.bloqueiaMeses}">
                                     <h:panelGrid columns="2">
                                         <h:outputLabel value="PERÍODO DE COBRANÇA DA MENSALIDADE: "/>

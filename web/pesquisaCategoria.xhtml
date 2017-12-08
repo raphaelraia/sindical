@@ -19,7 +19,7 @@
                     <div class="clear"></div>
                     <p:dataTable value="#{categoriaBean.listCategoria}" var="categoria" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado">
                         <p:column width="30" styleClass="text-center">
-                            <p:commandButton icon="ui-icon-link" title="Editar registro nº #{categoria.id}" action="#{categoriaBean.edit(categoria)}" />
+                            <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Editar registro nº #{categoria.id}" action="#{categoriaBean.edit(categoria)}" />
                         </p:column>
                         <p:column headerText="Categoria" styleClass="text-center">
                             #{categoria.categoria}

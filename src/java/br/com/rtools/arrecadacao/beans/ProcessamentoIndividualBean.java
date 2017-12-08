@@ -232,12 +232,12 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
 
         // VALIDA ACORDO
         List<Movimento> lm_acordado = finDB.listaMovimentoAcordado(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
-        
-        if(!lm_acordado.isEmpty()){
+
+        if (!lm_acordado.isEmpty()) {
             GenericaMensagem.error("Atenção", "Esta referência já foi acordada!");
             return null;
         }
-        
+
         List<Movimento> lm = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
 
         if (!lm.isEmpty() && lm.size() > 1) {
@@ -599,6 +599,10 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
     }
 
     public String imprimirBoleto() {
+        return imprimirBoleto(false);
+    }
+
+    public String imprimirBoleto(Boolean download) {
         List<Movimento> movs = new ArrayList();
         List<Double> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -636,8 +640,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
             movs = imp.atualizaContaCobrancaMovimento(movs);
 
             imp.imprimirBoleto(movs, listaValores, listaVencimentos, imprimeVerso);
-
-            imp.visualizar(null);
+            if (download) {
+                imp.baixarArquivo();
+            } else {
+                imp.visualizar(null);
+            }
         }
         return null;
     }
@@ -686,11 +693,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     listaVencimentos.add(movs.get(0).getVencimento());
 
                     ImprimirBoleto imp = new ImprimirBoleto();
-                    
+
                     movs = imp.atualizaContaCobrancaMovimento(movs);
-                        
+
                     imp.imprimirBoleto(movs, listaValores, listaVencimentos, imprimeVerso);
-                    
+
                     String nome = imp.criarLink(movs.get(0).getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
                     List<Pessoa> pessoas = new ArrayList();
 
@@ -785,11 +792,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         listaVencimentos.add(movs.get(i).getVencimento());
 
                         ImprimirBoleto imp = new ImprimirBoleto();
-                        
+
                         m = imp.atualizaContaCobrancaMovimento(m);
-                        
+
                         imp.imprimirBoleto(m, listaValores, listaVencimentos, imprimeVerso);
-                        
+
                         String nome = imp.criarLink(jur.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
                         List<Pessoa> pessoas = new ArrayList();
                         pessoas.add(jur.getPessoa());
@@ -866,11 +873,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                         listaVencimentos.add(movs.get(i).getVencimento());
 
                         ImprimirBoleto imp = new ImprimirBoleto();
-                        
+
                         m = imp.atualizaContaCobrancaMovimento(m);
-                        
+
                         imp.imprimirBoleto(m, listaValores, listaVencimentos, imprimeVerso);
-                        
+
                         String nome = imp.criarLink(jur.getContabilidade().getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
                         List<Pessoa> pessoas = new ArrayList();
                         pessoas.add(jur.getContabilidade().getPessoa());
@@ -962,11 +969,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
             String path = request.getQueryString();
 
             ImprimirBoleto imp = new ImprimirBoleto();
-            
+
             movs = imp.atualizaContaCobrancaMovimento(movs);
-            
+
             imp.imprimirBoleto(movs, listaValores, listaVencimentos, imprimeVerso);
-            
+
             String nome = imp.criarLink(juridica.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
             List<Pessoa> pessoas = new ArrayList();
             pessoas.add(juridica.getPessoa());

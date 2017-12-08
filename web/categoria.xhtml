@@ -68,6 +68,19 @@
                                             <h:column />
                                         </h:panelGrid>                                        
                                     </h:column>
+                                    <h:column />
+                                    <h:column>
+                                        <h:panelGrid columns="4" cellspacing="4">
+                                            <h:outputText value="Taxa de matrícula: " />
+                                            <p:selectOneMenu value="#{categoriaBean.idServico}" >
+                                                <f:selectItems value="#{categoriaBean.listServicos}"/>
+                                            </p:selectOneMenu>
+                                            <h:outputText value="Número de parcelas:" />
+                                            <p:inputText size="50" value="#{categoriaBean.categoria.nrTaxaMatriculaParcelas}" maxlength="2" converter="#{thisNumber}">
+                                                <p:ajax update="@this" event="change" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
                                 </h:panelGrid>
                                 <h:panelGrid columns="4">
                                 </h:panelGrid>
@@ -92,15 +105,29 @@
                                             <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeDomingo}" onLabel="Domingo" offLabel="Domingo" onIcon="ui-icon-check" offIcon="ui-icon-close" />
                                         </h:panelGrid>
                                     </center>
-                                </p:panel>                                        
+                                </p:panel>
+                                <!-- 
                                 <p:panel header="Parentesco / Serviços" styleClass="margin-top-max">
-                                    <p:dataTable value="#{categoriaBean.listParentescos}" var="linha" id="tbl" scrollable="true" scrollHeight="220">
+                                    <p:dataTable value="# {categoriaBean.listParentescos}" var="linha" id="tbl" scrollable="true" scrollHeight="220">
                                         <p:column headerText="Parentesco">
-                                            <h:outputText value="#{linha.argumento0.parentesco}"/>
+                                            <h:outputText value="# {linha.argumento0.parentesco}"/>
                                         </p:column>
                                         <p:column headerText="Serviços">
-                                            <p:selectOneMenu id="idServico" value="#{linha.argumento1}" tabindex="#{linha.argumento1}" filter="true">
-                                                <p:ajax event="change" update="idServico, tbl" listener="#{categoriaBean.atualizaServicos(it.index)}" />
+                                            <p:selectOneMenu id="idServico" value="# { linha.argumento1}" tabindex="# {linha.argumento1}" filter="true">
+                                                <p:ajax event="change" update="idServico, tbl" listener="# {categoriaBean.updateServicos(it.index)}" />
+                                                <f:selectItems value="# {categoriaBean.listServicos}" />
+                                            </p:selectOneMenu>
+                                        </p:column>
+                                    </p:dataTable>                                        
+                                </p:panel> --> 
+                                <p:panel header="Parentesco / Serviços" styleClass="margin-top-max">
+                                    <p:dataTable value="#{categoriaBean.listObjectServicoCategoria}" var="osc" id="tbl2" scrollable="true" scrollHeight="220">
+                                        <p:column headerText="Parentesco">
+                                            <h:outputText value="#{osc.parentesco.parentesco}"/>
+                                        </p:column>
+                                        <p:column headerText="Serviços">
+                                            <p:selectOneMenu id="idServico2" value="#{osc.idServico2}" filter="true">
+                                                <p:ajax event="change" update="idServico2, tbl2"  />
                                                 <f:selectItems value="#{categoriaBean.listServicos}" />
                                             </p:selectOneMenu>
                                         </p:column>
@@ -122,9 +149,13 @@
                                 </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
-                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.delete()}" oncomplete="PF('dlg_delete').hide();
-                                                 PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_categoria:"/> 
-                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.delete()}" oncomplete="PF('dlg_delete').hide();
+                                                         PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_categoria:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 

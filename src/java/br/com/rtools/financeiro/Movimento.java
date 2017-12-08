@@ -244,7 +244,7 @@ public class Movimento implements Serializable {
         this.valorBaixa = valorBaixa;
         this.repasseAutomatico = repasseAutomatico;
         this.tipoDocumento = tipoDocumento;
-        this.setMatriculaSocios(matriculaSocios);
+        this.matriculaSocios = matriculaSocios;
         this.selected = false;
         this.historico = null;
     }

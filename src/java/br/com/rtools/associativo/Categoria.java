@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.financeiro.Servicos;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,6 +64,11 @@ public class Categoria implements Serializable {
     private boolean cartaoDependente;
     @Column(name = "is_bloqueia_meses", nullable = false, columnDefinition = "boolean default false")
     private Boolean bloqueiaMeses;
+    @JoinColumn(name = "id_servico_taxa_matricula", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Servicos servicoTaxaMatricula;
+    @Column(name = "nr_taxa_matricula_parcelas", nullable = true)
+    private Integer nrTaxaMatriculaParcelas;
 
     @Transient
     private Boolean selected;
@@ -85,12 +91,15 @@ public class Categoria implements Serializable {
         this.cartaoTitular = true;
         this.cartaoDependente = true;
         this.bloqueiaMeses = false;
+        this.servicoTaxaMatricula = null;
+        this.nrTaxaMatriculaParcelas = 1;
         this.selected = false;
     }
 
     public Categoria(Integer id, String categoria, GrupoCategoria grupoCategoria, Integer nrCarenciaBalcao, Integer nrCarenciaDescFolha,
             boolean empresaObrigatoria, boolean votante, boolean usaClubeSegunda, boolean usaClubeTerca, boolean usaClubeQuarta,
-            boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente, Boolean bloqueiaMeses) {
+            boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente, Boolean bloqueiaMeses,
+            Servicos servicoTaxaMatricula,Integer nrTaxaMatriculaParcelas ) {
         this.id = id;
         this.categoria = categoria;
         this.grupoCategoria = grupoCategoria;
@@ -108,6 +117,8 @@ public class Categoria implements Serializable {
         this.cartaoTitular = cartaoTitular;
         this.cartaoDependente = cartaoDependente;
         this.bloqueiaMeses = bloqueiaMeses;
+        this.servicoTaxaMatricula = servicoTaxaMatricula;
+        this.nrTaxaMatriculaParcelas = nrTaxaMatriculaParcelas;
         this.selected = false;
     }
 
@@ -279,9 +290,25 @@ public class Categoria implements Serializable {
         this.bloqueiaMeses = bloqueiaMeses;
     }
 
+    public Servicos getServicoTaxaMatricula() {
+        return servicoTaxaMatricula;
+    }
+
+    public void setServicoTaxaMatricula(Servicos servicoTaxaMatricula) {
+        this.servicoTaxaMatricula = servicoTaxaMatricula;
+    }
+
+    public Integer getNrTaxaMatriculaParcelas() {
+        return nrTaxaMatriculaParcelas;
+    }
+
+    public void setNrTaxaMatriculaParcelas(Integer nrTaxaMatriculaParcelas) {
+        this.nrTaxaMatriculaParcelas = nrTaxaMatriculaParcelas;
+    }
+
     @Override
     public String toString() {
-        return "Categoria{" + "id=" + id + ", categoria=" + categoria + ", grupoCategoria=" + grupoCategoria + ", nrCarenciaBalcao=" + nrCarenciaBalcao + ", nrCarenciaDescFolha=" + nrCarenciaDescFolha + ", empresaObrigatoria=" + empresaObrigatoria + ", votante=" + votante + ", usaClubeSegunda=" + usaClubeSegunda + ", usaClubeTerca=" + usaClubeTerca + ", usaClubeQuarta=" + usaClubeQuarta + ", usaClubeQuinta=" + usaClubeQuinta + ", usaClubeSexta=" + usaClubeSexta + ", usaClubeSabado=" + usaClubeSabado + ", usaClubeDomingo=" + usaClubeDomingo + ", cartaoTitular=" + cartaoTitular + ", cartaoDependente=" + cartaoDependente + ", bloqueiaMeses=" + bloqueiaMeses + ", selected=" + selected + '}';
+        return "Categoria{" + "id=" + id + ", categoria=" + categoria + ", grupoCategoria=" + grupoCategoria + ", nrCarenciaBalcao=" + nrCarenciaBalcao + ", nrCarenciaDescFolha=" + nrCarenciaDescFolha + ", empresaObrigatoria=" + empresaObrigatoria + ", votante=" + votante + ", usaClubeSegunda=" + usaClubeSegunda + ", usaClubeTerca=" + usaClubeTerca + ", usaClubeQuarta=" + usaClubeQuarta + ", usaClubeQuinta=" + usaClubeQuinta + ", usaClubeSexta=" + usaClubeSexta + ", usaClubeSabado=" + usaClubeSabado + ", usaClubeDomingo=" + usaClubeDomingo + ", cartaoTitular=" + cartaoTitular + ", cartaoDependente=" + cartaoDependente + ", bloqueiaMeses=" + bloqueiaMeses + ", servicoTaxaMatricula=" + servicoTaxaMatricula + ", nrTaxaMatriculaParcelas=" + nrTaxaMatriculaParcelas + ", selected=" + selected + '}';
     }
 
 }

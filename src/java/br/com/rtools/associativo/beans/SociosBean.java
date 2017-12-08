@@ -18,9 +18,16 @@ import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
 import br.com.rtools.associativo.lista.ListaDependentes;
 import br.com.rtools.endereco.Cidade;
+import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
+import br.com.rtools.financeiro.Lote;
+import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.ServicoPessoaBloqueio;
+import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.LoteDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaBloqueioDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -36,6 +43,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
@@ -131,6 +139,11 @@ public class SociosBean implements Serializable {
     private List<Fisica> listFisicaSugestao = new ArrayList();
     private List<SelectItem> listSisPeriodos;
     private Integer idSisPeriodo;
+    private Double valorTaxaInscricao;
+    private Integer nrParcerlasTxInscricao;
+    private List<SelectItem> listParcerlasTxInscricao;
+    private Lote loteTaxaInscricao;
+    private List<Movimento> listMovimentosTaxaInscricao;
 
     public SociosBean() {
         listFisicaSugestao = new ArrayList();
@@ -144,6 +157,7 @@ public class SociosBean implements Serializable {
         dependente = new Fisica();
         chkContaCobranca = false;
         listaTipoDocumento = new ArrayList();
+        listParcerlasTxInscricao = new ArrayList();
         listaServicos = new ArrayList();
         // listaDependentes = new ArrayList();
         // listaDependentesInativos = new ArrayList();
@@ -209,6 +223,8 @@ public class SociosBean implements Serializable {
         }
         listSisPeriodos = new ArrayList();
         idSisPeriodo = null;
+        valorTaxaInscricao = new Double(0);
+        nrParcerlasTxInscricao = 0;
     }
 
     @PreDestroy
@@ -454,7 +470,17 @@ public class SociosBean implements Serializable {
             idSisPeriodo = socios.getServicoPessoa().getPeriodoCobranca().getId();
         }
         loadBloqueio();
+        loadListMovimentoTaxaMatricula();
 
+    }
+
+    public void loadListMovimentoTaxaMatricula() {
+        if (matriculaSocios.getId() != -1) {
+            listMovimentosTaxaInscricao = new MovimentoDao().listaPorRotinaMatricula(120, matriculaSocios.getId());
+            if (!listMovimentosTaxaInscricao.isEmpty()) {
+                loteTaxaInscricao = listMovimentosTaxaInscricao.get(0).getLote();
+            }
+        }
     }
 
     public final void loadGrupoCategoria() {
@@ -1373,7 +1399,101 @@ public class SociosBean implements Serializable {
                 dao.rollback();
                 return null;
             }
+
+            if (matriculaSocios.getCategoria().getServicoTaxaMatricula() != null) {
+                listMovimentosTaxaInscricao = new ArrayList();
+                CondicaoPagamento cp = nrParcerlasTxInscricao == 1 ? (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1) : (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
+
+                loteTaxaInscricao = new Lote(
+                        -1,
+                        (Rotina) new Dao().find(new Rotina().get()),
+                        "R",
+                        DataHoje.data(),
+                        matriculaSocios.getTitular(),
+                        matriculaSocios.getCategoria().getServicoTaxaMatricula().getPlano5(),
+                        false,
+                        "",
+                        valorTaxaInscricao,
+                        (Filial) new Dao().find(new Filial(), 1),
+                        matriculaSocios.getCategoria().getServicoTaxaMatricula().getDepartamento(),
+                        null,
+                        "",
+                        (FTipoDocumento) dao.find(new FTipoDocumento(), 13),
+                        cp,
+                        (FStatus) new Dao().find(new FStatus(), 1),
+                        null,
+                        false,
+                        0,
+                        null,
+                        null,
+                        null,
+                        false,
+                        "",
+                        null,
+                        ""
+                );
+
+                if (!dao.save(loteTaxaInscricao)) {
+                    dao.rollback();
+                    GenericaMensagem.error("Error", "Nao foi possivel salvar Lote!");
+                    return null;
+                }
+
+                String vencimento = "";
+                Double vlParcelaTx = valorTaxaInscricao / nrParcerlasTxInscricao;
+                for (int i = 0; i < nrParcerlasTxInscricao; i++) {
+                    if (i == 0) {
+                        vencimento = DataHoje.data();
+                    } else {
+                        vencimento = new DataHoje().incrementarMeses(1, vencimento);
+                    }
+                    Movimento m = new Movimento(
+                            -1,
+                            loteTaxaInscricao,
+                            loteTaxaInscricao.getPlano5(),
+                            matriculaSocios.getTitular(),
+                            matriculaSocios.getCategoria().getServicoTaxaMatricula(),
+                            null, // ID_BAIXA
+                            (TipoServico) new Dao().find(new TipoServico(), 1),
+                            null,
+                            vlParcelaTx,
+                            DataHoje.converteDataParaReferencia(vencimento),
+                            vencimento,
+                            1,
+                            true,
+                            "E",
+                            false,
+                            matriculaSocios.getTitular(),
+                            matriculaSocios.getTitular(),
+                            "",
+                            "",
+                            vencimento,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            (FTipoDocumento) new Dao().find(new FTipoDocumento(), 13),
+                            0,
+                            matriculaSocios
+                    );
+                    if (i == 0) {
+                        vencimento = DataHoje.alterDay(servicoPessoa.getNrDiaVencimento(), DataHoje.data());
+                    }
+                    if (!dao.save(m)) {
+                        dao.rollback();
+                        GenericaMensagem.error("Error", "Nao foi possivel salvar o movimento!");
+                        return null;
+                    }
+                    listMovimentosTaxaInscricao.add(m);
+                }
+
+            }
+
             GenericaMensagem.info("Sucesso", "Pessoa Associada!");
+
         } else {
             if (!dao.update(socios)) {
                 GenericaMensagem.error("Erro", "Erro ao Atualizar Sócio!");
@@ -2964,12 +3084,23 @@ public class SociosBean implements Serializable {
 
     public void atualizarCategoria() {
         listaDescontoSocial.clear();
+        listParcerlasTxInscricao = new ArrayList();
         index_desconto = 0;
         descontoSocial = (DescontoSocial) new Dao().find(new DescontoSocial(), 1);
         servicoPessoa.setNrDesconto(descontoSocial.getNrDesconto());
-
         loadCategoria();
         loadServicos();
+        Categoria c = getCategoria();
+        nrParcerlasTxInscricao = 0;
+        valorTaxaInscricao = new Double(0);
+        if (c.getServicoTaxaMatricula() != null) {
+            valorTaxaInscricao = new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), c.getServicoTaxaMatricula().getId(), new Date(), 0, 0);
+            for (int i = 0; i < c.getNrTaxaMatriculaParcelas(); i++) {
+                nrParcerlasTxInscricao = i + 1;
+                listParcerlasTxInscricao.add(new SelectItem(i + 1, "" + (i + 1)));
+                gerarParcelas();
+            }
+        }
     }
 
     public void atualizarListaCategoria() {
@@ -3943,6 +4074,52 @@ public class SociosBean implements Serializable {
                     break;
             }
         }
+    }
+
+    public Double getValorTaxaInscricao() {
+        return valorTaxaInscricao;
+    }
+
+    public void setValorTaxaInscricao(Double valorTaxaInscricao) {
+        this.valorTaxaInscricao = valorTaxaInscricao;
+    }
+
+    public Integer getNrParcerlasTxInscricao() {
+        return nrParcerlasTxInscricao;
+    }
+
+    public void setNrParcerlasTxInscricao(Integer nrParcerlasTxInscricao) {
+        this.nrParcerlasTxInscricao = nrParcerlasTxInscricao;
+    }
+
+    public List<SelectItem> getListParcerlasTxInscricao() {
+        return listParcerlasTxInscricao;
+    }
+
+    public void setListParcerlasTxInscricao(List<SelectItem> listParcerlasTxInscricao) {
+        this.listParcerlasTxInscricao = listParcerlasTxInscricao;
+    }
+
+    public void gerarParcelas() {
+        if (socios.getId() == -1) {
+
+        }
+    }
+
+    public Lote getLoteTaxaInscricao() {
+        return loteTaxaInscricao;
+    }
+
+    public void setLoteTaxaInscricao(Lote loteTaxaInscricao) {
+        this.loteTaxaInscricao = loteTaxaInscricao;
+    }
+
+    public List<Movimento> getListMovimentosTaxaInscricao() {
+        return listMovimentosTaxaInscricao;
+    }
+
+    public void setListMovimentosTaxaInscricao(List<Movimento> listMovimentosTaxaInscricao) {
+        this.listMovimentosTaxaInscricao = listMovimentosTaxaInscricao;
     }
 
     public class Bloqueio {

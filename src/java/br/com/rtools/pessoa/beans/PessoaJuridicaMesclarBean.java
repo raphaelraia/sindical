@@ -31,6 +31,7 @@ import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
+import br.com.rtools.financeiro.ImpressaoWeb;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.MovimentoBoleto;
@@ -38,6 +39,8 @@ import br.com.rtools.financeiro.MovimentoInativo;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.FormaPagamentoDao;
+import br.com.rtools.financeiro.dao.ImpressaoDao;
+import br.com.rtools.financeiro.dao.ImpressaoWebDao;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.MovimentoBoletoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -184,6 +187,23 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 novoLog.save("ATUALIZAR PESSOA ENDEREÇO: " + pesRemover.get(i).toString());
             }
 
+        }
+        JuridicaImportacao juridicaImportacao = new JuridicaImportacaoDao().findByJuridica(remover.getId());
+        if (juridicaImportacao != null) {
+            if (!dao.delete(juridicaImportacao)) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER JURÍDICA IMPORTAÇÃO! " + dao.EXCEPCION);
+                return;
+            }
+        }
+        List<ImpressaoWeb> listImpressaoWeb = new ImpressaoWebDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listImpressaoWeb.size(); i++) {
+            listImpressaoWeb.get(i).setPessoa(manter.getPessoa());
+            if (!dao.update(listImpressaoWeb.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR IMPRESSAO WEB!");
+                return;
+            }
         }
         PessoaComplemento pc = new PessoaComplementoDao().findByPessoa(remover.getPessoa().getId());
         if (pc != null) {
@@ -633,6 +653,14 @@ public class PessoaJuridicaMesclarBean implements Serializable {
                 return;
             }
             novoLog.save("REMOVER PESSOA COMPLEMENTO: " + pc.toString());
+        }
+        List<ImpressaoWeb> listImpressaoWeb = new ImpressaoWebDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listImpressaoWeb.size(); i++) {
+            if (!dao.delete(listImpressaoWeb.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER IMPRESSAO WEB!");
+                return;
+            }
         }
         String movimentoLogString = "";
         List<Movimento> listMovimentosPessoa = new MovimentoDao().findByAllColumnsByPessoa(remover.getPessoa().getId());

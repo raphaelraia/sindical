@@ -205,8 +205,11 @@
 
                                         <p:column>
                                             <h:panelGrid columns="3"  style="float: right">
-                                                <h:commandLink action="#{processamentoIndividualBean.imprimirBoleto}" rendered="#{processamentoIndividualBean.processou}" style="font-size: 12pt!important" target="_blank">
-                                                    <p:commandButton value="VISUALIZAR BOLETO" icon="ui-icon-print"></p:commandButton>
+                                                <h:commandLink action="#{processamentoIndividualBean.imprimirBoleto}" rendered="#{processamentoIndividualBean.processou}" style="font-size: 12pt!important" target="_blank" title="Visualizar boleto">
+                                                    <p:commandButton value="VISUALIZAR" icon="ui-icon-print"></p:commandButton>
+                                                </h:commandLink>
+                                                <h:commandLink action="#{processamentoIndividualBean.imprimirBoleto(true)}" rendered="#{processamentoIndividualBean.processou}" style="font-size: 12pt!important" target="_blank" title="Download do boleto">
+                                                    <p:commandButton value="DOWNLOAD" icon="ui-icon-disk"></p:commandButton>
                                                 </h:commandLink>
                                                 <p:selectBooleanCheckbox value="#{processamentoIndividualBean.imprimeVerso}" rendered="#{processamentoIndividualBean.processou}" itemLabel="Imprimir Verso"/>
                                             </h:panelGrid>

@@ -153,10 +153,13 @@
                                     </p:column>
                                 </p:row>
                             </p:panelGrid>
-                            <h:panelGrid columns="4" styleClass="margin-top-max">
+                            <h:panelGrid columns="5" styleClass="margin-top-max">
                                 <p:commandButton value="Acordo" title="Fazer acordo " action="#{movimentosReceberBean.telaAcordo()}" update=":form_movimento_receber:" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}"/>
-                                <h:commandLink action="#{movimentosReceberBean.imprimir}" title="Imprimir Boleto " target="_blank" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}">
-                                    <p:button value="Imprimir" icon="ui-icon-print" />
+                                <h:commandLink action="#{movimentosReceberBean.imprimir}" title="Visualizar Boleto " target="_blank" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}">
+                                    <p:button value="Visualizar" icon="ui-icon-print" />
+                                </h:commandLink>
+                                <h:commandLink action="#{movimentosReceberBean.imprimir(true)}" title="Download do Boleto " target="_blank" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}">
+                                    <p:button value="Download" icon="ui-icon-disk" />
                                 </h:commandLink>
                                 <h:commandLink action="#{movimentosReceberBean.imprimirPlanilha}" title="Planilha Débito" target="_blank" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}">
                                     <p:button value="Planilha Débito" icon="ui-icon-print" />
