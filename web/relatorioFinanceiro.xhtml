@@ -396,6 +396,22 @@
                                                     </p:selectOneMenu>
                                                 </h:column>
                                             </h:panelGrid>
+                                        </h:column>   
+                                        
+                                        <!-- FILIAL -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroBean.listaFiltros.get(13).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Filial" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroBean.indexListaFilial}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroBean.listaFilial}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
                                         </h:column>                                        
                                     </h:panelGrid>
                                 </h:column>

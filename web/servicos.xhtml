@@ -223,8 +223,16 @@
                                                     <f:selectItems value="#{servicosBean.listModeloCarteirinha}"/>
                                                 </p:selectOneMenu>
                                             </h:panelGrid>
-
                                         </p:panel>
+
+                                        <p:panel header="Academia" styleClass="margin-top-max" style="border: 1px solid black">
+                                            <h:panelGrid columns="7" cellspacing="5">
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.cobrarProporcionalidadeAcademia}" itemLabel="Cobrar Proporcionalidade Academia">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>
+                                        </p:panel>
+
                                         <p:panel styleClass="margin-top-max">
                                             <f:facet name="header">
                                                 <p:selectBooleanCheckbox value="#{servicosBean.descontoMatricula}" itemLabel="Desconto Promocional">

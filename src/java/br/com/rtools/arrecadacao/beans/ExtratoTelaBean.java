@@ -197,12 +197,13 @@ public class ExtratoTelaBean implements Serializable {
     public List<Movimento> validaListaRemessa(String opcao) {
         List<Movimento> lista_movimento_validado = new ArrayList();
         if (!listaMovimentos.isEmpty()) {
+            Dao dao = new Dao();
             for (DataObject dob : listaMovimentos) {
                 // BOLETOS QUE ESTÃO SELECIONADO
                 if ((Boolean) dob.getArgumento0()) {
 
                     Movimento m = ((Movimento) dob.getArgumento29());
-                    Boleto b = m.getBoleto();
+                    Boleto b = (Boleto) dao.find(m.getBoleto());
 
                     // SE O BOLETO ESTA QUITADO
                     if (dob.getArgumento15() != null) {
@@ -218,9 +219,9 @@ public class ExtratoTelaBean implements Serializable {
 
                         b.setVencimento(m.getVencimento());
                         b.setVencimentoOriginal(m.getVencimentoOriginal());
-
-                        new Dao().save(b, true);
-
+                        
+                        dao.save(b, true);
+                        
                         //GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
                         //return null;
                     }
