@@ -444,6 +444,10 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void imprimirBoletos(Integer id_boleto) {
+        imprimirBoletos(id_boleto, false);
+    }
+
+    public void imprimirBoletos(Integer id_boleto, Boolean download) {
         Boleto boletox;
         if (id_boleto == null) {
             boletox = (Boleto) new Dao().find(new Boleto(), linhaBoletosAnexo.getBoleto().getId());
@@ -453,7 +457,11 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         ImprimirBoleto ib = new ImprimirBoleto();
         ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", false);
-        ib.visualizar(null);
+        if (download) {
+            ib.baixarArquivo();
+        } else {
+            ib.visualizar(null);
+        }
     }
 
     public void cliqueCalculoAcrescimo(DataObject linha) {

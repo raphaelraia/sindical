@@ -80,7 +80,7 @@
                                     <h:panelGrid columns="4" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
                                         <p:outputLabel value="Data emissão recibo" />
                                         <p:inputMask value="#{movimentosReceberSocialBean.dataEmissaoRecibo}" mask="99/99/9999" size="10" converter="#{isDateString}" styleClass="text-center">
-                                             <p:ajax event="change" update="@this" global="false" />
+                                            <p:ajax event="change" update="@this" global="false" />
                                         </p:inputMask>
                                     </h:panelGrid>
                                 </p:column>
@@ -588,8 +588,9 @@
                                             <p:commandLink value="#{(linha_boleto_anexo.listaQuery[6] eq '' or linha_boleto_anexo.listaQuery[6] eq null) ? 'ADICIONAR MENSAGEM' : linha_boleto_anexo.listaQuery[6]}" action="#{movimentosReceberSocialBean.selecionaMensagemBoleto(linha_boleto_anexo.boleto.id)}" oncomplete="PF('dlg_mensagem_boleto').show()" update=":formMovimentosReceber:panelAlterarMensagem"/>
                                         </p:column>
 
-                                        <p:column width="30">
+                                        <p:column width="62">
                                             <p:commandButton icon="ui-icon-print" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0])}" style="font-weight: bold" title="IMPRIMIR BOLETO" onclick="this.form.target = '_blank'"/>
+                                            <p:commandButton icon="ui-icon-disk" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0], true)}" style="font-weight: bold" title="DOWNLOAD DO BOLETO" />
                                         </p:column>
                                     </p:dataTable>
 
