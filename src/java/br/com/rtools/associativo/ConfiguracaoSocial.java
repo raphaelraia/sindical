@@ -77,6 +77,8 @@ public class ConfiguracaoSocial implements Serializable {
     private Integer idadeBloqueioCpfConvite;
     @Column(name = "nr_idade_bloqueio_rg_convite")
     private Integer idadeBloqueioRgConvite;
+    @Column(name = "is_cobranca_carteirinha_nao_socio", nullable = false, columnDefinition = "boolean default false")
+    private Boolean cobrancaCarteirinhaNaoSocio;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -106,9 +108,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.conviteCartaoPvc = false;
         this.idadeBloqueioCpfConvite = 18;
         this.idadeBloqueioRgConvite = 18;
+        this.cobrancaCarteirinhaNaoSocio = false;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite, Boolean cobrancaCarteirinhaNaoSocio) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -136,6 +139,7 @@ public class ConfiguracaoSocial implements Serializable {
         this.conviteCartaoPvc = conviteCartaoPvc;
         this.idadeBloqueioCpfConvite = idadeBloqueioCpfConvite;
         this.idadeBloqueioRgConvite = idadeBloqueioRgConvite;
+        this.cobrancaCarteirinhaNaoSocio = cobrancaCarteirinhaNaoSocio;
     }
 
     public Integer getId() {
@@ -372,6 +376,14 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setIdadeBloqueioRgConvite(Integer idadeBloqueioRgConvite) {
         this.idadeBloqueioRgConvite = idadeBloqueioRgConvite;
+    }
+
+    public Boolean getCobrancaCarteirinhaNaoSocio() {
+        return cobrancaCarteirinhaNaoSocio;
+    }
+
+    public void setCobrancaCarteirinhaNaoSocio(Boolean cobrancaCarteirinhaNaoSocio) {
+        this.cobrancaCarteirinhaNaoSocio = cobrancaCarteirinhaNaoSocio;
     }
 
 }

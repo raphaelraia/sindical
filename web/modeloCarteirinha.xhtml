@@ -113,11 +113,11 @@
                                                                 <h:outputLabel value="Categoria"/>
                                                                 <h:outputLabel value="Rotina"/>
                                                                 <h:column />
-                                                                <p:selectOneMenu value="#{modeloCarteirinhaBean.listGeneric.get(index).categoria_id}" id="i_cb_mcc_#{index+1}" style="width: 350px; margin-right: 15px;" >
+                                                                <p:selectOneMenu value="#{modeloCarteirinhaBean.listGeneric.get(index).categoria_id}" id="i_cb_mcc_#{index+1}" style="width: 350px; margin-right: 15px;" autoWidth="false">
                                                                     <p:ajax event="change" update="@this" />
                                                                     <f:selectItems value="#{modeloCarteirinhaBean.listGeneric.get(index).listCategoria}"/>
                                                                 </p:selectOneMenu>
-                                                                <p:selectOneMenu value="#{modeloCarteirinhaBean.listGeneric.get(index).rotina_id}" style="width: 350px; margin-right: 15px;">
+                                                                <p:selectOneMenu value="#{modeloCarteirinhaBean.listGeneric.get(index).rotina_id}" style="width: 350px; margin-right: 15px;" autoWidth="false">
                                                                     <p:ajax event="change" update="@this" />
                                                                     <f:selectItems value="#{modeloCarteirinhaBean.listGeneric.get(index).listRotina}"/>
                                                                 </p:selectOneMenu>

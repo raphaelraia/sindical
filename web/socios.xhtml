@@ -548,7 +548,7 @@
                                 </h:column>
                                 <h:column>
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Visualizar Carteirinha" action="#{sociosBean.confirmaImprimirCartao()}" disabled="#{sociosBean.desabilitaImpressao}" rendered="#{!sociosBean.registro.cobrancaCarteirinha}"/>
+                                        <p:commandButton value="Visualizar Carteirinha" action="#{sociosBean.confirmaImprimirCartao()}" disabled="#{sociosBean.desabilitaImpressao}" rendered="#{!sociosBean.categoria.cobrancaCarteirinha}"/>
                                         <p:commandButton ajax="false" value="Imprimir Ficha" action="#{sociosBean.imprimirFichaSocial}" disabled="#{sociosBean.desabilitaImpressao}"/>
                                     </h:panelGrid>
                                 </h:column>

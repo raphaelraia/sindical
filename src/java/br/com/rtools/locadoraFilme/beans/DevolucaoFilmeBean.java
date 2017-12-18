@@ -249,6 +249,9 @@ public class DevolucaoFilmeBean implements Serializable {
                                         fTipoDocumento,
                                         0, new MatriculaSocios()
                                 );
+
+                                // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+                                movimento.getMatriculaSocios();
                                 if (!dao.save(movimento)) {
                                     dao.rollback();
                                     GenericaMensagem.warn("Erro", "Ao salvar movimento!");
@@ -452,6 +455,8 @@ public class DevolucaoFilmeBean implements Serializable {
                                         fTipoDocumento,
                                         0, new MatriculaSocios()
                                 );
+                                // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+                                movimento.getMatriculaSocios();
                                 if (!dao.save(movimento)) {
                                     dao.rollback();
                                     GenericaMensagem.warn("Erro", "Ao salvar movimento!");

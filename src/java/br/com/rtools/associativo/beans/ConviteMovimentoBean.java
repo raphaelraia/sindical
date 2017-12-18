@@ -261,7 +261,7 @@ public class ConviteMovimentoBean implements Serializable {
         visibility = false;
         indexTipoDocumento = 0;
         PF.update("form_convite");
-        PF.update("form_photo_capture");
+//        PF.update("form_photo_capture");
     }
 
     public boolean validaSave() {
@@ -1305,6 +1305,9 @@ public class ConviteMovimentoBean implements Serializable {
                         fTipoDocumento,
                         0, new MatriculaSocios()
                 );
+                
+                // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+                movimento.getMatriculaSocios();
                 if (dao.save(movimento)) {
                     conviteMovimento.setEvt(evt);
                     return dao.update(conviteMovimento);

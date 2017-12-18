@@ -250,7 +250,7 @@ public class MatriculaAcademiaBean implements Serializable {
     public void loadListaDiaVencimento() {
         listaDiaVencimento.clear();
         idDiaVencimento = 0;
-        
+
         if (listaDiaVencimento.isEmpty() || matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
             if (matriculaAcademia.getServicoPessoa().getId() == -1) {
                 listaDiaVencimento.clear();
@@ -551,7 +551,7 @@ public class MatriculaAcademiaBean implements Serializable {
             message = "Pesquisar uma pessoa!";
             return null;
         }
-        
+
         ConfiguracaoSocial cs = ConfiguracaoSocial.get();
         if (cs.getObrigatorioEmail()) {
             if (matriculaAcademia.getServicoPessoa().getPessoa().getEmail1().isEmpty()) {
@@ -580,14 +580,14 @@ public class MatriculaAcademiaBean implements Serializable {
         Dao dao = new Dao();
         matriculaAcademia.getServicoPessoa().setTipoDocumento((FTipoDocumento) dao.find(new FTipoDocumento(), 1));
         matriculaAcademia.setAcademiaServicoValor((AcademiaServicoValor) dao.find(new AcademiaServicoValor(), Integer.parseInt(listaPeriodosGrade.get(idPeriodoGrade).getDescription())));
-        
+
         List<ServicoValor> lsv = new MatriculaEscolaDao().listServicoValorPorServicoIdade(matriculaAcademia.getAcademiaServicoValor().getServicos().getId(), aluno.getIdade());
-        
-        if (lsv.isEmpty()){
+
+        if (lsv.isEmpty()) {
             message = "Idade do aluno não pertence à esta modalidade!";
             return null;
         }
-        
+
         if (cobranca != null) {
             matriculaAcademia.getServicoPessoa().setCobranca(cobranca);
         } else {
@@ -684,7 +684,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 message = "Erro ao adicionar registro!";
                 return null;
             }
-            
+
             MatriculaEscolaDao med = new MatriculaEscolaDao();
             pessoaComplemento = med.pesquisaDataRefPessoaComplemto(matriculaAcademia.getServicoPessoa().getCobranca().getId());
             if (pessoaComplemento == null) {
@@ -1366,7 +1366,7 @@ public class MatriculaAcademiaBean implements Serializable {
         //calculaValorLiquido();        
         atualizaValor();
         loadListaDiaVencimento();
-                
+
         return aluno;
     }
 
@@ -1958,10 +1958,10 @@ public class MatriculaAcademiaBean implements Serializable {
                         trocarMatricula();
                         if (Moeda.converteUS$(valorLiquido) > Moeda.converteUS$(valorLiquidoAntigo)) {
                             Double valor_taxa = Moeda.subtracao(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(valorLiquidoAntigo));
-                            
+
                             // PARA GERAR PROPORCIONAL
                             if (valor_taxa > 0) {
-                                if (matriculaAcademia.getServicoPessoa().getServicos().isCobrarProporcionalidadeAcademia()){
+                                if (matriculaAcademia.getServicoPessoa().getServicos().isCobrarProporcionalidadeAcademia()) {
                                     if (!gerarTaxaMovimento(valor_taxa, true, false)) {
                                         GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                         return null;
@@ -1974,7 +1974,7 @@ public class MatriculaAcademiaBean implements Serializable {
                         // METODO NOVO PARA O CHAMADO 1226
 
                         // PARA GERAR PROPORCIONAL
-                        if (matriculaAcademia.getServicoPessoa().getServicos().isCobrarProporcionalidadeAcademia()){
+                        if (matriculaAcademia.getServicoPessoa().getServicos().isCobrarProporcionalidadeAcademia()) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true, false)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
@@ -2207,6 +2207,8 @@ public class MatriculaAcademiaBean implements Serializable {
                                     fTipoDocumento,
                                     0,
                                     new MatriculaSocios()));
+                            // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+                            movimento.getMatriculaSocios();
                             if (!di.save(movimento)) {
                                 di.rollback();
                                 GenericaMensagem.warn("Sistema", "Não foi possível gerar esse movimento!");
@@ -2389,6 +2391,8 @@ public class MatriculaAcademiaBean implements Serializable {
                         new MatriculaSocios()
                 );
 
+        // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+        m.getMatriculaSocios();
         if (!dao.save(m)) {
             dao.rollback();
             GenericaMensagem.warn("Sistema", "Não foi possível salvar Movimento de Taxa gerar esse movimento!");

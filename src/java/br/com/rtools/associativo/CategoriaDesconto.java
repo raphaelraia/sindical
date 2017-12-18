@@ -70,13 +70,13 @@ public class CategoriaDesconto implements java.io.Serializable {
     
     
     public String getDescontoString() {
-        return Moeda.convertPercentToString(desconto, 3);
+        return Moeda.convertPercentToString(desconto, 4);
         //return Moeda.converteDoubleToString(desconto, 3);
     }
 
     public void setDescontoString(String desconto) {
         //this.desconto = Moeda.converteStringToDouble(desconto);
-        this.desconto = Moeda.converteStringToDouble(desconto, 3);
+        this.desconto = Moeda.converteStringToDouble(desconto, 4);
     }
 
     public ServicoValor getServicoValor() {

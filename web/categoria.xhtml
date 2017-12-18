@@ -65,6 +65,9 @@
                                             <p:selectBooleanCheckbox value="#{categoriaBean.categoria.bloqueiaMeses}" itemLabel="Bloqueia Meses">
                                                 <p:ajax event="change" update="@this" />
                                             </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.fichaSocial}"  itemLabel="Contém Ficha Social" style="margin-left: 25px"/>
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.fichaFiliacao}"  itemLabel="Contém Ficha de Sindicalização" />
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.cobrancaCarteirinha}" itemLabel="Cobrança Carteirinha" style="margin-left: 25px"/>
                                             <h:column />
                                         </h:panelGrid>                                        
                                     </h:column>

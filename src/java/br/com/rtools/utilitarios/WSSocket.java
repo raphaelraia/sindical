@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.faces.bean.ApplicationScoped;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.PathParam;
@@ -43,6 +44,13 @@ public class WSSocket {
     // @OnMessage
     public static void send(String identifier) {
         send(identifier, "1");
+    }
+    
+    @OnError
+    public void onError(Session session, Throwable thr) {
+        // CLAUDEMIR 14/12/2017
+        // TRATA ERRO QUANDO SAI BRUSCAMENTE DA TELA
+        // SÓ DE TER O MÉTODO DECLARADO O ERRO NÃO APARECE MAIS NO CONSOLE, EVITANDO TRAVAMENTO
     }
     
     public static void send(String identifier, String text) {

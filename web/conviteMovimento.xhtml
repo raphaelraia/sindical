@@ -28,9 +28,17 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                     <ui:include src="templates/templateAcessoFilial.xhtml"/>
                     <ui:include src="templates/templateStatus.xhtml"/>
+                    
+                    <!-- CAMERA -->
+                    <!-- CARREGO A VARIÁVEL (initRendered) DE ATUALIZAÇÃO DEPOIS DA TEMPLATE POIS QUANDO TIRA UMA FOTO O COMPONENTE
+                    QUE MOSTRAVA A FOTO TIRADA NÃO ERA ATUALIZADO, NESTE CASO: form_convite:panel_foto -->
+                    <ui:include id="template_capture" src="templates/templatePhotoCapture.xhtml" />
+                    <!-- CASO QUEIRA TESTAR APENAS TIRAR LINHA ABAIXO PARA APRESENTAR O ERRO -->
+                    <c:set scope="request" var="objectx" value="${photoCapture.initRendered}"/>
+                    <!-- FIM CAMERA -->
+                    
                 </f:subview>
 
-                <ui:include id="template_capture" src="templates/templatePhotoCapture.xhtml" />
 
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -365,7 +373,7 @@
                                             <p:panel header="Perfil">
                                                 <p:graphicImage name="#{conviteMovimentoBean.conviteMovimento.sisPessoa.fotoResourcePerfil}" width="310" rendered="#{not empty conviteMovimentoBean.conviteMovimento.sisPessoa.fotoResourcePerfil}" cache="false"/>
                                                 <div class="clear"></div>
-                                                <p:commandButton value="Capturar Foto" action="#{photoCapture.openAndSave(conviteMovimentoBean.conviteMovimento.sisPessoa, 'perfil', 'form_convite:panel_foto')}" disabled="#{conviteMovimentoBean.conviteMovimento.id == -1}" oncomplete="#{photoCapture.renderedPhotoCapture ? 'PF(\'dlg_photo_capture\').show()' : ''}"/>
+                                                <p:commandButton value="Capturar Foto" action="#{photoCapture.openAndSave(conviteMovimentoBean.conviteMovimento.sisPessoa, 'perfil', 'form_convite:panel_foto')}" disabled="#{conviteMovimentoBean.conviteMovimento.id == -1}" oncomplete="#{photoCapture.renderedPhotoCapture ? 'PF(\'dlg_photo_capture\').show()' : ''}" />
                                                 <p:commandButton icon="ui-icon-trash" title="Remover imagem"  action="#{conviteMovimentoBean.apagarImagem('perfil', null)}" rendered="#{not empty conviteMovimentoBean.conviteMovimento.sisPessoa.fotoResourcePerfil}" update="panel_foto"/>
                                             </p:panel>
 

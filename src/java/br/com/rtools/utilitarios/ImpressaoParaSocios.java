@@ -151,6 +151,10 @@ public class ImpressaoParaSocios {
             if (fileCartaoVerso.exists()) {
                 cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg");
             }
+            
+            if (carteirinha.getModeloCarteirinha().getJasper().equals("CARTAO_CONTRIBUINTE.jasper")){
+                cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/FUNDO_CARTAO_CONTRIBUINTE.png");
+            }
 
             listax.add(
                     new CartaoSocial(
@@ -652,32 +656,32 @@ public class ImpressaoParaSocios {
             Jasper.load();
             Jasper.PATH = "downloads";
             Jasper.PART_NAME = "";
-            Jasper.printReports(path, "cartao_social", listaSocios);
-//                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaSocios);
-//                JasperPrint print = JasperFillManager.fillReport(
-//                        jasper,
-//                        null,
-//                        dtSource);
-//                byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-////                     response.setContentType("application/pdf");
-////                     response.setContentLength(arquivo.length);
-////                     ServletOutputStream saida = response.getOutputStream();
-////                     saida.write(arquivo, 0, arquivo.length);
-////                     saida.flush();
-////                     saida.close();
-//
-//                SalvaArquivos sa = new SalvaArquivos(arquivo,
-//                        nomeDownload,
-//                        false);
-//                sa.salvaNaPasta(pathPasta);
-//
-//                Download download = new Download(nomeDownload,
-//                        pathPasta,
-//                        "application/pdf",
-//                        FacesContext.getCurrentInstance());
-//                download.baixar();
-//                download.remover();
-        } catch (Exception erro) {
+
+            List ljasper = new ArrayList();
+            if (matriculaSocios.getCategoria().getFichaSocial()) {
+                File ficha_s = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path));
+
+                if (ficha_s.exists()) {
+                    JasperReport jasper_1 = (JasperReport) JRLoader.loadObject(ficha_s);
+                    JRBeanCollectionDataSource dtSource_1 = new JRBeanCollectionDataSource(listaSocios);
+                    ljasper.add(Jasper.fillObject(jasper_1, null, dtSource_1));
+                }
+            }
+            
+            if (matriculaSocios.getCategoria().getFichaFiliacao()) {
+                File ficha_f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHA_DE_SINDICALIZACAO.jasper"));
+
+                if (ficha_f.exists()) {
+                    JasperReport jasper_2 = (JasperReport) JRLoader.loadObject(ficha_f);
+                    JRBeanCollectionDataSource dtSource_2 = new JRBeanCollectionDataSource(listaSocios);
+                    ljasper.add(Jasper.fillObject(jasper_2, null, dtSource_2));
+                }
+
+            }
+
+            Jasper.printReports("FICHA_SOCIAL", ljasper);
+
+        } catch (JRException erro) {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
         }
     }
@@ -891,30 +895,30 @@ public class ImpressaoParaSocios {
             }
             Jasper.load();
             Jasper.PATH = "downloads";
-            Jasper.printReports(path, "cartao_social", listaSocios);
-//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaSocios);
-//            JasperPrint print = JasperFillManager.fillReport(
-//                    jasper,
-//                    null,
-//                    dtSource);
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-//            //response.setContentType("application/pdf");
-//            //response.setContentLength(arquivo.length);
-//            //ServletOutputStream saida = response.getOutputStream();
-//            ///saida.write(arquivo, 0, arquivo.length);
-//            //saida.flush();
-//            //saida.close();
-//
-//            SalvaArquivos sa = new SalvaArquivos(arquivo,
-//                    nomeDownload,
-//                    false);
-//            sa.salvaNaPasta(pathPasta);
-//
-//            Download download = new Download(nomeDownload,
-//                    pathPasta,
-//                    "application/pdf",
-//                    FacesContext.getCurrentInstance());
-//            download.baixar();
+            
+            List ljasper = new ArrayList();
+            if (matriculaSocios.getCategoria().getFichaSocial()) {
+                File ficha_s = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path));
+
+                if (ficha_s.exists()) {
+                    JasperReport jasper_1 = (JasperReport) JRLoader.loadObject(ficha_s);
+                    JRBeanCollectionDataSource dtSource_1 = new JRBeanCollectionDataSource(listaSocios);
+                    ljasper.add(Jasper.fillObject(jasper_1, null, dtSource_1));
+                }
+            }
+            
+            if (matriculaSocios.getCategoria().getFichaFiliacao()) {
+                File ficha_f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHA_DE_SINDICALIZACAO.jasper"));
+
+                if (ficha_f.exists()) {
+                    JasperReport jasper_2 = (JasperReport) JRLoader.loadObject(ficha_f);
+                    JRBeanCollectionDataSource dtSource_2 = new JRBeanCollectionDataSource(listaSocios);
+                    ljasper.add(Jasper.fillObject(jasper_2, null, dtSource_2));
+                }
+
+            }
+
+            Jasper.printReports("FICHA_SOCIAL", ljasper);
         } catch (JRException erro) {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
         }
@@ -1028,8 +1032,9 @@ public class ImpressaoParaSocios {
             Jasper.PATH = "ficha";
             //Jasper.printReports("/Relatorios/FICHACADASTROBRANCO.jasper", "ficha_branco", listaSocios);
             //String jasper_path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath();
-            String jasper_path = "/Relatorios/FICHA_DE_SINDICALIZACAO.jasper";
-            //String jasper_path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROBRANCO.jasper";
+
+            String jasper_path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROBRANCO.jasper";
+
             Jasper.printReports(jasper_path, "ficha_branco", listaSocios);
         } catch (Exception e) {
         }

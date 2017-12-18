@@ -130,6 +130,13 @@
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
                                     </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.cobrancaCarteirinhaNaoSocio}" itemLabel="Cobrança Carteirinha não Sócio?" style="margin-right: 20px">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>
                                 </h:panelGrid>
                             </p:panel>
 

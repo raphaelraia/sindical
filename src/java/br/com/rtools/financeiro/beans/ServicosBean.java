@@ -956,7 +956,8 @@ public class ServicosBean implements Serializable {
                 if (listServicosCategoriaDesconto.get(i).getValorDesconto() <= listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor()) {
                     v1 = Moeda.subtracao(listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor(), listServicosCategoriaDesconto.get(i).getValorDesconto());
                     v2 = Moeda.multiplicar(Moeda.divisao(v1, listServicosCategoriaDesconto.get(i).getCategoriaDesconto().getServicoValor().getValor()), 100);
-                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(Moeda.converteDoubleR$Double(v2));
+                    //listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(Moeda.converteDoubleR$Double(v2));
+                    listServicosCategoriaDesconto.get(i).getCategoriaDesconto().setDesconto(v2);
                 } else {
                     updateDescontoCategoriaPercentual(lscd);
                 }

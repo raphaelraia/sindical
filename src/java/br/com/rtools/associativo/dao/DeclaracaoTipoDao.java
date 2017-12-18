@@ -48,7 +48,7 @@ public class DeclaracaoTipoDao extends DB {
                     "SELECT p.* \n "
                     + "  FROM soc_declaracao_tipo AS t \n "
                     + " INNER JOIN soc_declaracao_periodo AS p ON p.id_declaracao_tipo = t.id \n "
-                    + " WHERE EXTRACT(YEAR FROM CURRENT_DATE) = p.nr_ano \n "
+                    + " WHERE p.nr_ano >= EXTRACT(YEAR FROM CURRENT_DATE) \n "
                     + "   AND t.id = " + id_declaracao_tipo + " \n "
                     + " ORDER BY p.ds_descricao", DeclaracaoPeriodo.class);
             return qry.getResultList();

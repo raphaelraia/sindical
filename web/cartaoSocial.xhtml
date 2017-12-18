@@ -53,7 +53,7 @@
                                 <h:panelGrid cellspacing="5" columns="5">
                                     <p:selectOneMenu value="#{cartaoSocialBean.status}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}">
                                         <p:ajax event="change" update="@this i_filtros i_reload" listener="#{cartaoSocialBean.listener('reload')}"  global="false"/>
-                                        <f:selectItem itemValue="nao_impressos" itemLabel="NÃO IMPRESSOS" />
+                                        <f:selectItem itemValue="nao_impressos" itemLabel="PENDENTES" />
                                         <f:selectItem itemValue="impressos" itemLabel="IMPRESSOS" />
                                         <f:selectItem itemValue="ontem" itemLabel="ONTEM" />
                                         <f:selectItem itemValue="hoje" itemLabel="HOJE" />
@@ -179,7 +179,7 @@
                                             <h:outputText value="#{linha[5]} - #{linha[7]}" />  
                                         </p:column>  
 
-                                        <p:column headerText="Impresso" style="text-align: center; width: 80px" sortBy="#{linha[4]}">
+                                        <p:column headerText="Última Impressão" style="text-align: center; width: 80px" sortBy="#{linha[4]}">
                                             <h:outputText value="#{linha[4]}" />  
                                         </p:column>  
 

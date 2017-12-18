@@ -98,8 +98,6 @@ public class Registro implements Serializable {
     @JoinColumn(name = "id_email_protocolo", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     private SisEmailProtocolo sisEmailProtocolo;
-    @Column(name = "is_cobranca_carteirinha")
-    private boolean cobrancaCarteirinha;
     @Column(name = "is_validade_barras")
     private boolean validadeBarras;
     @Column(name = "is_foto_cartao")
@@ -174,7 +172,6 @@ public class Registro implements Serializable {
         this.conviteQuantidadeSocio = 10;
         this.sisEmailPorta = 25;
         this.sisEmailProtocolo = new SisEmailProtocolo();
-        this.cobrancaCarteirinha = false;
         this.validadeBarras = false;
         this.fotoCartao = false;
         this.homolocaoLimiteMeses = 3;
@@ -285,7 +282,6 @@ public class Registro implements Serializable {
         this.sisEmailResposta = sisEmailResposta;
         this.sisEmailPorta = sisEmailPorta;
         this.sisEmailProtocolo = sisEmailProtocolo;
-        this.cobrancaCarteirinha = cobrancaCarteirinha;
         this.validadeBarras = validadeBarras;
         this.fotoCartao = fotoCartao;
         this.homolocaoLimiteMeses = homolocaoLimiteMeses;
@@ -647,14 +643,6 @@ public class Registro implements Serializable {
 
     public void setSisEmailProtocolo(SisEmailProtocolo sisEmailProtocolo) {
         this.sisEmailProtocolo = sisEmailProtocolo;
-    }
-
-    public boolean isCobrancaCarteirinha() {
-        return cobrancaCarteirinha;
-    }
-
-    public void setCobrancaCarteirinha(boolean cobrancaCarteirinha) {
-        this.cobrancaCarteirinha = cobrancaCarteirinha;
     }
 
     public boolean isValidadeBarras() {

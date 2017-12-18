@@ -467,6 +467,8 @@ public class MatriculaEscolaBean implements Serializable {
             return null;
         }
 
+        // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+        movimento.getMatriculaSocios();
         if (!dao.save(movimento)) {
             GenericaMensagem.error("Erro", "Não foi possível salvar Movimento!");
             dao.rollback();

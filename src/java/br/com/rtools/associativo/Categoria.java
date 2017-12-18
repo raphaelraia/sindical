@@ -69,7 +69,14 @@ public class Categoria implements Serializable {
     private Servicos servicoTaxaMatricula;
     @Column(name = "nr_taxa_matricula_parcelas", nullable = true)
     private Integer nrTaxaMatriculaParcelas;
-
+    @Column(name = "is_ficha_social", nullable = false, columnDefinition = "boolean default true")
+    private Boolean fichaSocial;
+    @Column(name = "is_ficha_filiacao", nullable = false, columnDefinition = "boolean default false")
+    private Boolean fichaFiliacao;
+    @Column(name = "is_cobranca_carteirinha", nullable = false, columnDefinition = "boolean default false")
+    private Boolean cobrancaCarteirinha;
+    
+    
     @Transient
     private Boolean selected;
 
@@ -93,13 +100,16 @@ public class Categoria implements Serializable {
         this.bloqueiaMeses = false;
         this.servicoTaxaMatricula = null;
         this.nrTaxaMatriculaParcelas = 1;
+        this.fichaSocial = true;
+        this.fichaFiliacao = false;
+        this.cobrancaCarteirinha = false;
         this.selected = false;
     }
 
     public Categoria(Integer id, String categoria, GrupoCategoria grupoCategoria, Integer nrCarenciaBalcao, Integer nrCarenciaDescFolha,
             boolean empresaObrigatoria, boolean votante, boolean usaClubeSegunda, boolean usaClubeTerca, boolean usaClubeQuarta,
             boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente, Boolean bloqueiaMeses,
-            Servicos servicoTaxaMatricula,Integer nrTaxaMatriculaParcelas ) {
+            Servicos servicoTaxaMatricula,Integer nrTaxaMatriculaParcelas, boolean fichaSocial, boolean fichaFiliacao, boolean cobrancaCarteirinha ) {
         this.id = id;
         this.categoria = categoria;
         this.grupoCategoria = grupoCategoria;
@@ -119,6 +129,9 @@ public class Categoria implements Serializable {
         this.bloqueiaMeses = bloqueiaMeses;
         this.servicoTaxaMatricula = servicoTaxaMatricula;
         this.nrTaxaMatriculaParcelas = nrTaxaMatriculaParcelas;
+        this.fichaSocial = fichaSocial;
+        this.fichaFiliacao = fichaFiliacao; 
+        this.cobrancaCarteirinha = cobrancaCarteirinha;
         this.selected = false;
     }
 
@@ -305,10 +318,35 @@ public class Categoria implements Serializable {
     public void setNrTaxaMatriculaParcelas(Integer nrTaxaMatriculaParcelas) {
         this.nrTaxaMatriculaParcelas = nrTaxaMatriculaParcelas;
     }
+    
+    public Boolean getFichaSocial() {
+        return fichaSocial;
+    }
+
+    public void setFichaSocial(Boolean fichaSocial) {
+        this.fichaSocial = fichaSocial;
+    }
+
+    public Boolean getFichaFiliacao() {
+        return fichaFiliacao;
+    }
+
+    public void setFichaFiliacao(Boolean fichaFiliacao) {
+        this.fichaFiliacao = fichaFiliacao;
+    }
+    
 
     @Override
     public String toString() {
         return "Categoria{" + "id=" + id + ", categoria=" + categoria + ", grupoCategoria=" + grupoCategoria + ", nrCarenciaBalcao=" + nrCarenciaBalcao + ", nrCarenciaDescFolha=" + nrCarenciaDescFolha + ", empresaObrigatoria=" + empresaObrigatoria + ", votante=" + votante + ", usaClubeSegunda=" + usaClubeSegunda + ", usaClubeTerca=" + usaClubeTerca + ", usaClubeQuarta=" + usaClubeQuarta + ", usaClubeQuinta=" + usaClubeQuinta + ", usaClubeSexta=" + usaClubeSexta + ", usaClubeSabado=" + usaClubeSabado + ", usaClubeDomingo=" + usaClubeDomingo + ", cartaoTitular=" + cartaoTitular + ", cartaoDependente=" + cartaoDependente + ", bloqueiaMeses=" + bloqueiaMeses + ", servicoTaxaMatricula=" + servicoTaxaMatricula + ", nrTaxaMatriculaParcelas=" + nrTaxaMatriculaParcelas + ", selected=" + selected + '}';
+    }
+
+    public Boolean getCobrancaCarteirinha() {
+        return cobrancaCarteirinha;
+    }
+
+    public void setCobrancaCarteirinha(Boolean cobrancaCarteirinha) {
+        this.cobrancaCarteirinha = cobrancaCarteirinha;
     }
 
 }

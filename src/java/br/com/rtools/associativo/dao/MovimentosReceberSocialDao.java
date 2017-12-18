@@ -291,7 +291,7 @@ public class MovimentosReceberSocialDao extends DB {
         String textqry
                 = " SELECT m.* \n"
                 + "  FROM fin_movimento m \n"
-                + "  LEFT JOIN fin_boleto b ON m.nr_ctr_boleto = b.nr_ctr_boleto \n"
+                + "  LEFT JOIN fin_boleto b ON m.nr_ctr_boleto = b.nr_ctr_boleto AND b.is_ativo = true \n"
                 + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n"
                 + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n"
                 + "  LEFT JOIN pes_juridica j ON j.id_pessoa = m.id_pessoa \n"

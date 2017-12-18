@@ -32,6 +32,11 @@ public class PhotoCapture implements Serializable {
     private SisPessoa sisPessoa = null;
     private String tipo = "";
 
+    public boolean getInitRendered(){
+        update = "form_convite:panel_foto";
+        return true;
+    }
+    
     public void open(String aSavePath, String aUpdate) {
         unload();
         savePath = aSavePath;

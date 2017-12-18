@@ -3105,12 +3105,24 @@ public class SociosBean implements Serializable {
 
     public void atualizarListaCategoria() {
         listaDescontoSocial.clear();
+        listParcerlasTxInscricao = new ArrayList();
         index_desconto = 0;
         descontoSocial = (DescontoSocial) new Dao().find(new DescontoSocial(), 1);
         servicoPessoa.setNrDesconto(descontoSocial.getNrDesconto());
         idSisPeriodo = null;
         loadServicos();
         calculoValorDependente(null);
+        Categoria c = getCategoria();
+        nrParcerlasTxInscricao = 0;
+        valorTaxaInscricao = new Double(0);
+        if (c.getServicoTaxaMatricula() != null) {
+            valorTaxaInscricao = new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), c.getServicoTaxaMatricula().getId(), new Date(), 0, 0);
+            for (int i = 0; i < c.getNrTaxaMatriculaParcelas(); i++) {
+                nrParcerlasTxInscricao = i + 1;
+                listParcerlasTxInscricao.add(new SelectItem(i + 1, "" + (i + 1)));
+                gerarParcelas();
+            }
+        }
     }
 
     public List<SelectItem> getListaGrupoCategoria() {

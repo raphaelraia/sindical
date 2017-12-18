@@ -928,6 +928,9 @@ public class EmissaoGuiasBean implements Serializable {
 
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             listaMovimento1.getMovimento().setLote(lote);
+            
+            // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
+            listaMovimento1.getMovimento().getMatriculaSocios();
             if (!di.save(listaMovimento1.getMovimento())) {
                 message = " Erro ao salvar Movimento!";
                 di.rollback();
