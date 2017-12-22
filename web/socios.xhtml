@@ -81,11 +81,17 @@
                             </p:panel>                            
 
                             <p:panel styleClass="fundoCinza margin-top-max">
-                                <h:panelGrid columns="2">
+                                <h:panelGrid columns="4">
                                     <h:outputLabel value="Filial: "/>
                                     <p:selectOneMenu value="#{sociosBean.idFilial}">
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{sociosBean.listaFilial}"/>
+                                    </p:selectOneMenu>
+                                    
+                                    <h:outputLabel value="Credenciador: " style="margin-left: 20px"/>
+                                    <p:selectOneMenu value="#{sociosBean.indexCredenciadores}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{sociosBean.listaCredenciadores}"/>
                                     </p:selectOneMenu>                                                               
                                 </h:panelGrid>
                             </p:panel>

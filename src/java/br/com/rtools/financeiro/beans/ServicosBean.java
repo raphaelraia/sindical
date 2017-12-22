@@ -12,6 +12,7 @@ import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.financeiro.DescontoPromocional;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Plano5;
+import br.com.rtools.financeiro.ServicoAviso;
 import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.ServicoValorHistorico;
@@ -89,6 +90,12 @@ public class ServicosBean implements Serializable {
     private String situacao;
     private Boolean descontoMatricula;
 
+    private ServicoAviso servicoAvisoEdit;
+    private List<ServicoAviso> listaServicoAviso;
+
+    private Integer indexDepartamento;
+    private List<SelectItem> listaDepartamento;
+
     public ServicosBean() {
         servicos = new Servicos();
         descontoPromocional = new DescontoPromocional();
@@ -129,6 +136,14 @@ public class ServicosBean implements Serializable {
         loadModeloCarteirinha();
         descontoPromocional = new DescontoPromocional();
         listServicoValorHistorico = new ArrayList();
+
+        servicoAvisoEdit = new ServicoAviso();
+        listaServicoAviso = new ArrayList();
+
+        indexDepartamento = 0;
+        listaDepartamento = new ArrayList();
+        loadListaDepartamento();
+
     }
 
     @PreDestroy
@@ -137,6 +152,113 @@ public class ServicosBean implements Serializable {
         GenericaSessao.remove("pesquisaPlano");
         GenericaSessao.remove("pesquisaServicos");
         GenericaSessao.remove("contaCobrancaPesquisa");
+    }
+
+    public void loadServicoAviso() {
+
+    }
+
+    public final void loadListaDepartamento() {
+        listaDepartamento.clear();
+        indexDepartamento = 0;
+
+        List<Departamento> result = new Dao().list(new Departamento());
+
+        listaDepartamento.add(new SelectItem(0, "SELECIONE UM DEPARTAMENTO", "-1"));
+
+        for (int i = 0; i < result.size(); i++) {
+            listaDepartamento.add(
+                    new SelectItem(
+                            i + 1,
+                            result.get(i).getDescricao(),
+                            Integer.toString(result.get(i).getId())
+                    )
+            );
+        }
+    }
+
+    public void loadListaServicoAviso() {
+        servicoAvisoEdit = new ServicoAviso();
+        listaServicoAviso.clear();
+
+        ServicosDao sdao = new ServicosDao();
+
+        listaServicoAviso = sdao.listaServicoAviso(servicos.getId());
+
+        indexDepartamento = 0;
+    }
+
+    public void salvarServicoAviso() {
+        
+        if (Integer.valueOf(listaDepartamento.get(indexDepartamento).getDescription()) == -1){
+            GenericaMensagem.error("Atenção", "Selecione um Departamento!");
+            return;
+        }
+        
+        ServicosDao sdao = new ServicosDao();
+
+        List<ServicoAviso> result = sdao.listaServicoAvisoDepartamento(servicos.getId(), Integer.valueOf(listaDepartamento.get(indexDepartamento).getDescription()));
+        
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+        if (servicoAvisoEdit.getId() == -1) {
+            
+            if (!result.isEmpty()){
+                GenericaMensagem.error("Atenção", "Aviso já existe!");
+                dao.rollback();
+                return;
+            }
+            servicoAvisoEdit = new ServicoAviso(-1, servicos, (Departamento) dao.find(new Departamento(), Integer.valueOf(listaDepartamento.get(indexDepartamento).getDescription())));
+
+            if (!dao.save(servicoAvisoEdit)) {
+                GenericaMensagem.error("Atenção", "Erro ao salvar Aviso!");
+                dao.rollback();
+                return;
+            }
+
+            GenericaMensagem.info("Sucesso", "O aviso de inadimplência foi salvo!");
+        } else {
+            if (!dao.update(servicoAvisoEdit)) {
+                GenericaMensagem.error("Atenção", "Erro ao atualizar Aviso!");
+                dao.rollback();
+                return;
+            }
+
+            GenericaMensagem.info("Sucesso", "O aviso de inadimplência foi Atualizado!");
+
+        }
+
+        dao.commit();
+        loadListaServicoAviso();
+    }
+
+    public void excluirServicoAviso() {
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+
+        if (!dao.delete(servicoAvisoEdit)) {
+            GenericaMensagem.error("Atenção", "Erro ao excluir Aviso!");
+            dao.rollback();
+            return;
+        }
+
+        GenericaMensagem.info("Sucesso", "O aviso de inadimplência foi excluído!");
+
+        dao.commit();
+        loadListaServicoAviso();
+    }
+
+    public void editarServicoAviso(ServicoAviso sa) {
+        servicoAvisoEdit = sa;
+
+        for (int i = 0; i < listaDepartamento.size(); i++) {
+            if (Objects.equals(servicoAvisoEdit.getDepartamento().getId(), Integer.valueOf(listaDepartamento.get(i).getDescription()))) {
+                indexDepartamento = i;
+            }
+        }
+
     }
 
     public final void loadModeloCarteirinha() {
@@ -477,11 +599,16 @@ public class ServicosBean implements Serializable {
         } else {
             idPeriodo = 0;
         }
+        
+        loadListaServicoAviso();
+        
         if (GenericaSessao.exists("urlRetorno")) {
             return "servicos";
         } else {
             return GenericaSessao.getString("urlRetorno");
         }
+        
+        
     }
 
     public void delete() {
@@ -1438,6 +1565,38 @@ public class ServicosBean implements Serializable {
     public void loadListServicoValorHistorico(Integer servico_valor_id) {
         listServicoValorHistorico = new ArrayList();
         listServicoValorHistorico = new ServicoValorHistoricoDao().findByServicoValor(servico_valor_id);
+    }
+
+    public ServicoAviso getServicoAvisoEdit() {
+        return servicoAvisoEdit;
+    }
+
+    public void setServicoAvisoEdit(ServicoAviso servicoAvisoEdit) {
+        this.servicoAvisoEdit = servicoAvisoEdit;
+    }
+
+    public List<ServicoAviso> getListaServicoAviso() {
+        return listaServicoAviso;
+    }
+
+    public void setListaServicoAviso(List<ServicoAviso> listaServicoAviso) {
+        this.listaServicoAviso = listaServicoAviso;
+    }
+
+    public Integer getIndexDepartamento() {
+        return indexDepartamento;
+    }
+
+    public void setIndexDepartamento(Integer indexDepartamento) {
+        this.indexDepartamento = indexDepartamento;
+    }
+
+    public List<SelectItem> getListaDepartamento() {
+        return listaDepartamento;
+    }
+
+    public void setListaDepartamento(List<SelectItem> listaDepartamento) {
+        this.listaDepartamento = listaDepartamento;
     }
 
 }

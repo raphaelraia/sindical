@@ -1,16 +1,17 @@
 package br.com.rtools.sistema.beans;
 
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.principal.DBExternal;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.sistema.SisNotificacao;
 import br.com.rtools.sistema.dao.SisNotificacaoClienteDao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,17 +25,53 @@ import javax.faces.bean.ViewScoped;
 public class SisNotificacaoView implements Serializable {
 
     private List<SNotificacao> listNotificacao;
+    
+    private List<SNotificacaoServico> listaNotificacaoServico;
 
     public SisNotificacaoView() {
         listNotificacao = new ArrayList<>();
+        listaNotificacaoServico = new ArrayList();
         try {
             loadNotificacao();
             loadNotificacaoLocal();
+            
+            loadNotificacaoServico();
         } catch (SQLException ex) {
             Logger.getLogger(SisNotificacaoView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    public void imprimirNotificacaoServico(){
+        Jasper.printReports("/Relatorios/SERVICO_AVISO.jasper", "Serviços não quitados", listaNotificacaoServico);
+    }
+    
+    public final void loadNotificacaoServico(){
+        listaNotificacaoServico.clear();
+        
+        MacFilial mf =  MacFilial.getAcessoFilial();
+        
+        if (mf != null && mf.getId() != -1){
+            ServicosDao sdao = new ServicosDao();
+            
+            if (mf.getDepartamento() != null){
+                
+                List result = sdao.listaServicoAvisoMovimento(mf.getDepartamento().getId());
+                
+                for (int i = 0; i < result.size(); i++) {
+                    listaNotificacaoServico.add(new SNotificacaoServico(
+                            (Integer) ((List) result.get(i)).get(0), 
+                            (Integer) ((List) result.get(i)).get(1),
+                            ((List) result.get(i)).get(2).toString(), 
+                            ((List) result.get(i)).get(3).toString(), 
+                            (Date)((List) result.get(i)).get(4), 
+                            (Double) ((List) result.get(i)).get(5))
+                    );
+                }
+            
+            }
+        }
+    }
+    
     public final void loadNotificacao() throws SQLException {
         if (!GenericaSessao.getString("sessaoCliente").equals("ComercioLimeira") && !GenericaSessao.getString("sessaoCliente").equals("Sindical")) {
             try {
@@ -149,6 +186,81 @@ public class SisNotificacaoView implements Serializable {
         this.listNotificacao = listNotificacao;
     }
 
+    public class SNotificacaoServico {
+        private Integer movimento_id;
+        private Integer pessoa_id;
+        private String nome;
+        private String servico;
+        private Date vencimento;
+        private Double valor;
+
+        public SNotificacaoServico(Integer movimento_id, Integer pessoa_id, String nome, String servico, Date vencimento, Double valor) {
+            this.movimento_id = movimento_id;
+            this.pessoa_id = pessoa_id;
+            this.nome = nome;
+            this.servico = servico;
+            this.vencimento = vencimento;
+            this.valor = valor;
+        }
+        
+        public Integer getMovimento_id() {
+            return movimento_id;
+        }
+
+        public void setMovimento_id(Integer movimento_id) {
+            this.movimento_id = movimento_id;
+        }
+
+        public Integer getPessoa_id() {
+            return pessoa_id;
+        }
+
+        public void setPessoa_id(Integer pessoa_id) {
+            this.pessoa_id = pessoa_id;
+        }
+
+        public String getNome() {
+            return nome;
+        }
+
+        public void setNome(String nome) {
+            this.nome = nome;
+        }
+
+        public String getServico() {
+            return servico;
+        }
+
+        public void setServico(String servico) {
+            this.servico = servico;
+        }
+
+        public String getVencimentoString() {
+            return DataHoje.converteData(vencimento);
+        }
+        
+        public Date getVencimento() {
+            return vencimento;
+        }
+
+        public void setVencimento(Date vencimento) {
+            this.vencimento = vencimento;
+        }
+
+        public String getValorString() {
+            return Moeda.converteR$Double(valor);
+        }
+
+        public Double getValor() {
+            return valor;
+        }
+
+        public void setValor(Double valor) {
+            this.valor = valor;
+        }
+    
+    }
+    
     public class SNotificacao {
 
         private Integer id;
@@ -290,6 +402,14 @@ public class SisNotificacaoView implements Serializable {
             this.destaque = destaque;
         }
 
+    }
+
+    public List<SNotificacaoServico> getListaNotificacaoServico() {
+        return listaNotificacaoServico;
+    }
+
+    public void setListaNotificacaoServico(List<SNotificacaoServico> listaNotificacaoServico) {
+        this.listaNotificacaoServico = listaNotificacaoServico;
     }
 
 }

@@ -2,6 +2,7 @@ package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Correcao;
 import br.com.rtools.financeiro.IndiceMensal;
+import br.com.rtools.financeiro.ServicoAviso;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.dao.FindDao;
@@ -399,6 +400,65 @@ public class ServicosDao extends DB {
             if (!list.isEmpty()) {
                 return list;
             }
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
+    public List<ServicoAviso> listaServicoAviso(Integer id_servico) {
+        try {
+            String queryString
+                    = "SELECT sa.* \n "
+                    + "  FROM fin_servico_aviso sa \n "
+                    + " WHERE sa.id_servico = " + id_servico;
+
+            Query query = getEntityManager().createNativeQuery(queryString, ServicoAviso.class);
+
+            return query.getResultList();
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
+    public List<ServicoAviso> listaServicoAvisoDepartamento(Integer id_servico, Integer id_departamento) {
+        try {
+            String queryString
+                    = "SELECT sa.* \n "
+                    + "  FROM fin_servico_aviso sa \n "
+                    + " WHERE sa.id_servico = " + id_servico
+                    + "   AND sa.id_departamento = " + id_departamento;
+
+            Query query = getEntityManager().createNativeQuery(queryString, ServicoAviso.class);
+
+            return query.getResultList();
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
+    public List listaServicoAvisoMovimento(Integer id_departamento) {
+        try {
+            String queryString
+                    = "SELECT p.id AS pessoa_id, \n "
+                    + "    m.id AS movimento_id, \n "
+                    + "	   p.ds_nome AS nome, \n "
+                    + "	   se.ds_descricao AS servico, \n "
+                    + "	   m.dt_vencimento AS vencimento, \n "
+                    + "	   m.nr_valor AS valor \n "
+                    + "  FROM fin_movimento AS m \n "
+                    + " INNER JOIN fin_servicos AS se ON se.id = m.id_servicos \n "
+                    + " INNER JOIN soc_socios_vw s ON s.codsocio = m.id_beneficiario \n "
+                    + " INNER JOIN pes_pessoa AS p ON p.id = m.id_pessoa \n "
+                    + " INNER JOIN fin_servico_aviso AS sa ON sa.id_servico = m.id_servicos AND sa.id_departamento = " + id_departamento + " \n "
+                    + " WHERE m.is_ativo = true AND m.dt_vencimento < CURRENT_DATE AND m.id_baixa IS NULL \n "
+                    + " ORDER BY m.dt_vencimento, p.ds_nome ";
+
+            Query query = getEntityManager().createNativeQuery(queryString);
+
+            return query.getResultList();
         } catch (Exception e) {
 
         }

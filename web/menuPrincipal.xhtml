@@ -27,6 +27,7 @@
                 width: 20%;
                 vertical-align: top;
             }
+            
         </style>
     </h:head>
     <h:body>
@@ -194,7 +195,8 @@
                                             <p:outputLabel value="ATUALIZAÇÃO DE CADASTRO SOLICITADA" style="font-size: 12pt; color: #dd3b58; font-weight: bold" />
                                         </f:facet>
                                         <p:commandLink value="Clique para visualizar" action="#{chamadaPaginaBean.pagina('sisAutorizacoes')}" style="font-size: 11pt!important"/>
-                                    </p:panel>                                    
+                                    </p:panel>
+
                                     <p:panel rendered="#{not empty sisNotificacaoView.listNotificacao}">
                                         <f:facet name="header">
                                             <p:outputLabel value="NOTIFICAÇÕES DO SISTEMA" style="font-size: 12pt; color: #dd3b58; font-weight: bold" />
@@ -210,10 +212,38 @@
                                                 <p:commandButton icon="ui-icon-star" rendered="#{sNotificacao.destaque}" />                                                                 
                                             </p:column>
                                         </p:dataTable>
+                                    </p:panel>
+
+                                    <p:panel rendered="#{not empty sisNotificacaoView.listaNotificacaoServico}">
+                                        <f:facet name="header">
+                                            <h:panelGrid style="width: 100%; text-align: center" columns="2">
+                                                <span class="ui-icon ui-icon-alert" style="color: red"/>
+                                                <p:outputLabel value="EXISTEM SERVIÇOS QUE NÃO FORAM QUITADOS" style="font-size: 13pt!important; color: #dd3b58; font-weight: bold"></p:outputLabel>
+                                            </h:panelGrid>
+                                        </f:facet>
+                                        
+                                        <br />
+                                        <h:panelGrid style="width: 100%; text-align: center">
+                                            <p:commandButton value="CLIQUE AQUI PARA VISUALIZAR LISTA" onclick="PF('dlg_notificacao_servico').show()" icon="ui-icon-alert"/>
+                                        </h:panelGrid>
+                                        <br />
+                                        
+                                        <p:dialog widgetVar="dlg_notificacao_servico" modal="true" header="LISTA DE SERVIÇOS" width="800" height="400" resizable="false">
+                                            <h:panelGrid style="width: 100%">
+                                                <p:commandButton value="Imprimir Relatório" icon="ui-icon-print" action="#{sisNotificacaoView.imprimirNotificacaoServico}" ajax="false" style="float: right"/>
+                                            </h:panelGrid>
+                                            <br />
+                                            <p:dataTable value="#{sisNotificacaoView.listaNotificacaoServico}" var="linha_notificacao_servico">
+                                                <p:column headerText="Nome">#{linha_notificacao_servico.nome}</p:column>
+                                                <p:column headerText="Serviço">#{linha_notificacao_servico.servico}</p:column>
+                                                <p:column headerText="Vencto" style="width: 80px; text-align: center">#{linha_notificacao_servico.vencimentoString}</p:column>
+                                                <p:column headerText="Valor R$" style="width: 80px; text-align: right">#{linha_notificacao_servico.valorString}</p:column>
+                                            </p:dataTable> 
+                                        </p:dialog>
                                     </p:panel>                                    
-                                    <p:panel style="height: 50px" styleClass="margin-top-max">
+
+                                    <p:panel style="height: 50px" styleClass="margin-top-max" rendered="#{notificacaoBean.habilitaNot}">
                                         <h:panelGrid id="i_panel_poll" style="float: left">
-                                            <h:outputLabel value="Sem Notificações" rendered="#{!notificacaoBean.habilitaNot}" style="font-size: 12pt; color: #dd3b58; font-weight: bold"/>
                                             <h:outputLabel value="Existem #{notificacaoBean.quantidadeMenu} notificações de cobrança para serem enviadas" rendered="#{notificacaoBean.habilitaNot}" styleClass="fonteExtratoTela" style="font-size: 12pt; color: #dd3b58; font-weight: bold"/>
                                             <br />
                                             <p:commandLink value="Clique aqui para enviar" action="#{notificacaoBean.enviarPeloMenu()}" rendered="#{notificacaoBean.habilitaNot}" styleClass="fontePadrao"/>

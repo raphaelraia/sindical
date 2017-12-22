@@ -155,6 +155,9 @@
                                     <p:column headerText="Emissor" styleClass="text-center">
                                         <h:outputText value="#{conviteMovimento.usuario.pessoa.nome}"/>
                                     </p:column>
+                                    <p:column headerText="Reimpressão de Convite" styleClass="text-center" style="width: 90px">
+                                        <p:commandButton icon="ui-icon-print" action="#{imprimirConviteClube.imprimir(conviteMovimento)}" ajax="false"/>
+                                    </p:column>
                                 </p:dataTable>
                             </p:panel>
 

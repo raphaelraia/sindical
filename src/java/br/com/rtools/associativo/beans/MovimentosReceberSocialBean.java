@@ -1320,7 +1320,8 @@ public class MovimentosReceberSocialBean implements Serializable {
                 calculo_total_aberto = Moeda.soma(calculo_total_aberto, calculo);
             } else {
                 // AQUI ESTA APAGANDO O DESCONTO QUE VEM DO BANCO
-                listaMovimento.get(i).setArgumento8("0,00");
+                // 21/12/2017 (NÃO APAGA MAIS O DESCONTO) REABILITADO O DESCONTO, SEM SABER O MOTIVO PORQUE ESTAVA APAGANDO EM CASO DE QUITAÇÃO (ROGÉRIO)
+                // listaMovimento.get(i).setArgumento8("0,00");
                 if ((Boolean) listaMovimento.get(i).getArgumento29()) {
                     listaMovimento.get(i).setArgumento9(Moeda.converteR$Double(valorx[1]));
                 } else {

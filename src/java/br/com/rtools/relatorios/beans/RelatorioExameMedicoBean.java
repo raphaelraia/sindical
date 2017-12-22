@@ -156,11 +156,15 @@ public class RelatorioExameMedicoBean implements Serializable {
     public String print() {
         Relatorios relatorios = new RelatorioDao().pesquisaRelatorios(idRelatorio);
         List<ObjectExameMedico> listObjectExameMedico = new ArrayList<>();
-        List list = new RelatorioExameMedicoDao().find(type, listDateFilters, inIdDepartamento(), inIdOperadores(), pessoa, sisPessoa);
+
+        String ids_deps = inIdDepartamento();
+
+        List list = new RelatorioExameMedicoDao().find(type, listDateFilters, ids_deps, inIdOperadores(), pessoa, sisPessoa);
         if (list.isEmpty()) {
             GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
             return null;
         }
+
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             listObjectExameMedico.add(
@@ -174,8 +178,23 @@ public class RelatorioExameMedicoBean implements Serializable {
                     )
             );
         }
+
         Jasper.TYPE = "default";
-        Jasper.TITLE = relatorios.getNome();
+
+        // CHAMADO 2249 - CLAUDEMIR
+        if (ids_deps.length() == 2) {
+            // CLUBE
+            if (ids_deps.contains("12")) {
+                Jasper.TITLE = "AVALIAÇÃO DA PISCINA";
+            } else if (ids_deps.contains("11")) {
+                Jasper.TITLE = "AVALIAÇÃO FÍSICA";
+            } else {
+                Jasper.TITLE = relatorios.getNome();
+            }
+        } else {
+            Jasper.TITLE = relatorios.getNome();
+        }
+
         Map map = new HashMap();
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) listObjectExameMedico, map);
         return null;

@@ -76,7 +76,7 @@
                                             </h:panelGrid>
                                         </p:panel>
 
-                                        <p:panel header="Finançeiro" styleClass="margin-top-max" style="border: 1px solid black">
+                                        <p:panel header="Financeiro" styleClass="margin-top-max" style="border: 1px solid black">
                                             <h:panelGrid columns="2">
                                                 <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPlano}" value="Conta Contábil" id="id_pesquisa_plano"/>
                                                 <p:column>
@@ -98,11 +98,18 @@
                                             </h:panelGrid>                                            
 
                                             <h:panelGrid columns="2" styleClass="margin-top-max" cellspacing="5">
-                                                <p:outputLabel value="Administradora" />
-                                                <p:selectOneMenu id="i_administradora" value="#{servicosBean.idAdministradora}" style="margin-right: 10px;">
-                                                    <f:selectItem itemValue="" itemLabel="Nenhuma" />
-                                                    <f:selectItems value="#{servicosBean.listAdministradora}"/>
-                                                </p:selectOneMenu>
+                                                <h:column>
+                                                    <p:outputLabel value="Administradora" />
+                                                    <p:selectOneMenu id="i_administradora" value="#{servicosBean.idAdministradora}" style="margin-right: 10px;">
+                                                        <f:selectItem itemValue="" itemLabel="Nenhuma" />
+                                                        <f:selectItems value="#{servicosBean.listAdministradora}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:commandButton value="Aviso de Inadimplência" action="#{servicosBean.loadListaServicoAviso()}" oncomplete="PF('dlg_servico_aviso').show()" update="panel_servico_aviso" icon="ui-icon-alert" disabled="#{servicosBean.servicos.id eq -1}" rendered="#{empty servicosBean.listaServicoAviso}"/>
+                                                    <p:commandButton value="Editar Aviso de Inadimplência" action="#{servicosBean.loadListaServicoAviso()}" oncomplete="PF('dlg_servico_aviso').show()" icon="ui-icon-pencil" update="panel_servico_aviso" rendered="#{not empty servicosBean.listaServicoAviso}" style="background: greenyellow; font-weight: bold"/>
+                                                </h:column>
                                             </h:panelGrid>
 
                                             <h:panelGrid columns="7" styleClass="margin-top-max" cellspacing="5">
@@ -116,6 +123,7 @@
                                                     <p:ajax event="change" update="@this"/>
                                                 </p:selectBooleanCheckbox>
                                             </h:panelGrid>
+
                                             <h:panelGrid columns="7" styleClass="margin-top-max" cellspacing="5">
                                                 <p:outputLabel value="Prazo de Exclusão para Débito" />
                                                 <p:inputText size="16" value="#{servicosBean.servicos.mesesDebitoExclusao}" style="text-align: right" converter="#{thisNumber}">
@@ -124,6 +132,49 @@
                                                 <p:outputLabel value="(Meses)" />
                                                 <p:selectBooleanCheckbox value="#{servicosBean.servicos.mesesDebitoExclusaoTodos}" itemLabel="Após atingir o prazo de exclusão, excluir todos registros em aberto" style="text-align: right; margin-left: 50px"/>
                                             </h:panelGrid>
+
+
+                                            <p:dialog widgetVar="dlg_servico_aviso" modal="true" resizable="false" height="400" width="900" header="Aviso de Inadimplência">
+                                                <p:ajax event="close" update="@form"/>  
+                                                <h:panelGrid id="panel_servico_aviso" style="width: 100%">
+                                                    <p:messages autoUpdate="false" showDetail="true"/>
+                                                    
+                                                    <h:panelGrid columns="3">
+                                                        <h:column>
+                                                            <p:outputLabel value="Departamento" /><br />
+                                                            <p:selectOneMenu value="#{servicosBean.indexDepartamento}">
+                                                                <f:selectItems value="#{servicosBean.listaDepartamento}"/>
+                                                            </p:selectOneMenu>
+                                                        </h:column>
+                                                        
+                                                        <h:column>
+                                                            <br />
+                                                            <p:commandButton value="#{servicosBean.servicoAvisoEdit.id eq -1 ? 'Adicionar' : 'Salvar'}" icon="ui-icon-plus" action="#{servicosBean.salvarServicoAviso()}" update="panel_servico_aviso">
+                                                                <p:confirm header="#{servicosBean.servicoAvisoEdit.id eq -1 ? 'Adicionar' : 'Salvar'}" message="Deseja Realmente #{servicosBean.servicoAvisoEdit.id eq -1 ? 'Adicionar' : 'Salvar'} este Aviso de Inadimplência?" icon="ui-icon-alert" />
+                                                            </p:commandButton>
+                                                        </h:column>
+                                                        
+                                                        <h:column>
+                                                            <br />
+                                                            <p:commandButton value="Excluir" icon="ui-icon-close" action="#{servicosBean.excluirServicoAviso()}" update="panel_servico_aviso" rendered="#{servicosBean.servicoAvisoEdit.id ne -1}">
+                                                                <p:confirm header="Excluir" message="Deseja Realmente Excluir este Aviso de Inadimplência?" icon="ui-icon-alert" />
+                                                            </p:commandButton>
+                                                        </h:column>
+                                                    </h:panelGrid>
+
+                                                    <p:dataTable id="tbl_servico_aviso" value="#{servicosBean.listaServicoAviso}" var="linha_servico_aviso" emptyMessage="Nenhum Departamento Adicionado" style="width: 100%">
+                                                        <p:column headerText="#" style="width: 50px; text-align: center">
+                                                            <p:outputLabel value="#{linha_servico_aviso.id}" style="font-weight: bold"/>
+                                                        </p:column>
+                                                        
+                                                        <p:column headerText="Departamento">
+                                                            <p:commandLink value="#{linha_servico_aviso.departamento.descricao}" action="#{servicosBean.editarServicoAviso(linha_servico_aviso)}" update=":form_servicos:id_tab_view:panel_servico_aviso"/>
+                                                        </p:column>
+                                                    </p:dataTable>
+                                                    
+                                                </h:panelGrid>
+                                            </p:dialog>
+
                                         </p:panel>
 
                                         <p:panel header="Guias" styleClass="margin-top-max" style="border: 1px solid black">
@@ -512,7 +563,12 @@
                                         <p:commandLink value="Remover tudo da Lista" action="#{servicosBean.deletarDescontoDependenteTodos()}" update=":form_servicos:i_desconto_dependente" style="float: right; font-size: 8pt!important" rendered="#{servicosBean.listaDescontoDependente.size() > 0}"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
-                            </p:dialog>                    
+                            </p:dialog>   
+                            
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
                         </h:form>
                     </p:panel>
                 </f:view>

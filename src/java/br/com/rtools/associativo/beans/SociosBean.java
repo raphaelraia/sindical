@@ -13,6 +13,7 @@ import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.*;
+import br.com.rtools.associativo.dao.CredenciadoresDao;
 import br.com.rtools.associativo.dao.PeriodoMensalidadeDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
@@ -144,6 +145,9 @@ public class SociosBean implements Serializable {
     private List<SelectItem> listParcerlasTxInscricao;
     private Lote loteTaxaInscricao;
     private List<Movimento> listMovimentosTaxaInscricao;
+    
+    private Integer indexCredenciadores;
+    private List<SelectItem> listaCredenciadores;
 
     public SociosBean() {
         listFisicaSugestao = new ArrayList();
@@ -225,6 +229,8 @@ public class SociosBean implements Serializable {
         idSisPeriodo = null;
         valorTaxaInscricao = new Double(0);
         nrParcerlasTxInscricao = 0;
+        
+        loadListaCredenciadores();
     }
 
     @PreDestroy
@@ -239,6 +245,23 @@ public class SociosBean implements Serializable {
         String url_temp = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + "foto/" + getUsuario().getId() + "/perfil.png");
         if (new File(url_temp).exists()) {
             new File(url_temp).delete();
+        }
+    }
+    
+    public final void loadListaCredenciadores(){
+        indexCredenciadores = 0;
+        listaCredenciadores = new ArrayList();
+        
+        List<Credenciadores> result = new CredenciadoresDao().listaCredenciadores();
+        
+        for (int i = 0; i < result.size(); i++){
+            listaCredenciadores.add(
+                    new SelectItem(i, result.get(i).getPessoa().getNome(), Integer.toString(result.get(i).getId()))
+            );
+            
+            if (result.get(i).getPessoa().getId() == 1){
+                indexCredenciadores = i;
+            }
         }
     }
 
@@ -471,6 +494,13 @@ public class SociosBean implements Serializable {
         }
         loadBloqueio();
         loadListMovimentoTaxaMatricula();
+        
+        loadListaCredenciadores();
+        for (int i = 0; i < listaCredenciadores.size(); i++){
+            if(socios.getMatriculaSocios().getCredenciador().getId() == Integer.parseInt(listaCredenciadores.get(i).getDescription()) ){
+                indexCredenciadores = i;
+            }
+        }
 
     }
 
@@ -1288,6 +1318,8 @@ public class SociosBean implements Serializable {
             }
         }
 
+        matriculaSocios.setCredenciador((Credenciadores)  dao.find(new Credenciadores(), Integer.parseInt(listaCredenciadores.get(indexCredenciadores).getDescription())));
+        
         if (matriculaSocios.getId()
                 == -1) {
             if (MacFilial.getAcessoFilial().getId() == -1) {
@@ -1389,7 +1421,8 @@ public class SociosBean implements Serializable {
                 + " - Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
                 + " - Categoria: " + socios.getMatriculaSocios().getCategoria().getCategoria()
                 + " - Filiação: " + socios.getMatriculaSocios().getEmissao()
-                + " - Serviço Pessoa (Desconto em folha: " + socios.getServicoPessoa().isDescontoFolha() + " - Dia de Vencimento: " + socios.getServicoPessoa().getNrDiaVencimento() + ") ";
+                + " - Serviço Pessoa (Desconto em folha: " + socios.getServicoPessoa().isDescontoFolha() + " - Dia de Vencimento: " + socios.getServicoPessoa().getNrDiaVencimento() + ") "
+                + " - Credenciador " + socios.getMatriculaSocios().getCredenciador().getPessoa().getNome();
 
         if (socios.getId()
                 == -1) {
@@ -1506,7 +1539,9 @@ public class SociosBean implements Serializable {
                     + " - Matrícula: " + s.getMatriculaSocios().getNrMatricula()
                     + " - Categoria: " + s.getMatriculaSocios().getCategoria().getCategoria()
                     + " - Filiação: " + s.getMatriculaSocios().getEmissao()
-                    + " - Serviço Pessoa (Desconto em folha: " + s.getServicoPessoa().isDescontoFolha() + " - Dia de Vencimento: " + s.getServicoPessoa().getNrDiaVencimento() + ") ";
+                    + " - Serviço Pessoa (Desconto em folha: " + s.getServicoPessoa().isDescontoFolha() + " - Dia de Vencimento: " + s.getServicoPessoa().getNrDiaVencimento() + ") "
+                    + " - Credenciador " + socios.getMatriculaSocios().getCredenciador().getPessoa().getNome();
+            
             GenericaMensagem.info("Sucesso", "Cadastro Atualizado!");
             novoLog.update(beforeUpdate, saveString);
             ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
@@ -4275,6 +4310,22 @@ public class SociosBean implements Serializable {
             this.dez = dez;
         }
 
+    }
+
+    public Integer getIndexCredenciadores() {
+        return indexCredenciadores;
+    }
+
+    public void setIndexCredenciadores(Integer indexCredenciadores) {
+        this.indexCredenciadores = indexCredenciadores;
+    }
+
+    public List<SelectItem> getListaCredenciadores() {
+        return listaCredenciadores;
+    }
+
+    public void setListaCredenciadores(List<SelectItem> listaCredenciadores) {
+        this.listaCredenciadores = listaCredenciadores;
     }
 
 }

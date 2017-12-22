@@ -58,8 +58,11 @@ public class MatriculaSocios implements java.io.Serializable {
     @JoinColumn(name = "id_filial", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     private Filial filial;
+    @JoinColumn(name = "id_credenciador", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Credenciadores credenciador;
 
-    public MatriculaSocios(int id, String inativo, Categoria categoria, int nrMatricula, Cidade cidade, String observacao, String observacaoAviso, boolean bloqueiaObsAviso, SMotivoInativacao motivoInativacao, Pessoa titular, String emissao, String motivo, Filial filial) {
+    public MatriculaSocios(int id, String inativo, Categoria categoria, int nrMatricula, Cidade cidade, String observacao, String observacaoAviso, boolean bloqueiaObsAviso, SMotivoInativacao motivoInativacao, Pessoa titular, String emissao, String motivo, Filial filial, Credenciadores credenciador) {
         this.id = id;
         this.setInativo(inativo);
         this.categoria = categoria;
@@ -73,6 +76,7 @@ public class MatriculaSocios implements java.io.Serializable {
         this.setEmissao(emissao);
         this.motivo = motivo;
         this.filial = filial;
+        this.credenciador = credenciador;
 
     }
 
@@ -90,6 +94,7 @@ public class MatriculaSocios implements java.io.Serializable {
         this.setEmissao("");
         this.motivo = "";
         this.filial = null;
+        this.credenciador = new Credenciadores();
     }
 
     public int getId() {
@@ -216,5 +221,13 @@ public class MatriculaSocios implements java.io.Serializable {
 
     public void setFilial(Filial filial) {
         this.filial = filial;
+    }
+
+    public Credenciadores getCredenciador() {
+        return credenciador;
+    }
+
+    public void setCredenciador(Credenciadores credenciador) {
+        this.credenciador = credenciador;
     }
 }

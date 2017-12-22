@@ -656,6 +656,9 @@ public class WebREPISBean implements Serializable {
                         case 10:
                             file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/CERTIDAO_FERIADOS_RIO_CLARO.jasper"));
                             break;
+                        case 11:
+                            file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/CERTIDAO_FERIADOS_VALINHOS_PAULINIA.jasper"));
+                            break;
                     }
 
                     JasperReport jasper = (JasperReport) JRLoader.loadObject(file);
@@ -682,7 +685,7 @@ public class WebREPISBean implements Serializable {
                     }
 
                     String sindicatoPeriodo = (result.get(0).getSindicato() != null) ? result.get(0).getSindicato().getNome() : "xxxxxxxxxxxxxxxxxxxx";
-                    
+
                     for (PisoSalarial piso : listapiso) {
                         BigDecimal valor = new BigDecimal(piso.getValor());
                         if (valor.toString().equals("0")) {

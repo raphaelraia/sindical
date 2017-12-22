@@ -2553,11 +2553,16 @@
             <to-view-id>/web_agendamentos.jsf</to-view-id>
             <redirect/>
         </navigation-case>
-        
                 
         <navigation-case>
             <from-outcome>relatorioExameMedico</from-outcome>
             <to-view-id>/relatorioExameMedico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+                
+        <navigation-case>
+            <from-outcome>credenciadores</from-outcome>
+            <to-view-id>/credenciadores.jsf</to-view-id>
             <redirect/>
         </navigation-case>  
         
