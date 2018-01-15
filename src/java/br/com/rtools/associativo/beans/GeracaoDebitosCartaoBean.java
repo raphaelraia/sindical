@@ -1,6 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.HistoricoCarteirinha;
+import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
@@ -384,7 +385,12 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     }
 
     public Boolean renderedUpload(Pessoa p) {
-        if (registro.isFotoCartao()) {
+        ModeloCarteirinha modeloc = new SocioCarteirinhaDao().pesquisaModeloCarteirinha(p.getSocios().getMatriculaSocios().getCategoria().getId(), 170);
+        if (modeloc == null) {
+            GenericaMensagem.warn("Atenção", "Sócio sem modelo de Carteirinha!");
+            return false;
+        }
+        if (modeloc.getFotoCartao()) {
             if (!p.getFisica().getFoto().isEmpty()) {
                 return false;
             }
@@ -395,7 +401,12 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     }
 
     public Boolean disabled(Pessoa p, Movimento m) {
-        if (registro.isFotoCartao()) {
+        ModeloCarteirinha modeloc = new SocioCarteirinhaDao().pesquisaModeloCarteirinha(p.getSocios().getMatriculaSocios().getCategoria().getId(), 170);
+        if (modeloc == null) {
+            GenericaMensagem.warn("Atenção", "Sócio sem modelo de Carteirinha!");
+            return false;
+        }
+        if (modeloc.getFotoCartao()) {
             if (p.getFisica().getFoto() == null || p.getFisica().getFoto().isEmpty()) {
                 return true;
             } else if (m != null) {

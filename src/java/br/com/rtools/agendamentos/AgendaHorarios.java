@@ -40,7 +40,7 @@ public class AgendaHorarios implements Serializable {
     private Filial filial;
     @Column(name = "ativo", nullable = false)
     private Boolean ativo;
-    @Column(name = "nr_quantidade", nullable = false, columnDefinition = "integer default 0")
+    @Column(name = "nr_quantidade", nullable = false, columnDefinition = "integer default 1")
     private Integer quantidade;
     @Column(name = "ds_hora", length = 5, nullable = false)
     private String hora;
@@ -58,7 +58,7 @@ public class AgendaHorarios implements Serializable {
         this.subGrupoConvenio = null;
         this.filial = null;
         this.ativo = true;
-        this.quantidade = 0;
+        this.quantidade = 1;
         this.hora = "";
         this.semana = null;
         this.web = true;

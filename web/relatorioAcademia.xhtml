@@ -402,11 +402,12 @@
                     </h:panelGrid>
                     <h:panelGrid columns="3" id="i_btns">
                         <p:commandButton value="Visualizar" icon="ui-icon-print" title="Visualizar" action="#{relatorioAcademiaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
-                        <p:selectBooleanCheckbox itemLabel="Exportar" styleClass="margin-top-max" value="#{jasperBean.EXPORT_TO}" disabled="#{!relatorioAcademiaBean.relatorios.excel}">
+                        <p:selectBooleanCheckbox itemLabel="Exportar" styleClass="margin-top-max" value="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this i_btns" />
                         </p:selectBooleanCheckbox>
                         <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this" />
+                            <f:selectItems value="#{jasperBean.listTypes('pdf')}" />
                             <f:selectItems value="#{jasperBean.listTypes('xls')}" />
                         </p:selectOneMenu>  
                     </h:panelGrid>                                                           

@@ -489,7 +489,7 @@ public class WebAgendamentosBean implements Serializable {
 
     public void loadListObjectAgenda() {
         listObjectAgenda = new ArrayList();
-        List list = new AgendamentosDao().findBy(startDate, endDate, idFilial, null, null, pessoa.getPessoa().getId(), idStatus);
+        List list = new AgendamentosDao().findBy(startDate, endDate, idFilial, null, null, null, pessoa.getPessoa().getId(), idStatus);
         Dao dao = new Dao();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
@@ -515,7 +515,9 @@ public class WebAgendamentosBean implements Serializable {
                     o.get(18),
                     o.get(19),
                     o.get(20),
-                    (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(o.get(6).toString()))
+                    (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(o.get(6).toString())),
+                    o.get(21),
+                    o.get(22)
             );
             listObjectAgenda.add(oa);
         }

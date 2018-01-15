@@ -28,7 +28,7 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Credendiadores" styleClass="fonteHeader" />
+                        <h:outputText value="CREDENCIADOR" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="form_credenciadores">
                             <p:panel styleClass="fundoCinza" style="clear: both">
@@ -47,7 +47,7 @@
                                     
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="#{credenciadoresBean.credenciadores.id eq -1 ? 'Adicionar' : 'Atualizar'}" icon="ui-icon-plus" action="#{credenciadoresBean.salvar()}" update="@form" style="margin-left: 20px" rendered="#{credenciadoresBean.credenciadores.pessoa.id ne -1}">
+                                        <p:commandButton value="#{credenciadoresBean.credenciadores.id eq -1 ? 'Adicionar' : 'Atualizar'}" icon="ui-icon-plus" action="#{credenciadoresBean.salvar()}" update="@form" style="margin-left: 20px" rendered="#{credenciadoresBean.credenciadores.pessoa.id ne -1}"                                         <p:commandButton value="#{credenciadoresBean.credenciadores.id eq -1 ? 'Adicionar' : 'Atualizar'}" icon="ui-icon-plus" action="#{credenciadoresBean.salvar()}" update="@form" style="margin-left: 20px" rendered="#{credenciadoresBean.credenciadores.pessoa.id ne -1}" disabled="#{controleAcessoBean.botaoSalvar}">
                                             <p:confirm header="Credenciador" message="Deseja Realmente #{credenciadoresBean.credenciadores.id eq -1 ? 'adicionar' : 'atualizar'} este credenciador?" icon="ui-icon-alert" />
                                         </p:commandButton>
                                     </p:column>
@@ -75,7 +75,7 @@
                                 </p:column>
                                 
                                 <p:column style="width: 70px; text-align: center">
-                                    <p:commandButton icon="ui-icon-trash" action="#{credenciadoresBean.excluir(linha_credenciadores)}" update="@form">
+                                    <p:commandButton icon="ui-icon-trash" action="#{credenciadoresBean.excluir(linha_credenciadores)}" update="@form" disabled="#{controleAcessoBean.botaoExcluir}">
                                         <p:confirm header="Excluir credenciador" message="Deseja Realmente excluir este credenciador?" icon="ui-icon-alert" />
                                     </p:commandButton>
                                 </p:column>

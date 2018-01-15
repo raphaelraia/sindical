@@ -16,17 +16,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import static javax.print.attribute.standard.ReferenceUriSchemesSupported.HTTPS;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
-import sun.net.www.http.HttpClient;
 
 /**
  *
@@ -102,13 +97,15 @@ public class JuridicaReceitaJSON {
                             GenericaMensagem.warn("Sistema", "Configuração do CNPJ não encontrada!");
                             return null;
                         }
-                        String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?";
+                        // String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?";
+                        String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj/?";
                         query += "cnpj=" + URLEncoder.encode(documento, "UTF-8");
                         query += "&";
                         query += "token=" + URLEncoder.encode(cc.getToken(), "UTF-8");
                         if (cc.getDias() == 0) {
                             query += "&";
-                            query += "ignore_db=" + URLEncoder.encode("true", "UTF-8");
+                            // query += "ignore_db=" + URLEncoder.encode("true", "UTF-8");
+                            query += "ignore_db";
                         }
 
                         // http://ws.hubdodesenvolvedor.com.br/cnpj/
@@ -202,7 +199,7 @@ public class JuridicaReceitaJSON {
                             }
                         }
                         // ERRO PARA FALTA DE CRÉDITOS
-                        if (!statusBoolean.equals("OK")) {
+                        if (statusBoolean.equals("NOK") || statusBoolean.equals("false")) {
                             jro.setStatus(-1);
                             error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!" + message;
                             jro.setMsg(error);
@@ -213,7 +210,7 @@ public class JuridicaReceitaJSON {
                         }
 
                         // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
-                        if (!statusBoolean.equals("OK")) {
+                        if (statusBoolean.equals("NOK") || statusBoolean.equals("false")) {
                             jro.setStatus(-1);
                             jro.setMsg(error.toUpperCase() + " " + message);
 
@@ -233,37 +230,42 @@ public class JuridicaReceitaJSON {
                         }
 
                         JSONObject obj = result;
-                        // JSONObject obj = result.getJSONObject("result");
-//                        String cnaeAtividadePrincipal = "";
-//                        try {
-//                            JSONArray atividade_principal = obj.getJSONArray("atividade_principal");
-//                            cnaeAtividadePrincipal = atividade_principal.getString("text") + " (" + atividade_principal.getString("code") + ")";
-//                            list_cnae.add(atividade_principal.getString("code").replace(".", "").replace("-", ""));
-//                        } catch (JSONException e) {
-//                            if (GenericaSessao.exists("habilitaLog")) {
-//                                GenericaMensagem.warn("JSONException", e.getMessage());
-//                            }
-//                        }
+                        JSONArray atividade_principal;
+                        JSONObject atividade_principal2 = null;
                         String cnaeAtividadePrincipal = "";
                         try {
-                            JSONArray atividade_principal = obj.getJSONArray("atividade_principal");
-                            for (int i = 0; i < atividade_principal.length(); i++) {
-
-                                try {
-                                    JSONObject as = atividade_principal.getJSONObject(i);
-                                    cnaeAtividadePrincipal += as.getString("text") + " (" + as.getString("code") + ") ";
-                                    list_cnae.add(as.getString("code"));
-                                } catch (Exception e) {
-                                    if (GenericaSessao.exists("habilitaLog")) {
-                                        GenericaMensagem.warn("JSONException", e.getMessage());
-                                    }
-                                    break;
+                            try {
+                                obj = result.getJSONObject("result");
+                                atividade_principal2 = obj.getJSONObject("atividade_principal");
+                                cnaeAtividadePrincipal = atividade_principal2.getString("text") + " (" + atividade_principal2.getString("code") + ")";
+                                list_cnae.add(atividade_principal2.getString("code").replace(".", "").replace("-", ""));
+                            } catch (JSONException e) {
+                                if (GenericaSessao.exists("habilitaLog")) {
+                                    GenericaMensagem.warn("JSONException", e.getMessage());
                                 }
                             }
                         } catch (Exception e) {
-                            if (GenericaSessao.exists("habilitaLog")) {
-                                GenericaMensagem.warn("JSONException", e.getMessage());
+                            try {
+                                atividade_principal = obj.getJSONArray("atividade_principal");
+                                for (int i = 0; i < atividade_principal.length(); i++) {
+
+                                    try {
+                                        JSONObject as = atividade_principal.getJSONObject(i);
+                                        cnaeAtividadePrincipal += as.getString("text") + " (" + as.getString("code") + ") ";
+                                        list_cnae.add(as.getString("code"));
+                                    } catch (Exception e2) {
+                                        if (GenericaSessao.exists("habilitaLog")) {
+                                            GenericaMensagem.warn("JSONException", e.getMessage());
+                                        }
+                                        break;
+                                    }
+                                }
+                            } catch (Exception e3) {
+                                if (GenericaSessao.exists("habilitaLog")) {
+                                    GenericaMensagem.warn("JSONException", e.getMessage());
+                                }
                             }
+
                         }
                         String cnaeAtividadeSecundaria = "";
                         try {

@@ -1,5 +1,7 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.associativo.dao.ModeloCarteirinhaCategoriaDao;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "soc_modelo_carteirinha")
@@ -23,19 +26,23 @@ public class ModeloCarteirinha implements java.io.Serializable {
     private String jasper;
     @Column(name = "ds_foto", length = 255)
     private String foto;
+    @Column(name = "is_foto", nullable = false, columnDefinition = "boolean default true")
+    private Boolean fotoCartao;
 
     public ModeloCarteirinha() {
         this.id = -1;
         this.descricao = "";
         this.jasper = "";
         this.foto = null;
+        this.fotoCartao = true;
     }
 
-    public ModeloCarteirinha(Integer id, String descricao, String jasper, String foto) {
+    public ModeloCarteirinha(Integer id, String descricao, String jasper, String foto, Boolean fotoCartao) {
         this.id = id;
         this.descricao = descricao;
         this.jasper = jasper;
         this.foto = foto;
+        this.fotoCartao = fotoCartao;
     }
 
     public Integer getId() {
@@ -69,4 +76,13 @@ public class ModeloCarteirinha implements java.io.Serializable {
     public void setFoto(String foto) {
         this.foto = foto;
     }
+
+    public Boolean getFotoCartao() {
+        return fotoCartao;
+    }
+
+    public void setFotoCartao(Boolean fotoCartao) {
+        this.fotoCartao = fotoCartao;
+    }
+
 }

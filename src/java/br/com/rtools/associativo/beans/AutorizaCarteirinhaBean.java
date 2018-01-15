@@ -96,7 +96,8 @@ public class AutorizaCarteirinhaBean {
             return;
         }
 
-        impressaoCartao.setModeloCarteirinha((ModeloCarteirinha) dao.find(new ModeloCarteirinha(), Integer.valueOf(listaModelo.get(idModelo).getDescription())));
+        impressaoCartao.setFoto(mc.getFotoCartao());
+        impressaoCartao.setModeloCarteirinha(mc);
         impressaoCartao.setUsuario(usuario);
         impressaoCartao.setPessoa(fisica.getPessoa());
 

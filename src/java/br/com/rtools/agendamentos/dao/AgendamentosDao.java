@@ -51,8 +51,8 @@ public class AgendamentosDao extends DB {
             if (!is_socio) {
                 queryString += " AND H.is_socio = false                                         \n";
             }
-            if(is_web) {
-                queryString += " AND func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) > 0 \n";                
+            if (is_web) {
+                queryString += " AND func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) > 0 \n";
             }
             queryString += " ORDER BY H.ds_hora";
             Query query = getEntityManager().createNativeQuery(queryString);
@@ -94,7 +94,7 @@ public class AgendamentosDao extends DB {
      * @param status_id
      * @return
      */
-    public List findBy(String date, String date_end, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Integer pessoa_id, Integer status_id) {
+    public List findBy(String date, String date_end, Integer filial_id, Integer convenio_grupo_id, Integer convenio_sub_grupo_id, Integer convenio_id, Integer pessoa_id, Integer status_id) {
         try {
             List listWhere = new ArrayList();
             String queryString = ""
@@ -105,7 +105,7 @@ public class AgendamentosDao extends DB {
                     + "             STATUS.id AS id_status,                     \n" // 4
                     + "             STATUS.ds_descricao AS status,              \n" // 5
                     + "             ASE.id_agendamento AS id_agendamento,       \n" // 6
-                    + "             S.ds_descricao AS id_servico,               \n" // 7
+                    + "             S.id AS id_servico,                         \n" // 7
                     + "             S.ds_descricao AS servico,                  \n" // 8
                     + "             P.id AS codigo,                             \n" // 9
                     + "             P.ds_nome AS nome,                          \n" // 10
@@ -118,7 +118,9 @@ public class AgendamentosDao extends DB {
                     + "             CONV.ds_nome AS colaborador,                \n" // 17
                     + "             CONV.ds_documento AS colaborador_documento, \n" // 18
                     + "             CSG.id AS id_convenio_sub_grupo,            \n" // 19
-                    + "             CSG.ds_descricao AS convenio_sub_grupo      \n" // 20
+                    + "             CSG.ds_descricao AS convenio_sub_grupo,     \n" // 20
+                    + "             CG.ds_descricao AS convenio_grupo,          \n" // 21
+                    + "             func_valor_servico(P.id, S.id, current_date, 0, 0) AS valor \n" // 22
                     + "        FROM ag_agendamento_servico ASE                  \n"
                     + "  INNER JOIN ag_agendamento A ON A.id = ASE.id_agendamento\n"
                     + "  INNER JOIN ag_agendamento_horario AH ON AH.id_agendamento = ASE.id_agendamento     \n"
@@ -132,6 +134,7 @@ public class AgendamentosDao extends DB {
                     + "  INNER JOIN pes_pessoa FIL ON FIL.id = J.id_pessoa\n"
                     + "  INNER JOIN pes_pessoa CONV ON CONV.id = H.id_convenio\n"
                     + "  INNER JOIN soc_convenio_sub_grupo CSG ON CSG.id = H.id_convenio_sub_grupo\n"
+                    + "  INNER JOIN soc_convenio_grupo CG ON CG.id = CSG.id_grupo_convenio\n"
                     + "   LEFT JOIN seg_usuario U ON U.id = A.id_agendador      \n"
                     + "   LEFT JOIN pes_pessoa PU ON PU.id = U.id_pessoa\n";
             queryString += "WHERE ASE.id_agendamento = A.id \n";
@@ -146,11 +149,14 @@ public class AgendamentosDao extends DB {
             if (filial_id != null) {
                 listWhere.add("H.id_filial = " + filial_id);
             }
-            if (pessoa_id != null) {
+            if (pessoa_id != null && pessoa_id != -1) {
                 listWhere.add("A.id_pessoa = " + pessoa_id);
             }
             if (convenio_id != null) {
                 listWhere.add("CONV.id = " + convenio_id);
+            }
+            if (convenio_grupo_id != null) {
+                listWhere.add("CG.id = " + convenio_grupo_id);
             }
             if (convenio_sub_grupo_id != null) {
                 listWhere.add("CSG.id = " + convenio_sub_grupo_id);
@@ -165,7 +171,7 @@ public class AgendamentosDao extends DB {
                     + "            STATUS.id,                   \n"
                     + "		   STATUS.ds_descricao,         \n"
                     + "		   ASE.id_agendamento,          \n"
-                    + "		   S.ds_descricao,              \n"
+                    + "		   S.id,                        \n"
                     + "		   S.ds_descricao,              \n"
                     + "		   P.id,                        \n"
                     + "		   P.ds_nome,                   \n"
@@ -177,8 +183,11 @@ public class AgendamentosDao extends DB {
                     + "		   CONV.id,                     \n"
                     + "            CONV.ds_nome,                \n"
                     + "            CONV.ds_documento,           \n"
-                    + "            CSG.id,   \n"
-                    + "            CSG.ds_descricao             ";
+                    + "            CSG.id,                      \n"
+                    + "            CSG.ds_descricao,            \n"
+                    + "            CG.ds_descricao,             \n"
+                    + "            func_valor_servico(P.id, S.id, current_date, 0, 0) ";
+            queryString += " ORDER BY A.dt_data, min(H.ds_hora)";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

@@ -314,9 +314,12 @@ public class SocioCarteirinhaDao extends DB {
             // SE NÃO FOR SÓCIO (ACADEMIA)
             listWhere.add("sc.is_ativo = true");
             // QUE POSSUEM FOTOS
-            if (registro.isFotoCartao()) {
-                listWhere.add("(F.ds_foto <> '' OR P.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL))");
-            }
+            listWhere.add("(   F.ds_foto <> '' "
+                    + "     OR ( P.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL) "
+                    + "           OR  MC.is_foto = false "
+                    + "     ) "
+                    + ")"
+            );
 
             if (filial_id != null) {
                 listWhere.add("s.id_filial = " + filial_id + "");

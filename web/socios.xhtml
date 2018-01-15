@@ -373,7 +373,7 @@
                             <h:panelGrid columns="8" style="margin-top: 5px">
                                 <p:column>
                                     <h:outputLabel value="Data Filiação"/><br />
-                                    <p:inputMask value="#{sociosBean.matriculaSocios.emissao}" size="8" mask="99/99/9999" converter="#{isDateStringa}">
+                                    <p:inputMask value="#{sociosBean.matriculaSocios.emissao}" size="8" mask="99/99/9999" converter="#{isDateString}">
                                         <p:ajax event="change" update="@this" />
                                     </p:inputMask>
                                 </p:column>

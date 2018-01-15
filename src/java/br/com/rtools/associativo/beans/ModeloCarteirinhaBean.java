@@ -5,7 +5,6 @@ import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
 import br.com.rtools.associativo.dao.ModeloCarteirinhaCategoriaDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
-import br.com.rtools.associativo.lista.ListModeloCarterinhaCategoria;
 import br.com.rtools.impressao.CartaoSocial;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -14,7 +13,6 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import static br.com.rtools.utilitarios.ImpressaoParaSocios.getConverteNullString;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
@@ -23,7 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -43,20 +40,22 @@ import org.primefaces.event.FileUploadEvent;
 public class ModeloCarteirinhaBean {
 
     private ModeloCarteirinha modeloCarteirinha;
-    private Map<Integer, Integer> categoria_id;
-    private Map<Integer, Integer> rotina_id;
+    private ModeloCarteirinha modeloCarteirinhaEdit;
+    private Integer idCategoria;
+    private Integer idRotina;
     private List<ModeloCarteirinha> listModeloCarteirinha;
     private List<ModeloCarteirinhaCategoria> listModeloCarteirinhaCategoria;
-    private List<ListModeloCarterinhaCategoria> listGeneric;
+    private List<SelectItem> listRotina;
+    private List<SelectItem> listCategoria;
 
     @PostConstruct
     public void init() {
         modeloCarteirinha = new ModeloCarteirinha();
-        categoria_id = new HashMap<>();
-        rotina_id = new HashMap<>();
+        modeloCarteirinhaEdit = new ModeloCarteirinha();
+        idCategoria = null;
+        idRotina = null;
         listModeloCarteirinha = new ArrayList();
         listModeloCarteirinhaCategoria = new ArrayList();
-        listGeneric = new ArrayList();
         loadListModeloCarteirinha();
     }
 
@@ -79,7 +78,6 @@ public class ModeloCarteirinhaBean {
                 modeloCarteirinha.setFoto(null);
                 GenericaMensagem.info("Sucesso", "Registro inserido");
                 loadListModeloCarteirinha();
-                loadListModeloCarteirinhaCategoria();
             } else {
                 GenericaMensagem.warn("Erro", "Ao adicionar registro!");
             }
@@ -87,50 +85,29 @@ public class ModeloCarteirinhaBean {
             if (new Dao().update(modeloCarteirinha, true)) {
                 GenericaMensagem.info("Sucesso", "Registro atualizado");
                 loadListModeloCarteirinha();
-                loadListModeloCarteirinhaCategoria();
             } else {
                 GenericaMensagem.warn("Erro", "Ao atualizar registro!");
             }
         }
     }
 
-    public void saveModeloCarteirinhaCategoria() {
-        saveModeloCarteirinhaCategoria(modeloCarteirinha);
-    }
-
-    public void saveModeloCarteirinhaCategoria(ModeloCarteirinha mc) {
-        Dao dao = new Dao();
+    public void addModeloCarteirinhaCategoria() {
         ModeloCarteirinhaCategoria mcc = new ModeloCarteirinhaCategoria();
-        mcc.setModeloCarteirinha(mc);
-        Integer mc_id = null;
-        Integer pos = null;
-        for (int i = 0; i < listGeneric.size(); i++) {
-            if (listGeneric.get(i).getModelo_categoria_id() == mc.getId()) {
-                if (listGeneric.get(i).getRotina_id() != null) {
-                    mcc.setRotina((Rotina) dao.find(new Rotina(), listGeneric.get(i).getRotina_id()));
-                }
-                if (listGeneric.get(i).getCategoria_id() != null) {
-                    mcc.setCategoria((Categoria) dao.find(new Categoria(), listGeneric.get(i).getCategoria_id()));
-                }
-                mc_id = listGeneric.get(i).getModelo_categoria_id();
-                pos = i;
-                break;
-            }
-        }
-        ModeloCarteirinhaCategoria exists = new SocioCarteirinhaDao().pesquisaModeloCarteirinhaCategoria(mc.getId(), (mcc.getCategoria() == null) ? -1 : mcc.getCategoria().getId(), mcc.getRotina().getId());
+        mcc.setModeloCarteirinha(modeloCarteirinhaEdit);
+        ModeloCarteirinhaCategoria exists = new SocioCarteirinhaDao().pesquisaModeloCarteirinhaCategoria(modeloCarteirinhaEdit.getId(), (idCategoria == null) ? -1 : idCategoria, idRotina);
         if (exists != null) {
             GenericaMensagem.warn("Validação", "Modelo já existe!");
             return;
         }
+        mcc.setRotina((Rotina) new Dao().find(new Rotina(), idRotina));
+        if(idCategoria == null) {
+            mcc.setCategoria(null);
+        } else {
+            mcc.setCategoria((Categoria) new Dao().find(new Categoria(), idCategoria));
+        }
         if (new Dao().save(mcc, true)) {
             GenericaMensagem.info("Sucesso", "Registro adicionado");
-            List<ModeloCarteirinhaCategoria> list = loadListModeloCarteirinhaCategoria(mc_id);
-            if (!list.isEmpty()) {
-                listGeneric.get(pos).setListMCC(new ArrayList());
-                listGeneric.get(pos).setListMCC(list);
-                listGeneric.get(pos).setListCategoria(new ArrayList());
-                listGeneric.get(pos).setListCategoria(listCategoria(mc_id, mcc.getRotina().getId()));
-            }
+            listener("categorias");
         } else {
             GenericaMensagem.warn("Erro", "Ao adicionar registro!");
         }
@@ -141,30 +118,16 @@ public class ModeloCarteirinhaBean {
     }
 
     public void deleteModeloCarteirinha(ModeloCarteirinha mc) {
-        Dao dao = new Dao();
+        listModeloCarteirinhaCategoria = new ArrayList();
+        listModeloCarteirinhaCategoria = new ModeloCarteirinhaCategoriaDao().findByModeloCarteirinha(mc.getId());
         for (int i = 0; i < listModeloCarteirinhaCategoria.size(); i++) {
             new Dao().delete(listModeloCarteirinhaCategoria.get(i), true);
         }
         if (!new Dao().delete(mc, true)) {
             GenericaMensagem.warn("Erro", "Ao remover registro!");
-            dao.rollback();
             return;
         }
         loadListModeloCarteirinha();
-        Integer mc_id = null;
-        Integer pos = null;
-        for (int i = 0; i < listGeneric.size(); i++) {
-            if (listGeneric.get(i).getModelo_categoria_id() == mc.getId()) {
-                mc_id = listGeneric.get(i).getModelo_categoria_id();
-                pos = i;
-                break;
-            }
-        }
-        List<ModeloCarteirinhaCategoria> list = loadListModeloCarteirinhaCategoria(mc_id);
-        if (!list.isEmpty()) {
-            listGeneric.get(pos).setListMCC(new ArrayList());
-            listGeneric.get(pos).setListMCC(list);
-        }
         GenericaMensagem.info("Sucesso", "Registro excluído!");
     }
 
@@ -173,30 +136,22 @@ public class ModeloCarteirinhaBean {
             GenericaMensagem.warn("Erro", "Ao remover registro!");
             return;
         }
-        Integer mc_id = null;
-        Integer pos = null;
-        for (int i = 0; i < listGeneric.size(); i++) {
-            if (listGeneric.get(i).getModelo_categoria_id() == mcc.getModeloCarteirinha().getId()) {
-                mc_id = listGeneric.get(i).getModelo_categoria_id();
-                pos = i;
-                break;
-            }
-        }
-        List<ModeloCarteirinhaCategoria> list = loadListModeloCarteirinhaCategoria(mc_id);
-        if (!list.isEmpty()) {
-            listGeneric.get(pos).setListMCC(new ArrayList());
-            listGeneric.get(pos).setListMCC(list);
-        } else {
-            listGeneric.get(pos).setListMCC(new ArrayList());
-        }
-        listGeneric.get(pos).setListCategoria(new ArrayList());
-        listGeneric.get(pos).setListCategoria(listCategoria(mc_id, mcc.getRotina().getId()));
+        listener("categorias");
         GenericaMensagem.info("Sucesso", "Registro excluído!");
+    }
+
+    public void editCategorias(ModeloCarteirinha mc2) {
+        idRotina = null;
+        idCategoria = null;
+        loadListRotina(mc2.getId());
+        loadListCategoria(mc2.getId(), idRotina);
+        modeloCarteirinhaEdit = new ModeloCarteirinha();
+        modeloCarteirinhaEdit = (ModeloCarteirinha) new Dao().rebind(mc2);
+        loadListModeloCarteirinhaCategoria();
     }
 
     public void edit(ModeloCarteirinha mc) {
         modeloCarteirinha = (ModeloCarteirinha) new Dao().rebind(mc);
-        loadListModeloCarteirinhaCategoria();
     }
 
     public ModeloCarteirinha getModeloCarteirinha() {
@@ -207,92 +162,58 @@ public class ModeloCarteirinhaBean {
         this.modeloCarteirinha = modeloCarteirinha;
     }
 
-    public List<SelectItem> listCategoria(Integer modelo_carteirinha_id, Integer rotina_id) {
-        List<SelectItem> listCategoria = new ArrayList();
-        List<Categoria> list = new ModeloCarteirinhaCategoriaDao().findNotInCategoriaByMCC(modelo_carteirinha_id, rotina_id);
-        if (!list.isEmpty()) {
-            listCategoria.add(new SelectItem(null, "Sem Categoria"));
-            for (int i = 0; i < list.size(); i++) {
-                listCategoria.add(new SelectItem(list.get(i).getId(), list.get(i).getCategoria()));
-            }
-        } else {
-            listCategoria.add(new SelectItem(0, "Nenhuma Categoria encontrada", "0"));
-        }
-        return listCategoria;
-    }
-
-    public List<SelectItem> listRotina(Integer modelo_carteirinha_id) {
-        List<SelectItem> listRotina = new ArrayList();
+    public void loadListRotina(Integer modelo_carteirinha_id) {
+        listRotina = new ArrayList();
         List<Rotina> list = new ArrayList<>();
         list.add((Rotina) new Dao().find(new Rotina(), 170));
         list.add((Rotina) new Dao().find(new Rotina(), 122));
         if (!list.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idRotina = list.get(i).getId();
+                }
                 listRotina.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
             }
         } else {
             listRotina.add(new SelectItem(0, "Nenhuma Rotina encontrada", "0"));
         }
-        return listRotina;
+    }
+
+    public void listener(String tcase) {
+        if (tcase.equals("categorias")) {
+            loadListCategoria(modeloCarteirinha.getId(), idRotina);
+            loadListModeloCarteirinhaCategoria();
+        }
+    }
+
+    public void loadListCategoria(Integer modelo_carteirinha_id, Integer rotina_id) {
+        listCategoria = new ArrayList();
+        List<Categoria> list = new ModeloCarteirinhaCategoriaDao().findNotInCategoriaByMCC(rotina_id);
+        if (!list.isEmpty()) {
+            listCategoria.add(new SelectItem(null, "Sem Categoria"));
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idCategoria = list.get(i).getId();
+                }
+                listCategoria.add(new SelectItem(list.get(i).getId(), list.get(i).getCategoria()));
+            }
+        } else {
+            listCategoria.add(new SelectItem(0, "Nenhuma Categoria encontrada", "0"));
+        }
     }
 
     public void loadListModeloCarteirinha() {
         listModeloCarteirinha = new ArrayList();
         listModeloCarteirinha = new Dao().list(new ModeloCarteirinha());
-        for (int i = 0; i < listModeloCarteirinha.size(); i++) {
-            ListModeloCarterinhaCategoria generic = new ListModeloCarterinhaCategoria();
-            generic.setListRotina(listRotina(listModeloCarteirinha.get(i).getId()));
-            for (int x = 0; x < generic.getListRotina().size(); i++) {
-                generic.setRotina_id((Integer) generic.getListRotina().get(x).getValue());
-                break;
-            }
-            generic.setListCategoria(listRotina(listModeloCarteirinha.get(i).getId()));
-            for (int x = 0; x < generic.getListCategoria().size(); i++) {
-                generic.setCategoria_id((Integer) generic.getListCategoria().get(x).getValue());
-                break;
-            }
-            generic.setModelo_categoria_id(listModeloCarteirinha.get(i).getId());
-            generic.setListCategoria(listCategoria(listModeloCarteirinha.get(i).getId(), generic.getRotina_id()));
-            generic.setListMCC(loadListModeloCarteirinhaCategoria(listModeloCarteirinha.get(i).getId()));
-            listGeneric.add(generic);
-        }
     }
 
     public void loadListModeloCarteirinhaCategoria() {
-        listModeloCarteirinhaCategoria = loadListModeloCarteirinhaCategoria(modeloCarteirinha.getId());
+        loadListModeloCarteirinhaCategoria(modeloCarteirinhaEdit.getId());
     }
 
-    public List loadListModeloCarteirinhaCategoria(Integer modelo_carteirinha_id) {
-        return new ModeloCarteirinhaCategoriaDao().findByModeloCarteirinha(modelo_carteirinha_id);
-
-    }
-
-    public Integer categoria_id(Integer modelo_carteirinha_id) {
-        try {
-            Integer c_id = null;
-            for (Map.Entry<Integer, Integer> entry : categoria_id.entrySet()) {
-                if (Objects.equals(modelo_carteirinha_id, entry.getKey())) {
-                    c_id = entry.getValue();
-                }
-            }
-            return c_id;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public Integer rotina_id(Integer modelo_carteirinha_id) {
-        try {
-            Integer c_id = null;
-            for (Map.Entry<Integer, Integer> entry : rotina_id.entrySet()) {
-                if (Objects.equals(modelo_carteirinha_id, entry.getKey())) {
-                    c_id = entry.getValue();
-                }
-            }
-            return c_id;
-        } catch (Exception e) {
-            return null;
-        }
+    public void loadListModeloCarteirinhaCategoria(Integer modelo_carteirinha_id) {
+        listModeloCarteirinhaCategoria = new ArrayList();
+        listModeloCarteirinhaCategoria = new ModeloCarteirinhaCategoriaDao().findBy(modelo_carteirinha_id, idRotina);
     }
 
     public List<ModeloCarteirinha> getListModeloCarteirinha() {
@@ -309,24 +230,6 @@ public class ModeloCarteirinhaBean {
 
     public void setListModeloCarteirinhaCategoria(List<ModeloCarteirinhaCategoria> listModeloCarteirinhaCategoria) {
         this.listModeloCarteirinhaCategoria = listModeloCarteirinhaCategoria;
-    }
-
-    /**
-     * Lista ModeloCarteirinhaCategoria
-     *
-     * @param modelo_carteirinha_id
-     * @return
-     */
-    public List<ModeloCarteirinhaCategoria> listMCC(Integer modelo_carteirinha_id) {
-        return loadListModeloCarteirinhaCategoria(modelo_carteirinha_id);
-    }
-
-    public List<ListModeloCarterinhaCategoria> getListGeneric() {
-        return listGeneric;
-    }
-
-    public void setListGeneric(List<ListModeloCarterinhaCategoria> listGeneric) {
-        this.listGeneric = listGeneric;
     }
 
     public void upload(FileUploadEvent event) {
@@ -461,7 +364,7 @@ public class ModeloCarteirinhaBean {
             String subreport = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/DEPENDENTES.jasper");
 
             Map map = new HashMap();
-        
+
             String mimeType = "application/pdf";
 
             String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + modeloCarteirinha.getJasper());
@@ -503,4 +406,45 @@ public class ModeloCarteirinhaBean {
 
         }
     }
+
+    public ModeloCarteirinha getModeloCarteirinhaEdit() {
+        return modeloCarteirinhaEdit;
+    }
+
+    public void setModeloCarteirinhaEdit(ModeloCarteirinha modeloCarteirinhaEdit) {
+        this.modeloCarteirinhaEdit = modeloCarteirinhaEdit;
+    }
+
+    public Integer getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(Integer idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+
+    public Integer getIdRotina() {
+        return idRotina;
+    }
+
+    public void setIdRotina(Integer idRotina) {
+        this.idRotina = idRotina;
+    }
+
+    public List<SelectItem> getListRotina() {
+        return listRotina;
+    }
+
+    public void setListRotina(List<SelectItem> listRotina) {
+        this.listRotina = listRotina;
+    }
+
+    public List<SelectItem> getListCategoria() {
+        return listCategoria;
+    }
+
+    public void setListCategoria(List<SelectItem> listCategoria) {
+        this.listCategoria = listCategoria;
+    }
+
 }

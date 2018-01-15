@@ -31,11 +31,7 @@
                                     <p:selectOneMenu value="#{agendaServicoBean.idServico}" filter="true" filterMatchMode="contains"  disabled="#{agendaServicoBean.agendaServico.id ne null}">
                                         <p:ajax event="change" update="@this"  />
                                         <f:selectItems value="#{agendaServicoBean.listServicos}" />
-                                    </p:selectOneMenu>
-                                    <h:outputLabel value="Qtde Horários: " />
-                                    <p:inputText value="#{agendaServicoBean.agendaServico.nrQtdeHorarios}" converter="#{thisNumber}" size="5" styleClass="text-center">
-                                        <p:ajax event="change" update="@this"  />
-                                    </p:inputText>                                    
+                                    </p:selectOneMenu>                                   
                                     <h:outputLabel value="Minutos" />
                                     <p:spinner value="#{agendaServicoBean.agendaServico.nrMinutos}"  min="0" max="360"/>
                                     <h:column />

@@ -28,8 +28,8 @@ public class AgendaServico implements Serializable {
     @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Servicos servico;
-    @Column(name = "nr_qtde_horarios", columnDefinition = "integer default 0", nullable = false)
-    private Integer nrQtdeHorarios;
+//    @Column(name = "nr_qtde_horarios", columnDefinition = "integer default 0", nullable = false)
+//    private Integer nrQtdeHorarios;
     @Column(name = "nr_minutos", columnDefinition = "integer default 0", nullable = false)
     private Integer nrMinutos;
     @Column(name = "is_web", columnDefinition = "boolean default true", nullable = false)
@@ -38,15 +38,13 @@ public class AgendaServico implements Serializable {
     public AgendaServico() {
         this.id = null;
         this.servico = null;
-        this.nrQtdeHorarios = 0;
         this.nrMinutos = 0;
         this.web = true;
     }
 
-    public AgendaServico(Integer id, Servicos servico, Integer nrQtdeHorarios, Integer nrMinutos, Boolean web) {
+    public AgendaServico(Integer id, Servicos servico, Integer nrMinutos, Boolean web) {
         this.id = id;
         this.servico = servico;
-        this.nrQtdeHorarios = nrQtdeHorarios;
         this.nrMinutos = nrMinutos;
         this.web = web;
     }
@@ -65,14 +63,6 @@ public class AgendaServico implements Serializable {
 
     public void setServico(Servicos servico) {
         this.servico = servico;
-    }
-
-    public Integer getNrQtdeHorarios() {
-        return nrQtdeHorarios;
-    }
-
-    public void setNrQtdeHorarios(Integer nrQtdeHorarios) {
-        this.nrQtdeHorarios = nrQtdeHorarios;
     }
 
     public Integer getNrMinutos() {

@@ -145,7 +145,7 @@ public class SociosBean implements Serializable {
     private List<SelectItem> listParcerlasTxInscricao;
     private Lote loteTaxaInscricao;
     private List<Movimento> listMovimentosTaxaInscricao;
-    
+
     private Integer indexCredenciadores;
     private List<SelectItem> listaCredenciadores;
 
@@ -229,7 +229,7 @@ public class SociosBean implements Serializable {
         idSisPeriodo = null;
         valorTaxaInscricao = new Double(0);
         nrParcerlasTxInscricao = 0;
-        
+
         loadListaCredenciadores();
     }
 
@@ -247,19 +247,19 @@ public class SociosBean implements Serializable {
             new File(url_temp).delete();
         }
     }
-    
-    public final void loadListaCredenciadores(){
+
+    public final void loadListaCredenciadores() {
         indexCredenciadores = 0;
         listaCredenciadores = new ArrayList();
-        
+
         List<Credenciadores> result = new CredenciadoresDao().listaCredenciadores();
-        
-        for (int i = 0; i < result.size(); i++){
+
+        for (int i = 0; i < result.size(); i++) {
             listaCredenciadores.add(
                     new SelectItem(i, result.get(i).getPessoa().getNome(), Integer.toString(result.get(i).getId()))
             );
-            
-            if (result.get(i).getPessoa().getId() == 1){
+
+            if (result.get(i).getPessoa().getId() == 1) {
                 indexCredenciadores = i;
             }
         }
@@ -494,10 +494,10 @@ public class SociosBean implements Serializable {
         }
         loadBloqueio();
         loadListMovimentoTaxaMatricula();
-        
+
         loadListaCredenciadores();
-        for (int i = 0; i < listaCredenciadores.size(); i++){
-            if(socios.getMatriculaSocios().getCredenciador().getId() == Integer.parseInt(listaCredenciadores.get(i).getDescription()) ){
+        for (int i = 0; i < listaCredenciadores.size(); i++) {
+            if (socios.getMatriculaSocios().getCredenciador().getId() == Integer.parseInt(listaCredenciadores.get(i).getDescription())) {
                 indexCredenciadores = i;
             }
         }
@@ -1318,8 +1318,8 @@ public class SociosBean implements Serializable {
             }
         }
 
-        matriculaSocios.setCredenciador((Credenciadores)  dao.find(new Credenciadores(), Integer.parseInt(listaCredenciadores.get(indexCredenciadores).getDescription())));
-        
+        matriculaSocios.setCredenciador((Credenciadores) dao.find(new Credenciadores(), Integer.parseInt(listaCredenciadores.get(indexCredenciadores).getDescription())));
+
         if (matriculaSocios.getId()
                 == -1) {
             if (MacFilial.getAcessoFilial().getId() == -1) {
@@ -1541,7 +1541,7 @@ public class SociosBean implements Serializable {
                     + " - Filiação: " + s.getMatriculaSocios().getEmissao()
                     + " - Serviço Pessoa (Desconto em folha: " + s.getServicoPessoa().isDescontoFolha() + " - Dia de Vencimento: " + s.getServicoPessoa().getNrDiaVencimento() + ") "
                     + " - Credenciador " + socios.getMatriculaSocios().getCredenciador().getPessoa().getNome();
-            
+
             GenericaMensagem.info("Sucesso", "Cadastro Atualizado!");
             novoLog.update(beforeUpdate, saveString);
             ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
@@ -2954,22 +2954,23 @@ public class SociosBean implements Serializable {
     }
 
     public String visualizarCarteirinha(boolean alterarValidade) {
-        /*
-         COMENTEI TODO ESSE CÓDIGO PORQUE A PRINCIPIO NA MUDANÇA QUANDO SALVAR O SÓCIO ELE SEMPRE TERÁ CARTEIRINHA
-         EM FASE DE TESTES 22/05/2014 QUINTA-FEIRA -- COMÉRCIO RP -- DEPOIS EXCLUIR COMENTÁRIO
-         */
-        if (registro.isFotoCartao()) {
-            if (socios.getServicoPessoa().getPessoa().getFisica().getFoto() == null || socios.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
-                GenericaMensagem.warn("Validação", "Obrigatório foto do titular!");
-                return null;
-            }
-        }
         SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
         if (modeloc == null) {
             GenericaMensagem.warn("Atenção", "Sócio sem modelo de Carteirinha!");
             return null;
+        }
+
+        /*
+         COMENTEI TODO ESSE CÓDIGO PORQUE A PRINCIPIO NA MUDANÇA QUANDO SALVAR O SÓCIO ELE SEMPRE TERÁ CARTEIRINHA
+         EM FASE DE TESTES 22/05/2014 QUINTA-FEIRA -- COMÉRCIO RP -- DEPOIS EXCLUIR COMENTÁRIO
+         */
+        if (modeloc.getFotoCartao()) {
+            if (socios.getServicoPessoa().getPessoa().getFisica().getFoto() == null || socios.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
+                GenericaMensagem.warn("Validação", "Obrigatório foto do titular!");
+                return null;
+            }
         }
 
         SocioCarteirinha sctitular = dbc.pesquisaCarteirinhaPessoa(socios.getServicoPessoa().getPessoa().getId(), modeloc.getId());
@@ -3025,7 +3026,7 @@ public class SociosBean implements Serializable {
         if (registro.isCarteirinhaDependente() && !listDependentes.isEmpty()) {
             dao.openTransaction();
             for (ListaDependentes ld : listDependentes) {
-                if (registro.isFotoCartao()) {
+                if (modeloc.getFotoCartao()) {
                     if (ld.getServicoPessoa().getPessoa().getFisica().getFoto() == null || ld.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
                         if (!dependentesSemFotos) {
                             dependentesSemFotos = true;

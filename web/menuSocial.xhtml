@@ -119,7 +119,6 @@
                                     <p:menuitem value="Remessa"                    action="#{chamadaPaginaBean.pagina('remessa')}" />
                                     <p:submenu label="Agendamento">
                                         <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
-                                        <p:menuitem value="Cancelamentos"       action="#{chamadaPaginaBean.pagina('cancelamentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
                                         <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
                                     </p:submenu>
                                     <p:menuitem value="Autoriza Repro. Retorno" action="#{chamadaPaginaBean.pagina('autorizaReprocessamentoRetorno')}" />

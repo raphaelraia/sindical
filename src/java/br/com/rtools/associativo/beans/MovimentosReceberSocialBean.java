@@ -1389,16 +1389,21 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public String getTotal() {
-        if (!listaMovimento.isEmpty()) {
-            double soma = 0;
-            for (int i = 0; i < listaMovimento.size(); i++) {
-                if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
-                    soma = Moeda.soma(soma, Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
+        try {
+            if (!listaMovimento.isEmpty()) {
+                double soma = 0;
+                for (int i = 0; i < listaMovimento.size(); i++) {
+                    if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
+                        soma = Moeda.soma(soma, Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
+                    }
                 }
+
+                return Moeda.converteR$Double(soma);
+            } else {
+                return "0,00";
             }
 
-            return Moeda.converteR$Double(soma);
-        } else {
+        } catch (Exception e) {
             return "0,00";
         }
     }

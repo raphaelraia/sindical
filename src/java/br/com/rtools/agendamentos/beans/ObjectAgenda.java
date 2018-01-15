@@ -1,6 +1,8 @@
 package br.com.rtools.agendamentos.beans;
 
 import br.com.rtools.agendamentos.Agendamentos;
+import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.utilitarios.Dao;
 
 public class ObjectAgenda {
 
@@ -26,6 +28,12 @@ public class ObjectAgenda {
     private Object id_convenio_sub_grupo;
     private Object convenio_sub_grupo;
     private Agendamentos agendamentos;
+    private Object convenio_grupo;
+    private Object valor;
+    private Pessoa pessoa;
+    private Boolean selected;
+    private Boolean disabled;
+    private Boolean rendered;
 
     public ObjectAgenda() {
         this.data = null;
@@ -50,6 +58,12 @@ public class ObjectAgenda {
         this.id_convenio_sub_grupo = null;
         this.convenio_sub_grupo = null;
         this.agendamentos = null;
+        this.convenio_grupo = null;
+        this.pessoa = null;
+        this.valor = null;
+        this.selected = false;
+        this.disabled = false;
+        this.rendered = true;
     }
 
     /**
@@ -75,8 +89,9 @@ public class ObjectAgenda {
      * @param colaborador_documento
      * @param id_convenio_sub_grupo
      * @param convenio_sub_grupo
+     * @param convenio_grupo
      */
-    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos) {
+    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos, Object convenio_grupo, Object valor) {
         this.data = data;
         this.horario_inicial = horario_inicial;
         this.horario_final = horario_final;
@@ -99,6 +114,12 @@ public class ObjectAgenda {
         this.id_convenio_sub_grupo = id_convenio_sub_grupo;
         this.convenio_sub_grupo = convenio_sub_grupo;
         this.agendamentos = agendamentos;
+        this.convenio_grupo = convenio_grupo;
+        this.valor = valor;
+        this.pessoa = null;
+        this.selected = false;
+        this.disabled = false;
+        this.rendered = true;
     }
 
     public Object getData() {
@@ -276,5 +297,61 @@ public class ObjectAgenda {
     public void setAgendamentos(Agendamentos agendamentos) {
         this.agendamentos = agendamentos;
     }
+
+    public Object getConvenio_grupo() {
+        return convenio_grupo;
+    }
+
+    public void setConvenio_grupo(Object convenio_grupo) {
+        this.convenio_grupo = convenio_grupo;
+    }
+
+    public Pessoa getPessoa() {
+        if (pessoa == null) {
+            try {
+                if (!codigo.toString().isEmpty()) {
+                    pessoa = (Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(codigo.toString()));
+                }
+            } catch (Exception e) {
+                return null;
+            }
+
+        }
+        return pessoa;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public Boolean getRendered() {
+        return rendered;
+    }
+
+    public void setRendered(Boolean rendered) {
+        this.rendered = rendered;
+    }
+
+    public Object getValor() {
+        return valor;
+    }
+
+    public void setValor(Object valor) {
+        this.valor = valor;
+    }
+    
+    
 
 }

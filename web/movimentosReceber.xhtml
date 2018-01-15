@@ -28,6 +28,8 @@
                     <h:form id="form_movimento_receber">
                         <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('block', '!!! ##### REGISTRO DE BOLETO EM TESTE #### !!!')}" escape="false" rendered="#{imprimirBoleto.teste}" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" escape="false" rendered="#{ movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', movimentosReceberBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty movimentosReceberBean.pessoa.pessoaComplemento.obsAviso}"/>
                             <p:messages autoUpdate="true" closable="true" showDetail="true" showSummary="true" />
                             <p:growl id="id_messages_growl" showDetail="true" showSummary="true" autoUpdate="true" />
                             <h:outputText value="Movimentos a Receber" styleClass="fonteHeader"/>
@@ -43,13 +45,13 @@
                             </h:panelGrid>
                             <h:panelGrid id="tbl" styleClass="margin-top-max no-border">
                                 <p:dataTable value="#{movimentosReceberBean.listMovimentoReceber}" var="listMovimentoReceber" rowIndexVar="index" emptyMessage="Nenhum movimento encontrado!">
-                                    <p:column styleClass="text-center" width="20">
+                                    <p:column styleClass="text-center" width="20" rendered="#{!movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
                                         <f:facet name="header">
-                                            <p:selectBooleanCheckbox  value="#{movimentosReceberBean.marcarTodos}" disabled="#{movimentosReceberBean.listMovimentoReceber.size() == 0}">
+                                            <p:selectBooleanCheckbox  value="#{movimentosReceberBean.marcarTodos}" disabled="#{movimentosReceberBean.listMovimentoReceber.size() == 0 or movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
                                                 <p:ajax event="change" update=":form_movimento_receber:tbl :form_movimento_receber:i_grid_calculo" listener="#{movimentosReceberBean.selectedAll()}"/>
                                             </p:selectBooleanCheckbox>
                                         </f:facet>
-                                        <p:selectBooleanCheckbox value="#{listMovimentoReceber.selected}" >
+                                        <p:selectBooleanCheckbox value="#{listMovimentoReceber.selected}" disabled="#{movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
                                             <p:ajax event="change" update="@this :form_movimento_receber:" global="false" listener="#{movimentosReceberBean.blockAcordo()}"/>
                                         </p:selectBooleanCheckbox>
                                     </p:column>
@@ -69,7 +71,7 @@
                                         <h:outputText value="#{listMovimentoReceber.vencimento}"/>
                                     </p:column>
                                     <p:column headerText="Valor" styleClass="text-center">
-                                        <p:commandLink id="valor_folha" style="text-decoration: underline; color: blue;" value="#{listMovimentoReceber.valorMovimento}" rendered="#{listMovimentoReceber.tipo ne 'Acordo'}" action="#{movimentosReceberBean.carregarFolha}" oncomplete="PF('dlg_folha_empresa').show()" update=":form_movimento_receber:i_folha_empresa" global="false" actionListener="#{movimentosReceberBean.addIndex(index)}" />
+                                        <p:commandLink id="valor_folha" style="text-decoration: underline; color: blue;" value="#{listMovimentoReceber.valorMovimento}" rendered="#{listMovimentoReceber.tipo ne 'Acordo'}" action="#{movimentosReceberBean.carregarFolha}" oncomplete="PF('dlg_folha_empresa').show()" update=":form_movimento_receber:i_folha_empresa" global="false" actionListener="#{movimentosReceberBean.addIndex(index)}" disabled="#{movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}"/>
                                         <h:outputText value="#{listMovimentoReceber.valorMovimento}" rendered="#{listMovimentoReceber.tipo eq 'Acordo'}" />
                                     </p:column>
                                     <p:column headerText="Valor Calculado" styleClass="text-center">
@@ -154,7 +156,7 @@
                                 </p:row>
                             </p:panelGrid>
                             <h:panelGrid columns="5" styleClass="margin-top-max">
-                                <p:commandButton value="Acordo" title="Fazer acordo " action="#{movimentosReceberBean.telaAcordo()}" update=":form_movimento_receber:" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}"/>
+                                <p:commandButton value="Acordo" title="Fazer acordo " action="#{movimentosReceberBean.telaAcordo()}" update=":form_movimento_receber:" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}" disabled="#{movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}"/>
                                 <h:commandLink action="#{movimentosReceberBean.imprimir}" title="Visualizar Boleto " target="_blank" rendered="#{movimentosReceberBean.listMovimentoReceber.size() > 0}">
                                     <p:button value="Visualizar" icon="ui-icon-print" />
                                 </h:commandLink>
