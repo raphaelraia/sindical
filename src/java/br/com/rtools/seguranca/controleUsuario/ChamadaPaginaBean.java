@@ -199,6 +199,11 @@ public class ChamadaPaginaBean implements Serializable {
         return simples(objeto, titulo);
     }
 
+    public synchronized String redirectPage(String page) throws IOException {
+        String redirect = metodoGenerico(2, page);
+        return redirect;
+    }
+
     public void atualizaAcessos(String url) {
         RotinaDao rotinaDao = new RotinaDao();
         AtalhoDao dba = new AtalhoDao();
@@ -2723,7 +2728,7 @@ public class ChamadaPaginaBean implements Serializable {
 
     public String currentPage() {
         Rotina r = new Rotina().get();
-        return r.getCurrentPage();        
+        return r.getCurrentPage();
     }
 
 }

@@ -1,5 +1,8 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.agendamentos.AgendaStatus;
+import br.com.rtools.agendamentos.AgendamentoServico;
+import br.com.rtools.agendamentos.beans.AtendimentosBean;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
@@ -148,9 +151,12 @@ public class EmissaoGuiasBean implements Serializable {
     private Boolean renderedEncaminhamento = false;
     private List<GuiasSuggestions> listGuiasSuggestions;
     private Integer activeIndex;
+    private Rotina rotinaRetorno = null;
+    private List<AgendamentoServico> listAgendamentoServico;
 
     @PostConstruct
     public void init() {
+        rotinaRetorno = null;
         activeIndex = -1;
         estoque = new Estoque();
         filial = MacFilial.getAcessoFilial().getFilial();
@@ -184,46 +190,15 @@ public class EmissaoGuiasBean implements Serializable {
 //         index = new Integer[]{0, 0, 0, 0};
         var = new String[]{"", "", "", "", ""};
         idParceiro = -1;
-
         Rotina r = new Rotina().get();
-        if (r.getId() == 132) {
+        if (r.getId() == 132 || r.getId() == 484) {
             loadListGrupos();
             loadListSubgrupos();
             loadListJuridicas();
             loadListServicos();
         }
-//        Integer idGrupo2 = null;
-//        Integer idSubgrupo2 = null;
-//        Integer idConvenio2 = null;
-//        Integer idServico2 = null;
-//        if (Sessions.exists("egIdGrupo")) {
-//            idGrupo2 = Sessions.getInteger("egIdGrupo");
-//            if (Sessions.exists("egIdSubgrupo")) {
-//                idSubgrupo2 = Sessions.getInteger("egIdSubgrupo");
-//                if (Sessions.exists("egIdConvenio")) {
-//                    idConvenio2 = Sessions.getInteger("egIdConvenio");
-//                    if (Sessions.exists("egIdServico")) {
-//                        idServico2 = Sessions.getInteger("egIdServico");
-//                    }
-//                }
-//            }
-//            if (idConvenio2 == null) {
-//                idSubgrupo2 = null;
-//                idConvenio2 = null;
-//                idServico2 = null;
-//            } else {
-//                idGrupo = idGrupo2;
-//                loadListSubgrupos();
-//                idSubgrupo = idSubgrupo2;
-//                loadListJuridicas();
-//                idConvenio = idConvenio2;
-//                loadListServicos();
-//                idServico = idServico2;
-//            }
-//        }
         if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
             SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
-            //lote.setHistorico(sgc.getObservacao());
             observacao = sgc.getObservacao();
         }
 
@@ -436,7 +411,7 @@ public class EmissaoGuiasBean implements Serializable {
                 }
                 break;
             case "sub_grupo":
-                    //listSelectItem[0] = new ArrayList();
+                //listSelectItem[0] = new ArrayList();
                 listServicos = new ArrayList();
                 listJuridicas = new ArrayList();
                 idServico = null;
@@ -661,6 +636,10 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void addServico() {
+        addServico(true);
+    }
+
+    public void addServico(Boolean renderedDelete) {
         if (!listaMovimento.isEmpty()) {
             if (listaMovimento.get(0).getMovimento().getId() != -1) {
                 GenericaMensagem.warn("Validação", "Emissão concluída!");
@@ -791,45 +770,45 @@ public class EmissaoGuiasBean implements Serializable {
             pessoa_movimento = pessoa;
         }
 
-        listaMovimento.add(
-                new ListMovimentoEmissaoGuias(
-                        new Movimento(
-                                -1,
-                                new Lote(),
-                                servicos.getPlano5(),
-                                pessoa_movimento,
-                                servicos,
-                                null, // BAIXA
-                                (TipoServico) di.find(new TipoServico(), 1), // TIPO SERVICO
-                                null, // ACORDO
-                                valorx, // VALOR
-                                DataHoje.data().substring(3), // REFERENCIA
-                                vencto_ini, // VENCIMENTO
-                                quantidade, // QUANTIDADE
-                                true, // ATIVO
-                                "E", // ES
-                                false, // OBRIGACAO
-                                pessoa_movimento, // PESSOA TITULAR
-                                pessoa, // PESSOA BENEFICIARIO
-                                "", // DOCUMENTO
-                                "", // NR_CTR_BOLETO
-                                vencto_ini, // VENCIMENTO ORIGINAL
-                                0, // DESCONTO ATE VENCIMENTO
-                                0, // CORRECAO
-                                0, // JUROS
-                                0, // MULTA
-                                0,//descontox, // DESCONTO
-                                0, // TAXA
-                                0,//Moeda.multiplicar(quantidade, Moeda.subtracao(valorx, descontox)), // VALOR BAIXA
-                                fTipoDocumento, // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
-                                0, // REPASSE AUTOMATICO
-                                new MatriculaSocios()
-                        ),
-                        Moeda.converteR$Double(Moeda.converteDoubleR$Double(valorx)), // VALOR COM MASCARA
-                        Moeda.converteR$Double(Moeda.converteDoubleR$Double(descontox)), // DESCONTO COM MASCARA
-                        Moeda.converteR$Double(Moeda.multiplicar(quantidade, Moeda.subtracao(valorx, descontox))) // VALOR TOTAL QUANTIDADE * (VALOR-DESCONTO)
-                ));
-
+        ListMovimentoEmissaoGuias lmeg = new ListMovimentoEmissaoGuias(
+                new Movimento(
+                        -1,
+                        new Lote(),
+                        servicos.getPlano5(),
+                        pessoa_movimento,
+                        servicos,
+                        null, // BAIXA
+                        (TipoServico) di.find(new TipoServico(), 1), // TIPO SERVICO
+                        null, // ACORDO
+                        valorx, // VALOR
+                        DataHoje.data().substring(3), // REFERENCIA
+                        vencto_ini, // VENCIMENTO
+                        quantidade, // QUANTIDADE
+                        true, // ATIVO
+                        "E", // ES
+                        false, // OBRIGACAO
+                        pessoa_movimento, // PESSOA TITULAR
+                        pessoa, // PESSOA BENEFICIARIO
+                        "", // DOCUMENTO
+                        "", // NR_CTR_BOLETO
+                        vencto_ini, // VENCIMENTO ORIGINAL
+                        0, // DESCONTO ATE VENCIMENTO
+                        0, // CORRECAO
+                        0, // JUROS
+                        0, // MULTA
+                        0,//descontox, // DESCONTO
+                        0, // TAXA
+                        0,//Moeda.multiplicar(quantidade, Moeda.subtracao(valorx, descontox)), // VALOR BAIXA
+                        fTipoDocumento, // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
+                        0, // REPASSE AUTOMATICO
+                        new MatriculaSocios()
+                ),
+                Moeda.converteR$Double(Moeda.converteDoubleR$Double(valorx)), // VALOR COM MASCARA
+                Moeda.converteR$Double(Moeda.converteDoubleR$Double(descontox)), // DESCONTO COM MASCARA
+                Moeda.converteR$Double(Moeda.multiplicar(quantidade, Moeda.subtracao(valorx, descontox))) // VALOR TOTAL QUANTIDADE * (VALOR-DESCONTO)
+        );
+        lmeg.setRenderedDelete(false);
+        listaMovimento.add(lmeg);
         total = "0";
 
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
@@ -928,13 +907,34 @@ public class EmissaoGuiasBean implements Serializable {
 
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             listaMovimento1.getMovimento().setLote(lote);
-            
+
             // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
             listaMovimento1.getMovimento().getMatriculaSocios();
             if (!di.save(listaMovimento1.getMovimento())) {
                 message = " Erro ao salvar Movimento!";
                 di.rollback();
                 return null;
+            }
+
+            if (rotinaRetorno != null) {
+                if (listAgendamentoServico != null && !listAgendamentoServico.isEmpty()) {
+                    for (int i = 0; i < listAgendamentoServico.size(); i++) {
+                        if (listAgendamentoServico.get(i).getServico().getId() == listaMovimento1.getMovimento().getServicos().getId()) {
+                            listAgendamentoServico.get(i).setMovimento(listaMovimento1.getMovimento());
+                            if (!di.update(listAgendamentoServico.get(i))) {
+                                message = "Erro ao salvar Movimento da Agenda!";
+                                di.rollback();
+                                return null;
+                            }
+                            listAgendamentoServico.get(i).getAgendamento().setAgendaStatus((AgendaStatus) di.find(new AgendaStatus(), 6));
+                            if (!di.update(listAgendamentoServico.get(i).getAgendamento())) {
+                                message = "Erro ao salvar Movimento da Agenda!";
+                                di.rollback();
+                                return null;
+                            }
+                        }
+                    }
+                }
             }
 
             list_log.add("-------------------------------------------------------------------");
@@ -1555,6 +1555,14 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void validaProdutoPesquisa() {
+        if (GenericaSessao.exists("baixa_sucesso")) {
+            GenericaSessao.remove("baixa_sucesso");
+            if (rotinaRetorno != null) {
+                if (rotinaRetorno.getId() == 484) {
+                    ((AtendimentosBean) Sessions.getObject("atendimentosBean")).loadListObjectAgenda();
+                }
+            }
+        }
         if (GenericaSessao.exists("produtoPesquisa")) {
             Produto p = (Produto) GenericaSessao.getObject("produtoPesquisa", true);
             for (Pedido listPedido : listPedidos) {
@@ -1868,6 +1876,22 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void setActiveIndex(Integer activeIndex) {
         this.activeIndex = activeIndex;
+    }
+
+    public Rotina getRotinaRetorno() {
+        return rotinaRetorno;
+    }
+
+    public void setRotinaRetorno(Rotina rotinaRetorno) {
+        this.rotinaRetorno = rotinaRetorno;
+    }
+
+    public List<AgendamentoServico> getListAgendamentoServico() {
+        return listAgendamentoServico;
+    }
+
+    public void setListAgendamentoServico(List<AgendamentoServico> listAgendamentoServico) {
+        this.listAgendamentoServico = listAgendamentoServico;
     }
 
     public class GuiasSuggestions {

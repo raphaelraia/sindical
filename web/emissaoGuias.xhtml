@@ -48,9 +48,9 @@
                                 <h:panelGrid columns="5">
                                     <p:outputLabel value="Nome: " />
                                     <p:inputText id="nomeBene" size="80" value="#{emissaoGuiasBean.pessoa.nome}" readonly="true" />
-                                    <p:commandButton value="Pesquisar" onclick="PF('dlg_tipo_pessoa').show()" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" />
-                                    <p:commandButton value="Local" action="#{emissaoGuiasBean.pesquisaPessoaSindicato}" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" update="form_eg"/>
-                                    <p:commandButton value="Nova Pessoa - Cadastrar" actionListener="#{emissaoGuiasBean.clear(3)}" oncomplete="PF('dlg_cadastro').show()" rendered="#{emissaoGuiasBean.pessoa.id == -1}" icon="ui-icon-circle-plus" style="margin-left: 70px!important" update=":form_eg:i_panel_sem_cadastro"/>
+                                    <p:commandButton value="Pesquisar" onclick="PF('dlg_tipo_pessoa').show()" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
+                                    <p:commandButton value="Local" action="#{emissaoGuiasBean.pesquisaPessoaSindicato}" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" update="form_eg" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
+                                    <p:commandButton value="Nova Pessoa - Cadastrar" actionListener="#{emissaoGuiasBean.clear(3)}" oncomplete="PF('dlg_cadastro').show()" rendered="#{emissaoGuiasBean.pessoa.id == -1}" icon="ui-icon-circle-plus" style="margin-left: 70px!important" update=":form_eg:i_panel_sem_cadastro" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="1" rendered="#{emissaoGuiasBean.socios.id != -1}">
@@ -217,10 +217,11 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <h:panelGrid columns="3" styleClass="margin-top-max">
+                            <h:panelGrid columns="5" styleClass="margin-top-max">
                                 <p:commandButton onclick="PF('dlg_save').show()" value="Salvar" rendered="#{emissaoGuiasBean.lote.id == -1}"  title="Salvar este Lançamento"/>
-                                <p:commandButton action="#{emissaoGuiasBean.listener('force_clean')}" value="Limpar e manter" update=":form_eg:" title="Limpar e manter convênios" rendered="false"/>
-                                <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Limpar" update=":form_eg:" title="Novo Lançamento" />
+                                <p:commandButton action="#{emissaoGuiasBean.listener('force_clean')}" value="Limpar e manter" update=":form_eg:" title="Limpar e manter convênios" rendered="false" />
+                                <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Limpar" update=":form_eg:" title="Novo Lançamento" rendered="#{emissaoGuiasBean.rotinaRetorno eq null}"/>
+                                <p:commandButton action="#{chamadaPaginaBean.back()}" value="Voltar" update=":form_eg:" title="Novo Lançamento" rendered="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
                                 <p:commandButton action="#{emissaoGuiasBean.imprimirEncaminhamento()}" value="Imprimir Encaminhamento" title="Imprimir este Encaminhamento" rendered="#{emissaoGuiasBean.renderedEncaminhamento eq true}" ajax="false"/>
                             </h:panelGrid>                    
 

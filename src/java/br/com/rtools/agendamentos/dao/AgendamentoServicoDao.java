@@ -1,5 +1,6 @@
 package br.com.rtools.agendamentos.dao;
 
+import br.com.rtools.agendamentos.AgendamentoServico;
 import br.com.rtools.agendamentos.Agendamentos;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
@@ -74,6 +75,27 @@ public class AgendamentoServicoDao extends DB {
                     + "      AND A.id_pessoa = " + pessoa_id + "\n";
             Query query = getEntityManager().createNativeQuery(queryString, Agendamentos.class);
             return (Agendamentos) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public AgendamentoServico findBy(Integer agendamento_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT ASE FROM AgendamentoServico AS ASE WHERE ASE.agendamento.id = :agendamento_id");
+            query.setParameter("agendamento_id", agendamento_id);
+            return (AgendamentoServico) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public AgendamentoServico findBy(Integer agendamento_id, Integer servico_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT ASE FROM AgendamentoServico AS ASE WHERE ASE.agendamento.id = :agendamento_id AND ASE.servico.id = :servico_id");
+            query.setParameter("agendamento_id", agendamento_id);
+            query.setParameter("servico_id", servico_id);
+            return (AgendamentoServico) query.getSingleResult();
         } catch (Exception e) {
             return null;
         }

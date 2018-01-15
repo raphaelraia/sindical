@@ -8,12 +8,14 @@ public class ListMovimentoEmissaoGuias {
     private String valor;
     private String desconto;
     private String total;
+    private Boolean renderedDelete;
 
     public ListMovimentoEmissaoGuias() {
         this.movimento = new Movimento();
         this.valor = "0,00";
         this.desconto = "0,00";
         this.total = "0,00";
+        this.renderedDelete = true;
     }
 
     public ListMovimentoEmissaoGuias(Movimento movimento, String valor, String desconto, String total) {
@@ -21,6 +23,7 @@ public class ListMovimentoEmissaoGuias {
         this.valor = valor;
         this.desconto = desconto;
         this.total = total;
+        this.renderedDelete = true;
     }
 
     public Movimento getMovimento() {
@@ -53,6 +56,14 @@ public class ListMovimentoEmissaoGuias {
 
     public void setTotal(String total) {
         this.total = total;
+    }
+
+    public Boolean getRenderedDelete() {
+        return renderedDelete;
+    }
+
+    public void setRenderedDelete(Boolean renderedDelete) {
+        this.renderedDelete = renderedDelete;
     }
 
 }

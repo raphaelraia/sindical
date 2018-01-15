@@ -132,6 +132,9 @@
                                         <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(oa.id_agendamento)}" />
                                     </p:commandButton>
                                 </p:column>
+                                <p:column styleClass="text-center" width="50" headerText="Pago">
+                                    <h:outputLabel value="PAGO" rendered="#{oa.movimento eq null ? false : (oa.movimento.baixa eq null ? false : true)}" />
+                                </p:column>
                                 <p:rowExpansion>
                                     <h:panelGrid columns="4" styleClass="sbb">
                                         <h:column>
@@ -245,7 +248,7 @@
                     <p:dialog widgetVar="dlg_finish_confirm" modal="true" resizable="false" height="100" width="400" header="Concluir este atendimento" closeOnEscape="true">
                         <f:facet name="footer">
                             <h:panelGrid cellspacing="5" columns="2">
-                                <p:commandButton action="#{atendimentosBean.finish()}" value="Confirmar" update=":form_atendimentos:" />
+                                <p:commandButton action="#{atendimentosBean.finish()}" value="Confirmar" update=":form_atendimentos:" ajax="false" immediate="true"/>
                                 <p:commandButton value="Desfazer" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
                             </h:panelGrid>
                         </f:facet>
@@ -264,7 +267,7 @@
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>
-                    <p:dialog widgetVar="dlg_sched_cancel_selecteds" modal="true" resizable="false" height="200" width="600" header="Deseja cancelar este agendamento?" closeOnEscape="true">
+                    <p:dialog widgetVar="dlg_sched_cancel_selecteds" modal="true" resizable="false" height="200" width="600" header="Deseja cancelar este agendamento?" closeOnEscape="true" rendered="false">
                         <h:panelGrid cellspacing="5" columns="1">
                             <p:outputLabel value="Motivo do cancelamento" />
                             <p:inputTextarea rows="3" cols="80" value="#{atendimentosBean.motivoCancelamento}">

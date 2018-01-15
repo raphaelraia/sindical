@@ -10,6 +10,7 @@ import br.com.rtools.agendamentos.Agendamentos;
 import br.com.rtools.agendamentos.dao.AgendaHorarioReservaDao;
 import br.com.rtools.agendamentos.dao.AgendaServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
+import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoConvenio;
@@ -26,8 +27,10 @@ import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.beans.FisicaUtils;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
@@ -46,6 +49,7 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.WSSocket;
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -118,6 +122,7 @@ public class AtendimentosBean implements Serializable {
         listGrupoConvenio = new ArrayList();
         listSubGrupoConvenio = new ArrayList();
         listConvenio = new ArrayList();
+        listObjectAgenda = new ArrayList();
         listStatus = new ArrayList();
 
         idFilial = null;
@@ -149,8 +154,7 @@ public class AtendimentosBean implements Serializable {
         loadLiberaAcessaFilial();
     }
 
-    public String finish() {
-        showModal = true;
+    public String finish() throws IOException {
         GlobalSync.load();
         this.loadListObjectAgenda();
         WSSocket.send("agendamentos_" + ControleUsuarioBean.getCliente().toLowerCase());
@@ -158,19 +162,42 @@ public class AtendimentosBean implements Serializable {
         Pessoa p = null;
         EmissaoGuiasBean emissaoGuiasBean = new EmissaoGuiasBean();
         emissaoGuiasBean.init();
+        emissaoGuiasBean.setRotinaRetorno(new Rotina().get());
+        Integer id_sub_grupo_convenio = null;
+        List<AgendamentoServico> listAS = new ArrayList();
         for (int i = 0; i < listObjectAgenda.size(); i++) {
             if (listObjectAgenda.get(i).getSelected()) {
-                if (p == null) {
-                    emissaoGuiasBean.setPessoa((Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(listObjectAgenda.get(i).getCodigo().toString())));
+                if (id_sub_grupo_convenio == null) {
+                    id_sub_grupo_convenio = Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString());
+                } else {
+                    if (!id_sub_grupo_convenio.equals(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()))) {
+                        Messages.warn("Validação", "Não é possível concluir com grupos e subgrupos diferentes!");
+                        Sessions.remove("emissaoGuiasBean");
+                        return null;
+                    }
                 }
-                list.add(listObjectAgenda.get(i));
-                emissaoGuiasBean.addServico();
+                if (p == null) {
+                    Sessions.put("pessoaPesquisa", (Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(listObjectAgenda.get(i).getCodigo().toString())));
+                    emissaoGuiasBean.getPessoa();
+                    emissaoGuiasBean.setIdGrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
+                    emissaoGuiasBean.loadListGrupos();
+                    emissaoGuiasBean.setIdSubgrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
+                    emissaoGuiasBean.loadListJuridicas();
+                    Juridica j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()));
+                    emissaoGuiasBean.setIdConvenio(j.getId());
+                }
+                emissaoGuiasBean.setIdServico(Integer.parseInt(listObjectAgenda.get(i).getId_servico().toString()));
+                emissaoGuiasBean.listenerEnabledItensPedidoListener();
+                emissaoGuiasBean.addServico(false);
+                listAS.add(new AgendamentoServicoDao().findBy(Integer.parseInt(listObjectAgenda.get(i).getId_agendamento().toString()), Integer.parseInt(listObjectAgenda.get(i).getId_servico().toString())));
+
             }
         }
+        emissaoGuiasBean.setListAgendamentoServico(listAS);
         Sessions.remove("emissaoGuiasBean");
         Sessions.put("emissaoGuiasBean", emissaoGuiasBean);
-        loadListObjectAgenda();
-        return new ChamadaPaginaBean().pesquisa("emissaoGuias");
+        // loadListObjectAgenda();
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).redirectPage("emissaoGuias");
     }
 
     public void cancel() {
@@ -366,7 +393,9 @@ public class AtendimentosBean implements Serializable {
                     o.get(20),
                     (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(o.get(6).toString())),
                     o.get(21),
-                    o.get(22)
+                    o.get(22),
+                    o.get(24),
+                    o.get(25)
             );
             if (Integer.parseInt(oa.getId_status().toString()) == 3 || Integer.parseInt(oa.getId_status().toString()) == 5 || Integer.parseInt(oa.getId_status().toString()) == 6) {
                 oa.setRendered(false);

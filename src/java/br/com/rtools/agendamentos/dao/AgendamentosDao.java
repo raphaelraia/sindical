@@ -120,7 +120,10 @@ public class AgendamentosDao extends DB {
                     + "             CSG.id AS id_convenio_sub_grupo,            \n" // 19
                     + "             CSG.ds_descricao AS convenio_sub_grupo,     \n" // 20
                     + "             CG.ds_descricao AS convenio_grupo,          \n" // 21
-                    + "             func_valor_servico(P.id, S.id, current_date, 0, 0) AS valor \n" // 22
+                    + "             func_valor_servico(P.id, S.id, current_date, 0, 0) AS valor,\n" // 22
+                    + "             CG.id AS id_grupo,                          \n" // 23
+                    + "             ASE.id AS id_agendamento_servico,           \n" // 24
+                    + "             ASE.id_movimento AS id_movimento            \n" // 25
                     + "        FROM ag_agendamento_servico ASE                  \n"
                     + "  INNER JOIN ag_agendamento A ON A.id = ASE.id_agendamento\n"
                     + "  INNER JOIN ag_agendamento_horario AH ON AH.id_agendamento = ASE.id_agendamento     \n"
@@ -186,7 +189,10 @@ public class AgendamentosDao extends DB {
                     + "            CSG.id,                      \n"
                     + "            CSG.ds_descricao,            \n"
                     + "            CG.ds_descricao,             \n"
-                    + "            func_valor_servico(P.id, S.id, current_date, 0, 0) ";
+                    + "            func_valor_servico(P.id, S.id, current_date, 0, 0), \n"
+                    + "            CG.id,                       \n"
+                    + "            ASE.id,                      \n"
+                    + "            ASE.id_movimento             \n";
             queryString += " ORDER BY A.dt_data, min(H.ds_hora)";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
