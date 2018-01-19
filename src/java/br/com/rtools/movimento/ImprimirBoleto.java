@@ -438,6 +438,14 @@ public class ImprimirBoleto implements Serializable {
                 } else {
                     swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper");
                 }
+                
+                if (boletox.getContaCobranca().getLayoutBarrasNovo()){
+                    if (boletox.getBoletoComposto().length() < 17){
+                        GenericaMensagem.error("Atenção", "Número do boleto deve ter 17 dígitos e começar com 14 para layout novo!");
+                        return new byte[0];
+                    }
+                }
+                
                 swap[43] = "";
                 swap[42] = "";
                 double vlOriginal = lista.get(i).getValor();

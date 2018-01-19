@@ -1224,14 +1224,19 @@ public class MatriculaAcademiaBean implements Serializable {
                 List<AcademiaServicoValor> listaAcademiaServicoValor = academiaDao.listaAcademiaServicoValorPorServico(asv.getServicos().getId());
 
                 for (int w = 0; w < listaAcademiaServicoValor.size(); w++) {
-                    String text = "";
-                    List<AcademiaSemana> listaAcademiaSemana = academiaDao.listaAcademiaSemana(listaAcademiaServicoValor.get(w).getId());
-                    for (int i = 0; i < listaAcademiaSemana.size(); i++) {
-                        text += listaAcademiaSemana.get(i).getSemana().getDescricao().substring(0, 3) + ": " + listaAcademiaSemana.get(i).getAcademiaGrade().getHoraInicio() + " às " + listaAcademiaSemana.get(i).getAcademiaGrade().getHoraFim() + " ";
-                        //listaPeriodosGrade.add(new SelectItem(i, text, Integer.toString(listaAcademiaSemana.get(i).getId())));
-                    }
+                    // ALTERADO PELO ROGÉRIO CHAMADO #2276
+//                    String text = "";
+//                    List<AcademiaSemana> listaAcademiaSemana = academiaDao.listaAcademiaSemana(listaAcademiaServicoValor.get(w).getId());
+//                    for (int i = 0; i < listaAcademiaSemana.size(); i++) {
+//                        text += listaAcademiaSemana.get(i).getSemana().getDescricao().substring(0, 3) + ": " + listaAcademiaSemana.get(i).getAcademiaGrade().getHoraInicio() + " às " + listaAcademiaSemana.get(i).getAcademiaGrade().getHoraFim() + " ";
+//                        //listaPeriodosGrade.add(new SelectItem(i, text, Integer.toString(listaAcademiaSemana.get(i).getId())));
+//                    }
 
-                    text = listaAcademiaServicoValor.get(w).getPeriodo().getDescricao() + " - " + text;
+//                    String text = listaAcademiaServicoValor.get(w).getPeriodo().getDescricao() + " - " + text;
+//                    listaPeriodosGrade.add(new SelectItem(w, text, Integer.toString(listaAcademiaServicoValor.get(w).getId())));
+
+                    String text = "Período - " + listaAcademiaServicoValor.get(w).getDescricao();
+                    
                     listaPeriodosGrade.add(new SelectItem(w, text, Integer.toString(listaAcademiaServicoValor.get(w).getId())));
                 }
 
