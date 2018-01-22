@@ -34,7 +34,9 @@ public class AcademiaServicoValor implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_validade")
     private Date validade;
-
+    @Column(name = "ds_descricao", length = 200, nullable = false, columnDefinition = "character varying default ''")
+    private String descricao;
+    
     public AcademiaServicoValor() {
         this.id = -1;
         this.servicos = new Servicos();
@@ -42,15 +44,17 @@ public class AcademiaServicoValor implements Serializable {
         this.formula = "";
         this.numeroParcelas = 0;
         this.validade = new Date();
+        this.descricao = "";
     }
 
-    public AcademiaServicoValor(int id, Servicos servicos, Periodo periodo, String formula, int numeroParcelas, Date validade) {
+    public AcademiaServicoValor(int id, Servicos servicos, Periodo periodo, String formula, int numeroParcelas, Date validade, String descricao) {
         this.id = id;
         this.servicos = servicos;
         this.periodo = periodo;
         this.formula = formula;
         this.numeroParcelas = numeroParcelas;
         this.validade = validade;
+        this.descricao = descricao;
     }
 
     public int getId() {
@@ -107,6 +111,20 @@ public class AcademiaServicoValor implements Serializable {
 
     public void setValidadeString(String validadeString) {
         this.validade = DataHoje.converte(validadeString);
+    }
+
+    /**
+     * @return the descricao
+     */
+    public String getDescricao() {
+        return descricao;
+    }
+
+    /**
+     * @param descricao the descricao to set
+     */
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
 }

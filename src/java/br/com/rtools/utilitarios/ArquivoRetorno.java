@@ -378,6 +378,33 @@ public abstract class ArquivoRetorno {
                                 + linha_segmento.getDataPagamento()
                                 + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
 
+                        String cnpjPagador = linha_segmento.getCnpjPagador();
+                        String cnpjComposto = "";
+
+                        boolean novo_layout_sindical = false;
+                        try {
+                            if (cnpjPagador.isEmpty() || Integer.valueOf(cnpjPagador) == 0) {
+                                cnpjPagador = linha_segmento.getNossoNumero();
+
+                                cnpjComposto
+                                        = cnpjPagador
+                                        + linha_segmento.getDataPagamento()
+                                        + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
+                                
+                                novo_layout_sindical = false;
+                            }
+                        } catch (NumberFormatException e) {
+                            cnpjPagador = linha_segmento.getCnpjPagador();
+                            
+                            // obs. COLOCO "000" DEVIDO AO CASO ( 3 e 4 ) DA QUERY DO ROGÉRIO EXIGIR 16 CARACTERES NO CNPJ PARA PESQUISAR
+                            cnpjComposto
+                                    = "000" + cnpjPagador
+                                    + linha_segmento.getDataPagamento()
+                                    + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
+                            
+                            novo_layout_sindical = true;
+                        }
+
                         movimento = db.pesquisaMovPorNumDocumentoListBaixadoArr(linha_segmento.getNossoNumero(), this.getContaCobranca().getId());
 
                         if (!movimento.isEmpty()) {
@@ -479,7 +506,7 @@ public abstract class ArquivoRetorno {
 
                         // 3 caso VERIFICA SE EXISTE BOLETO PELO CNPJ DA EMPRESA + DATA DE PAGAMENTO + VALOR PAGO BAIXADO ---------------------------
                         // ------------------------------------------------------------------------------------------------------
-                        movimento = db.pesquisaMovPorNumPessoaListBaixado(numeroComposto, this.getContaCobranca().getId());
+                        movimento = db.pesquisaMovPorNumPessoaListBaixado(cnpjComposto, this.getContaCobranca().getId());
 
                         if (!movimento.isEmpty()) {
                             // EXISTE O BOLETO PELO CNPJ DA EMPRESA + DATA DE PAGAMENTO BAIXADO --------------
@@ -488,9 +515,15 @@ public abstract class ArquivoRetorno {
                             continue;
                         }
 
-                        // 4 caso 
+                        // 4 caso VERIFICA SE EXISTE BOLETO PELO CNPJ DA EMPRESA ------------------------------------------------
                         // ------------------------------------------------------------------------------------------------------
-                        List<Juridica> listJuridica = dbJur.pesquisaJuridicaParaRetorno(linha_segmento.getNossoNumero());
+                        // obs. query modelo antigo, futuramente pode apagar quando o layout das sindicais forem todos novos ( deixando apenas a de baixo )
+                        List<Juridica> listJuridica = dbJur.pesquisaJuridicaParaRetorno(cnpjPagador);
+
+                        // obs. query nova para o layout sindical novo
+                        if (listJuridica.isEmpty()) {
+                            listJuridica = dbJur.pesquisaJuridicaParaRetornoComMascara(cnpjPagador);
+                        }
 
                         if (!listJuridica.isEmpty()) {
                             movimento = db.pesquisaMovimentoChaveValor(listJuridica.get(0).getPessoa().getId(), referencia, this.getContaCobranca().getId(), tipoServico.getId());

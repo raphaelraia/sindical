@@ -44,7 +44,11 @@ public class CaixaFederal extends ArquivoRetorno {
 
                     Boolean layout_antigo = true;
 
-                    if (linhas.get(0).substring(33, 38).equals(super.getContaCobranca().getSicasSindical())) {
+                    if (linhas.get(0).substring(33, 38).equals(super.getContaCobranca().getSicasSindical()) && linhas.get(0).substring(58, 65).equals(cod_cedente)) {
+                        objeto_arquivo.setCodigoCedente(linhas.get(0).substring(58, 65));
+                        layout_antigo = false;
+                        objeto_arquivo.setArquivoComErro(false);
+                    } else if (linhas.get(0).substring(33, 38).equals(super.getContaCobranca().getSicasSindical())) {
                         objeto_arquivo.setCodigoCedente(linhas.get(0).substring(33, 38));
                         layout_antigo = true;
                         objeto_arquivo.setArquivoComErro(false);
@@ -183,7 +187,7 @@ public class CaixaFederal extends ArquivoRetorno {
 
                             // SEGMENTO T
                             if (linhas.get(i).substring(13, 14).equals("T")) {
-                                linha_segmento.setNossoNumero(linhas.get(i).substring(134, 149));
+                                linha_segmento.setNossoNumero(linhas.get(i).substring(40, 57));
                                 linha_segmento.setValorTaxa(linhas.get(i).substring(199, 214));
                                 linha_segmento.setDataVencimento(linhas.get(i).substring(74, 82));
                                 // VERIFICA VENCIMENTO VÁLIDO
@@ -231,6 +235,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                 linha_segmento.setValorCredito(linhas.get(i).substring(101, 116));
                                 linha_segmento.setDataPagamento(linhas.get(i).substring(146, 154));
                                 linha_segmento.setDataCredito(linhas.get(i).substring(154, 162));
+                                linha_segmento.setCnpjPagador(linhas.get(i).substring(175, 189));
 
                                 int vlPg = 0;
                                 int vlCr = 0;
@@ -257,7 +262,7 @@ public class CaixaFederal extends ArquivoRetorno {
                         // FOOTER LOTE
                         // FOOTER ARQUIVO
                     }
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     ObjetoRetorno objeto_retorno = new ObjetoRetorno(new ArrayList(), e.getMessage());
                     lista_objeto_retorno.add(objeto_retorno);
                     new Dao().delete(retorno, true);

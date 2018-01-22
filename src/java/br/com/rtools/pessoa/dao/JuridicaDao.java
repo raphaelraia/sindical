@@ -297,6 +297,30 @@ public class JuridicaDao extends DB {
         }
     }
 
+    public List<Juridica> pesquisaJuridicaParaRetornoComMascara(String documento) {
+        List vetor;
+        List<Juridica> listJur = new ArrayList();
+        String textQuery = "";
+        try {
+            textQuery
+                    = "SELECT jur.id \n "
+                    + "  FROM pes_juridica jur \n "
+                    + " INNER JOIN pes_pessoa pes ON pes.id = jur.id_pessoa \n "
+                    + " WHERE pes.ds_documento = '" + AnaliseString.mascaraCnpj(documento) + "'";
+
+            Query qry = getEntityManager().createNativeQuery(textQuery);
+            vetor = qry.getResultList();
+            if (!vetor.isEmpty()) {
+                for (int i = 0; i < vetor.size(); i++) {
+                    listJur.add((Juridica) new Dao().find(new Juridica(), (Integer) ((Vector) vetor.get(i)).get(0)));
+                }
+            }
+            return listJur;
+        } catch (EJBQLException e) {
+            return listJur;
+        }
+    }
+
     public int quantidadeEmpresas(int idContabilidade) {
         try {
             Query qry = getEntityManager().createQuery("select count(j) from Juridica j"
