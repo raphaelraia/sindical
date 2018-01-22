@@ -105,17 +105,17 @@
                             <p:panel id="i_panel_convenio" header="Empresa Convêniada" styleClass="margin-top-max">
                                 <h:panelGrid id="i_panel_grupos" columns="6">
                                     <p:outputLabel value="Grupo: " />
-                                    <p:selectOneMenu id="idGrupo" value="#{emissaoGuiasBean.idGrupo}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                    <p:selectOneMenu id="idGrupo" value="#{emissaoGuiasBean.idGrupo}" disabled="#{emissaoGuiasBean.lote.id != -1 or emissaoGuiasBean.rotinaRetorno ne null}">
                                         <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.listener('grupo')}"/>
                                         <f:selectItems value="#{emissaoGuiasBean.listGrupos}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Sub Grupo: " />
-                                    <p:selectOneMenu id="idSubGrupo" value="#{emissaoGuiasBean.idSubgrupo}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                    <p:selectOneMenu id="idSubGrupo" value="#{emissaoGuiasBean.idSubgrupo}" disabled="#{emissaoGuiasBean.lote.id != -1 or emissaoGuiasBean.rotinaRetorno ne null}">
                                         <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.listener('sub_grupo')}"/>
                                         <f:selectItems value="#{emissaoGuiasBean.listSubgrupos}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Razão: " />
-                                    <p:selectOneMenu id="idEmpresasConv" value="#{emissaoGuiasBean.idConvenio}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                    <p:selectOneMenu id="idEmpresasConv" value="#{emissaoGuiasBean.idConvenio}" disabled="#{emissaoGuiasBean.lote.id != -1 or emissaoGuiasBean.rotinaRetorno ne null}">
                                         <p:ajax event="change"  update="@this"/>
                                         <f:selectItems value="#{emissaoGuiasBean.listJuridicas}" />
                                     </p:selectOneMenu>
@@ -221,7 +221,7 @@
                                 <p:commandButton onclick="PF('dlg_save').show()" value="Salvar" rendered="#{emissaoGuiasBean.lote.id == -1}"  title="Salvar este Lançamento"/>
                                 <p:commandButton action="#{emissaoGuiasBean.listener('force_clean')}" value="Limpar e manter" update=":form_eg:" title="Limpar e manter convênios" rendered="false" />
                                 <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Limpar" update=":form_eg:" title="Novo Lançamento" rendered="#{emissaoGuiasBean.rotinaRetorno eq null}"/>
-                                <p:commandButton action="#{chamadaPaginaBean.back()}" value="Voltar" update=":form_eg:" title="Novo Lançamento" rendered="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
+                                <p:commandButton action="#{emissaoGuiasBean.back()}" value="Voltar" update=":form_eg:" title="Novo Lançamento" rendered="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
                                 <p:commandButton action="#{emissaoGuiasBean.imprimirEncaminhamento()}" value="Imprimir Encaminhamento" title="Imprimir este Encaminhamento" rendered="#{emissaoGuiasBean.renderedEncaminhamento eq true}" ajax="false"/>
                             </h:panelGrid>                    
 

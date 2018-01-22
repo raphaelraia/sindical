@@ -934,6 +934,8 @@ public class EmissaoGuiasBean implements Serializable {
                             }
                         }
                     }
+                    ((AtendimentosBean) Sessions.getObject("atendimentosBean")).setListObjectAgenda(new ArrayList());
+                    ((AtendimentosBean) Sessions.getObject("atendimentosBean")).loadListObjectAgenda();
                 }
             }
 
@@ -1559,6 +1561,7 @@ public class EmissaoGuiasBean implements Serializable {
             GenericaSessao.remove("baixa_sucesso");
             if (rotinaRetorno != null) {
                 if (rotinaRetorno.getId() == 484) {
+                    ((AtendimentosBean) Sessions.getObject("atendimentosBean")).setListObjectAgenda(new ArrayList());
                     ((AtendimentosBean) Sessions.getObject("atendimentosBean")).loadListObjectAgenda();
                 }
             }
@@ -1892,6 +1895,11 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void setListAgendamentoServico(List<AgendamentoServico> listAgendamentoServico) {
         this.listAgendamentoServico = listAgendamentoServico;
+    }
+
+    public String back() {
+        GenericaSessao.put("linkClicado", true);
+        return rotinaRetorno.getCurrentPage();
     }
 
     public class GuiasSuggestions {

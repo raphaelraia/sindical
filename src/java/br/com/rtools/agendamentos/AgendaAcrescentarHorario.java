@@ -24,7 +24,7 @@ public class AgendaAcrescentarHorario implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @JoinColumn(name = "id_horarios", referencedColumnName = "id")
+    @JoinColumn(name = "id_horario", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     private AgendaHorarios horario;
     @Temporal(TemporalType.DATE)

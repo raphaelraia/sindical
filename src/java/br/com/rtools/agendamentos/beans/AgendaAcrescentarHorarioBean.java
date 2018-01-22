@@ -4,16 +4,12 @@ import br.com.rtools.agendamentos.AgendaAcrescentarHorario;
 import br.com.rtools.agendamentos.AgendaCancelarHorario;
 import br.com.rtools.agendamentos.AgendaHorarios;
 import br.com.rtools.agendamentos.dao.AgendaAcrescentarHorarioDao;
-import br.com.rtools.agendamentos.dao.AgendaCancelarHorarioDao;
 import br.com.rtools.agendamentos.dao.AgendaHorariosDao;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.associativo.dao.GrupoConvenioDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
-import br.com.rtools.homologacao.AcrescentarHorario;
-import br.com.rtools.homologacao.Horarios;
-import br.com.rtools.homologacao.dao.AcrescentarHorarioDao;
 import br.com.rtools.homologacao.dao.HorariosDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
@@ -307,7 +303,6 @@ public class AgendaAcrescentarHorarioBean implements Serializable {
         }
         boolean erro = false;
         List<AgendaHorarios> horarioses = new ArrayList<>();
-        AcrescentarHorarioDao ahd = new AcrescentarHorarioDao();
         AgendaAcrescentarHorario ah = null;
         Usuario u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         dao.openTransaction();

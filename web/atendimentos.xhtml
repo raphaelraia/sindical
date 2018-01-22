@@ -37,13 +37,15 @@
                                         <f:selectItems value="#{atendimentosBean.listStatus}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Data Inicial: " />
-                                    <p:inputMask mask="99/99/9999" value="#{atendimentosBean.startDate}" converter="#{isDateString}">
+                                    <p:calendar mask="99/99/9999" value="#{atendimentosBean.startDate}" pattern="dd/MM/yyyy" navigator="true" locale="pt_BR">
+                                        <p:ajax event="dateSelect" update="@this"/>
                                         <p:ajax event="change" update="@this" />
-                                    </p:inputMask>
+                                    </p:calendar>
                                     <p:outputLabel value="Data Final: " />
-                                    <p:inputMask mask="99/99/9999" value="#{atendimentosBean.endDate}" converter="#{isDateString}">
+                                    <p:calendar mask="99/99/9999" value="#{atendimentosBean.endDate}" pattern="dd/MM/yyyy" navigator="true" locale="pt_BR">
+                                        <p:ajax event="dateSelect" update="@this" />
                                         <p:ajax event="change" update="@this" />
-                                    </p:inputMask>
+                                    </p:calendar>
                                 </h:panelGrid>
                                 <h:panelGrid columns="6" cellspacing="10">
                                     <h:outputLabel value="Grupo Convênio:" />
@@ -62,6 +64,16 @@
                                         <f:selectItems value="#{atendimentosBean.listConvenio}" />
                                     </p:selectOneMenu>
                                 </h:panelGrid>
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-search" value="Pesquisar" id="idPesquisaSocio" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" immediate="true" title="Pesquisar Pessoa" />
+                                    <p:column>
+                                        <h:panelGrid columns="2" cellspacing="5">
+                                            <p:outputLabel value="Pesquisar pessoa" rendered="#{atendimentosBean.pessoa.pessoa.id == -1}" for="idPesquisaSocio" style="border-bottom: 1px dashed #ECF3FE;"/>
+                                            <p:outputLabel value="#{atendimentosBean.pessoa.pessoa.nome}" title="Pessoa" rendered="#{atendimentosBean.pessoa.pessoa.id != -1}"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{atendimentosBean.listener('remove_pessoa')}" update=":form_atendimentos:" rendered="#{atendimentosBean.pessoa.pessoa.id != -1}"/>                                            
+                                        </h:panelGrid>
+                                    </p:column> 
+                                </h:panelGrid>
                                 <hr />
                                 <h:panelGrid cellspacing="5" >
                                     <p:commandButton value="FILTRAR" styleClass="bold" >
@@ -74,9 +86,6 @@
                                         <h:panelGrid cellspacing="5" columns="3" >
                                             <p:commandButton value="Compareceu" >
                                                 <p:ajax oncomplete="PF('dlg_finish_confirm').show()" />                                        
-                                            </p:commandButton>
-                                            <p:commandButton value="Cancelar">
-                                                <p:ajax oncomplete="PF('dlg_sched_cancel').show()" />
                                             </p:commandButton>
                                         </h:panelGrid>
                                     </h:panelGroup>
@@ -127,9 +136,9 @@
                                         <p:ajax oncomplete="PF('dlg_sched').show()" listener="#{atendimentosBean.showSched(oa)}" update=":form_atendimentos:"/>
                                     </p:commandButton>
                                 </p:column>
-                                <p:column styleClass="text-center" width="30" >
+                                <p:column styleClass="text-center" width="30" rendered="false">
                                     <p:commandButton icon="ui-icon-close" rendered="#{oa.id_status eq 1 or oa.id_status eq 4}">
-                                        <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(oa.id_agendamento)}" />
+                                        <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(oa.id_agendamento)}" update=":form_atendimentos:i_motivo_cancelamento" />
                                     </p:commandButton>
                                 </p:column>
                                 <p:column styleClass="text-center" width="50" headerText="Pago">
@@ -172,89 +181,89 @@
                     </p:dialog> 
                     <p:dialog widgetVar="dlg_sched" modal="true" resizable="false" height="400" width="1000" visible="#{atendimentosBean.showModal}" closeOnEscape="true" header="Agendamento">
                         <p:ajax event="close" update=":form_atendimentos:" listener="#{atendimentosBean.listener('close_sched')}" />
-                        <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
-                        <h:panelGrid columns="1" rendered="#{not empty atendimentosBean.objectAgenda.nome}">
-                            <h:column>
-                                <label class="bold font-size-10 font-color-red">#{empty atendimentosBean.objectAgenda.documento ? '' : (('CPF: ').concat(atendimentosBean.objectAgenda.documento))}</label>
-                            </h:column>
-                        </h:panelGrid>
-                        <h:panelGrid columns="3" style="width: 100%">
-                            <h:column>
-                                <label class="bold font-size-12 font-color-blue"> #{atendimentosBean.objectAgenda.nome}</label><label class="font-color-red">(#{atendimentosBean.objectAgenda.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
-                            </h:column>
-                            <h:column rendered="#{atendimentosBean.objectAgenda.pessoa.socios.id ne -1}">
-                                <h:panelGrid columns="6">
-                                    <h:column>Matrícula: #{atendimentosBean.objectAgenda.pessoa.socios.matriculaSocios.nrMatricula}</h:column>
-                                    <h:column>Categoria: #{atendimentosBean.objectAgenda.pessoa.socios.matriculaSocios.categoria.categoria}</h:column>
-                                    <h:column>Filiação: #{atendimentosBean.objectAgenda.pessoa.socios.parentesco.parentesco}</h:column>
-                                </h:panelGrid>
-                            </h:column>
-                        </h:panelGrid>                            
-                        <h:panelGrid columns="6" cellspacing="5" styleClass="margin-top-max">
-                            <p:outputLabel value="Telefone: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.telefone}"/>
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.telefone}" styleClass="bold font-color-blue"/>
-                            <p:outputLabel value="E-mail: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.email}" />
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.email}" styleClass="text-center bold font-color-red" />
-                            <p:outputLabel value="Contato: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.contato}"/>
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.contato}" styleClass="text-center bold"/>
-                        </h:panelGrid>
-                        <h:panelGrid columns="2" cellspacing="5" styleClass="margin-top-max">
-                            <p:outputLabel value="Filial: " />
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.filial} - #{atendimentosBean.objectAgenda.filial_documento}" styleClass="bold"/>
-                            <p:outputLabel value="Emissão: " />
-                            <p:outputLabel value="#{atendimentosBean.agendamento.emissao}" styleClass="text-center bold"/>
-                            <p:outputLabel value="Data:" />
-                            <h:column>
-                                <h:panelGrid columns="8">
-                                    <p:outputLabel value="#{atendimentosBean.objectAgenda.data}" styleClass="bold"/>
-                                    <p:outputLabel value="Horário Inicial: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{atendimentosBean.objectAgenda.horario_inicial}" styleClass="bold"/>                                    
-                                    <p:outputLabel value="Horário Final: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{atendimentosBean.objectAgenda.horario_final}" styleClass="bold"/>
-                                    <p:outputLabel value="Tempo: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{atendimentosBean.objectAgenda.tempo_servico} (min)" styleClass="bold"/>                                    
-                                </h:panelGrid>
-                            </h:column>
-                            <p:outputLabel value="Colaborador: " />
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold" />
-                            <p:outputLabel value="Grupo: " />
-                            <h:column>
-                                <h:panelGrid columns="8">
-                                    <p:outputLabel value="#{atendimentosBean.objectAgenda.convenio_grupo}" styleClass="bold"/>
-                                    <p:outputLabel value="Subgrupo: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{atendimentosBean.objectAgenda.convenio_sub_grupo}" styleClass="bold"/>
-                                </h:panelGrid>
-                            </h:column>
-                            <p:outputLabel value="Serviço:" />
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.servico}" styleClass="text-center bold font-color-blue"/>
-                            <h:outputLabel value="Valor:" styleClass="bold font-size-12"/>
-                            <p:outputLabel value="#{atendimentosBean.objectAgenda.valor}" styleClass="bold bold font-size-14 font-color-blue">
-                                <f:convertNumber type="currency" currencySymbol="R$" />
-                            </p:outputLabel>                            
-                        </h:panelGrid>
-                        <h:panelGrid columns="3">
-
-                        </h:panelGrid>
+                        <h:panelGroup id="i_sched" layout="span">
+                            <p:outputLabel value="Status: #{atendimentosBean.objectAgenda.status}" styleClass="bold font-size-12"/>
+                            <br />
+                            <br />
+                            <p:messages showDetail="true" showSummary="true" />                             
+                            <h:panelGrid columns="1" rendered="#{not empty atendimentosBean.objectAgenda.nome}">
+                                <h:column>
+                                    <label class="bold font-size-10 font-color-red">#{empty atendimentosBean.objectAgenda.documento ? '' : (('CPF: ').concat(atendimentosBean.objectAgenda.documento))}</label>
+                                </h:column>
+                            </h:panelGrid>
+                            <h:panelGrid columns="3" style="width: 100%">
+                                <h:column>
+                                    <label class="bold font-size-12 font-color-blue"> #{atendimentosBean.objectAgenda.nome}</label><label class="font-color-red">(#{atendimentosBean.objectAgenda.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
+                                </h:column>
+                                <h:column rendered="#{atendimentosBean.objectAgenda.pessoa.socios.id ne -1}">
+                                    <h:panelGrid columns="6">
+                                        <h:column>Matrícula: #{atendimentosBean.objectAgenda.pessoa.socios.matriculaSocios.nrMatricula}</h:column>
+                                        <h:column>Categoria: #{atendimentosBean.objectAgenda.pessoa.socios.matriculaSocios.categoria.categoria}</h:column>
+                                        <h:column>Filiação: #{atendimentosBean.objectAgenda.pessoa.socios.parentesco.parentesco}</h:column>
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:panelGrid>                            
+                            <h:panelGrid columns="6" cellspacing="5" styleClass="margin-top-max">
+                                <p:outputLabel value="Telefone: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.telefone}"/>
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.telefone}" styleClass="bold font-color-blue"/>
+                                <p:outputLabel value="E-mail: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.email}" />
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.email}" styleClass="text-center bold font-color-red" />
+                                <p:outputLabel value="Contato: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.contato}"/>
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.contato}" styleClass="text-center bold"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2" cellspacing="5" styleClass="margin-top-max">
+                                <p:outputLabel value="Filial: " />
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.filial} - #{atendimentosBean.objectAgenda.filial_documento}" styleClass="bold"/>
+                                <p:outputLabel value="Emissão: " />
+                                <p:outputLabel value="#{atendimentosBean.agendamento.emissao}" styleClass="text-center bold"/>
+                                <p:outputLabel value="Data:" />
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.data}" styleClass="bold"/>
+                                        <p:outputLabel value="Horário Inicial: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.horario_inicial}" styleClass="bold"/>                                    
+                                        <p:outputLabel value="Horário Final: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.horario_final}" styleClass="bold"/>
+                                        <p:outputLabel value="Tempo: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.tempo_servico} (min)" styleClass="bold"/>                                    
+                                    </h:panelGrid>
+                                </h:column>
+                                <p:outputLabel value="Colaborador: " />
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold" />
+                                <p:outputLabel value="Grupo: " />
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.convenio_grupo}" styleClass="bold"/>
+                                        <p:outputLabel value="Subgrupo: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.convenio_sub_grupo}" styleClass="bold"/>
+                                    </h:panelGrid>
+                                </h:column>
+                                <p:outputLabel value="Serviço:" />
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.servico}" styleClass="text-center bold font-color-blue"/>
+                                <h:outputLabel value="Valor:" styleClass="bold font-size-12"/>
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.valor}" styleClass="bold bold font-size-14 font-color-blue">
+                                    <f:convertNumber type="currency" currencySymbol="R$" />
+                                </p:outputLabel>                            
+                            </h:panelGrid>
+                        </h:panelGroup>
                         <f:facet name="footer">
-                            <h:panelGrid cellspacing="5" columns="3">
+                            <h:panelGrid cellspacing="5" columns="3" id="i_sched_act">
                                 <p:commandButton value="Fechar" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
                                 <p:commandButton value="Compareceu" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}"/>
                                 <p:commandButton value="Cancelar" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}">
-                                    <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(atendimentosBean.objectAgenda.id_agendamento)}" />
+                                    <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(atendimentosBean.objectAgenda.id_agendamento)}" update=":form_atendimentos:i_motivo_cancelamento" />
                                 </p:commandButton>
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>
-                    <p:dialog widgetVar="dlg_finish_confirm" modal="true" resizable="false" height="100" width="400" header="Concluir este atendimento" closeOnEscape="true">
-                        <f:facet name="footer">
-                            <h:panelGrid cellspacing="5" columns="2">
-                                <p:commandButton action="#{atendimentosBean.finish()}" value="Confirmar" update=":form_atendimentos:" ajax="false" immediate="true"/>
-                                <p:commandButton value="Desfazer" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
-                            </h:panelGrid>
-                        </f:facet>
+                    <p:dialog widgetVar="dlg_finish_confirm" modal="true" resizable="false" width="400" header="Concluir este atendimento" closeOnEscape="true">
+                        <h:panelGrid cellspacing="5" columns="2">
+                            <p:commandButton action="#{atendimentosBean.finish()}" value="Confirmar" update=":form_atendimentos:" ajax="false" immediate="true"/>
+                            <p:commandButton value="Desfazer" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
+                        </h:panelGrid>
                     </p:dialog>                    
                     <p:dialog widgetVar="dlg_sched_cancel" modal="true" resizable="false" height="200" width="600" header="Deseja cancelar este agendamento?" closeOnEscape="true">
-                        <h:panelGrid cellspacing="5" columns="1">
+                        <h:panelGrid cellspacing="5" columns="1" id="i_motivo_cancelamento">
                             <p:outputLabel value="Motivo do cancelamento" />
                             <p:inputTextarea rows="3" cols="80" value="#{atendimentosBean.motivoCancelamento}">
                                 <p:ajax event="change" update="@this" />
@@ -262,21 +271,7 @@
                         </h:panelGrid>
                         <f:facet name="footer">                            
                             <h:panelGrid cellspacing="5" columns="2">
-                                <p:commandButton action="#{atendimentosBean.cancel}" value="Confirmar" update=":form_atendimentos:" />
-                                <p:commandButton value="Cancelar" onclick="PF('dlg_sched_cancel').hide()"/>                               
-                            </h:panelGrid>
-                        </f:facet>
-                    </p:dialog>
-                    <p:dialog widgetVar="dlg_sched_cancel_selecteds" modal="true" resizable="false" height="200" width="600" header="Deseja cancelar este agendamento?" closeOnEscape="true" rendered="false">
-                        <h:panelGrid cellspacing="5" columns="1">
-                            <p:outputLabel value="Motivo do cancelamento" />
-                            <p:inputTextarea rows="3" cols="80" value="#{atendimentosBean.motivoCancelamento}">
-                                <p:ajax event="change" update="@this" />
-                            </p:inputTextarea>                            
-                        </h:panelGrid>
-                        <f:facet name="footer">                            
-                            <h:panelGrid cellspacing="5" columns="2">
-                                <p:commandButton action="#{atendimentosBean.cancel}" value="Confirmar" update=":form_atendimentos:" />
+                                <p:commandButton action="#{atendimentosBean.cancel}" value="Confirmar" update=":form_atendimentos:i_sched :form_atendimentos:i_sched_act :form_atendimentos:i_list_agendas" oncomplete="PF('dlg_sched_cancel').hide()"/>
                                 <p:commandButton value="Cancelar" onclick="PF('dlg_sched_cancel').hide()"/>                               
                             </h:panelGrid>
                         </f:facet>

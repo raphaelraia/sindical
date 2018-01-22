@@ -203,8 +203,11 @@ public class AgendaCancelarHorarioBean implements Serializable {
                 calculaQuantidadeDisponivel();
                 break;
             case "change_semana":
-            case "change_horarios":
                 loadListHorarios();
+                loadListHorariosCancelados();
+                calculaQuantidadeDisponivel();
+                break;
+            case "change_horarios":
                 loadListHorariosCancelados();
                 calculaQuantidadeDisponivel();
                 break;
@@ -296,8 +299,8 @@ public class AgendaCancelarHorarioBean implements Serializable {
             return;
         } else {
             dao.commit();
-            if(!listHorariosDisponiveis.isEmpty()) {
-                GenericaMensagem.info("Sucesso", "Horário cancelado com sucesso.");                
+            if (!listHorariosDisponiveis.isEmpty()) {
+                GenericaMensagem.info("Sucesso", "Horário cancelado com sucesso.");
             }
             loadListHorariosDisponiveis();
             sisProcesso.finish();
@@ -665,16 +668,17 @@ public class AgendaCancelarHorarioBean implements Serializable {
             }
         } else if (getTipoCancelamento().equals("Período")) {
             if (habilitaHorarios && habilitaSemana) {
-                if (!listHorariosDisponiveis.isEmpty()) {
-                    // idHorariox = dsHora;
-                    Dao dao = new Dao();
-                    horarios = (AgendaHorarios) dao.find(new AgendaHorarios(), idHorariox);
-                } else {
-                    horarios = new AgendaHorarios();
-                    idHorariosDisponiveis = 0;
-                }
-                if (horarios.getId() != null) {
-                    List<?> list = new AgendaHorariosDao().findByFilial(idFilial, horarios.getHora(), idSemana, idSubGrupoConvenio, idConvenio);
+//                if (!listHorarios.isEmpty()) {
+//                    // idHorariox = dsHora;
+//                    Dao dao = new Dao();
+//                    horarios = (AgendaHorarios) dao.find(new AgendaHorarios(), idHorariox);
+//                } else {
+//                    horarios = new AgendaHorarios();
+//                    idHorario = 0;
+//                }
+                nrQuantidadeDisponivelB = 0;
+                List<?> list = new AgendaHorariosDao().findByFilial(idFilial, dsHora, idSemana, idSubGrupoConvenio, idConvenio);
+                if (!list.isEmpty()) {
                     AgendaHorarios hx = ((List<AgendaHorarios>) list).get(0);
                     if (hx != null) {
                         nrQuantidadeDisponivelB = hx.getQuantidade();
@@ -682,6 +686,8 @@ public class AgendaCancelarHorarioBean implements Serializable {
                         nrQuantidadeDisponivelB = 0;
                     }
                 }
+//                if (horarios != null && horarios.getId() != null) {
+//                }
             }
         }
     }

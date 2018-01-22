@@ -270,13 +270,15 @@
                                     <f:selectItems value="#{agendamentosBean.listStatus}" />
                                 </p:selectOneMenu>
                                 <p:outputLabel value="Data Inicial: " />
-                                <p:inputMask mask="99/99/9999" value="#{agendamentosBean.startDate}" converter="#{isDateString}">
+                                <p:calendar mask="99/99/9999" value="#{agendamentosBean.startDate}" pattern="dd/MM/yyyy" navigator="true" locale="pt_BR">
+                                    <p:ajax event="dateSelect" update="@this"/>
                                     <p:ajax event="change" update="@this" />
-                                </p:inputMask>
+                                </p:calendar>
                                 <p:outputLabel value="Data Final: " />
-                                <p:inputMask mask="99/99/9999" value="#{agendamentosBean.endDate}" converter="#{isDateString}">
+                                <p:calendar mask="99/99/9999" value="#{agendamentosBean.endDate}" pattern="dd/MM/yyyy" navigator="true" locale="pt_BR">
+                                    <p:ajax event="dateSelect" update="@this" />
                                     <p:ajax event="change" update="@this" />
-                                </p:inputMask>
+                                </p:calendar>
                                 <p:commandButton value="FILTRAR" styleClass="bold margin-left-max">
                                     <p:ajax update=":form_agendamentos:i_list_agendas" listener="#{agendamentosBean.listener('load_schedules')}" />
                                 </p:commandButton>
@@ -317,6 +319,9 @@
                                     <h:panelGrid columns="3" styleClass="sbb">
                                         <h:column>
                                             <strong>#</strong>  #{oa.id_agendamento}
+                                        </h:column>
+                                        <h:column>
+                                            <strong>Grupo</strong> #{oa.convenio_grupo}                                            
                                         </h:column>
                                         <h:column>
                                             <strong>Subgrupo Convênio:</strong> #{oa.convenio_sub_grupo}                                            
