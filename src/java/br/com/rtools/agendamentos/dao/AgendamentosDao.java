@@ -147,7 +147,11 @@ public class AgendamentosDao extends DB {
                 listWhere.add("A.dt_data BETWEEN '" + date + "' AND '" + date_end + "'");
             }
             if (status_id != null) {
-                listWhere.add("A.id_status = " + status_id);
+                if(status_id == 1 || status_id == 4) {
+                    listWhere.add("A.id_status IN (1,4) ");                                        
+                } else {
+                    listWhere.add("A.id_status = " + status_id);                    
+                }
             }
             if (filial_id != null) {
                 listWhere.add("H.id_filial = " + filial_id);

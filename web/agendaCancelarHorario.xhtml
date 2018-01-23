@@ -101,7 +101,7 @@
                                             </h:column>
                                             <h:column>
                                                 <p:selectBooleanCheckbox value="#{agendaCancelarHorarioBean.habilitaHorarios}" itemLabel="Habilita horários">
-                                                    <p:ajax event="change" update="@this :form_cancelar_horario_novo:id_tab_periodo :form_cancelar_horario:" listener="#{agendaCancelarHorarioBean.listener('habilita_horarios')}"/>
+                                                     <p:ajax event="change" update="@this :form_cancelar_horario_novo:i_panel_hora :form_cancelar_horario:" listener="#{agendaCancelarHorarioBean.listener('habilita_horarios')}"/>
                                                 </p:selectBooleanCheckbox>
                                             </h:column>
                                         </h:panelGrid>

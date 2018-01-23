@@ -95,7 +95,7 @@ public class AgendaCancelarHorarioDao extends DB {
             String queryString
                     = "     SELECT ACH.*                                        \n"
                     + "       FROM ag_cancelar_horario ACH                      \n"
-                    + " INNER JOIN ag_horarios AS H ON H.id = ACH.id_horarios    \n";
+                    + " INNER JOIN ag_horarios AS H ON H.id = ACH.id_horario    \n";
             if (data_final != null) {
                 int di = DataHoje.converteDataParaInteger(DataHoje.converteData(data_inicial));
                 int df = DataHoje.converteDataParaInteger(DataHoje.converteData(data_final));

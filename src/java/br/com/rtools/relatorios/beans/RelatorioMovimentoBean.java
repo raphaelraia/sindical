@@ -66,6 +66,8 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.UnselectEvent;
 
 @ManagedBean
 @SessionScoped
@@ -131,7 +133,7 @@ public class RelatorioMovimentoBean implements Serializable {
 
     @PostConstruct
     public void init() {
-
+        selectedContabilidade = new ArrayList();
         controlAcesso = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
 
         new Jasper().init();
@@ -278,10 +280,10 @@ public class RelatorioMovimentoBean implements Serializable {
                         List o = (List) l;
                         listaParametro.add(
                                 new ObjectMovimentosResumo(
-                                        o.get(0) != null ? ((Double)o.get(0)).intValue() : null,
-                                        o.get(1) != null ? ((Double)o.get(1)).intValue() : null,
+                                        o.get(0) != null ? ((Double) o.get(0)).intValue() : null,
+                                        o.get(1) != null ? ((Double) o.get(1)).intValue() : null,
                                         o.get(2),
-                                        temPermissaoValor ? o.get(3): 0,
+                                        temPermissaoValor ? o.get(3) : 0,
                                         temPermissaoValorBaixa ? o.get(4) : 0,
                                         temPermissaoValorBaixa ? o.get(5) : 0
                                 )
@@ -294,8 +296,8 @@ public class RelatorioMovimentoBean implements Serializable {
                         List o = (List) l;
                         listaParametro.add(
                                 new ObjectMovimentosResumo(
-                                        o.get(0) != null ? ((Double)o.get(0)).intValue() : null,
-                                        o.get(1) != null ? ((Double)o.get(1)).intValue() : null,
+                                        o.get(0) != null ? ((Double) o.get(0)).intValue() : null,
+                                        o.get(1) != null ? ((Double) o.get(1)).intValue() : null,
                                         o.get(2),
                                         o.get(3),
                                         o.get(4),
@@ -313,8 +315,8 @@ public class RelatorioMovimentoBean implements Serializable {
                         listaParametro.add(
                                 new ObjectMovimentosResumo(
                                         o.get(0),
-                                        o.get(1) != null ? ((Double)o.get(1)).intValue() : null,
-                                        o.get(2) != null ? ((Double)o.get(2)).intValue() : null,
+                                        o.get(1) != null ? ((Double) o.get(1)).intValue() : null,
+                                        o.get(2) != null ? ((Double) o.get(2)).intValue() : null,
                                         o.get(3),
                                         temPermissaoValor ? o.get(4) : 0,
                                         temPermissaoValorBaixa ? o.get(5) : 0,
@@ -826,7 +828,11 @@ public class RelatorioMovimentoBean implements Serializable {
         listContabilidade = new ArrayList<>();
         selectedContabilidade = new ArrayList<>();
         JuridicaDao juridicaDao = new JuridicaDao();
-        listContabilidade = juridicaDao.pesquisaContabilidade();
+        List<Juridica> lj = juridicaDao.pesquisaContabilidade();
+        for (int i = 0; i < lj.size(); i++) {
+            lj.get(i).setContabilidade(null);
+            listContabilidade.add(lj.get(i));
+        }
     }
 
     public void findContabilidade() {
@@ -1140,20 +1146,12 @@ public class RelatorioMovimentoBean implements Serializable {
         this.dataFinal = dataFinal;
     }
 
-    public void setSelectedContabilidade(List<Juridica> selectedContabilidade) {
-        this.selectedContabilidade = selectedContabilidade;
-    }
-
     public String getRadioContabilidade() {
         return radioContabilidade;
     }
 
     public void setRadioContabilidade(String radioContabilidade) {
         this.radioContabilidade = radioContabilidade;
-    }
-
-    public List<Juridica> getSelectedContabilidade() {
-        return selectedContabilidade;
     }
 
     public List<Juridica> getListContabilidadePesquisa() {
@@ -1401,6 +1399,22 @@ public class RelatorioMovimentoBean implements Serializable {
     public void removeFilterDate(DateFilters df) {
         listDateFilters.remove(df);
         loadDates();
+    }
+
+    public List<Juridica> getSelectedContabilidade() {
+        return selectedContabilidade;
+    }
+
+    public void setSelectedContabilidade(List<Juridica> selectedContabilidade) {
+        // this.selectedContabilidade = selectedContabilidade;
+    }
+
+    public void onRowSelect(SelectEvent event) {
+        selectedContabilidade.add((Juridica) event.getObject());
+    }
+
+    public void onRowUnselect(UnselectEvent event) {
+        selectedContabilidade.remove((Juridica) event.getObject());
     }
 
     public class ObjectMovimentosResumo {

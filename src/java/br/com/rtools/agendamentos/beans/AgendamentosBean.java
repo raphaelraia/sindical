@@ -97,8 +97,8 @@ public class AgendamentosBean implements Serializable {
 
     // DATAS
     private Date data;
-    private String startDate;
-    private String endDate;
+    private Date startDate;
+    private Date endDate;
     private String motivoCancelamento;
 
     // BOLEANOS
@@ -478,7 +478,7 @@ public class AgendamentosBean implements Serializable {
     public void loadListObjectAgenda() {
         listObjectAgenda = new ArrayList();
         Dao dao = new Dao();
-        List list = new AgendamentosDao().findBy(startDate, endDate, idFilial, null, idGrupoConvenio, idSubGrupoConvenio, pessoa.getPessoa().getId(), idStatus);
+        List list = new AgendamentosDao().findBy(DataHoje.converteData(startDate), DataHoje.converteData(endDate), idFilial, null, null, null, pessoa.getPessoa().getId(), idStatus);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             ObjectAgenda oa = new ObjectAgenda(
@@ -749,8 +749,8 @@ public class AgendamentosBean implements Serializable {
             case "schedules":
                 schedulesStatus = true;
                 loadListStatus();
-                startDate = DataHoje.converteData(data);
-                endDate = "";
+                startDate = data;
+                endDate = null;
                 loadListObjectAgenda();
                 break;
             case "load_schedules":
@@ -1085,19 +1085,19 @@ public class AgendamentosBean implements Serializable {
         this.schedulesStatus = schedulesStatus;
     }
 
-    public String getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 

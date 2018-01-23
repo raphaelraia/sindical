@@ -196,15 +196,15 @@ public class RelatorioSociosDao extends DB {
                 + "           p.dt_nascimento,                                  \n" // 31
                 + "           p.ds_foto,                                        \n" // 32
                 + "           p.ds_rg,                                          \n" // 33
-                + "           foto,                                             \n" // 34
-                + "           p.logradouro,                                     \n" // 35
-                + "           p.endereco,                                       \n" // 36
-                + "           p.numero,                                         \n" // 37
-                + "           p.complemento,                                    \n" // 38
-                + "           p.bairro,                                         \n" // 39
-                + "           p.cidade,                                         \n" // 40
-                + "           p.uf,                                             \n" // 41
-                + "           p.cep,                                            \n" // 42
+                + "           p.foto,                                           \n" // 34
+                + "           pt.logradouro,                                    \n" // 35
+                + "           pt.endereco,                                      \n" // 36
+                + "           pt.numero,                                        \n" // 37
+                + "           pt.complemento,                                   \n" // 38
+                + "           pt.bairro,                                        \n" // 39
+                + "           pt.cidade,                                        \n" // 40
+                + "           pt.uf,                                            \n" // 41
+                + "           pt.cep,                                           \n" // 42
                 + "           p.setor,                                          \n" // 43
                 + "           p.admissao,                                       \n" // 44
                 + "           p.profissao,                                      \n" // 45
@@ -222,7 +222,7 @@ public class RelatorioSociosDao extends DB {
                 + "           p.e_cep,                                          \n" // 57
                 + "           titular,                                          \n" // 58
                 + "           so.codsocio,                                      \n" // 59
-                + "           pt.ds_nome as titular,                            \n" // 60
+                + "           pt.nome as titular,                               \n" // 60
                 + "           so.parentesco,                                    \n" // 61
                 + "           so.matricula,                                     \n" // 62
                 + "           so.categoria,                                     \n" // 63
@@ -248,7 +248,7 @@ public class RelatorioSociosDao extends DB {
                 + "           SS.dt_final       AS suspencao_final              \n" // 86
                 + "      FROM pes_pessoa_vw      AS p                           \n "
                 + " LEFT JOIN soc_socios_vw      AS so   ON so.codsocio     = p.codigo              \n "
-                + " LEFT JOIN pes_pessoa         AS pt   ON pt.id           = so.titular            \n "
+                + " LEFT JOIN pes_pessoa_vw      AS pt   ON pt.codigo       = so.titular            \n "
                 + " LEFT JOIN demitidos_vw       AS dm   ON dm.id_pessoa = p.codigo                 \n "
                 + " LEFT JOIN soc_suspencao      AS SS   ON SS.id_pessoa = p.codigo \n              \n ";
         if (status.equals("nao_socio")) {
@@ -397,7 +397,7 @@ public class RelatorioSociosDao extends DB {
         }
         // CIDADES SÓCIO  ------------------
         if (in_cidade_socio != null && !in_cidade_socio.isEmpty()) {
-            listWhere.add("p.id_cidade IN(" + in_cidade_socio + ")");
+            listWhere.add("pt.id_cidade IN(" + in_cidade_socio + ")");
         }
         // CIDADES EMPRESA -----------
         if (in_cidade_empresa != null && !in_cidade_empresa.isEmpty()) {

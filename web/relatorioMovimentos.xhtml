@@ -26,7 +26,7 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
                         <h:outputScript name="tradutor_primefaces.js" library="js" />
                         <h:form id="form_relatorio">            
-                             <p:messages autoUpdate="true" closable="true" showDetail="true" />
+                            <p:messages autoUpdate="true" closable="true" showDetail="true" />
                             <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
                             <h:outputText value="Relatório Movimentos" styleClass="fonteHeader" />
                             <div class="clear"></div>
@@ -135,7 +135,9 @@
                                                     </p:column>
                                                     <p:column>
                                                         <h:panelGroup id="tbl_contabil" layout="block">
-                                                            <p:dataTable value="#{relatorioMovimentoBean.listContabilidade}" var="contabilidade" selection="#{relatorioMovimentoBean.selectedContabilidade}" rowKey="#{contabilidade.id}" emptyMessage="Nenhuma Contabilidade foi encontrada!" paginator="true" rows="10">
+                                                            <p:dataTable value="#{relatorioMovimentoBean.listContabilidade}" var="contabilidade" selection="#{relatorioMovimentoBean.selectedContabilidade}" rowKey="#{contabilidade.id}" emptyMessage="Nenhuma Contabilidade foi encontrada!" id="i_tbml_cont" rowSelectMode="checkbox" paginator="true" rows="10">
+                                                                <p:ajax event="rowSelectCheckbox" update="@this :form_relatorio:tbl_contabil" listener="#{relatorioMovimentoBean.onRowSelect}"/>
+                                                                <p:ajax event="rowUnselectCheckbox" update="@this :form_relatorio:tbl_contabil" listener="#{relatorioMovimentoBean.onRowUnselect}"/>
                                                                 <p:column selectionMode="multiple" style="width: 20px" />  
 
                                                                 <p:column headerText="CNPJ" width="100">

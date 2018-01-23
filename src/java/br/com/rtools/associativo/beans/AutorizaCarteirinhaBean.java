@@ -47,7 +47,7 @@ public class AutorizaCarteirinhaBean {
             usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         }
 
-        impressaoCartao.setFoto(((Registro) new Dao().find(new Registro(), 1)).isFotoCartao());
+        impressaoCartao.setFoto(true);
         status = "hoje";
         filter = "";
         query = "";

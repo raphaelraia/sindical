@@ -1,30 +1,23 @@
 package br.com.rtools.agendamentos.beans;
 
 import br.com.rtools.agendamentos.AgendaHorarios;
-import br.com.rtools.agendamentos.AgendaServico;
 import br.com.rtools.agendamentos.AgendaStatus;
 import br.com.rtools.agendamentos.AgendamentoCancelamento;
 import br.com.rtools.agendamentos.AgendamentoHorario;
 import br.com.rtools.agendamentos.AgendamentoServico;
 import br.com.rtools.agendamentos.Agendamentos;
 import br.com.rtools.agendamentos.dao.AgendaHorarioReservaDao;
-import br.com.rtools.agendamentos.dao.AgendaServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
 import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoConvenio;
-import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.associativo.dao.GrupoConvenioDao;
-import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
-import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
-import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -41,11 +34,9 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.GlobalSync;
 import br.com.rtools.utilitarios.Messages;
-import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.WSSocket;
@@ -92,8 +83,8 @@ public class AtendimentosBean implements Serializable {
 
     // DATAS
     private Date data;
-    private String startDate;
-    private String endDate;
+    private Date startDate;
+    private Date endDate;
     private String motivoCancelamento;
 
     // BOLEANOS
@@ -145,8 +136,8 @@ public class AtendimentosBean implements Serializable {
         reservaDao.begin();
         loadListFilial();
         loadListStatus();
-        startDate = DataHoje.converteData(data);
-        endDate = "";
+        startDate = data;
+        endDate = null;
         loadListObjectAgenda();
         loadListGrupoConvenio();
         loadListSubGrupoConvenio();
@@ -165,6 +156,7 @@ public class AtendimentosBean implements Serializable {
         emissaoGuiasBean.setRotinaRetorno(new Rotina().get());
         Integer id_sub_grupo_convenio = null;
         List<AgendamentoServico> listAS = new ArrayList();
+        Sessions.remove("emissaoGuiasBean");
         for (int i = 0; i < listObjectAgenda.size(); i++) {
             if (listObjectAgenda.get(i).getSelected()) {
                 if (id_sub_grupo_convenio == null) {
@@ -179,8 +171,9 @@ public class AtendimentosBean implements Serializable {
                 if (p == null) {
                     Sessions.put("pessoaPesquisa", (Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(listObjectAgenda.get(i).getCodigo().toString())));
                     emissaoGuiasBean.getPessoa();
-                    emissaoGuiasBean.setIdGrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
                     emissaoGuiasBean.loadListGrupos();
+                    emissaoGuiasBean.setIdGrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
+                    emissaoGuiasBean.loadListSubgrupos();
                     emissaoGuiasBean.setIdSubgrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
                     emissaoGuiasBean.loadListJuridicas();
                     Juridica j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()));
@@ -194,7 +187,6 @@ public class AtendimentosBean implements Serializable {
             }
         }
         emissaoGuiasBean.setListAgendamentoServico(listAS);
-        Sessions.remove("emissaoGuiasBean");
         Sessions.put("emissaoGuiasBean", emissaoGuiasBean);
         // loadListObjectAgenda();
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).redirectPage("emissaoGuias");
@@ -228,10 +220,12 @@ public class AtendimentosBean implements Serializable {
         }
         dao.commit();
         Messages.info("Sucesso", "AGENDAMENTO CANCELADO!");
+        listObjectAgenda = new ArrayList();
         loadListObjectAgenda();
         objectAgenda.setId_status(agendamentosEdit.getAgendaStatus().getId());
         objectAgenda.setStatus(agendamentosEdit.getAgendaStatus().getDescricao());
         GlobalSync.load();
+        motivoCancelamento = "";
         WSSocket.send("agendamentos_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
@@ -354,7 +348,7 @@ public class AtendimentosBean implements Serializable {
             if (i == 0) {
                 idStatus = list.get(i).getId();
             }
-            if (list.get(i).getId() != 2) {
+            if (list.get(i).getId() != 2 && list.get(i).getId() != 4) {
                 listStatus.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
         }
@@ -366,7 +360,7 @@ public class AtendimentosBean implements Serializable {
         }
         listObjectAgenda = new ArrayList();
         Dao dao = new Dao();
-        List list = new AgendamentosDao().findBy(startDate, endDate, idFilial, null, idGrupoConvenio, idSubGrupoConvenio, pessoa.getPessoa().getId(), idStatus);
+        List list = new AgendamentosDao().findBy(DataHoje.converteData(startDate), DataHoje.converteData(endDate), idFilial, idGrupoConvenio, idSubGrupoConvenio, idConvenio, pessoa.getPessoa().getId(), idStatus);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             ObjectAgenda oa = new ObjectAgenda(
@@ -394,7 +388,7 @@ public class AtendimentosBean implements Serializable {
                     (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(o.get(6).toString())),
                     o.get(21),
                     o.get(22),
-                    o.get(24),
+                    o.get(23),
                     o.get(25)
             );
             if (Integer.parseInt(oa.getId_status().toString()) == 3 || Integer.parseInt(oa.getId_status().toString()) == 5 || Integer.parseInt(oa.getId_status().toString()) == 6) {
@@ -408,7 +402,9 @@ public class AtendimentosBean implements Serializable {
         listGrupoConvenio = new ArrayList();
         List<GrupoConvenio> list = (List<GrupoConvenio>) new GrupoConvenioDao().findAllToAgendaHorarios();
         listGrupoConvenio.add(new SelectItem(null, "SELECIONAR"));
+        idGrupoConvenio = null;
         idSubGrupoConvenio = null;
+        idConvenio = null;
         for (int i = 0; i < list.size(); i++) {
             listGrupoConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
@@ -421,9 +417,6 @@ public class AtendimentosBean implements Serializable {
         if (idSubGrupoConvenio != null) {
             List<Pessoa> list = (List<Pessoa>) new ConvenioDao().findAllBySubGrupoConvenio(idSubGrupoConvenio);
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idConvenio = list.get(i).getId();
-                }
                 listConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
             }
         }
@@ -436,9 +429,6 @@ public class AtendimentosBean implements Serializable {
         if (idGrupoConvenio != null) {
             List<SubGrupoConvenio> list = new SubGrupoConvenioDao().findAllByGrupoAndAgendamento(idGrupoConvenio);
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idSubGrupoConvenio = list.get(i).getId();
-                }
                 listSubGrupoConvenio.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
         }
@@ -522,7 +512,6 @@ public class AtendimentosBean implements Serializable {
                 loadListConvenio();
                 break;
             case "subgrupo_convenio":
-                loadListSubGrupoConvenio();
                 loadListConvenio();
                 break;
             case "convenio":
@@ -557,12 +546,15 @@ public class AtendimentosBean implements Serializable {
                 break;
             case "schedules":
                 loadListStatus();
-                startDate = DataHoje.converteData(data);
-                endDate = "";
+                startDate = data;
+                endDate = null;
                 loadListObjectAgenda();
                 break;
             case "load_schedules":
                 loadListObjectAgenda();
+                break;
+            case "remove_pessoa":
+                pessoa = new Fisica();
                 break;
 
             default:
@@ -612,10 +604,10 @@ public class AtendimentosBean implements Serializable {
             } else {
                 f = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
             }
-            email = f.getPessoa().getEmail1();
-            telefone = f.getPessoa().getTelefone3();
-            contato = "";
-            listener("new");
+//            email = f.getPessoa().getEmail1();
+//            telefone = f.getPessoa().getTelefone3();
+//            contato = "";
+//            listener("new");
             pessoa = f;
         }
         return pessoa;
@@ -735,19 +727,19 @@ public class AtendimentosBean implements Serializable {
         this.listObjectAgenda = listObjectAgenda;
     }
 
-    public String getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 

@@ -100,8 +100,6 @@ public class Registro implements Serializable {
     private SisEmailProtocolo sisEmailProtocolo;
     @Column(name = "is_validade_barras")
     private boolean validadeBarras;
-    @Column(name = "is_foto_cartao")
-    private boolean fotoCartao;
     @Column(name = "hom_nr_limite_meses", columnDefinition = "integer default 3")
     private int homolocaoLimiteMeses;
     @Column(name = "sis_is_email_marketing", columnDefinition = "boolean default false")
@@ -173,7 +171,6 @@ public class Registro implements Serializable {
         this.sisEmailPorta = 25;
         this.sisEmailProtocolo = new SisEmailProtocolo();
         this.validadeBarras = false;
-        this.fotoCartao = false;
         this.homolocaoLimiteMeses = 3;
         this.sisEmailMarketing = false;
         this.homolocaoHabilitaCorrecao = new Date();
@@ -283,7 +280,6 @@ public class Registro implements Serializable {
         this.sisEmailPorta = sisEmailPorta;
         this.sisEmailProtocolo = sisEmailProtocolo;
         this.validadeBarras = validadeBarras;
-        this.fotoCartao = fotoCartao;
         this.homolocaoLimiteMeses = homolocaoLimiteMeses;
         this.sisEmailMarketing = sisEmailMarketing;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
@@ -652,14 +648,7 @@ public class Registro implements Serializable {
     public void setValidadeBarras(boolean validadeBarras) {
         this.validadeBarras = validadeBarras;
     }
-
-    public boolean isFotoCartao() {
-        return fotoCartao;
-    }
-
-    public void setFotoCartao(boolean fotoCartao) {
-        this.fotoCartao = fotoCartao;
-    }
+ 
 
     public int getHomolocaoLimiteMeses() {
         return homolocaoLimiteMeses;
