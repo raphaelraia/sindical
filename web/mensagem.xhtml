@@ -87,21 +87,47 @@
                                 </h:panelGrid>
                             </p:panel>
                             <br /><br /><br />
-                            <p:panel style="clear: both; border: 0px">
-                                <p:selectOneRadio value="#{mensagemConvencaoBean.processarGrupos}" rendered="#{mensagemConvencaoBean.novox}">
+                            
+                            <h:panelGrid columns="2">
+                                <p:outputLabel value="Tipos de Alteração:" style="font-weight: bold"/>
+                                
+                                <p:selectOneMenu value="#{mensagemConvencaoBean.processarGrupos}" rendered="#{mensagemConvencaoBean.novox}">
+                                    <f:selectItem itemValue="1" itemLabel="Salvar MENSAGEM para todos os Grupos desta Convenção."/>
+                                    <f:selectItem itemValue="2" itemLabel="Salvar MENSAGEM para todas as Convenções deste Grupo."/>
+                                    <f:selectItem itemValue="3" itemLabel="Salvar MENSAGEM para todos os Grupos e Convenções."/>
+                                    
+                                    <f:selectItem itemValue="4" itemLabel="Nenhuma"/>
+                                </p:selectOneMenu>
+                                
+                                <p:selectOneMenu value="#{mensagemConvencaoBean.processarGruposAlterar}" rendered="#{!mensagemConvencaoBean.novox}">
+                                    <f:selectItem itemValue="1" itemLabel="Alterar MENSAGEM para todos os Grupos desta Convenção." itemDisabled="true"/>
+                                    <f:selectItem itemValue="2" itemLabel="Alterar MENSAGEM para todas as Convenções deste Grupo." itemDisabled="true"/>
+                                    <f:selectItem itemValue="3" itemLabel="Alterar MENSAGEM para todos os Grupos e Convenções." />
+                                    
+                                    <f:selectItem itemValue="5" itemLabel="Alterar VENCIMENTO para todos os Grupos desta Convenção." itemDisabled="true"/>
+                                    <f:selectItem itemValue="6" itemLabel="Alterar VENCIMENTO para todas as Convenções deste Grupo." itemDisabled="true"/>
+                                    <f:selectItem itemValue="7" itemLabel="Alterar VENCIMENTO para todos os Grupos e Convenções." />
+                                    
+                                    <f:selectItem itemValue="4" itemLabel="Nenhuma"/>
+                                </p:selectOneMenu>
+                                
+                                <!-- 
+                                <p:selectOneRadio value="# {mensagemConvencaoBean.processarGrupos}" rendered="# {mensagemConvencaoBean.novox}">
                                     <f:selectItem itemValue="1" itemLabel="Salvar para todos os Grupos desta Convenção."/>
                                     <f:selectItem itemValue="2" itemLabel="Salvar para todas as Convenções deste Grupo."/>
                                     <f:selectItem itemValue="3" itemLabel="Salvar para todos os Grupos e Convenções."/>
                                     <f:selectItem itemValue="4" itemLabel="Nenhuma das anteriores."/>
                                 </p:selectOneRadio>
                                 
-                                <p:selectOneRadio value="#{mensagemConvencaoBean.processarGruposAlterar}" rendered="#{!mensagemConvencaoBean.novox}">
+                                <p:selectOneRadio value="# {mensagemConvencaoBean.processarGruposAlterar}" rendered="# {!mensagemConvencaoBean.novox}">
                                     <f:selectItem itemValue="1" itemLabel="Alterar para todos os Grupos desta Convenção." itemDisabled="true"/>
                                     <f:selectItem itemValue="2" itemLabel="Alterar para todas as Convenções deste Grupo." itemDisabled="true"/>
                                     <f:selectItem itemValue="3" itemLabel="Alterar para todos os Grupos e Convenções." />
                                     <f:selectItem itemValue="4" itemLabel="Nenhuma das anteriores."/>
                                 </p:selectOneRadio>
-                            </p:panel>
+                                -->
+                                
+                            </h:panelGrid>
 
                             <h:panelGrid columns="2" style="width: 100%;">
                                 <h:column>
@@ -123,7 +149,8 @@
                             </h:panelGrid>
 
                             <h:panelGrid>
-                                <p:selectBooleanCheckbox value="#{mensagemConvencaoBean.gerarAno}" itemLabel="#{mensagemConvencaoBean.novox ? 'Gerar' : 'Atualizar'} mensagens para todos os meses do ano da referência."/>
+                                <p:selectBooleanCheckbox value="#{mensagemConvencaoBean.gerarAno}" itemLabel="#{mensagemConvencaoBean.novox ? 'Gerar' : 'Atualizar'} MENSAGEM para todos os meses do ano da referência."/>
+                                <p:selectBooleanCheckbox value="#{mensagemConvencaoBean.gerarAnoVencimento}" itemLabel="Atualizar VENCIMENTO para todos os meses do ano da referência." rendered="#{!mensagemConvencaoBean.novox}"/>
                                 <!-- COMENTAR ESTA FUNÇÃO PARA FUTURAMENTE AVALIAR -->
                                 <!-- 
                                 <table border="0" cellpadding="0" cellspacing="0">
@@ -142,11 +169,11 @@
                             </h:panelGrid>
 
                             <p:dataTable value="#{mensagemConvencaoBean.listaMensagens}" var="mensagemConvencao" id="tbl" paginator="true" rows="15" emptyMessage="Nenhuma mensagem encontrada!">
-                                <p:column headerText="ID" style="text-align: center">
+                                <p:column headerText="ID" style="text-align: center; width: 70px">
                                     <p:commandLink ajax="false" value="#{mensagemConvencao.id}" action="#{mensagemConvencaoBean.editar(mensagemConvencao)}" />
                                 </p:column>
 
-                                <p:column headerText="Referência">
+                                <p:column headerText="Referência" style="text-align: center; width: 60px">
                                     <h:outputText value="#{mensagemConvencao.referencia}"/>
                                 </p:column>
 
@@ -154,7 +181,7 @@
                                     <h:outputText value="#{mensagemConvencao.servicos.descricao}"/>
                                 </p:column>
 
-                                <p:column headerText="Tipo">
+                                <p:column headerText="Tipo" style="text-align: center; width: 100px">
                                     <h:outputText value="#{mensagemConvencao.tipoServico.descricao}"/>
                                 </p:column>
 
@@ -166,7 +193,7 @@
                                     <h:outputText value="#{mensagemConvencao.grupoCidade.descricao}"/>
                                 </p:column>
 
-                                <p:column headerText="Vencimento">
+                                <p:column headerText="Vencimento" style="text-align: center; width: 80px">
                                     <h:outputText value="#{mensagemConvencao.vencimento}"/>
                                 </p:column>
                             </p:dataTable>

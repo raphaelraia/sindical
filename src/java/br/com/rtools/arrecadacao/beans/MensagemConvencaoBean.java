@@ -39,6 +39,7 @@ public class MensagemConvencaoBean {
     private boolean disAcordo = false;
     private boolean processarTipoServicos = false;
     private boolean gerarAno = false;
+    private boolean gerarAnoVencimento = false;
     private String vencimento = DataHoje.data();
     private String replicaPara = "";
     private List<SelectItem> listaTipoServico = new ArrayList();
@@ -379,21 +380,41 @@ public class MensagemConvencaoBean {
                     if (men == null || (men.getId() == mensagemConvencao.getId())) {
 
                         switch (processarGruposAlterar) {
-                            //  SALVAR PARA TODOS OS GRUPOS DESTA CONVENÇÃO
+                            //  ALTERAR MENSAGEM PARA TODOS OS GRUPOS DESTA CONVENÇÃO
                             case 1: {
-
+                                // ESTE CASO ESTA DESABILITADO
+                                break;
                             }
-                            // SALVAR PARA TODAS AS CONVENÇÕES DESTE GRUPO
+                            // ALTERAR MENSAGEM PARA TODAS AS CONVENÇÕES DESTE GRUPO
                             case 2: {
-
+                                // ESTE CASO ESTA DESABILITADO
+                                break;
                             }
-                            // SALVAR PARA TODOS OS GRUPOS E CONVENÇÕES
+                            // ALTERAR MENSAGEM PARA TODOS OS GRUPOS E CONVENÇÕES
                             case 3: {
-                                updateMensagem(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), mensagemConvencao.getId(), beforeUpdate);
+                                updateMensagem(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), mensagemConvencao.getId(), beforeUpdate, "mensagem");
+                                break;
+                            }
+
+                            //  ALTERAR VENCIMENTO PARA TODOS OS GRUPOS DESTA CONVENÇÃO
+                            case 5: {
+                                // ESTE CASO ESTA DESABILITADO
+                                break;
+                            }
+                            // ALTERAR VENCIMENTO PARA TODAS AS CONVENÇÕES DESTE GRUPO
+                            case 6: {
+                                // ESTE CASO ESTA DESABILITADO
+                                break;
+                            }
+                            // ALTERAR VENCIMENTO PARA TODOS OS GRUPOS E CONVENÇÕES
+                            case 7: {
+                                updateMensagem(null, null, mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), mensagemConvencao.getId(), beforeUpdate, "vencimento");
+                                break;
                             }
 
                             default: {
-                                updateMensagem(mensagemConvencao.getConvencao().getId(), mensagemConvencao.getGrupoCidade().getId(), mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), null, beforeUpdate);
+                                updateMensagem(mensagemConvencao.getConvencao().getId(), mensagemConvencao.getGrupoCidade().getId(), mensagemConvencao.getServicos().getId(), mensagemConvencao.getTipoServico().getId(), null, beforeUpdate, "");
+                                break;
                             }
                         }
 
@@ -433,13 +454,13 @@ public class MensagemConvencaoBean {
         return null;
     }
 
-    private synchronized void updateMensagem(Integer id_convencao, Integer id_grupo_cidade, Integer id_servico, Integer id_tipo_servico, Integer id_mensagem_cobranca, String beforeUpdate) {
+    private synchronized void updateMensagem(Integer id_convencao, Integer id_grupo_cidade, Integer id_servico, Integer id_tipo_servico, Integer id_mensagem_cobranca, String beforeUpdate, String tipoAlteracao) {
         MensagemConvencaoDao db = new MensagemConvencaoDao();
         String ref = mensagemConvencao.getReferencia();
         int meses = 1;
         //int mes_atual = Integer.parseInt(mensagemConvencao.getReferencia().substring(0, 2));
 
-        if (gerarAno) {
+        if (gerarAno || gerarAnoVencimento) {
             meses = 12;
             ref = "01/" + mensagemConvencao.getReferencia().substring(3);
         }
@@ -448,9 +469,34 @@ public class MensagemConvencaoBean {
 
             List<MensagemConvencao> list = db.listaMensagemConvencaoFiltros(id_convencao, id_grupo_cidade, id_servico, id_tipo_servico, ref, id_mensagem_cobranca);
             for (MensagemConvencao mc : list) {
-                mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
-                mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
-                //mc.setVencimento(mensagemConvencao.getVencimento());
+                switch (tipoAlteracao) {
+                    case "mensagem":
+                        mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
+                        mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
+                        break;
+
+                    case "vencimento":
+                        mc.setVencimento(mensagemConvencao.getVencimento());
+                        break;
+
+                    default:
+                        
+                        if (gerarAno && gerarAnoVencimento) {
+                            mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
+                            mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
+                            mc.setVencimento(mensagemConvencao.getVencimento());
+                        } else if (gerarAno) {
+                            mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
+                            mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
+                        } else if (gerarAnoVencimento) {
+                            mc.setVencimento(mensagemConvencao.getVencimento());
+                        } else {
+                            mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
+                            mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
+                        }
+                        
+                        break;
+                }
 
                 if (!db.update(mc)) {
                     msgConfirma = "Ocorreu um erro ao atualizar!";
@@ -847,5 +893,13 @@ public class MensagemConvencaoBean {
 
     public void setProcessarGruposAlterar(int processarGruposAlterar) {
         this.processarGruposAlterar = processarGruposAlterar;
+    }
+
+    public boolean isGerarAnoVencimento() {
+        return gerarAnoVencimento;
+    }
+
+    public void setGerarAnoVencimento(boolean gerarAnoVencimento) {
+        this.gerarAnoVencimento = gerarAnoVencimento;
     }
 }

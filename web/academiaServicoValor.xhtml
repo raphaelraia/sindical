@@ -167,6 +167,9 @@
                                     <p:column headerText="Serviços" styleClass="text-center">
                                         <p:commandLink value="#{academiaServicoValor.servicos.descricao}" update=":form_academia_servico_valor_novo:id_panel_grade_horarios" action="#{academiaServicoValorBean.edit(academiaServicoValor)}"/>
                                     </p:column>
+                                    <p:column headerText="Descrição">
+                                        <p:commandLink value="#{academiaServicoValor.descricao}" update=":form_academia_servico_valor_novo:id_panel_grade_horarios" action="#{academiaServicoValorBean.edit(academiaServicoValor)}"/>
+                                    </p:column>
                                     <p:column headerText="Período" styleClass="text-center" width="100">
                                         <p:commandLink value="#{academiaServicoValor.periodo.descricao}" update=":form_academia_servico_valor_novo:id_panel_grade_horarios" action="#{academiaServicoValorBean.edit(academiaServicoValor)}"/>
                                     </p:column>
