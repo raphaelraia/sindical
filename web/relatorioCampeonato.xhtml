@@ -24,7 +24,7 @@
         <div id="wrapx">
             <div id="mainx">
                 <!-- INICIA DIV wrap e main -->  
-                <f:subview id="header">
+                <f:subview id="header"> 
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
@@ -48,7 +48,7 @@
 
                             <p:messages autoUpdate="true" closable="true" showDetail="true" />
                             <p:growl autoUpdate="true" showDetail="true" />
- 
+
                             <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max" style="width: 100%!important">
                                 <h:column>
                                     <h:panelGroup layout="block" style="width: 225px; float: left" id="i_panel_avancado">
@@ -124,13 +124,25 @@
                                                 <p:panel header="Campeonato">
                                                     <h:panelGrid columns="2" cellspacing="5">
                                                         <p:selectCheckboxMenu label="Selecionar campeonato" value="#{relatorioCampeonatoBean.selectedCampeonato}" filter="true" filterMatchMode="startsWith">
-                                                            <p:ajax event="toggleSelect" global="false"/>
-                                                            <p:ajax event="change" global="false"/>
+                                                            <p:ajax event="toggleSelect" global="false" update=":form_relatorio:i_equipe" listener="#{relatorioCampeonatoBean.loadListEquipes()}"/>
+                                                            <p:ajax event="change" global="false" update=":form_relatorio:i_equipe" listener="#{relatorioCampeonatoBean.loadListEquipes()}"/>
                                                             <f:selectItems value="#{relatorioCampeonatoBean.listCampeonato}" />
                                                         </p:selectCheckboxMenu>
                                                         <p:commandButton icon="ui-icon-close" action="#{relatorioCampeonatoBean.close('campeonato')}" title="Remover filtro" update="form_relatorio"/>
                                                     </h:panelGrid>
                                                 </p:panel>
+                                                <h:panelGroup id="i_equipe" >
+                                                    <br />
+                                                    <p:panel header="Equipe" rendered="#{relatorioCampeonatoBean.selectedCampeonato ne null and not empty relatorioCampeonatoBean.selectedCampeonato}">
+                                                        <h:panelGrid columns="2" cellspacing="5">
+                                                            <p:selectCheckboxMenu label="Selecionar campeonato" value="#{relatorioCampeonatoBean.selectedEquipe}" filter="true" filterMatchMode="startsWith">
+                                                                <p:ajax event="toggleSelect" global="false"/>
+                                                                <p:ajax event="change" global="false"/>
+                                                                <f:selectItems value="#{relatorioCampeonatoBean.listEquipe}" />
+                                                            </p:selectCheckboxMenu>
+                                                        </h:panelGrid>
+                                                    </p:panel>                                                    
+                                                </h:panelGroup>
                                             </h:column>                                            
                                         </h:panelGrid>                                        
                                     </h:panelGroup>

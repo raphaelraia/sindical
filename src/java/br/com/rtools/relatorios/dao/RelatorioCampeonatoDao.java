@@ -25,7 +25,7 @@ public class RelatorioCampeonatoDao extends DB {
         this.relatorioOrdem = relatorioOrdem;
     }
 
-    public List find(String inModalidades, String inCampeonatos, String status, String statusPagto, String statusCampeonato) {
+    public List find(String inModalidades, String in_campeonatos, String status, String statusPagto, String statusCampeonato, String in_equipes) {
         // CHAMADOS 1192
         if (relatorios == null || relatorios.getId() == null) {
             return new ArrayList();
@@ -132,8 +132,12 @@ public class RelatorioCampeonatoDao extends DB {
                 listWhere.add(" C.id_modalidade IN (" + inModalidades + ")");
             }
             // CAMPEONATOS
-            if (inCampeonatos != null && !inCampeonatos.isEmpty()) {
-                listWhere.add(" C.id_campeonato_agenda IN (" + inCampeonatos + ")");
+            if (in_campeonatos != null && !in_campeonatos.isEmpty()) {
+                listWhere.add(" C.id_campeonato_agenda IN (" + in_campeonatos + ")");
+            }
+            // EQUIPES
+            if (in_equipes != null && !in_equipes.isEmpty()) {
+                listWhere.add(" C.id_equipe IN (" + in_equipes + ")");
             }
             for (int i = 0; i < listWhere.size(); i++) {
                 if (i == 0) {

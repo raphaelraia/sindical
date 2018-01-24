@@ -30,6 +30,15 @@ public class CampeonatoEquipeDao extends DB {
         }
     }
 
+    public List<CampeonatoEquipe> findByCampeonato(String in_campeonato) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CE FROM CampeonatoEquipe CE WHERE CE.campeonato.id IN ( " + in_campeonato + " ) ORDER BY CE.equipe.modalidade.descricao ASC, CE.equipe.descricao ASC");
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List<CampeonatoEquipe> findByModalidade(Integer modalidade_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT CE FROM CampeonatoEquipe CE WHERE CE.campeonato.modalidade.id = :modalidade_id ORDER BY CE.equipe.modalidade.descricao ASC, CE.equipe.descricao ASC");

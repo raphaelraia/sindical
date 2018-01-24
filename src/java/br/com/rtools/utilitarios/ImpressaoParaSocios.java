@@ -204,7 +204,7 @@ public class ImpressaoParaSocios {
                             ((List) (listaCartao.get(i))).get(44)
                     )
             );
-            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP")) {
+            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP") || ControleUsuarioBean.getCliente().equals("MetalRP")) {
                 if (getConverteNullString(((List) (listaCartao.get(i))).get(36)).equals("TITULAR")) {
                     for (int x = 0; x < listax.size(); x++) {
                         MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax.get(x).getMatricula()));

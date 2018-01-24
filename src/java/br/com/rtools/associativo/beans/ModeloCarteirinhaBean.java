@@ -100,7 +100,7 @@ public class ModeloCarteirinhaBean {
             return;
         }
         mcc.setRotina((Rotina) new Dao().find(new Rotina(), idRotina));
-        if(idCategoria == null) {
+        if (idCategoria == null) {
             mcc.setCategoria(null);
         } else {
             mcc.setCategoria((Categoria) new Dao().find(new Categoria(), idCategoria));
@@ -307,6 +307,10 @@ public class ModeloCarteirinhaBean {
                 break;
             }
         }
+        String foto_cartao_string = foto_cartao.getAbsolutePath();
+        if (!new File(foto_cartao.getAbsolutePath()).exists()) {
+            foto_cartao_string = "";
+        }
         Collection list = new ArrayList();
         list.add(
                 new CartaoSocial(
@@ -320,7 +324,7 @@ public class ModeloCarteirinhaBean {
                         "CIDADE", //  CIDADE
                         "UF", //  UF
                         logoCartao, // LOGO
-                        foto_cartao.getAbsolutePath(), // CAMINHO FOTO
+                        foto_cartao_string, // CAMINHO FOTO
                         "01/01/1900", // FILIAÇÃO
                         "PROFISSAO", // PROFISSÃO
                         "000.000.000-00", // CPF

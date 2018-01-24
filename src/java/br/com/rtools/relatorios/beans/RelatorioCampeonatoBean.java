@@ -1,12 +1,14 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.associativo.Campeonato;
+import br.com.rtools.associativo.CampeonatoEquipe;
 import br.com.rtools.associativo.CampeonatoModalidade;
 import br.com.rtools.associativo.dao.CampeonatoDao;
+import br.com.rtools.associativo.dao.CampeonatoEquipeDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioCampeonatoDao;
-import br.com.rtools.relatorios.dao.RelatorioDao; 
+import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -36,6 +38,8 @@ public class RelatorioCampeonatoBean implements Serializable {
     private List selectedModalidade;
     private Map<String, Integer> listCampeonato;
     private List selectedCampeonato;
+    private Map<String, Integer> listEquipe;
+    private List selectedEquipe;
     private String status;
     private String statusCampeonato;
     private String statusPagto;
@@ -65,6 +69,7 @@ public class RelatorioCampeonatoBean implements Serializable {
         }
         if (tcase.equals("status_cammpeonato")) {
             loadListCampeonato();
+            loadListEquipes();
         }
     }
 
@@ -110,9 +115,12 @@ public class RelatorioCampeonatoBean implements Serializable {
                 break;
             case "campeonato":
                 listCampeonato = new LinkedHashMap<>();
+                listEquipe = new LinkedHashMap<>();
                 selectedCampeonato = new ArrayList();
+                selectedEquipe = new ArrayList();
                 if (filter.getActive()) {
                     loadListCampeonato();
+                    loadListEquipes();
                 }
                 break;
             case "status":
@@ -138,7 +146,7 @@ public class RelatorioCampeonatoBean implements Serializable {
 
         }
         rcd.setRelatorios(relatorios);
-        List list = rcd.find(inIdModalidade(), inIdCampeonato(), status, statusPagto, statusCampeonato);
+        List list = rcd.find(inIdModalidade(), inIdCampeonato(), status, statusPagto, statusCampeonato, inIdEquipe());
         if (list.isEmpty()) {
             GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
             return null;
@@ -252,6 +260,15 @@ public class RelatorioCampeonatoBean implements Serializable {
         }
     }
 
+    public void loadListEquipes() {
+        listEquipe = new LinkedHashMap<>();
+        selectedEquipe = new ArrayList();
+        List<CampeonatoEquipe> list = new CampeonatoEquipeDao().findByCampeonato(inIdCampeonato());
+        for (int i = 0; i < list.size(); i++) {
+            listEquipe.put(list.get(i).getEquipe().getDescricao() + " - " + (list.get(i).getCampeonato().getEvento().getDescricaoEvento().getDescricao() + " " + list.get(i).getCampeonato().getTituloComplemento()).substring(0, 15) + "...", list.get(i).getEquipe().getId());
+        }
+    }
+
     public String inIdCampeonato() {
         String ids = null;
         if (selectedCampeonato != null) {
@@ -276,6 +293,21 @@ public class RelatorioCampeonatoBean implements Serializable {
                     ids = "" + selectedModalidade.get(i).toString();
                 } else {
                     ids += "," + selectedModalidade.get(i).toString();
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdEquipe() {
+        String ids = null;
+        if (selectedEquipe != null) {
+            ids = "";
+            for (int i = 0; i < selectedEquipe.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedEquipe.get(i).toString();
+                } else {
+                    ids += "," + selectedEquipe.get(i).toString();
                 }
             }
         }
@@ -384,6 +416,22 @@ public class RelatorioCampeonatoBean implements Serializable {
 
     public void setStatusPagto(String statusPagto) {
         this.statusPagto = statusPagto;
+    }
+
+    public Map<String, Integer> getListEquipe() {
+        return listEquipe;
+    }
+
+    public void setListEquipe(Map<String, Integer> listEquipe) {
+        this.listEquipe = listEquipe;
+    }
+
+    public List getSelectedEquipe() {
+        return selectedEquipe;
+    }
+
+    public void setSelectedEquipe(List selectedEquipe) {
+        this.selectedEquipe = selectedEquipe;
     }
 
     public class ObjectCampeonato {

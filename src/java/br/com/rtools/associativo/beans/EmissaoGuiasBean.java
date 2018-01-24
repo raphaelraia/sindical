@@ -59,6 +59,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.Sessions;
@@ -193,9 +194,13 @@ public class EmissaoGuiasBean implements Serializable {
         Rotina r = new Rotina().get();
         if (r.getId() == 132 || r.getId() == 484) {
             loadListGrupos();
-            loadListSubgrupos();
-            loadListJuridicas();
-            loadListServicos();
+            if(listGrupos.isEmpty()) {
+                Messages.warn("Sistema", "Cadastrar grupos!");
+            } else {
+                loadListSubgrupos();
+                loadListJuridicas();
+                loadListServicos();                
+            }
         }
         if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
             SubGrupoConvenio sgc = (SubGrupoConvenio) new Dao().find(new SubGrupoConvenio(), idSubgrupo);
