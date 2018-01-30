@@ -130,7 +130,7 @@
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.cobrancaCarteirinhaNaoSocio}" itemLabel="Cobrança Carteirinha não Sócio?" style="margin-right: 20px">
@@ -236,6 +236,18 @@
                                 <p:outputLabel value="Observação convite clube" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="1" style="width: 100%">
                                     <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.observacaoConvite}" style="width: 100%" maxlength="8000"/>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:panel styleClass="margin-top-max">
+                                <p:outputLabel value="Verso do Boleto Associativo" style="font-weight: bold; font-size: 11pt!important"/>
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <p:outputLabel value="Local de Pagamento" /><br />
+                                    <p:inputTextarea value="#{configuracaoSocialBean.cobranca.localPagamento}" style="width: 100%" maxlength="8000"/>
+                                </h:panelGrid>
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <p:outputLabel value="informativo" /><br />
+                                    <p:inputTextarea value="#{configuracaoSocialBean.cobranca.informativo}" style="width: 100%" maxlength="8000"/>
                                 </h:panelGrid>
                             </p:panel>
 

@@ -2,6 +2,7 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoCategoria;
+import br.com.rtools.associativo.SCobranca;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -23,6 +24,8 @@ public class ConfiguracaoSocialBean implements Serializable {
 
     private int idGrupoCategoria;
     private List<SelectItem> listaGrupoCategoria;
+    
+    private SCobranca cobranca = new SCobranca();
 
     @PostConstruct
     public void init() {
@@ -47,6 +50,8 @@ public class ConfiguracaoSocialBean implements Serializable {
                 }
             }
         }
+        
+        cobranca = (SCobranca) dao.find(new SCobranca(), 1);
     }
 
     @PreDestroy
@@ -78,6 +83,14 @@ public class ConfiguracaoSocialBean implements Serializable {
             } else {
                 GenericaMensagem.warn("Erro", "Ao atualizar este registro!");
             }
+        }
+        
+        if (cobranca.getId() != -1) {
+            
+            if (dao.update(cobranca, true)) {
+                
+            }
+            
         }
     }
 
@@ -124,6 +137,20 @@ public class ConfiguracaoSocialBean implements Serializable {
 
     public void setListaGrupoCategoria(List<SelectItem> listaGrupoCategoria) {
         this.listaGrupoCategoria = listaGrupoCategoria;
+    }
+
+    /**
+     * @return the cobranca
+     */
+    public SCobranca getCobranca() {
+        return cobranca;
+    }
+
+    /**
+     * @param cobranca the cobranca to set
+     */
+    public void setCobranca(SCobranca cobranca) {
+        this.cobranca = cobranca;
     }
 
 }
