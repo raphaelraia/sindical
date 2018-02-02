@@ -85,7 +85,7 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid style="margin-top: 10px" columns="6">
+                                <h:panelGrid style="margin-top: 10px" columns="7">
                                     <p:column>
                                         <h:outputLabel value="Boleto Inicial" for="idBoletoInicial"/><br />
                                         <p:inputText id="idBoletoInicial" value="#{contaCobrancaBean.contaCobranca.boletoInicial}" size="24" maxlength="100" title="Boleto Inicial"/>
@@ -114,6 +114,11 @@
                                     <p:column>
                                         <br />
                                         <p:selectBooleanCheckbox id="ichk_ativa" value="#{contaCobrancaBean.contaCobranca.ativo}" itemLabel="Habilitado para baixar"/>
+                                    </p:column>
+                                    
+                                    <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '033'}">
+                                        <p:outputLabel value="Estação" title="Estação"/><br />
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.estacao}" style="width: 80px; text-align: center"/>
                                     </p:column>
                                 </h:panelGrid>
 
@@ -149,7 +154,7 @@
 
                                     <p:column>
                                         <p:outputLabel value="Tipo de Cobrança" /><br />
-                                        <p:selectOneMenu value="#{contaCobrancaBean.indexListaCobrancaRegistrada}" style="width: 50px;">
+                                        <p:selectOneMenu value="#{contaCobrancaBean.indexListaCobrancaRegistrada}" style="width: 100px;">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{contaCobrancaBean.listaCobrancaRegistrada}" />
                                         </p:selectOneMenu>
