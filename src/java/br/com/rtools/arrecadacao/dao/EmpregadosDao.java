@@ -35,16 +35,25 @@ public class EmpregadosDao extends DB {
         }
         return 0;
     }
-    
+
     public List<Empregados> findByJuridica(Integer juridica_id) {
+        return findByJuridica(juridica_id, true);
+    }
+
+    public List<Empregados> findByJuridica(Integer juridica_id, Boolean asc) {
         try {
-            Query query = getEntityManager().createQuery(" SELECT E FROM Empregados AS E WHERE E.juridica.id = :juridica_id ORDER BY E.dtLancamento ASC ");
+            Query query;
+            if (asc) {
+                query = getEntityManager().createQuery(" SELECT E FROM Empregados AS E WHERE E.juridica.id = :juridica_id ORDER BY E.dtLancamento ASC");
+            } else {
+                query = getEntityManager().createQuery(" SELECT E FROM Empregados AS E WHERE E.juridica.id = :juridica_id ORDER BY E.dtLancamento DESC");
+            }
             query.setParameter("juridica_id", juridica_id);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
 
         }
-    }    
+    }
 
 }

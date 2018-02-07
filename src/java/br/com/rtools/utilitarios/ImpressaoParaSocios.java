@@ -8,6 +8,7 @@ import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.impressao.CartaoSocial;
 import br.com.rtools.impressao.FichaSocial;
 import br.com.rtools.pessoa.Fisica;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,8 +37,9 @@ import net.sf.jasperreports.engine.util.JRLoader;
 
 public class ImpressaoParaSocios {
 
+    private List<ObjectCard> listObjectCard = new ArrayList();
+
     public static boolean imprimirCarteirinha(List listaCartao) {
-        List<CartaoSocial> listax = new ArrayList();
 
         List<ModeloCarteirinha> listaModelo = new Dao().list(new ModeloCarteirinha());
         Map<Integer, List> hash = new HashMap();
@@ -47,198 +50,410 @@ public class ImpressaoParaSocios {
         String codigoFuncional = "";
         Socios socioDependente;
 
+        Map<String, String> modelsCard = new LinkedHashMap<>();
         for (int i = 0; i < listaCartao.size(); i++) {
-            String id_pessoa = ((List) (listaCartao.get(i))).get(0).toString();
+            modelsCard.put((String) ((List) listaCartao.get(i)).get(20), (String) ((List) listaCartao.get(i)).get(20));
+        }
+        List[] listCartao2 = new ArrayList[modelsCard.size()];
+        List<CartaoSocial>[] listax = new ArrayList[modelsCard.size()];
 
-            String logoCartao = "";
+        for (int i = 0; i < listCartao2.length; i++) {
+            listCartao2[i] = new ArrayList();
+            listax[i] = new ArrayList();
+        }
 
-            String matr = "";
-            if (((List) (listaCartao.get(i))).get(10) != null) {
-                matr = "000000".substring(0, 6 - ((List) (listaCartao.get(i))).get(10).toString().length()) + ((List) (listaCartao.get(i))).get(10).toString();
+        int a = 0;
+        for (Map.Entry<String, String> entry : modelsCard.entrySet()) {
+            for (int i = 0; i < listaCartao.size(); i++) {
+                if (Objects.equals(entry.getKey(), (String) ((List) listaCartao.get(i)).get(20))) {
+                    listCartao2[a].add((List) listaCartao.get(i));
+                }
             }
+            a++;
+        }
 
-            String via = "00";
-            if (((List) (listaCartao.get(i))).get(11) != null) {
-                via = ((List) (listaCartao.get(i))).get(11).toString();
-            }
+        for (int h = 0; h < listCartao2.length; h++) {
 
-            if (via.length() == 1) {
-                via = "0" + via;
-            }
+            for (int i = 0; i < listCartao2[h].size(); i++) {
 
-            Registro reg = (Registro) new Dao().find(new Registro(), 1);
-            String bc = getConverteNullString(((List) (listaCartao.get(i))).get(18)) + via; //             String bc = ((List) (listaCartao.get(i))).get(0).toString() + via; // id_pessoa
-            String barras;
+                String id_pessoa = ((List) (listCartao2[h].get(i))).get(0).toString();
 
-            if (reg.isValidadeBarras() && ((List) (listaCartao.get(i))).get(6) != null) {
-                Date vencto = DataHoje.converte(((List) (listaCartao.get(i))).get(6).toString());
-                if (vencto != null) {
-                    Date dataModel = DataHoje.converte("07/10/1997");
-                    long dias = vencto.getTime() - dataModel.getTime();
-                    long total = dias / 86400000;
+                String logoCartao = "";
 
-                    bc += "0000".substring(0, 4 - Long.toString(total).length()) + Long.toString(total);
+                String matr = "";
+                if (((List) (listCartao2[h].get(i))).get(10) != null) {
+                    matr = "000000".substring(0, 6 - ((List) (listCartao2[h].get(i))).get(10).toString().length()) + ((List) (listCartao2[h].get(i))).get(10).toString();
+                }
+
+                String via = "00";
+                if (((List) (listCartao2[h].get(i))).get(11) != null) {
+                    via = ((List) (listCartao2[h].get(i))).get(11).toString();
+                }
+
+                if (via.length() == 1) {
+                    via = "0" + via;
+                }
+
+                Registro reg = (Registro) new Dao().find(new Registro(), 1);
+                String bc = getConverteNullString(((List) (listCartao2[h].get(i))).get(18)) + via; //             String bc = ((List) (listCartao2[h].get(i))).get(0).toString() + via; // id_pessoa
+                String barras;
+
+                if (reg.isValidadeBarras() && ((List) (listCartao2[h].get(i))).get(6) != null) {
+                    Date vencto = DataHoje.converte(((List) (listCartao2[h].get(i))).get(6).toString());
+                    if (vencto != null) {
+                        Date dataModel = DataHoje.converte("07/10/1997");
+                        long dias = vencto.getTime() - dataModel.getTime();
+                        long total = dias / 86400000;
+
+                        bc += "0000".substring(0, 4 - Long.toString(total).length()) + Long.toString(total);
+                    } else {
+                        bc += "0000";
+                    }
+                    barras = "00000000000000".substring(0, 14 - bc.length()) + bc;
                 } else {
-                    bc += "0000";
+                    barras = "0000000000".substring(0, 10 - bc.length()) + bc;
                 }
-                barras = "00000000000000".substring(0, 14 - bc.length()) + bc;
-            } else {
-                barras = "0000000000".substring(0, 10 - bc.length()) + bc;
-            }
-            //String barras = "0000000000".substring(0, 10 - bc.length()) + bc;
+                //String barras = "0000000000".substring(0, 10 - bc.length()) + bc;
 
-            SocioCarteirinha carteirinha = (SocioCarteirinha) new Dao().find(new SocioCarteirinha(), (Integer) ((List) listaCartao.get(i)).get(19));
+                SocioCarteirinha carteirinha = (SocioCarteirinha) new Dao().find(new SocioCarteirinha(), (Integer) ((List) listCartao2[h].get(i)).get(19));
 
-            File file_img = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao.jpg"));
+                File file_img = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao.jpg"));
 
-            String caminho_img = "";
+                String caminho_img = "";
 
-            if (file_img.exists()) {
-                caminho_img = file_img.getPath();
-            }
-
-            String endereco = getConverteNullString(((List) (listaCartao.get(i))).get(21)) + " "
-                    + getConverteNullString(((List) (listaCartao.get(i))).get(22)) + ", "
-                    + getConverteNullString(((List) (listaCartao.get(i))).get(23)) + " "
-                    + getConverteNullString(((List) (listaCartao.get(i))).get(24)) + " - "
-                    + getConverteNullString(((List) (listaCartao.get(i))).get(25));
-
-            String cidade_uf = getConverteNullString(((List) (listaCartao.get(i))).get(26)) + " - " + getConverteNullString(((List) (listaCartao.get(i))).get(27));
-            if (getConverteNullString(((List) (listaCartao.get(i))).get(36)).equals("TITULAR") || getConverteNullString(((List) (listaCartao.get(i))).get(36)).isEmpty()) {
-                titular = getConverteNullString(((List) (listaCartao.get(i))).get(1));
-                dependente = "";
-                orgaoOrigem = getConverteNullString(((List) (listaCartao.get(i))).get(9));
-                codigoFuncional = getConverteNullString(((List) (listaCartao.get(i))).get(35));
-            } else {
-                socioDependente = sociosDao.pesquisaTitularPorDependente(Integer.valueOf(((List) (listaCartao.get(i))).get(0).toString()));
-                titular = socioDependente.getMatriculaSocios().getTitular().getNome();
-                dependente = getConverteNullString(((List) (listaCartao.get(i))).get(1));
-            }
-            try {
-                if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png")).exists()) {
-                    logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                if (file_img.exists()) {
+                    caminho_img = file_img.getPath();
                 }
-            } catch (Exception e) {
 
-            }
-            try {
-                if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png")).exists()) {
-                    logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png");
+                String endereco = getConverteNullString(((List) (listCartao2[h].get(i))).get(21)) + " "
+                        + getConverteNullString(((List) (listCartao2[h].get(i))).get(22)) + ", "
+                        + getConverteNullString(((List) (listCartao2[h].get(i))).get(23)) + " "
+                        + getConverteNullString(((List) (listCartao2[h].get(i))).get(24)) + " - "
+                        + getConverteNullString(((List) (listCartao2[h].get(i))).get(25));
+
+                String cidade_uf = getConverteNullString(((List) (listCartao2[h].get(i))).get(26)) + " - " + getConverteNullString(((List) (listCartao2[h].get(i))).get(27));
+                if (getConverteNullString(((List) (listCartao2[h].get(i))).get(36)).equals("TITULAR") || getConverteNullString(((List) (listCartao2[h].get(i))).get(36)).isEmpty()) {
+                    titular = getConverteNullString(((List) (listCartao2[h].get(i))).get(1));
+                    dependente = "";
+                    orgaoOrigem = getConverteNullString(((List) (listCartao2[h].get(i))).get(9));
+                    codigoFuncional = getConverteNullString(((List) (listCartao2[h].get(i))).get(35));
+                } else {
+                    socioDependente = sociosDao.pesquisaTitularPorDependente(Integer.valueOf(((List) (listCartao2[h].get(i))).get(0).toString()));
+                    titular = socioDependente.getMatriculaSocios().getTitular().getNome();
+                    dependente = getConverteNullString(((List) (listCartao2[h].get(i))).get(1));
                 }
-            } catch (Exception e) {
+                try {
+                    if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png")).exists()) {
+                        logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                    }
+                } catch (Exception e) {
 
-            }
-
-            FisicaDao fisicaDB = new FisicaDao();
-            Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
-            String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
-            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/images/.png");
-
-            for (String imagensTipo1 : imagensTipo) {
-                File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + "." + imagensTipo1);
-                if (test.exists()) {
-                    foto_cartao = test;
-                    break;
                 }
-            }
-            String assinatura = "";
-            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
-            if (f.exists()) {
-                assinatura = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
-            }
-            String cartaoVerso = "";
-            File fileCartaoVerso = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg"));
-            if (fileCartaoVerso.exists()) {
-                cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg");
-            }
-            
-            if (carteirinha.getModeloCarteirinha().getJasper().equals("CARTAO_CONTRIBUINTE.jasper")){
-                cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/FUNDO_CARTAO_CONTRIBUINTE.png");
-            }
+                try {
+                    if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png")).exists()) {
+                        logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png");
+                    }
+                } catch (Exception e) {
 
-            listax.add(
-                    new CartaoSocial(
-                            matr, //                                                         CODIGO
-                            barras, //                                                       BARRAS 
-                            getConverteNullString(((List) (listaCartao.get(i))).get(1)), //  NOME
-                            getConverteNullString(((List) (listaCartao.get(i))).get(3)), //  EMPRESA
-                            getConverteNullString(((List) (listaCartao.get(i))).get(2)), //  CNPJ
-                            getConverteNullString(((List) (listaCartao.get(i))).get(8)), //  DATA ADMISSAO
-                            getConverteNullString(((List) (listaCartao.get(i))).get(6)), //  DATA VALIDADE
-                            getConverteNullString(((List) (listaCartao.get(i))).get(5)), //  CIDADE
-                            getConverteNullString(((List) (listaCartao.get(i))).get(7)), //  UF
-                            logoCartao, // LOGO
-                            foto_cartao.getAbsolutePath(), // CAMINHO FOTO
-                            getConverteNullString(((List) (listaCartao.get(i))).get(13)), // FILIAÇÃO
-                            getConverteNullString(((List) (listaCartao.get(i))).get(14)), // PROFISSÃO
-                            getConverteNullString(((List) (listaCartao.get(i))).get(15)), // CPF
-                            getConverteNullString(((List) (listaCartao.get(i))).get(16)), // RG
-                            Integer.valueOf(((List) (listaCartao.get(i))).get(0).toString()), //    ID_PESSOA
-                            endereco, //                                                     ENDERECO
-                            cidade_uf, //                                                    CIDADE
-                            getConverteNullString(((List) (listaCartao.get(i))).get(29)), // NACIONALIDADE
-                            getConverteNullString(((List) (listaCartao.get(i))).get(30)), // NASCIMENTO
-                            getConverteNullString(((List) (listaCartao.get(i))).get(31)), // ESTADO CIVIL
-                            getConverteNullString(((List) (listaCartao.get(i))).get(32)), // CARTEIRA
-                            getConverteNullString(((List) (listaCartao.get(i))).get(33)), // SERIE
-                            caminho_img, //                                                  IMAGEM FUNDO
-                            codigoFuncional, //                                              CÓDIGO FUNCIONAL
-                            getConverteNullString(((List) (listaCartao.get(i))).get(36)), // ÓRGÃO EXPEDITOR
-                            getConverteNullString(((List) (listaCartao.get(i))).get(36)), // PARENTESCO
-                            getConverteNullString(((List) (listaCartao.get(i))).get(37)), // CATEGORIA
-                            orgaoOrigem, //  FANTASIA
-                            titular, //                                                      TITULAR
-                            dependente, //                                                   DEPENDENTE
-                            getConverteNullString(((List) (listaCartao.get(i))).get(38)), // FANTASIA EMPRESA - TITULAR
-                            getConverteNullString(((List) (listaCartao.get(i))).get(39)), //  CÓDIGO FUNCIONAL - TITULAR
-                            (getConverteNullString(((List) (listaCartao.get(i))).get(40)).isEmpty()) ? 0 : Integer.parseInt(getConverteNullString(((List) (listaCartao.get(i))).get(40))), // TITULAR ID
-                            getConverteNullString(((List) (listaCartao.get(i))).get(41)), // GRUPO CATEGORIA
-                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
-                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
-                            (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
-                            via,
-                            new ArrayList(),
-                            assinatura,
-                            cartaoVerso,
-                            ((List) (listaCartao.get(i))).get(43),
-                            ((List) (listaCartao.get(i))).get(44)
-                    )
-            );
-            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP") || ControleUsuarioBean.getCliente().equals("MetalRP")) {
-                if (getConverteNullString(((List) (listaCartao.get(i))).get(36)).equals("TITULAR")) {
-                    for (int x = 0; x < listax.size(); x++) {
-                        MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax.get(x).getMatricula()));
-                        List<CartaoSocial> listCartaoSocialDependente = new ArrayList();
-                        if (ms != null) {
-                            List<Socios> listSocios = new SociosDao().pesquisaDependentesOrdenado(ms.getId());
-                            for (int z = 0; z < listSocios.size(); z++) {
-                                CartaoSocial cartaoSocial = new CartaoSocial();
-                                cartaoSocial.setDependente(listSocios.get(z).getServicoPessoa().getPessoa().getNome());
-                                cartaoSocial.setParentesco(listSocios.get(z).getParentesco().getParentesco());
-                                cartaoSocial.setNascimento(listSocios.get(z).getServicoPessoa().getPessoa().getFisica().getNascimento());
-                                listCartaoSocialDependente.add(cartaoSocial);
+                }
+
+                FisicaDao fisicaDB = new FisicaDao();
+                Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
+                String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+                File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/images/.png");
+
+                for (String imagensTipo1 : imagensTipo) {
+                    File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + "." + imagensTipo1);
+                    if (test.exists()) {
+                        foto_cartao = test;
+                        break;
+                    }
+                }
+                String assinatura = "";
+                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
+                if (f.exists()) {
+                    assinatura = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
+                }
+                String cartaoVerso = "";
+                File fileCartaoVerso = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg"));
+                if (fileCartaoVerso.exists()) {
+                    cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg");
+                }
+
+                if (carteirinha.getModeloCarteirinha().getJasper().equals("CARTAO_CONTRIBUINTE.jasper")) {
+                    cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/FUNDO_CARTAO_CONTRIBUINTE.png");
+                }
+
+                listax[h].add(
+                        new CartaoSocial(
+                                matr, //                                                         CODIGO
+                                barras, //                                                       BARRAS 
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(1)), //  NOME
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(3)), //  EMPRESA
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(2)), //  CNPJ
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(8)), //  DATA ADMISSAO
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(6)), //  DATA VALIDADE
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(5)), //  CIDADE
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(7)), //  UF
+                                logoCartao, // LOGO
+                                foto_cartao.getAbsolutePath(), // CAMINHO FOTO
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(13)), // FILIAÇÃO
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(14)), // PROFISSÃO
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(15)), // CPF
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(16)), // RG
+                                Integer.valueOf(((List) (listCartao2[h].get(i))).get(0).toString()), //    ID_PESSOA
+                                endereco, //                                                     ENDERECO
+                                cidade_uf, //                                                    CIDADE
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(29)), // NACIONALIDADE
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(30)), // NASCIMENTO
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(31)), // ESTADO CIVIL
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(32)), // CARTEIRA
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(33)), // SERIE
+                                caminho_img, //                                                  IMAGEM FUNDO
+                                codigoFuncional, //                                              CÓDIGO FUNCIONAL
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(36)), // ÓRGÃO EXPEDITOR
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(36)), // PARENTESCO
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(37)), // CATEGORIA
+                                orgaoOrigem, //  FANTASIA
+                                titular, //                                                      TITULAR
+                                dependente, //                                                   DEPENDENTE
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(38)), // FANTASIA EMPRESA - TITULAR
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(39)), //  CÓDIGO FUNCIONAL - TITULAR
+                                (getConverteNullString(((List) (listCartao2[h].get(i))).get(40)).isEmpty()) ? 0 : Integer.parseInt(getConverteNullString(((List) (listCartao2[h].get(i))).get(40))), // TITULAR ID
+                                getConverteNullString(((List) (listCartao2[h].get(i))).get(41)), // GRUPO CATEGORIA
+                                ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
+                                ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
+                                (!getConverteNullString(((List) (listCartao2[h].get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
+                                via,
+                                new ArrayList(),
+                                assinatura,
+                                cartaoVerso,
+                                ((List) (listCartao2[h].get(i))).get(43),
+                                ((List) (listCartao2[h].get(i))).get(44)
+                        )
+                );
+                if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP") || ControleUsuarioBean.getCliente().equals("MetalRP")) {
+                    if (getConverteNullString(((List) (listCartao2[h].get(i))).get(36)).equals("TITULAR")) {
+                        for (int x = 0; x < listax[h].size(); x++) {
+                            MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax[h].get(x).getMatricula()), listax[h].get(x).getTitular_id());
+                            List<CartaoSocial> listCartaoSocialDependente = new ArrayList();
+                            if (ms != null) {
+                                List<Socios> listSocios = new SociosDao().pesquisaDependentesOrdenado(ms.getId());
+                                for (int z = 0; z < listSocios.size(); z++) {
+                                    CartaoSocial cartaoSocial = new CartaoSocial();
+                                    cartaoSocial.setDependente(listSocios.get(z).getServicoPessoa().getPessoa().getNome());
+                                    cartaoSocial.setParentesco(listSocios.get(z).getParentesco().getParentesco());
+                                    cartaoSocial.setNascimento(listSocios.get(z).getServicoPessoa().getPessoa().getFisica().getNascimento());
+                                    listCartaoSocialDependente.add(cartaoSocial);
+                                }
+                                listax[h].get(x).setListDependentes(listCartaoSocialDependente);
                             }
-                            listax.get(x).setListDependentes(listCartaoSocialDependente);
                         }
                     }
                 }
-            }
 
-            for (ModeloCarteirinha modelo : listaModelo) {
-                if (Objects.equals(carteirinha.getModeloCarteirinha().getId(), modelo.getId())) {
-                    hash.put(modelo.getId(), listax);
+                for (ModeloCarteirinha modelo : listaModelo) {
+                    if (Objects.equals(carteirinha.getModeloCarteirinha().getId(), modelo.getId())) {
+                        hash.put(modelo.getId(), listax[h]);
+                    }
                 }
             }
         }
 
-        if (listax.isEmpty()) {
-            return false;
+//        for (int i = 0; i < listaCartao.size(); i++) {
+//
+//            String id_pessoa = ((List) (listaCartao.get(i))).get(0).toString();
+//
+//            String logoCartao = "";
+//
+//            String matr = "";
+//            if (((List) (listaCartao.get(i))).get(10) != null) {
+//                matr = "000000".substring(0, 6 - ((List) (listaCartao.get(i))).get(10).toString().length()) + ((List) (listaCartao.get(i))).get(10).toString();
+//            }
+//
+//            String via = "00";
+//            if (((List) (listaCartao.get(i))).get(11) != null) {
+//                via = ((List) (listaCartao.get(i))).get(11).toString();
+//            }
+//
+//            if (via.length() == 1) {
+//                via = "0" + via;
+//            }
+//
+//            Registro reg = (Registro) new Dao().find(new Registro(), 1);
+//            String bc = getConverteNullString(((List) (listaCartao.get(i))).get(18)) + via; //             String bc = ((List) (listaCartao.get(i))).get(0).toString() + via; // id_pessoa
+//            String barras;
+//
+//            if (reg.isValidadeBarras() && ((List) (listaCartao.get(i))).get(6) != null) {
+//                Date vencto = DataHoje.converte(((List) (listaCartao.get(i))).get(6).toString());
+//                if (vencto != null) {
+//                    Date dataModel = DataHoje.converte("07/10/1997");
+//                    long dias = vencto.getTime() - dataModel.getTime();
+//                    long total = dias / 86400000;
+//
+//                    bc += "0000".substring(0, 4 - Long.toString(total).length()) + Long.toString(total);
+//                } else {
+//                    bc += "0000";
+//                }
+//                barras = "00000000000000".substring(0, 14 - bc.length()) + bc;
+//            } else {
+//                barras = "0000000000".substring(0, 10 - bc.length()) + bc;
+//            }
+//            //String barras = "0000000000".substring(0, 10 - bc.length()) + bc;
+//
+//            SocioCarteirinha carteirinha = (SocioCarteirinha) new Dao().find(new SocioCarteirinha(), (Integer) ((List) listaCartao.get(i)).get(19));
+//
+//            File file_img = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao.jpg"));
+//
+//            String caminho_img = "";
+//
+//            if (file_img.exists()) {
+//                caminho_img = file_img.getPath();
+//            }
+//
+//            String endereco = getConverteNullString(((List) (listaCartao.get(i))).get(21)) + " "
+//                    + getConverteNullString(((List) (listaCartao.get(i))).get(22)) + ", "
+//                    + getConverteNullString(((List) (listaCartao.get(i))).get(23)) + " "
+//                    + getConverteNullString(((List) (listaCartao.get(i))).get(24)) + " - "
+//                    + getConverteNullString(((List) (listaCartao.get(i))).get(25));
+//
+//            String cidade_uf = getConverteNullString(((List) (listaCartao.get(i))).get(26)) + " - " + getConverteNullString(((List) (listaCartao.get(i))).get(27));
+//            if (getConverteNullString(((List) (listaCartao.get(i))).get(36)).equals("TITULAR") || getConverteNullString(((List) (listaCartao.get(i))).get(36)).isEmpty()) {
+//                titular = getConverteNullString(((List) (listaCartao.get(i))).get(1));
+//                dependente = "";
+//                orgaoOrigem = getConverteNullString(((List) (listaCartao.get(i))).get(9));
+//                codigoFuncional = getConverteNullString(((List) (listaCartao.get(i))).get(35));
+//            } else {
+//                socioDependente = sociosDao.pesquisaTitularPorDependente(Integer.valueOf(((List) (listaCartao.get(i))).get(0).toString()));
+//                titular = socioDependente.getMatriculaSocios().getTitular().getNome();
+//                dependente = getConverteNullString(((List) (listaCartao.get(i))).get(1));
+//            }
+//            try {
+//                if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png")).exists()) {
+//                    logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+//                }
+//            } catch (Exception e) {
+//
+//            }
+//            try {
+//                if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png")).exists()) {
+//                    logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png");
+//                }
+//            } catch (Exception e) {
+//
+//            }
+//
+//            FisicaDao fisicaDB = new FisicaDao();
+//            Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
+//            String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+//            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/images/.png");
+//
+//            for (String imagensTipo1 : imagensTipo) {
+//                File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + "." + imagensTipo1);
+//                if (test.exists()) {
+//                    foto_cartao = test;
+//                    break;
+//                }
+//            }
+//            String assinatura = "";
+//            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
+//            if (f.exists()) {
+//                assinatura = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
+//            }
+//            String cartaoVerso = "";
+//            File fileCartaoVerso = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg"));
+//            if (fileCartaoVerso.exists()) {
+//                cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/cartao_verso.jpg");
+//            }
+//
+//            if (carteirinha.getModeloCarteirinha().getJasper().equals("CARTAO_CONTRIBUINTE.jasper")) {
+//                cartaoVerso = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/FUNDO_CARTAO_CONTRIBUINTE.png");
+//            }
+//
+//            listax.add(
+//                    new CartaoSocial(
+//                            matr, //                                                         CODIGO
+//                            barras, //                                                       BARRAS 
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(1)), //  NOME
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(3)), //  EMPRESA
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(2)), //  CNPJ
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(8)), //  DATA ADMISSAO
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(6)), //  DATA VALIDADE
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(5)), //  CIDADE
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(7)), //  UF
+//                            logoCartao, // LOGO
+//                            foto_cartao.getAbsolutePath(), // CAMINHO FOTO
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(13)), // FILIAÇÃO
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(14)), // PROFISSÃO
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(15)), // CPF
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(16)), // RG
+//                            Integer.valueOf(((List) (listaCartao.get(i))).get(0).toString()), //    ID_PESSOA
+//                            endereco, //                                                     ENDERECO
+//                            cidade_uf, //                                                    CIDADE
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(29)), // NACIONALIDADE
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(30)), // NASCIMENTO
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(31)), // ESTADO CIVIL
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(32)), // CARTEIRA
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(33)), // SERIE
+//                            caminho_img, //                                                  IMAGEM FUNDO
+//                            codigoFuncional, //                                              CÓDIGO FUNCIONAL
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(36)), // ÓRGÃO EXPEDITOR
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(36)), // PARENTESCO
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(37)), // CATEGORIA
+//                            orgaoOrigem, //  FANTASIA
+//                            titular, //                                                      TITULAR
+//                            dependente, //                                                   DEPENDENTE
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(38)), // FANTASIA EMPRESA - TITULAR
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(39)), //  CÓDIGO FUNCIONAL - TITULAR
+//                            (getConverteNullString(((List) (listaCartao.get(i))).get(40)).isEmpty()) ? 0 : Integer.parseInt(getConverteNullString(((List) (listaCartao.get(i))).get(40))), // TITULAR ID
+//                            getConverteNullString(((List) (listaCartao.get(i))).get(41)), // GRUPO CATEGORIA
+//                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
+//                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
+//                            (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
+//                            via,
+//                            new ArrayList(),
+//                            assinatura,
+//                            cartaoVerso,
+//                            ((List) (listaCartao.get(i))).get(43),
+//                            ((List) (listaCartao.get(i))).get(44)
+//                    )
+//            );
+//            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP") || ControleUsuarioBean.getCliente().equals("MetalRP")) {
+//                if (getConverteNullString(((List) (listaCartao.get(i))).get(36)).equals("TITULAR")) {
+//                    for (int x = 0; x < listax.size(); x++) {
+//                        MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax.get(x).getMatricula()));
+//                        List<CartaoSocial> listCartaoSocialDependente = new ArrayList();
+//                        if (ms != null) {
+//                            List<Socios> listSocios = new SociosDao().pesquisaDependentesOrdenado(ms.getId());
+//                            for (int z = 0; z < listSocios.size(); z++) {
+//                                CartaoSocial cartaoSocial = new CartaoSocial();
+//                                cartaoSocial.setDependente(listSocios.get(z).getServicoPessoa().getPessoa().getNome());
+//                                cartaoSocial.setParentesco(listSocios.get(z).getParentesco().getParentesco());
+//                                cartaoSocial.setNascimento(listSocios.get(z).getServicoPessoa().getPessoa().getFisica().getNascimento());
+//                                listCartaoSocialDependente.add(cartaoSocial);
+//                            }
+//                            listax.get(x).setListDependentes(listCartaoSocialDependente);
+//                        }
+//                    }
+//                }
+//            }
+//
+//            for (ModeloCarteirinha modelo : listaModelo) {
+//                if (Objects.equals(carteirinha.getModeloCarteirinha().getId(), modelo.getId())) {
+//                    hash.put(modelo.getId(), listax);
+//                }
+//            }
+//        }
+        for (int i = 0; i < listax.length; i++) {
+            if (listax[i].isEmpty()) {
+                return false;
+            }
         }
 
         try {
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
             Diretorio.criar("downloads/carteirinhas");
-            ModeloCarteirinha modelo;
+            // ModeloCarteirinha modelo;
             List ljasper = new ArrayList();
             JasperReport jasper;
             JasperReport subJasper;
@@ -254,7 +469,7 @@ public class ImpressaoParaSocios {
 //            }
             String mimeType = "application/pdf";
             for (Entry<Integer, List> entry : hash.entrySet()) {
-                modelo = (ModeloCarteirinha) new Dao().find(new ModeloCarteirinha(), entry.getKey());
+                ModeloCarteirinha modelo = (ModeloCarteirinha) new Dao().find(new ModeloCarteirinha(), entry.getKey());
                 String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + modelo.getJasper());
                 if (caminho == null) {
                     GenericaMensagem.error("Erro jasper: " + modelo.getJasper(), "Modelo não encontrado na pasta Relatório!");
@@ -361,6 +576,7 @@ public class ImpressaoParaSocios {
         } catch (JRException e) {
             return false;
         }
+
         return true;
     }
 
@@ -667,7 +883,7 @@ public class ImpressaoParaSocios {
                     ljasper.add(Jasper.fillObject(jasper_1, null, dtSource_1));
                 }
             }
-            
+
             if (matriculaSocios.getCategoria().getFichaFiliacao()) {
                 File ficha_f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHA_DE_SINDICALIZACAO.jasper"));
 
@@ -895,7 +1111,7 @@ public class ImpressaoParaSocios {
             }
             Jasper.load();
             Jasper.PATH = "downloads";
-            
+
             List ljasper = new ArrayList();
             if (matriculaSocios.getCategoria().getFichaSocial()) {
                 File ficha_s = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path));
@@ -906,7 +1122,7 @@ public class ImpressaoParaSocios {
                     ljasper.add(Jasper.fillObject(jasper_1, null, dtSource_1));
                 }
             }
-            
+
             if (matriculaSocios.getCategoria().getFichaFiliacao()) {
                 File ficha_f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHA_DE_SINDICALIZACAO.jasper"));
 
@@ -1059,6 +1275,51 @@ public class ImpressaoParaSocios {
             return "";
         } else {
             return String.valueOf(object);
+
         }
+    }
+
+    private class ObjectCard {
+
+        private Integer key;
+        private ModeloCarteirinha modeloCarteirinha;
+        private List listCartao;
+
+        public ObjectCard() {
+            this.key = null;
+            this.modeloCarteirinha = null;
+            this.listCartao = new ArrayList();
+        }
+
+        public ObjectCard(Integer key, ModeloCarteirinha modeloCarteirinha, List listCartao) {
+            this.key = key;
+            this.modeloCarteirinha = modeloCarteirinha;
+            this.listCartao = listCartao;
+        }
+
+        public Integer getKey() {
+            return key;
+        }
+
+        public void setKey(Integer key) {
+            this.key = key;
+        }
+
+        public ModeloCarteirinha getModeloCarteirinha() {
+            return modeloCarteirinha;
+        }
+
+        public void setModeloCarteirinha(ModeloCarteirinha modeloCarteirinha) {
+            this.modeloCarteirinha = modeloCarteirinha;
+        }
+
+        public List getListCartao() {
+            return listCartao;
+        }
+
+        public void setListCartao(List listCartao) {
+            this.listCartao = listCartao;
+        }
+
     }
 }

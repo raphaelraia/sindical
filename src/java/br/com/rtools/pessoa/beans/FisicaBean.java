@@ -474,7 +474,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (!fisi.isEmpty()) {
                 for (Fisica fisi1 : fisi) {
                     if (fisi1.getId() != fisica.getId()) {
-                        mensagem = "Esta pessoa já esta cadastrada!";
+                        mensagem = "Esta pessoa já esta cadastrada! " + fisi1.getPessoa().getNome();
                         return;
                     }
                 }
@@ -2460,7 +2460,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "locacaoFilme":
             case "associarFisica":
             case "conviteMovimento":
-            case "campeonatoEquipe":
             case "agendamentos":
                 GenericaSessao.remove("sessaoSisAutorizacao");
                 Boolean ignoreCase = false;

@@ -2560,6 +2560,12 @@
             <redirect/>
         </navigation-case>  
         
+        <navigation-case>
+            <from-outcome>operadorAcordo</from-outcome>
+            <to-view-id>/operadorAcordo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        
     </navigation-rule>
     
     <lifecycle>

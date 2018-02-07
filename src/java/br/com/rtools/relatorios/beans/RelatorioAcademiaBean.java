@@ -491,7 +491,7 @@ public class RelatorioAcademiaBean implements Serializable {
         if (!filtro[18]) {
             empresa = new Juridica();
         }
-    }
+        }
 
     public void clear(Integer tcase) {
         switch (tcase) {
@@ -1182,7 +1182,7 @@ public class RelatorioAcademiaBean implements Serializable {
     public void setEmpresa(Juridica empresa) {
         this.empresa = empresa;
     }
-
+    
     public class ParametroAcademiaCadastral {
 
         private Object aluno_nome;

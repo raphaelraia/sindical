@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Operador Acordo</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="form_operador_acordo">
+                    <p:outputLabel value="Operador Acordo" styleClass="fonteHeader"/>
+                    <c:set scope="request" var="object" value="${operadorAcordoBean.acordoComissaoOperador}"/>
+                    <div class="clear"></div>
+                    <p:panel styleClass="sbb margin-top-max">
+                        <h:panelGrid columns="2" cellpadding="5">
+                            <p:commandButton value="Operador" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaUsuario')}" />
+                            <p:column>
+                                <p:outputLabel value="Pesquisar pessoa" style="border-bottom: 1px dotted #888;" rendered="#{operadorAcordoBean.acordoComissaoOperador.usuario eq null}" />
+                                <p:outputLabel value="#{operadorAcordoBean.acordoComissaoOperador.usuario.pessoa.nome}" rendered="#{operadorAcordoBean.acordoComissaoOperador.usuario ne null}" />
+                            </p:column>
+                            <p:column>
+                                <h:outputLabel value="Rotina" />
+                            </p:column>
+                            <p:column>
+                                <p:selectOneMenu value="#{operadorAcordoBean.idRotina}" autoWidth="false" filter="true" filterMatchMode="startsWith">
+                                    <f:selectItems value="#{operadorAcordoBean.listRotinas}" />
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column>
+                                <br />
+                                <br />
+                                <p:selectBooleanCheckbox value="#{operadorAcordoBean.acordoComissaoOperador.comissao}" itemLabel="Comissão">
+                                    <p:ajax event="change" update=":form_operador_acordo:" />
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                            <p:column>
+                            </p:column>
+                            <p:outputLabel for="idComissao" value="Percentual de Comissão:"  rendered="#{operadorAcordoBean.acordoComissaoOperador.comissao}"/>
+                            <p:column  rendered="#{operadorAcordoBean.acordoComissaoOperador.comissao}">
+                                <p:spinner id="idComissao" value="#{operadorAcordoBean.acordoComissaoOperador.nrComissao}" stepFactor="0.1" min="0" max="100" size="3" placeholder="100" disabled="#{operadorAcordoBean.acordoComissaoOperador.usuario eq null}">
+                                </p:spinner>
+                                <h:outputText value="Ex. 10.6 / 100 / 33" styleClass="margin-left-max"/>
+                            </p:column>
+                        </h:panelGrid>
+                        <h:panelGrid columns="3" styleClass="margin-top-max" id="id_panel_acao">
+                            <p:commandButton onclick="PF('dlg_save').show()" value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" type="button" rendered="#{operadorAcordoBean.acordoComissaoOperador.usuario ne null}"/>
+                            <p:commandButton value="Novo" action="#{sessions.removeSession('operadorAcordoBean')}" update=":form_operador_acordo:"/>
+                            <p:commandButton onclick="PF('dlg_delete').show()" value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" type="button" rendered="#{operadorAcordoBean.acordoComissaoOperador.id ne null}"/>
+                        </h:panelGrid>
+                        <p:panelGrid columns="1" styleClass="sbb margin-top-max">
+                            <p:dataTable value="#{operadorAcordoBean.listAcordoComissaoOperador}" var="aco" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="150">
+                                <p:column width="30">
+                                    <p:commandButton icon="ui-icon-pencil" action="#{operadorAcordoBean.edit(aco)}" update=":form_operador_acordo:" title="Código: #{aco.id}"/>
+                                </p:column>
+                                <p:column headerText="Rotina">
+                                    #{aco.rotina.rotina}
+                                </p:column>
+                                <p:column headerText="Nome">
+                                    #{aco.usuario.pessoa.nome}
+                                </p:column>
+                                <p:column headerText="C. (%)" styleClass="text-center" width="50">
+                                    #{aco.nrComissao}
+                                </p:column>
+                                <p:column width="25" styleClass="text-center">
+                                    <p:commandButton icon="ui-icon-trash" action="#{operadorAcordoBean.delete(aco)}" update=":form_operador_acordo:" disabled="#{controleAcessoBean.botaoExcluir}" title="Código: #{aco.id}"/>
+                                </p:column>
+                                <f:facet name="footer">
+                                    C. (%) - Valor da comissão
+                                </f:facet>
+                            </p:dataTable>
+                        </p:panelGrid>
+                        <p:dialog widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja salvar este registro?">
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Sim" title="Salvar" action="#{operadorAcordoBean.save()}" update=":form_operador_acordo:"  oncomplete="PF('dlg_message').show(); PF('dlg_save').hide();" />
+                                    <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide()"/>
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:dialog>
+                        <p:dialog widgetVar="dlg_delete" modal="true" width="300" closable="true" header="Deseja excluir este registro?">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Sim" title="Excluir" action="#{operadorAcordoBean.delete()}" update=":form_operador_acordo:" oncomplete="PF('dlg_message').show(); PF('dlg_delete').hide();"  />
+                                    <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide()"/>
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:dialog>                                                
+                        <p:dialog widgetVar="dlg_message" modal="true" width="300" closable="true" header="Mensagem">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                        </p:dialog>                                                
+                    </p:panel>
+                </h:form>
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

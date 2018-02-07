@@ -80,6 +80,9 @@
                                 <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.setEditMembrosEquipe(false)}"/>
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                                 <h:panelGroup id="i_m_e">
+                                    <h:column rendered="#{campeonatoEquipeBean.membroEquipe ne null and campeonatoEquipeBean.membroEquipe.id ne -1}">
+                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'EXISTEM DÉBITOS')}" escape="false" rendered="#{campeonatoEquipeBean.membroEquipeDebito}" />                                        
+                                    </h:column>
                                     <p:panel>
                                         <f:facet name="header">
                                             <h:panelGrid columns="1" cellspacing="5">
@@ -114,7 +117,7 @@
                                         <p:column headerText="Categoria">
                                             #{matriculaCampeonato.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
                                         </p:column>
-                                         <p:column headerText="Valor Responsável" styleClass="text-center">
+                                        <p:column headerText="Valor Responsável" styleClass="text-center">
                                             #{matriculaCampeonato.servicoPessoa.nrValorFixoString}
                                         </p:column>  
                                         <p:column headerText="Dependentes" styleClass="text-center">
@@ -139,6 +142,9 @@
                                 <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.setEditDependentes(false)}"/>
                                 <p:messages showDetail="true" showSummary="true" id="i_d_msg"/>
                                 <h:panelGroup id="i_e_dep">
+                                    <h:column rendered="#{campeonatoEquipeBean.fisicaDependente ne null and campeonatoEquipeBean.fisicaDependente.id ne -1}">
+                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'EXISTEM DÉBITOS')}" escape="false" rendered="#{campeonatoEquipeBean.fisicaDependenteDebito}" />
+                                    </h:column>
                                     <p:panel>
                                         <h:panelGrid columns="3" cellspacing="5">
                                             <h:column rendered="#{campeonatoEquipeBean.fisicaDependente.id ne -1}">

@@ -118,7 +118,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String motivoRecusa2;
     private Boolean comPendencia;
 
-    public AgendamentoBean() {        
+    public AgendamentoBean() {
         if (configuracaoHomologacao.getId() == null) {
             configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
         }
@@ -1124,6 +1124,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 GlobalSync.load();
                 WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
             } else {
+                agendamento.setId(-1);
                 GenericaMensagem.fatal("Atenção", "Erro ao realizar este Agendamento!");
                 dao.rollback();
             }

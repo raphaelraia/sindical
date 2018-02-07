@@ -1,7 +1,9 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.beans.RaisBean;
 import br.com.rtools.arrecadacao.beans.WebREPISBean;
+import br.com.rtools.arrecadacao.dao.EmpregadosDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.DeclaracaoPessoa;
@@ -71,6 +73,7 @@ public class PessoaBean implements Serializable {
     private String tipoDeclaracaoPessoa;
     private String situacaoFuncionario;
     private List<PessoaEmpresa> listFuncionarios;
+    private List<Empregados> listEmpregados;
     private List<SelectItem> listAnoDeclaracaoAnualDebitos;
     private String anoDeclaracaoAnualDebitos;
     private List<ExameMedico> listExameMedico;
@@ -95,6 +98,7 @@ public class PessoaBean implements Serializable {
         situacaoFuncionario = "ativos";
         listFuncionarios = new ArrayList();
         listExameMedico = new ArrayList();
+        listEmpregados = new ArrayList();
 
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
@@ -463,6 +467,9 @@ public class PessoaBean implements Serializable {
                 listFuncionarios = pessoaEmpresaDao.findAllByPessoa(pessoa.getId(), true);
                 break;
         }
+        // MOSTRA A QTDE QUE É REGISTRADA/SOLICITADA DE EMPREGADOS NO ACESSO WEB A CADA PERÍODO DEFINIDO PELO CLIENTE OU MENSAL
+        listEmpregados = new ArrayList();
+        listEmpregados = new EmpregadosDao().findByJuridica(pessoa.getJuridica().getId(), false);
     }
 
     public String getSelectDetalhes() {
@@ -579,6 +586,14 @@ public class PessoaBean implements Serializable {
 
     public void setListExameMedico(List<ExameMedico> listExameMedico) {
         this.listExameMedico = listExameMedico;
+    }
+
+    public List<Empregados> getListEmpregados() {
+        return listEmpregados;
+    }
+
+    public void setListEmpregados(List<Empregados> listEmpregados) {
+        this.listEmpregados = listEmpregados;
     }
 
 }
