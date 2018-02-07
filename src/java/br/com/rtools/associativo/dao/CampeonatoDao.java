@@ -45,16 +45,15 @@ public class CampeonatoDao extends DB {
             } else {
                 switch (situacao) {
                     case "ativo":
-                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( :in_modalidades ) AND C.dtFim >= CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( " + in_modalidades + " ) AND C.dtFim >= CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
                         break;
                     case "finalizado":
-                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( :in_modalidades ) AND C.dtFim < CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( " + in_modalidades + " ) AND C.dtFim < CURRENT_TIMESTAMP ORDER BY C.tituloComplemento ASC");
                         break;
                     default:
-                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( :in_modalidades ) ORDER BY C.tituloComplemento ASC");
+                        query = getEntityManager().createQuery("SELECT C FROM Campeonato C WHERE C.modalidade.id IN( " + in_modalidades + " ) ORDER BY C.tituloComplemento ASC");
                         break;
                 }
-                query.setParameter("in_modalidades", in_modalidades);
             }
             return query.getResultList();
         } catch (Exception e) {

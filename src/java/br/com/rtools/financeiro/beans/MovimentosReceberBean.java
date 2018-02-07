@@ -1,6 +1,8 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.arrecadacao.AcordoComissaoOperador;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
+import br.com.rtools.arrecadacao.dao.AcordoComissaoOperadorDao;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoRecibo;
@@ -152,6 +154,11 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     }
 
     public String telaAcordo() {
+        AcordoComissaoOperador aco = new AcordoComissaoOperadorDao().find(Usuario.getUsuario().getId(), 4);
+        if (aco == null) {
+            GenericaMensagem.warn("Sistema", "Você não tem cadastro como operador de acordo! Solicite ao administrador do sistema.");
+            return null;
+        }
         BloqueioRotinaDao bloqueioRotinaDao = new BloqueioRotinaDao();
         bloqueioRotina = bloqueioRotinaDao.existUsuarioRotinaPessoa(95, pessoa.getId());
         if (bloqueioRotina != null) {
@@ -194,11 +201,10 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
                 return null;
             }
 
-            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2) {
-                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE " + cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
-                return null;
-            }
-
+//            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2) {
+//                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE " + cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
+//                return null;
+//            }
             dao.openTransaction();
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {

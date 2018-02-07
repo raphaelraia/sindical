@@ -157,28 +157,11 @@ public class CategoriaBean implements Serializable {
             } else {
                 GenericaMensagem.warn("Erro", "Ao atualizar registro");
             }
-//            for (int i = 0; i < list.size(); i++) {
-//                servicoCategoria = (ServicoCategoria) ((DataObject) list.get(i)).getArgumento2();
-//                if (Integer.parseInt(listServicos.get(Integer.parseInt((String) ((DataObject) list.get(i)).getArgumento1())).getDescription()) == -1) {
-//                    if (servicoCategoria.getId() != -1) {
-//                        servicoCategoria = (ServicoCategoria) dao.find(new ServicoCategoria(), servicoCategoria.getId());
-//                        dao.delete(servicoCategoria, true);
-//                    }
-//                } else {
-//                    servicoCategoria.setServicos((Servicos) new Dao().find(new Servicos(), Integer.parseInt(
-//                            listServicos.get(Integer.parseInt((String) ((DataObject) list.get(i)).getArgumento1())).getDescription())));
-//                    servicoCategoria.setCategoria(categoria);
-//                    servicoCategoria.setParentesco((Parentesco) ((DataObject) list.get(i)).getArgumento0());
-//                    if (servicoCategoria.getId() == -1) {
-//                        dao.save(servicoCategoria, true);
-//                    } else {
-//                        dao.update(servicoCategoria, true);
-//                    }
-//                }
-//            }
-//            list = new ArrayList();
             for (int i = 0; i < listObjectServicoCategoria.size(); i++) {
                 servicoCategoria = (ServicoCategoria) listObjectServicoCategoria.get(i).getServicoCategoria();
+                if (servicoCategoria == null) {
+                    servicoCategoria = new ServicoCategoria();
+                }
                 if (listObjectServicoCategoria.get(i).getIdServico2() == null) {
                     if (servicoCategoria.getId() != -1) {
                         dao.delete(servicoCategoria, true);
@@ -442,39 +425,51 @@ public class CategoriaBean implements Serializable {
 
     public void loadListOSC() {
         listObjectServicoCategoria = new ArrayList();
-        ServicoCategoriaDao dbSeC = new ServicoCategoriaDao();
-        List<ServicoCategoria> listaSerCat = dbSeC.pesquisaServCatPorId(categoria.getId());
-        List<Parentesco> listaPar = new Dao().list(new Parentesco(), true);
-        if (listaSerCat.isEmpty()) {
-            for (int i = 0; i < listaPar.size(); i++) {
-                listObjectServicoCategoria.add(new ObjectServicoCategoria(listaPar.get(i), new ServicoCategoria(), null));
+        ServicoCategoriaDao scd = new ServicoCategoriaDao();
+        List<Parentesco> listParentesco = new Dao().list(new Parentesco(), true);
+
+        for (int i = 0; i < listParentesco.size(); i++) {
+            ServicoCategoria sc = null;
+            if (categoria.getId() != -1) {
+                sc = scd.find(listParentesco.get(i).getId(), categoria.getId());
             }
-        } else {
-            Integer servico_id = null;
-            boolean temServico = false;
-            for (int i = 0; i < listaPar.size(); i++) {
-                for (int x = 0; x < listaSerCat.size(); x++) {
-                    if (Objects.equals(listaPar.get(i).getId(), listaSerCat.get(x).getParentesco().getId())) {
-                        for (int w = 0; w < listServicos.size(); w++) {
-                            if (listServicos.get(w).getValue() != null) {
-                                if (listaSerCat.get(x).getServicos().getId() == (Integer.parseInt(listServicos.get(w).getValue().toString()))) {
-                                    servico_id = listaSerCat.get(x).getServicos().getId();
-                                    temServico = true;
-                                    break;
-                                }
-                            }
-                        }
-                        listObjectServicoCategoria.add(new ObjectServicoCategoria(listaPar.get(i), listaSerCat.get(x), servico_id));
-                        break;
-                    }
-                }
-                if (!temServico) {
-                    listObjectServicoCategoria.add(new ObjectServicoCategoria(listaPar.get(i), new ServicoCategoria(), servico_id));
-                }
-                temServico = false;
-                servico_id = null;
+            if (sc == null) {
+                listObjectServicoCategoria.add(new ObjectServicoCategoria(listParentesco.get(i), null, null));
+            } else {
+                listObjectServicoCategoria.add(new ObjectServicoCategoria(listParentesco.get(i), sc, sc.getServicos().getId()));
             }
         }
+
+//        List<ServicoCategoria> listaSerCat = dbSeC.pesquisaServCatPorId(categoria.getId());
+//        if (listaSerCat.isEmpty()) {
+//            for (int i = 0; i < listaPar.size(); i++) {
+//            }
+//        } else {
+//            Integer servico_id = null;
+//            boolean temServico = false;
+//            for (int i = 0; i < listaPar.size(); i++) {
+//                for (int x = 0; x < listaSerCat.size(); x++) {
+//                    if (Objects.equals(listaPar.get(i).getId(), listaSerCat.get(x).getParentesco().getId())) {
+//                        for (int w = 0; w < listServicos.size(); w++) {
+//                            if (listServicos.get(w).getValue() != null) {
+//                                if (listaSerCat.get(x).getServicos().getId() == (Integer.parseInt(listServicos.get(w).getValue().toString()))) {
+//                                    servico_id = listaSerCat.get(x).getServicos().getId();
+//                                    temServico = true;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        listObjectServicoCategoria.add(new ObjectServicoCategoria(listaPar.get(i), listaSerCat.get(x), servico_id));
+//                        break;
+//                    }
+//                }
+//                if (!temServico) {
+//                    listObjectServicoCategoria.add(new ObjectServicoCategoria(listaPar.get(i), new ServicoCategoria(), servico_id));
+//                }
+//                temServico = false;
+//                servico_id = null;
+//            }
+//        }
     }
 
     public List<ObjectServicoCategoria> getListObjectServicoCategoria() {

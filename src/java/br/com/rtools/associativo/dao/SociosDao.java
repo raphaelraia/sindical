@@ -133,13 +133,17 @@ public class SociosDao extends DB {
 //        }
 //    }
 
-    public List pesquisaDependentesOrdenado(int idMatricula) {
+    public List pesquisaDependentesOrdenado(Integer matricula_id) {
         try {
-            Query qry = getEntityManager().createQuery("select s from Socios s "
-                    + " where s.parentesco.id <> 1 "
-                    + "   and s.matriculaSocios.id = " + idMatricula
-                    + "   and s.servicoPessoa.ativo = true "
-                    + " order by s.parentesco.id");
+            String queryString = ""
+                    + "   SELECT S                                              \n"
+                    + "     FROM Socios S                                       \n"
+                    + "    WHERE S.parentesco.id <> 1                           \n"
+                    + "      AND S.matriculaSocios.id = " + matricula_id + "    \n"
+                    + "      AND S.servicoPessoa.ativo = true                   \n"
+                    + " ORDER BY S.servicoPessoa.pessoa.nome ";
+
+            Query qry = getEntityManager().createQuery(queryString);
             return (qry.getResultList());
         } catch (Exception e) {
             e.getMessage();

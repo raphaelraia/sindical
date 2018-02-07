@@ -19,6 +19,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -520,6 +521,15 @@ public class CampeonatoEquipeBean implements Serializable {
         this.membroEquipe = membroEquipe;
     }
 
+    public Boolean getMembroEquipeDebito() {
+        if (membroEquipe != null && membroEquipe.getId() != -1) {
+            if (new FunctionsDao().inadimplente(membroEquipe.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Boolean getEditMembrosEquipe() {
         return editMembrosEquipe;
     }
@@ -574,6 +584,15 @@ public class CampeonatoEquipeBean implements Serializable {
 
     public void setFisicaDependente(Fisica fisicaDependente) {
         this.fisicaDependente = fisicaDependente;
+    }
+
+    public Boolean getFisicaDependenteDebito() {
+        if (fisicaDependente != null && fisicaDependente.getId() != -1) {
+            if (new FunctionsDao().inadimplente(fisicaDependente.getPessoa().getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public CampeonatoDependente getCampeonatoDependente() {

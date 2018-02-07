@@ -86,7 +86,7 @@
                                                 <p:panel header="Status do Campeonato">
                                                     <h:panelGrid columns="6" cellspacing="5">
                                                         <p:selectOneMenu label="Data" value="#{relatorioCampeonatoBean.statusCampeonato}">
-                                                            <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioCampeonatoBean.listener('status_cammpeonato')}"/>
+                                                            <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioCampeonatoBean.listener('status_campeonato')}"/>
                                                             <f:selectItem itemValue="todos" itemLabel="Todos" />
                                                             <f:selectItem itemValue="ativo" itemLabel="Ativos" />
                                                             <f:selectItem itemValue="finalizado" itemLabel="Finalizados" />
@@ -112,8 +112,8 @@
                                                 <p:panel header="Modalidade">
                                                     <h:panelGrid columns="2" cellspacing="5">
                                                         <p:selectCheckboxMenu label="Selecionar modalidade" value="#{relatorioCampeonatoBean.selectedModalidade}" filter="true" filterMatchMode="startsWith">
-                                                            <p:ajax event="toggleSelect" global="false" />
-                                                            <p:ajax event="change" global="false"/>
+                                                            <p:ajax event="toggleSelect" update=":form_relatorio:i_campeonato :form_relatorio:i_equipe" global="false" listener="#{relatorioCampeonatoBean.listener('modalidade')}"/>
+                                                            <p:ajax event="change" global="false" update=":form_relatorio:i_campeonato :form_relatorio:i_equipe"  listener="#{relatorioCampeonatoBean.listener('modalidade')}"/>
                                                             <f:selectItems value="#{relatorioCampeonatoBean.listModalidade}" />
                                                         </p:selectCheckboxMenu>
                                                         <p:commandButton icon="ui-icon-close" action="#{relatorioCampeonatoBean.close('modalidade')}" title="Remover filtro" update="form_relatorio"/>
@@ -121,7 +121,7 @@
                                                 </p:panel>
                                             </h:column>
                                             <h:column rendered="#{relatorioCampeonatoBean.getShow('campeonato')}">
-                                                <p:panel header="Campeonato">
+                                                <p:panel header="Campeonato"  id="i_campeonato">
                                                     <h:panelGrid columns="2" cellspacing="5">
                                                         <p:selectCheckboxMenu label="Selecionar campeonato" value="#{relatorioCampeonatoBean.selectedCampeonato}" filter="true" filterMatchMode="startsWith">
                                                             <p:ajax event="toggleSelect" global="false" update=":form_relatorio:i_equipe" listener="#{relatorioCampeonatoBean.loadListEquipes()}"/>

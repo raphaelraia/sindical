@@ -34,4 +34,15 @@ public class ServicoCategoriaDao extends DB {
         }
         return result;
     }
+
+    public ServicoCategoria find(Integer parentesco_id, Integer categoria_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT SC FROM ServicoCategoria SC WHERE SC.categoria.id = :categoria_id AND SC.parentesco.id = :parentesco_id");
+            query.setParameter("parentesco_id", parentesco_id);
+            query.setParameter("categoria_id", categoria_id);
+            return (ServicoCategoria) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
