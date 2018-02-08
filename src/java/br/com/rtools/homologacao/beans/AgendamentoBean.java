@@ -117,6 +117,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String motivoRecusa1;
     private String motivoRecusa2;
     private Boolean comPendencia;
+    private List<SelectItem> listNrRegistro;
+    private Integer nrRegistro = 1;
 
     public AgendamentoBean() {
         if (configuracaoHomologacao.getId() == null) {
@@ -152,13 +154,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         renderedFilial = false;
         GlobalSync.load();
+        loadListNrRegistro();
     }
 
     public boolean validaAdmissao() {
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDao db = new HomologacaoDao();
 
-            PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao());
+            PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao(), nrRegistro);
 
             if (pe != null) {
                 int[] ids = new int[2];
@@ -185,7 +188,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDao db = new HomologacaoDao();
 
-            PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getDemissao());
+            PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getDemissao(), nrRegistro);
 
             if (pe != null) {
                 int[] ids = new int[2];
@@ -607,6 +610,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void agendar(Agendamento a) {
+        nrRegistro = 1;
         listFiles = new ArrayList();
         if (a.getId() != -1) {
             getListFiles();
@@ -694,6 +698,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 documentoFisica = fisica.getPessoa().getDocumento();
                 enderecoFisica = db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
                 juridica = a.getPessoaEmpresa().getJuridica();
+                nrRegistro = a.getPessoaEmpresa().getNrRegistro();
                 loadStatusEmpresa();
                 loadEmpresaEndereco();
                 profissao = a.getPessoaEmpresa().getFuncao();
@@ -944,10 +949,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
         HomologacaoDao dba = new HomologacaoDao();
-        Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId());
+        Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId(), nrRegistro);
         if (age != null && agendamento.getId() == -1) {
             dao.rollback();
-            GenericaMensagem.warn("Atenção", "Pessoa já foi agendada, na data " + age.getData());
+            GenericaMensagem.warn("Atenção", "Pessoa já foi agendada, na data " + age.getData() + " com mesmo número de registro " + nrRegistro + " !");
             return;
         }
         if (agendamento.getId() == -1) {
@@ -1014,6 +1019,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 pessoaEmpresa.setJuridica(juridica);
                 pessoaEmpresa.setFuncao(profissao);
                 pessoaEmpresa.setPrincipal(false);
+                pessoaEmpresa.setNrRegistro(nrRegistro);
                 //pessoaEmpresa.setAvisoTrabalhado(Boolean.valueOf(tipoAviso));
                 agendamento.setDemissao(demissao);
                 agendamento.setHomologador(null);
@@ -1022,6 +1028,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 break;
             }
             case 2: {
+                pessoaEmpresa.setNrRegistro(nrRegistro);
                 pessoaEmpresa.setFisica(fisica);
                 pessoaEmpresa.setJuridica(juridica);
                 //pessoaEmpresa.setAvisoTrabalhado(Boolean.valueOf(tipoAviso));
@@ -1034,6 +1041,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 pessoaEmpresa.setFisica(fisica);
                 pessoaEmpresa.setJuridica(juridica);
                 pessoaEmpresa.setFuncao(profissao);
+                pessoaEmpresa.setNrRegistro(nrRegistro);
                 //pessoaEmpresa.setAvisoTrabalhado(Boolean.valueOf(tipoAviso));
                 agendamento.setDemissao(demissao);
                 agendamento.setHomologador(null);
@@ -2187,6 +2195,29 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
         this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
+
+    public void loadListNrRegistro() {
+        listNrRegistro = new ArrayList();
+        for (int i = 1; i < 6; i++) {
+            listNrRegistro.add(new SelectItem(i, (i + "")));
+        }
+    }
+
+    public List<SelectItem> getListNrRegistro() {
+        return listNrRegistro;
+    }
+
+    public void setListNrRegistro(List<SelectItem> listNrRegistro) {
+        this.listNrRegistro = listNrRegistro;
+    }
+
+    public Integer getNrRegistro() {
+        return nrRegistro;
+    }
+
+    public void setNrRegistro(Integer nrRegistro) {
+        this.nrRegistro = nrRegistro;
     }
 
 }

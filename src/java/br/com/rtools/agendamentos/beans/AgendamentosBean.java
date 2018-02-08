@@ -701,7 +701,6 @@ public class AgendamentosBean implements Serializable {
                 loadListServicos();
                 break;
             case "subgrupo_convenio":
-                loadListSubGrupoConvenio();
                 loadListConvenio();
                 loadListServicos();
                 break;

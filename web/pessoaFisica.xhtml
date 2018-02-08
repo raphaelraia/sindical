@@ -434,6 +434,14 @@
                                                             <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
                                                     </h:column>
+
+                                                    <h:column>
+                                                        <p:outputLabel value="Registro" /><br />
+                                                        <p:selectOneMenu value="#{fisicaBean.nrRegistro}" disabled="#{fisicaBean.pessoaEmpresa.id ne -1}">
+                                                            <p:ajax event="change" update="@this"/>
+                                                            <f:selectItems value="#{fisicaBean.listNrRegistro}" />
+                                                        </p:selectOneMenu>  
+                                                    </h:column>
                                                 </h:panelGrid>                                
 
                                                 <h:panelGrid columns="3" style="margin-top: 15px">
@@ -485,6 +493,9 @@
                                                     </p:column>
                                                     <p:column styleClass="text-center">
                                                         <p:outputLabel value="#{pessoaEmpresa.socio ? 'SÓCIO DA EMPRESA' : ''}" styleClass="bold font-color-red"/>
+                                                    </p:column>
+                                                    <p:column headerText="Nr. Registro">
+                                                        <p:outputLabel value="#{pessoaEmpresa.nrRegistro}" />
                                                     </p:column>
                                                     <p:column width="30">
                                                         <h:column rendered="#{!pessoaEmpresa.socio}">
@@ -816,6 +827,13 @@
                                             <h:column>
                                                 <p:outputLabel value="Código" /><br />
                                                 <p:inputText size="10" value="#{fisicaBean.pessoaEmpresaEdit.codigo}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </h:column>
+                                            
+                                            <h:column>
+                                                <p:outputLabel value="Registro" /><br />
+                                                <p:inputText size="10" value="#{fisicaBean.pessoaEmpresaEdit.nrRegistro}" readonly="true">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
                                             </h:column>

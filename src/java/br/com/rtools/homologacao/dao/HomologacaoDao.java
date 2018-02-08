@@ -720,6 +720,28 @@ public class HomologacaoDao extends DB {
         return result;
     }
 
+    public Agendamento pesquisaFisicaAgendada(Integer fisica_id, Integer juridica_id, Integer nr_registro) {
+        Agendamento result = null;
+        try {
+            Query qry = getEntityManager().createQuery(
+                    " SELECT A "
+                    + " FROM Agendamento A "
+                    + "WHERE A.pessoaEmpresa.fisica.id = " + fisica_id + " "
+                    + "  AND A.pessoaEmpresa.juridica.id = " + juridica_id + " "
+                    + "  AND A.pessoaEmpresa.nrRegistro = " + nr_registro + " "
+                    + "  AND A.dtData >= :data "
+                    + "  AND (A.status.id = 2 OR A.status.id = 5 OR A.status.id = 8) "
+            );
+            qry.setParameter("data", DataHoje.dataHoje());
+            if (!qry.getResultList().isEmpty()) {
+                result = (Agendamento) qry.getSingleResult();
+            }
+        } catch (Exception e) {
+            // e.printStackTrace();
+        }
+        return result;
+    }
+
     public int pesquisaUltimaSenha(int id_filial) {
         int result = 0;
         try {
@@ -1144,6 +1166,52 @@ public class HomologacaoDao extends DB {
             qry.setParameter("id_fisica", id_fisica);
             qry.setParameter("id_juridica", id_juridica);
             qry.setParameter("dt_demissao", DataHoje.converte(dataDemissao));
+
+            return (PessoaEmpresa) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
+    }
+    
+    public PessoaEmpresa pesquisaPessoaEmpresaAdmissao(int id_fisica, int id_juridica, String dataAdmissao, Integer nrRegistro) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "SELECT pe "
+                    + "  FROM PessoaEmpresa pe"
+                    + " WHERE pe.fisica.id = :id_fisica"
+                    + "   AND pe.juridica.id = :id_juridica"
+                    + "   AND pe.dtAdmissao = :dt_admissao"
+                    + "   AND pe.nrRegistro = :nrRegistro"
+            );
+
+            qry.setParameter("id_fisica", id_fisica);
+            qry.setParameter("id_juridica", id_juridica);
+            qry.setParameter("dt_admissao", DataHoje.converte(dataAdmissao));
+            qry.setParameter("nrRegistro", nrRegistro);
+
+            return (PessoaEmpresa) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
+    }
+
+    public PessoaEmpresa pesquisaPessoaEmpresaDemissao(int id_fisica, int id_juridica, String dataDemissao, Integer nrRegistro) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "SELECT pe "
+                    + "  FROM PessoaEmpresa pe"
+                    + " WHERE pe.fisica.id = :id_fisica"
+                    + "   AND pe.juridica.id = :id_juridica"
+                    + "   AND pe.dtDemissao = :dt_demissao"
+                    + "   AND pe.nrRegistro = :nrRegistro"
+            );
+
+            qry.setParameter("id_fisica", id_fisica);
+            qry.setParameter("id_juridica", id_juridica);
+            qry.setParameter("dt_demissao", DataHoje.converte(dataDemissao));
+            qry.setParameter("nrRegistro", nrRegistro);
 
             return (PessoaEmpresa) qry.getSingleResult();
         } catch (Exception e) {
