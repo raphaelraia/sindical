@@ -830,12 +830,13 @@
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
                                             </h:column>
-                                            
+
                                             <h:column>
                                                 <p:outputLabel value="Registro" /><br />
-                                                <p:inputText size="10" value="#{fisicaBean.pessoaEmpresaEdit.nrRegistro}" readonly="true">
+                                                <p:selectOneMenu value="#{fisicaBean.pessoaEmpresaEdit.nrRegistro}">
                                                     <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
+                                                    <f:selectItems value="#{fisicaBean.listNrRegistro}" />
+                                                </p:selectOneMenu>
                                             </h:column>
                                         </h:panelGrid>                                
 
