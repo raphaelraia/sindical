@@ -2897,7 +2897,8 @@ public class MatriculaEscolaBean implements Serializable {
             //    dt = servicoPessoa.getEmissao();
             //}
 
-            numeroParcelas = DataHoje.quantidadeMeses(DataHoje.converte(dt), DataHoje.converte("01/" + servicoPessoa.getReferenciaValidade())) + 1;
+            // numeroParcelas = DataHoje.quantidadeMeses(DataHoje.converte(dt), DataHoje.converte("01/" + servicoPessoa.getReferenciaValidade())) + 1;
+            numeroParcelas = DataHoje.diffMonths(dt, "01/" + servicoPessoa.getReferenciaValidade());
             valorTotal = Moeda.converteR$Double(Moeda.multiplicar(Moeda.converteUS$(valor), numeroParcelas));
         } else {
             numeroParcelas = 0;

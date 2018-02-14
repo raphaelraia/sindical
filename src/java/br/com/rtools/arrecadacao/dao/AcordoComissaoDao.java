@@ -66,29 +66,30 @@ public class AcordoComissaoDao extends DB {
         try {
             getEntityManager().getTransaction().begin();
             String textQuery
-                    = " insert into arr_acordo_comissao (dt_inicio,dt_fechamento,nr_num_documento,id_conta_cobranca,id_acordo) "
-                    + "            ( "
-                    + "                select (select case when max(dt_fechamento) is null then (select min(dt_data) from arr_acordo) else (max(dt_fechamento) + 1) end from arr_acordo_comissao ) dt_inicio, "
-                    + "                       '" + DataHoje.data() + "' as dt_fechamento, "
-                    + "                       m.ds_documento BOLETO, "
-                    + "                       bo.id_conta_cobranca, "
-                    + "                       m.id_acordo "
-                    + "                  from fin_movimento              as m "
-                    + "                 inner join pes_pessoa            as p on p.id = m.id_pessoa "
-                    + "                 inner join fin_baixa             as lb on lb.id = m.id_baixa "
-                    + "                 inner join fin_servicos          as se on se.id = m.id_servicos "
-                    + "                 inner join fin_boleto            as bo on bo.nr_ctr_boleto = m.nr_ctr_boleto "
-                    + "                 inner join fin_conta_cobranca    as cc on cc.id = bo.id_conta_cobranca "
-                    + "                 where m.id_tipo_servico = 4 "
-                    + "                   and m.id_servicos <> 8 "
-                    + "                   and lb.dt_baixa > '01/08/2010'"
-                    + "                   and m.is_ativo = true "
-                    + "                   and m.id_acordo > 0 "
-                    + "                   and 'C'|| bo.id_conta_cobranca ||'D'||m.ds_documento not in (select 'C'|| "
-                    + "                                                                                      id_conta_cobranca|| "
-                    + "                                                                                      'D'|| "
-                    + "                                                                                      nr_num_documento "
-                    + "                                                                                 from arr_acordo_comissao)"
+                    = " INSERT INTO arr_acordo_comissao (dt_inicio,dt_fechamento,nr_num_documento,id_conta_cobranca,id_acordo)  \n"
+                    + "            (                                                                                            \n"
+                    + "                SELECT (SELECT CASE WHEN MAX(dt_fechamento) IS NULL THEN (SELECT MIN(dt_data) FROM arr_acordo) ELSE (MAX(dt_fechamento) + 1) END FROM arr_acordo_comissao ) dt_inicio, \n"
+                    + "                       '" + DataHoje.data() + "' AS dt_fechamento,                                           \n"
+                    + "                       M.ds_documento BOLETO,                                                                \n"
+                    + "                       BO.id_conta_cobranca,                                                                 \n"
+                    + "                       M.id_acordo                                                                           \n"
+                    + "                  FROM fin_movimento         AS M                                                            \n"
+                    + "            INNER JOIN pes_pessoa            AS P  ON P.id  = M.id_pessoa                                    \n"
+                    + "            INNER JOIN fin_baixa             AS LB ON LB.id = M.id_baixa                                     \n"
+                    + "            INNER JOIN fin_servicos          AS SE ON SE.id = M.id_servicos                                  \n"
+                    + "            INNER JOIN fin_boleto            AS BO ON BO.nr_ctr_boleto = M.nr_ctr_boleto                     \n"
+                    + "            INNER JOIN fin_conta_cobranca    AS CC ON CC.id = BO.id_conta_cobranca                           \n"
+                    + "                 WHERE M.id_tipo_servico = 4                                                                 \n"
+                    + "                   AND M.id_servicos <> 8                                                                    \n"
+                    + "                   AND LB.dt_baixa > '01/08/2010'                                                            \n"
+                    + "                   AND M.is_ativo = true                                                                     \n"
+                    + "                   AND M.id_acordo > 0                                                                       \n"
+                    + "                   AND 'C'|| BO.id_conta_cobranca ||'D'||M.ds_documento NOT IN (SELECT 'C'||                 \n"
+                    + "                                                                                      id_conta_cobranca||    \n"
+                    + "                                                                                      'D'||                  \n"
+                    + "                                                                                      nr_num_documento       \n"
+                    + "                                                                                 FROM arr_acordo_comissao    \n"
+                    + "                  )                                                                                          \n"
                     + ") ";
             Query query = getEntityManager().createNativeQuery(textQuery);
             query.executeUpdate();
@@ -159,7 +160,7 @@ public class AcordoComissaoDao extends DB {
             if (in_usuarios != null && !in_usuarios.isEmpty()) {
                 textQuery += " AND AC.id_usuario IN (" + in_usuarios + " )" + " \n";
             }
-            if (relatorioOrdem == null) { 
+            if (relatorioOrdem == null) {
                 textQuery += " ORDER BY P.ds_nome";
             } else {
                 textQuery += " ORDER BY " + relatorioOrdem.getQuery();

@@ -1366,4 +1366,18 @@ public class DataHoje {
             return 0;
         }
     }
+
+    public static Integer diffMonths(String startDate, String endDate) {
+        try {
+            Calendar startCalendar = new GregorianCalendar();
+            startCalendar.setTime(DataHoje.converte(startDate));
+            Calendar endCalendar = new GregorianCalendar();
+            endCalendar.setTime(DataHoje.converte(endDate));
+            int diffYear = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+            int diffMonth = diffYear * 12 + endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+            return diffMonth;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }
