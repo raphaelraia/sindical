@@ -510,6 +510,7 @@ public class FinanceiroDao extends DB {
                     + "  INNER JOIN fin_forma_pagamento AS f ON f.id_cheque_rec = c.id AND f.id_status = " + id_status + " \n"
                     + "  INNER JOIN fin_banco AS banc ON banc.id = c.id_banco \n"
                     + "  WHERE dt_vencimento <= CURRENT_DATE  \n"
+                    + "  ORDER BY dt_vencimento \n"
             //                    + "    AND c.dt_emissao > (\n"
             //                    + "    SELECT CASE WHEN MIN(dt_data) IS NULL THEN CURRENT_DATE ELSE MIN(dt_data) END\n"
             //                    + "      FROM fin_conta_saldo \n"

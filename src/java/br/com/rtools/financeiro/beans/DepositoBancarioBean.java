@@ -146,6 +146,11 @@ public class DepositoBancarioBean implements Serializable {
             GenericaMensagem.warn("Atenção", "DIGITE UM VALOR PARA DEPÓSITO!");
             return;
         }
+        
+        if (Integer.valueOf(listaConta.get(idConta).getDescription()) == -1){
+            GenericaMensagem.warn("Atenção", listaConta.get(idConta).getLabel());
+            return;
+        }
 
         Dao dao = new Dao();
 
@@ -245,6 +250,11 @@ public class DepositoBancarioBean implements Serializable {
     public void depositarCheque() {
         if (listaSelecionado.isEmpty()) {
             GenericaMensagem.warn("Erro", "Nenhum cheque foi selecionado!");
+            return;
+        }
+        
+        if (Integer.valueOf(listaConta.get(idConta).getDescription()) == -1){
+            GenericaMensagem.warn("Atenção", listaConta.get(idConta).getLabel());
             return;
         }
 
@@ -482,6 +492,11 @@ public class DepositoBancarioBean implements Serializable {
 
             List<Plano5> result = db.pesquisaCaixaBanco();
             for (int i = 0; i < result.size(); i++) {
+                if (result.get(i).getContaBanco() == null || result.get(i).getContaBanco().getBanco() == null){
+                    listaConta.add(new SelectItem(-1, "** ERRO NA LISTA " + result.get(i).getConta(), "-1"));
+                    continue;
+                }
+                
                 listaConta.add(
                         new SelectItem(
                                 i,
