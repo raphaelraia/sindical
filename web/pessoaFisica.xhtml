@@ -370,10 +370,10 @@
                                                                 <p:rowToggler rendered="#{not empty linha.matriculaSocios.motivo}"/>  
                                                             </p:column> 
                                                             <p:column headerText="Data" width="80" styleClass="text-center">
-                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
+                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa, linha.matriculaSocios.inativo)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
                                                             </p:column>
                                                             <p:column headerText="Motivo">
-                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
+                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa, linha.matriculaSocios.inativo)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
                                                             </p:column>
                                                             <p:rowExpansion>
                                                                 #{linha.matriculaSocios.motivo}
