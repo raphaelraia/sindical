@@ -99,7 +99,8 @@ public class PessoaBean implements Serializable {
         listFuncionarios = new ArrayList();
         listExameMedico = new ArrayList();
         listEmpregados = new ArrayList();
-
+        listAnoDeclaracaoAnualDebitos = new ArrayList();
+        
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
             if (tipoPessoa.equals("pessoaFisica")) {

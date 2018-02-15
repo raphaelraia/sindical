@@ -600,19 +600,19 @@ public class WebREPISBean implements Serializable {
                     Collection<ParametroCertificado> vetor = new ArrayList();
                     String logoPatronal = "",
                             imagemFundo = (String) ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/certificado_domingo_fundo.png"),
-                            logoCaminho = (String) ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPatronal/" + repis.getPatronal().getId());
-                    if (new File(logoCaminho + ".jpg").exists()) {
-                        logoCaminho = logoCaminho + ".jpg";
-                    } else if (new File(logoCaminho + ".JPG").exists()) {
-                        logoCaminho = logoCaminho + ".JPG";
-                    } else if (new File(logoCaminho + ".png").exists()) {
-                        logoCaminho = logoCaminho + ".png";
-                    } else if (new File(logoCaminho + ".PNG").exists()) {
-                        logoCaminho = logoPatronal + repis.getPatronal().getId() + ".PNG";
-                    } else if (new File(logoCaminho + ".gif").exists()) {
-                        logoCaminho = logoCaminho + ".gif";
+                            logo_patronal = (String) ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoPatronal/" + repis.getPatronal().getId());
+                    if (new File(logo_patronal + ".jpg").exists()) {
+                        logo_patronal = logo_patronal + ".jpg";
+                    } else if (new File(logo_patronal + ".JPG").exists()) {
+                        logo_patronal = logo_patronal + ".JPG";
+                    } else if (new File(logo_patronal + ".png").exists()) {
+                        logo_patronal = logo_patronal + ".png";
+                    } else if (new File(logo_patronal + ".PNG").exists()) {
+                        logo_patronal = logoPatronal + repis.getPatronal().getId() + ".PNG";
+                    } else if (new File(logo_patronal + ".gif").exists()) {
+                        logo_patronal = logo_patronal + ".gif";
                     } else {
-                        logoCaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                        logo_patronal = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
                     }
 
                     String cep = AnaliseString.mascaraCep(ee.getEndereco().getCep());
@@ -663,7 +663,9 @@ public class WebREPISBean implements Serializable {
 
                     JasperReport jasper = (JasperReport) JRLoader.loadObject(file);
 
-                    String caminho_logo_certidao = logoCaminho;//((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                    // EM ALGUM MOMENTO FOI PEDIDO PARA COLOCAR O MESMO LOGO, DEPOIS PEDIU PRA ALTERAR
+                    //String caminho_logo_certidao = logoCaminho;//((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                    String caminho_logo_certidao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
                     String caminho_fundo_certidao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoFundo.png");
 
                     CertidaoDisponivel cd = new CertidaoDisponivelDao().pesquisaCertidaoDisponivel(ee.getEndereco().getCidade().getId(), id_convencao, repis.getCertidaoTipo().getId());
@@ -673,7 +675,8 @@ public class WebREPISBean implements Serializable {
                         if (f.exists()) {
                             // LOGO
                             caminho_logo_certidao = f.getPath();
-                            logoCaminho = caminho_logo_certidao;
+                            // EM ALGUM MOMENTO FOI PEDIDO PARA COLOCAR O MESMO LOGO, DEPOIS PEDIU PRA ALTERAR
+                            //logoCaminho = caminho_logo_certidao;
                         }
 
                         f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/logocertidao/" + cd.getId() + "/" + cd.getFundo()));
@@ -695,7 +698,7 @@ public class WebREPISBean implements Serializable {
                         vetor.add(
                                 new ParametroCertificado(
                                         repis.getPatronal().getPessoa().getNome(),
-                                        logoCaminho,
+                                        logo_patronal,
                                         repis.getPatronal().getBaseTerritorial(),
                                         sindicato.getPessoa().getNome(),
                                         caminho_logo_certidao,
