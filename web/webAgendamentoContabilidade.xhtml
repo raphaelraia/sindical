@@ -286,13 +286,22 @@
                             </h:panelGrid>
                         </h:panelGrid>
 
-                        <h:panelGrid columns="4" style="margin-top: 10px">
+                        <h:panelGrid columns="5" style="margin-top: 10px">
+                            <h:column>
+                                <p:outputLabel value="Registro" /><br />
+                                <p:selectOneMenu value="#{webAgendamentoContabilidadeBean.nrRegistro}" disabled="#{webAgendamentoContabilidadeBean.agendamento.id ne -1}">
+                                    <p:ajax event="change" update="@this"/>
+                                    <f:selectItems value="#{webAgendamentoContabilidadeBean.listNrRegistro}" />
+                                </p:selectOneMenu>  
+                            </h:column>
+                            
                             <h:column>
                                 <h:outputLabel value="Setor"/><br />
                                 <p:inputText size="20" value="#{webAgendamentoContabilidadeBean.pessoaEmpresa.setor}" converter="#{toUpperCase}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>
+                            
                             <h:column>
 
                                 <h:column>

@@ -50,7 +50,7 @@
                                 <p:ajax event="change" update="tbl i_dates" listener="#{webAgendamentoContribuinteBean.clearHorariosStatus()}"/>
                                 <f:selectItems value="#{webAgendamentoContribuinteBean.listaStatus}"/>
                             </p:selectOneMenu>
-                            
+
                             <p:commandLink value="Documentos para Homologação" onclick="PF('dlg_homologacao_documentos').show()" style="margin-left: 50px; color: #132fff"/>
                         </h:panelGrid>        
                     </p:panel>
@@ -272,7 +272,18 @@
                             </h:panelGrid>
                         </h:panelGrid>
 
-                        <h:panelGrid columns="4" style="margin-top: 10px">
+                        <h:panelGrid columns="5" style="margin-top: 10px">
+
+
+                            <h:column>
+                                <p:outputLabel value="Registro" /><br />
+                                <p:selectOneMenu value="#{webAgendamentoContribuinteBean.nrRegistro}" disabled="#{webAgendamentoContribuinteBean.agendamento.id ne -1}">
+                                    <p:ajax event="change" update="@this"/>
+                                    <f:selectItems value="#{webAgendamentoContribuinteBean.listNrRegistro}" />
+                                </p:selectOneMenu>  
+                            </h:column>
+
+
                             <h:column>
                                 <h:outputLabel value="Setor"/><br />
                                 <p:inputText size="20" value="#{webAgendamentoContribuinteBean.pessoaEmpresa.setor}" converter="#{toUpperCase}">

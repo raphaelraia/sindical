@@ -182,6 +182,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private String solicitarAutorizacao;
     private List<SelectItem> listServicosAutorizados;
     private Integer idServicosAutorizados;
+    private List<SelectItem> listNrRegistro;
+    private Integer nrRegistro = 1;
 
     public FisicaBean() {
         GenericaSessao.remove("pessoaComplementoBean");
@@ -195,6 +197,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         listSugestion = new ArrayList();
         selectedSugestion = new String();
         listServicosAutorizados = new ArrayList();
+        loadListNrRegistro();
     }
 
     public void loadListServicosAutorizados() {
@@ -1070,6 +1073,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void salvarPessoaEmpresa() {
         PessoaEmpresaDao db = new PessoaEmpresaDao();
         Dao dao = new Dao();
+        pessoaEmpresa.setNrRegistro(nrRegistro);
         if (fisica.getId() != -1 && pessoaEmpresa.getJuridica().getId() != -1) {
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setAvisoTrabalhado(false);
@@ -1153,6 +1157,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setAvisoTrabalhado(false);
             pessoaEmpresa.setPrincipal(false);
+            pessoaEmpresa.setNrRegistro(nrRegistro);
 
             if (profissao.getProfissao() == null || profissao.getProfissao().isEmpty()) {
                 pessoaEmpresa.setFuncao(null);
@@ -1412,6 +1417,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             GenericaMensagem.error("Atenção", "Pessoa demissionada não pode ser Reativa!");
             return;
         }
+        
+        nrRegistro = pessoaEmpresa.getNrRegistro();
 
         if (pessoaEmpresa.getId() == -1) {
             pe.setPrincipal(true);
@@ -3071,6 +3078,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //            }
         }
         this.pessoaEmpresaEdit = pessoaEmpresaEdit;
+        // this.nrRegistro = this.pessoaEmpresaEdit.getNrRegistro();
         PF.openDialog("dlg_pessoa_empresa");
         PF.update("form_pessoa_fisica:i_painel_pe_edit");
     }
@@ -3491,6 +3499,29 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
         this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
+
+    public List<SelectItem> getListNrRegistro() {
+        return listNrRegistro;
+    }
+
+    public void setListNrRegistro(List<SelectItem> listNrRegistro) {
+        this.listNrRegistro = listNrRegistro;
+    }
+
+    public Integer getNrRegistro() {
+        return nrRegistro;
+    }
+
+    public void setNrRegistro(Integer nrRegistro) {
+        this.nrRegistro = nrRegistro;
+    }
+
+    public void loadListNrRegistro() {
+        listNrRegistro = new ArrayList();
+        for (int i = 1; i < 6; i++) {
+            listNrRegistro.add(new SelectItem(i, (i + "")));
+        }
     }
 
 }

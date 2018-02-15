@@ -89,6 +89,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     private Integer idFilial = null;
     private List listFiles;
     private String uuidDir;
+    private List<SelectItem> listNrRegistro;
+    private Integer nrRegistro = 1;
 
     public WebAgendamentoContabilidadeBean() {
         uuidDir = "";
@@ -113,13 +115,14 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         horarioReservaDao.clear();
         clearHorarios();
         GlobalSync.load();
+        loadListNrRegistro();
     }
 
     public boolean validaAdmissao() {
         if (fisica.getId() != -1 && empresa.getId() != -1 && !pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDao db = new HomologacaoDao();
 
-            PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), empresa.getId(), pessoaEmpresa.getAdmissao());
+            PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), empresa.getId(), pessoaEmpresa.getAdmissao(), nrRegistro);
 
             if (pe != null) {
                 int[] ids = new int[2];
@@ -146,7 +149,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (fisica.getId() != -1 && empresa.getId() != -1 && !pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDao db = new HomologacaoDao();
 
-            PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), empresa.getId(), pessoaEmpresa.getDemissao());
+            PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), empresa.getId(), pessoaEmpresa.getDemissao(), nrRegistro);
 
             if (pe != null) {
                 int[] ids = new int[2];
@@ -453,6 +456,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void agendar(DataObject datao) {
+        nrRegistro = 1;
         UUID uuidX = UUID.randomUUID();
         uuidDir = "_" + uuidX.toString().replace("-", "_");
         // CAPITURAR ENDEREÇO DA EMPRESA
@@ -602,6 +606,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 enderecoFisica = db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
                 empresa = ((PessoaEmpresa) datao.getArgumento7()).getJuridica();
                 pessoaEmpresa = agendamento.getPessoaEmpresa();
+                nrRegistro = pessoaEmpresa.getNrRegistro();
                 profissao = ((PessoaEmpresa) datao.getArgumento7()).getFuncao();
                 for (int i = 0; i < getListaMotivoDemissao().size(); i++) {
                     if (Integer.parseInt(getListaMotivoDemissao().get(i).getDescription()) == agendamento.getDemissao().getId()) {
@@ -675,6 +680,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             return;
         }
         pessoaEmpresa.setAvisoTrabalhado(tipoAviso.equals("true"));
+        pessoaEmpresa.setNrRegistro(nrRegistro);
 
         if (configuracaoHomologacao.getWebValidaDataNascimento()) {
             if (fisica.getNascimento().isEmpty()) {
@@ -801,9 +807,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
 
         HomologacaoDao dba = new HomologacaoDao();
-        Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), empresa.getId());
+        Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), empresa.getId(), nrRegistro);
         if (age != null) {
-            GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome());
+            GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " com mesmo número de registro " + nrRegistro + " !");
             dao.rollback();
             return;
         }
@@ -1552,6 +1558,29 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public void setUuidDir(String uuidDir) {
         this.uuidDir = uuidDir;
+    }
+
+    public List<SelectItem> getListNrRegistro() {
+        return listNrRegistro;
+    }
+
+    public void setListNrRegistro(List<SelectItem> listNrRegistro) {
+        this.listNrRegistro = listNrRegistro;
+    }
+
+    public Integer getNrRegistro() {
+        return nrRegistro;
+    }
+
+    public void setNrRegistro(Integer nrRegistro) {
+        this.nrRegistro = nrRegistro;
+    }
+
+    public void loadListNrRegistro() {
+        listNrRegistro = new ArrayList();
+        for (int i = 1; i < 6; i++) {
+            listNrRegistro.add(new SelectItem(i, (i + "")));
+        }
     }
 
 }
