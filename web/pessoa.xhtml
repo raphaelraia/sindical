@@ -550,7 +550,7 @@
                                 </p:panel>
                             </h:panelGroup>
 
-                            <!-- FUNCIONÁRIOS -->
+                            <!-- FUNCIONÁRIOS E QTDE -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'funcionarios'}">
                                 <p:panel header="Funcionários/Sósios" >
@@ -593,6 +593,31 @@
                                             </p:column>                                                                                        
                                         </p:dataTable>
                                     </h:panelGroup>
+                                </p:panel>
+                                <br />
+                                <br />
+                                <hr />
+                                <br />
+                                <br />
+                                <p:panel header="Qtde Empregados Registrado no Acesso Web">
+
+                                    <p:dataTable value="#{pessoaBean.listEmpregados}" var="empregados" emptyMessage="Nenhuma registro encontrado!" paginator="true" rows="12">
+
+                                        <p:column headerText="Lançamento" styleClass="text-center">
+                                            <p:outputLabel value="#{empregados.dtLancamento}">
+                                                <f:convertDateTime />
+                                            </p:outputLabel>
+                                        </p:column>
+
+                                        <p:column headerText="Referência" styleClass="text-center">
+                                            <p:outputLabel value="#{empregados.referencia}" />
+                                        </p:column>
+
+                                        <p:column headerText="Qtde" styleClass="text-center">
+                                            <p:outputLabel value="#{empregados.quantidade}" />
+                                        </p:column>
+
+                                    </p:dataTable>
                                 </p:panel>
                             </h:panelGroup>
 

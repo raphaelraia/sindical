@@ -182,6 +182,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private String solicitarAutorizacao;
     private List<SelectItem> listServicosAutorizados;
     private Integer idServicosAutorizados;
+    private List<SelectItem> listNrRegistro;
+    private Integer nrRegistro = 1;
 
     public FisicaBean() {
         GenericaSessao.remove("pessoaComplementoBean");
@@ -195,6 +197,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         listSugestion = new ArrayList();
         selectedSugestion = new String();
         listServicosAutorizados = new ArrayList();
+        loadListNrRegistro();
     }
 
     public void loadListServicosAutorizados() {
@@ -474,7 +477,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (!fisi.isEmpty()) {
                 for (Fisica fisi1 : fisi) {
                     if (fisi1.getId() != fisica.getId()) {
-                        mensagem = "Esta pessoa já esta cadastrada!";
+                        mensagem = "Esta pessoa já esta cadastrada! " + fisi1.getPessoa().getNome();
                         return;
                     }
                 }
@@ -1070,6 +1073,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void salvarPessoaEmpresa() {
         PessoaEmpresaDao db = new PessoaEmpresaDao();
         Dao dao = new Dao();
+        pessoaEmpresa.setNrRegistro(nrRegistro);
         if (fisica.getId() != -1 && pessoaEmpresa.getJuridica().getId() != -1) {
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setAvisoTrabalhado(false);
@@ -1153,6 +1157,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setAvisoTrabalhado(false);
             pessoaEmpresa.setPrincipal(false);
+            pessoaEmpresa.setNrRegistro(nrRegistro);
 
             if (profissao.getProfissao() == null || profissao.getProfissao().isEmpty()) {
                 pessoaEmpresa.setFuncao(null);
@@ -1413,6 +1418,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return;
         }
 
+        nrRegistro = pessoaEmpresa.getNrRegistro();
+
         if (pessoaEmpresa.getId() == -1) {
             pe.setPrincipal(true);
             if (!di.update(pe)) {
@@ -1530,7 +1537,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String associarFisica(Pessoa _pessoa) {
-        if (!listernerValidacao(fisica, "associarFisica")) {
+        return associarFisica(_pessoa, null);
+    }
+
+    public String associarFisica(Pessoa _pessoa, Object param) {
+        if (!listernerValidacao(fisica, "associarFisica", param)) {
             return null;
         }
         if (fisica.getPessoa().getEmail1().isEmpty()) {
@@ -2363,6 +2374,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean listernerValidacao(Fisica f, String tipoValidacao) {
+        return listernerValidacao(f, tipoValidacao, null);
+    }
+
+    public Boolean listernerValidacao(Fisica f, String tipoValidacao, Object param) {
         solicitarAutorizacao = "";
         String pesquisaFisicaTipo = GenericaSessao.getString("pesquisaFisicaTipo");
         pessoaOposicao = false;
@@ -2432,6 +2447,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 break;
         }
 
+        // REATIVAR SÓCIO
+        switch (validacao) {
+            case "associarFisica":
+                if (Usuario.getUsuario().getId() != 1) {
+                    int diff = DataHoje.diffDays(param.toString(), DataHoje.data());
+                    if (diff > 30) {
+                        GenericaMensagem.warn("Mensagem: (" + count + ")", "Não é possível reativar sócio com mais de 30 dias de inativação!");
+                        permite = false;
+                    }
+                }
+                break;
+        }
+
         // DÉBITOS -- ORIGINAL
         // DÉBITOS
         /*
@@ -2460,7 +2488,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "locacaoFilme":
             case "associarFisica":
             case "conviteMovimento":
-            case "campeonatoEquipe":
             case "agendamentos":
                 GenericaSessao.remove("sessaoSisAutorizacao");
                 Boolean ignoreCase = false;
@@ -3072,6 +3099,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //            }
         }
         this.pessoaEmpresaEdit = pessoaEmpresaEdit;
+        // this.nrRegistro = this.pessoaEmpresaEdit.getNrRegistro();
         PF.openDialog("dlg_pessoa_empresa");
         PF.update("form_pessoa_fisica:i_painel_pe_edit");
     }
@@ -3492,6 +3520,29 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
         this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
+
+    public List<SelectItem> getListNrRegistro() {
+        return listNrRegistro;
+    }
+
+    public void setListNrRegistro(List<SelectItem> listNrRegistro) {
+        this.listNrRegistro = listNrRegistro;
+    }
+
+    public Integer getNrRegistro() {
+        return nrRegistro;
+    }
+
+    public void setNrRegistro(Integer nrRegistro) {
+        this.nrRegistro = nrRegistro;
+    }
+
+    public void loadListNrRegistro() {
+        listNrRegistro = new ArrayList();
+        for (int i = 1; i < 6; i++) {
+            listNrRegistro.add(new SelectItem(i, (i + "")));
+        }
     }
 
 }

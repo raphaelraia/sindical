@@ -67,7 +67,11 @@ public class RelatorioCampeonatoBean implements Serializable {
         if (tcase.equals("relatorios")) {
             loadRelatoriosOrdem();
         }
-        if (tcase.equals("status_cammpeonato")) {
+        if (tcase.equals("status_campeonato")) {
+            loadListCampeonato();
+            loadListEquipes();
+        }
+        if (tcase.equals("modalidade")) {
             loadListCampeonato();
             loadListEquipes();
         }

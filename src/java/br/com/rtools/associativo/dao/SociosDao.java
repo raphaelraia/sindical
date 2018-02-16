@@ -133,13 +133,17 @@ public class SociosDao extends DB {
 //        }
 //    }
 
-    public List pesquisaDependentesOrdenado(int idMatricula) {
+    public List pesquisaDependentesOrdenado(Integer matricula_id) {
         try {
-            Query qry = getEntityManager().createQuery("select s from Socios s "
-                    + " where s.parentesco.id <> 1 "
-                    + "   and s.matriculaSocios.id = " + idMatricula
-                    + "   and s.servicoPessoa.ativo = true "
-                    + " order by s.parentesco.id");
+            String queryString = ""
+                    + "   SELECT S                                              \n"
+                    + "     FROM Socios S                                       \n"
+                    + "    WHERE S.parentesco.id <> 1                           \n"
+                    + "      AND S.matriculaSocios.id = " + matricula_id + "    \n"
+                    + "      AND S.servicoPessoa.ativo = true                   \n"
+                    + " ORDER BY S.servicoPessoa.pessoa.nome ";
+
+            Query qry = getEntityManager().createQuery(queryString);
             return (qry.getResultList());
         } catch (Exception e) {
             e.getMessage();
@@ -762,6 +766,33 @@ public class SociosDao extends DB {
             return new ArrayList();
         }
         return new ArrayList();
+    }
+
+    /**
+     *
+     * @param in_empresas
+     * @return
+     */
+    public List findBySociosByInEmpresa(String in_empresas) {
+        if (in_empresas == null || in_empresas.isEmpty()) {
+            return new ArrayList();
+        }
+        try {
+            String queryString = ""
+                    + "     SELECT S.*                                          \n"
+                    + "       FROM soc_socios S                                 \n"
+                    + " INNER JOIN soc_socios_vw SVW ON SVW.id_socio = S.id     \n"
+                    + " INNER JOIN pes_fisica_vw F ON F.codigo = SVW.titular    \n"
+                    + "      WHERE F.id_juridica IN (" + in_empresas + ")       \n"
+                    + "        AND S.id_parentesco = 1                          \n"
+                    + "        AND F.empresa <> ''                              \n"
+                    + "        AND F.id_juridica IS NOT NULL                    \n"
+                    + "   ORDER BY F.empresa, SVW.titular, SVW.nome ASC         \n";
+            Query query = getEntityManager().createNativeQuery(queryString, Socios.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
     /*

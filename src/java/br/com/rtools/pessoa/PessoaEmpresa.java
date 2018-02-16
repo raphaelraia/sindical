@@ -42,6 +42,8 @@ public class PessoaEmpresa implements java.io.Serializable {
     private boolean principal;
     @Column(name = "is_socio", nullable = false, columnDefinition = "boolean default false")
     private boolean socio;
+    @Column(name = "nr_registro", nullable = false, columnDefinition = "integer default 1")
+    private Integer nrRegistro;
 
     public PessoaEmpresa() {
         this.id = -1;
@@ -55,9 +57,10 @@ public class PessoaEmpresa implements java.io.Serializable {
         this.codigo = "";
         this.principal = true;
         this.socio = false;
+        this.nrRegistro = 1;
     }
 
-    public PessoaEmpresa(int id, Fisica fisica, Juridica juridica, Profissao funcao, String admissao, String demissao, String setor, boolean avisoTrabalhado, String codigo, boolean principal, boolean socio) {
+    public PessoaEmpresa(int id, Fisica fisica, Juridica juridica, Profissao funcao, String admissao, String demissao, String setor, boolean avisoTrabalhado, String codigo, boolean principal, boolean socio, Integer nrRegistro) {
         this.id = id;
         this.fisica = fisica;
         this.juridica = juridica;
@@ -69,6 +72,7 @@ public class PessoaEmpresa implements java.io.Serializable {
         this.codigo = codigo;
         this.principal = principal;
         this.socio = socio;
+        this.nrRegistro = nrRegistro;
     }
 
     public int getId() {
@@ -199,6 +203,14 @@ public class PessoaEmpresa implements java.io.Serializable {
 
     public void setSocio(boolean socio) {
         this.socio = socio;
+    }
+
+    public Integer getNrRegistro() {
+        return nrRegistro;
+    }
+
+    public void setNrRegistro(Integer nrRegistro) {
+        this.nrRegistro = nrRegistro;
     }
 
 }

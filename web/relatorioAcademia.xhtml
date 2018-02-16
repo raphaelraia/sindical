@@ -75,7 +75,7 @@
                                             </p:selectBooleanButton>                                            
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[18]}" onLabel="Empresa Onde Trabalha" offLabel="Empresa Onde Trabalha" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
-                                            </p:selectBooleanButton>                                            
+                                            </p:selectBooleanButton>
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" styleClass="text-left">
                                             <f:facet name="header">
@@ -84,11 +84,10 @@
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[2]}" onLabel="Pesquisar - Edição" offLabel="Pesquisar - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" disabled="#{relatorioAcademiaBean.filtro[3]}">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_tipo_relatorio :form_relatorio:id_panel_relatorio :form_relatorio:i_panel_accordion:i_panel_avancado" listener="#{relatorioAcademiaBean.clear}" />
                                             </p:selectBooleanButton>
-                                            <h:column>
-                                                <br />
+                                            <h:column>                                            
                                             </h:column>                                        
                                         </h:panelGrid>
-                                        <h:panelGrid columns="1" styleClass="text-left" rendered="#{relatorioAcademiaBean.rotina.id == 393}">
+                                        <h:panelGrid columns="1" styleClass="text-left">
                                             <f:facet name="header">
                                                 <h:outputLabel value="Financeiro" style="text-decoration: underline;"/>
                                             </f:facet>
@@ -98,13 +97,16 @@
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[14]}" onLabel="Situação" offLabel="Situação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
                                             </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[15]}" onLabel="Vencimento" offLabel="Vencimento" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[16]}" onLabel="Quitação" offLabel="Quitação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
-                                            </p:selectBooleanButton>
-                                        </h:panelGrid>
+                                            <c:if test="#{relatorioAcademiaBean.rotina.id == 393}">
+                                                <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[15]}" onLabel="Vencimento" offLabel="Vencimento" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                    <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                                </p:selectBooleanButton>
+                                                <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[16]}" onLabel="Quitação" offLabel="Quitação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                    <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                                </p:selectBooleanButton>
+                                            </c:if>
+                                            <br />
+                                        </h:panelGrid>                                        
                                         <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[5]}" onLabel="Ordernação" offLabel="Ordernação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                             <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
                                         </p:selectBooleanButton>
@@ -389,6 +391,20 @@
                                         </h:panelGrid>                                            
                                     </p:panel>
                                 </p:column>
+
+                                <h:column rendered="#{relatorioAcademiaBean.filtro[19]}">                                                
+                                    <p:panel header="Status do Pagto">
+                                        <h:panelGrid columns="6" cellspacing="5">
+                                            <p:selectOneMenu label="Data" value="#{relatorioCampeonatoBean.statusPagto}">
+                                                <p:ajax event="change" update="@this" />
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="adimplente" itemLabel="Adimplente" />
+                                                <f:selectItem itemValue="inadimplente" itemLabel="Inadimplente" />
+                                            </p:selectOneMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCampeonatoBean.close('status_pagto')}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </h:column>
 
                                 <p:column rendered="#{relatorioAcademiaBean.tipoRelatorio == 'Simples'}">
                                     * Todas matrículas

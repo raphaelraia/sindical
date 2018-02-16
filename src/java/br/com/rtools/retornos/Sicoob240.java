@@ -68,7 +68,7 @@ public class Sicoob240 extends ArquivoRetorno {
 
                         // SEGMENTO T
                         if (linhas.get(i).substring(13, 14).equals("T")) {
-                            linha_segmento.setNossoNumero(linhas.get(i).substring(37, 46).trim());
+                            linha_segmento.setNossoNumero(linhas.get(i).substring(37, 47).trim());
                             linha_segmento.setValorTaxa(linhas.get(i).substring(198, 213));
                             linha_segmento.setDataVencimento(linhas.get(i).substring(73, 81));
                             // VERIFICA VENCIMENTO VÁLIDO

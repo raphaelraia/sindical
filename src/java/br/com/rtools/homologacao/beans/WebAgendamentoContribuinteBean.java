@@ -86,6 +86,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     private ConfiguracaoArrecadacao configuracaoArrecadacao;
     private List listFiles;
     private String uuidDir;
+    private List<SelectItem> listNrRegistro;
+    private Integer nrRegistro = 1;
 
     public WebAgendamentoContribuinteBean() {
         uuidDir = "";
@@ -123,6 +125,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             horarioReservaDao.clear();
             clearHorarios();
             GlobalSync.load();
+            loadListNrRegistro();
         }
     }
 
@@ -167,7 +170,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDao db = new HomologacaoDao();
 
-            PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao());
+            PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao(), nrRegistro);
 
             if (pe != null) {
                 int[] ids = new int[2];
@@ -194,7 +197,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDao db = new HomologacaoDao();
 
-            PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getDemissao());
+            PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getDemissao(), nrRegistro);
 
             if (pe != null) {
                 int[] ids = new int[2];
@@ -423,6 +426,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return;
         }
         pessoaEmpresa.setAvisoTrabalhado(tipoAviso.equals("true"));
+        pessoaEmpresa.setNrRegistro(nrRegistro);
 
         if (configuracaoHomologacao.getWebValidaDataNascimento()) {
             if (fisica.getNascimento().isEmpty()) {
@@ -548,9 +552,9 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         }
 
         HomologacaoDao dba = new HomologacaoDao();
-        Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId());
+        Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId(), nrRegistro);
         if (age != null) {
-            GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome());
+            GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " com mesmo número de registro " + nrRegistro + " !");
             if (configuracaoHomologacao.getWebValidaAgendamento()) {
                 if (age.getDtRecusa1() != null && age.getDtRecusa2() == null && !age.getMotivoRecusa().isEmpty()) {
                     GenericaMensagem.fatal("Pendências", age.getMotivoRecusa());
@@ -758,6 +762,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public void agendar(DataObject datao) {
+        nrRegistro = 1;
         UUID uuidX = UUID.randomUUID();
         uuidDir = "_" + uuidX.toString().replace("-", "_");
         listFiles = new ArrayList();
@@ -872,6 +877,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 enderecoFisica = db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
                 juridica = ((PessoaEmpresa) datao.getArgumento7()).getJuridica();
                 pessoaEmpresa = agendamento.getPessoaEmpresa();
+                nrRegistro = pessoaEmpresa.getNrRegistro();
                 PessoaEmpresa pe = ((PessoaEmpresa) datao.getArgumento7());
                 if (pe.getFuncao() == null) {
                     profissao = new Profissao();
@@ -1519,4 +1525,28 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     public void setUuidDir(String uuidDir) {
         this.uuidDir = uuidDir;
     }
+
+    public List<SelectItem> getListNrRegistro() {
+        return listNrRegistro;
+    }
+
+    public void setListNrRegistro(List<SelectItem> listNrRegistro) {
+        this.listNrRegistro = listNrRegistro;
+    }
+
+    public Integer getNrRegistro() {
+        return nrRegistro;
+    }
+
+    public void setNrRegistro(Integer nrRegistro) {
+        this.nrRegistro = nrRegistro;
+    }
+
+    public void loadListNrRegistro() {
+        listNrRegistro = new ArrayList();
+        for (int i = 1; i < 6; i++) {
+            listNrRegistro.add(new SelectItem(i, (i + "")));
+        }
+    }
+
 }

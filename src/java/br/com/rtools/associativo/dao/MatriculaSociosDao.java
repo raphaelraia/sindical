@@ -55,6 +55,23 @@ public class MatriculaSociosDao extends DB {
         return null;
     }
 
+    public MatriculaSocios findByMatricula(Integer matricula, Integer titular_id) {
+        try {
+            String queryString = ""
+                    + "        SELECT M.*                                       \n"
+                    + "          FROM matr_socios AS M                          \n"
+                    + "         WHERE M.nr_matricula = " + matricula + "        \n"
+                    + "           AND M.id_titular = " + titular_id + "        ";
+            Query qry = getEntityManager().createNativeQuery(queryString, MatriculaSocios.class);
+            List list = qry.getResultList();
+            if (!list.isEmpty()) {
+                return (MatriculaSocios) list.get(0);
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
     public List<MatriculaSocios> findAllByTitular(Integer pessoa_id) {
         try {
             String queryString = ""

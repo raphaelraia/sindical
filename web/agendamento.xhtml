@@ -48,7 +48,7 @@
                                             <p:ajax event="change" update="@this i_dates id_count tbl i_c_p" listener="#{agendamentoBean.loadListaHorariosStatus(false)}" />
                                             <f:selectItems value="#{agendamentoBean.listaStatus}"/>
                                         </p:selectOneMenu>
-                                        
+
                                         <h:column>                                            
                                             <h:panelGroup id="i_c_p">
                                                 <p:selectBooleanCheckbox value="#{agendamentoBean.comPendencia}" style="width: 200px" itemLabel="Com pendências" rendered="#{agendamentoBean.idStatus eq 8}">
@@ -133,7 +133,7 @@
                                                 <h:outputLabel value="Usuário" style="font-weight: bold"/><br />
                                                 <h:outputText value="#{objeto.usuarioAgendador}"/>
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <h:outputLabel value="#{objeto.agendamento.encaixe ? 'ENCAIXE' : ''}" styleClass="#{objeto.agendamento.encaixe ? 'font-color-red bold' : ''}"/>
                                             </p:column>
@@ -404,7 +404,16 @@
                             </p:panel>                            
                             <!-- SEM VALIDAÇÃO -->
                             <p:panel rendered="#{!agendamentoBean.validacao}" styleClass="margin-top-max" header="INFORMAÇÕES TRABALHISTAS">
-                                <h:panelGrid columns="4">
+                                <h:panelGrid columns="5">
+
+                                    <h:column>
+                                        <p:outputLabel value="Registro" /><br />
+                                        <p:selectOneMenu value="#{agendamentoBean.nrRegistro}" disabled="#{agendamentoBean.agendamento.id ne -1}">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{agendamentoBean.listNrRegistro}" />
+                                        </p:selectOneMenu>  
+                                    </h:column>
+
                                     <h:column>
                                         <h:panelGrid>
                                             <h:outputLabel value="Setor"/>
@@ -849,23 +858,23 @@
         <script type="text/javascript">
             var ws = new WebSocket("#{defaults.wsScheme}://#{defaults.URLLocalContextPath}/ws_socket/agendamento_#{controleUsuarioBean.clienteLowerCaseString}");
 
-            ws.onopen = function (event) {
-                console.log("Connected ", event);
-            };
+                ws.onopen = function (event) {
+                    console.log("Connected ", event);
+                };
 
-            ws.onmessage = function (event) {
-                if (event.data === "1") {
-                    document.getElementById("formAgendamento:update_grid").click();
-                }
-            };
+                ws.onmessage = function (event) {
+                    if (event.data === "1") {
+                        document.getElementById("formAgendamento:update_grid").click();
+                    }
+                };
 
-            ws.onerror = function (event) {
-                console.log("Error ", event);
-            };
+                ws.onerror = function (event) {
+                    console.log("Error ", event);
+                };
 
-            ws.onclose = function (event) {
-                console.log("Error ", event);
-            };
+                ws.onclose = function (event) {
+                    console.log("Error ", event);
+                };
         </script>
         <!-- FINALIZA div wrap main -->
 

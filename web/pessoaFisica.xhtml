@@ -370,10 +370,10 @@
                                                                 <p:rowToggler rendered="#{not empty linha.matriculaSocios.motivo}"/>  
                                                             </p:column> 
                                                             <p:column headerText="Data" width="80" styleClass="text-center">
-                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
+                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa, linha.matriculaSocios.inativo)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
                                                             </p:column>
                                                             <p:column headerText="Motivo">
-                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
+                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa, linha.matriculaSocios.inativo)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
                                                             </p:column>
                                                             <p:rowExpansion>
                                                                 #{linha.matriculaSocios.motivo}
@@ -434,6 +434,14 @@
                                                             <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
                                                     </h:column>
+
+                                                    <h:column>
+                                                        <p:outputLabel value="Registro" /><br />
+                                                        <p:selectOneMenu value="#{fisicaBean.nrRegistro}" disabled="#{fisicaBean.pessoaEmpresa.id ne -1}">
+                                                            <p:ajax event="change" update="@this"/>
+                                                            <f:selectItems value="#{fisicaBean.listNrRegistro}" />
+                                                        </p:selectOneMenu>  
+                                                    </h:column>
                                                 </h:panelGrid>                                
 
                                                 <h:panelGrid columns="3" style="margin-top: 15px">
@@ -485,6 +493,9 @@
                                                     </p:column>
                                                     <p:column styleClass="text-center">
                                                         <p:outputLabel value="#{pessoaEmpresa.socio ? 'SÓCIO DA EMPRESA' : ''}" styleClass="bold font-color-red"/>
+                                                    </p:column>
+                                                    <p:column headerText="Nr. Registro">
+                                                        <p:outputLabel value="#{pessoaEmpresa.nrRegistro}" />
                                                     </p:column>
                                                     <p:column width="30">
                                                         <h:column rendered="#{!pessoaEmpresa.socio}">
@@ -818,6 +829,14 @@
                                                 <p:inputText size="10" value="#{fisicaBean.pessoaEmpresaEdit.codigo}">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:outputLabel value="Registro" /><br />
+                                                <p:selectOneMenu value="#{fisicaBean.pessoaEmpresaEdit.nrRegistro}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItems value="#{fisicaBean.listNrRegistro}" />
+                                                </p:selectOneMenu>
                                             </h:column>
                                         </h:panelGrid>                                
 
