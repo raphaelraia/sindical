@@ -778,7 +778,7 @@ public class Santander extends Cobranca {
                 //String xmlTicket = TICKET_CONSULTA(requestTicket, "TST");
                 String nsu = "" + boleto.getId();
 
-                String xmlTicket = TICKET_ENTRADA(requestTicket, nsu);
+                String xmlTicket = TICKET_ENTRADA(requestTicket, nsu, boleto.getContaCobranca().getEstacao());
 
                 wr.write(xmlTicket);
                 wr.flush();
@@ -990,7 +990,7 @@ public class Santander extends Cobranca {
                 + "</soapenv:Envelope>";
     }
 
-    public String TICKET_SEG_CONSULTA() {
+    public String TICKET_SEG_CONSULTA(String CONVENIO) {
         return "<soapenv:Envelope\n"
                 + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
                 + "    xmlns:impl=\"http://impl.webservice.dl.app.bsbr.altec.com/\">\n"
@@ -1005,7 +1005,7 @@ public class Santander extends Cobranca {
                 + "                    </entry>\n"
                 + "                    <entry>\n"
                 + "                        <key>CONVENIO.COD-CONVENIO</key>\n"
-                + "                        <value>8846170</value>\n"
+                + "                        <value>" + CONVENIO + "</value>\n"
                 + "                    </entry>\n"
                 + "                </dados>\n"
                 + "                <expiracao>100</expiracao>\n"
@@ -1016,7 +1016,7 @@ public class Santander extends Cobranca {
                 + "</soapenv:Envelope>";
     }
 
-    public String TICKET_CONSULTA(String ticket_seg, String NSU) {
+    public String TICKET_CONSULTA(String ticket_seg, String NSU, String ESTACAO) {
         return "<soapenv:Envelope\n"
                 + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
                 + "    xmlns:impl=\"http://impl.webservice.ymb.app.bsbr.altec.com/\">\n"
@@ -1025,7 +1025,7 @@ public class Santander extends Cobranca {
                 + "        <impl:consultaTitulo>\n"
                 + "            <dto>\n"
                 + "                <dtNsu>" + DataHoje.data().replace("/", "") + "</dtNsu>\n"
-                + "                <estacao>08D1</estacao>\n"
+                + "                <estacao>" + ESTACAO + "</estacao>\n"
                 + "                <nsu>" + NSU + "</nsu>\n" // 'TST' PARA TESTE, EM PRODUÇÃO NÃO SEI O QUE COLOCAR, APARENTEMENTE DEIXA VAZIO
                 + "                <ticket>" + ticket_seg + "</ticket>\n"
                 + "                <tpAmbiente>T</tpAmbiente>\n"
@@ -1035,7 +1035,7 @@ public class Santander extends Cobranca {
                 + "</soapenv:Envelope>";
     }
 
-    public String TICKET_ENTRADA(String ticket_seg, String NSU) {
+    public String TICKET_ENTRADA(String ticket_seg, String NSU, String ESTACAO) {
         return "<soapenv:Envelope\n"
                 + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
                 + "    xmlns:impl=\"http://impl.webservice.ymb.app.bsbr.altec.com/\">\n"
@@ -1044,7 +1044,7 @@ public class Santander extends Cobranca {
                 + "        <impl:registraTitulo>\n"
                 + "            <dto>\n"
                 + "                <dtNsu>" + DataHoje.data().replace("/", "") + "</dtNsu>\n"
-                + "                <estacao>08D1</estacao>\n"
+                + "                <estacao>" + ESTACAO + "</estacao>\n"
                 + "                <nsu>" + NSU + "</nsu>\n" // 'TST' PARA TESTE, EM PRODUÇÃO NÃO SEI O QUE COLOCAR, APARENTEMENTE DEIXA VAZIO
                 + "                <ticket>" + ticket_seg + "</ticket>\n"
                 + "                <tpAmbiente>P</tpAmbiente>\n"
