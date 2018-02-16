@@ -69,7 +69,7 @@
 
                             <p:messages showDetail="true" closable="true" />  
 
-                            <p:dataTable value="#{movimentoCartaoBean.listaCartoes}" var="linha" emptyMessage="Nenhum Cartão encontrado!" rowKey="#{linha.formaPagamento.id}" selection="#{movimentoCartaoBean.listaCartoesSelecionado}" sortBy="#{linha.dataString}">
+                            <p:dataTable value="#{movimentoCartaoBean.listaCartoes}" var="linha" emptyMessage="Nenhum Cartão encontrado!" rowKey="#{linha.formaPagamento.id}" selection="#{movimentoCartaoBean.listaCartoesSelecionado}" sortBy="#{linha.baixaOrdem}">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  

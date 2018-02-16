@@ -78,6 +78,83 @@ public class MovimentoCartaoBean implements Serializable {
         return Moeda.converteR$Double(somaLiquidos);
     }
 
+    // METODO ANTIGO ROGÉRIO CHAMADO #2310
+//    public void transferirCartao() {
+//        if (listaCartoesSelecionado.isEmpty()) {
+//            GenericaMensagem.fatal("Atenção", "Selecione pelo menos um Cartão para transferir!");
+//            return;
+//        }
+//
+//        Dao dao = new Dao();
+//        dao.openTransaction();
+//
+//        for (ObjectListaCartoes oc : listaCartoesSelecionado) {
+//            oc.getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 9));
+//
+//            if (!dao.update(oc.getFormaPagamento())) {
+//                GenericaMensagem.error("Atenção", "Não foi possível atualizar Status!");
+//                dao.rollback();
+//                return;
+//            }
+//        }
+//
+//        Cartao cart = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
+//
+//        Plano5 plano_saida = cart.getPlano5();
+//        //Plano5 plano_entrada = (Plano5) dao.find(new Plano5(), 1);
+//        Plano5 plano_entrada = cart.getPlano5Baixa();
+//        Plano5 plano_saida_despesa = cart.getPlano5Despesa();
+//
+//        String historico_saida = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_saida.getConta() + ")";
+//        Lote lote_saida = novoLote(dao, "P", plano_saida, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 1), historico_saida);
+//
+//        String historico_entrada = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_saida.getConta() + ")";
+//        Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 14), historico_entrada);
+//
+//        String historico_saida_despesa = "Referente ao pagamento de despesa financeira do repasse de recebimento de cartões";
+//        Lote lote_saida_despesa = novoLote(dao, "P", plano_saida_despesa, Moeda.subtracao(valorTotalSelecionado, valorTotalLiquidoSelecionado), (FStatus) dao.find(new FStatus(), 1), historico_saida_despesa);
+//
+//        if (!dao.save(lote_saida) || !dao.save(lote_entrada) || !dao.save(lote_saida_despesa)) {
+//            GenericaMensagem.warn("Erro", "Erro ao salvar Lote");
+//            dao.rollback();
+//            return;
+//        }
+//
+//        Baixa baixa_saida = novaBaixa();
+//        Baixa baixa_entrada = novaBaixa();
+//        Baixa baixa_saida_despesa = novaBaixa();
+//
+//        if (!dao.save(baixa_saida) || !dao.save(baixa_entrada) || !dao.save(baixa_saida_despesa)) {
+//            GenericaMensagem.warn("Erro", "Erro ao salvar Baixa");
+//            dao.rollback();
+//            return;
+//        }
+//
+//        Movimento movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
+//        Movimento movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
+//        Movimento movimento_saida_despesa = novoMovimento(dao, lote_saida_despesa, baixa_saida_despesa, "S");
+//
+//        if (!dao.save(movimento_saida) || !dao.save(movimento_entrada) || !dao.save(movimento_saida_despesa)) {
+//            GenericaMensagem.warn("Erro", "Erro ao salvar Movimento");
+//            dao.rollback();
+//            return;
+//        }
+//
+//        FormaPagamento forma_saida = novaFormaPagamento(dao, baixa_saida, lote_saida.getValor(), plano_entrada);
+//        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), plano_saida);
+//        FormaPagamento forma_saida_despesa = novaFormaPagamento(dao, baixa_saida_despesa, lote_saida_despesa.getValor(), plano_entrada);
+//
+//        if (!dao.save(forma_saida) || !dao.save(forma_entrada) || !dao.save(forma_saida_despesa)) {
+//            GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
+//            dao.rollback();
+//            return;
+//        }
+//
+//        dao.commit();
+//
+//        GenericaMensagem.info("Sucesso", "Cartões transferidos!");
+//        loadListaCartoes();
+//    }
     public void transferirCartao() {
         if (listaCartoesSelecionado.isEmpty()) {
             GenericaMensagem.fatal("Atenção", "Selecione pelo menos um Cartão para transferir!");
@@ -99,51 +176,36 @@ public class MovimentoCartaoBean implements Serializable {
 
         Cartao cart = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
 
-        Plano5 plano_saida = cart.getPlano5();
-        //Plano5 plano_entrada = (Plano5) dao.find(new Plano5(), 1);
         Plano5 plano_entrada = cart.getPlano5Baixa();
-        Plano5 plano_saida_despesa = cart.getPlano5Despesa();
 
-        String historico_saida = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_saida.getConta() + ")";
-        Lote lote_saida = novoLote(dao, "P", plano_saida, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 1), historico_saida);
+        String historico_entrada = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_entrada.getConta() + ")";
+        Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 9), historico_entrada);
 
-        String historico_entrada = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_saida.getConta() + ")";
-        Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 14), historico_entrada);
-
-        String historico_saida_despesa = "Referente ao pagamento de despesa financeira do repasse de recebimento de cartões";
-        Lote lote_saida_despesa = novoLote(dao, "P", plano_saida_despesa, Moeda.subtracao(valorTotalSelecionado, valorTotalLiquidoSelecionado), (FStatus) dao.find(new FStatus(), 1), historico_saida_despesa);
-
-        if (!dao.save(lote_saida) || !dao.save(lote_entrada) || !dao.save(lote_saida_despesa)) {
+        if (!dao.save(lote_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Lote");
             dao.rollback();
             return;
         }
 
-        Baixa baixa_saida = novaBaixa();
         Baixa baixa_entrada = novaBaixa();
-        Baixa baixa_saida_despesa = novaBaixa();
 
-        if (!dao.save(baixa_saida) || !dao.save(baixa_entrada) || !dao.save(baixa_saida_despesa)) {
+        if (!dao.save(baixa_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Baixa");
             dao.rollback();
             return;
         }
 
-        Movimento movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
         Movimento movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
-        Movimento movimento_saida_despesa = novoMovimento(dao, lote_saida_despesa, baixa_saida_despesa, "S");
 
-        if (!dao.save(movimento_saida) || !dao.save(movimento_entrada) || !dao.save(movimento_saida_despesa)) {
+        if (!dao.save(movimento_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Movimento");
             dao.rollback();
             return;
         }
 
-        FormaPagamento forma_saida = novaFormaPagamento(dao, baixa_saida, lote_saida.getValor(), plano_entrada);
-        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), plano_saida);
-        FormaPagamento forma_saida_despesa = novaFormaPagamento(dao, baixa_saida_despesa, lote_saida_despesa.getValor(), plano_entrada);
+        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), plano_entrada);
 
-        if (!dao.save(forma_saida) || !dao.save(forma_entrada) || !dao.save(forma_saida_despesa)) {
+        if (!dao.save(forma_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
             dao.rollback();
             return;
@@ -196,6 +258,11 @@ public class MovimentoCartaoBean implements Serializable {
 
         MovimentoCartaoDao mdao = new MovimentoCartaoDao();
 
+        if (listaCartaoCombo.isEmpty()) {
+            GenericaMensagem.error("ATENÇÃO", "Nenhum cartão cadastrado!");
+            return;
+        }
+
         Dao dao = new Dao();
         Cartao cart = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
 
@@ -214,7 +281,9 @@ public class MovimentoCartaoBean implements Serializable {
                             linha.get(6).toString(),
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(7)),
                             (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(8)),
-                            (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(9))
+                            (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(9)),
+                            linha.get(10).toString(),
+                            new ArrayList()
                     )
             );
 
@@ -437,8 +506,10 @@ public class MovimentoCartaoBean implements Serializable {
         private Pessoa responsavel;
         private Pessoa titular;
         private Pessoa beneficiario;
+        private String baixaOrdem;
+        private List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe;
 
-        public ObjectListaCartoes(FormaPagamento formaPagamento, Date data, String operacao, Double valor, Double taxa, Double liquido, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario) {
+        public ObjectListaCartoes(FormaPagamento formaPagamento, Date data, String operacao, Double valor, Double taxa, Double liquido, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario, String baixaOrdem, List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe) {
             this.formaPagamento = formaPagamento;
             this.data = data;
             this.operacao = operacao;
@@ -449,6 +520,8 @@ public class MovimentoCartaoBean implements Serializable {
             this.responsavel = responsavel;
             this.titular = titular;
             this.beneficiario = beneficiario;
+            this.baixaOrdem = baixaOrdem;
+            this.listaObjectCartaoDetalhe = listaObjectCartaoDetalhe;
         }
 
         public FormaPagamento getFormaPagamento() {
@@ -561,6 +634,58 @@ public class MovimentoCartaoBean implements Serializable {
 
         public void setLiquidoString(String liquidoString) {
             this.liquido = Moeda.converteUS$(liquidoString);
+        }
+
+        public String getBaixaOrdem() {
+            return baixaOrdem;
+        }
+
+        public void setBaixaOrdem(String baixaOrdem) {
+            this.baixaOrdem = baixaOrdem;
+        }
+
+        public List<ObjectCartaoDetalhe> getListaObjectCartaoDetalhe() {
+            return listaObjectCartaoDetalhe;
+        }
+
+        public void setListaObjectCartaoDetalhe(List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe) {
+            this.listaObjectCartaoDetalhe = listaObjectCartaoDetalhe;
+        }
+
+    }
+
+    public class ObjectCartaoDetalhe {
+
+        private String descricao;
+        private Double valor;
+
+        public ObjectCartaoDetalhe(String descricao, Double valor) {
+            this.descricao = descricao;
+            this.valor = valor;
+        }
+
+        public String getDescricao() {
+            return descricao;
+        }
+
+        public void setDescricao(String descricao) {
+            this.descricao = descricao;
+        }
+
+        public Double getValor() {
+            return valor;
+        }
+        
+        public void setValor(Double valor) {
+            this.valor = valor;
+        }
+        
+        public String getValorString() {
+            return Moeda.converteR$Double(valor);
+        }
+
+        public void setValor(String valorString) {
+            this.valor = Moeda.converteUS$(valorString);
         }
 
     }

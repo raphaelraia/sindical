@@ -1837,12 +1837,14 @@ public class FinanceiroDao extends DB {
 
     public List<Plano5> listaContasBaixa() {
         Query qry = getEntityManager().createNativeQuery(
-                "SELECT id_p5, \n"
-                + "       conta5 \n"
-                + "  FROM plano_vw \n"
-                + " WHERE id_p5 NOT IN (SELECT id_plano5 FROM caixa_banco_vw WHERE id_plano5 <> 1 ORDER BY conta) \n"
-                + "   AND REPLACE(UPPER(conta1),' ','') LIKE '%ATIVO%' \n"
-                + "   AND REPLACE(UPPER(conta3),' ','') NOT LIKE '%IMOBILIZADO%' ORDER BY classificador "
+                "SELECT id_p5, \n "
+                + "     conta4 || ' - [' ||       conta5 || ']' AS conta5 \n "
+                + "  FROM plano_vw \n "
+                + " WHERE id_p5 NOT IN (SELECT id_plano5 FROM caixa_banco_vw WHERE id_plano5 <> 1 ORDER BY conta) \n "
+                + "   AND REPLACE(UPPER(conta1),' ','') LIKE '%ATIVO%'   \n "
+                + "   AND REPLACE(UPPER(conta3),' ','') NOT LIKE '%IMOBILIZADO%' \n "
+                + "   AND REPLACE(UPPER(conta3),' ','') NOT LIKE '%ADIANTAMENTO%' \n "
+                + " ORDER BY conta4, conta5"
         );
 
         try {
@@ -1863,11 +1865,10 @@ public class FinanceiroDao extends DB {
 
     public List<Object> listaContasDespesa() {
         Query qry = getEntityManager().createNativeQuery(
-                "SELECT id_p5, \n "
-                + "     LEFT(conta4||LPAD(' ', 40), 40)||conta5 AS conta \n "
-                + "  FROM plano_vw \n"
+                "  SELECT id_p5, LEFT(conta4||LPAD(' ', 40), 40)||' - ['||conta5||']' AS conta \n "
+                + "  FROM plano_vw \n "
                 + " WHERE REPLACE(UPPER(conta1),' ','') LIKE '%DESPESA%' \n "
-                + " ORDER BY conta4, conta5"
+                + " ORDER BY conta4, conta5 "
         );
 
         try {
