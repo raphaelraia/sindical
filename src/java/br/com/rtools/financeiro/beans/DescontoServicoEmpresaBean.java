@@ -35,9 +35,11 @@ public class DescontoServicoEmpresaBean implements Serializable {
     private List<SelectItem> listGrupoFinanceiro;
     private List<SelectItem> listSubGrupoFinanceiro;
     private List<SelectItem> listGrupo;
+    private List<SelectItem> listGrupoAtualizar;
     private Integer idServicos;
     private Integer idGrupoFinanceiro;
     private Integer idGrupo;
+    private Integer idGrupoAtualizar;
     private Integer idSubGrupoFinanceiro;
     private String descricaoPesquisaNome;
     private String descricaoPesquisaCNPJ;
@@ -58,6 +60,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
         listGrupoFinanceiro = new ArrayList<>();
         listSubGrupoFinanceiro = new ArrayList<>();
         listGrupo = new ArrayList<>();
+        listGrupoAtualizar = new ArrayList();
         listDescontoServicoEmpresa = new ArrayList<>();
         listDSEPorEmpresa = new ArrayList<>();
         descricaoPesquisaNome = "";
@@ -71,6 +74,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
         habilitaSubGrupo = false;
         loadGrupoFinanceiro();
         loadGrupo();
+        loadGrupoAtualizar();
     }
 
     @PreDestroy
@@ -107,6 +111,33 @@ public class DescontoServicoEmpresaBean implements Serializable {
             selectedServicos = null;
             loadServicos();
         }
+    }
+
+    public void alterarGrupoDesconto() {
+        if (listDSEPorEmpresa.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Não há lista para ser alterada!");
+            return;
+        }
+
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        for (DescontoServicoEmpresa dse : listDSEPorEmpresa) {
+            if (idGrupoAtualizar != null && idGrupoAtualizar != -1) {
+                dse.setGrupo((DescontoServicoEmpresaGrupo) dao.find(new DescontoServicoEmpresaGrupo(), idGrupoAtualizar));
+            } else {
+                dse.setGrupo(null);
+            }
+            
+            if (!dao.update(dse)){
+                GenericaMensagem.error("Atenção", "Erro ao atualizar Grupo Desconto!");
+                dao.rollback();
+                return;
+            }
+        }
+        dao.commit();
+        listDSEPorEmpresa.clear();
+        GenericaMensagem.info("Sucesso", "Lista Atualizada!");
     }
 
     public Integer status(Juridica j) {
@@ -149,16 +180,22 @@ public class DescontoServicoEmpresaBean implements Serializable {
             GenericaMensagem.warn("Validação", message);
             return;
         }
+
         Dao dao = new Dao();
         if (idGrupo != null && idGrupo != -1) {
             descontoServicoEmpresa.setGrupo((DescontoServicoEmpresaGrupo) dao.find(new DescontoServicoEmpresaGrupo(), idGrupo));
         } else {
+            message = "Selecione um Grupo Desconto!";
+            GenericaMensagem.warn("Validação", message);
             descontoServicoEmpresa.setGrupo(null);
+            return;
         }
+
         int idServicoAntes = -1;
         if (descontoServicoEmpresa.getId() != -1) {
             idServicoAntes = descontoServicoEmpresa.getServicos().getId();
         }
+
         Juridica juridica = descontoServicoEmpresa.getJuridica();
         DescontoServicoEmpresa dse = new DescontoServicoEmpresa();
         dao.openTransaction();
@@ -515,6 +552,16 @@ public class DescontoServicoEmpresaBean implements Serializable {
         }
     }
 
+    public final void loadGrupoAtualizar() {
+        listGrupoAtualizar = new ArrayList();
+        List<DescontoServicoEmpresaGrupo> list = new Dao().list(new DescontoServicoEmpresaGrupo(), true);
+        listGrupoAtualizar.add(new SelectItem(-1, "NENHUM"));
+        idGrupoAtualizar = -1;
+        for (int i = 0; i < list.size(); i++) {
+            listGrupoAtualizar.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
     public List<SelectItem> getListGrupoFinanceiro() {
         return listGrupoFinanceiro;
     }
@@ -577,5 +624,21 @@ public class DescontoServicoEmpresaBean implements Serializable {
 
     public void setHabilitaSubGrupo(Boolean habilitaSubGrupo) {
         this.habilitaSubGrupo = habilitaSubGrupo;
+    }
+
+    public List<SelectItem> getListGrupoAtualizar() {
+        return listGrupoAtualizar;
+    }
+
+    public void setListGrupoAtualizar(List<SelectItem> listGrupoAtualizar) {
+        this.listGrupoAtualizar = listGrupoAtualizar;
+    }
+
+    public Integer getIdGrupoAtualizar() {
+        return idGrupoAtualizar;
+    }
+
+    public void setIdGrupoAtualizar(Integer idGrupoAtualizar) {
+        this.idGrupoAtualizar = idGrupoAtualizar;
     }
 }

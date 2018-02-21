@@ -50,6 +50,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Reembolso dos cartões de Crédito e Débito" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
@@ -60,7 +61,7 @@
                                     <p:column>
                                         <h:outputLabel value="Bandeira" /><br />
                                         <p:selectOneMenu value="#{movimentoCartaoBean.indexCartaoCombo}">
-                                            <p:ajax event="change" update="@form" listener="#{movimentoCartaoBean.loadListaCartoes()}" global="false"/>
+                                            <p:ajax event="change" update="@form" listener="#{movimentoCartaoBean.loadListaCartoes()}"/>
                                             <f:selectItems value="#{movimentoCartaoBean.listaCartaoCombo}"/>
                                         </p:selectOneMenu>
                                     </p:column>
@@ -69,7 +70,7 @@
 
                             <p:messages showDetail="true" closable="true" />  
 
-                            <p:dataTable value="#{movimentoCartaoBean.listaCartoes}" var="linha" emptyMessage="Nenhum Cartão encontrado!" rowKey="#{linha.formaPagamento.id}" selection="#{movimentoCartaoBean.listaCartoesSelecionado}" sortBy="#{linha.baixaOrdem}">
+                            <p:dataTable value="#{movimentoCartaoBean.listaCartoes}" var="linha" emptyMessage="Nenhum Cartão encontrado!" rowKey="#{linha.formaPagamento.id}" selection="#{movimentoCartaoBean.listaCartoesSelecionado}" sortBy="#{linha.baixaOrdem}" rowSelectMode="checkbox">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
@@ -89,24 +90,20 @@
                                     <p:outputLabel value="#{linha.dataString}" />
                                 </p:column>
 
-                                <p:column headerText="Operação">
-                                    <p:outputLabel value="#{linha.operacao}" />
-                                </p:column>
-
-                                <p:column headerText="Valor" style="text-align: right; width: 80px">
+                                <p:column headerText="Valor" style="text-align: right">
                                     <p:outputLabel value="#{linha.valorString}" />
                                 </p:column>
 
-                                <p:column headerText="Taxa" style="text-align: right; width: 80px">
+                                <p:column headerText="Taxa" style="text-align: right">
                                     <p:outputLabel value="#{linha.taxaString}" />
                                 </p:column>
 
-                                <p:column headerText="Líquido" style="text-align: right; width: 80px">
+                                <p:column headerText="Líquido" style="text-align: right">
                                     <p:outputLabel value="#{linha.liquidoString}" />
                                 </p:column>
 
                                 <p:summaryRow>
-                                    <p:column colspan="5" style="text-align: right">
+                                    <p:column colspan="4" style="text-align: right">
                                         <h:outputText value="Total:" />
                                     </p:column>
 
@@ -124,27 +121,40 @@
                                 </p:summaryRow>
 
                                 <p:rowExpansion>
-                                    <h:panelGrid columns="3" styleClass="sbb">
-                                        <h:column rendered="#{linha.responsavel.id ne 0 and linha.responsavel.id ne -1}">
-                                            <p:outputLabel value="Responsável" style="font-weight: bold" /><br />
-                                            <p:outputLabel value="#{linha.responsavel.nome}" />
-                                        </h:column>
-
-                                        <h:column rendered="#{linha.titular ne null}">
-                                            <p:outputLabel value="Titular" style="font-weight: bold" /><br />
-                                            <p:outputLabel value="#{linha.titular.nome}" />
-                                        </h:column>
-
-                                        <h:column rendered="#{linha.beneficiario ne null}">
-                                            <p:outputLabel value="Beneficiário" style="font-weight: bold" /><br />
-                                            <p:outputLabel value="#{linha.beneficiario.nome}" />
+                                    <h:panelGrid columns="1" style="width: 100%;" styleClass="sbb" rendered="false">
+                                        <h:column>
+                                            <p:outputLabel value="Histórico" style="font-weight: bold" /><br />
+                                            <p:outputLabel value="" />
                                         </h:column>
                                     </h:panelGrid>
 
-                                    <h:panelGrid columns="1" style="width: 100%;" styleClass="sbb" rendered="#{linha.historico ne ''}">
+                                    <h:panelGrid columns="1" style="width: 100%;" styleClass="sbb">
                                         <h:column>
-                                            <p:outputLabel value="Histórico" style="font-weight: bold" /><br />
-                                            <p:outputLabel value="#{linha.historico}" />
+                                            <p:dataTable value="#{linha.listaObjectCartaoDetalhe}" var="linha_detalhe" emptyMessage="Nenhum Detalhe encontrado!">
+                                                <p:column headerText="Responsável">
+                                                    <h:outputLabel value="#{linha_detalhe.responsavel.nome}" style="font-size: 8pt!important;"/>
+                                                </p:column>
+                                                
+                                                <p:column headerText="Titular">
+                                                    <h:outputLabel value="#{linha_detalhe.titular.nome}" style="font-size: 8pt!important;"/>
+                                                </p:column>
+                                                
+                                                <p:column headerText="Beneficiário">
+                                                    <h:outputLabel value="#{linha_detalhe.beneficiario.nome}" style="font-size: 8pt!important;"/>
+                                                </p:column>
+                                                
+                                                <p:column headerText="Vencimento" style="text-align: center; width: 80px">
+                                                    <h:outputLabel value="#{linha_detalhe.vencimentoString}" />
+                                                </p:column>
+                                                
+                                                <p:column headerText="Operação">
+                                                    <h:outputLabel value="#{linha_detalhe.operacao}" style="font-size: 7pt!important;"/>
+                                                </p:column>
+                                                
+                                                <p:column headerText="Valor" style="text-align: right; width: 80px">
+                                                    <h:outputLabel value="#{linha_detalhe.valorString}" />
+                                                </p:column>
+                                            </p:dataTable>
                                         </h:column>
                                     </h:panelGrid>
                                 </p:rowExpansion>

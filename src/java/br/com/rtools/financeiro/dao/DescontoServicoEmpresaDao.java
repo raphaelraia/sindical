@@ -9,6 +9,29 @@ import javax.persistence.*;
 
 public class DescontoServicoEmpresaDao extends DB {
 
+    public Boolean existePessoaComDSE(Integer id_pessoa, Integer id_servico) {
+        try {
+            
+            // -- SE EXISTIR NAO MOSTRAR PARCEIRO
+            Query query = getEntityManager().createNativeQuery(
+                    "SELECT p.codigo \n "
+                    + "  FROM pes_pessoa_vw p \n "
+                    + "  LEFT JOIN fin_desconto_servico_empresa dse ON dse.id_juridica = p.e_id AND dse.id_servico = " + id_servico + " \n "
+                    + " WHERE p.codigo = " + id_pessoa + " \n "
+                    + "   AND (dse.id IS NULL OR p.e_id IS NULL)"
+            );
+
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return true;
+            }
+            
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return false;
+    }
+
     public boolean existeDescontoServicoEmpresa(DescontoServicoEmpresa descontoServicoEmpresa) {
         try {
             Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.juridica.id = :idJuridica AND DSE.servicos.id = :idServicos ");

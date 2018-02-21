@@ -236,6 +236,18 @@ public class MatriculaAcademiaBean implements Serializable {
         loadLiberaAcessaFilial();
         trocarMatriculaAcademia = false;
     }
+    
+    public boolean getMostrarParceiro(){
+        if (aluno.getPessoa().getId() != -1 && aluno.getPessoa().getSocios().getId() != -1) {
+            return false;
+        }
+        
+        if (new DescontoServicoEmpresaDao().existePessoaComDSE(aluno.getPessoa().getId() , idServico)){
+            return false;
+        }
+        
+        return true;
+    }
 
     public void loadListaDiaParcela() {
         listaDiaParcela.clear();

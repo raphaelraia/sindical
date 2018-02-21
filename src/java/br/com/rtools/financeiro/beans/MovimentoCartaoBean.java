@@ -270,20 +270,36 @@ public class MovimentoCartaoBean implements Serializable {
         for (int i = 0; i < result.size(); i++) {
             List linha = (List) result.get(i);
 
+            List<Object> result_detalhe = mdao.listaCartoesDetalhe((Integer) linha.get(0));
+
+            List<ObjectCartaoDetalhe> l_detalhe = new ArrayList();
+
+            for (int w = 0; w < result_detalhe.size(); w++) {
+                List linha_detalhe = (List) result_detalhe.get(w);
+
+                l_detalhe.add(
+                        new ObjectCartaoDetalhe(
+                                (Pessoa) dao.find(new Pessoa(), (Integer) linha_detalhe.get(0)),
+                                (Pessoa) dao.find(new Pessoa(), (Integer) linha_detalhe.get(1)),
+                                (Pessoa) dao.find(new Pessoa(), (Integer) linha_detalhe.get(2)),
+                                (Date) linha_detalhe.get(3),
+                                linha_detalhe.get(4).toString(),
+                                (Double) linha_detalhe.get(5)
+                        )
+                );
+
+            }
+
             listaCartoes.add(
                     new ObjectListaCartoes(
                             (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(0)),
-                            (Date) linha.get(1),
-                            linha.get(2).toString(),
+                            (Baixa) dao.find(new Baixa(), (Integer) linha.get(1)),
+                            (Date) linha.get(2),
                             (Double) linha.get(3),
                             (Double) linha.get(4),
                             (Double) linha.get(5),
                             linha.get(6).toString(),
-                            (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(7)),
-                            (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(8)),
-                            (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(9)),
-                            linha.get(10).toString(),
-                            new ArrayList()
+                            l_detalhe
                     )
             );
 
@@ -497,29 +513,21 @@ public class MovimentoCartaoBean implements Serializable {
     public class ObjectListaCartoes {
 
         private FormaPagamento formaPagamento;
+        private Baixa baixa;
         private Date data;
-        private String operacao;
         private Double valor;
         private Double taxa;
         private Double liquido;
-        private String historico;
-        private Pessoa responsavel;
-        private Pessoa titular;
-        private Pessoa beneficiario;
         private String baixaOrdem;
         private List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe;
 
-        public ObjectListaCartoes(FormaPagamento formaPagamento, Date data, String operacao, Double valor, Double taxa, Double liquido, String historico, Pessoa responsavel, Pessoa titular, Pessoa beneficiario, String baixaOrdem, List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe) {
+        public ObjectListaCartoes(FormaPagamento formaPagamento, Baixa baixa, Date data, Double valor, Double taxa, Double liquido, String baixaOrdem, List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe) {
             this.formaPagamento = formaPagamento;
+            this.baixa = baixa;
             this.data = data;
-            this.operacao = operacao;
             this.valor = valor;
             this.taxa = taxa;
             this.liquido = liquido;
-            this.historico = historico;
-            this.responsavel = responsavel;
-            this.titular = titular;
-            this.beneficiario = beneficiario;
             this.baixaOrdem = baixaOrdem;
             this.listaObjectCartaoDetalhe = listaObjectCartaoDetalhe;
         }
@@ -530,6 +538,14 @@ public class MovimentoCartaoBean implements Serializable {
 
         public void setFormaPagamento(FormaPagamento formaPagamento) {
             this.formaPagamento = formaPagamento;
+        }
+
+        public Baixa getBaixa() {
+            return baixa;
+        }
+
+        public void setBaixa(Baixa baixa) {
+            this.baixa = baixa;
         }
 
         public Date getData() {
@@ -548,14 +564,6 @@ public class MovimentoCartaoBean implements Serializable {
             this.data = DataHoje.converte(dataString);
         }
 
-        public String getOperacao() {
-            return operacao;
-        }
-
-        public void setOperacao(String operacao) {
-            this.operacao = operacao;
-        }
-
         public Double getValor() {
             return valor;
         }
@@ -570,38 +578,6 @@ public class MovimentoCartaoBean implements Serializable {
 
         public void setValorString(String valorString) {
             this.valor = Moeda.converteUS$(valorString);
-        }
-
-        public String getHistorico() {
-            return historico;
-        }
-
-        public void setHistorico(String historico) {
-            this.historico = historico;
-        }
-
-        public Pessoa getResponsavel() {
-            return responsavel;
-        }
-
-        public void setResponsavel(Pessoa responsavel) {
-            this.responsavel = responsavel;
-        }
-
-        public Pessoa getTitular() {
-            return titular;
-        }
-
-        public void setTitular(Pessoa titular) {
-            this.titular = titular;
-        }
-
-        public Pessoa getBeneficiario() {
-            return beneficiario;
-        }
-
-        public void setBeneficiario(Pessoa beneficiario) {
-            this.beneficiario = beneficiario;
         }
 
         public Double getTaxa() {
@@ -656,35 +632,83 @@ public class MovimentoCartaoBean implements Serializable {
 
     public class ObjectCartaoDetalhe {
 
-        private String descricao;
+        private Pessoa responsavel;
+        private Pessoa titular;
+        private Pessoa beneficiario;
+        private Date vencimento;
+        private String operacao;
         private Double valor;
 
-        public ObjectCartaoDetalhe(String descricao, Double valor) {
-            this.descricao = descricao;
+        public ObjectCartaoDetalhe(Pessoa responsavel, Pessoa titular, Pessoa beneficiario, Date vencimento, String operacao, Double valor) {
+            this.responsavel = responsavel;
+            this.titular = titular;
+            this.beneficiario = beneficiario;
+            this.vencimento = vencimento;
+            this.operacao = operacao;
             this.valor = valor;
         }
 
-        public String getDescricao() {
-            return descricao;
+        public Pessoa getResponsavel() {
+            return responsavel;
         }
 
-        public void setDescricao(String descricao) {
-            this.descricao = descricao;
+        public void setResponsavel(Pessoa responsavel) {
+            this.responsavel = responsavel;
+        }
+
+        public Pessoa getTitular() {
+            return titular;
+        }
+
+        public void setTitular(Pessoa titular) {
+            this.titular = titular;
+        }
+
+        public Pessoa getBeneficiario() {
+            return beneficiario;
+        }
+
+        public void setBeneficiario(Pessoa beneficiario) {
+            this.beneficiario = beneficiario;
+        }
+
+        public Date getVencimento() {
+            return vencimento;
+        }
+
+        public void setVencimento(Date vencimento) {
+            this.vencimento = vencimento;
+        }
+
+        public String getVencimentoString() {
+            return DataHoje.converteData(vencimento);
+        }
+
+        public void setVencimentoString(String vencimentoString) {
+            this.vencimento = DataHoje.converte(vencimentoString);
+        }
+
+        public String getOperacao() {
+            return operacao;
+        }
+
+        public void setOperacao(String operacao) {
+            this.operacao = operacao;
         }
 
         public Double getValor() {
             return valor;
         }
-        
+
         public void setValor(Double valor) {
             this.valor = valor;
         }
-        
+
         public String getValorString() {
             return Moeda.converteR$Double(valor);
         }
 
-        public void setValor(String valorString) {
+        public void setValorString(String valorString) {
             this.valor = Moeda.converteUS$(valorString);
         }
 

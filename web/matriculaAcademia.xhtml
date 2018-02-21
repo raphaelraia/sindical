@@ -146,6 +146,10 @@
                                             </h:panelGrid>
                                             <h:outputText value="#{genericaMensagem.getHtmlMessage('success', ('').concat('Categoria: ').concat(matriculaAcademiaBean.socios.matriculaSocios.categoria.categoria).concat(' - Matrícula: ').concat(matriculaAcademiaBean.socios.matriculaSocios.nrMatricula).concat(' - Parentesco: ').concat(matriculaAcademiaBean.socios.parentesco.parentesco))}" rendered="#{matriculaAcademiaBean.socios.id != -1}" escape="false"/>
                                             <h:panelGrid columns="2" cellpadding="3" width="820">
+                                                <p:outputLabel value="Local de Trabalho:" rendered="#{matriculaAcademiaBean.aluno.pessoaEmpresa.id ne null}" style="font-weight: bold; color: red"/>
+                                                <h:column rendered="#{matriculaAcademiaBean.aluno.pessoaEmpresa.id ne null}">
+                                                    <p:outputLabel value="#{matriculaAcademiaBean.aluno.pessoaEmpresa.juridica.pessoa.documento} - #{matriculaAcademiaBean.aluno.pessoaEmpresa.juridica.pessoa.nome}" style="font-weight: bold; color: red"/>
+                                                </h:column>
                                                 <p:outputLabel value="Responsável:" />
                                                 <h:column>
                                                     <h:panelGrid columns="3">
@@ -179,12 +183,12 @@
                                                     </h:panelGroup>
                                                 </h:column>
                                                 <h:column>
-                                                    <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1}">
+                                                    <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1 and matriculaAcademiaBean.mostrarParceiro}">
                                                         <p:outputLabel value="Parceiro: " />
                                                     </h:panelGroup>
                                                 </h:column>
                                                 <h:column>
-                                                    <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1}" id="i_parceiros">
+                                                    <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1 and matriculaAcademiaBean.mostrarParceiro}" id="i_parceiros">
                                                         <p:selectOneMenu autoWidth="false" value="#{matriculaAcademiaBean.idParceiro}" style="width: 690px" filter="true" filterMatchMode="startsWith" disabled="#{matriculaAcademiaBean.listParceiro.size() == 1 or matriculaAcademiaBean.desabilitaCamposMovimento}">
                                                             <p:ajax event="change" update="@this id_panel_grid_calcula id_grid_periodo_grade i_panel_dia_vencimento" listener="#{matriculaAcademiaBean.listener('descontoServicoEmpresa')}"/>
                                                             <f:selectItems value="#{matriculaAcademiaBean.listParceiro}"/>
