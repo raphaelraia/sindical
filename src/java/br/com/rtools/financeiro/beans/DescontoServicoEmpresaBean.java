@@ -185,8 +185,8 @@ public class DescontoServicoEmpresaBean implements Serializable {
         if (idGrupo != null && idGrupo != -1) {
             descontoServicoEmpresa.setGrupo((DescontoServicoEmpresaGrupo) dao.find(new DescontoServicoEmpresaGrupo(), idGrupo));
         } else {
-            message = "Selecione um Grupo Desconto!";
-            GenericaMensagem.warn("Validação", message);
+//            message = "Selecione um Grupo Desconto!";
+//            GenericaMensagem.warn("Validação", message);
             descontoServicoEmpresa.setGrupo(null);
             return;
         }

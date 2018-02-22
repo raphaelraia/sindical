@@ -236,18 +236,6 @@ public class MatriculaAcademiaBean implements Serializable {
         loadLiberaAcessaFilial();
         trocarMatriculaAcademia = false;
     }
-    
-    public boolean getMostrarParceiro(){
-        if (aluno.getPessoa().getId() != -1 && aluno.getPessoa().getSocios().getId() != -1) {
-            return false;
-        }
-        
-        if (new DescontoServicoEmpresaDao().existePessoaComDSE(aluno.getPessoa().getId() , idServico)){
-            return false;
-        }
-        
-        return true;
-    }
 
     public void loadListaDiaParcela() {
         listaDiaParcela.clear();
@@ -3058,7 +3046,7 @@ public class MatriculaAcademiaBean implements Serializable {
             DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
             // List<DescontoServicoEmpresa> list = dsed.findByGrupo(2);
             AcademiaServicoValor asv = (AcademiaServicoValor) new Dao().find(new AcademiaServicoValor(), Integer.parseInt(listaModalidades.get(idModalidade).getDescription()));
-            List<DescontoServicoEmpresa> list = dsed.findByGrupo(2, asv.getServicos().getId());
+            List<DescontoServicoEmpresa> list = dsed.findByGrupo(asv.getServicos().getId());
             listParceiro.add(new SelectItem(-1, "NENHUM"));
             idParceiro = -1;
             Integer pessoa_id = null;
