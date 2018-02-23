@@ -20,6 +20,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoRecibo;
+import br.com.rtools.financeiro.dao.ContaRecebimentoDao;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
 import br.com.rtools.financeiro.dao.FechamentoDiarioDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
@@ -46,14 +47,11 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -501,6 +499,8 @@ public class BaixaGeralBean implements Serializable {
     public List<SelectItem> getListaTipoPagamento() {
         if (listaTipoPagamento.isEmpty()) {
             Dao dao = new Dao();
+            ContaRecebimentoDao dao_cr = new ContaRecebimentoDao();
+
             List<TipoPagamento> select = new ArrayList();
             if (!verificaBaixaBoleto()) {
                 if (Moeda.converteUS$(total) != 0) {
@@ -508,18 +508,18 @@ public class BaixaGeralBean implements Serializable {
                         select = dao.find("TipoPagamento", new int[]{3, 4, 5, 8, 9, 10, 13, 15});
                         idTipoPagamento = 0;
                     } else if (tipo.equals("caixa")) {
-                        select = dao.find("TipoPagamento", new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13});
+                        select = dao_cr.listaTipoPagamentoBaixa("2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13");
                         idTipoPagamento = 1;
                     } else {
-                        select = dao.find("TipoPagamento", new int[]{2, 8, 9, 10, 11, 13});
+                        select = dao_cr.listaTipoPagamentoBaixa("2, 8, 9, 10, 11, 13");
                         idTipoPagamento = 0;
                     }
                 } else {
-                    select = dao.find("TipoPagamento", new int[]{3});
+                    select = dao_cr.listaTipoPagamentoBaixa("3");
                     idTipoPagamento = 0;
                 }
             } else {
-                select = dao.find("TipoPagamento", new int[]{2});
+                select = dao_cr.listaTipoPagamentoBaixa("2");
                 idTipoPagamento = 0;
             }
 
@@ -596,7 +596,8 @@ public class BaixaGeralBean implements Serializable {
                         lfp.add(new FormaPagamento(-1, null, null, listaValores.get(i).getChequePag(), 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, null));
                     } else {
                         lfp.add(new FormaPagamento(-1, null, listaValores.get(i).getChequeRec(), null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, null));
-                    }   break;
+                    }
+                    break;
                 case 6:
                 case 7:
                     // CARTAO
@@ -606,7 +607,8 @@ public class BaixaGeralBean implements Serializable {
                         lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
                     } else {
                         lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
-                    }   break;
+                    }
+                    break;
                 case 8:
                 case 9:
                 case 10:
@@ -892,11 +894,11 @@ public class BaixaGeralBean implements Serializable {
         if (tipo.equals("banco")) {
             desHabilitaQuitacao = false;
         } else // TRUE = não tem permissão
-         if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
-                desHabilitaQuitacao = true;
-            } else {
-                desHabilitaQuitacao = false;
-            }
+        if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
+            desHabilitaQuitacao = true;
+        } else {
+            desHabilitaQuitacao = false;
+        }
         return desHabilitaQuitacao;
     }
 

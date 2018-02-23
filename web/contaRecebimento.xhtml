@@ -1,0 +1,117 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Conta Recebimento</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+        </style>
+        
+        <script type="text/javascript">
+            
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Conta Recebimento" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formContaRecebimento">
+                            
+                            <p:panel styleClass="fundoCinza">
+                                
+                                <p:outputLabel value="LISTA CONTA" style="font-weight: bold; font-size: 11pt!important" />
+                                
+                            </p:panel>
+                            
+                            <p:messages closable="true" showDetail="true" />
+                            
+                            <p:dataTable value="#{contaRecebimentoBean.listaContaTipoPagamento}" var="linha_conta">
+                                <p:column headerText="#" style="text-align: center; width: 80px">
+                                    <p:outputLabel value="#{linha_conta.id}" />
+                                </p:column>
+                                
+                                <p:column headerText="Tipo Conta">
+                                    <p:outputLabel value="#{linha_conta.tipoPagamento.descricao}" />
+                                </p:column>
+                                
+                                <p:column headerText="Conta">
+                                    <p:commandLink value="#{linha_conta.plano5.conta}" rendered="#{linha_conta.plano5 ne null}" oncomplete="PF('dlg_selecionar_conta').show()" action="#{contaRecebimentoBean.selecionar(linha_conta)}" update="formContaRecebimento:dlg_selecionar_conta" style="font-weight: bold"/>
+                                    <p:commandLink value="SELECIONAR UMA CONTA" rendered="#{linha_conta.plano5 eq null}" oncomplete="PF('dlg_selecionar_conta').show()" action="#{contaRecebimentoBean.selecionar(linha_conta)}" update="formContaRecebimento:dlg_selecionar_conta" style="color: red"/>
+                                </p:column>
+                            </p:dataTable>
+                            
+                            <p:dialog id="dlg_selecionar_conta" widgetVar="dlg_selecionar_conta" modal="true" resizable="false" header="Selecionar Conta" width="700" draggable="false">
+                                
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="TIPO DE PAGAMENTO: #{contaRecebimentoBean.ctpSelecionado.tipoPagamento.descricao}" style="font-size: 11pt!important; font-weight: bold" />
+                                    <hr />
+                                    <p:outputLabel value="CONTA ATUAL: #{contaRecebimentoBean.ctpSelecionado.plano5 eq null ? 'NENHUMA' : contaRecebimentoBean.ctpSelecionado.plano5.conta}" style="font-size: 11pt!important; color: red"/>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid>
+                                    <p:outputLabel value="SELECIONAR OUTRA CONTA" />
+                                </h:panelGrid>
+                                
+                                <p:inputText placeholder="FILTRAR CONTA [TAB]" style="width: 100%" value="#{contaRecebimentoBean.pesquisarConta}">
+                                    <p:ajax event="keyup" listener="#{contaRecebimentoBean.loadListaPlano5()}" update="formContaRecebimento:tbl_conta"/>
+                                </p:inputText>
+                                
+                                <p:dataTable id="tbl_conta" value="#{contaRecebimentoBean.listaPlano5}" var="linha_plano5" scrollable="true" scrollHeight="200" selection="#{contaRecebimentoBean.plano5Selecionado}" rowKey="#{linha_plano5.id}">
+
+                                    <p:column selectionMode="single" style="width:16px; text-align:center"/>
+
+                                    <p:column headerText="#" style="text-align: center; width: 40px">
+                                        <p:outputLabel value="#{linha_plano5.id}" />
+                                    </p:column>
+
+                                    <p:column headerText="Conta">
+                                        <p:outputLabel value="#{linha_plano5.conta}" />
+                                    </p:column>
+
+                                </p:dataTable>
+                                
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-check" value="SALVAR" style="font-weight: bold" action="#{contaRecebimentoBean.salvar()}" update="@form">
+                                        <p:confirm header="Atualizar Tipo de Pagamento" message="Deseja Realmente ATUALIZAR este Tipo de Pagamento?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+                                    
+                                    <p:commandButton icon="ui-icon-close" value="FECHAR" onclick="PF('dlg_selecionar_conta').hide()"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

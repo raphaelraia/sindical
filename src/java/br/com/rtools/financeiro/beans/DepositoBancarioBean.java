@@ -428,8 +428,8 @@ public class DepositoBancarioBean implements Serializable {
                 true, // ATIVO
                 e_s, // E_S
                 false, // OBRIGACAO 
-                null, // TITULAR
-                null, // BENEFICIARIO
+                (Pessoa) dao.find(new Pessoa(), 0), // TITULAR
+                (Pessoa) dao.find(new Pessoa(), 0), // BENEFICIARIO
                 "", // DOCUMENTO
                 "", // NR_CTR_BOLETO
                 DataHoje.data(), // VENCTO ORIGINAL

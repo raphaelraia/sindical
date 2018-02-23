@@ -16,6 +16,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
+import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -23,8 +24,6 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Debugs;
-import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.GenericaSessao;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -3206,7 +3205,7 @@ public class MovimentoDao extends DB {
                 + "       AND M.id_matricula_socios = " + matricula_socios_id + " \n"
                 + "  ORDER BY M.dt_vencimento ASC \n";
         try {
-            Query qry = getEntityManager().createNativeQuery(queryString, Movimento.class); 
+            Query qry = getEntityManager().createNativeQuery(queryString, Movimento.class);
 
             return qry.getResultList();
         } catch (Exception e) {

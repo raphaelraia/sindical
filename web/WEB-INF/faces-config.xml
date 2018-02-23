@@ -2572,6 +2572,12 @@
             <redirect/>
         </navigation-case>  
         
+        <navigation-case>
+            <from-outcome>contaRecebimento</from-outcome>
+            <to-view-id>/contaRecebimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        
     </navigation-rule>
     
     <lifecycle>
