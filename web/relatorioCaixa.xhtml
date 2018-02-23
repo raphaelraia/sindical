@@ -92,11 +92,11 @@
                                             <h:column>
                                                 <p:panel header="Baixa">
                                                     <h:panelGrid columns="4">
-                                                        <p:calendar value="#{relatorioCaixaBean.dtBaixaInicial}" pattern="dd/MM/yyyy"  size="10" navigator="true">
+                                                        <p:calendar value="#{relatorioCaixaBean.dtBaixaInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="true">
                                                             <p:ajax event="dateSelect" listener="#{relatorioCaixaBean.selecionaDataBaixaInicial}" />
                                                         </p:calendar>
                                                         <p:outputLabel value=" até" />
-                                                        <p:calendar value="#{relatorioCaixaBean.dtBaixaFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true">
+                                                        <p:calendar value="#{relatorioCaixaBean.dtBaixaFinal}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="true">
                                                             <p:ajax event="dateSelect" listener="#{relatorioCaixaBean.selecionaDataBaixaFinal}" />
                                                         </p:calendar>
                                                         <p:commandButton icon="ui-icon-close" action="#{relatorioCaixaBean.clear(relatorioCaixaBean.listFilters[3])}" title="Remover filtro"/>
