@@ -226,12 +226,8 @@ public class AgendamentosBean implements Serializable {
             if (agendamento.getTelefone().trim().isEmpty()) {
                 agendamento.setTelefone(pessoa.getPessoa().getTelefone3());
             }
-            if (agendamento.getEmail().trim().isEmpty()) {
-                Messages.warn("Validação", "INFORMAR E-MAIL");
-                return;
-            }
-            if (agendamento.getTelefone().trim().isEmpty()) {
-                Messages.warn("Validação", "INFORMAR TELEFONE");
+            if (agendamento.getTelefone().trim().isEmpty() && agendamento.getEmail().trim().isEmpty()) {
+                Messages.warn("Validação", "INFORMAR E-MAIL OU TELEFONE");
                 return;
             }
             amoutTime = 0;
@@ -775,22 +771,24 @@ public class AgendamentosBean implements Serializable {
         servico = (Servicos) dao.find(new Servicos(), idServico);
 
         //if (!enabledItensPedido) {
-        if (!servico.isProduto()) {
-            LancamentoIndividualDao db = new LancamentoIndividualDao();
-            List<List> valorx = (List) db.pesquisaServicoValor(pessoa.getPessoa().getId(), idServico);
-            if (!valorx.isEmpty()) {
-                double vl = Double.valueOf(((Double) valorx.get(0).get(0)).toString());
-                valor = vl;
-                if (idConvenio != null && idConvenio != -1) {
-                    DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
-                    DescontoServicoEmpresa dse = dsed.findByGrupo(2, idServico, idConvenio);
-                    if (dse != null) {
-                        valor = Moeda.converteUS$(Moeda.valorDoPercentual(Moeda.converteR$Double(valor), dse.getDescontoString()));
+        if (servico != null) {
+            if (!servico.isProduto()) {
+                LancamentoIndividualDao db = new LancamentoIndividualDao();
+                List<List> valorx = (List) db.pesquisaServicoValor(pessoa.getPessoa().getId(), idServico);
+                if (!valorx.isEmpty()) {
+                    double vl = Double.valueOf(((Double) valorx.get(0).get(0)).toString());
+                    valor = vl;
+                    if (idConvenio != null && idConvenio != -1) {
+                        DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+                        DescontoServicoEmpresa dse = dsed.findByGrupo(2, idServico, idConvenio);
+                        if (dse != null) {
+                            valor = Moeda.converteUS$(Moeda.valorDoPercentual(Moeda.converteR$Double(valor), dse.getDescontoString()));
+                        }
                     }
+                } else {
+                    valor = new Double(0);
+                    GenericaMensagem.fatal("Atenção", "Valor do Serviço não encontrado");
                 }
-            } else {
-                valor = new Double(0);
-                GenericaMensagem.fatal("Atenção", "Valor do Serviço não encontrado");
             }
         }
     }

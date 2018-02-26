@@ -29,6 +29,12 @@ public class AcordoComissao implements Serializable {
     @JoinColumn(name = "id_acordo", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Acordo acordo;
+    @Column(name = "pe_repasse")
+    private double peRepasse;
+    @Column(name = "pe_comissao ")
+    private double peComissao;
+    @Column(name = "is_taxa")
+    private Boolean taxa;
 
     public AcordoComissao() {
         this.id = -1;
@@ -37,15 +43,21 @@ public class AcordoComissao implements Serializable {
         this.dtInicio = null;
         this.dtFechamento = null;
         this.acordo = new Acordo();
+        this.peRepasse = 0;
+        this.peComissao = 0;
+        this.taxa = false;
     }
 
-    public AcordoComissao(int id, ContaCobranca contaCobranca, String numero, Date dtInicio, Date dtFechamento, Acordo acordo) {
+    public AcordoComissao(int id, ContaCobranca contaCobranca, String numero, Date dtInicio, Date dtFechamento, Acordo acordo, double peRepasse, double peComissao, Boolean taxa) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.numero = numero;
         this.dtInicio = dtInicio;
         this.dtFechamento = dtFechamento;
         this.acordo = acordo;
+        this.peRepasse = peRepasse;
+        this.peComissao = peComissao;
+        this.taxa = taxa;
     }
 
     public int getId() {
@@ -110,5 +122,29 @@ public class AcordoComissao implements Serializable {
 
     public void setInicio(String data) {
         setDtInicio(DataHoje.converte(data));
+    }
+
+    public double getPeRepasse() {
+        return peRepasse;
+    }
+
+    public void setPeRepasse(double peRepasse) {
+        this.peRepasse = peRepasse;
+    }
+
+    public double getPeComissao() {
+        return peComissao;
+    }
+
+    public void setPeComissao(double peComissao) {
+        this.peComissao = peComissao;
+    }
+
+    public Boolean getTaxa() {
+        return taxa;
+    }
+
+    public void setTaxa(Boolean taxa) {
+        this.taxa = taxa;
     }
 }

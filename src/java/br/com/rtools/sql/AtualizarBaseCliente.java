@@ -1,5 +1,6 @@
 package br.com.rtools.sql;
 
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Configuracao;
 import java.io.Serializable;
 import java.util.Date;
@@ -32,19 +33,24 @@ public class AtualizarBaseCliente implements Serializable {
     @Column(name = "dt_atualizacao")
     @Temporal(TemporalType.DATE)
     private Date dtAtualizacao;
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id", nullable = false)
+    @OneToOne(fetch = FetchType.EAGER)
+    private Usuario usuario;
 
     public AtualizarBaseCliente() {
         this.id = null;
         this.atualizarBase = null;
         this.cliente = null;
         this.dtAtualizacao = null;
+        this.usuario = null;
     }
 
-    public AtualizarBaseCliente(Integer id, AtualizarBase atualizarBase, Configuracao cliente, Date dtAtualizacao) {
+    public AtualizarBaseCliente(Integer id, AtualizarBase atualizarBase, Configuracao cliente, Date dtAtualizacao, Usuario usuario) {
         this.id = id;
         this.atualizarBase = atualizarBase;
         this.cliente = cliente;
         this.dtAtualizacao = dtAtualizacao;
+        this.usuario = usuario;
     }
 
     public Integer getId() {
@@ -77,6 +83,14 @@ public class AtualizarBaseCliente implements Serializable {
 
     public void setDtAtualizacao(Date dtAtualizacao) {
         this.dtAtualizacao = dtAtualizacao;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
 }

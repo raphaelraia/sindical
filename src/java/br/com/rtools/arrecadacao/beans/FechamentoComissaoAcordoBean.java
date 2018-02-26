@@ -6,6 +6,7 @@ import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
+import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
@@ -40,6 +41,8 @@ public class FechamentoComissaoAcordoBean {
     private Integer idRelatorio;
     private List<SelectItem> listRelatorioOrdem;
     private Integer idRelatorioOrdem;
+    private List<SelectItem> listDepartamento;
+    private Integer idDepartamento;
 
     @PostConstruct
     public void init() {
@@ -51,6 +54,7 @@ public class FechamentoComissaoAcordoBean {
         loadUsuariosAcordo();
         loadRelatorio();
         loadRelatorioOrdem();
+        loadListDepartamento();
     }
 
     @PreDestroy
@@ -116,6 +120,18 @@ public class FechamentoComissaoAcordoBean {
         }
     }
 
+    public void loadListDepartamento() {
+        listDepartamento = new ArrayList();
+        idDepartamento = null;
+        List<Departamento> list = new Dao().list(new Departamento(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idDepartamento = list.get(i).getId();
+            }
+            listDepartamento.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
     public void loadUsuariosAcordo() {
         listUsuario = new LinkedHashMap<>();
         selectedUsuario = new ArrayList();
@@ -133,7 +149,7 @@ public class FechamentoComissaoAcordoBean {
     }
 
     public synchronized void processar() {
-        if (new AcordoComissaoDao().inserirAcordoComissao()) {
+        if (new AcordoComissaoDao().processarAcordo()) {
             listaData.clear();
             GenericaMensagem.info("Sucesso", "Concluído com sucesso");
         } else {
@@ -142,12 +158,12 @@ public class FechamentoComissaoAcordoBean {
         }
     }
 
-    public void visualizar() {
+    public void print() {
         if (!listaData.isEmpty()) {
             AcordoComissaoDao acd = new AcordoComissaoDao();
             acd.setRelatorios(getRelatorios());
             acd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
-            List result = acd.listaAcordoComissao(dataFechamento, inIdUsuarios());
+            List result = acd.listaAcordoComissao(dataFechamento, inIdUsuarios(), idDepartamento);
             Collection c = new ArrayList();
             BigDecimal repasse;
             BigDecimal liquido;
@@ -282,6 +298,30 @@ public class FechamentoComissaoAcordoBean {
             r = rgdb.pesquisaRelatorios(idRelatorio);
         }
         return r;
+    }
+
+    public List<SelectItem> getListRelatorio() {
+        return listRelatorio;
+    }
+
+    public void setListRelatorio(List<SelectItem> listRelatorio) {
+        this.listRelatorio = listRelatorio;
+    }
+
+    public List<SelectItem> getListDepartamento() {
+        return listDepartamento;
+    }
+
+    public void setListDepartamento(List<SelectItem> listDepartamento) {
+        this.listDepartamento = listDepartamento;
+    }
+
+    public Integer getIdDepartamento() {
+        return idDepartamento;
+    }
+
+    public void setIdDepartamento(Integer idDepartamento) {
+        this.idDepartamento = idDepartamento;
     }
 
     public class AcordoAnalitico {

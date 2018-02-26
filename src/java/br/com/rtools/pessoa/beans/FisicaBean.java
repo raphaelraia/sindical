@@ -2451,10 +2451,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         switch (validacao) {
             case "associarFisica":
                 if (Usuario.getUsuario().getId() != 1) {
-                    int diff = DataHoje.diffDays(param.toString(), DataHoje.data());
-                    if (diff > 30) {
-                        GenericaMensagem.warn("Mensagem: (" + count + ")", "Não é possível reativar sócio com mais de 30 dias de inativação!");
-                        permite = false;
+                    if(param != null) {
+                        int diff = DataHoje.diffDays(param.toString(), DataHoje.data());
+                        if (diff > 30) {
+                            GenericaMensagem.warn("Mensagem: (" + count + ")", "Não é possível reativar sócio com mais de 30 dias de inativação!");
+                            permite = false;
+                        }                        
                     }
                 }
                 break;

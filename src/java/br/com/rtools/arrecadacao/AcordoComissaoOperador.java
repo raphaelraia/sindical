@@ -25,6 +25,8 @@ public class AcordoComissaoOperador implements Serializable {
     private Double nrComissao;
     @Column(name = "is_comissao ", nullable = false, columnDefinition = "boolean default false")
     private Boolean comissao;
+    @Column(name = "is_taxa ", nullable = false, columnDefinition = "boolean default true")
+    private Boolean taxa;
 
     public AcordoComissaoOperador() {
         this.id = null;
@@ -32,14 +34,16 @@ public class AcordoComissaoOperador implements Serializable {
         this.rotina = null;
         this.nrComissao = new Double(0);
         this.comissao = false;
+        this.taxa = false;
     }
 
-    public AcordoComissaoOperador(Integer id, Usuario usuario, Rotina rotina, Double nrComissao, Boolean comissao) {
+    public AcordoComissaoOperador(Integer id, Usuario usuario, Rotina rotina, Double nrComissao, Boolean comissao, Boolean taxa) {
         this.id = id;
         this.usuario = usuario;
         this.rotina = rotina;
         this.nrComissao = nrComissao;
         this.comissao = comissao;
+        this.taxa = taxa;
     }
 
     public Integer getId() {
@@ -80,6 +84,14 @@ public class AcordoComissaoOperador implements Serializable {
 
     public void setComissao(Boolean comissao) {
         this.comissao = comissao;
+    }
+
+    public Boolean getTaxa() {
+        return taxa;
+    }
+
+    public void setTaxa(Boolean taxa) {
+        this.taxa = taxa;
     }
 
 }

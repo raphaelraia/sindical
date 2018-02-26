@@ -412,6 +412,25 @@ public class FunctionsDao extends DB {
         }
         return v;
     }
+
+    /**
+     * Processar Acordo
+     *
+     * @return
+     */
+    public Boolean processarAcordo() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT func_fecha_comissao_acordo()");
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
 //    
 //        /**
 //     * Trazer o responsável
@@ -433,5 +452,4 @@ public class FunctionsDao extends DB {
 //        }
 //        return qtde;
 //    }
-    
 }
