@@ -37,6 +37,13 @@
                             <p:column>
                                 <br />
                                 <br />
+                                <p:selectBooleanCheckbox value="#{operadorAcordoBean.acordoComissaoOperador.taxa}" itemLabel="Taxa">
+                                    <p:ajax event="change" update=":form_operador_acordo:" />
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                            <p:column>
+                                <br />
+                                <br />
                                 <p:selectBooleanCheckbox value="#{operadorAcordoBean.acordoComissaoOperador.comissao}" itemLabel="Comissão">
                                     <p:ajax event="change" update=":form_operador_acordo:" />
                                 </p:selectBooleanCheckbox>

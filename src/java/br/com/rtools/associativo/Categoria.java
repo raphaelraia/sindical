@@ -75,6 +75,8 @@ public class Categoria implements Serializable {
     private Boolean fichaFiliacao;
     @Column(name = "is_cobranca_carteirinha", nullable = false, columnDefinition = "boolean default false")
     private Boolean cobrancaCarteirinha;
+    @Column(name = "nr_dias_reativacao", nullable = false, columnDefinition = "integer default 30")
+    private Integer nrDiasReativacao;
     
     
     @Transient
@@ -104,12 +106,14 @@ public class Categoria implements Serializable {
         this.fichaFiliacao = false;
         this.cobrancaCarteirinha = false;
         this.selected = false;
+        this.nrDiasReativacao = 30;
     }
 
     public Categoria(Integer id, String categoria, GrupoCategoria grupoCategoria, Integer nrCarenciaBalcao, Integer nrCarenciaDescFolha,
             boolean empresaObrigatoria, boolean votante, boolean usaClubeSegunda, boolean usaClubeTerca, boolean usaClubeQuarta,
             boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente, Boolean bloqueiaMeses,
-            Servicos servicoTaxaMatricula,Integer nrTaxaMatriculaParcelas, boolean fichaSocial, boolean fichaFiliacao, boolean cobrancaCarteirinha ) {
+            Servicos servicoTaxaMatricula,Integer nrTaxaMatriculaParcelas, boolean fichaSocial, boolean fichaFiliacao, boolean cobrancaCarteirinha ,
+            Integer nrDiasReativacao) {
         this.id = id;
         this.categoria = categoria;
         this.grupoCategoria = grupoCategoria;
@@ -133,6 +137,7 @@ public class Categoria implements Serializable {
         this.fichaFiliacao = fichaFiliacao; 
         this.cobrancaCarteirinha = cobrancaCarteirinha;
         this.selected = false;
+        this.nrDiasReativacao = nrDiasReativacao;
     }
 
     public Integer getId() {
@@ -347,6 +352,14 @@ public class Categoria implements Serializable {
 
     public void setCobrancaCarteirinha(Boolean cobrancaCarteirinha) {
         this.cobrancaCarteirinha = cobrancaCarteirinha;
+    }
+
+    public Integer getNrDiasReativacao() {
+        return nrDiasReativacao;
+    }
+
+    public void setNrDiasReativacao(Integer nrDiasReativacao) {
+        this.nrDiasReativacao = nrDiasReativacao;
     }
 
 }

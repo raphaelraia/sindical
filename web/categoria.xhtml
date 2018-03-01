@@ -43,9 +43,11 @@
                                     </p:inputText>
                                     <h:outputText value="Carência Balcão: "/>
                                     <h:column>
-                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrCarenciaBalcao}" maxlength="10" title="Carência Balcão" />
+                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrCarenciaBalcao}" maxlength="10" title="Carência Balcão"  styleClass="text-center"/>
                                         <p:outputLabel value="Carência Desconto em Folha: " styleClass="margin-left-max"/>
-                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrCarenciaDescFolha}" maxlength="10" title="Carência Desconto em Folha" />
+                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrCarenciaDescFolha}" maxlength="10" title="Carência Desconto em Folha"  styleClass="text-center"/>
+                                        <p:outputLabel value="Limite de dias para reativação: " styleClass="margin-left-max"/>
+                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrDiasReativacao}" maxlength="10" title="Dias reativação" styleClass="text-center"/>
                                     </h:column>
                                     <h:column />
                                     <h:column>

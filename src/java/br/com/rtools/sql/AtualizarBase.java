@@ -5,6 +5,7 @@
  */
 package br.com.rtools.sql;
 
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -13,6 +14,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,16 +33,23 @@ public class AtualizarBase implements Serializable {
     private String descricao;
     @Column(name = "nr_chamado")
     private Integer chamado;
+    @Lob
     @Column(name = "ds_script", length = 5000, nullable = false)
     private String script;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "dt_agendamento", nullable = false)
+    @Column(name = "dt_agendamento")
     private Date dtAgendamento;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_cadastro", nullable = false)
     private Date dtCadastro;
     @Column(name = "is_reiniciar", columnDefinition = "boolean default false")
     private Boolean reiniciar;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_processamento")
+    private Date dtProcessamento;
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private Usuario usuario;
 
     public AtualizarBase() {
         this.id = null;
@@ -48,9 +59,11 @@ public class AtualizarBase implements Serializable {
         this.dtAgendamento = null;
         this.dtCadastro = new Date();
         this.reiniciar = false;
+        this.dtProcessamento = null;
+        this.usuario = null;
     }
 
-    public AtualizarBase(Integer id, String descricao, Integer chamado, String script, Date dtAgendamento, Date dtCadastro, Boolean reiniciar) {
+    public AtualizarBase(Integer id, String descricao, Integer chamado, String script, Date dtAgendamento, Date dtCadastro, Boolean reiniciar, Date dtProcessamento, Usuario usuario) {
         this.id = id;
         this.descricao = descricao;
         this.chamado = chamado;
@@ -58,6 +71,7 @@ public class AtualizarBase implements Serializable {
         this.dtAgendamento = dtAgendamento;
         this.dtCadastro = dtCadastro;
         this.reiniciar = reiniciar;
+        this.usuario = usuario;
     }
 
     public Integer getId() {
@@ -88,7 +102,7 @@ public class AtualizarBase implements Serializable {
         return script;
     }
 
-    public void setScript(String script) {
+    public void setScript(String script) {        
         this.script = script;
     }
 
@@ -148,9 +162,20 @@ public class AtualizarBase implements Serializable {
         this.reiniciar = reiniciar;
     }
 
-    @Override
-    public String toString() {
-        return "AtualizarBase{" + "id=" + id + ", descricao=" + descricao + ", chamado=" + chamado + ", script=" + script + ", dtAgendamento=" + dtAgendamento + ", dtCadastro=" + dtCadastro + ", reiniciar=" + reiniciar + '}';
+    public Date getDtProcessamento() {
+        return dtProcessamento;
+    }
+
+    public void setDtProcessamento(Date dtProcessamento) {
+        this.dtProcessamento = dtProcessamento;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
 }

@@ -787,7 +787,7 @@ public class SociosDao extends DB {
                     + "        AND S.id_parentesco = 1                          \n"
                     + "        AND F.empresa <> ''                              \n"
                     + "        AND F.id_juridica IS NOT NULL                    \n"
-                    + "   ORDER BY F.empresa, SVW.titular, SVW.nome ASC         \n";
+                    + "   ORDER BY F.empresa, F.nome ASC                        \n";
             Query query = getEntityManager().createNativeQuery(queryString, Socios.class);
             return query.getResultList();
         } catch (Exception e) {

@@ -36,9 +36,18 @@ public class DataBase {
     }
 
     public void loadJson() {
+        loadJson(null);
+    }
+
+    public void loadJson(String cliente) {
         FacesContext faces = FacesContext.getCurrentInstance();
         try {
-            File file = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/conf/database.json"));
+            File file;
+            if (cliente == null) {
+                file = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/conf/database.json"));
+            } else {
+                file = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/resources/cliente/" + cliente.toLowerCase() + "/conf/database.json"));
+            }
             if (!file.exists()) {
                 return;
             }

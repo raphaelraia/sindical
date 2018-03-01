@@ -19,19 +19,26 @@
                     <div class="clear"></div>
                     <p:dataTable value="#{atualizarBaseBean.listAtualizarBase}" var="atualizarBase" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado">
                         <p:column width="30" styleClass="text-center">
-                            <p:commandButton icon="ui-icon-link" title="Editar registro nº #{atualizarBase.id}" action="#{atualizarBaseBean.edit(atualizarBase)}" />
+                            <p:commandButton icon="ui-icon-pencil" title="Editar registro nº #{atualizarBase.id}" action="#{atualizarBaseBean.edit(atualizarBase)}" />
                         </p:column>
                         <p:column headerText="Descrição" styleClass="text-center">
                             #{atualizarBase.descricao}
                         </p:column>
                         <p:column headerText="Cadastro" styleClass="text-center">
-                            #{atualizarBase.dataCadastro} - #{atualizarBase.horaCadastro}
+                            <h:outputLabel value="#{atualizarBase.dtCadastro}">
+                                <f:convertDateTime />
+                            </h:outputLabel>
                         </p:column>
-                        <p:column headerText="Agendado para" styleClass="text-center">
-                            #{atualizarBase.dataAgendamento}
+                        <p:column headerText="Data do processo" styleClass="text-center">
+                            <h:outputLabel value="#{atualizarBase.dtProcessamento}">
+                                <f:convertDateTime />
+                            </h:outputLabel>
                         </p:column>
-                        <p:column headerText="Horário" styleClass="text-center">
-                            #{atualizarBase.horaAgendamento}
+                        <p:column headerText="Chamado" styleClass="text-center">
+                            <h:outputLabel value="#{atualizarBase.chamado}" />
+                        </p:column>
+                        <p:column headerText="Criado por" styleClass="text-center">
+                            <h:outputLabel value="#{atualizarBase.usuario.pessoa.nome}" />
                         </p:column>
                     </p:dataTable>
                 </p:panel>

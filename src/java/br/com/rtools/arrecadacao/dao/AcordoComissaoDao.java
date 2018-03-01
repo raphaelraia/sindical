@@ -7,9 +7,11 @@ import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 import javax.persistence.Query;
 
 public class AcordoComissaoDao extends DB {
@@ -60,6 +62,10 @@ public class AcordoComissaoDao extends DB {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public boolean processarAcordo() {
+        return new FunctionsDao().processarAcordo();
     }
 
     public boolean inserirAcordoComissao() {
@@ -118,7 +124,7 @@ public class AcordoComissaoDao extends DB {
         }
     }
 
-    public List listaAcordoComissao(String data, String in_usuarios) {
+    public List listaAcordoComissao(String data, String in_usuarios, Integer id_departamento) {
         try {
             String textQuery
                     = "     SELECT DISTINCT ON (BO.id_conta_cobranca, M.ds_documento, P.ds_nome, PU.ds_nome)\n"
@@ -136,9 +142,13 @@ public class AcordoComissaoDao extends DB {
                     + "            M.dt_vencimento  AS data_vencimento,         \n" // 11
                     + "            ACC.dt_inicio    AS data_inicio,             \n" // 12
                     + "            L.dt_emissao     AS data_emissao,            \n" // 13
-                    + "            cast(0 AS double precision) AS comissao,                \n" // 14
-                    + "            cast(0 AS double precision) AS liquido,                 \n" // 15
-                    + "            PU.ds_nome       AS usuario_nome             \n" // 16
+                    + "            cast(0 AS double precision) AS comissao,     \n" // 14
+                    + "            cast(0 AS double precision) AS liquido,      \n" // 15
+                    + "            PU.ds_nome       AS usuario_nome,            \n" // 16
+                    + "            CASE WHEN ACC.is_taxa IS TRUE THEN ((M.nr_valor_baixa-(M.nr_valor_baixa*(ACC.pe_repasse/100))) - M.nr_taxa)*(ACC.pe_comissao/100)    \n"
+                    + "                 ELSE (M.nr_valor_baixa-(M.nr_valor_baixa * (ACC.pe_repasse/100))) * (ACC.pe_comissao/100) END AS comissao,                      \n"
+                    + "            CASE WHEN ACC.is_taxa IS TRUE THEN (M.nr_valor_baixa-(M.nr_valor_baixa*(ACC.pe_repasse/100))) - M.nr_taxa                            \n"
+                    + "                 ELSE M.nr_valor_baixa-(M.nr_valor_baixa * (ACC.pe_repasse/100)) END AS liquido                                                  "
                     + "       FROM fin_movimento    AS M                        \n"
                     + " INNER JOIN pes_pessoa       AS P  ON P.id   = M.id_pessoa   \n"
                     + " INNER JOIN fin_baixa        AS LB ON LB.id  = M.id_baixa    \n"
@@ -159,6 +169,13 @@ public class AcordoComissaoDao extends DB {
                     + "        AND M.id_acordo > 0                              \n";
             if (in_usuarios != null && !in_usuarios.isEmpty()) {
                 textQuery += " AND AC.id_usuario IN (" + in_usuarios + " )" + " \n";
+            }
+            if (id_departamento != null) {
+                if (id_departamento == 14) {
+                    textQuery += " AND M.id_servicos     IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4 ) \n";
+                } else {
+                    textQuery += " AND M.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4 ) \n";
+                }
             }
             if (relatorioOrdem == null) {
                 textQuery += " ORDER BY P.ds_nome";

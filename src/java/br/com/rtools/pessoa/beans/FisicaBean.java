@@ -1540,8 +1540,20 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         return associarFisica(_pessoa, null);
     }
 
-    public String associarFisica(Pessoa _pessoa, Object param) {
-        if (!listernerValidacao(fisica, "associarFisica", param)) {
+    public String associarFisica(Pessoa _pessoa, Socios s) {
+        // REATIVAR SÓCIO
+        if (s != null) {
+            if (Usuario.getUsuario().getId() != 1) {
+                if (s.getMatriculaSocios().getDtInativo() != null) {
+                    int diff = DataHoje.diffDays(s.getMatriculaSocios().getInativo(), DataHoje.data());
+                    if (diff > s.getMatriculaSocios().getCategoria().getNrDiasReativacao()) {
+                        GenericaMensagem.warn("Mensagem: (" + count + ")", "Não é possível reativar sócio com mais de " + s.getMatriculaSocios().getCategoria().getNrDiasReativacao() + " dias de inativação!");
+                        return null;
+                    }
+                }
+            }
+        }
+        if (!listernerValidacao(fisica, "associarFisica")) {
             return null;
         }
         if (fisica.getPessoa().getEmail1().isEmpty()) {
@@ -2374,10 +2386,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean listernerValidacao(Fisica f, String tipoValidacao) {
-        return listernerValidacao(f, tipoValidacao, null);
-    }
-
-    public Boolean listernerValidacao(Fisica f, String tipoValidacao, Object param) {
         solicitarAutorizacao = "";
         String pesquisaFisicaTipo = GenericaSessao.getString("pesquisaFisicaTipo");
         pessoaOposicao = false;
@@ -2441,19 +2449,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                         count++;
                         pessoaOposicao = true;
                         GenericaMensagem.warn("Mensagem: (" + count + ")", "Contém carta(s) de oposição!");
-                        permite = false;
-                    }
-                }
-                break;
-        }
-
-        // REATIVAR SÓCIO
-        switch (validacao) {
-            case "associarFisica":
-                if (Usuario.getUsuario().getId() != 1) {
-                    int diff = DataHoje.diffDays(param.toString(), DataHoje.data());
-                    if (diff > 30) {
-                        GenericaMensagem.warn("Mensagem: (" + count + ")", "Não é possível reativar sócio com mais de 30 dias de inativação!");
                         permite = false;
                     }
                 }

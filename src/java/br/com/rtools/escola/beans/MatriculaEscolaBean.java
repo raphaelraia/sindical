@@ -2885,56 +2885,29 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public int getNumeroParcelas() {
-        String dt;
-        //String dia_string = (idDiaParcela < 10) ? "0" + idDiaParcela : "" + idDiaParcela;
-
         if ((servicoPessoa.getReferenciaVigoracao() != null && servicoPessoa.getReferenciaValidade() != null)
                 && (!servicoPessoa.getReferenciaVigoracao().isEmpty() && !servicoPessoa.getReferenciaValidade().isEmpty())
                 && DataHoje.menorData("01/" + servicoPessoa.getReferenciaVigoracao(), "01/" + servicoPessoa.getReferenciaValidade()) || DataHoje.igualdadeData("01/" + servicoPessoa.getReferenciaVigoracao(), "01/" + servicoPessoa.getReferenciaValidade())) {
-            //if (DataHoje.menorData(servicoPessoa.getEmissao(), dia_string + "/" + servicoPessoa.getReferenciaVigoracao())) {
-            dt = "01/" + servicoPessoa.getReferenciaVigoracao();
-            //} else {
-            //    dt = servicoPessoa.getEmissao();
-            //}
-
+            String dt = "01/" + servicoPessoa.getReferenciaVigoracao();
             // numeroParcelas = DataHoje.quantidadeMeses(DataHoje.converte(dt), DataHoje.converte("01/" + servicoPessoa.getReferenciaValidade())) + 1;
-            numeroParcelas = DataHoje.diffMonths(dt, "01/" + servicoPessoa.getReferenciaValidade());
+            numeroParcelas = DataHoje.diffMonths(dt, "01/" + servicoPessoa.getReferenciaValidade()) + 1;
             valorTotal = Moeda.converteR$Double(Moeda.multiplicar(Moeda.converteUS$(valor), numeroParcelas));
         } else {
             numeroParcelas = 0;
             valorTotal = getValorString();
         }
-
-//        if (tipoMatricula.equals("Turma")) {
-//            if (!turma.getDataInicio().isEmpty() && !turma.getDataTermino().isEmpty() && DataHoje.menorData(turma.getDataInicio(), turma.getDataTermino())) {
-//                if ( DataHoje.menorData(servicoPessoa.getEmissao(), turma.getDataInicio()) ){
-//                    dt = turma.getDataInicio();
-//                }else{
-//                    dt = servicoPessoa.getEmissao();
-//                }
-//                
-//                numeroParcelas = DataHoje.quantidadeMeses(DataHoje.converte(dt), turma.getDtTermino());
-//                valorTotal = Moeda.converteR$Double(Moeda.multiplicarValores(Moeda.converteUS$(valor), numeroParcelas));
-//            } else {
-//                numeroParcelas = 0;
-//                valorTotal = getValorString();
-//            }
-//        } else if (tipoMatricula.equals("Individual")) {
-//            if (!matriculaIndividual.getDataInicioString().isEmpty() && !matriculaIndividual.getDataTerminoString().isEmpty() && DataHoje.menorData(matriculaIndividual.getDataInicioString(), matriculaIndividual.getDataTerminoString())) {
-//                if ( DataHoje.menorData(servicoPessoa.getEmissao(), matriculaIndividual.getDataInicioString()) ){
-//                    dt = matriculaIndividual.getDataInicioString();
-//                }else{
-//                    dt = servicoPessoa.getEmissao();
-//                }
-//                
-//                numeroParcelas = DataHoje.quantidadeMeses(DataHoje.converte(dt), matriculaIndividual.getDataTermino());
-//                valorTotal = Moeda.converteR$Double(Moeda.multiplicarValores(Moeda.converteUS$(valor), numeroParcelas));
-//            } else {
-//                numeroParcelas = 0;
-//                valorTotal = getValorString();
-//            }
-//        }
         return numeroParcelas;
+    }
+
+    public int getQtdeMeses() {
+        if ((servicoPessoa.getReferenciaVigoracao() != null && servicoPessoa.getReferenciaValidade() != null)
+                && (!servicoPessoa.getReferenciaVigoracao().isEmpty() && !servicoPessoa.getReferenciaValidade().isEmpty())
+                && DataHoje.menorData("01/" + servicoPessoa.getReferenciaVigoracao(), "01/" + servicoPessoa.getReferenciaValidade()) || DataHoje.igualdadeData("01/" + servicoPessoa.getReferenciaVigoracao(), "01/" + servicoPessoa.getReferenciaValidade())) {
+            String dt = "01/" + servicoPessoa.getReferenciaVigoracao();
+            return DataHoje.diffMonths(dt, "01/" + servicoPessoa.getReferenciaValidade());
+        } else {
+            return 0;
+        }
     }
 
     public void setNumeroParcelas(int numeroParcelas) {

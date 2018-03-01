@@ -34,7 +34,7 @@
                             <h:outputText value="Fechamento Comissão" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                                <h:panelGrid  cellpadding="5" columns="10" id="id_pg_relatorios">
                                     <p:outputLabel value="Tipo de Relatório: " />
                                     <p:selectOneMenu id="id_tipo_relatorio" value="#{fechamentoComissaoAcordoBean.idRelatorio}">
                                         <p:ajax event="change" update="@this id_pg_relatorios" global="false" listener="#{fechamentoComissaoAcordoBean.loadRelatorioOrdem}" />
@@ -44,6 +44,11 @@
                                     <p:selectOneMenu value="#{fechamentoComissaoAcordoBean.idRelatorioOrdem}" rendered="#{not empty fechamentoComissaoAcordoBean.listRelatorioOrdem}">
                                         <p:ajax event="change" update="@this"/>
                                         <f:selectItems value="#{fechamentoComissaoAcordoBean.listRelatorioOrdem}"/>
+                                    </p:selectOneMenu>                            
+                                    <p:outputLabel value="Departamento: " styleClass="margin-left-max"/>
+                                    <p:selectOneMenu value="#{fechamentoComissaoAcordoBean.idDepartamento}">
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{fechamentoComissaoAcordoBean.listDepartamento}"/>
                                     </p:selectOneMenu>                            
                                 </h:panelGrid>
                             </p:panel>
@@ -76,7 +81,7 @@
                                                     </p:selectCheckboxMenu>
                                                 </h:panelGrid>                                        
                                             </p:panel>
-                                        </p:column>
+                                        </p:column> 
 
                                     </h:panelGrid>
                                 </h:column>
@@ -89,7 +94,7 @@
                             </p:panel>
                             <p:panel styleClass="fundoCinza margin-top-max">
                                 <h:panelGrid columns="3" cellspacing="5">
-                                    <h:commandLink action="#{fechamentoComissaoAcordoBean.visualizar}">
+                                    <h:commandLink action="#{fechamentoComissaoAcordoBean.print}">
                                         <p:button value="Visualizar Relatório" icon="ui-icon-print"/>
                                     </h:commandLink>
                                 </h:panelGrid>

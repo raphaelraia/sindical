@@ -365,18 +365,18 @@
 
                                                 <p:dialog widgetVar="i_dlg_reativacao" header="Reativação" resizable="false" width="600" modal="true">
                                                     <h:panelGroup layout="block">
-                                                        <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="linha" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
+                                                        <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="socios" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
                                                             <p:column width="15">  
-                                                                <p:rowToggler rendered="#{not empty linha.matriculaSocios.motivo}"/>  
+                                                                <p:rowToggler rendered="#{not empty socios.matriculaSocios.motivo}"/>  
                                                             </p:column> 
                                                             <p:column headerText="Data" width="80" styleClass="text-center">
-                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa, linha.matriculaSocios.inativo)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
+                                                                <p:commandLink ajax="false" value="#{socios.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(socios.servicoPessoa.pessoa, socios)}" disabled="#{socios.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
                                                             </p:column>
                                                             <p:column headerText="Motivo">
-                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa, linha.matriculaSocios.inativo)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
+                                                                <p:commandLink ajax="false" value="#{socios.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(socios.servicoPessoa.pessoa, socios)}" disabled="#{socios.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
                                                             </p:column>
                                                             <p:rowExpansion>
-                                                                #{linha.matriculaSocios.motivo}
+                                                                #{socios.matriculaSocios.motivo}
                                                             </p:rowExpansion>
                                                         </p:dataTable>
                                                     </h:panelGroup>
