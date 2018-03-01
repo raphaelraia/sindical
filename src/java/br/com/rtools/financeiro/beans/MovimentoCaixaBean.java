@@ -6,6 +6,7 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.ContaSaldo;
+import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.dao.MovimentoBancarioDao;
 import br.com.rtools.financeiro.dao.MovimentoCaixaDao;
 import br.com.rtools.pessoa.Pessoa;
@@ -35,7 +36,7 @@ public class MovimentoCaixaBean implements Serializable {
     private ObjectSaldo objectSaldo = new ObjectSaldo();
     private List<ObjectSaldoDetalhe> listaSaldoDetalhe = new ArrayList();
     private ContaSaldo contaSaldo = new ContaSaldo();
-
+    
     public MovimentoCaixaBean() {
 
         loadListaDatas();

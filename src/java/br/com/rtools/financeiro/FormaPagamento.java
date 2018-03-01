@@ -1,6 +1,7 @@
 package br.com.rtools.financeiro;
 
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
@@ -57,9 +58,6 @@ public class FormaPagamento implements java.io.Serializable {
     @JoinColumn(name = "id_conciliacao_plano5", referencedColumnName = "id")
     @ManyToOne
     private Plano5 conciliacaoPlano5;
-    @Temporal(TemporalType.DATE)
-    @Column(name = "dt_conciliacao")
-    private Date dtConciliacao;
     @JoinColumn(name = "id_conciliado", referencedColumnName = "id")
     @ManyToOne
     private FormaPagamento conciliado;
@@ -82,7 +80,6 @@ public class FormaPagamento implements java.io.Serializable {
         this.status = null;
         this.devolucao = 0;
         this.conciliacaoPlano5 = null;
-        this.dtConciliacao = null;
         this.conciliado = null;
     }
 
@@ -103,7 +100,6 @@ public class FormaPagamento implements java.io.Serializable {
             FStatus status,
             Integer devolucao,
             Plano5 conciliacaoPlano5,
-            Date dtConciliacao,
             FormaPagamento conciliado) {
         this.id = id;
         this.baixa = baixa;
@@ -122,7 +118,6 @@ public class FormaPagamento implements java.io.Serializable {
         this.status = status;
         this.devolucao = devolucao;
         this.conciliacaoPlano5 = conciliacaoPlano5;
-        this.dtConciliacao = dtConciliacao;
         this.conciliado = conciliado;
     }
 
@@ -280,14 +275,6 @@ public class FormaPagamento implements java.io.Serializable {
 
     public void setConciliacaoPlano5(Plano5 conciliacaoPlano5) {
         this.conciliacaoPlano5 = conciliacaoPlano5;
-    }
-
-    public Date getDtConciliacao() {
-        return dtConciliacao;
-    }
-
-    public void setDtConciliacao(Date dtConciliacao) {
-        this.dtConciliacao = dtConciliacao;
     }
 
     public FormaPagamento getConciliado() {

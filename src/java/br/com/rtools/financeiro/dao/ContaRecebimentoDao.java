@@ -35,9 +35,9 @@ public class ContaRecebimentoDao extends DB {
         String WHERE = "";
 
         if (!pesquisar.isEmpty()) {
-            
+
             String norm = AnaliseString.normalizeLower(pesquisar);
-            
+
             WHERE = "WHERE (LOWER(FUNC_TRANSLATE(conta1)) LIKE '%" + norm + "%' "
                     + " OR LOWER(FUNC_TRANSLATE(conta4)) LIKE '%" + norm + "%' "
                     + " OR LOWER(FUNC_TRANSLATE(conta5)) LIKE '%" + norm + "%'"
@@ -61,7 +61,8 @@ public class ContaRecebimentoDao extends DB {
                     + "  FROM fin_tipo_pagamento tp \n"
                     + "  LEFT JOIN fin_conta_tipo_pagamento ctp ON ctp.id_tipo_pagamento = tp.id \n"
                     + " WHERE tp.id IN (" + id_in + ") \n"
-                    + "   AND (ctp.id_tipo_pagamento IS NULL) OR (ctp.id_tipo_pagamento IS NOT NULL AND ctp.id_plano5 IS NOT NULL)",
+                    + "   AND (ctp.id_tipo_pagamento IS NULL) OR (ctp.id_tipo_pagamento IS NOT NULL AND ctp.id_plano5 IS NOT NULL) \n "
+                    + " ORDER BY tp.id",
                     TipoPagamento.class
             );
 
@@ -70,5 +71,21 @@ public class ContaRecebimentoDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
-    }    
+    }
+
+    public ContaTipoPagamento pesquisaContaTipoPagamento(Integer id_tipo_pagamento) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT ctp.* \n"
+                    + "  FROM fin_conta_tipo_pagamento ctp \n"
+                    + " WHERE ctp.id_tipo_pagamento = " + id_tipo_pagamento,
+                    ContaTipoPagamento.class
+            );
+
+            return (ContaTipoPagamento) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
+    }
 }

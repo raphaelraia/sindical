@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Baixa;
@@ -52,6 +47,8 @@ public class MovimentoCartaoBean implements Serializable {
 
     private Double valorTotalLiquido = new Double(0);
     private Double valorTotalLiquidoSelecionado = new Double(0);
+
+    private Cartao cartaoSelecionado = new Cartao();
 
     public MovimentoCartaoBean() {
         loadListaCartaoCombo();
@@ -174,11 +171,11 @@ public class MovimentoCartaoBean implements Serializable {
             }
         }
 
-        Cartao cart = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
+        cartaoSelecionado = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
 
-        Plano5 plano_entrada = cart.getPlano5Baixa();
+        Plano5 plano_entrada = cartaoSelecionado.getPlano5Baixa();
 
-        String historico_entrada = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_entrada.getConta() + ")";
+        String historico_entrada = "Referente ao repasse de recebimento(s) (" + plano_entrada.getConta() + ") para a conta " + cartaoSelecionado.getPlano5().getConta() + ".";
         Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 9), historico_entrada);
 
         if (!dao.save(lote_entrada)) {
@@ -203,7 +200,7 @@ public class MovimentoCartaoBean implements Serializable {
             return;
         }
 
-        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), plano_entrada);
+        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), cartaoSelecionado.getPlano5());
 
         if (!dao.save(forma_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
@@ -299,6 +296,7 @@ public class MovimentoCartaoBean implements Serializable {
                             (Double) linha.get(4),
                             (Double) linha.get(5),
                             linha.get(6).toString(),
+                            (Date) linha.get(7),
                             l_detalhe
                     )
             );
@@ -306,6 +304,9 @@ public class MovimentoCartaoBean implements Serializable {
             valorTotal = Moeda.soma(valorTotal, (Double) linha.get(3));
             valorTotalLiquido = Moeda.soma(valorTotalLiquido, (Double) linha.get(5));
         }
+
+        cartaoSelecionado = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
+
     }
 
     public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historico_contabil) {
@@ -323,7 +324,7 @@ public class MovimentoCartaoBean implements Serializable {
                 null, // DEPARTAMENTO
                 null, // EVT
                 historico_contabil, // HISTORICO
-                (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
+                (FTipoDocumento) dao.find(new FTipoDocumento(), 10), // 4 - CHEQUE / 5 - CHEQUE PRE / 10 - TRANSFERENCIA BANCÁRIA
                 (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1), // 1 - A VISTA / 2 - PRAZO
                 fstatus, // 1 - EFETIVO // 8 - DEPOSITADO // 14 - NÃO CONTABILIZAR
                 null, // PESSOA SEM CADASTRO
@@ -356,8 +357,8 @@ public class MovimentoCartaoBean implements Serializable {
                 true, // ATIVO
                 e_s, // E_S
                 false, // OBRIGACAO 
-                null, // TITULAR
-                null, // BENEFICIARIO
+                (Pessoa) dao.find(new Pessoa(), 0), // TITULAR
+                (Pessoa) dao.find(new Pessoa(), 0), // BENEFICIARIO
                 "", // DOCUMENTO
                 "", // NR_CTR_BOLETO
                 DataHoje.data(), // VENCTO ORIGINAL
@@ -393,7 +394,6 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 0,
                 null,
-                null,
                 null
         );
     }
@@ -410,7 +410,8 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 null,
                 0,
-                0
+                0,
+                DataHoje.dataHoje()
         );
     }
 
@@ -519,9 +520,10 @@ public class MovimentoCartaoBean implements Serializable {
         private Double taxa;
         private Double liquido;
         private String baixaOrdem;
+        private Date credito;
         private List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe;
 
-        public ObjectListaCartoes(FormaPagamento formaPagamento, Baixa baixa, Date data, Double valor, Double taxa, Double liquido, String baixaOrdem, List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe) {
+        public ObjectListaCartoes(FormaPagamento formaPagamento, Baixa baixa, Date data, Double valor, Double taxa, Double liquido, String baixaOrdem, Date credito, List<ObjectCartaoDetalhe> listaObjectCartaoDetalhe) {
             this.formaPagamento = formaPagamento;
             this.baixa = baixa;
             this.data = data;
@@ -529,6 +531,7 @@ public class MovimentoCartaoBean implements Serializable {
             this.taxa = taxa;
             this.liquido = liquido;
             this.baixaOrdem = baixaOrdem;
+            this.credito = credito;
             this.listaObjectCartaoDetalhe = listaObjectCartaoDetalhe;
         }
 
@@ -618,6 +621,22 @@ public class MovimentoCartaoBean implements Serializable {
 
         public void setBaixaOrdem(String baixaOrdem) {
             this.baixaOrdem = baixaOrdem;
+        }
+
+        public Date getCredito() {
+            return credito;
+        }
+
+        public void setCredito(Date credito) {
+            this.credito = credito;
+        }
+
+        public String getCreditoString() {
+            return DataHoje.converteData(credito);
+        }
+
+        public void setCreditoString(String creditoString) {
+            this.credito = DataHoje.converte(creditoString);
         }
 
         public List<ObjectCartaoDetalhe> getListaObjectCartaoDetalhe() {
@@ -712,6 +731,14 @@ public class MovimentoCartaoBean implements Serializable {
             this.valor = Moeda.converteUS$(valorString);
         }
 
+    }
+
+    public Cartao getCartaoSelecionado() {
+        return cartaoSelecionado;
+    }
+
+    public void setCartaoSelecionado(Cartao cartaoSelecionado) {
+        this.cartaoSelecionado = cartaoSelecionado;
     }
 
 }

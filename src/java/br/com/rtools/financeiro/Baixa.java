@@ -40,7 +40,10 @@ public class Baixa implements java.io.Serializable {
     private double troco;
     @Column(name = "nr_taxa_liquidacao")
     private double taxaLiquidacao;
-
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_ocorrencia")
+    private Date dtOcorrencia;
+    
     public Baixa() {
         this.id = -1;
         this.usuario = new Usuario();
@@ -53,6 +56,7 @@ public class Baixa implements java.io.Serializable {
         this.usuarioDesconto = null;
         this.troco = 0;
         this.taxaLiquidacao = 0;
+        this.dtOcorrencia = null;
     }
 
     public Baixa(int id,
@@ -65,7 +69,8 @@ public class Baixa implements java.io.Serializable {
             FechamentoCaixa fechamentoCaixa,
             Usuario usuarioDesconto,
             double troco,
-            double taxaLiquidacao) {
+            double taxaLiquidacao, 
+            Date dtOcorrencia) {
         this.id = id;
         this.usuario = usuario;
         this.dtBaixa = dtBaixa;
@@ -77,6 +82,7 @@ public class Baixa implements java.io.Serializable {
         this.usuarioDesconto = usuarioDesconto;
         this.troco = troco;
         this.taxaLiquidacao = taxaLiquidacao;
+        this.dtOcorrencia = dtOcorrencia;
     }
 
     public int getId() {
@@ -181,5 +187,21 @@ public class Baixa implements java.io.Serializable {
 
     public void setTaxaLiquidacao(double taxaLiquidacao) {
         this.taxaLiquidacao = taxaLiquidacao;
+    }
+
+    public Date getDtOcorrencia() {
+        return dtOcorrencia;
+    }
+
+    public void setDtOcorrencia(Date dtOcorrencia) {
+        this.dtOcorrencia = dtOcorrencia;
+    }
+    
+    public String getDtOcorrenciaString() {
+        return DataHoje.converteData(dtOcorrencia);
+    }
+
+    public void setDtOcorrenciaString(String dtOcorrenciaString) {
+        this.dtOcorrencia = DataHoje.converte(dtOcorrenciaString);
     }
 }

@@ -31,8 +31,8 @@ public class RelatorioMovimentoDiarioDao extends DB {
         // CHAMADOS 1490
         try {
             String queryString = "";
-            queryString += " -- RelatorioMovimentoDiarioDao->find()             \n"
-                    + "      SELECT data,                                       \n"
+            queryString += " -- RelatorioMovimentoDiarioDao->find() \n"
+                    + "SELECT data,                                       \n"
                     + "             operacao,                                   \n"
                     + "             historico,                                  \n"
                     + "             sum(entrada)         AS entrada,            \n"
@@ -40,19 +40,23 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "             sum(saldo_acumulado) AS saldo_acumulado,    \n"
                     + "             fstatus,                                    \n"
                     + "             fstatus_id,                                 \n"
-                    + "             id_movimento                                \n"
+                    + "             id_movimento,\n"
+                    + "             case when grupo is null then ' OUTRAS CONTAS' else grupo end as grupo \n"
+                    + "              \n"
                     + "        FROM (                                           \n"
                     + "                  SELECT baixa AS DATA,                  \n"
-                    + "                         CASE WHEN servico IS NOT NULL THEN UPPER(servico) ELSE UPPER(conta) END AS operacao, \n"
+                    + "                         CASE WHEN servico IS NOT NULL THEN UPPER(servico) ELSE UPPER(m.conta) END AS operacao, \n"
                     + "                         M.ds_historico AS historico,                                \n"
                     + "                         CASE WHEN es='E' THEN M.valor_baixa ELSE 0 END AS ENTRADA,  \n"
                     + "                         CASE WHEN es='S' THEN M.valor_baixa ELSE 0 END AS SAIDA,    \n"
                     + "                         0               AS saldo_acumulado, \n"
-                    + "                         ST.ds_descricao AS FSTATUS,         \n"
-                    + "                         ST.id           AS FSTATUS_ID,      \n"
-                    + "                         M.id_movimento                      \n"
-                    + "                    FROM movimentos_vw AS M                  \n"
-                    + "               LEFT JOIN fin_status    AS ST ON ST.id = m.id_baixa_status \n";
+                    + "                         M.tipo_pagamento  AS FSTATUS,         \n"
+                    + "                         M.id_tipo_pagamento           AS FSTATUS_ID,      \n"
+                    + "                         M.id_movimento,\n"
+                    + "                         pl.conta4 as grupo\n"
+                    + "                          \n"
+                    + "                    FROM movimentos_vw AS M  \n"
+                    + "                    LEFT JOIN plano_vw AS pl ON pl.id_p5 = m.id_caixa_banco";
 
             List listWhere = new ArrayList<>();
             // CONTA OU BANCO
@@ -81,12 +85,13 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "             historico,  \n"
                     + "             fstatus,    \n"
                     + "             fstatus_id,  \n"
-                    + "             id_movimento  \n"
+                    + "             id_movimento,  \n"
+                    + "             grupo  \n"
                     + "            \n";
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
             } else {
-                queryString += " ORDER BY data, id_movimento ";
+                queryString += " ORDER BY data, grupo desc, id_movimento ";
             }
             Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);

@@ -141,7 +141,7 @@ public class DescontoServicoEmpresaDao extends DB {
 
     public List<DescontoServicoEmpresa> findByGrupo(Integer grupo_id) {
         try {
-            Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.grupo.id = :grupo_id ORDER BY DSE.juridica.pessoa.nome ASC, DSE.servicos.descricao ASC ");
+            Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.servicos.id = :grupo_id ORDER BY DSE.juridica.pessoa.nome ASC, DSE.servicos.descricao ASC ");
             query.setParameter("grupo_id", grupo_id);
             List list = query.getResultList();
             if (!list.isEmpty()) {

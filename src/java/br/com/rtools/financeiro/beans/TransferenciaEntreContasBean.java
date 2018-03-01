@@ -262,7 +262,6 @@ public class TransferenciaEntreContasBean implements Serializable {
                 null,
                 0,
                 null,
-                null,
                 null
         );
     }
@@ -279,7 +278,8 @@ public class TransferenciaEntreContasBean implements Serializable {
                 null,
                 null,
                 0,
-                0
+                0,
+                DataHoje.dataHoje()
         );
     }
 

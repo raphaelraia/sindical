@@ -25,8 +25,9 @@ public class ListValoresBaixaGeral {
     private FStatus status;
     private Plano5 conciliacaoPlano5;
     private Date dataConciliacao;
+    private Date dataOcorrencia;
 
-    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao) {
+    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao, Date dataOcorrencia) {
         this.vencimento = vencimento;
         this.valor = valor;
         this.numeroCheque = numeroCheque;
@@ -41,6 +42,7 @@ public class ListValoresBaixaGeral {
         this.status = status;
         this.conciliacaoPlano5 = conciliacaoPlano5;
         this.dataConciliacao = dataConciliacao;
+        this.dataOcorrencia = dataOcorrencia;
     }
     
     public String getVencimento() {
@@ -153,5 +155,13 @@ public class ListValoresBaixaGeral {
 
     public void setDataConciliacao(Date dataConciliacao) {
         this.dataConciliacao = dataConciliacao;
+    }
+
+    public Date getDataOcorrencia() {
+        return dataOcorrencia;
+    }
+
+    public void setDataOcorrencia(Date dataOcorrencia) {
+        this.dataOcorrencia = dataOcorrencia;
     }
 }
