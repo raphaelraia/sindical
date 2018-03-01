@@ -40,12 +40,14 @@ public class AtualizarBaseBean implements Serializable {
     private Map<String, Integer> listConfiguracao;
     private List selectedConfiguracao;
     private List<AtualizarBaseCliente> selected;
+    private Boolean updateScript;
 
     @PostConstruct
     public void init() {
         listAtualizarBase = new ArrayList<>();
         atualizarBase = new AtualizarBase();
         selected = new ArrayList();
+        updateScript = false;
     }
 
     @PreDestroy
@@ -67,6 +69,7 @@ public class AtualizarBaseBean implements Serializable {
             return;
         }
         Dao dao = new Dao();
+        atualizarBase.setScript(atualizarBase.getScript().replace("'", "'''"));
         if (atualizarBase.getId() == null) {
             atualizarBase.setUsuario(Usuario.getUsuario());
             if (new Dao().save(atualizarBase, true)) {
@@ -82,6 +85,7 @@ public class AtualizarBaseBean implements Serializable {
         } else {
             GenericaMensagem.warn("Erro", "Ao atualizar registro!");
         }
+        updateScript = false;
     }
 
     public void delete() {
@@ -98,10 +102,17 @@ public class AtualizarBaseBean implements Serializable {
         }
     }
 
+    public void editScript() {
+        atualizarBase.setScript(atualizarBase.getScript().replace("'''", "'"));
+        updateScript = true;
+    }
+
     public String edit(AtualizarBase ab) {
+        updateScript = true;
         selected = new ArrayList();
         selectedConfiguracao = null;
         atualizarBase = (AtualizarBase) new Dao().rebind(ab);
+        atualizarBase.setScript(atualizarBase.getScript().replace("'''", "'"));
         GenericaSessao.put("linkClicado", true);
         loadListAtualizarBase();
         loadListAtualizarBaseCliente();
@@ -118,9 +129,11 @@ public class AtualizarBaseBean implements Serializable {
                 Configuracao configuracao = (Configuracao) dao.find(new Configuracao(), Integer.parseInt(selectedConfiguracao.get(i).toString()));
                 AtualizarBaseCliente abc = new AtualizarBaseCliente();
                 boolean add = true;
-                for (int x = 0; x < listAtualizarBaseCliente.size(); x++) {
-                    if (Objects.equals(listAtualizarBaseCliente.get(x).getCliente().getId(), configuracao.getId())) {
-                        add = false;
+                if (listAtualizarBaseCliente != null) {
+                    for (int x = 0; x < listAtualizarBaseCliente.size(); x++) {
+                        if (Objects.equals(listAtualizarBaseCliente.get(x).getCliente().getId(), configuracao.getId())) {
+                            add = false;
+                        }
                     }
                 }
                 if (add) {
@@ -140,6 +153,14 @@ public class AtualizarBaseBean implements Serializable {
     }
 
     public void run() {
+        if (atualizarBase.getId() == null) {
+            GenericaMensagem.warn("Erro", "Salvar o registro!!!");
+            return;
+        }
+        if (updateScript) {
+            GenericaMensagem.warn("Erro", "Salvar o script!!!");
+            return;
+        }
         if (listAtualizarBaseCliente.isEmpty()) {
             GenericaMensagem.warn("Erro", "Cadastrar clientes!!!");
             return;
@@ -191,7 +212,7 @@ public class AtualizarBaseBean implements Serializable {
                     dbe.setUser(user);
                     dbe.setPassword(password);
 
-                    if (dbe.getConnection() != null) {
+                    if (dbe.getConnection(true) != null) {
                         ps = dbe.getConnection().prepareStatement(atualizarBase.getScript());
                         ps.executeUpdate();
                         GenericaMensagem.info((i + 1) + " - " + selected.get(i).getCliente().getIdentifica(), "Script executado!!!");
@@ -336,6 +357,14 @@ public class AtualizarBaseBean implements Serializable {
 
     public void setSelected(List<AtualizarBaseCliente> selected) {
         this.selected = selected;
+    }
+
+    public Boolean getUpdateScript() {
+        return updateScript;
+    }
+
+    public void setUpdateScript(Boolean updateScript) {
+        this.updateScript = updateScript;
     }
 
 }

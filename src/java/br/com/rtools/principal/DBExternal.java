@@ -1,5 +1,6 @@
 package br.com.rtools.principal;
 
+import br.com.rtools.utilitarios.Messages;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,6 +18,10 @@ public class DBExternal {
     private String password = "r#@tools";
 
     public Connection getConnection() {
+        return getConnection(false);
+    }
+
+    public Connection getConnection(Boolean sQLException) {
         try {
             //Configuracao c = DB.servidor(GenericaSessao.getString("sessaoCliente"));
             //String url = "jdbc:postgresql://200.158.101.9:5432/Rtools";
@@ -31,6 +36,9 @@ public class DBExternal {
             return conn;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            if (sQLException) {
+                Messages.warn("SQLException", e.getMessage());
+            }
         }
         return null;
     }

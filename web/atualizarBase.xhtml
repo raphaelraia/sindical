@@ -47,7 +47,10 @@
                                     </p:selectBooleanCheckbox>
                                 </h:panelGrid>
                                 <h:outputLabel value="Script" /><br />
-                                <p:inputTextarea placeholder="Script" value="#{atualizarBaseBean.atualizarBase.script}" maxlength="5000" rows="20" style="width: 100%" addLine="true" autoResize="true" />
+                                <p:inputTextarea placeholder="Script" value="#{atualizarBaseBean.atualizarBase.script}" maxlength="5000" rows="20" style="width: 100%" addLine="true" autoResize="true" disabled="#{atualizarBaseBean.atualizarBase.id ne null and !atualizarBaseBean.updateScript}"/>
+                                <br />
+                                <br />
+                                <p:commandLink value="Editar" action="#{atualizarBaseBean.editScript()}" update=":form_atualizar_base:" styleClass="font-color-blue"/>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="5">
                                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" type="button"  />

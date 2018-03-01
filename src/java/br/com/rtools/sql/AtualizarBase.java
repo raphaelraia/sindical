@@ -102,7 +102,7 @@ public class AtualizarBase implements Serializable {
         return script;
     }
 
-    public void setScript(String script) {
+    public void setScript(String script) {        
         this.script = script;
     }
 
