@@ -15,6 +15,7 @@ import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,8 +94,8 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             return;
         }
 
-        List listDetalhePesquisa = new ArrayList();
-        List<ObjectJasper> oj = new ArrayList<>();
+        List<String> listDetalhePesquisa = new ArrayList();
+        List<ObjectJasper> oj = new ArrayList();
         sisProcesso.startQuery();
         RelatorioMovimentoDiarioDao rpd = new RelatorioMovimentoDiarioDao();
 
@@ -104,43 +105,121 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         }
 
         rpd.setRelatorios(r);
-        List list = rpd.find(idCaixaBanco, inIdFStatus(), data);
+
+        List list_CAIXA = rpd.find(idCaixaBanco, inIdFStatus(), data, "caixa");
+
+        List list_BANCO = rpd.find(idCaixaBanco, inIdFStatus(), data, "banco");
+
+        List list_OUTROS = rpd.find(idCaixaBanco, inIdFStatus(), data, "");
+
         sisProcesso.finishQuery();
+
         Double saldo = new Double(0);
         Double saldo_anterior = rpd.findSaldoAnterior(data, idCaixaBanco);
 
-        if (saldo_anterior == null) {
-            saldo_anterior = new Double(0);
-        }
+        Double saldo_caixa = rpd.findSaldoAnteriorCaixa(data);
+        Double saldo_banco = rpd.findSaldoAnteriorBanco(data);
 
-        //oj.add(new ObjectJasper(DataHoje.converteStringToSqlDate(new DataHoje().decrementarDias(1, data)), "SALDO ANTERIOR", "", saldo_anterior > 0 ? saldo_anterior : 0, saldo_anterior < 0 ? saldo_anterior : 0, saldo_anterior, "", -1));
+        Double total_entrada = new Double(0);
+        Double total_saida = new Double(0);
+        
+        // --------------- LISTA CAIXA -----------------------------------------
+        // COMEÇA O SALDO COM O VALOR QUE ESTA EM ( CAIXA ) --------------------
+        if (!list_CAIXA.isEmpty()) {
+            saldo = saldo_caixa;
+            for (int i = 0; i < list_CAIXA.size(); i++) {
+                List o = (List) list_CAIXA.get(i);
 
-        for (int i = 0; i < list.size(); i++) {
-            List o = (List) list.get(i);
-            if (i == 0) {
-                saldo = saldo_anterior + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
-            } else {
+                // CALCULA O SALDO LINHA POR LINHA ---------------------------------
                 saldo = saldo + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
-            }
-            oj.add(new ObjectJasper(
-                    o.get(0), 
-                    o.get(1), 
-                    o.get(2), 
-                    o.get(3), 
-                    o.get(4), 
-                    saldo, 
-                    o.get(6), 
-                    o.get(7), 
-                    DataHoje.data() + " às " + DataHoje.horaMinuto(), 
-                    "Os campos STATUS, SALDO BLOQUEADO(E), SALDO BLOQUEADO(S) E SALDO DISPONÍVEL são referentes à " + DataHoje.data() + " às " + DataHoje.horaMinuto(),
-                    o.get(9))
-            );
-        }
 
-        if (list.isEmpty()) {
-            oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "", "", new Double(0), new Double(0), new Double(0), null, null, null, null, null));
-//            GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
-//            return;
+                total_entrada = total_entrada + Double.parseDouble(o.get(3).toString());
+                total_saida = total_saida + Double.parseDouble(o.get(4).toString());
+
+                oj.add(new ObjectJasper(
+                        o.get(0),
+                        o.get(1),
+                        o.get(2),
+                        o.get(3),
+                        o.get(4),
+                        saldo,
+                        o.get(6),
+                        o.get(7),
+                        DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                        "Os campos STATUS, SALDO BLOQUEADO(E), SALDO BLOQUEADO(S) E SALDO DISPONÍVEL são referentes à " + DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                        o.get(9),
+                        saldo_caixa)
+                );
+
+            }
+            //total_saldo_atual = saldo;
+        }
+        // FIM CAIXA -----------------------------------------------------------
+
+        // --------------- LISTA BANCO -----------------------------------------
+        // COMEÇA O SALDO COM O VALOR QUE ESTA EM ( BANCO ) --------------------
+        if (!list_BANCO.isEmpty()) {
+            saldo = saldo_banco;
+            for (int i = 0; i < list_BANCO.size(); i++) {
+                List o = (List) list_BANCO.get(i);
+
+                // CALCULA O SALDO LINHA POR LINHA ---------------------------------
+                saldo = saldo + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
+
+                total_entrada = total_entrada + Double.parseDouble(o.get(3).toString());
+                total_saida = total_saida + Double.parseDouble(o.get(4).toString());
+
+                oj.add(new ObjectJasper(
+                        o.get(0),
+                        o.get(1),
+                        o.get(2),
+                        o.get(3),
+                        o.get(4),
+                        saldo,
+                        o.get(6),
+                        o.get(7),
+                        DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                        "Os campos STATUS, SALDO BLOQUEADO(E), SALDO BLOQUEADO(S) E SALDO DISPONÍVEL são referentes à " + DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                        o.get(9),
+                        saldo_banco)
+                );
+
+            }
+            //total_saldo_atual = Moeda.soma(total_saldo_atual, saldo);
+        }
+        // FIM BANCO -----------------------------------------------------------
+
+        // --------------- LISTA OUTROS ----------------------------------------
+        // COMEÇA O SALDO COM O VALOR QUE ESTA EM ( OUTROS ) -------------------
+        if (!list_OUTROS.isEmpty()) {
+            saldo = new Double(0);
+            for (int i = 0; i < list_OUTROS.size(); i++) {
+                List o = (List) list_OUTROS.get(i);
+
+                oj.add(new ObjectJasper(
+                        o.get(0),
+                        o.get(1),
+                        o.get(2),
+                        o.get(3),
+                        o.get(4),
+                        saldo,
+                        o.get(6),
+                        o.get(7),
+                        DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                        "Os campos STATUS, SALDO BLOQUEADO(E), SALDO BLOQUEADO(S) E SALDO DISPONÍVEL são referentes à " + DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                        o.get(9),
+                        saldo)
+                );
+
+            }
+
+        }
+        // FIM OUTROS -----------------------------------------------------------
+
+        if (list_CAIXA.isEmpty() && list_BANCO.isEmpty() && list_OUTROS.isEmpty()) {
+            //oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "", "", new Double(0), new Double(0), new Double(0), null, null, null, null, null, null));
+            GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
+            return;
         }
 
         String detalheRelatorio = "";
@@ -160,15 +239,35 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         Jasper.EXPORT_TO = true;
         Jasper.TITLE = "RELATÓRIO " + r.getNome().toUpperCase();
         Jasper.TYPE = "default";
+
         Map map = new HashMap();
-        map.put("saldo_anterior", saldo_anterior);
         map.put("detalhes_relatorio", detalheRelatorio);
-        map.put("caixa_banco", "CAIXA / BANCO");
+
+        map.put("total_entrada", total_entrada);
+        map.put("total_saida", total_saida);
+
+        Double saldo_anterior_rodape = new Double(0);
 
         if (idCaixaBanco != null) {
             Plano5 p = (Plano5) new Dao().find(new Plano5(), idCaixaBanco);
             map.put("caixa_banco", p.getConta());
+            map.put("saldo_anterior", null);
+
+            if (idCaixaBanco.equals(1)) {
+                saldo_anterior_rodape = saldo_caixa;
+            } else {
+                saldo_anterior_rodape = saldo_banco;
+            }
+
+        } else {
+            map.put("caixa_banco", "CAIXA / BANCO");
+            map.put("saldo_anterior", saldo_anterior);
+
+            saldo_anterior_rodape = saldo_anterior;
         }
+
+        map.put("saldo_anterior_rodape", saldo_anterior_rodape);
+        map.put("total_saldo_atual", Moeda.soma(Moeda.soma(saldo_anterior_rodape, total_entrada), total_saida));
 
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj, map);
         sisProcesso.setProcesso(r.getNome());
@@ -472,6 +571,14 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
     public class ObjectJasper {
 
+        public Object getSaldo_anterior_grupo() {
+            return saldo_anterior_grupo;
+        }
+
+        public void setSaldo_anterior_grupo(Object saldo_anterior_grupo) {
+            this.saldo_anterior_grupo = saldo_anterior_grupo;
+        }
+
         private Object data;
         private Object operacao;
         private Object historico;
@@ -483,6 +590,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         private Object data_hora;
         private Object observacao;
         private Object grupo;
+        private Object saldo_anterior_grupo;
 
         public ObjectJasper() {
             this.data = null;
@@ -496,9 +604,10 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             this.data_hora = null;
             this.observacao = null;
             this.grupo = null;
+            this.saldo_anterior_grupo = null;
         }
 
-        public ObjectJasper(Object data, Object operacao, Object historico, Object entrada, Object saida, Object saldo_acumulado, Object fstatus, Object fstatus_id, Object data_hora, Object observacao, Object grupo) {
+        public ObjectJasper(Object data, Object operacao, Object historico, Object entrada, Object saida, Object saldo_acumulado, Object fstatus, Object fstatus_id, Object data_hora, Object observacao, Object grupo, Object saldo_anterior_grupo) {
             this.data = data;
             this.operacao = operacao;
             this.historico = historico;
@@ -510,6 +619,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             this.data_hora = data_hora;
             this.observacao = observacao;
             this.grupo = grupo;
+            this.saldo_anterior_grupo = saldo_anterior_grupo;
         }
 
         public Object getOperacao() {
