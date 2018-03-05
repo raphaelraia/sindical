@@ -1021,6 +1021,17 @@ public class SociosBean implements Serializable {
     public void selectDependente() {
         if (fisicaPesquisa == null) {
         } else {
+            // MENSAGEM SE POSSUI DÉBITOS
+            FunctionsDao functionsDao = new FunctionsDao();
+            if (functionsDao.inadimplente(fisicaPesquisa.getPessoa().getId())) {
+                // PF.closeDialog("dlg_dependente");
+                PF.openDialog("i_dlg_c");
+                GenericaMensagem.warn("Sistema", "EXISTE(m) DÉBITO(s) PARA ESTE DEPENDENTE!");
+                PF.update("formSocios:i_msg_1");
+                return;
+            }
+            PF.update("formSocios:i_panel_pesquisa");
+            PF.update("formSocios:i_panel_dados");
             novoDependente = fisicaPesquisa;
         }
 
@@ -2020,6 +2031,11 @@ public class SociosBean implements Serializable {
             }
             GenericaMensagem.info("Sucesso", "Dependente Salvo!");
         } else {
+            FunctionsDao functionsDao = new FunctionsDao();
+            if (functionsDao.inadimplente(novoDependente.getPessoa().getId())) {
+                GenericaMensagem.warn("Sistema", "EXISTE(m) DÉBITO(s) PARA ESTE DEPENDENTE!");
+                return;
+            }
             dao.openTransaction();
             if (!dao.update(novoDependente.getPessoa())) {
                 GenericaMensagem.error("Erro", "Erro ao atualizar Pessoa!");
@@ -2074,6 +2090,7 @@ public class SociosBean implements Serializable {
                 FisicaDao db = new FisicaDao();
                 f = db.pesquisaFisicaPorNomeNascimento(novoDependente.getPessoa().getNome(), novoDependente.getDtNascimento());
                 if (f != null) {
+                    novoDependente = f;
                     RequestContext.getCurrentInstance().update("formSocios");
                 }
             }

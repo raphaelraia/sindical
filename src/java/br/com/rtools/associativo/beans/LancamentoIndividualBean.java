@@ -22,6 +22,7 @@ import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
@@ -134,6 +135,12 @@ public class LancamentoIndividualBean implements Serializable {
                 totalpagar = Moeda.subtracao(totalpagar, valor);
             }
 
+            Pessoa titular = responsavel;
+            Socios s = fisica.getPessoa().getSocios();
+            if (s.getId() != -1) {
+                titular = s.getMatriculaSocios().getTitular();
+            }
+
             listaMovimento.add(new DataObject(
                     new Movimento(
                             -1,
@@ -151,7 +158,7 @@ public class LancamentoIndividualBean implements Serializable {
                             true, // ATIVO
                             "E", // ES
                             false, // OBRIGACAO
-                            responsavel, // PESSOA TITULAR
+                            titular, // PESSOA TITULAR
                             fisica.getPessoa(), // PESSOA BENEFICIARIO
                             "", // DOCUMENTO
                             "", // NR_CTR_BOLETO
@@ -441,6 +448,8 @@ public class LancamentoIndividualBean implements Serializable {
     }
 
     public Pessoa retornaResponsavel(Integer id_pessoa, boolean associada) {
+        Fisica fi = null;
+        Juridica ju = null;
         if (associada) {
             responsavel = new FunctionsDao().titularDaPessoa(id_pessoa);
         } else {
@@ -452,7 +461,9 @@ public class LancamentoIndividualBean implements Serializable {
 
             // RESPONSAVEL FISICA
             FisicaDao dbf = new FisicaDao();
-            Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
+            JuridicaDao dbj = new JuridicaDao();
+            fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
+            ju = null;
             if (fi != null) {
                 DataHoje dh = new DataHoje();
                 int idade = dh.calcularIdade(fi.getNascimento());
@@ -461,38 +472,38 @@ public class LancamentoIndividualBean implements Serializable {
                     return responsavel = new Pessoa();
                 }
             } else {
+                ju = dbj.pesquisaJuridicaPorPessoa(responsavel.getId());
                 // RESPONSAVEL JURIDICA
                 // POR ENQUANTO NÃO FAZ NADA
-                GenericaMensagem.warn("RESPONSÁVEL", "Pessoa Juridica não disponível no momento!");
-                return responsavel = new Pessoa();
+                // GenericaMensagem.warn("RESPONSÁVEL", "Pessoa Juridica não disponível no momento!");
+                // return responsavel = new Pessoa();
             }
         }
 
-        Socios s = responsavel.getSocios();
-        if (s != null && s.getId() != -1) {
-            if (responsavel.getId() != s.getMatriculaSocios().getTitular().getId()) {
-                GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " é um sócio dependente!");
-                return responsavel = new Pessoa();
+        if (fi != null) {
+            Socios s = responsavel.getSocios();
+            if (s != null && s.getId() != -1) {
+                if (responsavel.getId() != s.getMatriculaSocios().getTitular().getId()) {
+                    GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " é um sócio dependente!");
+                    return responsavel = new Pessoa();
+                }
             }
-        }
-
-        // MENSAGEM SE POSSUI DÉBITOS
-        if (new FunctionsDao().inadimplente(responsavel.getId())) {
-            GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " possui débitos com o Sindicato!");
+            // MENSAGEM SE POSSUI DÉBITOS
+            if (new FunctionsDao().inadimplente(responsavel.getId())) {
+                GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " possui débitos com o Sindicato!");
+            }
+            // CADASTRO NO SERASA
+            LancamentoIndividualDao dbl = new LancamentoIndividualDao();
+            if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
+                GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
+            }
         }
 
         // ENDEREÇO OBRIGATÓRIO
-        JuridicaDao dbj = new JuridicaDao();
-        List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
+        List lista_pe = new PessoaEnderecoDao().pesquisaEndPorPessoa(responsavel.getId());
         if (lista_pe.isEmpty()) {
             GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " não possui endereço cadastrado!");
             return responsavel = new Pessoa();
-        }
-
-        // CADASTRO NO SERASA
-        LancamentoIndividualDao dbl = new LancamentoIndividualDao();
-        if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
-            GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
 
         PessoaDao db = new PessoaDao();
@@ -511,9 +522,16 @@ public class LancamentoIndividualBean implements Serializable {
 
     public Pessoa getResponsavel() {
         if (GenericaSessao.exists("pessoaPesquisa")) {
-            Socios s = fisica.getPessoa().getSocios();
-            retornaResponsavel(fisica.getPessoa().getId(), (s != null && s.getId() != -1));
-            GenericaSessao.remove("pessoaPesquisa");
+            Pessoa p = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
+            if (p.getJuridica() == null) {
+                Socios s = fisica.getPessoa().getSocios();
+                retornaResponsavel(fisica.getPessoa().getId(), (s != null && s.getId() != -1));
+                GenericaSessao.remove("pessoaPesquisa");
+            } else {
+                retornaResponsavel(p.getId(), false);
+                GenericaSessao.remove("pessoaPesquisa");
+
+            }
         }
         // NÃO APAGAR COMENTÁRIO
         /*

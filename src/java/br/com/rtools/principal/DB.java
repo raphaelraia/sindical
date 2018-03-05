@@ -110,14 +110,16 @@ public class DB {
                 configuracao.setCaminhoSistema(cliente);
                 configuracao.setPersistence(cliente);
                 //configuracao.setHost("192.168.1.102");
-                configuracao.setHost("192.168.1.100");
+                // configuracao.setHost("192.168.1.100");
+                configuracao.setHost("192.168.15.100");
                 configuracao.setSenha("r#@tools");
                 break;
             case "Rtools":
                 configuracao.setCaminhoSistema(cliente);
                 configuracao.setPersistence(cliente);
                 //configuracao.setHost("192.168.1.102");
-                configuracao.setHost("192.168.1.100");
+                //configuracao.setHost("192.168.1.100");
+                configuracao.setHost("192.168.15.100");
                 configuracao.setSenha("r#@tools");
 //                configuracao.setHost("192.168.1.35");
 //                configuracao.setSenha("*4qu4r10-");                
@@ -159,7 +161,8 @@ public class DB {
                     cliente = "ComercioRP";
                     //configuracao.setHost("192.168.1.102");
                     // configuracao.setHost("192.168.1.100");
-                    configuracao.setHost("192.168.1.35");
+                    configuracao.setHost("192.168.15.35");
+                    // configuracao.setHost("192.168.1.35");
                     configuracao.setSenha("*4qu4r10-");
                 }   //            } else {
 //                if (cliente.equals("ServidoresRP")) {
