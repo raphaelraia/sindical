@@ -122,11 +122,23 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             } else {
                 saldo = saldo + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
             }
-            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), saldo, o.get(6), o.get(7)));
+            oj.add(new ObjectJasper(
+                    o.get(0), 
+                    o.get(1), 
+                    o.get(2), 
+                    o.get(3), 
+                    o.get(4), 
+                    saldo, 
+                    o.get(6), 
+                    o.get(7), 
+                    DataHoje.data() + " às " + DataHoje.horaMinuto(), 
+                    "Os campos STATUS, SALDO BLOQUEADO(E), SALDO BLOQUEADO(S) E SALDO DISPONÍVEL são referentes à " + DataHoje.data() + " às " + DataHoje.horaMinuto(),
+                    o.get(9))
+            );
         }
 
         if (list.isEmpty()) {
-            oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "", "", new Double(0), new Double(0), new Double(0), null, null));
+            oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "", "", new Double(0), new Double(0), new Double(0), null, null, null, null, null));
 //            GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
 //            return;
         }
@@ -468,6 +480,9 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         private Object saldo_acumulado;
         private Object fstatus;
         private Object fstatus_id;
+        private Object data_hora;
+        private Object observacao;
+        private Object grupo;
 
         public ObjectJasper() {
             this.data = null;
@@ -478,9 +493,12 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             this.saldo_acumulado = null;
             this.fstatus = null;
             this.fstatus_id = null;
+            this.data_hora = null;
+            this.observacao = null;
+            this.grupo = null;
         }
 
-        public ObjectJasper(Object data, Object operacao, Object historico, Object entrada, Object saida, Object saldo_acumulado, Object fstatus, Object fstatus_id) {
+        public ObjectJasper(Object data, Object operacao, Object historico, Object entrada, Object saida, Object saldo_acumulado, Object fstatus, Object fstatus_id, Object data_hora, Object observacao, Object grupo) {
             this.data = data;
             this.operacao = operacao;
             this.historico = historico;
@@ -489,6 +507,9 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             this.saldo_acumulado = saldo_acumulado;
             this.fstatus = fstatus;
             this.fstatus_id = fstatus_id;
+            this.data_hora = data_hora;
+            this.observacao = observacao;
+            this.grupo = grupo;
         }
 
         public Object getOperacao() {
@@ -553,6 +574,30 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
         public void setFstatus_id(Object fstatus_id) {
             this.fstatus_id = fstatus_id;
+        }
+
+        public Object getData_hora() {
+            return data_hora;
+        }
+
+        public void setData_hora(Object data_hora) {
+            this.data_hora = data_hora;
+        }
+
+        public Object getObservacao() {
+            return observacao;
+        }
+
+        public void setObservacao(Object observacao) {
+            this.observacao = observacao;
+        }
+
+        public Object getGrupo() {
+            return grupo;
+        }
+
+        public void setGrupo(Object grupo) {
+            this.grupo = grupo;
         }
 
     }

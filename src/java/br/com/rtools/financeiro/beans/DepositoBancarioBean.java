@@ -51,7 +51,7 @@ public class DepositoBancarioBean implements Serializable {
     }
 
     public void atualizarListaDataSaldo() {
-        
+
         Boolean result = new Dao().executeQuery(
                 " UPDATE fin_forma_pagamento SET id_status = 9 --- Realizado \n "
                 + "WHERE id IN \n "
@@ -146,8 +146,8 @@ public class DepositoBancarioBean implements Serializable {
             GenericaMensagem.warn("Atenção", "DIGITE UM VALOR PARA DEPÓSITO!");
             return;
         }
-        
-        if (Integer.valueOf(listaConta.get(idConta).getDescription()) == -1){
+
+        if (Integer.valueOf(listaConta.get(idConta).getDescription()) == -1) {
             GenericaMensagem.warn("Atenção", listaConta.get(idConta).getLabel());
             return;
         }
@@ -159,7 +159,7 @@ public class DepositoBancarioBean implements Serializable {
         Plano5 plano_combo = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
         Plano5 plano_caixa = (Plano5) dao.find(new Plano5(), 1);
 
-        String historico_contabil = "Deposito bancário para a conta " + plano_combo.getConta();
+        String historico_contabil = "Deposito bancário em DINHEIRO para a conta " + plano_combo.getConta();
 
         // MOVIMENTO SAIDA -----------------------------------------------------
         Baixa baixa_saida = null;
@@ -252,8 +252,8 @@ public class DepositoBancarioBean implements Serializable {
             GenericaMensagem.warn("Erro", "Nenhum cheque foi selecionado!");
             return;
         }
-        
-        if (Integer.valueOf(listaConta.get(idConta).getDescription()) == -1){
+
+        if (Integer.valueOf(listaConta.get(idConta).getDescription()) == -1) {
             GenericaMensagem.warn("Atenção", listaConta.get(idConta).getLabel());
             return;
         }
@@ -269,8 +269,6 @@ public class DepositoBancarioBean implements Serializable {
         dao.openTransaction();
         Plano5 plano_combo = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
         Plano5 plano_caixa = (Plano5) dao.find(new Plano5(), 1);
-
-        String historico_contabil = "Deposito bancário para a conta " + plano_combo.getConta();
 
         FStatus fstatus_liquidado = (FStatus) dao.find(new FStatus(), 9);
         // UPDATE NOS CHEQUES
@@ -299,6 +297,8 @@ public class DepositoBancarioBean implements Serializable {
             }
 
             double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
+
+            String historico_contabil = "Deposito bancário do CHEQUE [ " + listaSelecionado.get(i).getChequeRec().getBanco().getBanco() + " - " + listaSelecionado.get(i).getChequeRec().getAgencia() + " - " + listaSelecionado.get(i).getChequeRec().getConta() + " - " + listaSelecionado.get(i).getChequeRec().getCheque() + " ] para a conta " + plano_combo.getConta();
 
             if (lote_saida == null) {
                 lote_saida = novoLote(dao, "P", plano_combo, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
@@ -342,6 +342,8 @@ public class DepositoBancarioBean implements Serializable {
 
             double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
 
+            String historico_contabil = "Deposito bancário do CHEQUE [ " + listaSelecionado.get(i).getChequeRec().getBanco().getBanco() + " - " + listaSelecionado.get(i).getChequeRec().getAgencia() + " - " + listaSelecionado.get(i).getChequeRec().getConta() + " - " + listaSelecionado.get(i).getChequeRec().getCheque() + " ] para a conta " + plano_combo.getConta();
+            
             Plano5 plano = plano_caixa;
 
             if (lote_entrada == null) {
@@ -458,7 +460,8 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 null,
                 0,
-                0
+                0,
+                DataHoje.dataHoje()
         );
     }
 
@@ -481,7 +484,6 @@ public class DepositoBancarioBean implements Serializable {
                 fstatus,
                 devolucao,
                 null,
-                null,
                 null
         );
     }
@@ -492,11 +494,11 @@ public class DepositoBancarioBean implements Serializable {
 
             List<Plano5> result = db.pesquisaCaixaBanco();
             for (int i = 0; i < result.size(); i++) {
-                if (result.get(i).getContaBanco() == null || result.get(i).getContaBanco().getBanco() == null){
+                if (result.get(i).getContaBanco() == null || result.get(i).getContaBanco().getBanco() == null) {
                     listaConta.add(new SelectItem(-1, "** ERRO NA LISTA " + result.get(i).getConta(), "-1"));
                     continue;
                 }
-                
+
                 listaConta.add(
                         new SelectItem(
                                 i,

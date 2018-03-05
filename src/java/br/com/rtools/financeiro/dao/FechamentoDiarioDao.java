@@ -48,12 +48,13 @@ public class FechamentoDiarioDao extends DB {
                     + "  INNER JOIN fin_plano5 AS p ON p.id = cs.id_plano5 \n"
                     + "   LEFT JOIN caixa_banco_vw AS CB ON CB.id_plano5 = P.id \n"
                     + "  WHERE cs.dt_data = '" + data + "' \n"
-                    + "    AND cs.nr_saldo > 0  \n"
+                    + "    AND cs.nr_saldo <> 0  \n"
                     + " GROUP BY cs.id, p.id, cs.dt_data, p.ds_conta, p.ds_classificador, CB.id_plano5 \n"
                     + " ORDER BY cs.dt_data, p.id_plano4, p.ds_conta"
             );
             return qry.getResultList();
         } catch (Exception e) {
+            e.getMessage();
             return new ArrayList();
         }
     }
@@ -96,7 +97,7 @@ public class FechamentoDiarioDao extends DB {
                     + "\n"
                     + "SELECT \n"
                     + "       id_forma_pagamento AS id, \n"
-                    + "       valor*func_dc(dc) AS valor, \n"
+                    + "       valor * func_dc(dc, natureza_dc) AS valor, \n"
                     + "       id_conta, \n"
                     + "       1 AS id_usuario, \n"
                     + "       1 AS id_filial \n"
@@ -110,6 +111,7 @@ public class FechamentoDiarioDao extends DB {
             );
             return qry.getResultList();
         } catch (Exception e) {
+            e.getMessage();
             return new ArrayList();
         }
     }

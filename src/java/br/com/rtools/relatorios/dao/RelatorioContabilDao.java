@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
@@ -31,7 +26,7 @@ public class RelatorioContabilDao extends DB {
                     + "FROM contabil_vw cv \n ";
 
             List list_where = new ArrayList();
-
+            
             if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
                 list_where.add("cv.baixa BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
             } else if (!data_inicial.isEmpty() && data_final.isEmpty()) {

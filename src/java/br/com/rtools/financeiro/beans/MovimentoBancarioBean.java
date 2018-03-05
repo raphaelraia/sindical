@@ -773,7 +773,6 @@ public class MovimentoBancarioBean implements Serializable {
                 fstatus,
                 devolucao,
                 null,
-                null,
                 null
         );
 
@@ -808,7 +807,8 @@ public class MovimentoBancarioBean implements Serializable {
                 null,
                 null,
                 0,
-                0
+                0,
+                DataHoje.dataHoje()
         );
     }
 

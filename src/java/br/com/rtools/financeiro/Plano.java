@@ -19,6 +19,8 @@ public class Plano implements java.io.Serializable {
     private String acesso;
     @Column(name = "ds_classificador", length = 20)
     private String classificador;
+    @Column(name = "ds_dc", length = 1)
+    private String dc;
 
     public Plano() {
         this.id = -1;
@@ -26,14 +28,16 @@ public class Plano implements java.io.Serializable {
         this.conta = "";
         this.acesso = "";
         this.classificador = "";
+        this.dc = "C";
     }
 
-    public Plano(int id, String numero, String conta, String acesso, String classificador) {
+    public Plano(int id, String numero, String conta, String acesso, String classificador, String dc) {
         this.id = id;
         this.numero = numero;
         this.conta = conta;
         this.acesso = acesso;
         this.classificador = classificador;
+        this.dc = dc;
     }
 
     public int getId() {
@@ -74,5 +78,13 @@ public class Plano implements java.io.Serializable {
 
     public void setClassificador(String classificador) {
         this.classificador = classificador;
+    }
+    
+    public String getDc() {
+        return dc;
+    }
+
+    public void setDc(String dc) {
+        this.dc = dc;
     }
 }

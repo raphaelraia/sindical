@@ -1204,7 +1204,7 @@ public class GerarMovimento extends DB {
                 }
                 if (movimento.getNrCtrBoleto() != null && !movimento.getNrCtrBoleto().isEmpty()) {
                     Boleto bol = movimento.getBoleto();
-                    if (bol != null){
+                    if (bol != null) {
                         bol.setDtCobrancaRegistrada(null);
                         bol.setStatusRetorno(null);
                         bol.setDtStatusRetorno(null);
@@ -1281,7 +1281,6 @@ public class GerarMovimento extends DB {
                 null,
                 0,
                 null,
-                null,
                 null
         );
 
@@ -1319,7 +1318,7 @@ public class GerarMovimento extends DB {
         return true;
     }
 
-    public static StatusRetornoMensagem baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco) {
+    public static StatusRetornoMensagem baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco, Date dataOcorrencia) {
         // 15
         // 000003652580001
         // 8
@@ -1348,6 +1347,11 @@ public class GerarMovimento extends DB {
             baixa.setDocumentoBaixa(numeroComposto);
             baixa.setCaixa(caixa);
             baixa.setTroco(valorTroco);
+            if (dataOcorrencia == null) {
+                baixa.setDtOcorrencia(DataHoje.dataHoje());
+            } else {
+                baixa.setDtOcorrencia(dataOcorrencia);
+            }
 
             if (GenericaSessao.getObject("usuarioAutenticado") != null) {
                 baixa.setUsuarioDesconto((Usuario) GenericaSessao.getObject("usuarioAutenticado"));
@@ -1521,7 +1525,6 @@ public class GerarMovimento extends DB {
                 0,
                 null,
                 0,
-                null,
                 null,
                 null
         );

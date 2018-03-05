@@ -60,10 +60,15 @@
                                 <h:panelGrid columns="4">
                                     <p:column>
                                         <h:outputLabel value="Bandeira" /><br />
-                                        <p:selectOneMenu value="#{movimentoCartaoBean.indexCartaoCombo}">
+                                        <p:selectOneMenu value="#{movimentoCartaoBean.indexCartaoCombo}" style="margin-right: 15px">
                                             <p:ajax event="change" update="@form" listener="#{movimentoCartaoBean.loadListaCartoes()}"/>
                                             <f:selectItems value="#{movimentoCartaoBean.listaCartaoCombo}"/>
                                         </p:selectOneMenu>
+                                    </p:column>
+
+                                    <p:column>
+                                        <p:outputLabel value="Conta"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.cartaoSelecionado.plano5.conta}" style="font-size: 17pt!important; "/>
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -86,15 +91,19 @@
                                     <p:outputLabel value="#{linha.formaPagamento.id}" />
                                 </p:column>
 
-                                <p:column headerText="Data" style="text-align: center; width: 80px">
+                                <p:column headerText="Recebimento" style="text-align: center; width: 90px">
                                     <p:outputLabel value="#{linha.dataString}" />
+                                </p:column>
+
+                                <p:column headerText="Previsão" style="text-align: center; width: 80px">
+                                    <p:outputLabel value="#{linha.creditoString}" />
                                 </p:column>
 
                                 <p:column headerText="Valor" style="text-align: right">
                                     <p:outputLabel value="#{linha.valorString}" />
                                 </p:column>
 
-                                <p:column headerText="Taxa" style="text-align: right">
+                                <p:column headerText="Despesa Bancária" style="text-align: right">
                                     <p:outputLabel value="#{linha.taxaString}" />
                                 </p:column>
 
@@ -103,6 +112,9 @@
                                 </p:column>
 
                                 <p:summaryRow>
+                                    <p:column>
+
+                                    </p:column>
                                     <p:column colspan="4" style="text-align: right">
                                         <h:outputText value="Total:" />
                                     </p:column>
@@ -134,23 +146,23 @@
                                                 <p:column headerText="Responsável">
                                                     <h:outputLabel value="#{linha_detalhe.responsavel.nome}" style="font-size: 8pt!important;"/>
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="Titular">
                                                     <h:outputLabel value="#{linha_detalhe.titular.nome}" style="font-size: 8pt!important;"/>
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="Beneficiário">
                                                     <h:outputLabel value="#{linha_detalhe.beneficiario.nome}" style="font-size: 8pt!important;"/>
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="Vencimento" style="text-align: center; width: 80px">
                                                     <h:outputLabel value="#{linha_detalhe.vencimentoString}" />
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="Operação">
                                                     <h:outputLabel value="#{linha_detalhe.operacao}" style="font-size: 7pt!important;"/>
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="Valor" style="text-align: right; width: 80px">
                                                     <h:outputLabel value="#{linha_detalhe.valorString}" />
                                                 </p:column>

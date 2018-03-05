@@ -1078,7 +1078,7 @@ public class EmissaoGuiasBean implements Serializable {
 
             lf.add(
                     new FormaPagamento(
-                            -1, null, null, null, 100, 0, filial, (Plano5) new Dao().find(new Plano5(), 1), null, null, (TipoPagamento) new Dao().find(new TipoPagamento(), 3), 0, DataHoje.dataHoje(), 0, null, 0, null, null, null
+                            -1, null, null, null, 100, 0, filial, (Plano5) new Dao().find(new Plano5(), 1), null, null, (TipoPagamento) new Dao().find(new TipoPagamento(), 3), 0, DataHoje.dataHoje(), 0, null, 0, null, null
                     )
             );
 
@@ -1107,7 +1107,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
 
             if (valor_soma == 0) {
-                StatusRetornoMensagem sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0);
+                StatusRetornoMensagem sr = GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0, DataHoje.dataHoje());
                 if (!sr.getStatus()) {
                     message = "Erro ao baixar Guias! " + sr.getMensagem();
                     return null;

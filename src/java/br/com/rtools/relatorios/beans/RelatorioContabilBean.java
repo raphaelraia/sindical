@@ -53,7 +53,7 @@ public class RelatorioContabilBean implements Serializable {
             return;
         }
 
-        if (dataInicial.isEmpty() || dataFinal.isEmpty()) {
+        if (dataInicial.isEmpty() && dataFinal.isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar datas!");
             return;
         }

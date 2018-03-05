@@ -318,10 +318,10 @@
                                             </p:selectOneMenu>
                                         </p:column>
                                         
-                                        <p:column rendered="#{baixaGeralBean.es eq 'E' and (baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10)}">
+                                        <p:column rendered="#{baixaGeralBean.es eq 'E' and (baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 or baixaGeralBean.tipoPagamento.id == 13)}">
                                             <h:panelGrid columns="1" styleClass="fundoCinza" style="width: 100%">
-                                                <p:outputLabel value="Data para Conciliação" style="font-weight: bold; color: red"/>
-                                                <p:inputMask value="#{baixaGeralBean.dataConciliacaoString}" size="8" mask="99/99/9999">
+                                                <p:outputLabel value="Data da Ocorrência (Data em que o cliente efetuou o pagamento)" style="font-weight: bold; color: red"/>
+                                                <p:inputMask value="#{baixaGeralBean.dataOcorrenciaString}" size="8" mask="99/99/9999">
                                                     <p:ajax event="change" update="@this"/>
                                                 </p:inputMask>
                                             </h:panelGrid>

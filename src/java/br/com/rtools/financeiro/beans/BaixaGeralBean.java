@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ChequeRec;
 import br.com.rtools.financeiro.ContaBanco;
+import br.com.rtools.financeiro.ContaTipoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Movimento;
@@ -114,6 +115,7 @@ public class BaixaGeralBean implements Serializable {
     private String dataEmissaoRecibo;
 
     private Boolean visibleImprimirRecibo = false;
+    private Date dataOcorrencia = null;
 
     @PostConstruct
     public void init() {
@@ -349,7 +351,7 @@ public class BaixaGeralBean implements Serializable {
                     ch_p.setPlano5(pl);
                     ch_p.setDtVencimentoString(vencimento);
 
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje()));
                 } else {
                     if (numero.isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
@@ -373,7 +375,7 @@ public class BaixaGeralBean implements Serializable {
                         GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
                         return;
                     }
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null, DataHoje.dataHoje()));
                 }
                 numero = "";
                 numeroChequePag = "";
@@ -390,10 +392,10 @@ public class BaixaGeralBean implements Serializable {
                 Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
                 if (!getEs().isEmpty() && getEs().equals("S")) {
                     CartaoPag cartao_pag = null;
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje()));
                 } else {
                     CartaoRec cartao_rec = new CartaoRec(-1, null, cart);
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje()));
                 }
                 if (!listaCartao.get(0).getDescription().isEmpty()) {
                 }
@@ -410,23 +412,32 @@ public class BaixaGeralBean implements Serializable {
                     return;
                 }
 
+                for (ListValoresBaixaGeral listaValore : listaValores) {
+                    // NÃO PODE ADIOCIONAR ESSES TIPOS JUNTO COM BOL/DEP BAN/DOC etc DEVIDO A DATA DE OCORRÊNCIA PODER SER DIFERENTE
+                    if (listaValore.getTipoPagamento().getId() == 3 || listaValore.getTipoPagamento().getId() == 4 || listaValore.getTipoPagamento().getId() == 5 || listaValore.getTipoPagamento().getId() == 6 || listaValore.getTipoPagamento().getId() == 7) {
+                        GenericaMensagem.error("Ação não permitida", "Não é possível adicionar Contate o Administrador!");
+                        return;
+                    }
+                }
+
                 // PLANO DEFAULT
                 Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                 Plano5 pl_conciliacao = null;
                 Date dt_conciliacao = null;
+                Date dt_ocorrencia = null;
 
                 // QUANDO RECEBIMENTO TIPO
                 // 8;"Depósito Bancário" 9;"DOC / TED" 10;"Trans. Bancária"
                 if (!getEs().isEmpty() && getEs().equals("E")) {
-                    if (tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10) {
-                        if (dataConciliacao == null) {
-                            GenericaMensagem.error("Atenção", "Digite uma data para conciliação!");
+                    if (tipoPagamento.getId() == 2 || tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10 || tipoPagamento.getId() == 13) {
+                        if (dataOcorrencia == null) {
+                            GenericaMensagem.error("Atenção", "Digite uma data de ocorrência!");
                             return;
                         }
 
-                        if (DataHoje.maiorData(dataConciliacao, DataHoje.dataHoje())) {
-                            GenericaMensagem.error("Atenção", "Data de Conciliação não pode ser maior que hoje!");
-                            dataConciliacao = null;
+                        if (DataHoje.maiorData(dataOcorrencia, DataHoje.dataHoje())) {
+                            GenericaMensagem.error("Atenção", "Data de Ocorrência não pode ser maior que hoje!");
+                            dataOcorrencia = null;
                             return;
                         }
 
@@ -434,19 +445,21 @@ public class BaixaGeralBean implements Serializable {
                         pl = (Plano5) new Dao().find(new Plano5(), 1);
                         pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                         dt_conciliacao = dataConciliacao;
+                        dt_ocorrencia = dataOcorrencia;
                     }
                 }
 
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), null, pl_conciliacao, dt_conciliacao));
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), null, pl_conciliacao, dt_conciliacao, dt_ocorrencia));
                 numero = "";
                 dataConciliacao = null;
+                dataOcorrencia = null;
                 break;
             default:
                 if (plano5.getId() == -1) {
                     GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
                     return;
                 }
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), null, null, null));
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje()));
                 break;
         }
         desHabilitaConta = true;
@@ -588,36 +601,69 @@ public class BaixaGeralBean implements Serializable {
 
         for (int i = 0; i < listaValores.size(); i++) {
             double valor_baixa = Moeda.converteUS$(String.valueOf(listaValores.get(i).getValor()));
+
+            ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(listaValores.get(i).getTipoPagamento().getId());
+
             // CHEQUE
             switch (listaValores.get(i).getTipoPagamento().getId()) {
+                case 1:
+                    // NOTA FISCAL
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    break;
+                case 2:
+                    // BOLETO
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getPlano5(), null));
+                    break;
+                case 3:
+                    // DINHEIRO
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    break;
                 case 4:
-                case 5:
+                    // CHEQUE
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        lfp.add(new FormaPagamento(-1, null, null, listaValores.get(i).getChequePag(), 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, null));
+                        lfp.add(new FormaPagamento(-1, null, null, listaValores.get(i).getChequePag(), 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
                     } else {
-                        lfp.add(new FormaPagamento(-1, null, listaValores.get(i).getChequeRec(), null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, null));
+                        lfp.add(new FormaPagamento(-1, null, listaValores.get(i).getChequeRec(), null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    }
+                    break;
+                case 5:
+                    // CHEQUE-PRÉ
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, listaValores.get(i).getChequePag(), 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, listaValores.get(i).getChequeRec(), null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
                     }
                     break;
                 case 6:
                 case 7:
-                    // CARTAO
+                    // CARTAO - CRÉDITO / DÉBITO
                     Cartao cartao = listaValores.get(i).getCartao();
                     DataHoje dh = new DataHoje();
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null));
                     } else {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, null));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null));
                     }
                     break;
                 case 8:
+                    // DEPÓSITO BANCARIO
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    break;
                 case 9:
+                    // DOC / TED
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    break;
                 case 10:
-                    // DOC BANCARIO
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), listaValores.get(i).getDataConciliacao(), null));
+                    // TRANS. BANCÁRIA
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    break;
+                case 13:
+                    // DÉBITO AUTOMÁTICO
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
                     break;
                 default:
-                    // DINHEIRO E OUTROS
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, null));
+                    // OUTROS
+                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getPlano5(), null));
                     break;
             }
         }
@@ -628,7 +674,7 @@ public class BaixaGeralBean implements Serializable {
 
         double vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
 
-        StatusRetornoMensagem sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.converteStringToDouble(total), quitacao, caixa, vl);
+        StatusRetornoMensagem sr = GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.converteStringToDouble(total), quitacao, caixa, vl, listaValores.get(0).getDataOcorrencia());
 
         if (!sr.getStatus()) {
             mensagem = "Erro ao baixar! " + sr.getMensagem();
@@ -656,6 +702,7 @@ public class BaixaGeralBean implements Serializable {
                     }
                 }
             }
+
             if (erro_baixa) {
                 new NovoLog().save("");
                 for (int i = 0; i < listaMovimentos.size(); i++) {
@@ -1396,5 +1443,21 @@ public class BaixaGeralBean implements Serializable {
 
     public void setVisibleImprimirRecibo(Boolean visibleImprimirRecibo) {
         this.visibleImprimirRecibo = visibleImprimirRecibo;
+    }
+
+    public Date getDataOcorrencia() {
+        return dataOcorrencia;
+    }
+
+    public void setDataOcorrencia(Date dataOcorrencia) {
+        this.dataOcorrencia = dataOcorrencia;
+    }
+
+    public String getDataOcorrenciaString() {
+        return DataHoje.converteData(dataOcorrencia);
+    }
+
+    public void setDataOcorrenciaString(String dataOcorrenciaString) {
+        this.dataOcorrencia = DataHoje.converte(dataOcorrenciaString);
     }
 }
