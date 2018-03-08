@@ -174,7 +174,7 @@ public class AtendimentosBean implements Serializable {
                     emissaoGuiasBean.loadListGrupos();
                     emissaoGuiasBean.setIdGrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
                     emissaoGuiasBean.loadListSubgrupos();
-                    emissaoGuiasBean.setIdSubgrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_grupo().toString()));
+                    emissaoGuiasBean.setIdSubgrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_sub_grupo().toString()));
                     emissaoGuiasBean.loadListJuridicas();
                     Juridica j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()));
                     emissaoGuiasBean.setIdConvenio(j.getId());

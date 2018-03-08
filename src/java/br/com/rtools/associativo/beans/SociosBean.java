@@ -4061,6 +4061,7 @@ public class SociosBean implements Serializable {
                 }
                 listSisPeriodos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
+            listenerPeriodo();
         }
         return listSisPeriodos;
     }

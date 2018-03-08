@@ -41,6 +41,8 @@ public class Dispositivo implements Serializable {
     private Integer socketPort;
     @Column(name = "ds_mensagem_alerta")
     private String mensagemAlerta;
+//    @Column(name = "ds_token")
+//    private String token;
 
     public Dispositivo() {
         this.id = null;
