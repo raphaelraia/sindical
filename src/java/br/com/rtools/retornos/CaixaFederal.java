@@ -187,7 +187,12 @@ public class CaixaFederal extends ArquivoRetorno {
 
                             // SEGMENTO T
                             if (linhas.get(i).substring(13, 14).equals("T")) {
-                                linha_segmento.setNossoNumero(linhas.get(i).substring(40, 57));
+                                // *** ATENÇÃO *** - NOSSO NÚMERO DO ARQUIVO (40, 57) NÃO BATE COM O DO SISTEMA SINDICAL ( de acordo com o manual )
+                                //linha_segmento.setNossoNumero(linhas.get(i).substring(40, 57));
+                                
+                                // *** ATENÇÃO *** - NOSSO NÚMERO DO SISTEMA SINDICAL VEM JUNTO COM O CJNP DA EMPRESA
+                                linha_segmento.setNossoNumero(linhas.get(i).substring(175, 187));
+                                
                                 linha_segmento.setValorTaxa(linhas.get(i).substring(199, 214));
                                 linha_segmento.setDataVencimento(linhas.get(i).substring(74, 82));
                                 // VERIFICA VENCIMENTO VÁLIDO

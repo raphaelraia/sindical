@@ -172,7 +172,6 @@ public class ImprimirBoleto implements Serializable {
         return hash;
     }
 
-    
     public HashMap registrarMovimentos(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos) {
         MovimentoDao dbm = new MovimentoDao();
         Registro reg = Registro.get();
@@ -438,14 +437,14 @@ public class ImprimirBoleto implements Serializable {
                 } else {
                     swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper");
                 }
-                
-                if (boletox.getContaCobranca().getLayoutBarrasNovo()){
-                    if (boletox.getBoletoComposto().length() < 17){
+
+                if (boletox.getContaCobranca().getLayoutBarrasNovo()) {
+                    if (boletox.getBoletoComposto().length() < 17) {
                         GenericaMensagem.error("Atenção", "Número do boleto deve ter 17 dígitos e começar com 14 para layout novo!");
                         return new byte[0];
                     }
                 }
-                
+
                 swap[43] = "";
                 swap[42] = "";
                 double vlOriginal = lista.get(i).getValor();
@@ -457,7 +456,13 @@ public class ImprimirBoleto implements Serializable {
                 Movimento mov = lista.get(i);
                 mov.setVencimento(listaVencimentos.get(i));
 
-                cobranca = Cobranca.retornaCobranca(mov.getPessoa().getId(), mov.getValor(), mov.getDtVencimento(), boletox);
+                // CHAMADO ROGÉRIO #2337 PEDIU PARA TIRAR O VALOR APENAS NO CODIGO DE BARRAS E REPRESENTAÇÃO
+                // CASO BOLETO FOR SEM REGISTRO
+                if (boletox.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
+                    cobranca = Cobranca.retornaCobranca(mov.getPessoa().getId(), new Double(0), mov.getDtVencimento(), boletox);
+                } else {
+                    cobranca = Cobranca.retornaCobranca(mov.getPessoa().getId(), mov.getValor(), mov.getDtVencimento(), boletox);
+                }
 
                 if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
                     swap[43] = "Competência (" + lista.get(i).getReferencia() + ")";
