@@ -41,6 +41,8 @@ public class Dispositivo implements Serializable {
     private Integer socketPort;
     @Column(name = "ds_mensagem_alerta")
     private String mensagemAlerta;
+    @Column(name = "ds_token")
+    private String token;
 
     public Dispositivo() {
         this.id = null;
@@ -55,9 +57,10 @@ public class Dispositivo implements Serializable {
         this.socketHost = null;
         this.socketPort = null;
         this.mensagemAlerta = "";
+        this.token = "";
     }
 
-    public Dispositivo(Integer id, Filial filial, MacFilial macFilial, String mac, String nome, TipoDispositivo tipoDispositivo, Date data, Date conectado, Boolean ativo, String socketHost, Integer socketPort, String mensagemAlerta) {
+    public Dispositivo(Integer id, Filial filial, MacFilial macFilial, String mac, String nome, TipoDispositivo tipoDispositivo, Date data, Date conectado, Boolean ativo, String socketHost, Integer socketPort, String mensagemAlerta, String token) {
         this.id = id;
         this.filial = filial;
         this.macFilial = macFilial;
@@ -70,6 +73,7 @@ public class Dispositivo implements Serializable {
         this.socketHost = socketHost;
         this.socketPort = socketPort;
         this.mensagemAlerta = mensagemAlerta;
+        this.token = token;
     }
 
     public Integer getId() {
@@ -166,6 +170,14 @@ public class Dispositivo implements Serializable {
 
     public void setMensagemAlerta(String mensagemAlerta) {
         this.mensagemAlerta = mensagemAlerta;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
 }

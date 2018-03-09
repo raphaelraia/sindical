@@ -249,7 +249,9 @@
                         <f:facet name="footer">
                             <h:panelGrid cellspacing="5" columns="3" id="i_sched_act">
                                 <p:commandButton value="Fechar" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
-                                <p:commandButton value="Compareceu" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}"/>
+                                <h:column rendered="false">
+                                    <p:commandButton value="Compareceu" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}"/>                                    
+                                </h:column>
                                 <p:commandButton value="Cancelar" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}">
                                     <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(atendimentosBean.objectAgenda.id_agendamento)}" update=":form_atendimentos:i_motivo_cancelamento" />
                                 </p:commandButton>
