@@ -612,7 +612,11 @@ public class BaixaGeralBean implements Serializable {
                     break;
                 case 2:
                     // BOLETO
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getPlano5(), null));
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getPlano5(), null));
+                    }
                     break;
                 case 3:
                     // DINHEIRO
@@ -647,23 +651,43 @@ public class BaixaGeralBean implements Serializable {
                     break;
                 case 8:
                     // DEPÓSITO BANCARIO
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    }
                     break;
                 case 9:
                     // DOC / TED
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    }
                     break;
                 case 10:
                     // TRANS. BANCÁRIA
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.dataHoje(), 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    }
                     break;
                 case 13:
                     // DÉBITO AUTOMÁTICO
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null));
+                    }
                     break;
                 default:
                     // OUTROS
-                    lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getPlano5(), null));
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null));
+                    } else {
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getPlano5(), null));
+                    }
                     break;
             }
         }

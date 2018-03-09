@@ -309,17 +309,16 @@ public abstract class ArquivoRetorno {
                 continue;
             }
 
-            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
-
-                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
-                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
-                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
-                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
-                    }
-                }
-
-            }
-
+//            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
+//
+//                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
+//                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
+//                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
+//                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
+//                    }
+//                }
+//
+//            }
         }
 
         // LAYOUT 2 = SINDICAL
@@ -390,18 +389,18 @@ public abstract class ArquivoRetorno {
                                         = cnpjPagador
                                         + linha_segmento.getDataPagamento()
                                         + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
-                                
+
                                 novo_layout_sindical = false;
                             }
                         } catch (NumberFormatException e) {
                             cnpjPagador = linha_segmento.getCnpjPagador();
-                            
+
                             // obs. COLOCO "000" DEVIDO AO CASO ( 3 e 4 ) DA QUERY DO ROGÉRIO EXIGIR 16 CARACTERES NO CNPJ PARA PESQUISAR
                             cnpjComposto
                                     = "000" + cnpjPagador
                                     + linha_segmento.getDataPagamento()
                                     + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
-                            
+
                             novo_layout_sindical = true;
                         }
 
@@ -803,17 +802,16 @@ public abstract class ArquivoRetorno {
                 return ob.getErro();
             }
 
-            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
-
-                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
-                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
-                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
-                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
-                    }
-                }
-
-            }
-
+//            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
+//
+//                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
+//                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
+//                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
+//                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
+//                    }
+//                }
+//
+//            }
         }
 
         // LAYOUT 2 = SINDICAL
