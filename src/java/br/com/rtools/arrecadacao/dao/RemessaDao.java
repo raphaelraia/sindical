@@ -85,7 +85,7 @@ public class RemessaDao extends DB {
             return new ArrayList();
         }
     }
-    
+
     public List<Boleto> listaRegistrarAutomaticoCount(Integer id_conta_cobranca) {
         String queryString
                 = "SELECT count(b.id) \n "
