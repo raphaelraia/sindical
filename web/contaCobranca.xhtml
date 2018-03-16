@@ -44,7 +44,7 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid style="margin-top: 10px" columns="6">
+                                <h:panelGrid style="margin-top: 10px" columns="8">
                                     <p:column>
                                         <h:outputLabel value="Código do Cedente" for="idCodigoCedente"/><br />
                                         <p:inputText id="idCodigoCedente" value="#{contaCobrancaBean.contaCobranca.codCedente}" size="16" maxlength="100" title="Código do Cedente">
@@ -75,6 +75,13 @@
                                     <p:column>
                                         <h:outputLabel value="Aceite" for="idAceite"/><br />
                                         <p:inputText id="idAceite" value="#{contaCobrancaBean.contaCobranca.aceite}" size="5" maxlength="5" title="Aceite" />
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="Nr. Dias Baixa do Registro" for="idNrDBR"/><br />
+                                        <p:inputText id="idNrDBR" value="#{contaCobrancaBean.contaCobranca.registrosDiasVencidos}" size="5" maxlength="5" title="Aceite" converter="#{thisNumber}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
                                     </p:column>
                                 </h:panelGrid>
 
