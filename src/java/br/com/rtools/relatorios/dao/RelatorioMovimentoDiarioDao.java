@@ -42,7 +42,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
                 + "                         M.tipo_pagamento  AS FSTATUS,         \n"
                 + "                         M.id_tipo_pagamento           AS FSTATUS_ID,      \n"
                 + "                         M.id_movimento,\n"
-                + "                         pl.conta4 as grupo, \n"
+                + "                         pl.conta4||'  ['||pl.conta1||']' as grupo, \n"
                 + "                         cb.id_rotina AS id_rotina \n"
                 + "                    FROM movimentos_vw AS M  \n"
                 + "                    LEFT JOIN plano_vw AS pl ON pl.id_p5 = m.id_caixa_banco \n"
@@ -105,7 +105,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
             } else {
-                queryString += " ORDER BY data, id_rotina, id_movimento ";
+                queryString += " ORDER BY data, id_rotina, grupo, id_movimento ";
             }
             Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);

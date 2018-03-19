@@ -484,7 +484,8 @@ public class DepositoBancarioBean implements Serializable {
                 fstatus,
                 devolucao,
                 null,
-                null
+                null,
+                ""
         );
     }
 

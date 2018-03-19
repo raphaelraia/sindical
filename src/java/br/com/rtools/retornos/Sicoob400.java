@@ -7,7 +7,6 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.Moeda;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,17 +94,25 @@ public class Sicoob400 extends ArquivoRetorno {
                             
                             //valorTaxa = ((String) lista.get(i)).substring(95, 100); // taxa de desconto
                             linha_segmento.setValorTaxa(linhas.get(i).substring(181, 188));
-                            linha_segmento.setDataVencimento(linhas.get(i).substring(146, 150) + "20" + linhas.get(i).substring(150, 152));
+                            linha_segmento.setDataVencimento(linhas.get(i).substring(146, 152));
+                            linha_segmento.setDataVencimento(linha_segmento.getDataVencimento().substring(0, linha_segmento.getDataVencimento().length() - 2) + "20" + linha_segmento.getDataVencimento().substring(linha_segmento.getDataVencimento().length() - 2, linha_segmento.getDataVencimento().length()));
                             // VERIFICA VENCIMENTO VÁLIDO
                             try {
                                 if (Integer.parseInt(linha_segmento.getDataVencimento()) == 0) {
                                     linha_segmento.setDataVencimento("11111111");
                                 }
-                            } catch (Exception e) {
+                            } catch (NumberFormatException e) {
+                                e.getMessage();
                             }
 
-                            linha_segmento.setValorPago(linhas.get(i).substring(253, 266));
-                            linha_segmento.setDataPagamento(linhas.get(i).substring(110, 114) + "20" + linhas.get(i).substring(114, 116));
+                            linha_segmento.setValorPago(linhas.get(i).substring(152, 165));
+                            linha_segmento.setValorCredito(linhas.get(i).substring(253, 266)); // ANTES AQUI ERA O ( valor pago )
+                            
+                            linha_segmento.setDataPagamento(linhas.get(i).substring(110, 116));
+                            linha_segmento.setDataPagamento(linha_segmento.getDataPagamento().substring(0, linha_segmento.getDataPagamento().length() - 2) + "20" + linha_segmento.getDataPagamento().substring(linha_segmento.getDataPagamento().length() - 2, linha_segmento.getDataPagamento().length()));
+                            
+                            linha_segmento.setDataCredito(linhas.get(i).substring(175, 181));
+                            linha_segmento.setDataCredito(linha_segmento.getDataCredito().substring(0, linha_segmento.getDataCredito().length() - 2) + "20" + linha_segmento.getDataCredito().substring(linha_segmento.getDataCredito().length() - 2, linha_segmento.getDataCredito().length()));
 
                             // TEMPORARIO ---------- COMENTEI O CÓDIGO NA DATA 23/10/2017
 //                            SicoobDao dao = new SicoobDao(); // TEMPORÁRIO

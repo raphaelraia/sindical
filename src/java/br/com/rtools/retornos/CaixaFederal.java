@@ -486,7 +486,9 @@ public class CaixaFederal extends ArquivoRetorno {
 
                         if (linhas.get(i).substring(13, 14).equals("U")) {
                             linha_segmento.setValorPago(linhas.get(i).substring(77, 92).trim());
+                            linha_segmento.setValorCredito(linhas.get(i).substring(92, 107).trim());
                             linha_segmento.setDataPagamento(linhas.get(i).substring(137, 145).trim());
+                            linha_segmento.setDataCredito(linhas.get(i).substring(145, 153).trim());
 
                             lista_linha_segmento.add(linha_segmento);
                         }

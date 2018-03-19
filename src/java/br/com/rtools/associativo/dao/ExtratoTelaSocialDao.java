@@ -155,7 +155,7 @@ public class ExtratoTelaSocialDao extends DB {
                 break;
             case -2:
                 // NÃO REGISTRADOS
-                and += " AND (bo.id_status_retorno IS NULL OR bo.id_status_retorno = 4)IS NULL AND bo.dt_vencimento >= '01/09/2017'";
+                and += " AND (bo.id_status_retorno IS NULL OR bo.id_status_retorno = 4) AND bo.dt_vencimento > CURRENT_DATE";
                 break;
             default:
                 // STATUS

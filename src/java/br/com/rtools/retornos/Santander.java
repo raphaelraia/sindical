@@ -106,7 +106,7 @@ public class Santander extends ArquivoRetorno {
                         if (linhas.get(i).substring(13, 14).equals("U")) {
                             linha_segmento.setValorPago(linhas.get(i).substring(77, 92));
                             linha_segmento.setDataPagamento(linhas.get(i).substring(137, 145));
-                            linha_segmento.setValorCredito(linhas.get(i).substring(97, 107));
+                            linha_segmento.setValorCredito(linhas.get(i).substring(92, 107));
                             linha_segmento.setDataCredito(linhas.get(i).substring(145, 153));
                             
                             lista_linha_segmento.add(linha_segmento);

@@ -206,7 +206,7 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:messages id="i_msg" closable="true" showDetail="true"/>
+                            <p:messages id="i_msg" closable="true" showDetail="true" autoUpdate="true"/>
 
                             <p:dataTable value="#{extratoTelaSocialBean.listaMovimento}" var="linha" id="tbl" rows="500" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
                                 <f:facet name="header">
@@ -239,7 +239,7 @@
                                     <p:outputLabel value="#{linha.argumento1[4]}" />
                                 </p:column>
 
-                                <p:column headerText="Boleto" style="width: 80px; text-align: center">
+                                <p:column headerText="Boleto" style="width: 120px; text-align: center">
                                     <p:outputLabel value="#{linha.argumento1[5]}" />
                                 </p:column>
 
@@ -402,7 +402,7 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandLink action="#{extratoTelaSocialBean.imprimirPromissoria}" title="Promissória Acordo" target="_blank" ajax="false">
+                                        <p:commandLink action="#{extratoTelaSocialBean.imprimirPromissoria}" title="Promissória Acordo" target="_blank" ajax="false" disabled="true">
                                             <p:commandButton icon="ui-icon-print" value="Promissória Acordo" title="Promissória Acordo" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>

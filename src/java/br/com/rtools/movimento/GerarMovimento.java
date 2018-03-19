@@ -1264,8 +1264,8 @@ public class GerarMovimento extends DB {
         Boleto bol = db.pesquisaBoletos(movimento.getNrCtrBoleto());
 
         Plano5Dao plano5DB = new Plano5Dao();
-        //Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
-        Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
+        Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
+        //Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
         TipoPagamento tp = (TipoPagamento) dao.find(new TipoPagamento(), 2); // BOLETO
         
         ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(tp.getId());
@@ -1288,7 +1288,8 @@ public class GerarMovimento extends DB {
                 null,
                 0,
                 plano5,
-                null
+                null,
+                ""
         );
 
         if (!dao.save(fp)) {
@@ -1486,7 +1487,7 @@ public class GerarMovimento extends DB {
         }
     }
 
-    public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, double valor_baixa, double valor_taxa) {
+    public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, double valor_baixa, String data_credito, double valor_taxa, int nrSequencia) {
         Dao dao = new Dao();
         Object[] lista_log = new Object[3];
         Baixa baixa = new Baixa();
@@ -1496,6 +1497,7 @@ public class GerarMovimento extends DB {
         baixa.setBaixa(DataHoje.data());
         baixa.setDtOcorrenciaString(data_pagamento);
         baixa.setImportacao(DataHoje.data());
+        baixa.setSequenciaBaixa(nrSequencia);
         baixa.setCaixa(null);
         baixa.setTaxaLiquidacao(valor_taxa);
 
@@ -1513,9 +1515,9 @@ public class GerarMovimento extends DB {
         Boleto bol = db.pesquisaBoletos(lista_movimento.get(0).getNrCtrBoleto());
 
         Plano5Dao plano5DB = new Plano5Dao();
-        //Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
+        Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
 
-        Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
+        //Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
         TipoPagamento tp = (TipoPagamento) dao.find(new TipoPagamento(), 2); // BOLETO
         
         ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(tp.getId());
@@ -1535,12 +1537,13 @@ public class GerarMovimento extends DB {
                 null,
                 tp,
                 valor_baixa,
-                null,
+                DataHoje.converte(data_credito),
                 0,
                 null,
                 0,
                 plano5,
-                null
+                null,
+                ""
         );
 
         if (!dao.save(fp)) {

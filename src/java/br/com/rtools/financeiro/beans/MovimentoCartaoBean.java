@@ -394,7 +394,8 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 0,
                 null,
-                null
+                null,
+                ""
         );
     }
 

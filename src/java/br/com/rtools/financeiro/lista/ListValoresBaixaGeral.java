@@ -13,7 +13,7 @@ import java.util.Date;
 public class ListValoresBaixaGeral {
     private String vencimento;
     private String valor;
-    private String numeroCheque;
+    private String numero;
     private TipoPagamento tipoPagamento;
     private ChequePag chequePag;
     private ChequeRec chequeRec;
@@ -27,10 +27,10 @@ public class ListValoresBaixaGeral {
     private Date dataConciliacao;
     private Date dataOcorrencia;
 
-    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao, Date dataOcorrencia) {
+    public ListValoresBaixaGeral(String vencimento, String valor, String numero, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao, Date dataOcorrencia) {
         this.vencimento = vencimento;
         this.valor = valor;
-        this.numeroCheque = numeroCheque;
+        this.numero = numero;
         this.tipoPagamento = tipoPagamento;
         this.chequePag = chequePag;
         this.chequeRec = chequeRec;
@@ -61,12 +61,12 @@ public class ListValoresBaixaGeral {
         this.valor = valor;
     }
 
-    public String getNumeroCheque() {
-        return numeroCheque;
+    public String getNumero() {
+        return numero;
     }
 
-    public void setNumeroCheque(String numeroCheque) {
-        this.numeroCheque = numeroCheque;
+    public void setNumero(String numero) {
+        this.numero = numero;
     }
 
     public TipoPagamento getTipoPagamento() {

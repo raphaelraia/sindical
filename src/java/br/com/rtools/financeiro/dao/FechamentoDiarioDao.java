@@ -37,20 +37,23 @@ public class FechamentoDiarioDao extends DB {
     public List<Object> listaFechamentoDiarioDetalhe(String data) {
         try {
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT cs.id,"
-                    + "     p.id, \n "
-                    + "     cs.dt_data, \n "
-                    + "     p.ds_conta, \n "
-                    + "     sum(cs.nr_saldo), \n"
-                    + "     p.ds_classificador, \n"
-                    + "     CB.id_plano5    \n"
-                    + "  FROM fin_conta_saldo AS cs \n"
-                    + "  INNER JOIN fin_plano5 AS p ON p.id = cs.id_plano5 \n"
-                    + "   LEFT JOIN caixa_banco_vw AS CB ON CB.id_plano5 = P.id \n"
+                    " SELECT cs.id, \n"
+                    + "      p.id_p5, \n"
+                    + "      cs.dt_data, \n"
+                    + "      p.conta5, \n"
+                    + "      sum(cs.nr_saldo), \n"
+                    + "      p.classificador, \n"
+                    + "      cb.id_plano5, \n"
+                    + "	     p.id_p1, \n"
+                    + "	     p.id_p4, \n"
+                    + "	     p.conta1 \n"
+                    + "   FROM fin_conta_saldo AS cs \n"
+                    + "  INNER JOIN plano_vw AS p ON p.id_p5 = cs.id_plano5 \n"
+                    + "   LEFT JOIN caixa_banco_vw AS CB ON CB.id_plano5 = P.id_p5 \n"
                     + "  WHERE cs.dt_data = '" + data + "' \n"
-                    + "    AND cs.nr_saldo <> 0  \n"
-                    + " GROUP BY cs.id, p.id, cs.dt_data, p.ds_conta, p.ds_classificador, CB.id_plano5 \n"
-                    + " ORDER BY cs.dt_data, p.id_plano4, p.ds_conta"
+                    + "    AND cs.nr_saldo <> 0 \n"
+                    + "  GROUP BY cs.id, p.id_p5, cs.dt_data, p.conta5, p.classificador, CB.id_plano5, p.id_p1, p.id_p4, p.conta1 \n"
+                    + "  ORDER BY cs.dt_data, p.id_p4, p.conta5, p.conta1"
             );
             return qry.getResultList();
         } catch (Exception e) {
@@ -92,8 +95,7 @@ public class FechamentoDiarioDao extends DB {
                     + "------------------------------------------> Dia Anterior \n"
                     + " WHERE dt_data = '" + ultima_data + "' \n"
                     + "\n"
-                    + "  \n"
-                    + "UNION \n"
+                    + "UNION ALL \n"
                     + "\n"
                     + "SELECT \n"
                     + "       id_forma_pagamento AS id, \n"
@@ -129,20 +131,19 @@ public class FechamentoDiarioDao extends DB {
             return null;
         }
     }
-    
+
     public List<ContaSaldo> listaFechamentoDiarioDetalheTodos(String data) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT cs.* \n"
                     + "  FROM fin_conta_saldo AS cs \n"
                     + "  WHERE cs.dt_data = '" + data + "'", ContaSaldo.class
-                    
             );
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();
         }
         return new ArrayList();
-    }    
+    }
 
 }

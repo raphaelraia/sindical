@@ -260,17 +260,16 @@ public class LancamentoFinanceiroBean implements Serializable {
 
         desconto = p.getDesconto();
         loadListPlano5Imposto();
-        for (int i = 0; i < listaPlano5.size(); i++){
-            if (Integer.valueOf(listaPlano5.get(i).getValue().toString()) == p.getMovimento().getPlano5().getId()){
+        for (int i = 0; i < listaPlano5.size(); i++) {
+            if (Integer.valueOf(listaPlano5.get(i).getValue().toString()) == p.getMovimento().getPlano5().getId()) {
                 idPlano5 = p.getMovimento().getPlano5().getId();
                 chkImposto = true;
                 break;
             }
         }
-        
+
         telaSalva = false;
 
-        
         // PEGAR 
         //chkImposto = ??;
         //condicao = ??;
@@ -301,14 +300,14 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaParcela.get(indexParcela).getMovimento().setFTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), idFTipoMovimento));
 
         Dao dao = new Dao();
-        
+
         if (chkImposto) {
             listaParcela.get(indexParcela).getMovimento().setPlano5((Plano5) dao.find(new Plano5(), idPlano5));
         } else {
             ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
             listaParcela.get(indexParcela).getMovimento().setPlano5(co.getPlano5());
         }
-        
+
         novaParcela();
     }
 
@@ -330,7 +329,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         parcela = new Parcela();
 
         indexParcela = 0;
-        
+
         chkImposto = false;
     }
 
@@ -932,6 +931,18 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
 
             Operacao o = (Operacao) new Dao().find(new Operacao(), idOperacao);
+
+            if (lote.getEmissao().isEmpty()){
+                GenericaMensagem.warn("Atenção", "DATA DE EMISSÃO NÃO PODE ESTAR VAZIA!");
+                return;
+            }
+            
+            Integer ano_e = Integer.valueOf(DataHoje.DataToArray(lote.getEmissao())[2]);
+            
+            if (!DataHoje.isDataValida(lote.getEmissao()) || ano_e > 2050 || ano_e < 2000) {
+                GenericaMensagem.warn("Atenção", "DATA DE EMISSÃO NÃO É VÁLIDA!");
+                return;
+            }
 
             lote.setValor(Moeda.converteUS$(total));
             lote.setContaFixa(co.isContaFixa());

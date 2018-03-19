@@ -219,9 +219,9 @@ public class ExtratoTelaBean implements Serializable {
 
                         b.setVencimento(m.getVencimento());
                         b.setVencimentoOriginal(m.getVencimentoOriginal());
-                        
+
                         dao.save(b, true);
-                        
+
                         //GenericaMensagem.error("Atenção", "BOLETO: " + m.getDocumento() + " NÃO TEM DATA DE VENCIMENTO");
                         //return null;
                     }
@@ -296,16 +296,6 @@ public class ExtratoTelaBean implements Serializable {
             }
             return lista_movimento_validado;
         }
-        // SE JÁ FOI GERADO UMA REMESSA PARA OS MOVIMENTOS
-        RemessaBancoDao daor = new RemessaBancoDao();
-
-        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(id_boleto_adicionado_remessa);
-
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return null;
-        }
-
         return lista_movimento_validado;
     }
 
@@ -329,54 +319,6 @@ public class ExtratoTelaBean implements Serializable {
 
         Dao dao = new Dao();
 
-        if (listaBoletoRemessa.isEmpty()) {
-            List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId());
-
-            statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
-
-            for (Boleto bo : lista_b) {
-
-                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
-                listaBoletoRemessa.add(br);
-
-                if (id_boleto_adicionado_remessa.isEmpty()) {
-                    id_boleto_adicionado_remessa = "" + bo.getId();
-                } else {
-                    id_boleto_adicionado_remessa += ", " + bo.getId();
-                }
-            }
-
-            lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId());
-
-            for (Boleto bo : lista_b) {
-
-                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
-                listaBoletoRemessa.add(br);
-
-                if (id_boleto_adicionado_remessa.isEmpty()) {
-                    id_boleto_adicionado_remessa = "" + bo.getId();
-                } else {
-                    id_boleto_adicionado_remessa += ", " + bo.getId();
-                }
-            }
-
-            lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId());
-
-            statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
-
-            for (Boleto bo : lista_b) {
-
-                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
-                listaBoletoRemessa.add(br);
-
-                if (id_boleto_adicionado_remessa.isEmpty()) {
-                    id_boleto_adicionado_remessa = "" + bo.getId();
-                } else {
-                    id_boleto_adicionado_remessa += ", " + bo.getId();
-                }
-            }
-        }
-
         List<Movimento> lista_movimento_validado = validaListaRemessa(opcao);
         if (lista_movimento_validado == null) {
             PF.update("formExtratoTela");
@@ -392,7 +334,8 @@ public class ExtratoTelaBean implements Serializable {
                 statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
                 break;
         }
-
+        
+        // ADICIONA BOLETO QUE FOI SELECIONADO NA TELA
         for (Movimento mov : lista_movimento_validado) {
 
             Boleto bo = mov.getBoleto();
@@ -405,6 +348,65 @@ public class ExtratoTelaBean implements Serializable {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
             }
 
+        }
+
+        // ADICIONA BOLETO PARA REGISTRO AUTOMÁTICO
+        List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId(), id_boleto_adicionado_remessa);
+
+        statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
+
+        for (Boleto bo : lista_b) {
+
+            BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+            listaBoletoRemessa.add(br);
+
+            if (id_boleto_adicionado_remessa.isEmpty()) {
+                id_boleto_adicionado_remessa = "" + bo.getId();
+            } else {
+                id_boleto_adicionado_remessa += ", " + bo.getId();
+            }
+        }
+
+        // ADICIONA BOLETO PARA REGISTRO DE RECUSADOS
+        lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
+
+        for (Boleto bo : lista_b) {
+
+            BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+            listaBoletoRemessa.add(br);
+
+            if (id_boleto_adicionado_remessa.isEmpty()) {
+                id_boleto_adicionado_remessa = "" + bo.getId();
+            } else {
+                id_boleto_adicionado_remessa += ", " + bo.getId();
+            }
+        }
+
+        // ADICIONA BOLETO PARA BAIXAR REGISTRADOS
+        lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
+
+        statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
+
+        for (Boleto bo : lista_b) {
+
+            BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+            listaBoletoRemessa.add(br);
+
+            if (id_boleto_adicionado_remessa.isEmpty()) {
+                id_boleto_adicionado_remessa = "" + bo.getId();
+            } else {
+                id_boleto_adicionado_remessa += ", " + bo.getId();
+            }
+        }
+
+        // SE JÁ FOI GERADO UMA REMESSA PARA OS MOVIMENTOS
+        RemessaBancoDao daor = new RemessaBancoDao();
+
+        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(id_boleto_adicionado_remessa);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
         }
 
         visibleModalRemessa = true;
@@ -522,6 +524,10 @@ public class ExtratoTelaBean implements Serializable {
             return;
         }
 
+        if (!visibleModalRemessa){
+            id_boleto_adicionado_remessa = "";
+        }
+        
         Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
 
         // TODOS BOLETOS / BOLETO REGISTRADO / BOLETO LIQUIDADO
