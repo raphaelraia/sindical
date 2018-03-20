@@ -309,17 +309,16 @@ public abstract class ArquivoRetorno {
                 continue;
             }
 
-            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
-
-                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
-                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
-                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
-                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
-                    }
-                }
-
-            }
-
+//            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
+//
+//                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
+//                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
+//                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
+//                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
+//                    }
+//                }
+//
+//            }
         }
 
         // LAYOUT 2 = SINDICAL
@@ -390,18 +389,18 @@ public abstract class ArquivoRetorno {
                                         = cnpjPagador
                                         + linha_segmento.getDataPagamento()
                                         + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
-                                
+
                                 novo_layout_sindical = false;
                             }
                         } catch (NumberFormatException e) {
                             cnpjPagador = linha_segmento.getCnpjPagador();
-                            
+
                             // obs. COLOCO "000" DEVIDO AO CASO ( 3 e 4 ) DA QUERY DO ROGÉRIO EXIGIR 16 CARACTERES NO CNPJ PARA PESQUISAR
                             cnpjComposto
                                     = "000" + cnpjPagador
                                     + linha_segmento.getDataPagamento()
                                     + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
-                            
+
                             novo_layout_sindical = true;
                         }
 
@@ -703,7 +702,8 @@ public abstract class ArquivoRetorno {
                                     movimento.get(0).setValorBaixa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
                                     movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100));
 
-                                    GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(linha_segmento.getDataPagamento()), 0, null, "", 0);
+                                    double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
+                                    GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(linha_segmento.getDataPagamento()), valor_liquido, DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())), "", Integer.valueOf(objeto_arquivo.getSequencialArquivo()));
 
                                     lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
                                 } else {
@@ -787,7 +787,6 @@ public abstract class ArquivoRetorno {
 
         MovimentoDao db = new MovimentoDao();
         JuridicaDao dbJur = new JuridicaDao();
-        List<Movimento> lista_movimento = new ArrayList();
         File fl = new File(caminho + "/pendentes/");
         File listFls[] = fl.listFiles();
         File flDes = new File(destino); // 0 DIA, 1 MES, 2 ANO
@@ -803,17 +802,16 @@ public abstract class ArquivoRetorno {
                 return ob.getErro();
             }
 
-            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
-
-                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
-                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
-                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
-                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
-                    }
-                }
-
-            }
-
+//            for (ObjetoArquivo oa : ob.getListaObjetoArquivo()) {
+//
+//                for (LinhaSegmento ls : oa.getLinhaSegmento()) {
+//                    String data_pag = DataHoje.colocarBarras(ls.getDataPagamento());
+//                    if (DataHoje.maiorData(data_pag, data_fechamento_diario) || data_pag.equals(data_fechamento_diario)) {
+//                        return "Fechamento diário já concluído hoje, ARQUIVO NÃO PODERÁ SER BAIXADO!";
+//                    }
+//                }
+//
+//            }
         }
 
         // LAYOUT 2 = SINDICAL
@@ -829,7 +827,7 @@ public abstract class ArquivoRetorno {
                     }
 
                     for (LinhaSegmento linha_segmento : objeto_arquivo.getLinhaSegmento()) {
-                        lista_movimento = db.pesquisaMovPorNumDocumentoListBaixadoAss(linha_segmento.getNossoNumero(), this.getContaCobranca().getId());
+                        List<Movimento> lista_movimento = db.pesquisaMovPorNumDocumentoListBaixadoAss(linha_segmento.getNossoNumero(), this.getContaCobranca().getId());
                         if (lista_movimento.isEmpty()) {
                             lista_movimento = db.pesquisaMovPorNumDocumentoListAss(linha_segmento.getNossoNumero(), this.getContaCobranca().getId());
                             if (!lista_movimento.isEmpty()) {
@@ -870,7 +868,7 @@ public abstract class ArquivoRetorno {
                                     log[2] = retorno_continua + " - " + linha_segmento.getNossoNumero()
                                             + " - Data de Vencimento: " + DataHoje.colocarBarras(linha_segmento.getDataVencimento())
                                             + " - Data de Pagamento: " + DataHoje.colocarBarras(linha_segmento.getDataPagamento())
-                                            + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
+                                            + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100));
                                     lista_logs.add(log);
                                     continue;
                                 }
@@ -886,12 +884,16 @@ public abstract class ArquivoRetorno {
                                 // 7 - VALOR DA BAIXA MAIOR - [1] obj Lista Movimento
                                 // 8 - BOLETO NÃO ENCONTRADO - [1] string Número do Boleto
                                 // 9 - ERRO AO ALTERAR MOVIMENTO COM VALOR BAIXA CORRETO - [1] obj Movimento
+                                Double valor_credito = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
+
                                 Object[] log = GerarMovimento.baixarMovimentoSocial(
                                         lista_movimento, // lista de movimentos
                                         usuario, // usuario que esta baixando
                                         DataHoje.colocarBarras(linha_segmento.getDataPagamento()), // data do pagamento
-                                        Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100), // valor liquido ( total pago )
-                                        Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100) // valor taxa
+                                        valor_credito, // valor liquido ( total pago )
+                                        DataHoje.colocarBarras(linha_segmento.getDataCredito()), // data do credito
+                                        Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100), // valor taxa
+                                        Integer.valueOf(objeto_arquivo.getSequencialArquivo())
                                 );
 
                                 lista_logs.add(log);
@@ -903,7 +905,7 @@ public abstract class ArquivoRetorno {
                                 log[2] = "Boleto não Encontrado - " + linha_segmento.getNossoNumero()
                                         + " - Data de Vencimento: " + DataHoje.colocarBarras(linha_segmento.getDataVencimento())
                                         + " - Data de Pagamento: " + DataHoje.colocarBarras(linha_segmento.getDataPagamento())
-                                        + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
+                                        + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100));
                                 lista_logs.add(log);
                             }
                         } else {
@@ -914,9 +916,10 @@ public abstract class ArquivoRetorno {
                             log[2] = "Boleto já Baixado - " + linha_segmento.getNossoNumero()
                                     + " - Data de Importação: " + lista_movimento.get(0).getBaixa().getImportacao()
                                     + " - Data de Pagamento: " + DataHoje.colocarBarras(linha_segmento.getDataPagamento())
-                                    + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
+                                    + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100));
                             lista_logs.add(log);
                         }
+                        
                         lista_movimento.clear();
                     }
                 }
@@ -927,14 +930,12 @@ public abstract class ArquivoRetorno {
 
         if (listFls != null) {
             if (moverArquivo) {
-                for (int i = 0; i < listFls.length; i++) {
-                    flDes = new File(caminho + "/pendentes/" + listFls[i].getName());
-
-                    fl = new File(destino + "/" + listFls[i].getName());
+                for (File listFl : listFls) {
+                    flDes = new File(caminho + "/pendentes/" + listFl.getName());
+                    fl = new File(destino + "/" + listFl.getName());
                     if (fl.exists()) {
                         fl.delete();
                     }
-
                     if (!flDes.renameTo(fl)) {
                         result = " Erro ao mover arquivo!";
                     }

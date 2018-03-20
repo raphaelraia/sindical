@@ -75,16 +75,22 @@ public class Itau extends ArquivoRetorno {
                             } catch (Exception e) {
                             }
 
-                            linha_segmento.setValorPago(linhas.get(i).substring(253, 266)); // VALOR PAGO + TAXA segundo o arquivo
+                            // ANTES DAS ALTERAÇÕES DO ROGÉRIO PARA PEGAR O VALOR DO CRÉDITO ( 14/03/2018 )
+//                            linha_segmento.setValorPago(linhas.get(i).substring(253, 266)); // VALOR PAGO + TAXA segundo o arquivo
+//                            double valorx = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
+//                            double taxax = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100);
+//                            String valorlenght = Moeda.converteR$Double(Moeda.soma(valorx, taxax)).replace(".", "").replace(",", "");
+//                            linha_segmento.setValorPago("0000000000000".substring(0, 13 - valorlenght.length()) + valorlenght);
 
-                            double valorx = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
-                            double taxax = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100);
-                            String valorlenght = Moeda.converteR$Double(Moeda.soma(valorx, taxax)).replace(".", "").replace(",", "");
-                            linha_segmento.setValorPago("0000000000000".substring(0, 13 - valorlenght.length()) + valorlenght);
-
-                            linha_segmento.setDataPagamento(linhas.get(i).substring(295, 301));
-
+                            linha_segmento.setValorPago(linhas.get(i).substring(152, 165));
+                            linha_segmento.setValorCredito(linhas.get(i).substring(253, 266));
+                            
+                            linha_segmento.setDataPagamento(linhas.get(i).substring(110, 116)); // ANTES ERA ( data credito ) AGORA ( data ocorrencia ) DE ACORDO COM MANUAL
                             linha_segmento.setDataPagamento(linha_segmento.getDataPagamento().substring(0, linha_segmento.getDataPagamento().length() - 2) + "20" + linha_segmento.getDataPagamento().substring(linha_segmento.getDataPagamento().length() - 2, linha_segmento.getDataPagamento().length()));
+                            
+                            linha_segmento.setDataCredito(linhas.get(i).substring(295, 301));
+                            linha_segmento.setDataCredito(linha_segmento.getDataCredito().substring(0, linha_segmento.getDataCredito().length() - 2) + "20" + linha_segmento.getDataCredito().substring(linha_segmento.getDataCredito().length() - 2, linha_segmento.getDataCredito().length()));
+
 
                             // VERIFICA O STATUS DO MOVIMENTO RETORNADO
                             linha_segmento.setCodigoMovimento(linhas.get(i).substring(108, 110));

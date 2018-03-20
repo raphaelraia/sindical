@@ -46,7 +46,7 @@ public class RelatorioBalanceteDao extends DB {
                         + "          sum(func_nulldouble(C.nr_saldo)) AS saldo_anterior,\n"
                         + "          sum(B.debito)  AS debito,  \n"
                         + "          sum(B.credito) AS credito, \n"
-                        + "          sum(func_nulldouble(C.nr_saldo)+func_calcula_conta(B.is_soma_debito,B.debito,B.credito)) AS saldo_atual   \n";
+                        + "          sum(func_nulldouble(C.nr_saldo) +   (B.debito*func_dc('D',b.natureza_dc)) + (B.credito*func_dc('C',b.natureza_dc))) AS saldo_atual \n";
 
                 GROUP_BY
                         = " GROUP BY codigo1,   \n"

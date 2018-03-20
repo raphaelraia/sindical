@@ -177,8 +177,8 @@
                                     <h:outputText value="#{linha.tipoPagamento.descricao}"/>
                                 </p:column>
 
-                                <p:column headerText="Número do Documento">
-                                    <h:outputText value="#{linha.numeroCheque}"/>
+                                <p:column headerText="Número do Documento" style="text-align: right">
+                                    <h:outputText value="#{linha.numero}"/>
                                 </p:column>
 
                                 <p:column headerText="Quitação" style="text-align: center">
@@ -212,8 +212,8 @@
                                         <h:outputText value="#{linha.valorDigitado}" style="font-size: 11pt!important"/>
                                     </p:column>
 
-                                    <p:column headerText="Número do Documento" style="width: 150px">
-                                        <h:outputText value="#{linha.numeroCheque}" style="font-size: 11pt!important"/>
+                                    <p:column headerText="Número do Documento" style="width: 150px; text-align: right">
+                                        <h:outputText value="#{linha.numero}" style="font-size: 11pt!important"/>
                                     </p:column>
                                 </p:dataTable>
 
@@ -321,9 +321,12 @@
                                         <p:column rendered="#{baixaGeralBean.es eq 'E' and (baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 or baixaGeralBean.tipoPagamento.id == 13)}">
                                             <h:panelGrid columns="1" styleClass="fundoCinza" style="width: 100%">
                                                 <p:outputLabel value="Data da Ocorrência (Data em que o cliente efetuou o pagamento)" style="font-weight: bold; color: red"/>
-                                                <p:inputMask value="#{baixaGeralBean.dataOcorrenciaString}" size="8" mask="99/99/9999">
-                                                    <p:ajax event="change" update="@this"/>
-                                                </p:inputMask>
+                                                <h:panelGrid columns="2">
+                                                    <p:inputMask value="#{baixaGeralBean.dataOcorrenciaString}" size="8" mask="99/99/9999">
+                                                        <p:ajax event="change" update="@this"/>
+                                                    </p:inputMask>
+                                                    <p:commandButton value="HOJE" action="#{baixaGeralBean.atualizaDataOcorrencia()}" update="i_banco"/>
+                                                </h:panelGrid>
                                             </h:panelGrid>
                                         </p:column>
 

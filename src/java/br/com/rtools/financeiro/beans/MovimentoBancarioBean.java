@@ -773,7 +773,8 @@ public class MovimentoBancarioBean implements Serializable {
                 fstatus,
                 devolucao,
                 null,
-                null
+                null,
+                ""
         );
 
         if (chequePag != null) {

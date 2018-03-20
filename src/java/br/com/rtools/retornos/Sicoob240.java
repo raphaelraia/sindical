@@ -7,12 +7,9 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.ArquivoRetorno;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Sicoob240 extends ArquivoRetorno {
 
@@ -110,7 +107,9 @@ public class Sicoob240 extends ArquivoRetorno {
                         // SEGMENTO U
                         if (linhas.get(i).substring(13, 14).equals("U")) {
                             linha_segmento.setValorPago(linhas.get(i).substring(77, 92));
+                            linha_segmento.setValorCredito(linhas.get(i).substring(92, 107));
                             linha_segmento.setDataPagamento(linhas.get(i).substring(137, 145));
+                            linha_segmento.setDataCredito(linhas.get(i).substring(145, 153));
                             
                             lista_linha_segmento.add(linha_segmento);
                         }

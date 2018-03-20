@@ -11,6 +11,7 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.BaixaLogDao;
+import br.com.rtools.financeiro.dao.ContaRecebimentoDao;
 import br.com.rtools.financeiro.dao.FechamentoDiarioDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.MovimentoInativoDao;
@@ -1239,7 +1240,9 @@ public class GerarMovimento extends DB {
         Baixa baixa = new Baixa();
         baixa.setUsuario(usuario);
         baixa.setFechamentoCaixa(null);
-        baixa.setBaixa(pagamento);
+        //baixa.setBaixa(pagamento);
+        baixa.setBaixa(DataHoje.data()); 
+        baixa.setDtOcorrenciaString(pagamento);
         baixa.setImportacao(DataHoje.data());
         baixa.setSequenciaBaixa(nrSequencia);
         baixa.setDocumentoBaixa(numeroComposto);
@@ -1262,7 +1265,11 @@ public class GerarMovimento extends DB {
 
         Plano5Dao plano5DB = new Plano5Dao();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
-
+        //Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
+        TipoPagamento tp = (TipoPagamento) dao.find(new TipoPagamento(), 2); // BOLETO
+        
+        ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(tp.getId());
+        
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -1271,17 +1278,18 @@ public class GerarMovimento extends DB {
                 100,
                 movimento.getValorBaixa(),
                 movimento.getLote().getFilial(),
-                plano5,
+                ctp.getPlano5(),
                 null,
                 null,
-                (TipoPagamento) dao.find(new TipoPagamento(), 3),
+                tp,
                 valor_liquido,
                 dataCredito,
                 0,
                 null,
                 0,
+                plano5,
                 null,
-                null
+                ""
         );
 
         if (!dao.save(fp)) {
@@ -1479,14 +1487,17 @@ public class GerarMovimento extends DB {
         }
     }
 
-    public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, double valor_baixa, double valor_taxa) {
+    public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, double valor_baixa, String data_credito, double valor_taxa, int nrSequencia) {
         Dao dao = new Dao();
         Object[] lista_log = new Object[3];
         Baixa baixa = new Baixa();
         baixa.setUsuario(usuario);
         baixa.setFechamentoCaixa(null);
-        baixa.setBaixa(data_pagamento);
+        //baixa.setBaixa(data_pagamento);
+        baixa.setBaixa(DataHoje.data());
+        baixa.setDtOcorrenciaString(data_pagamento);
         baixa.setImportacao(DataHoje.data());
+        baixa.setSequenciaBaixa(nrSequencia);
         baixa.setCaixa(null);
         baixa.setTaxaLiquidacao(valor_taxa);
 
@@ -1506,6 +1517,11 @@ public class GerarMovimento extends DB {
         Plano5Dao plano5DB = new Plano5Dao();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
 
+        //Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
+        TipoPagamento tp = (TipoPagamento) dao.find(new TipoPagamento(), 2); // BOLETO
+        
+        ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(tp.getId());
+        
         valor_baixa = Moeda.converteDoubleR$Double(valor_baixa);
 
         FormaPagamento fp = new FormaPagamento(
@@ -1516,17 +1532,18 @@ public class GerarMovimento extends DB {
                 100,
                 valor_baixa,
                 lista_movimento.get(0).getLote().getFilial(),
+                ctp.getPlano5(),
+                null,
+                null,
+                tp,
+                valor_baixa,
+                DataHoje.converte(data_credito),
+                0,
+                null,
+                0,
                 plano5,
                 null,
-                null,
-                (TipoPagamento) dao.find(new TipoPagamento(), 3),
-                valor_baixa,
-                null,
-                0,
-                null,
-                0,
-                null,
-                null
+                ""
         );
 
         if (!dao.save(fp)) {

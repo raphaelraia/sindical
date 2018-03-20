@@ -67,16 +67,24 @@ public class RemessaDao extends DB {
         }
     }
 
-    public List<Boleto> listaRegistrarAutomatico(Integer id_conta_cobranca) {
+    public List<Boleto> listaRegistrarAutomatico(Integer id_conta_cobranca, String id_boleto_selecionado) {
+        String AND = "";
+        if (!id_boleto_selecionado.isEmpty()){
+            AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
+        }
+        
         String queryString
                 = "SELECT b.* \n "
                 + "  FROM fin_boleto AS b \n "
                 + "  LEFT JOIN fin_remessa_banco AS rb ON rb.id_boleto = b.id AND rb.id_status_remessa = 1 \n "
                 + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = b.id_conta_cobranca \n "
-                + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno <> 2) \n "
-                + "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos AND b.dt_vencimento >= '11/09/2017') \n "
+                + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno = 4) \n "
+                //+ "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos AND b.dt_vencimento >= '11/09/2017') \n "
+                + "   AND b.dt_vencimento > CURRENT_DATE \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
                 + "   AND rb.id IS NULL \n "
+                + "   AND b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE is_ativo = TRUE) \n "
+                + AND
                 + " LIMIT 2000";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
@@ -86,7 +94,12 @@ public class RemessaDao extends DB {
         }
     }
 
-    public List<Boleto> listaRegistrarAutomaticoCount(Integer id_conta_cobranca) {
+    public List<Boleto> listaRegistrarAutomaticoCount(Integer id_conta_cobranca, String id_boleto_selecionado) {
+        String AND = "";
+        if (!id_boleto_selecionado.isEmpty()){
+            AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
+        }
+                
         String queryString
                 = "SELECT count(b.id) \n "
                 + "  FROM fin_boleto AS b \n "
@@ -95,6 +108,8 @@ public class RemessaDao extends DB {
                 + " WHERE (b.id_status_retorno IS NULL OR b.id_status_retorno <> 2) \n "
                 + "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos AND b.dt_vencimento >= '11/09/2017') \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
+                + "   AND b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE is_ativo = TRUE) \n "
+                + AND
                 + "   AND rb.id IS NULL ";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString);
@@ -104,12 +119,18 @@ public class RemessaDao extends DB {
         }
     }
 
-    public List<Boleto> listaRegistrarRecusados(Integer id_conta_cobranca) {
+    public List<Boleto> listaRegistrarRecusados(Integer id_conta_cobranca, String id_boleto_selecionado) {
+        String AND = "";
+        if (!id_boleto_selecionado.isEmpty()){
+            AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
+        }
+                
         String queryString
                 = "SELECT b.* \n "
                 + "  FROM fin_boleto AS b \n "
                 + " WHERE b.id_status_retorno = 1 \n "
-                + "   AND b.id_conta_cobranca = " + id_conta_cobranca;
+                + "   AND b.id_conta_cobranca = " + id_conta_cobranca
+                + AND;
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
             return qry.getResultList();
@@ -118,14 +139,21 @@ public class RemessaDao extends DB {
         }
     }
 
-    public List<Boleto> listaBaixarRegistrados(Integer id_conta_cobranca) {
+    public List<Boleto> listaBaixarRegistrados(Integer id_conta_cobranca, String id_boleto_selecionado) {
+        String AND = "";
+        if (!id_boleto_selecionado.isEmpty()){
+            AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
+        }
+        
         String queryString
                 = "SELECT b.* \n"
                 + "  FROM fin_boleto AS b \n "
                 + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = b.id_conta_cobranca \n "
                 + " WHERE b.dt_cobranca_registrada IS NOT NULL \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
-                + "   AND (b.dt_vencimento >= CURRENT_DATE - cc.nr_registros_dias_vencidos)";
+                + "   AND b.id_status_retorno = 2 \n "
+                + "   AND (CURRENT_DATE >= b.dt_vencimento + cc.nr_registros_dias_vencidos) \n"
+                + AND;
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);
             return qry.getResultList();

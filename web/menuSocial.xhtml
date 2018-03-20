@@ -121,7 +121,6 @@
                                         <p:menuitem value="Lançamentos"         action="#{chamadaPaginaBean.pagina('agendamentos', 'agendamentosBean')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
                                         <p:menuitem value="Atendimentos"        action="#{chamadaPaginaBean.pagina('atendimentos')}" actionListener="#{agendamentosBean.verificaNaoAtendidos}"/>
                                     </p:submenu>
-                                    <p:menuitem value="Autoriza Repro. Retorno" action="#{chamadaPaginaBean.pagina('autorizaReprocessamentoRetorno')}" />
                                     <p:submenu label="Eventos">
                                         <p:menuitem value="Convite Clube"       action="#{chamadaPaginaBean.conviteMovimento}"/>
                                         <p:submenu label="Caravana">
@@ -144,6 +143,7 @@
                                         <p:menuitem value="Pesquisa Boletos"     action="#{chamadaPaginaBean.pagina('pesquisaBoletosSocial')}" />
                                         <p:menuitem value="Boletos Não Baixados" action="#{chamadaPaginaBean.pagina('boletoNaoBaixado')}" />
                                         <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
+                                        <p:menuitem value="Autoriza Retorno" action="#{chamadaPaginaBean.pagina('autorizaReprocessamentoRetorno')}" />
                                         <p:menuitem value="Cartas"                   action="#{chamadaPaginaBean.pagina('sisCarta')}" />
                                     </p:submenu>
                                     <p:menuitem value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing', 'tmktHistoricoBean')}"/>

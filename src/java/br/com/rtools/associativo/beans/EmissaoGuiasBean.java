@@ -1083,7 +1083,7 @@ public class EmissaoGuiasBean implements Serializable {
 
             lf.add(
                     new FormaPagamento(
-                            -1, null, null, null, 100, 0, filial, (Plano5) new Dao().find(new Plano5(), 1), null, null, (TipoPagamento) new Dao().find(new TipoPagamento(), 3), 0, DataHoje.dataHoje(), 0, null, 0, null, null
+                            -1, null, null, null, 100, 0, filial, (Plano5) new Dao().find(new Plano5(), 1), null, null, (TipoPagamento) new Dao().find(new TipoPagamento(), 3), 0, DataHoje.dataHoje(), 0, null, 0, null, null, ""
                     )
             );
 

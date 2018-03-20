@@ -50,6 +50,9 @@ public class Boleto implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_status_retorno")
     private Date dtStatusRetorno;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_processamento", nullable = false)
+    private Date dtProcessamento;
     
     public Boleto() {
         this.id = -1;
@@ -65,9 +68,10 @@ public class Boleto implements java.io.Serializable {
         this.dtRegistroBaixa = null;
         this.statusRetorno = null;
         this.dtStatusRetorno = null;
+        this.dtProcessamento = DataHoje.dataHoje();
     }
 
-    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa, StatusRetorno statusRetorno, Date dtStatusRetorno) {
+    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa, StatusRetorno statusRetorno, Date dtStatusRetorno, Date dtProcessamento) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.nrBoleto = nrBoleto;
@@ -81,6 +85,7 @@ public class Boleto implements java.io.Serializable {
         this.dtRegistroBaixa = dtRegistroBaixa;
         this.statusRetorno = statusRetorno;
         this.dtStatusRetorno = dtStatusRetorno;
+        this.dtProcessamento = dtProcessamento;
     }
 
     public int getId() {
@@ -250,5 +255,21 @@ public class Boleto implements java.io.Serializable {
     
     public String getValorString(){
         return Moeda.converteR$Double(getValor());
+    }
+
+    public Date getDtProcessamento() {
+        return dtProcessamento;
+    }
+
+    public void setDtProcessamento(Date dtProcessamento) {
+        this.dtProcessamento = dtProcessamento;
+    }
+    
+    public String getDtProcessamentoString() {
+        return DataHoje.converteData(dtProcessamento);
+    }
+
+    public void setDtProcessamentoString(String dtProcessamentoString) {
+        this.dtProcessamento = DataHoje.converte(dtProcessamentoString);
     }
 }

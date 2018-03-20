@@ -734,7 +734,7 @@ public class MovimentoDao extends DB {
                 break;
             case -2:
                 // NÃO REGISTRADOS
-                qry_status_boleto += " AND (b.id_status_retorno IS NULL OR b.id_status_retorno = 4) AND b.dt_vencimento >= '01/09/2017' \n ";
+                qry_status_boleto += " AND (b.id_status_retorno IS NULL OR bo.id_status_retorno = 4) AND b.dt_vencimento > CURRENT_DATE \n ";
                 qry_status_boleto += " AND m.id_pessoa NOT IN ( \n "
                         + " SELECT id_pessoa FROM fin_bloqueia_servico_pessoa \n "
                         + "  WHERE id_servicos = m.id_servicos \n "
@@ -1375,7 +1375,7 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public List listaImpressaoGeral(int idServico, int idTipoServico, int idContaCobranca, String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc, String type, Integer qtde, String registrado, List<ServicoContaCobranca> listServicoContaCobranca) {
+    public List listaImpressaoGeral(String isEscritorio, List<String> id, List<Integer> listaConvencao, List<Integer> listaGrupoCidade, String todasContas, String email, int id_esc, String type, Integer qtde, String registrado, List<ServicoContaCobranca> listServicoContaCobranca) {
         try {
 
             String datas = " ( ", filtros = "";
@@ -1392,16 +1392,17 @@ public class MovimentoDao extends DB {
             }
 
             String inTipoServico = "";
+            String inServico = "";
             if (todasContas.equals("false") || !listServicoContaCobranca.isEmpty()) {
-                /* filtros = " AND m.id_servicos = " + idServico + "\n"
-                        + " AND bo.id_conta_Cobranca = " + idContaCobranca + "\n"; */
                 String in = " AND (";
                 for (int i = 0; i < listServicoContaCobranca.size(); i++) {
                     if (i == 0) {
                         inTipoServico = "" + listServicoContaCobranca.get(i).getTipoServico().getId();
+                        inServico = "" + listServicoContaCobranca.get(i).getServicos().getId();
                         in += " (m.id_servicos = " + listServicoContaCobranca.get(i).getServicos().getId() + " AND bo.id_conta_cobranca = " + listServicoContaCobranca.get(i).getContaCobranca().getId() + " ) \n";
                     } else {
                         inTipoServico += "," + listServicoContaCobranca.get(i).getTipoServico().getId();
+                        inServico = ", " + listServicoContaCobranca.get(i).getServicos().getId();
                         in += " OR (m.id_servicos = " + listServicoContaCobranca.get(i).getServicos().getId() + " AND bo.id_conta_cobranca = " + listServicoContaCobranca.get(i).getContaCobranca().getId() + " ) \n";
                     }
                 }
@@ -1409,7 +1410,6 @@ public class MovimentoDao extends DB {
                 filtros += in;
             } else {
                 inTipoServico = "1";
-                idTipoServico = 1;
             }
 
             String grupoCidadeConvencao = "";
@@ -1457,14 +1457,11 @@ public class MovimentoDao extends DB {
             }
 
             if (type.equals("ate")) {
-                filtros += " AND (x.qtde <= " + qtde + " OR X.qtde IS NULL) \n";
+                filtros += " AND x.qtde <= " + qtde + " \n";
             } else if (type.equals("apartir")) {
-                if (qtde == 1) {
-                    filtros += " AND (x.qtde >= " + qtde + " OR X.qtde IS NULL )\n";
-                } else {
-                    filtros += " AND x.qtde >= " + qtde + "\n";
-                }
+                filtros += " AND x.qtde >= " + qtde + "\n";
             }
+            
             if (registrado.equals("registrado")) {
                 filtros += " AND bo.dt_cobranca_registrada IS NOT NULL \n";
             } else if (registrado.equals("sem_registro")) {
@@ -1532,7 +1529,7 @@ public class MovimentoDao extends DB {
                     + filtros
                     + "      AND m.id_Baixa IS NULL                                             \n"
                     + "      AND m.is_ativo = true                                              \n"
-                    + "      AND contr.id_pessoa NOT IN(SELECT bl.id_pessoa FROM fin_bloqueia_servico_pessoa AS bl WHERE bl.is_impressao = false AND bl.id_servicos = " + idServico + " AND '15/09/2013' >= bl.dt_inicio AND '15/09/2013' <= bl.dt_fim) \n"
+                    + "      AND contr.id_pessoa NOT IN(SELECT bl.id_pessoa FROM fin_bloqueia_servico_pessoa AS bl WHERE bl.is_impressao = false AND bl.id_servicos IN (" + inServico + ") AND '15/09/2013' >= bl.dt_inicio AND '15/09/2013' <= bl.dt_fim) \n"
                     + "      AND m.ds_es = 'E'                                                  \n"
                     + "      AND m.id_tipo_Servico IN (" + inTipoServico + ")                   \n"
                     + "      AND m.dt_Vencimento IN " + datas + "                               \n"

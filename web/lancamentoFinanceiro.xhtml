@@ -140,6 +140,11 @@
 
                                     <p:column headerText="Pessoa">
                                         <h:outputLabel  value="#{lote.pessoa.nome}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
+                                    
+                                    </p:column>
+                                    
+                                    <p:column headerText="PAG/REC" style="text-align: center; width: 80px">
+                                        <h:outputLabel value="#{lote.pagRec eq 'P' ? 'Pagamento' : 'Recebimento'}" style="#{lote.pagRec eq 'P' ? 'color:red' : 'color:green'}; font-size: 10px!important"/>
                                     </p:column>
 
                                     <p:column headerText="Valor (R$)"  width="80" styleClass="text-center">

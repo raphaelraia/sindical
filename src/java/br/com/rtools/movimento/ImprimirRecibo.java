@@ -401,7 +401,7 @@ public class ImprimirRecibo {
                         break;
                     // QUALQUER OUTRO    
                     default:
-                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor());
+                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ((!fp.get(i).getDocumento().isEmpty()) ? " (N° " + fp.get(i).getDocumento() + ")" : "") + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor());
                         if (fp.get(i).getTipoPagamento().getId() == 3) {
                             soma_dinheiro = soma_dinheiro + fp.get(i).getValor();
                         }

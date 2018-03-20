@@ -148,7 +148,7 @@ public class FechamentoDiarioBean implements Serializable {
             List<ContaSaldo> l_saldo = new FechamentoDiarioDao().listaFechamentoDiarioDetalheTodos(ofdEstornar.getDataString());
 
             if (!l_saldo.isEmpty()) {
-                
+
                 dao.openTransaction();
                 for (ContaSaldo cs : l_saldo) {
                     if (!dao.delete(cs)) {
@@ -172,7 +172,7 @@ public class FechamentoDiarioBean implements Serializable {
                     logs += log_string + " \n ";
                 }
                 log.delete(logs);
-                
+
             }
         }
 
@@ -196,6 +196,22 @@ public class FechamentoDiarioBean implements Serializable {
             List<ObjectFechamentoDiarioDetalhe> list_obj_detalhe = new ArrayList();
             for (Object ob_detalhe : list_detalhe) {
                 List linha_detalhe = (List) ob_detalhe;
+                String estilo = "";
+                
+                if (linha_detalhe.get(6) != null) {
+                    estilo = "color:blue; font-weight:bold; font-size: 12pt!important";
+                } else {
+                    switch ((Integer) linha_detalhe.get(7)) {
+                        case 1:
+                            estilo = "color:green;";
+                            break;
+                        case 2:
+                            estilo = "color:red;";
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
                 list_obj_detalhe.add(
                         new ObjectFechamentoDiarioDetalhe(
@@ -205,7 +221,10 @@ public class FechamentoDiarioBean implements Serializable {
                                 (String) linha_detalhe.get(3),
                                 (Double) linha_detalhe.get(4),
                                 (String) linha_detalhe.get(5),
-                                linha_detalhe.get(6)
+                                linha_detalhe.get(6),
+                                linha_detalhe.get(7),
+                                linha_detalhe.get(9),
+                                estilo
                         )
                 );
             }
@@ -328,8 +347,11 @@ public class FechamentoDiarioBean implements Serializable {
         private Double saldo;
         private String classificador;
         private Object caixaBanco;
+        private Object id_p4;
+        private Object conta1;
+        private Object estilo;
 
-        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Double saldo, String classificador, Object caixaBanco) {
+        public ObjectFechamentoDiarioDetalhe(ContaSaldo contaSaldo, Plano5 plano5, Date data, String conta, Double saldo, String classificador, Object caixaBanco, Object id_p4, Object conta1, Object estilo) {
             this.contaSaldo = contaSaldo;
             this.plano5 = plano5;
             this.data = data;
@@ -338,6 +360,9 @@ public class FechamentoDiarioBean implements Serializable {
             this.classificador = classificador;
             this.classificador = classificador;
             this.caixaBanco = caixaBanco;
+            this.id_p4 = id_p4;
+            this.conta1 = conta1;
+            this.estilo = estilo;
         }
 
         public Date getData() {
@@ -410,6 +435,30 @@ public class FechamentoDiarioBean implements Serializable {
 
         public void setCaixaBanco(Object caixaBanco) {
             this.caixaBanco = caixaBanco;
+        }
+
+        public Object getId_p4() {
+            return id_p4;
+        }
+
+        public void setId_p4(Object id_p4) {
+            this.id_p4 = id_p4;
+        }
+
+        public Object getConta1() {
+            return conta1;
+        }
+
+        public void setConta1(Object conta1) {
+            this.conta1 = conta1;
+        }
+
+        public Object getEstilo() {
+            return estilo;
+        }
+
+        public void setEstilo(Object estilo) {
+            this.estilo = estilo;
         }
 
     }

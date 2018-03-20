@@ -1,7 +1,6 @@
 package br.com.rtools.financeiro;
 
 import br.com.rtools.pessoa.Filial;
-import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
@@ -61,6 +60,8 @@ public class FormaPagamento implements java.io.Serializable {
     @JoinColumn(name = "id_conciliado", referencedColumnName = "id")
     @ManyToOne
     private FormaPagamento conciliado;
+    @Column(name = "ds_documento")
+    private String documento;
 
     public FormaPagamento() {
         this.id = -1;
@@ -81,6 +82,7 @@ public class FormaPagamento implements java.io.Serializable {
         this.devolucao = 0;
         this.conciliacaoPlano5 = null;
         this.conciliado = null;
+        this.documento = "";
     }
 
     public FormaPagamento(int id,
@@ -100,7 +102,8 @@ public class FormaPagamento implements java.io.Serializable {
             FStatus status,
             Integer devolucao,
             Plano5 conciliacaoPlano5,
-            FormaPagamento conciliado) {
+            FormaPagamento conciliado,
+            String documento) {
         this.id = id;
         this.baixa = baixa;
         this.chequeRec = chequeRec;
@@ -119,6 +122,7 @@ public class FormaPagamento implements java.io.Serializable {
         this.devolucao = devolucao;
         this.conciliacaoPlano5 = conciliacaoPlano5;
         this.conciliado = conciliado;
+        this.documento = documento;
     }
 
     public int getId() {
@@ -283,5 +287,13 @@ public class FormaPagamento implements java.io.Serializable {
 
     public void setConciliado(FormaPagamento conciliado) {
         this.conciliado = conciliado;
+    }
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
     }
 }

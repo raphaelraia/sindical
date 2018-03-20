@@ -216,6 +216,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         dao.openTransaction();
 
         boletox.setVencimento(vencimentox);
+        boletox.setDtProcessamento(DataHoje.dataHoje());
 
         if (!dao.update(boletox)) {
             GenericaMensagem.error("Error", "Nao foi possivel alterar vencimento do Boleto! Tente Novamente.");
@@ -310,13 +311,9 @@ public class MovimentosReceberSocialBean implements Serializable {
         loadListaMovimentoDoBoleto(null);
         movimentoRemover = null;
 
-        //listaMovimentoDoBoletoSelecionado.clear();
     }
 
     public void loadBoletosAbertos() {
-//        listaBoletosAbertos.clear();
-//        listaBoletosAbertosSelecionados.clear();
-
         listaBoletosAnexo.clear();
         listaBoletosAnexoSelecionado.clear();
 

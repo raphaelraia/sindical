@@ -15,18 +15,19 @@ public class RelatorioContabilDao extends DB {
     public List<Object> pesquisar(Relatorios relatorio, String data_inicial, String data_final) {
         try {
             String query_string
-                    = "SELECT \n "
-                    + "	cv.baixa AS baixa, \n "
-                    + "	cv.nr_conta AS conta, \n "
-                    + "	cv.conta_contabil AS conta_contabil, \n "
-                    + "	cv.nr_contra_partida AS contra_partida, \n "
-                    + "	cv.historico AS historico, \n "
-                    + "CASE WHEN dc = 'D' THEN cv.valor ELSE 0 END AS debito, \n "
-                    + "CASE WHEN dc = 'C' THEN cv.valor ELSE 0 END AS credito \n "
-                    + "FROM contabil_vw cv \n ";
+                    = "SELECT \n"
+                    + " 	cv.baixa AS baixa, \n"
+                    + " 	cv.nr_conta AS conta, \n"
+                    + " 	cv.conta_contabil AS conta_contabil, \n"
+                    + " 	cv.nr_contra_partida AS contra_partida, \n"
+                    + " 	cv.historico AS historico, \n"
+                    + "         CASE WHEN dc = 'D' THEN sum(cv.valor) ELSE 0 END AS debito, \n"
+                    + "         CASE WHEN dc = 'C' THEN sum(cv.valor) ELSE 0 END AS credito, \n"
+                    + "         cv.id_forma_pagamento \n"
+                    + "  FROM contabil_vw cv ";
 
             List list_where = new ArrayList();
-            
+
             if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
                 list_where.add("cv.baixa BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
             } else if (!data_inicial.isEmpty() && data_final.isEmpty()) {
@@ -44,9 +45,17 @@ public class RelatorioContabilDao extends DB {
                 }
             }
 
-            String order_by = " ORDER BY cv.baixa, cv.id_movimento ";
-            
-            Query query = getEntityManager().createNativeQuery(query_string + where + order_by);
+            String group_by
+                    = " GROUP BY cv.baixa, \n"
+                    + " 	 cv.nr_conta, \n"
+                    + " 	 cv.conta_contabil, \n"
+                    + " 	 cv.nr_contra_partida, \n"
+                    + " 	 cv.historico, \n"
+                    + "          cv.dc, \n"
+                    + "          cv.id_forma_pagamento \n";
+            String order_by = " ORDER BY cv.baixa , cv.id_forma_pagamento, cv.dc DESC";
+
+            Query query = getEntityManager().createNativeQuery(query_string + where + group_by + order_by);
             return query.getResultList();
         } catch (Exception e) {
             e.getMessage();
