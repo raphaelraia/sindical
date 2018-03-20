@@ -146,6 +146,13 @@ public class GenericaMensagem implements Serializable {
         return getHtmlMessage(severity, message, "", false);
     }
 
+    /**
+     * info, warn, fatal, error, success, alert, block, tag
+     * @param severity
+     * @param title
+     * @param description
+     * @return 
+     */
     public String getHtmlMessage(String severity, String title, String description) {
         return getHtmlMessage(severity, title, description, false);
     }

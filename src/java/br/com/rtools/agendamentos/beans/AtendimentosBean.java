@@ -1,12 +1,14 @@
 package br.com.rtools.agendamentos.beans;
 
 import br.com.rtools.agendamentos.AgendaHorarios;
+import br.com.rtools.agendamentos.AgendaServico;
 import br.com.rtools.agendamentos.AgendaStatus;
 import br.com.rtools.agendamentos.AgendamentoCancelamento;
 import br.com.rtools.agendamentos.AgendamentoHorario;
 import br.com.rtools.agendamentos.AgendamentoServico;
 import br.com.rtools.agendamentos.Agendamentos;
 import br.com.rtools.agendamentos.dao.AgendaHorarioReservaDao;
+import br.com.rtools.agendamentos.dao.AgendaServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
 import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
@@ -23,6 +25,7 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.beans.FisicaUtils;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
@@ -86,6 +89,7 @@ public class AtendimentosBean implements Serializable {
     private Date startDate;
     private Date endDate;
     private String motivoCancelamento;
+    private String motivoTroca;
 
     // BOLEANOS
     private Boolean liberaAcessaFilial;
@@ -102,7 +106,9 @@ public class AtendimentosBean implements Serializable {
     private String contato;
 
     public AtendimentosBean() {
+        Sessions.remove("agendamentosChange");
         motivoCancelamento = "";
+        motivoTroca = "";
         reservaDao = new AgendaHorarioReservaDao();
         configuracaoSocial = ConfiguracaoSocial.get();
         pessoa = new Fisica();
@@ -179,9 +185,13 @@ public class AtendimentosBean implements Serializable {
                     Juridica j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()));
                     emissaoGuiasBean.setIdConvenio(j.getId());
                 }
+                emissaoGuiasBean.loadListServicos();
                 emissaoGuiasBean.setIdServico(Integer.parseInt(listObjectAgenda.get(i).getId_servico().toString()));
                 emissaoGuiasBean.listenerEnabledItensPedidoListener();
-                emissaoGuiasBean.addServico(false);
+                if (!emissaoGuiasBean.addServico2(false)) {
+                    PF.update(":form_atendimentos:i_messsage_eg");
+                    return null;
+                }
                 listAS.add(new AgendamentoServicoDao().findBy(Integer.parseInt(listObjectAgenda.get(i).getId_agendamento().toString()), Integer.parseInt(listObjectAgenda.get(i).getId_servico().toString())));
 
             }
@@ -190,6 +200,66 @@ public class AtendimentosBean implements Serializable {
         Sessions.put("emissaoGuiasBean", emissaoGuiasBean);
         // loadListObjectAgenda();
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).redirectPage("emissaoGuias");
+    }
+
+    public String reschedule() throws IOException {
+        Sessions.remove("agendamentosChange");
+        if (motivoTroca.isEmpty() || motivoTroca.length() < 5) {
+            Messages.warn("Validação", "INFORMAR MOTIVO DA TROCA!");
+            PF.update("form_atendimentos:i_message_change");
+            return null;
+        }
+        AgendamentoHorario ah = new AgendamentoHorario();
+        List<AgendamentoHorario> list = new AgendamentoHorarioDao().findBy(Integer.parseInt(objectAgenda.getId_agendamento().toString()));
+        if (list.isEmpty()) {
+            Messages.warn("Validação", "ERRO SEM HORÁRIOS!");
+            PF.update("form_atendimentos:i_message_change");
+            return null;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            ah = list.get(i);
+            break;
+        }
+        AgendamentoServico as = new AgendamentoServicoDao().findBy(Integer.parseInt(objectAgenda.getId_agendamento().toString()));
+        if (as == null) {
+            Messages.warn("Validação", "ERRO SEM SERVIÇOS!");
+            PF.update("form_atendimentos:i_message_change");
+            return null;
+        }
+        Agendamentos a = objectAgenda.getAgendamentos();
+        Dao dao = new Dao();
+        AgendamentosBean agendamentosBean = new AgendamentosBean();
+        agendamentosBean.loadListFilial();
+        agendamentosBean.setIdFilial(ah.getAgendaHorarios().getFilial().getId());
+        agendamentosBean.setFilial(ah.getAgendaHorarios().getFilial());
+        Fisica f = new FisicaDao().pesquisaFisicaPorPessoa(a.getPessoa().getId());
+        agendamentosBean.listener("new");
+        agendamentosBean.setNewSched(true);
+        agendamentosBean.setEmail(a.getEmail());
+        agendamentosBean.setTelefone(a.getTelefone());
+        agendamentosBean.setContato(a.getContato());
+        agendamentosBean.setPessoa(f);
+        agendamentosBean.setShowModal(true);
+        agendamentosBean.setData(a.getDtData());
+        agendamentosBean.loadListGrupoConvenio();
+        agendamentosBean.setIdGrupoConvenio(ah.getAgendaHorarios().getSubGrupoConvenio().getGrupoConvenio().getId());
+        agendamentosBean.loadListSubGrupoConvenio();
+        agendamentosBean.setIdSubGrupoConvenio(ah.getAgendaHorarios().getSubGrupoConvenio().getId());
+        agendamentosBean.loadListServicos();
+        agendamentosBean.setIdServico(as.getServico().getId());
+        agendamentosBean.loadListConvenio();
+        agendamentosBean.setIdConvenio(ah.getAgendaHorarios().getConvenio().getId());
+        agendamentosBean.loadListHorarios();
+        agendamentosBean.setAgendaServico(new AgendaServicoDao().findByAgendaServico(as.getServico().getId(), false));
+        if (agendamentosBean.getAgendaServico() == null) {
+            agendamentosBean.setAgendaServico(new AgendaServico());
+        }
+        agendamentosBean.calculaValorServico();
+        a.setMotivoTroca(motivoTroca);
+        agendamentosBean.setTrocar(true);
+        Sessions.put("agendamentosChange", a);
+        Sessions.put("agendamentosBean", agendamentosBean);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).redirectPage("agendamentos");
     }
 
     public void cancel() {
@@ -790,6 +860,14 @@ public class AtendimentosBean implements Serializable {
 
     public void setObjectAgenda(ObjectAgenda objectAgenda) {
         this.objectAgenda = objectAgenda;
+    }
+
+    public String getMotivoTroca() {
+        return motivoTroca;
+    }
+
+    public void setMotivoTroca(String motivoTroca) {
+        this.motivoTroca = motivoTroca;
     }
 
     public class ObjectAgendamentos {

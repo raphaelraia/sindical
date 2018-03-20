@@ -194,12 +194,12 @@ public class EmissaoGuiasBean implements Serializable {
         Rotina r = new Rotina().get();
         if (r.getId() == 132 || r.getId() == 484) {
             loadListGrupos();
-            if(listGrupos.isEmpty()) {
+            if (listGrupos.isEmpty()) {
                 Messages.warn("Sistema", "Cadastrar grupos!");
             } else {
                 loadListSubgrupos();
                 loadListJuridicas();
-                loadListServicos();                
+                loadListServicos();
             }
         }
         if (!listGrupos.isEmpty() && !listSubgrupos.isEmpty()) {
@@ -645,19 +645,23 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void addServico(Boolean renderedDelete) {
+        addServico2(renderedDelete);
+    }
+
+    public Boolean addServico2(Boolean renderedDelete) {
         if (!listaMovimento.isEmpty()) {
             if (listaMovimento.get(0).getMovimento().getId() != -1) {
                 GenericaMensagem.warn("Validação", "Emissão concluída!");
-                return;
+                return false;
             }
         }
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquise uma pessoa para gerar Parcelas");
-            return;
+            return false;
         }
         if (getListServicos().isEmpty() || idServico == null || idServico == 0) {
             GenericaMensagem.warn("Validação", "A lista de serviços não pode estar vazia!");
-            return;
+            return false;
         }
 
         String vencto_ini = DataHoje.data();
@@ -668,7 +672,7 @@ public class EmissaoGuiasBean implements Serializable {
         if (servicos.getGuiaSomenteSocio()) {
             if (pessoa.getSocios().getId() == -1) {
                 GenericaMensagem.warn("Validação", "Permitido Somente para Sócios!");
-                return;
+                return false;
             }
 
         }
@@ -684,14 +688,14 @@ public class EmissaoGuiasBean implements Serializable {
                     listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
                     if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
                         GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
-                        return;
+                        return false;
                     }
                     listaMovimentosEmitidos.clear();
                 } else {
                     listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getId(), servicos.getId(), false);
                     if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
                         GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
-                        return;
+                        return false;
                     }
                     listaMovimentosEmitidos.clear();
                 }
@@ -708,14 +712,14 @@ public class EmissaoGuiasBean implements Serializable {
                         listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
                         if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
-                            return;
+                            return false;
                         }
                         listaMovimentosEmitidos.clear();
                     } else {
                         listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getId(), servicos.getId(), false);
                         if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
-                            return;
+                            return false;
                         }
                         listaMovimentosEmitidos.clear();
                     }
@@ -725,14 +729,14 @@ public class EmissaoGuiasBean implements Serializable {
 
                     if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
                         GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
-                        return;
+                        return false;
                     }
                     listaMovimentosEmitidos.clear();
                 } else {
                     listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(socios.getMatriculaSocios().getId(), servicos.getId(), true);
                     if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
                         GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
-                        return;
+                        return false;
                     }
                     listaMovimentosEmitidos.clear();
                 }
@@ -742,14 +746,14 @@ public class EmissaoGuiasBean implements Serializable {
         if (!servicos.isValorZerado()) {
             if (valorx == 0) {
                 GenericaMensagem.warn("Validação", "Informar valor do serviço!");
-                return;
+                return false;
             }
         }
 
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             if (listaMovimento1.getMovimento().getServicos().getId() == servicos.getId()) {
                 GenericaMensagem.warn("Validação", "Este serviço já foi adicionado!");
-                return;
+                return false;
             }
         }
 
@@ -757,7 +761,7 @@ public class EmissaoGuiasBean implements Serializable {
             for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
                 if (listaMovimento1.getMovimento().getServicos().isProduto()) {
                     GenericaMensagem.warn("Validação", "Serviço com produto(s) já cadastrado!");
-                    return;
+                    return false;
                 }
             }
         }
@@ -822,6 +826,7 @@ public class EmissaoGuiasBean implements Serializable {
         }
 
         desconto = "0";
+        return true;
 
     }
 
