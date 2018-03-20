@@ -436,6 +436,7 @@ public class AgendamentosBean implements Serializable {
                     return;
                 }
                 ((AtendimentosBean) Sessions.getObject("atendimentosBean")).listener("close_sched");
+                ((AtendimentosBean) Sessions.getObject("atendimentosBean")).loadListObjectAgenda();
 
             }
         }
