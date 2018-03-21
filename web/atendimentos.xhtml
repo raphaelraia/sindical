@@ -15,6 +15,7 @@
             <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h2 class="font-size-16">Atendimentos</h2>                    
                 <h:form id="form_atendimentos">
+                    <p:messages showDetail="true" showSummary="true" autoUpdate="false" id="i_messsage_eg"/>
                     <p:panel>
                         <f:facet name="header">
                             <h:panelGroup>
@@ -193,7 +194,7 @@
                             </h:panelGrid>
                             <h:panelGrid columns="3" style="width: 100%">
                                 <h:column>
-                                    <label class="bold font-size-12 font-color-blue"> #{atendimentosBean.objectAgenda.nome}</label><label class="font-color-red">(#{atendimentosBean.objectAgenda.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
+                                    <label class="bold font-size-12 font-color-blue"> #{atendimentosBean.objectAgenda.nome}</label><label class="font-color-red margin-left-max">(#{atendimentosBean.objectAgenda.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
                                 </h:column>
                                 <h:column rendered="#{atendimentosBean.objectAgenda.pessoa.socios.id ne -1}">
                                     <h:panelGrid columns="6">
@@ -229,7 +230,11 @@
                                     </h:panelGrid>
                                 </h:column>
                                 <p:outputLabel value="Colaborador: " />
-                                <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold" />
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold" />                                                                                                                    
+                                    </h:panelGrid>
+                                </h:column>
                                 <p:outputLabel value="Grupo: " />
                                 <h:column>
                                     <h:panelGrid columns="8">
@@ -247,20 +252,23 @@
                             </h:panelGrid>
                         </h:panelGroup>
                         <f:facet name="footer">
-                            <h:panelGrid cellspacing="5" columns="3" id="i_sched_act">
-                                <p:commandButton value="Fechar" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
+                            <h:panelGrid cellspacing="5" columns="5" id="i_sched_act">
                                 <h:column rendered="false">
                                     <p:commandButton value="Compareceu" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}"/>                                    
                                 </h:column>
+                                <p:commandButton value="Reagendar" icon="ui-icon-transfer-e-w" rendered="#{atendimentosBean.objectAgenda.id_status eq 1}" style="color: blue">
+                                    <p:ajax oncomplete="PF('dlg_sched_change').show()" listener="#{atendimentosBean.setMotivoTroca('')}" update=":form_atendimentos:i_motivo_troca" />
+                                </p:commandButton>                                
                                 <p:commandButton value="Cancelar" rendered="#{atendimentosBean.objectAgenda.id_status eq 1 or atendimentosBean.objectAgenda.id_status eq 4}">
                                     <p:ajax oncomplete="PF('dlg_sched_cancel').show()" listener="#{atendimentosBean.removeSched(atendimentosBean.objectAgenda.id_agendamento)}" update=":form_atendimentos:i_motivo_cancelamento" />
-                                </p:commandButton>
+                                </p:commandButton>                                
+                                <p:commandButton value="Fechar" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>
                     <p:dialog widgetVar="dlg_finish_confirm" modal="true" resizable="false" width="400" header="Concluir este atendimento" closeOnEscape="true">
                         <h:panelGrid cellspacing="5" columns="2">
-                            <p:commandButton action="#{atendimentosBean.finish()}" value="Confirmar" update=":form_atendimentos:" ajax="false" immediate="true"/>
+                            <p:commandButton action="#{atendimentosBean.finish()}" value="Confirmar" update=":form_atendimentos:" immediate="true"/>
                             <p:commandButton value="Desfazer" update=":form_atendimentos:" action="#{atendimentosBean.listener('close_sched')}" />
                         </h:panelGrid>
                     </p:dialog>                    
@@ -277,6 +285,19 @@
                                 <p:commandButton value="Cancelar" onclick="PF('dlg_sched_cancel').hide()"/>                               
                             </h:panelGrid>
                         </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_sched_change" modal="true" resizable="false" height="200" width="600" header="Deseja reagendar?" closeOnEscape="true">
+                        <h:panelGrid cellspacing="5" columns="1" id="i_motivo_troca">
+                            <p:messages id="i_message_change" showDetail="true" showSummary="true" />
+                            <p:outputLabel value="Motivo da troca" />
+                            <p:inputTextarea rows="3" cols="80" value="#{atendimentosBean.motivoTroca}">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputTextarea>                            
+                            <h:panelGrid cellspacing="5" columns="3">
+                                <p:commandButton value="Reagendar" icon="ui-icon-transfer-e-w" action="#{atendimentosBean.reschedule}" rendered="#{atendimentosBean.objectAgenda.agendamentos.agendaStatus.id eq 1}" />
+                                <p:commandButton value="Cancelar" onclick="PF('dlg_sched_change').hide()"/>                               
+                            </h:panelGrid>
+                        </h:panelGrid>
                     </p:dialog>
                     <p:commandLink style="width: 0; height: 0" id="update_grid">
                         <p:ajax event="click" update=":form_atendimentos:i_list_agendas" listener="#{atendimentosBean.loadListObjectAgenda()}" />

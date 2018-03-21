@@ -201,10 +201,10 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
                 return null;
             }
 
-//            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2) {
-//                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE " + cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
-//                return null;
-//            }
+            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2) {
+                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE " + cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
+                return null;
+            }
             dao.openTransaction();
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {

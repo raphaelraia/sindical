@@ -370,6 +370,9 @@
                                                 <h:outputLabel value="#{linha.ateMovimento.atendente.pessoa.nome}"/>
                                             </p:column>
 
+                                            <p:column headerText="Depto Responsável" style="text-align: center">
+                                                <h:outputLabel value="#{linha.departamento.descricao}" styleClass="#{((segurancaUtilitariosBean.macFilial.departamento.id eq linha.departamento.id) ? 'bold' : '')}"/>
+                                            </p:column>
                                             <p:column headerText="Reserva" style="text-align: center">
                                                 <h:outputLabel value="#{linha.ateMovimento.reserva.pessoa.nome}"/>
                                             </p:column>
@@ -395,6 +398,10 @@
                                                         <p:outputLabel value="#{linha.ateMovimento.horaEmissao}" />
                                                     </h:column>
                                                 </h:panelGrid>
+                                                <br />
+                                                <h:column rendered="#{(segurancaUtilitariosBean.macFilial.departamento.id ne linha.departamento.id)}" class="#{segurancaUtilitariosBean.macFilial.departamento.id}">
+                                                    <h:outputLabel value="* Este atendimento pertence a outro departamentro!!!'" styleClass="font-color-red font-size-12 bold" />
+                                                </h:column>
                                             </p:rowExpansion>
 
                                             <f:facet name="footer">

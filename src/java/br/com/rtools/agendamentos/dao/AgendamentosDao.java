@@ -34,6 +34,10 @@ public class AgendamentosDao extends DB {
      * @return
      */
     public List findSchedules(String date, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Boolean is_socio, Boolean is_web) {
+        return findSchedules(date, filial_id, convenio_sub_grupo_id, convenio_id, is_socio, is_web, null, null);
+    }
+
+    public List findSchedules(String date, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Boolean is_socio, Boolean is_web, String start_time, String end_time) {
         try {
             String queryString = ""
                     + "     SELECT H.id,                                                                \n"
@@ -53,6 +57,9 @@ public class AgendamentosDao extends DB {
             }
             if (is_web) {
                 queryString += " AND func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) > 0 \n";
+            }
+            if (start_time != null && end_time != null) {
+                queryString += " AND H.ds_hora::time BETWEEN '" + start_time + "'::time AND '" + end_time + "'::time \n";
             }
             queryString += " ORDER BY H.ds_hora";
             Query query = getEntityManager().createNativeQuery(queryString);
@@ -111,7 +118,7 @@ public class AgendamentosDao extends DB {
                     + "             P.ds_nome AS nome,                          \n" // 10
                     + "             P.ds_documento AS documento,                \n" // 11
                     + "             PU.ds_nome AS agendador,                    \n" // 12
-                    + "             FIL.id AS id_filial,                        \n" // 13
+                    + "             H.id_filial AS id_filial,                   \n" // 13
                     + "             FIL.ds_nome AS filial,                      \n" // 14
                     + "             FIL.ds_documento AS filial_documento,       \n" // 15
                     + "             CONV.id AS id_colaborador,                  \n" // 16
@@ -147,10 +154,10 @@ public class AgendamentosDao extends DB {
                 listWhere.add("A.dt_data BETWEEN '" + date + "' AND '" + date_end + "'");
             }
             if (status_id != null) {
-                if(status_id == 1 || status_id == 4) {
-                    listWhere.add("A.id_status IN (1,4) ");                                        
+                if (status_id == 1 || status_id == 4) {
+                    listWhere.add("A.id_status IN (1,4) ");
                 } else {
-                    listWhere.add("A.id_status = " + status_id);                    
+                    listWhere.add("A.id_status = " + status_id);
                 }
             }
             if (filial_id != null) {
@@ -184,7 +191,7 @@ public class AgendamentosDao extends DB {
                     + "		   P.ds_nome,                   \n"
                     + "		   P.ds_documento,              \n"
                     + "		   PU.ds_nome,                  \n"
-                    + "		   FIL.id,                      \n"
+                    + "		   H.id_filial,                 \n"
                     + "		   FIL.ds_nome,                 \n"
                     + "		   FIL.ds_documento,            \n"
                     + "		   CONV.id,                     \n"
