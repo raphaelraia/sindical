@@ -92,7 +92,7 @@ public class SuprimentoCaixaBean {
             GenericaMensagem.error("Atenção", "Valor não pode ser Zerado (0)!");
             return;
         }
-        
+
         if (numero == null || numero.isEmpty()) {
             GenericaMensagem.error("Atenção", "Número do cheque não pode ser vazio!");
             return;
@@ -304,12 +304,7 @@ public class SuprimentoCaixaBean {
         SuprimentoCaixaDao dao = new SuprimentoCaixaDao();
 
         List<Object> result = dao.listaContasEntrada();
-//        if (Integer.valueOf(listaContaSaida.get(indexContaSaida).getDescription()) == 0) {
-//            result = db.listaContasParaTransferencia(null);
-//        } else {
-//            result = db.listaContasParaTransferencia(Integer.valueOf(listaContaSaida.get(indexContaSaida).getDescription()));
-//        }
-
+        
         for (int i = 0; i < result.size(); i++) {
             List linha = (List) (Object) result.get(i);
             listaContaEntrada.add(
@@ -320,11 +315,15 @@ public class SuprimentoCaixaBean {
             );
         }
 
+        numero = "";
+        
         if (Integer.valueOf(listaContaSaida.get(indexContaSaida).getDescription()) != 0) {
             ChequePag cp = new ChequePag();
             cp.setPlano5((Plano5) new Dao().find(new Plano5(), Integer.valueOf(listaContaSaida.get(indexContaSaida).getDescription())));
 
-            numero = Integer.toString(cp.getNrProximoCheque());
+            if (cp.getNrProximoCheque() != null) {
+                numero = Integer.toString(cp.getNrProximoCheque());
+            } 
         }
     }
 
