@@ -10,6 +10,7 @@ import br.com.rtools.agendamentos.Agendamentos;
 import br.com.rtools.agendamentos.dao.AgendaHorarioReservaDao;
 import br.com.rtools.agendamentos.dao.AgendaServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
+import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoConvenio;
@@ -20,8 +21,10 @@ import br.com.rtools.associativo.dao.GrupoConvenioDao;
 import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
+import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
@@ -50,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
@@ -118,8 +120,10 @@ public class AgendamentosBean implements Serializable {
     private String telefone;
     private String email;
     private String contato;
+    private Boolean trocar;
 
     public AgendamentosBean() {
+        trocar = false;
         motivoCancelamento = "";
         reservaDao = new AgendaHorarioReservaDao();
         configuracaoSocial = ConfiguracaoSocial.get();
@@ -182,6 +186,86 @@ public class AgendamentosBean implements Serializable {
 //            if (agendamento.getId() != null) {
 //                agendamento.setId(null);
 //            }
+
+            Servicos servicos = agendaServico.getServico();
+            List<Movimento> listaMovimentosEmitidos = new ArrayList();
+            MovimentoDao db = new MovimentoDao();
+            Socios s = pessoa.getPessoa().getSocios();
+            if (servicos.getPeriodo() != null) {
+                DataHoje dh = new DataHoje();
+                // SEM CONTROLE FAMILIAR ---
+                if (!servicos.isFamiliarPeriodo()) {
+
+                    if (!servicos.isValidadeGuiasVigente()) {
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getPessoa().getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
+                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
+                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
+                            PF.update("form_agendamentos:i_message_sched");
+                            PF.update("form_agendamentos:growl_ag");
+                            return;
+                        }
+                        listaMovimentosEmitidos.clear();
+                    } else {
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getPessoa().getId(), servicos.getId(), false);
+                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
+                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
+                            PF.update("form_agendamentos:i_message_sched");
+                            PF.update("form_agendamentos:growl_ag");
+                            return;
+                        }
+                        listaMovimentosEmitidos.clear();
+                    }
+
+                }
+
+                // COM CONTROLE FAMILIAR --- 
+                if (servicos.isFamiliarPeriodo()) {
+                    //Socios socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
+
+                    // NÃO SÓCIO ---
+                    if (s.getId() == -1) {
+                        if (!servicos.isValidadeGuiasVigente()) {
+                            listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getPessoa().getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
+                            if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
+                                GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
+                                PF.update("form_agendamentos:i_message_sched");
+                                PF.update("form_agendamentos:growl_ag");
+                                return;
+                            }
+                            listaMovimentosEmitidos.clear();
+                        } else {
+                            listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getPessoa().getId(), servicos.getId(), false);
+                            if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
+                                GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
+                                PF.update("form_agendamentos:i_message_sched");
+                                PF.update("form_agendamentos:growl_ag");
+                                return;
+                            }
+                            listaMovimentosEmitidos.clear();
+                        }
+                        // SOCIO ---
+                    } else if (!servicos.isValidadeGuiasVigente()) {
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(s.getMatriculaSocios().getId(), servicos.getId(), servicos.getPeriodo().getDias(), true);
+
+                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
+                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
+                            PF.update("form_agendamentos:i_message_sched");
+                            PF.update("form_agendamentos:growl_ag");
+                            return;
+                        }
+                        listaMovimentosEmitidos.clear();
+                    } else {
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(s.getMatriculaSocios().getId(), servicos.getId(), true);
+                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
+                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
+                            PF.update("form_agendamentos:i_message_sched");
+                            PF.update("form_agendamentos:growl_ag");
+                            return;
+                        }
+                        listaMovimentosEmitidos.clear();
+                    }
+                }
+            }
             agendamento = new Agendamentos();
             agendamentoHorario = new AgendamentoHorario();
             agendamentoServico = new AgendamentoServico();
@@ -207,6 +291,7 @@ public class AgendamentosBean implements Serializable {
                                 if (Integer.parseInt(agendamentos.get(i).getQuantidade()) == 0) {
                                     objectAgendamentos = oa;
                                     lockScheduler = true;
+                                    PF.update("form_agendamentos");
                                     return;
                                 }
                             }
@@ -228,6 +313,7 @@ public class AgendamentosBean implements Serializable {
             }
             if (agendamento.getTelefone().trim().isEmpty() && agendamento.getEmail().trim().isEmpty()) {
                 Messages.warn("Validação", "INFORMAR E-MAIL OU TELEFONE");
+                PF.update("form_agendamentos");
                 return;
             }
             amoutTime = 0;
@@ -266,6 +352,7 @@ public class AgendamentosBean implements Serializable {
         if (oa.getAgendamento() == null) {
             // agendamento = new Agendamentos();
         }
+        PF.update("form_agendamentos");
 
     }
 
@@ -308,6 +395,49 @@ public class AgendamentosBean implements Serializable {
                 dao.rollback();
                 Messages.warn("Erro", "AO SALVAR HORÁRIO DA AGENDA!");
                 return;
+            }
+        }
+        if (trocar) {
+            if (Sessions.exists("agendamentosChange")) {
+                Agendamentos a = (Agendamentos) Sessions.getObject("agendamentosChange", true);
+                List<AgendamentoHorario> list = new AgendamentoHorarioDao().findBy(a.getId());
+                if (list.isEmpty()) {
+                    dao.rollback();
+                    Messages.warn("Validação", "ERRO SEM HORÁRIOS!");
+                    return;
+                }
+                for (int i = 0; i < list.size(); i++) {
+                    AgendamentoCancelamento ac = new AgendamentoCancelamento();
+                    ac.setDtData(new Date());
+                    ac.setMotivo(a.getMotivoTroca());
+                    ac.setUsuario(Usuario.getUsuario());
+                    ac.setAgendamentoHorario(list.get(i));
+                    if (!dao.save(ac)) {
+                        dao.rollback();
+                        Messages.warn("Erro", "AO CANCELAR AGENDA!");
+                        return;
+                    }
+                }
+                AgendamentoServico as = new AgendamentoServicoDao().findBy(a.getId());
+                if (as == null) {
+                    dao.rollback();
+                    Messages.warn("Validação", "ERRO SEM SERVIÇOS!");
+                    return;
+                }
+                if (as.getMovimento() != null) {
+                    dao.rollback();
+                    Messages.warn("Validação", "NÃO É POSSÍVEL TRANSFERIR AGENDA COM MOVIMENTO!");
+                    return;
+                }
+                a.setAgendaStatus((AgendaStatus) dao.find(new AgendaStatus(), 3));
+                if (!dao.update(a)) {
+                    dao.rollback();
+                    Messages.warn("Erro", "AO CANCELAR AGENDA!");
+                    return;
+                }
+                ((AtendimentosBean) Sessions.getObject("atendimentosBean")).listener("close_sched");
+                ((AtendimentosBean) Sessions.getObject("atendimentosBean")).loadListObjectAgenda();
+
             }
         }
         Messages.info("Sucesso", "AGENDA CRIADA!");
@@ -1137,6 +1267,14 @@ public class AgendamentosBean implements Serializable {
 
     public void setContato(String contato) {
         this.contato = contato;
+    }
+
+    public Boolean getTrocar() {
+        return trocar;
+    }
+
+    public void setTrocar(Boolean trocar) {
+        this.trocar = trocar;
     }
 
     public class ObjectAgendamentos {

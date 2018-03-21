@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <f:view>
+        <h:form id="form_suprimento_caixa">
+            <p:dialog widgetVar="dlg_suprimento_caixa" header="Suprimento Caixa" resizable="false" modal="true">
+                <h:panelGrid id="panel_suprimento_caixa">
+                    <p:messages showDetail="true" closable="true" />  
+                    <h:panelGrid style="clear: both; width: 100%; margin-top: 20px" columns="4">
+                        <p:column>
+                            <h:outputLabel value="Conta de Saída"/><br />
+                            <p:selectOneMenu value="#{suprimentoCaixaBean.indexContaSaida}" style="width: 300px; margin-right: 20px">
+                                <p:ajax event="change" update="@this panel_suprimento_caixa" listener="#{suprimentoCaixaBean.loadListaContaEntrada()}" global="false"/>
+                                <f:selectItems value="#{suprimentoCaixaBean.listaContaSaida}"/>
+                            </p:selectOneMenu>
+                        </p:column>
+
+                        <p:column>
+                            <h:outputLabel value="Cheque"/><br />
+                            <p:inputText value="#{suprimentoCaixaBean.numero}" style="margin-right: 15px; font-size: 12pt!important; font-weight: bold; opacity: .8" dir="rtl" disabled="true">
+                                <p:ajax event="change" update="@this" global="false"/>
+                            </p:inputText>
+                        </p:column>
+
+                        <p:column>
+                            <h:outputLabel value="Valor"/><br />
+                            <p:inputText value="#{suprimentoCaixaBean.valorString}" style="margin-right: 15px" dir="rtl">
+                                <p:ajax event="change" update="@this" global="false"/>
+                            </p:inputText>
+                        </p:column>
+
+                        <p:column>
+                            <h:outputLabel value="Para a Conta"/><br />
+                            <p:selectOneMenu id="id_conta_entrada" value="#{suprimentoCaixaBean.indexContaEntrada}" style="width: 300px;">
+                                <p:ajax event="change" update="@this" global="false"/>
+                                <f:selectItems value="#{suprimentoCaixaBean.listaContaEntrada}"/>
+                            </p:selectOneMenu>
+                        </p:column>
+                    </h:panelGrid>
+                </h:panelGrid>
+
+                <h:panelGrid>
+                    <p:column>
+                        <p:commandButton value="Liquidar" type="submit" styleClass="ui-confirmdialog-yes" action="#{suprimentoCaixaBean.liquidar()}" update="panel_suprimento_caixa" style="clear: both; float: left" icon="ui-icon-check">
+                            <p:confirm header="Suprimento de Caixa" message="Deseja Realmente concluir esta liquidação?" icon="ui-icon-alert" />
+                        </p:commandButton>  
+                        <p:commandButton value="Fechar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_suprimento_caixa').hide()" style="float: left" icon="ui-icon-close"/>       
+                    </p:column>
+                </h:panelGrid>
+            </p:dialog>   
+            
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+            </p:confirmDialog>
+        </h:form>
+    </f:view>
+</ui:composition>

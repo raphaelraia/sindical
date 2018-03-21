@@ -29,7 +29,7 @@ public class RelatorioBoletosBaixadosDao extends DB {
             String queryString = "";
             queryString += " -- RelatorioBoletosBaixadosDao->find()             \n"
                     + "      SELECT Pl5.ds_conta    AS conta,                   \n"
-                    + "             B.dt_baixa      AS data_quitacao,           \n"
+                    + "             B.dt_ocorrencia AS data_quitacao,           \n"
                     + "             B.dt_importacao AS data_importacao,         \n"
                     + "             P.ds_nome       AS pessoa_nome,             \n"
                     + "             M.ds_documento  AS boleto,                  \n"
@@ -49,16 +49,16 @@ public class RelatorioBoletosBaixadosDao extends DB {
             if (!dtBS.isEmpty() || !dtBS.isEmpty()) {
                 switch (tipoDataBaixa) {
                     case "igual":
-                        listWhere.add("B.dt_baixa = '" + dtBS + "'");
+                        listWhere.add("B.dt_ocorrencia = '" + dtBS + "'");
                         break;
                     case "apartir":
-                        listWhere.add("B.dt_baixa >= '" + dtBS + "'");
+                        listWhere.add("B.dt_ocorrencia >= '" + dtBS + "'");
                         break;
                     case "ate":
-                        listWhere.add("B.dt_baixa <= '" + dtBS + "'");
+                        listWhere.add("B.dt_ocorrencia <= '" + dtBS + "'");
                         break;
                     case "faixa":
-                        listWhere.add("B.dt_baixa BETWEEN '" + dtBS + "' AND '" + dtBF + "'");
+                        listWhere.add("B.dt_ocorrencia BETWEEN '" + dtBS + "' AND '" + dtBF + "'");
                         break;
                     default:
                         break;
@@ -91,12 +91,12 @@ public class RelatorioBoletosBaixadosDao extends DB {
                 }
             }
             queryString += "GROUP BY Pl5.ds_conta,    \n"
-                    + "              B.dt_baixa,      \n"
+                    + "              B.dt_ocorrencia,      \n"
                     + "              B.dt_importacao, \n"
                     + "              P.ds_nome,       \n"
                     + "              M.ds_documento   \n";
 
-            queryString += "ORDER BY B.dt_baixa, M.ds_documento \n";
+            queryString += "ORDER BY B.dt_ocorrencia, M.ds_documento \n";
             Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();

@@ -1,4 +1,4 @@
-    <ui:composition xmlns="http://www.w3.org/1999/xhtml"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
@@ -30,7 +30,7 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="formLancamentoIndividual">                            
-                        <h:outputText value="Lançamento Individual" styleClass="fonteHeader" />
+                            <h:outputText value="Lançamento Individual" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" />
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'BENEFICIÁRIO CADASTRADO EM OPOSIÇÃO', '')}" escape="false" rendered="#{lancamentoIndividualBean.fisica.pessoa.existOposicao}" />
@@ -40,7 +40,7 @@
                                     <p:column>
                                         <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" title="Pesquisar Pessoa Física"/>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <p:outputLabel value="Pesquisar Pessoa Física" rendered="#{lancamentoIndividualBean.fisica.id == -1}"/>
                                         <p:outputLabel value="#{lancamentoIndividualBean.fisica.pessoa.nome}" rendered="#{lancamentoIndividualBean.fisica.id != -1}"/>
@@ -51,7 +51,7 @@
                                     <p:column>
                                         <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoa()}" title="Alterar Responsável" />
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <p:outputLabel value="Alterar Responsável" title="Pessoa Responsável" rendered="#{lancamentoIndividualBean.responsavel.id == -1}"/>
                                         <p:outputLabel value="#{lancamentoIndividualBean.responsavel.nome}" title="Pessoa Responsável" />
@@ -77,7 +77,7 @@
                                         <f:selectItems value="#{lancamentoIndividualBean.listaServicos}" />
                                     </p:selectOneMenu>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <p:outputLabel value="Tipo Serviço" /><br />
                                     <p:selectOneMenu value="#{lancamentoIndividualBean.idTipoServico}"  style="margin-right: 20px">
@@ -173,12 +173,14 @@
                                 </h:column>
                             </h:panelGrid>
 
-                            <h:panelGrid id="i_panel_botao" columns="3">
-                                <p:commandButton onclick="PF('dlg_salvar').show()" value="Salvar" title="Salvar / Atualizar" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" disabled="#{lancamentoIndividualBean.lote.id != -1}"/>
-                                <p:commandButton value="Novo" action="#{lancamentoIndividualBean.novo()}" title="Novo" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" ajax="false"/>
-                                <p:commandButton onclick="PF('dlg_excluir').show()" value="Excluir" title="Excluir" rendered="false" />
-                            </h:panelGrid>
-                            
+                            <h:panelGroup rendered="false">
+                                <h:panelGrid id="i_panel_botao" columns="3">
+                                    <p:commandButton onclick="PF('dlg_salvar').show()" value="Salvar" title="Salvar / Atualizar" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" disabled="#{lancamentoIndividualBean.lote.id != -1}"/>
+                                    <p:commandButton value="Novo" action="#{lancamentoIndividualBean.novo()}" title="Novo" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" ajax="false"/>
+                                    <p:commandButton onclick="PF('dlg_excluir').show()" value="Excluir" title="Excluir" rendered="false" />
+                                </h:panelGrid>                                
+                            </h:panelGroup>
+
                             <h:panelGrid id="i_panel_grid">
                                 <p:dataTable value="#{lancamentoIndividualBean.listaMovimento}" var="linha" style="width:100%" id="tbl" emptyMessage="" scrollRows="10">
                                     <p:column headerText="Vencimento" style="text-align: center;">
@@ -198,13 +200,13 @@
                                     </p:column>
                                 </p:dataTable>
                             </h:panelGrid>
-                            
-                            <h:panelGrid id="i_panel_botao2" columns="3">
-                                <p:commandButton onclick="PF('dlg_salvar').show()" value="Salvar" title="Salvar / Atualizar" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" disabled="#{lancamentoIndividualBean.lote.id != -1}"/>
-                                <p:commandButton value="Novo" action="#{lancamentoIndividualBean.novo()}" title="Novo" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" ajax="false"/>
-                                <p:commandButton onclick="PF('dlg_excluir').show()" value="Excluir" title="Excluir" rendered="false" />
+
+                            <h:panelGrid id="i_panel_botao2" columns="3" styleClass="margin-top-max">
+                                    <p:commandButton onclick="PF('dlg_salvar').show()" value="Salvar" title="Salvar / Atualizar" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" disabled="#{lancamentoIndividualBean.lote.id != -1}"/>
+                                    <p:commandButton value="Novo" action="#{lancamentoIndividualBean.novo()}" title="Novo" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" ajax="false"/>
+                                    <p:commandButton onclick="PF('dlg_excluir').show()" value="Excluir" title="Excluir" rendered="false" />
                             </h:panelGrid>
-                            
+
 
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Lançamento" width="400" resizable="false">
                                 <h:panelGrid>

@@ -17,7 +17,7 @@
                 <h:form id="form_person">
                     <h:outputScript name="tradutor_primefaces.js" library="js" />
                     <p:growl id="growl" showDetail="true"/> 
-                    <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
+                    <p:messages showDetail="true" showSummary="true" autoUpdate="true" /> 
                     <c:set scope="request" var="object" value="${agendamentosBean.agendamento}"/>
                     <p:panel id="i_panel_person" rendered="#{agendamentosBean.pessoa.id eq -1}">
                         <f:facet name="header">
@@ -46,8 +46,20 @@
                     </p:panel>
                 </h:form>                    
                 <h:form id="form_agendamentos">
-                    <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{agendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentosBean.loadListHorarios}" />
+                    <p:growl id="growl_ag" showDetail="true"/> 
+                    <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{agendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentosBean.loadListHorarios}" interval="5"/>
                     <h:panelGroup rendered="#{agendamentosBean.pessoa.id ne -1 and agendamentosBean.newSched}">
+                        <h:panelGroup rendered="#{agendamentosBean.trocar}" >
+                            <h:panelGrid columns="2" style="width: 100%; border: 1px solid red; border-radius: 5px; padding: 10px" >
+                                <h:column>
+                                    <h:outputText value="REAGENDAMENTO" styleClass="font-color-red bold font-size-12" />                                
+                                </h:column>
+                                <h:column>
+                                    <p:commandButton value="VOLTAR" styleClass="bold margin-left-max float-right" rendered="#{agendamentosBean.trocar}" action="#{chamadaPaginaBean.back}"  />
+                                </h:column>
+                            </h:panelGrid>
+                            <br />                            
+                        </h:panelGroup>
                         <h:panelGroup rendered="#{not empty agendamentosBean.pessoa.pessoa.pessoaComplemento.obsAviso}" >
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', agendamentosBean.pessoa.pessoa.pessoaComplemento.obsAviso)}" escape="false" />
                             <br />
@@ -79,12 +91,12 @@
                                     </h:panelGrid>
                                 </h:column>
                                 <h:column>
-                                    <p:commandButton value="AGENDADOS" styleClass="bold">
+                                    <p:commandButton value="AGENDADOS" styleClass="bold" rendered="#{!agendamentosBean.trocar}">
                                         <p:ajax oncomplete="PF('dlg_schedules').show()" update=":form_agendamentos:" listener="#{agendamentosBean.listener('schedules')}" />
-                                    </p:commandButton>
+                                    </p:commandButton>                                    
                                 </h:column>
                                 <h:column>
-                                    <p:commandButton update=":form_person: :form_agendamentos:" action="#{genericaSessao.removeSession('agendamentosBean')}" value="NOVO AGENDAMENTO" style="float: right" styleClass="bold"/>
+                                    <p:commandButton update=":form_person: :form_agendamentos:" action="#{genericaSessao.removeSession('agendamentosBean')}" value="NOVO AGENDAMENTO" style="float: right" styleClass="bold" rendered="#{!agendamentosBean.trocar}"/>                                    
                                 </h:column>
                             </h:panelGrid>
                             <h:panelGrid columns="6" cellspacing="5">
@@ -106,12 +118,12 @@
                             <f:facet name="header">
                                 <h:panelGrid columns="6" cellspacing="10">
                                     <h:outputLabel value="Grupo Convênio:" />
-                                    <p:selectOneMenu value="#{agendamentosBean.idGrupoConvenio}">
+                                    <p:selectOneMenu value="#{agendamentosBean.idGrupoConvenio}" disabled="#{agendamentosBean.trocar}">
                                         <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('grupo_convenio')}" />
                                         <f:selectItems value="#{agendamentosBean.listGrupoConvenio}" />
                                     </p:selectOneMenu>
                                     <h:outputLabel value="Subgrupo Convênio:" />
-                                    <p:selectOneMenu value="#{agendamentosBean.idSubGrupoConvenio}">
+                                    <p:selectOneMenu value="#{agendamentosBean.idSubGrupoConvenio}" disabled="#{agendamentosBean.trocar}">
                                         <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('subgrupo_convenio')}"  />
                                         <f:selectItems value="#{agendamentosBean.listSubGrupoConvenio}" />
                                     </p:selectOneMenu>
@@ -124,7 +136,7 @@
                             </f:facet>
                             <h:panelGrid columns="6" cellspacing="10">
                                 <h:outputLabel value="Serviço:" />
-                                <p:selectOneMenu value="#{agendamentosBean.idServico}" filter="true" filterMatchMode="contains">
+                                <p:selectOneMenu value="#{agendamentosBean.idServico}" filter="true" filterMatchMode="contains" disabled="#{agendamentosBean.trocar}">
                                     <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('servicos')}" />
                                     <f:selectItems value="#{agendamentosBean.listServicos}" />
                                 </p:selectOneMenu>                                
@@ -142,14 +154,19 @@
                                     </h:panelGrid>                                    
                                 </p:panel>
                             </h:panelGroup>
+                            <p:messages showDetail="true" showSummary="true" autoUpdate="false" id="i_message_sched"/> 
                             <h:panelGroup id="i_dates" layout="block" >
+                                <h:panelGroup rendered="#{agendamentosBean.trocar}">
+                                    <br />
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('info', 'IMPORTANTE', 'REAGENDAMENTO!!!')}" escape="false" />
+                                </h:panelGroup>
                                 <h:panelGrid columns="2" rendered="#{agendamentosBean.idServico ne null}"  cellspacing="10">
                                     Data: 
                                     <p:calendar size="8" value="#{agendamentosBean.data}" pattern="dd/MM/yyyy" navigator="true" mindate="java.util.Date" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
                                         <p:ajax event="dateSelect" listener="#{agendamentosBean.dataListener}" update=":form_agendamentos:"/>
                                         <p:ajax event="change" listener="#{agendamentosBean.dataListener}" update=":form_agendamentos:"/>
                                     </p:calendar>                                            
-                                </h:panelGrid>
+                                </h:panelGrid>                                
                             </h:panelGroup>
                             <f:facet name="footer">
                                 <h:panelGroup id="i_scheds" layout="block">
@@ -158,7 +175,7 @@
                                             <f:facet name="header">
                                                 <h:graphicImage value="/Imagens/horario_pisca.gif" alt="Horário" title="Horário" width="20" />
                                             </f:facet>
-                                            <p:commandLink action="#{agendamentosBean.scheduler(agendamentos)}" value="#{agendamentos.hora}" update=":form_agendamentos:"/>                                        
+                                            <p:commandLink action="#{agendamentosBean.scheduler(agendamentos)}" value="#{agendamentos.hora}" />                                        
                                         </p:column>
                                         <p:column headerText="Quantidade" styleClass="text-center">
                                             #{agendamentos.quantidade}
@@ -170,6 +187,7 @@
                                 </h:panelGroup>
                             </f:facet>
                         </p:panel>
+                        <p:commandButton value="VOLTAR" styleClass="bold margin-top-max" rendered="#{agendamentosBean.trocar}" action="#{chamadaPaginaBean.back}" />
                     </h:panelGroup>
                     <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
                         <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
@@ -243,9 +261,10 @@
 
                         </h:panelGrid>
                         <f:facet name="footer">
-                            <h:panelGrid cellspacing="5" columns="2" >
+                            <h:panelGrid cellspacing="5" columns="3" >
                                 <p:commandButton value="Confirmar" update=":form_agendamentos:" action="#{agendamentosBean.save}" rendered="#{!agendamentosBean.newRegister}"/>
-                                <p:commandButton value="Voltar" update=":form_agendamentos:" action="#{agendamentosBean.listener('close_sched')}" />
+                                <p:commandButton value="Voltar" update=":form_agendamentos:" action="#{agendamentosBean.listener('close_sched')}" rendered="#{!agendamentosBean.trocar}" />
+                                <p:commandButton value="Voltar" styleClass="bold margin-top-max" rendered="#{agendamentosBean.trocar}" action="#{chamadaPaginaBean.back}" />
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>

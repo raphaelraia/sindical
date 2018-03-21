@@ -30,6 +30,7 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateSuprimentoCaixa.xhtml"/>
                 </f:subview>
                 <f:view>
                     <h:form id="formMenuFinanceiro">
@@ -92,6 +93,7 @@
                                     <p:submenu label="Banco">
                                         <p:menuitem value="Movimento"    action="#{chamadaPaginaBean.movimentoBancario()}"/>
                                         <p:menuitem value="Transf. Entre Contas" action="#{transferenciaEntreContasBean.novo()}" onclick="PF('dlg_transferencia_contas').show()" update="panel_transferencia_contas"/>
+                                        <p:menuitem value="Suprimento de Caixa" action="#{suprimentoCaixaBean.novo()}" />
                                         <p:menuitem value="Deposito"     action="#{chamadaPaginaBean.depositoBancario()}"/>
                                         <p:menuitem value="Cartões"      action="#{chamadaPaginaBean.pagina('movimentoCartao')}"/>
                                         <p:menuitem value="Conciliação"  action="#{chamadaPaginaBean.pagina('conciliacao')}" disabled="true"/>

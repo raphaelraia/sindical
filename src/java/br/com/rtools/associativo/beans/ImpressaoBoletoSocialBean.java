@@ -240,24 +240,6 @@ public class ImpressaoBoletoSocialBean {
         GenericaSessao.put("uploadFilesBean", uploadFilesBean);
     }
 
-//    public String imagemBannerBoletoSocial(){
-//        File file_promo = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/BannerPromoBoleto.png"));
-//
-//        if (!file_promo.exists())
-//            return null;
-//        else
-//            return "Imagens/BannerPromoBoleto.png";
-//    } 
-//    
-//    public String imagemVersoBannerBoletoSocial(){
-//        File file_verso = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoBoletoVersoSocial.png"));
-//
-//        if (!file_verso.exists())
-//            return null;
-//        else
-//            return file_verso.getPath();
-//    } 
-//    
     public void marcar() {
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((i + 1) >= de && ate == 0) {
@@ -295,10 +277,15 @@ public class ImpressaoBoletoSocialBean {
         MovimentoDao db = new MovimentoDao();
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
-                lista.add(db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)));
+                Boleto b = db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0));
+                if (DataHoje.menorData(b.getVencimento(), DataHoje.data())){
+                    GenericaMensagem.fatal("Atenção", "Boleto " + b.getBoletoComposto() + " vencido!");
+                    return;
+                }
+                lista.add(b);
             }
         }
-
+        
         if (lista.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum Boleto selecionado!");
             return;
@@ -323,10 +310,14 @@ public class ImpressaoBoletoSocialBean {
             return;
         }
 
-        MovimentoDao db = new MovimentoDao();
         String lista = "";
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
+                if (DataHoje.menorData ((String) ((Vector) listaGrid.get(i).getArgumento2()).get(4), DataHoje.data()) ){
+                    GenericaMensagem.fatal("Atenção", "Boleto " + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(3) + " vencido!");
+                    return;
+                }
+                
                 if (lista.isEmpty()) {
                     lista = "'" + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(0) + "'";
                 } else {
