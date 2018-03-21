@@ -829,7 +829,7 @@ public class FinanceiroDao extends DB {
                     + // 2
                     "       id_lote_boleto, \n "
                     + // 3
-                    "       processamento, \n "
+                    "       processamento_boleto AS processamento, \n "
                     + // 4
                     "       codigo, \n "
                     + // 5
@@ -921,7 +921,7 @@ public class FinanceiroDao extends DB {
                     + "       0 as id_movimentox, \n "
                     + "       nr_ctr_boleto, \n  "
                     + "       id_lote_boleto, \n  "
-                    + "       processamento, \n  "
+                    + "       processamento_boleto AS processamento, \n  "
                     + "       codigo, \n "
                     + "       responsavel, \n "
                     + "       vencimento, \n "
@@ -1017,7 +1017,7 @@ public class FinanceiroDao extends DB {
                         + "	id_fin_movimento AS id_fin_movimento, -- 01\n"
                         + "	nr_ctr_boleto AS nr_ctr_boleto, -- 02\n"
                         + "	id_lote_boleto AS id_lote_boleto, -- 03\n"
-                        + "	processamento AS processamento, -- 04\n"
+                        + "	processamento_boleto AS processamento, -- 04\n"
                         + "	codigo AS codigo, -- 05\n"
                         + "	responsavel AS responsavel, -- 06\n"
                         + "	vencimento AS vencimento, -- 07\n"
@@ -1035,7 +1035,7 @@ public class FinanceiroDao extends DB {
                         + "	0 AS id_fin_movimento, -- 01\n"
                         + "	nr_ctr_boleto AS nr_ctr_boleto, -- 02\n"
                         + "	id_lote_boleto AS id_lote_boleto, -- 03\n"
-                        + "	processamento AS processamento, -- 04\n"
+                        + "	processamento_boleto AS processamento, -- 04\n"
                         + "	codigo AS codigo, -- 05\n"
                         + "	responsavel AS responsavel, -- 06\n"
                         + "	vencimento AS vencimento, -- 07\n"
@@ -1954,4 +1954,18 @@ public class FinanceiroDao extends DB {
         return new ArrayList();
     }
 
+    public Integer numeroUltimoChequePag(Integer id_plano5){
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT MAX(ds_cheque) FROM fin_cheque_pag WHERE id_plano5 = " + id_plano5
+            );
+            
+            List vetor = qry.getResultList();
+            
+            return Integer.parseInt((String) ((List) vetor.get(0)).get(0));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    
 }

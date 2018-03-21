@@ -1716,12 +1716,12 @@ public class ImprimirBoleto implements Serializable {
 
     public void imprimirAcordoSocial(List<Movimento> lista, Acordo acordo, Historico historico) {
         try {
-            
-            if (historico == null){
+
+            if (historico == null) {
                 GenericaMensagem.error("Atenção", "Histórico não encontrado!");
                 return;
             }
-            
+
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
             Collection vetor1 = new ArrayList(), vetor2 = new ArrayList(), vetor3 = new ArrayList();
@@ -2272,6 +2272,7 @@ public class ImprimirBoleto implements Serializable {
     METODO ANTIGO
      */
     public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
+        
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
         ConfiguracaoSocial cs = (ConfiguracaoSocial.get());
@@ -2303,6 +2304,12 @@ public class ImprimirBoleto implements Serializable {
             for (Boleto boleto : listaBoleto) {
                 // PESSOA RESPONSÁVEL PELO BOLETO
                 Pessoa pessoa = dbs.responsavelBoleto(boleto.getNrCtrBoleto());
+                
+                if (DataHoje.menorData(boleto.getVencimento(), DataHoje.data())){
+                    GenericaMensagem.fatal("Atenção", "Boleto " + boleto.getBoletoComposto() + " vencido!");
+                    return new byte[0];
+                }
+                
                 String contabilidade = "";
                 if (lista_socio.isEmpty()) {
                     if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {

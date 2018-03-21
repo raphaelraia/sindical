@@ -183,7 +183,7 @@ public class TransferenciaEntreContasBean implements Serializable {
                 (Rotina) dao.find(new Rotina(), 225), // ROTINA
                 pag_rec, // PAG REC
                 DataHoje.data(), // LANCAMENTO
-                (Pessoa) dao.find(new Pessoa(), 0), // PESSOA
+                (Pessoa) dao.find(new Pessoa(), 1), // PESSOA
                 plano, // PLANO 5
                 false,// VENCER CONTABIL
                 "", // DOCUMENTO
@@ -192,7 +192,7 @@ public class TransferenciaEntreContasBean implements Serializable {
                 null, // DEPARTAMENTO
                 null, // EVT
                 historico_contabil, // HISTORICO
-                (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
+                (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE 
                 (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1), // 1 - A VISTA / 2 - PRAZO
                 fstatus, // 1 - EFETIVO // 8 - DEPOSITADO // 14 - NÃO CONTABILIZAR
                 null, // PESSOA SEM CADASTRO
@@ -225,8 +225,8 @@ public class TransferenciaEntreContasBean implements Serializable {
                 true, // ATIVO
                 e_s, // E_S
                 false, // OBRIGACAO 
-                null, // TITULAR
-                null, // BENEFICIARIO
+                lote.getPessoa(), // TITULAR
+                lote.getPessoa(), // BENEFICIARIO
                 "", // DOCUMENTO
                 "", // NR_CTR_BOLETO
                 DataHoje.data(), // VENCTO ORIGINAL

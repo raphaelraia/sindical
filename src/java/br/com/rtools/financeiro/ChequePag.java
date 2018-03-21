@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
@@ -40,6 +41,9 @@ public class ChequePag implements java.io.Serializable {
     @JoinColumn(name = "id_estorno_caixa_lote", referencedColumnName = "id")
     @ManyToOne
     private EstornoCaixaLote estornoCaixaLote;
+
+    @Transient
+    private Integer nrProximoCheque;
 
     public ChequePag() {
         this.id = -1;
@@ -177,6 +181,16 @@ public class ChequePag implements java.io.Serializable {
 
     public void setEstornoCaixaLote(EstornoCaixaLote estornoCaixaLote) {
         this.estornoCaixaLote = estornoCaixaLote;
+    }
+    
+    public Integer getNrProximoCheque() {
+        if (this.plano5.getId() != -1){
+            nrProximoCheque = new FinanceiroDao().numeroUltimoChequePag(this.plano5.getId());
+            if (nrProximoCheque != null){
+                nrProximoCheque = nrProximoCheque + 1;
+            }
+        }
+        return nrProximoCheque;
     }
 
 }
