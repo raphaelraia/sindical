@@ -54,7 +54,7 @@
                                 <h:panelGrid columns="2" >
                                     <h:outputText value="Convenções "/>
                                     <p:selectOneMenu value="#{mensagemConvencaoBean.idConvencao}" disabled="#{mensagemConvencaoBean.habilitar}" style="width: 220px">
-                                        <p:ajax event="change" update="i_panel i_panel_mensagem tbl" />
+                                        <p:ajax event="change" update="i_panel i_panel_mensagem tbl" listener="#{mensagemConvencaoBean.loadListaGrupoCidade()}" />
                                         <f:selectItems value="#{mensagemConvencaoBean.listaConvencoes}" />
                                     </p:selectOneMenu>
 
