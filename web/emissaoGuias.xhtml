@@ -44,6 +44,7 @@
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO', emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" />
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'BENEFICIÁRIO CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{emissaoGuiasBean.pessoa.existOposicao}" />
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" id="i_message" redisplay="true"/>
+                            <p:growl autoUpdate="false" showDetail="true" showSummary="true" id="i_message_grow" redisplay="true"/>
                             <p:panel header="Beneficiário" styleClass="margin-top-max">
                                 <h:panelGrid columns="5">
                                     <p:outputLabel value="Nome: " />
@@ -174,7 +175,7 @@
 
                                     <h:column>
                                         <br />
-                                        <p:commandButton icon="ui-icon-plus" action="#{emissaoGuiasBean.addServico()}" update="i_message i_tbl_eg i_panel_add_servicos" disabled="#{emissaoGuiasBean.lote.id != -1}" />
+                                        <p:commandButton icon="ui-icon-plus" action="#{emissaoGuiasBean.addServico()}" update="i_message i_message_grow i_tbl_eg i_panel_add_servicos" disabled="#{emissaoGuiasBean.lote.id != -1}" />
                                         <p:commandLink value="Ver guias emitidas nesse Periodo" rendered="#{emissaoGuiasBean.listaMovimentosEmitidos.size() > 0}" onclick="PF('dlg_movimentos_emitidos').show()" style="margin-left: 20px; font-size: 10pt!important; color: red" update="i_tbl_movimentos_emitidos"/>
                                     </h:column>
                                 </h:panelGrid>

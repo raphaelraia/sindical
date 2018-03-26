@@ -67,7 +67,7 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="formBaile">
-                            <h:outputText value="Baile" styleClass="fonteHeader" />
+                            <h:outputText value="Baile / Evento" styleClass="fonteHeader" />
                             <c:set scope="request" var="object" value="${baileBean.eventoBaile}"/>
                             <div class="clear"></div>
                             <p:panel>
@@ -299,7 +299,7 @@
                                         </h:panelGrid>                                        
                                     </f:facet>
                                 </p:panel>
-                                <p:dataTable value="#{baileBean.listaEventoServicoValor}" var="linha" id="tbl_s" emptyMessage="Nenhum Serviço adicionado para este Baile" >
+                                <p:dataTable value="#{baileBean.listaEventoServicoValor}" var="linha" id="tbl_s" emptyMessage="Nenhum Serviço adicionado para este Baile" scrollable="true" scrollHeight="200">
 
                                     <p:column style="text-align: center; width: 40px">
                                         <p:commandButton action="#{baileBean.editEventoServicoValor(linha)}" icon="ui-icon-pencil" update="formBaile"/>

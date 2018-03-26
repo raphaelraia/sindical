@@ -54,12 +54,13 @@ public class BaileDao extends DB {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT es.* \n "
                     + "  FROM eve_evento_servico es \n "
+                    + " INNER JOIN eve_evento_servico_valor esv ON esv.id_evento_servico = es.id \n "
                     + " WHERE es.id_servicos = " + id_servicos + " \n "
                     + "   AND es.id_evento = " + id_evento + " \n "
-                    + "   AND es.id_categoria " + (id_categoria == null ? " IS NULL" : " = " + id_categoria + " \n "
-                            + "   AND esv.nr_idade_inicial = " + faixaInicial + " \n "
-                            + "   AND esv.nr_idade_final = " + faixaFinal + " \n "
-                            + "   AND esv.ds_sexo = '" + sexo + "' \n "), EventoServico.class
+                    + "   AND es.id_categoria " + (id_categoria == null ? " IS NULL" : " = " + id_categoria) + " \n "
+                    + "   AND esv.nr_idade_inicial = " + faixaInicial + " \n "
+                    + "   AND esv.nr_idade_final = " + faixaFinal + " \n "
+                    + "   AND esv.ds_sexo = '" + sexo + "' \n ", EventoServico.class
             );
             return (EventoServico) qry.getSingleResult();
         } catch (Exception e) {
@@ -78,7 +79,7 @@ public class BaileDao extends DB {
                     + "  LEFT JOIN soc_categoria c ON c.id = es.id_categoria \n "
                     + " INNER JOIN fin_servicos s ON s.id = es.id_servicos \n "
                     + " WHERE e.id = " + idEvento + " \n "
-                    + " ORDER BY s.ds_descricao, c.ds_categoria", EventoServicoValor.class
+                    + " ORDER BY s.ds_descricao, c.ds_categoria, esv.nr_idade_inicial, esv.nr_idade_final", EventoServicoValor.class
             );
             return qry.getResultList();
         } catch (Exception e) {
