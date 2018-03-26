@@ -2579,8 +2579,8 @@
         </navigation-case>  
         
         <navigation-case>
-            <from-outcome>impressaoEscritorio</from-outcome>
-            <to-view-id>/impressaoEscritorio.jsf</to-view-id>
+            <from-outcome>controleScripts</from-outcome>
+            <to-view-id>/controleScripts.jsf</to-view-id>
             <redirect/>
         </navigation-case>  
         

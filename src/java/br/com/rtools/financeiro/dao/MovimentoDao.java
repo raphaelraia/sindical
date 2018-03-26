@@ -1461,7 +1461,7 @@ public class MovimentoDao extends DB {
             } else if (type.equals("apartir")) {
                 filtros += " AND x.qtde >= " + qtde + "\n";
             }
-            
+
             if (registrado.equals("registrado")) {
                 filtros += " AND bo.dt_cobranca_registrada IS NOT NULL \n";
             } else if (registrado.equals("sem_registro")) {
@@ -2780,6 +2780,10 @@ public class MovimentoDao extends DB {
     }
 
     public List<Movimento> listaMovimentoBeneficiarioServicoMesVigente(int id_beneficiario, int id_servico, boolean socio) {
+        return listaMovimentoBeneficiarioServicoMesVigente(id_beneficiario, id_servico, socio, DataHoje.data());
+    }
+
+    public List<Movimento> listaMovimentoBeneficiarioServicoMesVigente(int id_beneficiario, int id_servico, boolean socio, String data) {
         // LISTA TODOS MOVIMENTOS ATIVOS EM QUE O BENEFICIÁRIO id_beneficiario E A DATA ESTEJA ENTRE O MES ATUAL
         String where;
         DataHoje dh = new DataHoje();
@@ -2796,7 +2800,7 @@ public class MovimentoDao extends DB {
                 + where
                 + "   AND m.is_ativo = true "
                 + "   AND m.id_servicos = " + id_servico
-                + "   AND (l.dt_emissao >= '" + dh.primeiroDiaDoMes(DataHoje.data()) + "' AND l.dt_emissao <= '" + dh.ultimoDiaDoMes(DataHoje.data()) + "') "
+                + "   AND (l.dt_emissao >= '" + dh.primeiroDiaDoMes(data) + "' AND l.dt_emissao <= '" + dh.ultimoDiaDoMes(data) + "') "
                 + " ORDER BY l.dt_emissao ";
         try {
             Query qry = getEntityManager().createNativeQuery(text_qry, Movimento.class);

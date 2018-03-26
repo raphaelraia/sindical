@@ -39,6 +39,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.GlobalSync;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.Sessions;
@@ -188,7 +189,7 @@ public class AtendimentosBean implements Serializable {
                 emissaoGuiasBean.loadListServicos();
                 emissaoGuiasBean.setIdServico(Integer.parseInt(listObjectAgenda.get(i).getId_servico().toString()));
                 emissaoGuiasBean.listenerEnabledItensPedidoListener();
-                if (!emissaoGuiasBean.addServico2(false)) {
+                if (!emissaoGuiasBean.addServico2(false, true)) {
                     PF.update(":form_atendimentos:i_messsage_eg");
                     return null;
                 }
@@ -868,6 +869,12 @@ public class AtendimentosBean implements Serializable {
 
     public void setMotivoTroca(String motivoTroca) {
         this.motivoTroca = motivoTroca;
+    }
+
+    public void print() {
+        Jasper.TYPE = "default";
+        Jasper.TITLE = "ATENDIMENTOS";
+        Jasper.printReports("AG_ATENDIMENTOS.jasper", "Atendimentos", listObjectAgenda);
     }
 
     public class ObjectAgendamentos {

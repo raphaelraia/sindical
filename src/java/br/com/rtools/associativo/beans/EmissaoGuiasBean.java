@@ -645,10 +645,10 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void addServico(Boolean renderedDelete) {
-        addServico2(renderedDelete);
+        addServico2(renderedDelete, false);
     }
 
-    public Boolean addServico2(Boolean renderedDelete) {
+    public Boolean addServico2(Boolean renderedDelete, Boolean ignore) {
         if (!listaMovimento.isEmpty()) {
             if (listaMovimento.get(0).getMovimento().getId() != -1) {
                 GenericaMensagem.warn("Validação", "Emissão concluída!");
@@ -679,35 +679,12 @@ public class EmissaoGuiasBean implements Serializable {
         MovimentoDao db = new MovimentoDao();
         //SociosDB dbs = new SociosDao();
         listaMovimentosEmitidos.clear();
-        if (servicos.getPeriodo() != null) {
-            DataHoje dh = new DataHoje();
-            // SEM CONTROLE FAMILIAR ---
-            if (!servicos.isFamiliarPeriodo()) {
+        if (!ignore) {
+            if (servicos.getPeriodo() != null) {
+                DataHoje dh = new DataHoje();
+                // SEM CONTROLE FAMILIAR ---
+                if (!servicos.isFamiliarPeriodo()) {
 
-                if (!servicos.isValidadeGuiasVigente()) {
-                    listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
-                    if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
-                        GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
-                        return false;
-                    }
-                    listaMovimentosEmitidos.clear();
-                } else {
-                    listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getId(), servicos.getId(), false);
-                    if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
-                        GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
-                        return false;
-                    }
-                    listaMovimentosEmitidos.clear();
-                }
-
-            }
-
-            // COM CONTROLE FAMILIAR --- 
-            if (servicos.isFamiliarPeriodo()) {
-                //Socios socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
-
-                // NÃO SÓCIO ---
-                if (socios.getId() == -1) {
                     if (!servicos.isValidadeGuiasVigente()) {
                         listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
                         if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
@@ -723,22 +700,47 @@ public class EmissaoGuiasBean implements Serializable {
                         }
                         listaMovimentosEmitidos.clear();
                     }
-                    // SOCIO ---
-                } else if (!servicos.isValidadeGuiasVigente()) {
-                    listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(socios.getMatriculaSocios().getId(), servicos.getId(), servicos.getPeriodo().getDias(), true);
 
-                    if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
-                        GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
-                        return false;
+                }
+
+                // COM CONTROLE FAMILIAR --- 
+                if (servicos.isFamiliarPeriodo()) {
+                    //Socios socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
+
+                    // NÃO SÓCIO ---
+                    if (socios.getId() == -1) {
+                        if (!servicos.isValidadeGuiasVigente()) {
+                            listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(pessoa.getId(), servicos.getId(), servicos.getPeriodo().getDias(), false);
+                            if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
+                                GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
+                                return false;
+                            }
+                            listaMovimentosEmitidos.clear();
+                        } else {
+                            listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getId(), servicos.getId(), false);
+                            if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
+                                GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
+                                return false;
+                            }
+                            listaMovimentosEmitidos.clear();
+                        }
+                        // SOCIO ---
+                    } else if (!servicos.isValidadeGuiasVigente()) {
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(socios.getMatriculaSocios().getId(), servicos.getId(), servicos.getPeriodo().getDias(), true);
+
+                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
+                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
+                            return false;
+                        }
+                        listaMovimentosEmitidos.clear();
+                    } else {
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(socios.getMatriculaSocios().getId(), servicos.getId(), true);
+                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
+                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
+                            return false;
+                        }
+                        listaMovimentosEmitidos.clear();
                     }
-                    listaMovimentosEmitidos.clear();
-                } else {
-                    listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(socios.getMatriculaSocios().getId(), servicos.getId(), true);
-                    if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
-                        GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
-                        return false;
-                    }
-                    listaMovimentosEmitidos.clear();
                 }
             }
         }
