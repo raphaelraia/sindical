@@ -2578,6 +2578,12 @@
             <redirect/>
         </navigation-case>  
         
+        <navigation-case>
+            <from-outcome>impressaoEscritorio</from-outcome>
+            <to-view-id>/impressaoEscritorio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        
     </navigation-rule>
     
     <lifecycle>

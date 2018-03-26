@@ -431,6 +431,21 @@ public class FunctionsDao extends DB {
         return false;
     }
 
+    public Double func_correcao_valor_ass(String nr_ctr_boleto) {
+        Double v = new Double(0);
+        try {
+            String queryString = "SELECT func_correcao_valor_ass('" + nr_ctr_boleto + "')";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                v = Double.parseDouble(((List) query.getSingleResult()).get(0).toString());
+            }
+        } catch (NumberFormatException e) {
+            return new Double(0);
+        }
+        return v;
+    }
+
 //    
 //        /**
 //     * Trazer o responsável

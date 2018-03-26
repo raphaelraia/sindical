@@ -20,6 +20,7 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -411,7 +412,7 @@ public class Sicoob extends Cobranca {
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                List<Movimento> lista_m = bol.getListaMovimento();
+                
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "756"; // 01.3P Código do Banco na Compensação: "756"
@@ -445,8 +446,15 @@ public class Sicoob extends Cobranca {
 
                 Double valor_titulo_double = new Double(0);
 
-                for (Movimento m : lista_m) {
-                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
+                if (bol.getNrCtrBoleto().length() != 22) {
+                    List<Movimento> lista_m = bol.getListaMovimento();
+                    for (Movimento m : lista_m) {
+                        valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                    }
+                } else if (bol.getNrCtrBoleto().length() == 22) {
+                    // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
+                    valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
 
                 String valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");

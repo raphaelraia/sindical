@@ -461,7 +461,9 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 0,
                 0,
-                DataHoje.dataHoje()
+                DataHoje.dataHoje(),
+                null,
+                null
         );
     }
 

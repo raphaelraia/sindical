@@ -37,6 +37,8 @@ public abstract class MovimentoValorBean {
     public abstract void carregarFolha();
 
     public abstract void carregarFolha(DataObject valor);
+    
+    public abstract void carregarFolha(Object valor);
 
     public abstract void atualizaValorGrid(String tipo);
 

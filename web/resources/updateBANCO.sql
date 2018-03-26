@@ -559,3 +559,128 @@ ALTER TABLE soc_boletos_vw
   OWNER TO postgres; 
   
 
+CREATE OR REPLACE FUNCTION func_correcao_valor_ass( xnr_ctr_boleto character varying(22) )
+RETURNS double precision
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE 
+AS $BODY$
+
+  declare wvalor double precision;
+ 
+BEGIN 
+   wvalor =
+	(
+		select sum(valor) as valor from 
+		( 
+		select 
+		case when m.dt_vencimento < current_date then
+		sum
+		(
+		func_multa_ass(m.id, b.dt_processamento) + func_juros_ass(m.id, b.dt_processamento) + func_correcao_ass(m.id, b.dt_processamento) + m.nr_valor 
+		)
+		else  sum(m.nr_valor - m.nr_desconto_ate_vencimento) end as valor 
+		from fin_movimento as m
+		inner join fin_boleto as b on b.nr_ctr_boleto=m.nr_ctr_boleto
+		where b.nr_ctr_boleto=xnr_ctr_boleto
+		group by m.dt_vencimento
+	) as x
+
+	);
+	
+	return wvalor;
+ 
+END; 
+
+$BODY$;
+
+ALTER FUNCTION func_correcao_valor_ass(character varying(22))
+    OWNER TO postgres;
+
+
+-- RODAR EM TODOS
+--------------------------------------------------------------------------------
+
+ALTER TABLE fin_baixa ADD COLUMN id_departamento integer;
+ALTER TABLE fin_baixa ADD COLUMN id_filial integer;
+
+
+ALTER TABLE fin_baixa ADD CONSTRAINT fk_fin_baixa_id_departamento FOREIGN KEY (id_departamento)
+    REFERENCES public.seg_departamento (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+ALTER TABLE fin_baixa ADD CONSTRAINT fk_fin_baixa_id_filial FOREIGN KEY (id_filial)
+    REFERENCES public.pes_filial (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+CREATE OR REPLACE VIEW public.fin_fecha_caixa_geral_vw AS
+        (         
+SELECT c.ds_descricao AS caixa, 
+	   f.dt_data AS dt_fechamento, 
+       f.ds_hora AS hora_fechamento, 
+       t.dt_lancamento AS dt_transferencia, 
+	   b.id_caixa, 
+       b.id_fechamento_caixa, 
+	   fo.nr_valor AS valor, 
+       p.ds_nome AS operador,
+       b.dt_baixa, 
+       b.id AS id_baixa,
+	   b.id_departamento,
+	   b.id_filial
+  FROM fin_baixa b
+  JOIN fin_caixa c ON c.id = b.id_caixa
+  JOIN fin_forma_pagamento fo ON fo.id_baixa = b.id
+  JOIN seg_usuario u ON u.id = b.id_usuario
+  JOIN pes_pessoa p ON p.id = u.id_pessoa
+  LEFT JOIN fin_fechamento_caixa f ON f.id = b.id_fechamento_caixa
+  LEFT JOIN fin_transferencia_caixa t ON t.id_fechamento_saida = b.id_fechamento_caixa AND t.id_status = 12
+ WHERE f.dt_fechamento_geral IS NULL AND b.dt_importacao IS NULL AND (b.dt_baixa < now()::date OR b.id_fechamento_caixa > 0) AND c.nr_caixa <> 1
+ UNION 
+SELECT c.ds_descricao AS caixa, 
+	   f.dt_data AS dt_fechamento, 
+       f.ds_hora AS hora_fechamento, 
+       t.dt_lancamento AS dt_transferencia, 
+       t.id_caixa_entrada AS id_caixa, 
+       t.id_fechamento_entrada AS id_fechamento_caixa, 
+       t.nr_valor AS valor, 
+	   p.ds_nome AS operador, 
+       t.dt_lancamento AS dt_baixa, 
+       t.id AS id_baixa,
+       null AS id_departamento,
+       null AS id_filial
+  FROM fin_transferencia_caixa t
+  JOIN fin_caixa c ON c.id = t.id_caixa_entrada
+  JOIN seg_usuario u ON u.id = t.id_usuario
+  JOIN pes_pessoa p ON p.id = u.id_pessoa
+  LEFT JOIN fin_fechamento_caixa f ON f.id = t.id_fechamento_entrada
+ WHERE t.id_status <> 12 AND (t.dt_lancamento < now()::date OR t.id_fechamento_entrada > 0) AND c.nr_caixa <> 1)
+ UNION 
+SELECT c.ds_descricao AS caixa, 
+       f.dt_data AS dt_fechamento, 
+       f.ds_hora AS hora_fechamento, 
+	   t.dt_lancamento AS dt_transferencia, 
+       t.id_caixa_saida AS id_caixa, 
+       t.id_fechamento_saida AS id_fechamento_caixa, 
+	   t.nr_valor AS valor, 
+       p.ds_nome AS operador, 
+	   t.dt_lancamento AS dt_baixa, 
+       t.id AS id_baixa,
+       null AS id_departamento,
+       null AS id_filial
+  FROM fin_transferencia_caixa t
+  JOIN fin_caixa c ON c.id = t.id_caixa_saida
+  JOIN seg_usuario u ON u.id = t.id_usuario
+  JOIN pes_pessoa p ON p.id = u.id_pessoa
+  LEFT JOIN fin_fechamento_caixa f ON f.id = t.id_fechamento_saida
+ WHERE t.id_status <> 12 AND (t.dt_lancamento < now()::date OR t.id_fechamento_saida > 0) AND c.nr_caixa <> 1;
+
+ALTER TABLE public.fin_fecha_caixa_geral_vw
+    OWNER TO postgres;
+
+
+INSERT INTO seg_rotina (id, ds_rotina, ds_nome_pagina, ds_classe, is_ativo, ds_acao) SELECT 488, 'IMPRESSÃO POR ESCRITÓRIO', '"/Sindical/impressaoEscritorio.jsf"', '', true, '' WHERE NOT EXISTS ( SELECT id FROM seg_rotina WHERE id = 488);
+SELECT setval('seg_rotina_id_seq', max(id)) FROM seg_rotina;
+

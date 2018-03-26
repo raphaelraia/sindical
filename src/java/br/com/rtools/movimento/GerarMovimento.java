@@ -18,6 +18,7 @@ import br.com.rtools.financeiro.dao.MovimentoInativoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
@@ -1237,17 +1238,33 @@ public class GerarMovimento extends DB {
 
     public static boolean baixarMovimento(Movimento movimento, Usuario usuario, String pagamento, double valor_liquido, Date dataCredito, String numeroComposto, int nrSequencia) {
 
-        Baixa baixa = new Baixa();
-        baixa.setUsuario(usuario);
-        baixa.setFechamentoCaixa(null);
-        //baixa.setBaixa(pagamento);
-        baixa.setBaixa(DataHoje.data()); 
-        baixa.setDtOcorrenciaString(pagamento);
-        baixa.setImportacao(DataHoje.data());
-        baixa.setSequenciaBaixa(nrSequencia);
-        baixa.setDocumentoBaixa(numeroComposto);
-        baixa.setCaixa(null);
-        baixa.setTaxaLiquidacao(movimento.getTaxa());
+        MacFilial mf = MacFilial.getAcessoFilial();
+        if (mf.getId() == -1) {
+            return false;
+        }
+        if (mf.getDepartamento().getId() == -1) {
+            return false;
+        }
+        if (mf.getFilial().getId() == -1) {
+            return false;
+        }
+
+        Baixa baixa = new Baixa(
+                -1,
+                usuario,
+                DataHoje.dataHoje(),
+                DataHoje.dataHoje(),
+                nrSequencia,
+                numeroComposto,
+                null,
+                null,
+                null,
+                new Double(0),
+                movimento.getTaxa(),
+                DataHoje.converte(pagamento),
+                mf.getDepartamento(),
+                mf.getFilial()
+        );
 
         Dao dao = new Dao();
         dao.openTransaction();
@@ -1267,9 +1284,9 @@ public class GerarMovimento extends DB {
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
         //Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
         TipoPagamento tp = (TipoPagamento) dao.find(new TipoPagamento(), 2); // BOLETO
-        
+
         ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(tp.getId());
-        
+
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -1327,12 +1344,6 @@ public class GerarMovimento extends DB {
     }
 
     public static StatusRetornoMensagem baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco, Date dataOcorrencia) {
-        // 15
-        // 000003652580001
-        // 8
-        // 30042013
-        // 10
-        // 0000022912
         try {
             String numeroComposto = "";
             if (movimento.get(0).getServicos() != null) {
@@ -1347,24 +1358,47 @@ public class GerarMovimento extends DB {
                 }
 
             }
-            Dao dao = new Dao();
-            Baixa baixa = new Baixa();
-            baixa.setUsuario(usuario);
-            baixa.setFechamentoCaixa(null);
-            baixa.setBaixa(pagamento);
-            baixa.setDocumentoBaixa(numeroComposto);
-            baixa.setCaixa(caixa);
-            baixa.setTroco(valorTroco);
-            if (dataOcorrencia == null) {
-                baixa.setDtOcorrencia(DataHoje.dataHoje());
-            } else {
-                baixa.setDtOcorrencia(dataOcorrencia);
+
+            MacFilial mf = MacFilial.getAcessoFilial();
+            if (mf.getId() == -1) {
+                return new StatusRetornoMensagem(Boolean.FALSE, "FILIAL NÃO ENCONTRADA PARA BAIXA!");
+            }
+            if (mf.getDepartamento().getId() == -1) {
+                return new StatusRetornoMensagem(Boolean.FALSE, "DEPARTAMENTO NÃO ENCONTRAD0 PARA BAIXA!");
+            }
+            if (mf.getFilial().getId() == -1) {
+                return new StatusRetornoMensagem(Boolean.FALSE, "FILIAL NÃO ENCONTRADA PARA BAIXA!");
             }
 
+            Dao dao = new Dao();
+
+            Usuario usuarioDesconto = null;
+
             if (GenericaSessao.getObject("usuarioAutenticado") != null) {
-                baixa.setUsuarioDesconto((Usuario) GenericaSessao.getObject("usuarioAutenticado"));
+                usuarioDesconto = (Usuario) GenericaSessao.getObject("usuarioAutenticado");
                 GenericaSessao.remove("usuarioAutenticado");
             }
+
+            if (dataOcorrencia == null) {
+                dataOcorrencia = DataHoje.dataHoje();
+            }
+
+            Baixa baixa = new Baixa(
+                    -1,
+                    usuario,
+                    DataHoje.converte(pagamento),
+                    null,
+                    0,
+                    numeroComposto,
+                    caixa,
+                    null,
+                    usuarioDesconto,
+                    valorTroco,
+                    new Double(0),
+                    dataOcorrencia,
+                    mf.getDepartamento(),
+                    mf.getFilial()
+            );
 
             dao.openTransaction();
             if (!dao.save(baixa)) {
@@ -1488,20 +1522,49 @@ public class GerarMovimento extends DB {
     }
 
     public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, double valor_baixa, String data_credito, double valor_taxa, int nrSequencia) {
-        Dao dao = new Dao();
         Object[] lista_log = new Object[3];
-        Baixa baixa = new Baixa();
-        baixa.setUsuario(usuario);
-        baixa.setFechamentoCaixa(null);
-        //baixa.setBaixa(data_pagamento);
-        baixa.setBaixa(DataHoje.data());
-        baixa.setDtOcorrenciaString(data_pagamento);
-        baixa.setImportacao(DataHoje.data());
-        baixa.setSequenciaBaixa(nrSequencia);
-        baixa.setCaixa(null);
-        baixa.setTaxaLiquidacao(valor_taxa);
 
+        MacFilial mf = MacFilial.getAcessoFilial();
+        if (mf.getId() == -1) {
+            lista_log[0] = -1;
+            lista_log[1] = null;
+            lista_log[2] = "FILIAL NÃO ENCONTRADA PARA BAIXA!";
+            return lista_log;
+        }
+        if (mf.getDepartamento().getId() == -1) {
+            lista_log[0] = -1;
+            lista_log[1] = null;
+            lista_log[2] = "DEPARTAMENTO NÃO ENCONTRAD0 PARA BAIXA!";
+            return lista_log;
+        }
+        if (mf.getFilial().getId() == -1) {
+            lista_log[0] = -1;
+            lista_log[1] = null;
+            lista_log[2] = "FILIAL NÃO ENCONTRADA PARA BAIXA!";
+            return lista_log;
+        }
+
+        Baixa baixa = new Baixa(
+                -1,
+                usuario,
+                DataHoje.dataHoje(),
+                DataHoje.dataHoje(),
+                nrSequencia,
+                "",
+                null,
+                null,
+                null,
+                new Double(0),
+                valor_taxa,
+                DataHoje.converte(data_pagamento),
+                mf.getDepartamento(),
+                mf.getFilial()
+        );
+
+        Dao dao = new Dao();
+        
         dao.openTransaction();
+        
         if (!dao.save(baixa)) {
             dao.rollback();
             lista_log[0] = 0; // 0 - ERRO AO INSERIR BAIXA
@@ -1519,9 +1582,9 @@ public class GerarMovimento extends DB {
 
         //Plano5 plano5 = (Plano5) new Dao().find(new Plano5(), 1);
         TipoPagamento tp = (TipoPagamento) dao.find(new TipoPagamento(), 2); // BOLETO
-        
+
         ContaTipoPagamento ctp = new ContaRecebimentoDao().pesquisaContaTipoPagamento(tp.getId());
-        
+
         valor_baixa = Moeda.converteDoubleR$Double(valor_baixa);
 
         FormaPagamento fp = new FormaPagamento(
@@ -1653,13 +1716,14 @@ public class GerarMovimento extends DB {
     }
 
     public static boolean refazerMovimentos(List<Movimento> lista_movimento) {
-        Dao dao = new Dao();
-        dao.openTransaction();
 
         if (!inativarArrayMovimento(lista_movimento, "Movimento refeito por alteração nos dados cadastrais", null).isEmpty()) {
             //dao.rollback();
             return false;
         }
+        
+        Dao dao = new Dao();
+        dao.openTransaction();
 
         boolean commit = false;
         for (Movimento m : lista_movimento) {

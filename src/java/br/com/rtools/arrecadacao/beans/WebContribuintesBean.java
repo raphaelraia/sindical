@@ -284,6 +284,11 @@ public class WebContribuintesBean extends MovimentoValorBean {
     }
 
     @Override
+    public void carregarFolha(Object valor) {
+
+    }
+
+    @Override
     public void atualizaValorGrid(String tipo) {
         //listaMovimento.get(idIndex).setArgumento6(super.atualizaValor(true, tipo));
         //listMovimentos.clear();
@@ -299,7 +304,6 @@ public class WebContribuintesBean extends MovimentoValorBean {
         ImpressaoWeb impressaoWeb;
         Movimento movimento;
         String data = "";
-
 
         String dataValida = "";
         DataHoje dh = new DataHoje();
@@ -322,9 +326,9 @@ public class WebContribuintesBean extends MovimentoValorBean {
         }
 
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         for (DataObject listMovimento : listaMovimentoSelecionado) {
             movimento = ((Movimento) dao.find(new Movimento(), (Integer) listMovimento.getArgumento16()));
             // COM VALOR ALTERADO ---------

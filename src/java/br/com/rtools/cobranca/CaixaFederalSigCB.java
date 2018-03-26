@@ -5,7 +5,6 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.StatusRemessa;
-import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -17,6 +16,7 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -324,7 +324,7 @@ public class CaixaFederalSigCB extends Cobranca {
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                List<Movimento> lista_m = bol.getListaMovimento();
+                
 
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
@@ -357,10 +357,18 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 20.3P Vencimento Data de Vencimento do Título 78 85 8 - Num  *C012 
 
                 Double valor_titulo_double = new Double(0);
-
-                for (Movimento m : lista_m) {
-                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                
+                // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
+                if (bol.getNrCtrBoleto().length() != 22) {
+                    List<Movimento> lista_m = bol.getListaMovimento();
+                    for (Movimento m : lista_m) {
+                        valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                    }
+                } else if (bol.getNrCtrBoleto().length() == 22) {
+                    // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
+                    valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
+
                 String valor_titulo = Moeda.converteDoubleToString(valor_titulo_double).replace(".", "").replace(",", "");
 
                 // NO MANUAL FALA 13 PORÉM TEM QUE SER 15, ACHO QUE POR CAUSA DAS DECIMAIS ,00 (O MANUAL NÃO EXPLICA ISSO)
@@ -411,7 +419,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += " "; // 06.3Q CNAB Uso Exclusivo FEBRABAN/CNAB 15 15 1 - Alfa Brancos G004 
                 if (sr.getId() == 1) {
                     CONTEUDO_REMESSA += "01"; // 07.3Q Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 // REGISTRAR
-                }else{
+                } else {
                     CONTEUDO_REMESSA += "02"; // 07.3Q Cód. Mov. Código de Movimento Remessa 16 17 2 - Num  *C004 // BAIXAR
                 }
 
@@ -765,7 +773,6 @@ public class CaixaFederalSigCB extends Cobranca {
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                List<Movimento> lista_m = bol.getListaMovimento();
 
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
@@ -801,9 +808,17 @@ public class CaixaFederalSigCB extends Cobranca {
                 String valor_titulo;
                 Double valor_titulo_double = new Double(0);
 
-                for (Movimento m : lista_m) {
-                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
+                if (bol.getNrCtrBoleto().length() != 22) {
+                    List<Movimento> lista_m = bol.getListaMovimento();
+                    for (Movimento m : lista_m) {
+                        valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                    }
+                } else if (bol.getNrCtrBoleto().length() == 22) {
+                    // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
+                    valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
+
                 // FIXAR VALOR 1,00 CASO FOR MENOR QUE 1,00
                 if (valor_titulo_double < 1) {
                     valor_titulo = "100";
@@ -814,7 +829,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo; // 21.3P Valor do Título Valor Nominal do Título 86 100 9(013) Preencher com o valor original do título, utilizando 2 casas decimais (exemplo: título de valor 530,44 - preencher 0000000053044) *G070
                 CONTEUDO_REMESSA += "00000"; // 22.3P Ag. Cobradora Agência Encarregada da Cobrança 101 105 9(005) Preencher com zeros *C014
                 CONTEUDO_REMESSA += "0"; // 23.3P DV Dígito Verificador da Agência 106 106 X(001) Preencher '0’ *C014
-                if(boleto_rem.getContaCobranca().getEspecieDoc().equals("BP")) {
+                if (boleto_rem.getContaCobranca().getEspecieDoc().equals("BP")) {
                     // BOLETO PROPOSTA
                     CONTEUDO_REMESSA += "32";//CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getEspecieDoc(); // 24.3P Espécie de Título Espécie do Título 107 108 9(002) Ver Nota Explicativa C015 *C015
                 } else {
@@ -1054,7 +1069,7 @@ public class CaixaFederalSigCB extends Cobranca {
     public RespostaArquivoRemessa gerarRemessa400() {
         return new RespostaArquivoRemessa(null, "Configuração do Arquivo não existe");
     }
-    
+
     @Override
     public RespostaWebService registrarBoleto() {
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
