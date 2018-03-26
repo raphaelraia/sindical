@@ -435,6 +435,11 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         super.carregarFolha(movi);
         dataObject.setArgumento3(Moeda.converteR$Double(movi.getValor()));
     }
+    
+    @Override
+    public synchronized void carregarFolha(Object linha) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     @Override
     public synchronized void atualizaValorGrid(String tipo) {

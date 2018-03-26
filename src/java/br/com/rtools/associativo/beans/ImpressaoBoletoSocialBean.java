@@ -313,10 +313,10 @@ public class ImpressaoBoletoSocialBean {
         String lista = "";
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
-                if (DataHoje.menorData ((String) ((Vector) listaGrid.get(i).getArgumento2()).get(4), DataHoje.data()) ){
-                    GenericaMensagem.fatal("Atenção", "Boleto " + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(3) + " vencido!");
-                    return;
-                }
+//                if (DataHoje.menorData ((String) ((Vector) listaGrid.get(i).getArgumento2()).get(4), DataHoje.data()) ){
+//                    GenericaMensagem.fatal("Atenção", "Boleto " + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(3) + " vencido!");
+//                    return;
+//                }
                 
                 if (lista.isEmpty()) {
                     lista = "'" + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(0) + "'";

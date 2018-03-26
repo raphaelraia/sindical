@@ -17,6 +17,7 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -331,8 +332,7 @@ public class Itau extends Cobranca {
 
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
-                List<Movimento> lista_m = bol.getListaMovimento();
-
+                
                 CONTEUDO_REMESSA += "1"; // TIPO DE REGISTRO  IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO 001   001  9(01) 1
                 CONTEUDO_REMESSA += "02"; // CÓDIGO DE INSCRIÇÃO TIPO DE INSCRIÇÃO DA EMPRESA 002   003  9(02) NOTA 1
 
@@ -360,8 +360,15 @@ public class Itau extends Cobranca {
 
                 Double valor_titulo_double = new Double(0);
 
-                for (Movimento m : lista_m) {
-                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
+                if (bol.getNrCtrBoleto().length() != 22) {
+                    List<Movimento> lista_m = bol.getListaMovimento();
+                    for (Movimento m : lista_m) {
+                        valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                    }
+                } else if (bol.getNrCtrBoleto().length() == 22) {
+                    // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
+                    valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
 
                 String valor_titulo;

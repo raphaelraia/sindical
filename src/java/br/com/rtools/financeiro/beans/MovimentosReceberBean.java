@@ -287,6 +287,11 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     }
 
     @Override
+    public synchronized void carregarFolha(Object valor) {
+       
+    }
+
+    @Override
     public void atualizaValorGrid(String tipo) {
         Dao dao = new Dao();
         Movimento m = (Movimento) dao.find(new Movimento(), Integer.parseInt(listMovimentoReceber.get(index).getIdMovimento()));

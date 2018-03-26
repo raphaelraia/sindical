@@ -647,6 +647,10 @@ public class WebContabilidadeBean extends MovimentoValorBean {
     }
 
     @Override
+    public void carregarFolha(Object valor) {
+    }
+
+    @Override
     public void atualizaValorGrid(String tipo) {
         // antes ---
         //listMovimentos.get(idIndex).setArgumento6(super.atualizaValor(true));
