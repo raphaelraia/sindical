@@ -12,6 +12,7 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
+
         </style>
 
         <script type="text/javascript">
@@ -77,12 +78,13 @@
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <p:outputLabel value="Escritório" /><br />
-                                            <p:outputLabel value="#{impressaoEscritorioBean.escritorio.id ne -1 ? impressaoEscritorioBean.escritorio.pessoa.nome : 'PESQUISAR'}" style="font-size: 16pt!important; #{impressaoEscritorioBean.escritorio.id ne -1 ? '' : 'color: red'}; font-weight: bold"/>
+                                            <p:outputLabel value="#{impressaoEscritorioBean.escritorio.id ne -1 ? impressaoEscritorioBean.escritorio.pessoa.nome : 'PESQUISAR'}" style="font-size: 16pt!important; #{impressaoEscritorioBean.escritorio.id ne -1 ? '' : 'color: red'}; font-weight: bold" /><br />
+                                            <p:outputLabel value="Email: #{impressaoEscritorioBean.escritorio.id ne -1 ? impressaoEscritorioBean.escritorio.pessoa.email1 : ''}" rendered="#{impressaoEscritorioBean.escritorio.id ne -1}"/>
                                         </h:column>
 
                                         <h:column>
                                             <br />
-                                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" />
+                                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" style="margin-left: 10px"/>
                                         </h:column>
                                     </h:panelGrid>
                                 </h:column>
@@ -94,7 +96,7 @@
                             </h:panelGrid>
                             <hr />
                             <h:panelGrid rendered="#{impressaoEscritorioBean.podeListarEmpresa}">
-                                <p:dataTable value="#{impressaoEscritorioBean.listaEmpresa}" var="linha_empresa" emptyMessage="Nenhuma empresa encontrada para este escritório" scrollable="true" scrollHeight="400" selection="#{impressaoEscritorioBean.listaEmpresaSelecionada}" rowSelectMode="checkbox" rowKey="#{linha_empresa.empresa.id}" disabledSelection="#{!linha_empresa.podeGerarBoleto}">
+                                <p:dataTable id="tbl_empresa_escritorio" value="#{impressaoEscritorioBean.listaEmpresa}" var="linha_empresa" emptyMessage="Nenhuma empresa encontrada para este escritório" scrollable="true" scrollHeight="400" selection="#{impressaoEscritorioBean.listaEmpresaSelecionada}" rowSelectMode="checkbox" rowKey="#{linha_empresa.empresa.id}" disabledSelection="#{!linha_empresa.podeGerarBoleto}">
                                     <p:column selectionMode="multiple" width="25" styleClass="text-center"/>
 
                                     <p:column headerText="Documento" style="width: 120px; text-align: center">
@@ -105,21 +107,39 @@
                                         <p:outputLabel value="#{linha_empresa.empresa.pessoa.nome}" />
                                     </p:column>
 
-                                    <p:column headerText="Valor" style="text-align: right; width: 80px">
-                                        <p:commandLink value="#{linha_empresa.movimento.valorString}" action="#{impressaoEscritorioBean.carregarFolha(linha_empresa)}" style="font-size: 10pt!important; font-weight: bold;" oncomplete="PF('i_dlg_valor').show()" update=":formImpressaoEscritorio:i_dlg_valor_folha"/>
+                                    <p:column headerText="Vencimento Original" style="text-align: center; width: 80px">
+                                        <p:outputLabel value="#{linha_empresa.movimento.vencimento}" />
                                     </p:column>
 
-                                    <p:column headerText="Mensagem" style="text-align: center; width: 180px">
-                                        <p:commandLink value="#{linha_empresa.temMensagem ? '' : 'CADASTRAR MENSAGEM'}" style="font-weight: bold; color: red"/>
+                                    <p:column headerText="Valor R$" style="text-align: right; width: 80px">
+                                        <p:commandLink value="#{linha_empresa.movimento.valorString}" action="#{impressaoEscritorioBean.carregarFolha(linha_empresa)}" style="font-size: 10pt!important; font-weight: bold; text-decoration: underline; color: blue" oncomplete="PF('i_dlg_valor').show()" update=":formImpressaoEscritorio:i_dlg_valor_folha"/>
+                                    </p:column>
+
+                                    <p:column headerText="Valor Calc. R$" style="text-align: right; width: 110px">
+                                        <p:outputLabel value="#{linha_empresa.valorCalculadoString}" />
+                                    </p:column>
+
+                                    <p:column headerText="Mensagem" style="text-align: center; width: 110px">
+                                        <p:commandLink value="#{linha_empresa.temMensagem ? '' : 'CADASTRAR'}" style="font-weight: bold; color: red" action="#{impressaoEscritorioBean.cadastrarMensagem(linha_empresa)}"/>
+                                    </p:column>
+
+                                    <p:column style="text-align: center; width: 110px">
+                                        <f:facet name="header">
+                                            <p:commandButton value="Acréscimo" action="#{impressaoEscritorioBean.atualiza_todos_acrescimo()}" update="tbl_empresa_escritorio" style="font-weight: bold"/>
+                                        </f:facet>
+                                        <p:selectBooleanCheckbox value="#{linha_empresa.adicionaAcrescimo}">
+                                            <p:ajax event="change" listener="#{impressaoEscritorioBean.atualiza_valor_acrescimo(linha_empresa)}" update="tbl_empresa_escritorio" global="false"/>
+                                        </p:selectBooleanCheckbox>
                                     </p:column>
                                 </p:dataTable>
 
                                 <h:panelGrid columns="3">
-                                    <p:commandButton value="Gerar Boletos" action="#{impressaoEscritorioBean.gerarBoleto()}" update="formImpressaoEscritorio"/>
+                                    <p:commandButton value="Gerar Boletos" action="#{impressaoEscritorioBean.modalGerarBoleto()}" update="formImpressaoEscritorio"/>
                                 </h:panelGrid>
                             </h:panelGrid>
 
-
+                            <p:messages showDetail="true" closable="true" />
+                            
                             <p:dialog id="i_dlg_valor_folha" widgetVar="i_dlg_valor" header="Valor do Boleto" resizable="false" modal="true">
                                 <p:tabView id="i_tab_view">
                                     <p:tab title="Valor Simples">
@@ -165,11 +185,39 @@
 
                             <p:dialog widgetVar="dlg_boletos" header="Boletos Selecionados" resizable="false" modal="true" visible="#{impressaoEscritorioBean.modalBoletosVisible}" width="900" position="top">
                                 <p:ajax event="close" listener="#{impressaoEscritorioBean.fecharModalGerarBoleto()}" update="@form"/>  
+                                <h:panelGrid columns="4" style="width: 50%" rendered="#{not empty impressaoEscritorioBean.listaEmpresaSelecionada}">
+                                    <h:column>
+                                        <p:outputLabel value="Contribuição" /><br />
+                                        <p:outputLabel value="#{impressaoEscritorioBean.listaEmpresaSelecionada.get(0).movimento.servicos.descricao}" style="font-weight: bold; font-size: 12pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Tipo" /><br />
+                                        <p:outputLabel value="#{impressaoEscritorioBean.listaEmpresaSelecionada.get(0).movimento.tipoServico.descricao}" style="font-weight: bold; font-size: 12pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Referência" /><br />
+                                        <p:outputLabel value="#{impressaoEscritorioBean.referencia}" style="font-weight: bold; font-size: 12pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Vencimento" /><br />
+                                        <p:outputLabel value="#{impressaoEscritorioBean.vencimento}" style="font-weight: bold; font-size: 12pt!important"/>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <hr />
+
                                 <h:panelGrid>
                                     <h:outputLabel value="GERAR BOLETOS PARA EMPRESAS AS ABAIXO:" style="font-size: 11pt!important; font-weight: bold"/>
                                 </h:panelGrid>
 
-                                <p:dataTable value="#{impressaoEscritorioBean.listaEmpresaSelecionada}" var="les" scrollable="true" scrollHeight="400">
+                                <p:messages showDetail="true" closable="true" />
+
+                                <hr />
+
+                                <p:dataTable value="#{impressaoEscritorioBean.listaEmpresaSelecionada}" var="les" scrollable="true" scrollHeight="380">
 
                                     <p:column headerText="Documento" style="width: 120px; text-align: center">
                                         <p:outputLabel value="#{les.empresa.pessoa.documento}" />
@@ -180,14 +228,24 @@
                                     </p:column>
 
                                     <p:column headerText="Valor" style="text-align: right; width: 80px">
-                                        <p:outputLabel value="#{les.movimento.valorString}" style="font-size: 10pt!important; font-weight: bold;" />
+                                        <p:outputLabel value="#{les.valorCalculadoString}" style="font-size: 10pt!important; font-weight: bold;" />
                                     </p:column>
+
                                 </p:dataTable>
 
-                                <h:panelGrid columns="3">
-                                    <p:commandButton value="Imprimir" />
-                                    <p:commandButton value="Enviar Email" />
-                                    <p:commandButton value="Cancelar" action="#{impressaoEscritorioBean.fecharModalGerarBoleto()}" update="@form"/>
+                                <h:panelGrid columns="5">
+                                    <p:commandButton value="Confirma Gerar Boletos" icon="ui-icon-check" action="#{impressaoEscritorioBean.gerarBoletos()}" update="@form" style="font-weight: bold" disabled="#{impressaoEscritorioBean.processou eq true}"/>
+
+                                    <h:commandLink disabled="#{impressaoEscritorioBean.processou eq false}" action="#{impressaoEscritorioBean.imprimir()}" target="_blank" title="Imprimir Boletos">
+                                        <p:commandButton value="Imprimir" icon="ui-icon-print" disabled="#{impressaoEscritorioBean.processou eq false}"></p:commandButton>
+                                    </h:commandLink>
+
+                                    <h:commandLink disabled="#{impressaoEscritorioBean.processou eq false}" action="#{impressaoEscritorioBean.imprimir(true)}">
+                                        <p:commandButton value="Download" icon="ui-icon-disk" disabled="#{impressaoEscritorioBean.processou eq false}"></p:commandButton>
+                                    </h:commandLink>
+
+                                    <p:commandButton value="Enviar Email" disabled="#{impressaoEscritorioBean.processou eq false}" action="#{impressaoEscritorioBean.enviarEmail()}" update="@form"/>
+                                    <p:commandButton value="Cancelar" action="#{impressaoEscritorioBean.fecharModalGerarBoleto()}" icon="ui-icon-close" update="@form"/>
                                 </h:panelGrid>
                             </p:dialog>
                         </h:form>

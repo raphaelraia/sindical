@@ -1,75 +1,4 @@
--- RODAR EM LIMEIRA
---------------------
-
-CREATE OR REPLACE VIEW public.balancete_vw AS
- SELECT x.data,
-    x.codigo1,
-    x.conta1,
-    x.codigo2,
-    x.conta2,
-    x.codigo3,
-    x.conta3,
-    x.codigo4,
-    x.conta4,
-    x.classificador AS codigo5,
-    x.conta5,
-    0::double precision AS saldo_anterior,
-    sum(x.debito) AS debito,
-    sum(x.credito) AS credito,
-    0::double precision AS saldo_atual,
-    x.id_conta,
-    p5.is_soma_debito,
-	x.natureza_dc
-   FROM ( SELECT c.baixa AS data,
-            p.codigo1,
-            p.conta1,
-            p.codigo2,
-            p.conta2,
-            p.codigo3,
-            p.conta3,
-            p.codigo4,
-            p.conta4,
-            p.codigo5,
-            p.conta5,
-            sum(c.valor) AS debito,
-            0 AS credito,
-            c.id_conta,
-            p.classificador,
-		    p.natureza_dc
-           FROM contabil_vw c
-             JOIN plano_vw p ON p.id_p5 = c.id_conta
-          WHERE c.dc = 'D'::text
-          GROUP BY c.baixa, p.codigo1, p.conta1, p.codigo2, p.conta2, p.codigo3, p.conta3, p.codigo4, p.conta4, p.codigo5, p.conta5, c.id_conta, p.classificador,p.natureza_dc
-        UNION
-         SELECT c.baixa AS data,
-            p.codigo1,
-            p.conta1,
-            p.codigo2,
-            p.conta2,
-            p.codigo3,
-            p.conta3,
-            p.codigo4,
-            p.conta4,
-            p.codigo5,
-            p.conta5,
-            0 AS debito,
-            sum(c.valor) AS credito,
-            c.id_conta,
-            p.classificador,
-		    p.natureza_dc
-           FROM contabil_vw c
-             JOIN plano_vw p ON p.id_p5 = c.id_conta
-          WHERE c.dc = 'C'::text
-          GROUP BY c.baixa, p.codigo1, p.conta1, p.codigo2, p.conta2, p.codigo3, p.conta3, p.codigo4, p.conta4, p.codigo5, p.conta5, c.id_conta, p.classificador,p.natureza_dc) x
-     JOIN fin_plano5 p5 ON p5.id = x.id_conta
-  GROUP BY x.data, x.codigo1, x.conta1, x.codigo2, x.conta2, x.codigo3, x.conta3, x.codigo4, x.conta4, x.codigo5, x.conta5, x.id_conta, p5.is_soma_debito, x.classificador,x.natureza_dc
-  ORDER BY x.conta4;
-
-ALTER TABLE public.balancete_vw
-    OWNER TO postgres;
-
-
--- RODAR COMERCIO RP E LIMEIRA
+-- RODAR COMERCIO RP
 ------------------------------
 
 ALTER TABLE conf_social ADD nr_meses_inadimplentes_impressao_boletos_social int;
@@ -152,7 +81,7 @@ ALTER TABLE soc_boletos_vw
 UPDATE fin_status_retorno SET ds_descricao = 'Agendamento de Registro' WHERE id = 4;
 
 
--- RODAR COMERCIO LIMEIRA E COMERCIO RP
+-- RODAR COMERCIO RP
 ---------------------------------------
 
 
@@ -598,7 +527,7 @@ ALTER FUNCTION func_correcao_valor_ass(character varying(22))
     OWNER TO postgres;
 
 
--- RODAR EM TODOS
+-- RODAR COMERCIO RP
 --------------------------------------------------------------------------------
 
 ALTER TABLE fin_baixa ADD COLUMN id_departamento integer;
@@ -683,4 +612,3 @@ ALTER TABLE public.fin_fecha_caixa_geral_vw
 
 INSERT INTO seg_rotina (id, ds_rotina, ds_nome_pagina, ds_classe, is_ativo, ds_acao) SELECT 488, 'IMPRESSÃO POR ESCRITÓRIO', '"/Sindical/impressaoEscritorio.jsf"', '', true, '' WHERE NOT EXISTS ( SELECT id FROM seg_rotina WHERE id = 488);
 SELECT setval('seg_rotina_id_seq', max(id)) FROM seg_rotina;
-

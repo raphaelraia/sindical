@@ -740,6 +740,8 @@ public class MensagemConvencaoBean {
             }
         }
 
+        loadListaGrupoCidade();
+        
         if (mensagemConvencao.getGrupoCidade().getId() != -1) {
             for (SelectItem grupo1 : listaGrupoCidade) {
                 if (Integer.parseInt(grupo1.getDescription()) == mensagemConvencao.getGrupoCidade().getId()) {
