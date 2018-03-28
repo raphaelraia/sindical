@@ -356,6 +356,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         dao.openTransaction();
         pessoaUpper();
 
+        if (fisica.getEstadoCivil().isEmpty() || fisica.getEstadoCivil().contains("Indefinido")) {
+            mensagem = "Selecionar estado civil diferente de Indefinido!";
+            return;
+        }
+
         if (fisica.getPessoa().getTelefone3().isEmpty() && !fisica.getPessoa().getTelefone4().isEmpty()) {
             fisica.getPessoa().setTelefone3(fisica.getPessoa().getTelefone4());
             fisica.getPessoa().setTelefone4("");

@@ -33,7 +33,8 @@ public class GrupoCidadeDao extends DB {
                         idGrupoCidade += ", " + ((List) list.get(i)).get(0).toString();
                     }
                 }
-                Query qryGrupoCidade = getEntityManager().createQuery(" SELECT gc FROM GrupoCidade AS gc WHERE gc.id IN(" + idGrupoCidade + ")");
+                String queryString = "SELECT gc FROM GrupoCidade AS gc WHERE gc.id IN(" + idGrupoCidade + ")";
+                Query qryGrupoCidade = getEntityManager().createQuery(queryString);
                 List list1 = qryGrupoCidade.getResultList();
                 if (!list1.isEmpty()) {
                     return list1;

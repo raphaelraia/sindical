@@ -247,7 +247,7 @@ public class Jasper implements Serializable {
      */
     public void add(JasperReport jasperReport, Collection c) {
         add(jasperReport, null, c);
-    } 
+    }
 
     /**
      * Adiciona um jasper a Lista
@@ -280,6 +280,18 @@ public class Jasper implements Serializable {
     }
 
     /**
+     * *
+     *
+     * @param jasperName Arquivo.jasper
+     * @param fileName Nome que será impresso
+     * @param c Collection
+     * @param media (pdf, xml, txt, html
+     */
+    public static void printMedia(String jasperName, String fileName, Collection c, String media) {
+        printReports(jasperName, fileName, c, null, new ArrayList(), null, media);
+    }
+
+    /**
      * Imprime a lista gerada com nome do arquivo
      *
      * @param filename
@@ -294,14 +306,14 @@ public class Jasper implements Serializable {
     }
 
     public static void printReports(String jasperName, String fileName, JRDataSource dataSource) {
-        printReports(jasperName, fileName, new ArrayList(), null, new ArrayList(), dataSource);
+        printReports(jasperName, fileName, new ArrayList(), null, new ArrayList(), dataSource, null);
     }
 
     public static void printReports(String jasperName, String fileName, List list, Map parameters) {
         printReports(jasperName, fileName, (Collection) list, parameters);
     }
 
-        public static void printReports(String jasperName, String fileName, Collection c, Map parameters) {
+    public static void printReports(String jasperName, String fileName, Collection c, Map parameters) {
         printReports(jasperName, fileName, c, parameters, new ArrayList());
     }
 
@@ -316,10 +328,10 @@ public class Jasper implements Serializable {
     }
 
     public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport) throws SecurityException, IllegalArgumentException {
-        printReports(jasperName, fileName, listCollections, parameters, jasperListExport, null);
+        printReports(jasperName, fileName, listCollections, parameters, jasperListExport, null, null);
     }
 
-    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport, JRDataSource jRDataSource) throws SecurityException, IllegalArgumentException {
+    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport, JRDataSource jRDataSource, String media) throws SecurityException, IllegalArgumentException {
         Jasper.LIST_FILE_GENERATED = new ArrayList();
         Dao dao = new Dao();
         // Integer idUsuario = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId();
@@ -330,7 +342,7 @@ public class Jasper implements Serializable {
         if (jasperListExport.isEmpty()) {
             if ((fileName.isEmpty() || jasperName.isEmpty() || listCollections.isEmpty()) && !IS_QUERY_STRING) {
                 if (listCollections.isEmpty() && jRDataSource == null) {
-                    if(parameters != null || parameters.size() > 0) {
+                    if (parameters != null || parameters.size() > 0) {
                     } else {
                         GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
                     }
@@ -662,46 +674,71 @@ public class Jasper implements Serializable {
                         }
                     }
 
-                    if (EXPORT_TO && !EXPORT_TYPE.equals("pdf") && !EXPORT_TYPE.isEmpty()) {
-                        downloadName = fileName + PART_NAME + uuid + "." + EXPORT_TYPE;
+                    Boolean export_to = false;
+                    String export_type = "";
+                    if (media != null && !media.isEmpty()) {
+                        export_to = true;
+                        export_type = media;
+                    } else {
+                        export_to = EXPORT_TO;
+                        export_type = EXPORT_TYPE;
+                    }
+
+                    if (export_to && !export_type.equals("pdf") && !export_type.isEmpty()) {
+                        downloadName = fileName + PART_NAME + uuid + "." + export_type;
                         String fileString = dirPath + "/" + downloadName;
                         File file = new File(fileString);
-                        if (EXPORT_TYPE.equals("xls")) {
-                            mimeType = "application/xls";
-                            JRXlsExporter exporter = new JRXlsExporter();
-                            exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
-                            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
-                            SimpleXlsReportConfiguration configuration = new SimpleXlsReportConfiguration();
-                            configuration.setIgnoreGraphics(true);
-                            exporter.setConfiguration(configuration);
-                            exporter.exportReport();
-                        } else if (EXPORT_TYPE.equals("docx")) {
-                            mimeType = "application/xls";
-                            JRDocxExporter exporter = new JRDocxExporter();
-                            exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
-                            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
-                            SimpleDocxReportConfiguration configuration = new SimpleDocxReportConfiguration();
-                            exporter.setConfiguration(configuration);
-                            exporter.exportReport();
-                        } else if (EXPORT_TYPE.equals("html")) {
-                            JasperExportManager.exportReportToHtmlFile(print, fileString);
-                        } else if (EXPORT_TYPE.equals("text")) {
-                            mimeType = "text/plain";
-                            JRCsvDataSource dataSource = new JRCsvDataSource(JRLoader.getLocationInputStream(downloadName));
-                            dataSource.setRecordDelimiter("\r\n");
-                            dataSource.setUseFirstRowAsHeader(true);
-                            JRTextExporter exporter = new JRTextExporter();
-                            exporter.setParameter(JRTextExporterParameter.PAGE_WIDTH, 80);
-                            exporter.setParameter(JRTextExporterParameter.PAGE_HEIGHT, 40);
-                            exporter.setParameter(JRExporterParameter.JASPER_PRINT, listJasper);
-                            exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, file.getPath());
-                            exporter.exportReport();
-                        } else if (EXPORT_TYPE.equals("json")) {
-                        } else if (EXPORT_TYPE.equals("odt")) {
-                        } else if (EXPORT_TYPE.equals("rtf")) {
-                        } else if (EXPORT_TYPE.equals("pptx")) {
-                        } else if (EXPORT_TYPE.equals("xml")) {
-                            JasperExportManager.exportReportToXmlFile(print, fileString, false);
+                        switch (export_type) {
+                            case "xls": {
+                                mimeType = "application/xls";
+                                JRXlsExporter exporter = new JRXlsExporter();
+                                exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
+                                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
+                                SimpleXlsReportConfiguration configuration = new SimpleXlsReportConfiguration();
+                                configuration.setIgnoreGraphics(true);
+                                exporter.setConfiguration(configuration);
+                                exporter.exportReport();
+                                break;
+                            }
+                            case "docx": {
+                                mimeType = "application/xls";
+                                JRDocxExporter exporter = new JRDocxExporter();
+                                exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
+                                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
+                                SimpleDocxReportConfiguration configuration = new SimpleDocxReportConfiguration();
+                                exporter.setConfiguration(configuration);
+                                exporter.exportReport();
+                                break;
+                            }
+                            case "html":
+                                JasperExportManager.exportReportToHtmlFile(print, fileString);
+                                break;
+                            case "text": {
+                                mimeType = "text/plain";
+                                JRCsvDataSource dataSource = new JRCsvDataSource(JRLoader.getLocationInputStream(downloadName));
+                                dataSource.setRecordDelimiter("\r\n");
+                                dataSource.setUseFirstRowAsHeader(true);
+                                JRTextExporter exporter = new JRTextExporter();
+                                exporter.setParameter(JRTextExporterParameter.PAGE_WIDTH, 80);
+                                exporter.setParameter(JRTextExporterParameter.PAGE_HEIGHT, 40);
+                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, listJasper);
+                                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, file.getPath());
+                                exporter.exportReport();
+                                break;
+                            }
+                            case "json":
+                                break;
+                            case "odt":
+                                break;
+                            case "rtf":
+                                break;
+                            case "pptx":
+                                break;
+                            case "xml":
+                                JasperExportManager.exportReportToXmlFile(print, fileString, false);
+                                break;
+                            default:
+                                break;
                         }
                     } else {
                         downloadName = fileName + PART_NAME + uuid + ".pdf";

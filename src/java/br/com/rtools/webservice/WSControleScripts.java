@@ -28,10 +28,21 @@ public class WSControleScripts implements Serializable {
             // String device = GenericaRequisicao.getParametro("device");
             // String type = GenericaRequisicao.getParametro("type");
             // String mac = GenericaRequisicao.getParametro("mac");
+            String mac = GenericaRequisicao.getParametro("mac");
+            String erro = GenericaRequisicao.getParametro("erro");
+            String tamanho = GenericaRequisicao.getParametro("tamanho");
             ControleScripts controleScripts = new ControleScripts();
             controleScripts.setControleScripts((TipoControleScripts) new Dao().find(new TipoControleScripts(), 1));
             controleScripts.setDescricao(database_server);
-            controleScripts.setMac("");
+            if (mac != null && !mac.isEmpty()) {
+                controleScripts.setMac(mac);
+            }
+            if (erro != null && !erro.isEmpty()) {
+                controleScripts.setErro(true);
+            }
+            if (tamanho != null && !tamanho.isEmpty()) {
+                controleScripts.setTamanho(Integer.parseInt(tamanho) / 1024);
+            }
             new Dao().save(controleScripts, true);
         } catch (Exception e) {
 

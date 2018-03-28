@@ -1,5 +1,5 @@
 package br.com.rtools.sistema;
- 
+
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -31,6 +31,10 @@ public class ControleScripts implements Serializable {
     private String descricao;
     @Column(name = "ds_mac", length = 20)
     private String mac;
+    @Column(name = "nr_tamanho")
+    private Integer tamanho;
+    @Column(name = "is_erro")
+    private Boolean erro;
 
     public ControleScripts() {
         this.id = null;
@@ -38,14 +42,18 @@ public class ControleScripts implements Serializable {
         this.controleScripts = null;
         this.descricao = "";
         this.mac = "";
+        this.tamanho = 0;
+        this.erro = false;
     }
 
-    public ControleScripts(Integer id, Date dtData, TipoControleScripts controleScripts, String descricao, String mac) {
+    public ControleScripts(Integer id, Date dtData, TipoControleScripts controleScripts, String descricao, String mac, Integer tamanho, Boolean erro) {
         this.id = id;
         this.dtData = dtData;
         this.controleScripts = controleScripts;
         this.descricao = descricao;
         this.mac = mac;
+        this.tamanho = tamanho;
+        this.erro = erro;
     }
 
     public Integer getId() {
@@ -86,6 +94,22 @@ public class ControleScripts implements Serializable {
 
     public void setMac(String mac) {
         this.mac = mac;
+    }
+
+    public Integer getTamanho() {
+        return tamanho;
+    }
+
+    public void setTamanho(Integer tamanho) {
+        this.tamanho = tamanho;
+    }
+
+    public Boolean getErro() {
+        return erro;
+    }
+
+    public void setErro(Boolean erro) {
+        this.erro = erro;
     }
 
 }

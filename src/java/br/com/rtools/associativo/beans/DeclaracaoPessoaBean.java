@@ -51,14 +51,14 @@ public class DeclaracaoPessoaBean implements Serializable {
     private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
 
     private Boolean chkTodosConvenios = false;
-    
+
     private Integer indexDeclaracaoPeriodo = 0;
     private List<SelectItem> listaDeclaracaoPeriodo = new ArrayList();
 
     public DeclaracaoPessoaBean() {
         loadListaDeclaracaoTipo();
         loadListaDeclaracaoPeriodo();
-        
+
         loadListaConvenio();
         loadListaDeclaracaoPessoa();
     }
@@ -185,6 +185,10 @@ public class DeclaracaoPessoaBean implements Serializable {
         loadListaDeclaracaoPessoa();
     }
 
+    public void print(Integer declaraca_pessoa_id) {
+        imprimir_jasper((DeclaracaoPessoa) new Dao().find(new DeclaracaoPessoa(), declaraca_pessoa_id));
+    }
+
     public void imprimir_jasper(DeclaracaoPessoa declaracao_pessoa) {
         Map map = new HashMap();
         map.put("titular", declaracao_pessoa.getMatricula().getTitular().getNome());
@@ -218,7 +222,7 @@ public class DeclaracaoPessoaBean implements Serializable {
             );
         }
     }
-    
+
     public final void loadListaDeclaracaoPeriodo() {
         listaDeclaracaoPeriodo.clear();
         List<DeclaracaoPeriodo> result = new DeclaracaoTipoDao().listaDeclaracaoPeriodoEmissao(Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
@@ -227,7 +231,7 @@ public class DeclaracaoPessoaBean implements Serializable {
             listaDeclaracaoPeriodo.add(
                     new SelectItem(
                             i,
-                            result.get(i).getDescricao() +" - "+ result.get(i).getAno(),
+                            result.get(i).getDescricao() + " - " + result.get(i).getAno(),
                             "" + result.get(i).getId()
                     )
             );
@@ -236,10 +240,10 @@ public class DeclaracaoPessoaBean implements Serializable {
 
     public final void loadListaDeclaracao() {
         loadListaConvenio();
-        
+
         loadListaDeclaracaoPeriodo();
     }
-    
+
     public final void loadListaConvenio() {
         listaConvenio.clear();
         List<Object> result = new DeclaracaoPessoaDao().listaConvenio(Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
