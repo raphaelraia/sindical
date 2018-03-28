@@ -163,14 +163,20 @@ public class DeclaracaoPessoaDao extends DB {
                 + "  INNER JOIN pes_fisica             FF  ON FF.id  = PE.id_fisica \n"
                 + "  INNER JOIN pes_pessoa             F   ON F.id   = FF.id_pessoa \n";
 //              Cadastro de Pessoa Física
-        if (tcase.equals("pessoa_fisica")) {
-            queryString += " WHERE PTT.id = " + pessoa_id + " OR PP.id = " + pessoa_id + " ORDER BY ptt.ds_nome,pp.ds_nome";
+        switch (tcase) {
+            case "pessoa_fisica":
+                queryString += " WHERE PTT.id = " + pessoa_id + " OR PP.id = " + pessoa_id + " ORDER BY ptt.ds_nome,pp.ds_nome";
 //              Cadastro de Pessoa Juridica (Emitidas para esta Empresa)
-        } else if (tcase.equals("empresa_pessoa")) {
-            queryString += "WHERE CO.id = " + pessoa_id + "  ORDER BY PTT.ds_nome, PP.ds_nome ";
-        } else if (tcase.equals("empresa_conveniada")) {
-//              Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa)                    
-            queryString += "WHERE JE.id_pessoa =  " + pessoa_id + " ORDER BY F.ds_nome, PTT.ds_nome, PP.ds_nome";
+                break;
+            case "empresa_conveniada":
+                queryString += "WHERE CO.id = " + pessoa_id + "  ORDER BY PTT.ds_nome, PP.ds_nome ";
+                break;
+            case "empresa_pessoa":
+//              Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa)
+                queryString += "WHERE JE.id_pessoa =  " + pessoa_id + " ORDER BY F.ds_nome, PTT.ds_nome, PP.ds_nome";
+                break;
+            default:
+                break;
         }
         try {
             Query qry = getEntityManager().createNativeQuery(queryString);
