@@ -434,7 +434,7 @@ public class FinanceiroDao extends DB {
                 + "       fc.ds_hora \n"
                 + "  FROM fin_fechamento_caixa fc  \n"
                 + " INNER JOIN fin_baixa b ON b.id_caixa = " + id_caixa + " AND b.id_fechamento_caixa = fc.id \n"
-                + " WHERE (b.id_filial <> 1 OR b.id_filial IS NULL) AND (b.id_departamento <> 2 OR b.id_departamento IS NULL) \n"
+                + " WHERE b.id_filial <> 1 OR b.id_departamento <> 2 OR b.id_filial IS NULL OR b.id_departamento IS NULL \n"
                 + " GROUP BY b.id_caixa, \n"
                 + "          b.id_fechamento_caixa, \n"
                 + "          fc.nr_valor_fechamento, \n"
@@ -1652,10 +1652,8 @@ public class FinanceiroDao extends DB {
                 break;
         }
         
-        list_where.add("(id_filial <> 1 OR id_filial IS NULL)");
+        list_where.add("id_filial <> 1 OR id_departamento <> 2 OR id_filial IS NULL OR id_departamento IS NULL");
         
-        list_where.add("(id_departamento <> 2 OR id_departamento IS NULL)");
-
         String WHERE = "";
 
         for (String w : list_where) {
