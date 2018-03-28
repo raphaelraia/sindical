@@ -37,6 +37,8 @@ public class CertidaoDisponivel implements Serializable {
     private String logo;
     @Column(name = "ds_fundo")
     private String fundo;
+    @Column(name = "ds_observacao", length = 8000)
+    private String observacao;
 
     @Transient
     private Boolean selected;
@@ -49,10 +51,11 @@ public class CertidaoDisponivel implements Serializable {
         this.periodoConvencao = true;
         this.logo = "";
         this.fundo = "";
+        this.observacao = "";
         this.selected = false;
     }
 
-    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, String logo, String fundo) {
+    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, String logo, String fundo, String observacao) {
         this.id = id;
         this.cidade = cidade;
         this.convencao = convencao;
@@ -60,10 +63,11 @@ public class CertidaoDisponivel implements Serializable {
         this.periodoConvencao = periodoConvencao;
         this.logo = logo;
         this.fundo = fundo;
+        this.observacao = observacao;
         this.selected = false;
     }
 
-    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, String logo, String fundo, Boolean selected) {
+    public CertidaoDisponivel(int id, Cidade cidade, Convencao convencao, CertidaoTipo certidaoTipo, boolean periodoConvencao, String logo, String fundo, String observacao, Boolean selected) {
         this.id = id;
         this.cidade = cidade;
         this.convencao = convencao;
@@ -71,6 +75,7 @@ public class CertidaoDisponivel implements Serializable {
         this.periodoConvencao = periodoConvencao;
         this.logo = logo;
         this.fundo = fundo;
+        this.observacao = observacao;
         this.selected = selected;
     }
 
@@ -136,6 +141,14 @@ public class CertidaoDisponivel implements Serializable {
 
     public void setFundo(String fundo) {
         this.fundo = fundo;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 
 }
