@@ -15,6 +15,11 @@
             .ui-datalist-item {float: left!important;}
             * {font-family: 'lucida grande', verdana, tahoma, arial, sans-serif; font-size: 9pt!important}
         </style>
+        <c:if test="#{controleUsuarioBean.development}">
+            <style type="text/css">
+                body, .ui-panel-content {background: #f4f4f4!important}
+            </style>
+        </c:if>
     </h:head>
     <h:body onload="#{controleAcessoBean.validacao}"></h:body>
     <h:body onload="#{configuracaoBean.loadResolucao()}"></h:body>

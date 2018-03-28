@@ -69,7 +69,7 @@ public class PessoaBean implements Serializable {
     private List<Socios> listMatriculasInativas;
     private List<Agendamento> listHomologacao;
     private List<Suspencao> listSuspensao;
-    private List<DeclaracaoPessoa> listDeclaracaoPessoa;
+    private List<DeclaracaoPessoaObject> listDeclaracaoPessoa;
     private String tipoDeclaracaoPessoa;
     private String situacaoFuncionario;
     private List<PessoaEmpresa> listFuncionarios;
@@ -93,14 +93,14 @@ public class PessoaBean implements Serializable {
         listMatriculasInativas = new ArrayList();
         listHomologacao = new ArrayList();
         listDeclaracaoPessoa = new ArrayList();
-        tipoDeclaracaoPessoa = "";
+        tipoDeclaracaoPessoa = "empresa_conveniada";
         selectDetalhes = "";
         situacaoFuncionario = "ativos";
         listFuncionarios = new ArrayList();
         listExameMedico = new ArrayList();
         listEmpregados = new ArrayList();
         listAnoDeclaracaoAnualDebitos = new ArrayList();
-        
+
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
             if (tipoPessoa.equals("pessoaFisica")) {
@@ -213,13 +213,32 @@ public class PessoaBean implements Serializable {
                 listSuspensao = new SuspencaoDao().pesquisaSuspensao((Integer) pessoa.getId());
                 break;
             case "declaracao":
+                listDeclaracaoPessoa = new ArrayList();
                 DeclaracaoPessoaDao dao = new DeclaracaoPessoaDao();
+                List<List> listDeclaracao;
                 if (tipoPessoa.equals("pessoaJuridica")) {
                     // LISTA DECLARAÇÃO JURIDICA (CONVENIADA) ou (EMPRESA DA PESSOA)
-                    listDeclaracaoPessoa = dao.listaDeclaracaoPessoaJuridica(pessoa.getId(), tipoDeclaracaoPessoa);
+                    listDeclaracao = dao.find(tipoDeclaracaoPessoa, pessoa.getId());
                 } else {
                     // LISTA DECLARAÇÃO FÍSICA (BENEFICIÁRIO)
-                    listDeclaracaoPessoa = dao.listaDeclaracaoPessoaFisica(pessoa.getId());
+                    listDeclaracao = dao.find("pessoa_fisica", pessoa.getId());
+                }
+                for (int i = 0; i < listDeclaracao.size(); i++) {
+                    List o = (List) listDeclaracao.get(i);
+                    listDeclaracaoPessoa.add(
+                            new DeclaracaoPessoaObject(
+                                    o.get(0),
+                                    o.get(1),
+                                    o.get(2),
+                                    o.get(3),
+                                    o.get(4),
+                                    o.get(5),
+                                    o.get(6),
+                                    o.get(7),
+                                    o.get(8),
+                                    o.get(9)
+                            )
+                    );
                 }
                 break;
             case "funcionarios":
@@ -412,7 +431,6 @@ public class PessoaBean implements Serializable {
         // PESSOA FÍSICA
         if (tipoPessoa.equals("pessoaFisica")) {
             listSelectDetalhes.add(new SelectItem("cupons", "Cupons", "CONSULTA CUPONS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_cupons", 4)));
-            listSelectDetalhes.add(new SelectItem("declaracao", "Declaração", "DECLARAÇÃO", cab.verificarPermissao("consulta_declaracao", 4)));
             listSelectDetalhes.add(new SelectItem("frequencia_catraca", "Frequência Catraca", "CONSULTA FREQUÊNCIA CATRACA", cab.verificarPermissao("consulta_frequencia_catraca", 4)));
             listSelectDetalhes.add(new SelectItem("historico_fisica", "Histórico", "CONSULTA HISTÓRICO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_historico_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("homologacao_funcionario", "Homologação", "CONSULTA HOMOLOGAÇÃO", cab.verificarPermissao("homologacao_funcionario", 4)));
@@ -428,7 +446,6 @@ public class PessoaBean implements Serializable {
         if (tipoPessoa.equals("pessoaJuridica")) {
             listSelectDetalhes.add(new SelectItem("repis", "Repis", "CONSULTA REPIS (PESSOA JURÍDICA)", cab.verificarPermissao("consulta_repis", 4)));
             listSelectDetalhes.add(new SelectItem("homologacao_empresa", "Homologação", "CONSULTA HOMOLOGAÇÃO", cab.verificarPermissao("homologacao_empresa", 4)));
-            listSelectDetalhes.add(new SelectItem("declaracao", "Declaração", "DECLARAÇÃO", cab.verificarPermissao("consulta_declaracao", 4)));
             listSelectDetalhes.add(new SelectItem("funcionarios", "Funcionários", "FUNCIONÁRIOS", cab.verificarPermissao("consulta_funcionarios", 4)));
         }
         // PESSOA FÍSICA E JURÍDICA
@@ -437,6 +454,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("documentos", "Documentos", "CONSULTA DOCUMENTOS (PESSOA FÍSICA E JURÍDICA)", cab.verificarPermissao("consulta_documentos", 4)));
             listSelectDetalhes.add(new SelectItem("spc", "SPC", "CONSULTA PESSOA SPC", cab.verificarPermissao("consulta_pessoa_spc", 4)));
             listSelectDetalhes.add(new SelectItem("rais", "RAIS", "CONSULTA RAIS", cab.verificarPermissao("consulta_rais", 4)));
+            listSelectDetalhes.add(new SelectItem("declaracao", "Declaração", "DECLARAÇÃO", cab.verificarPermissao("consulta_declaracao", 4)));
         }
         if (!listSelectDetalhes.isEmpty()) {
             SelectItemSort.sort(listSelectDetalhes);
@@ -513,11 +531,11 @@ public class PessoaBean implements Serializable {
         this.listSuspensao = listSuspensao;
     }
 
-    public List<DeclaracaoPessoa> getListDeclaracaoPessoa() {
+    public List<DeclaracaoPessoaObject> getListDeclaracaoPessoa() {
         return listDeclaracaoPessoa;
     }
 
-    public void setListDeclaracaoPessoa(List<DeclaracaoPessoa> listDeclaracaoPessoa) {
+    public void setListDeclaracaoPessoa(List<DeclaracaoPessoaObject> listDeclaracaoPessoa) {
         this.listDeclaracaoPessoa = listDeclaracaoPessoa;
     }
 
@@ -595,6 +613,130 @@ public class PessoaBean implements Serializable {
 
     public void setListEmpregados(List<Empregados> listEmpregados) {
         this.listEmpregados = listEmpregados;
+    }
+
+    public class DeclaracaoPessoaObject {
+
+//        Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa) ----> Trocar nome da coluna Titular para Funcionário
+        private Object funcionario;
+//        Somente pessoa física e (Emitidas para esta Empresa)
+        private Object titular;
+//        Beneficiário
+        private Object beneficiario;
+        private Object categoria;
+        private Object matricula;
+        private Object tipo;
+        private Object periodo;
+        private Object cnpj;
+        private Object convenio;
+        private Object id_declaracao;
+
+        public DeclaracaoPessoaObject() {
+            this.funcionario = null;
+            this.titular = null;
+            this.beneficiario = null;
+            this.categoria = null;
+            this.matricula = null;
+            this.tipo = null;
+            this.periodo = null;
+            this.cnpj = null;
+            this.convenio = null;
+            this.id_declaracao = null;
+        }
+
+        public DeclaracaoPessoaObject(Object funcionario, Object titular, Object beneficiario, Object categoria, Object matricula, Object tipo, Object periodo, Object cnpj, Object convenio, Object id_declaracao) {
+            this.funcionario = funcionario;
+            this.titular = titular;
+            this.beneficiario = beneficiario;
+            this.categoria = categoria;
+            this.matricula = matricula;
+            this.tipo = tipo;
+            this.periodo = periodo;
+            this.cnpj = cnpj;
+            this.convenio = convenio;
+            this.id_declaracao = id_declaracao;
+        }
+
+        public Object getFuncionario() {
+            return funcionario;
+        }
+
+        public void setFuncionario(Object funcionario) {
+            this.funcionario = funcionario;
+        }
+
+        public Object getTitular() {
+            return titular;
+        }
+
+        public void setTitular(Object titular) {
+            this.titular = titular;
+        }
+
+        public Object getBeneficiario() {
+            return beneficiario;
+        }
+
+        public void setBeneficiario(Object beneficiario) {
+            this.beneficiario = beneficiario;
+        }
+
+        public Object getCategoria() {
+            return categoria;
+        }
+
+        public void setCategoria(Object categoria) {
+            this.categoria = categoria;
+        }
+
+        public Object getMatricula() {
+            return matricula;
+        }
+
+        public void setMatricula(Object matricula) {
+            this.matricula = matricula;
+        }
+
+        public Object getTipo() {
+            return tipo;
+        }
+
+        public void setTipo(Object tipo) {
+            this.tipo = tipo;
+        }
+
+        public Object getPeriodo() {
+            return periodo;
+        }
+
+        public void setPeriodo(Object periodo) {
+            this.periodo = periodo;
+        }
+
+        public Object getCnpj() {
+            return cnpj;
+        }
+
+        public void setCnpj(Object cnpj) {
+            this.cnpj = cnpj;
+        }
+
+        public Object getConvenio() {
+            return convenio;
+        }
+
+        public void setConvenio(Object convenio) {
+            this.convenio = convenio;
+        }
+
+        public Object getId_declaracao() {
+            return id_declaracao;
+        }
+
+        public void setId_declaracao(Object id_declaracao) {
+            this.id_declaracao = id_declaracao;
+        }
+
     }
 
 }

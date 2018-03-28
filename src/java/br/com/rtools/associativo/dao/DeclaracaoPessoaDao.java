@@ -107,12 +107,11 @@ public class DeclaracaoPessoaDao extends DB {
             if (tipo.equals("empresa_conveniada")) {
                 text += " WHERE dp.id_convenio = " + id_pessoa;
             } else {
-                text += " LEFT JOIN matr_socios AS m ON m.id = dp.id_matricula \n"
-                        + " INNER JOIN pes_pessoa_vw AS pt ON pt.codigo = m.id_titular \n"
-                        + " INNER JOIN pes_pessoa_vw AS p ON p.codigo = dp.id_pessoa \n"
-                        + " INNER JOIN pes_pessoa_empresa AS pe ON (pe.id_fisica = pt.id_fisica  OR pe.id_fisica = p.id_fisica) AND pe.is_principal = TRUE AND pe.dt_demissao IS NULL \n"
-                        + " INNER JOIN pes_juridica j ON j.id = pe.id_juridica \n"
-                        + " WHERE j.id_pessoa = " + id_pessoa;
+                text += "   INNER JOIN matr_socios AS m ON m.id = dp.id_matricula \n"
+                        + " INNER JOIN pes_fisica AS pt ON pt.id_pessoa = m.id_titular \n"
+                        + " INNER JOIN pes_fisica AS p ON p.id_pessoa = dp.id_pessoa \n"
+                        + " INNER JOIN pes_pessoa_empresa AS pe ON (pe.id_fisica = pt.id OR pe.id_fisica = p.id) AND pe.is_principal = TRUE AND pe.dt_demissao IS NULL \n"
+                        + "      WHERE pe.id_juridica =" + id_pessoa + "";
             }
             Query qry = getEntityManager().createNativeQuery(text, DeclaracaoPessoa.class
             );
@@ -130,6 +129,57 @@ public class DeclaracaoPessoaDao extends DB {
                     + "  FROM soc_declaracao_pessoa AS dp \n"
                     + " WHERE dp.id_pessoa = " + id_pessoa, DeclaracaoPessoa.class
             );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List find(String tcase, Integer pessoa_id) {
+        String queryString = "-- DeclaracaoPesoaDao().find( " + tcase + ").... \n\n"
+                + "      SELECT F.ds_nome       AS funcionario, -- Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa) ----> Trocar nome da coluna Titular para Funcionário\n"
+                + "             PTT.ds_nome     AS titular, -- Somente pessoa física e  (Emitidas para esta Empresa) \n"
+                + "             PP.ds_nome      AS beneficiario,                \n"
+                + "             C.ds_categoria  AS categoria,                   \n"
+                + "             M.nr_matricula  AS matricula,                   \n"
+                + "             DT.ds_descricao AS tipo,                        \n"
+                + "             DR.ds_descricao||' '||dr.nr_ano AS periodo,     \n"
+                + "             CO.ds_documento AS cnpj,                        \n"
+                + "             CO.ds_nome      AS convenio,                    \n"
+                + "             DP.id           AS id_declaracao                \n"
+                + "        FROM soc_declaracao_pessoa AS DP                     \n"
+                + "  INNER JOIN pes_pessoa             CO  ON CO.id  = DP.id_convenio \n"
+                + "  INNER JOIN soc_declaracao_periodo DR  ON DR.id  = DP.id_declaracao_periodo \n"
+                + "  INNER JOIN soc_declaracao_tipo    DT  ON DT.id  = DR.id_declaracao_tipo \n"
+                + "  INNER JOIN matr_socios            M   ON M.id   = DP.id_matricula \n"
+                + "  INNER JOIN soc_categoria          C   ON C.id   = M.id_categoria \n"
+                + "  INNER JOIN pes_fisica             PT  ON PT.id_pessoa = M.id_titular \n"
+                + "  INNER JOIN pes_pessoa             PTT ON PTT.id = PT.id_pessoa \n"
+                + "  INNER JOIN pes_fisica             P   ON P.id_pessoa = DP.id_pessoa \n"
+                + "  INNER JOIN pes_pessoa             PP  ON PP.id  = P.id_pessoa \n"
+                + "  INNER JOIN pes_pessoa_empresa     PE  ON (PE.id_fisica = PT.id OR PE.id_fisica = P.id) AND PE.is_principal = true AND PE.dt_demissao IS NULL \n"
+                + "  INNER JOIN pes_juridica           JE  ON JE.id  = PE.id_juridica \n"
+                + "  INNER JOIN pes_fisica             FF  ON FF.id  = PE.id_fisica \n"
+                + "  INNER JOIN pes_pessoa             F   ON F.id   = FF.id_pessoa \n";
+//              Cadastro de Pessoa Física
+        switch (tcase) {
+            case "pessoa_fisica":
+                queryString += " WHERE PTT.id = " + pessoa_id + " OR PP.id = " + pessoa_id + " ORDER BY ptt.ds_nome,pp.ds_nome";
+//              Cadastro de Pessoa Juridica (Emitidas para esta Empresa)
+                break;
+            case "empresa_conveniada":
+                queryString += "WHERE CO.id = " + pessoa_id + "  ORDER BY PTT.ds_nome, PP.ds_nome ";
+                break;
+            case "empresa_pessoa":
+//              Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa)
+                queryString += "WHERE JE.id_pessoa =  " + pessoa_id + " ORDER BY F.ds_nome, PTT.ds_nome, PP.ds_nome";
+                break;
+            default:
+                break;
+        }
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString);
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();
