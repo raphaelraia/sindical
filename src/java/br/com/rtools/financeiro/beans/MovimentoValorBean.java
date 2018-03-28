@@ -44,34 +44,28 @@ public abstract class MovimentoValorBean {
 
     public synchronized double carregarValor(int idServico, int idTipo, String ref, int idPessoa) {
         MovimentoDao movDB = new MovimentoDao();
-        Object[] valorDouble = movDB.pesquisaValorFolha(idServico, idTipo, ref, idPessoa);
+        
+        Object[] valores = movDB.pesquisaValorFolha(idServico, idTipo, ref, idPessoa);
+        
         this.idTipoServico = idTipo;
-        FolhaEmpresa folha = null;
-        DescontoEmpregadoDao desDB = new DescontoEmpregadoDao();
-        DescontoEmpregado desEmpregado = desDB.pesquisaEntreReferencias(
-                ref,
-                idServico,
-                idPessoa);
-        FolhaEmpresaDao dbFolha = new FolhaEmpresaDao();
-        folha = dbFolha.pesquisaPorPessoa(
-                idPessoa,
-                idTipo,
-                ref);
-        if (valorDouble == null) {
-            valorDouble = new Double[]{new Double(0), new Double(0)};
-        }
-        if (((Double) valorDouble[0]) != 0) {
-            return Moeda.converteDoubleR$Double(
-                    Moeda.soma(
-                            Moeda.multiplicar(
-                                    ((Double) valorDouble[0]),
-                                    (((Double) valorDouble[1]) / 100)),
-                            Moeda.multiplicar(
-                                    folha.getNumFuncionarios(),
-                                    desEmpregado.getValorEmpregado())));
-        } else {
+        
+        // NÃO ENCONTROU NENHUM CASO
+        if (valores == null) {
             return new Double(0);
         }
+        
+        // RETORNA O VALOR POR EMPREGADO
+        if (((Double) valores[0]) > 0){
+            return ((Double) valores[0]);
+        }
+        
+        
+        // RETORNA O VALOR POR FOLHA
+        if (((Double) valores[1]) > 0){
+            return ((Double) valores[1]);
+        }
+        
+        return new Double(0);
     }
 
     public boolean carregarFolha(Movimento movimento) {

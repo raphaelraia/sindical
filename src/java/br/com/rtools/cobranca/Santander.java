@@ -785,7 +785,10 @@ public class Santander extends Cobranca {
                 wr = new OutputStreamWriter(conn.getOutputStream());
 
                 //String xmlTicket = TICKET_CONSULTA(requestTicket, "TST");
-                String nsu = "" + boleto.getId();
+                
+                //String nsu = "" + boleto.getId(); // AMBIENTE PRODUÇÃO
+                
+                String nsu = "TST"; // AMBIENTE TESTE
 
                 String xmlTicket = TICKET_ENTRADA(requestTicket, nsu, boleto.getContaCobranca().getEstacao());
 

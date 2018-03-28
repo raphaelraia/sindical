@@ -1617,39 +1617,37 @@ public class MovimentoDao extends DB {
 
     public Object[] pesquisaValorFolha(int idServico, int idTipo, String ref, int idPessoa) {
         Object[] valor = new Object[2];
-        String referencia = ref.substring(3, 7) + ref.substring(0, 2);
-        try {
-            Query qry = getEntityManager().createQuery(
-                    "select f.valorMes, d.percentual "
-                    + "  from DescontoEmpregado d, "
-                    + "         FolhaEmpresa f, "
-                    + "         PessoaEndereco pe,"
-                    + "         Endereco e,"
-                    + "         GrupoCidades gcs, "
-                    + "         CnaeConvencao cnc, "
-                    + "         ConvencaoCidade cc "
-                    + "where d.servicos.id = " + idServico
-                    + "   and f.tipoServico.id = " + idTipo
-                    + "   and f.referencia = \"" + ref + "\""
-                    + "   and f.juridica.pessoa.id = " + idPessoa
-                    + "   and f.juridica.cnae.id = cnc.cnae.id"
-                    + "   and pe.endereco.id = e.id"
-                    + "   and pe.tipoEndereco.id = 5"
-                    + "   and pe.pessoa.id = f.juridica.pessoa.id"
-                    + "   and e.cidade.id = gcs.cidade.id"
-                    + "   and cc.grupoCidade.id = gcs.grupoCidade.id"
-                    + "   and cc.convencao.id = cnc.convencao.id"
-                    + "   and d.convencao.id = cc.convencao.id"
-                    + "   and d.grupoCidade.id = cc.grupoCidade.id"
-                    + "   and \"" + referencia + "\" between CONCAT( SUBSTRING(d.referenciaInicial,4,8) ,"
-                    + "                                           SUBSTRING(d.referenciaInicial,0,3) )"
-                    + "                               and                                             "
-                    + "                                   CONCAT( SUBSTRING(d.referenciaFinal,4,8)  , "
-                    + "                                           SUBSTRING(d.referenciaFinal,0,3)   )");
-            valor = (Object[]) qry.getSingleResult();
-            return valor;
-        } catch (Exception e) {
 
+        String text
+                = "SELECT d.nr_valor_por_empregado * f.nr_num_funcionarios AS valor_empregado, \n"
+                + "       f.nr_valor * d.nr_percentual / 100 AS valor \n"
+                + "  FROM arr_faturamento_folha_empresa f \n"
+                + " INNER JOIN pes_juridica AS j ON j.id = f.id_juridica \n"
+                + " INNER JOIN pes_pessoa_endereco pe ON pe.id_pessoa = j.id_pessoa AND pe.id_tipo_Endereco = 5 \n"
+                + " INNER JOIN end_endereco AS e ON e.id = pe.id_endereco \n"
+                + " INNER JOIN arr_grupo_cidades AS gcs ON gcs.id_cidade = e.id_cidade \n"
+                + " INNER JOIN arr_cnae_convencao AS cnc ON cnc.id_cnae = j.id_cnae \n"
+                + " INNER JOIN arr_desconto_empregado AS d ON d.id_convencao = cnc.id_convencao AND d.id_grupo_cidade = gcs.id_grupo_cidade\n"
+                + "   				AND RIGHT(f.ds_referencia, 4) || LEFT(f.ds_referencia, 2) BETWEEN RIGHT(d.ds_ref_Inicial, 4) || LEFT(d.ds_ref_Inicial, 2) AND RIGHT(d.ds_ref_final, 4) || LEFT(d.ds_ref_final, 2) \n"
+                + "  WHERE d.id_servicos = " + idServico + " \n"
+                + "    AND f.id_tipo_Servico = " + idTipo + " \n"
+                + "    AND f.ds_referencia = '" + ref + "' \n"
+                + "    AND j.id_pessoa = " + idPessoa;
+
+        try {
+            Query qry = getEntityManager().createNativeQuery(text);
+
+            List vetor = qry.getResultList();
+            if (!vetor.isEmpty()) {
+                for (int i = 0; i < vetor.size(); i++) {
+                    valor[0] = (Double) ((Vector) vetor.get(i)).get(0);
+                    valor[1] = (Double) ((Vector) vetor.get(i)).get(1);
+                }
+                return valor;
+            } 
+            
+            return null;
+        } catch (Exception e) {
             return null;
         }
     }
