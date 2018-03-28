@@ -1,7 +1,6 @@
 package br.com.rtools.impressao;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class ParametroCertificado {
 
@@ -28,9 +27,10 @@ public class ParametroCertificado {
     private String periodoConvencao;
     private String imagemFundo;
     private String sindicatoPeriodo;
+    private Object observacao;
 
     public ParametroCertificado(String patNome, String patLogo, String patBaseTerr, String sinNome, String sinLogo, String empNome, String empDoc, String empPorte, String descPisoSal, BigDecimal valorPisoSal, String mensagem,
-            String validade, String sinCidade, int ano, String patLogoSelo, String patLogoFundo, String certificado, String barras, String emissao, String empEndereco, String periodoConvencao, String imagemFundo, String sindicatoPeriodo) {
+            String validade, String sinCidade, int ano, String patLogoSelo, String patLogoFundo, String certificado, String barras, String emissao, String empEndereco, String periodoConvencao, String imagemFundo, String sindicatoPeriodo, Object observacao) {
         this.patNome = patNome;
         this.patLogo = patLogo;
         this.patBaseTerr = patBaseTerr;
@@ -54,6 +54,7 @@ public class ParametroCertificado {
         this.periodoConvencao = periodoConvencao;
         this.imagemFundo = imagemFundo;
         this.sindicatoPeriodo = sindicatoPeriodo;
+        this.observacao = observacao;
     }
 
     public String getPatNome() {
@@ -238,5 +239,13 @@ public class ParametroCertificado {
 
     public void setSindicatoPeriodo(String sindicatoPeriodo) {
         this.sindicatoPeriodo = sindicatoPeriodo;
+    }
+
+    public Object getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(Object observacao) {
+        this.observacao = observacao;
     }
 }

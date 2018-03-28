@@ -669,7 +669,7 @@ public class WebREPISBean implements Serializable {
                     String caminho_fundo_certidao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoFundo.png");
 
                     CertidaoDisponivel cd = new CertidaoDisponivelDao().pesquisaCertidaoDisponivel(ee.getEndereco().getCidade().getId(), id_convencao, repis.getCertidaoTipo().getId());
-
+                    String observacao = "";
                     if (cd != null) {
                         File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/logocertidao/" + cd.getId() + "/" + cd.getLogo()));
                         if (f.exists()) {
@@ -685,6 +685,8 @@ public class WebREPISBean implements Serializable {
                             // MARCA D'ÁGUA
                             caminho_fundo_certidao = f.getPath();
                         }
+                        
+                        observacao = cd.getObservacao();
                     }
 
                     String sindicatoPeriodo = (result.get(0).getSindicato() != null) ? result.get(0).getSindicato().getNome() : "xxxxxxxxxxxxxxxxxxxx";
@@ -719,7 +721,8 @@ public class WebREPISBean implements Serializable {
                                         ende,
                                         ref,
                                         imagemFundo,
-                                        sindicatoPeriodo
+                                        sindicatoPeriodo,
+                                        observacao
                                 )
                         );
                     }

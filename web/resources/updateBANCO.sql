@@ -648,3 +648,6 @@ group by
 
 ALTER TABLE arr_contribuintes_vw 
   OWNER TO postgres; 
+
+-- ATENÇÃO ------------------------------------------------
+-- JOGAR REPIS.jasper, REPIS_AUXILIAR.jasper EM SINCOVAGASP

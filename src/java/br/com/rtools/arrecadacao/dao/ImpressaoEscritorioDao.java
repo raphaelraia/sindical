@@ -19,12 +19,13 @@ public class ImpressaoEscritorioDao extends DB {
     public List<Object> listaEmpresa(Integer id_escritorio, Integer id_servico, Integer id_tipo_servico, String referencia) {
         try {
             String text
-                    = "SELECT c.id_pessoa AS id_pessoa,\n"
-                    + "       c.id_juridica AS id_juridica,\n"
-                    + "	      c.id_convencao AS id_convencao,\n"
-                    + "	      c.id_grupo_cidade AS id_grupo_cidade\n"
-                    + "  FROM arr_contribuintes_vw c\n"
-                    + " WHERE c.id_contabilidade = " + id_escritorio
+                    = "SELECT c.id_pessoa AS id_pessoa, \n"
+                    + "       c.id_juridica AS id_juridica, \n"
+                    + "	      c.id_convencao AS id_convencao, \n"
+                    + "	      c.id_grupo_cidade AS id_grupo_cidade \n"
+                    + "  FROM arr_contribuintes_vw c \n"
+                    + " WHERE c.id_contabilidade = " + id_escritorio + " \n "
+                    + "   AND c.dt_inativacao IS NULL \n"
                     + " ORDER BY c.ds_nome";
 //            String text
 //                    = "SELECT c.id_pessoa AS id_pessoa, \n"

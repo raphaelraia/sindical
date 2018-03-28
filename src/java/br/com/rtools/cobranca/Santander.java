@@ -649,6 +649,24 @@ public class Santander extends Cobranca {
     @Override
     public RespostaWebService registrarBoleto() {
 
+        /*
+        
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        
+        A ÚLTIMA VERSÃO DO JAVA QUE FUNCIONA É A JDK 1.8 (v51)
+        
+        JÁ TESTEI VERSÕES MAIS RECENTES ATÉ A DATA 28/03/2018 E NENHUMA DEU CERTO
+        
+        VERSÕES ANTERIORES TAMBÉM FORAM TESTADAS E NÃO FUNCIONÁRAM
+        
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        
+        */
+        
         try {
             //File flCert = new File("C:/PC201707105759.pfx");
             File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
@@ -786,9 +804,9 @@ public class Santander extends Cobranca {
 
                 //String xmlTicket = TICKET_CONSULTA(requestTicket, "TST");
                 
-                //String nsu = "" + boleto.getId(); // AMBIENTE PRODUÇÃO
+                String nsu = "" + boleto.getId(); // AMBIENTE PRODUÇÃO
                 
-                String nsu = "TST"; // AMBIENTE TESTE
+                //String nsu = "TST"; // AMBIENTE TESTE
 
                 String xmlTicket = TICKET_ENTRADA(requestTicket, nsu, boleto.getContaCobranca().getEstacao());
 
