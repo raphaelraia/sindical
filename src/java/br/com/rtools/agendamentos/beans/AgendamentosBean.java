@@ -206,7 +206,7 @@ public class AgendamentosBean implements Serializable {
                         }
                         listaMovimentosEmitidos.clear();
                     } else {
-                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getPessoa().getId(), servicos.getId(), false);
+                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getPessoa().getId(), servicos.getId(), false, DataHoje.converteData(data));
                         if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
                             PF.update("form_agendamentos:i_message_sched");
@@ -234,7 +234,7 @@ public class AgendamentosBean implements Serializable {
                             }
                             listaMovimentosEmitidos.clear();
                         } else {
-                            listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getPessoa().getId(), servicos.getId(), false);
+                            listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(pessoa.getPessoa().getId(), servicos.getId(), false, DataHoje.converteData(data));
                             if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valor == 0) {
                                 GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
                                 PF.update("form_agendamentos:i_message_sched");

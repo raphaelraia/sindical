@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -428,8 +429,6 @@ public class CaixaFederalSindical extends Cobranca {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
 
-                List<Movimento> lista_m = bol.getListaMovimento();
-
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "104"; // 01.3P Controle Código do Banco 1 3 9(003) Preencher '104’ G001
@@ -463,9 +462,16 @@ public class CaixaFederalSindical extends Cobranca {
 
                 String valor_titulo;
                 Double valor_titulo_double = new Double(0);
-
-                for (Movimento m : lista_m) {
-                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                
+                // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
+                if (bol.getNrCtrBoleto().length() != 22) {
+                    List<Movimento> lista_m = bol.getListaMovimento();
+                    for (Movimento m : lista_m) {
+                        valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                    }
+                } else if (bol.getNrCtrBoleto().length() == 22) {
+                    // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
+                    valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
 
                 // FIXAR VALOR 1,00 CASO FOR MENOR QUE 1,00

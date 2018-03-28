@@ -211,7 +211,9 @@ public class SuprimentoCaixaBean {
                 null,
                 0,
                 0,
-                DataHoje.dataHoje()
+                DataHoje.dataHoje(),
+                null,
+                null
         );
     }
 
@@ -266,7 +268,7 @@ public class SuprimentoCaixaBean {
                 0,
                 DataHoje.dataHoje(),
                 0,
-                null,
+                (FStatus) dao.find(new FStatus(), 9),
                 0,
                 null,
                 null,

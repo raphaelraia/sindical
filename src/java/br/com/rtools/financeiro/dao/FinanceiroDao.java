@@ -426,14 +426,15 @@ public class FinanceiroDao extends DB {
                 + "          fc.dt_data, \n"
                 + "          fc.ds_hora \n"
                 + "UNION \n"
-                + "SELECT 	b.id_caixa, \n"
-                + "        b.id_fechamento_caixa, \n"
-                + "        fc.nr_valor_fechamento, \n"
-                + "        fc.nr_valor_informado, \n"
-                + "        fc.dt_data, \n"
-                + "        fc.ds_hora \n"
+                + "SELECT b.id_caixa, \n"
+                + "       b.id_fechamento_caixa, \n"
+                + "       fc.nr_valor_fechamento, \n"
+                + "       fc.nr_valor_informado, \n"
+                + "       fc.dt_data, \n"
+                + "       fc.ds_hora \n"
                 + "  FROM fin_fechamento_caixa fc  \n"
                 + " INNER JOIN fin_baixa b ON b.id_caixa = " + id_caixa + " AND b.id_fechamento_caixa = fc.id \n"
+                + " WHERE b.id_filial <> 1 OR b.id_departamento <> 2 OR b.id_filial IS NULL OR b.id_departamento IS NULL \n"
                 + " GROUP BY b.id_caixa, \n"
                 + "          b.id_fechamento_caixa, \n"
                 + "          fc.nr_valor_fechamento, \n"
@@ -905,7 +906,7 @@ public class FinanceiroDao extends DB {
                     + // 40
                     "   FROM " + view + " \n "
                     + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') \n "
-                    + "  ORDER BY responsavel, nome_titular, vencimento_movimento, codigo, nome_beneficiario "
+                    + "  ORDER BY responsavel,boleto, vencimento_movimento desc, nome_titular, codigo, nome_beneficiario "
             );
             return qry.getResultList();
         } catch (Exception e) {
@@ -963,7 +964,7 @@ public class FinanceiroDao extends DB {
                     + "  GROUP BY  \n "
                     + "       nr_ctr_boleto,  \n "
                     + "       id_lote_boleto,  \n "
-                    + "       processamento,  \n "
+                    + "       processamento_boleto, \n "
                     + "       codigo, \n "
                     + "       responsavel, \n "
                     + "       vencimento, \n "
@@ -998,7 +999,7 @@ public class FinanceiroDao extends DB {
                     + "       vencimento_movimento, \n  "
                     + "       vencimento_boleto,  \n "
                     + "       vencimento_original_boleto  \n "
-                    + "  ORDER BY responsavel, nome_titular, vencimento_movimento, codigo, nome_titular ";
+                    + "  ORDER BY responsavel, boleto, vencimento_movimento desc, nome_titular, codigo ";
 
             Query qry = getEntityManager().createNativeQuery(text_qry);
             return qry.getResultList();
@@ -1105,7 +1106,7 @@ public class FinanceiroDao extends DB {
                         + "	id_fin_movimento, \n"
                         + "	nr_ctr_boleto, \n"
                         + "	id_lote_boleto, \n"
-                        + "	processamento, \n"
+                        + "	processamento_boleto, \n"
                         + "	codigo, \n"
                         + "	responsavel, \n"
                         + "	vencimento, \n"
@@ -1120,7 +1121,7 @@ public class FinanceiroDao extends DB {
                 text_qry
                         += "	nr_ctr_boleto, \n"
                         + "	id_lote_boleto, \n"
-                        + "	processamento, \n"
+                        + "	processamento_boleto, \n"
                         + "	codigo, \n"
                         + "	responsavel, \n"
                         + "	vencimento, \n"
@@ -1268,9 +1269,8 @@ public class FinanceiroDao extends DB {
 //                        + "	cp.ds_nome, -- 44\n"
 //                        + "	cc.ds_mensagem_associativo -- 45\n"
 //                        + "ORDER BY 7, 3, 13 DESC\n";
-                text_qry += " ORDER BY 7, 3, 13 DESC \n ";
+                text_qry += " ORDER BY 7, 3, 37 DESC, 12 DESC -- responsavel, nr_ctr_boleto, vencimento_movimento DESC, nome_beneficiario DESC \n "; // vencimento, id_lote_boleto, nome_beneficiario
             } else {
-                //text_qry += " ORDER BY vencimento, id_lote_boleto, nome_titular";
                 text_qry += " ORDER BY responsavel, vencimento, id_lote_boleto, nome_titular";
             }
 
@@ -1651,7 +1651,9 @@ public class FinanceiroDao extends DB {
             default:
                 break;
         }
-
+        
+        list_where.add("id_filial <> 1 OR id_departamento <> 2 OR id_filial IS NULL OR id_departamento IS NULL");
+        
         String WHERE = "";
 
         for (String w : list_where) {
@@ -1954,18 +1956,21 @@ public class FinanceiroDao extends DB {
         return new ArrayList();
     }
 
-    public Integer numeroUltimoChequePag(Integer id_plano5){
+    public Integer numeroUltimoChequePag(Integer id_plano5) {
         try {
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT MAX(ds_cheque) FROM fin_cheque_pag WHERE id_plano5 = " + id_plano5
+                    "SELECT cb.nr_ultimo_cheque \n"
+                    + "   FROM fin_conta_banco cb \n"
+                    + "  INNER JOIN fin_plano5 p ON p.id_conta_banco = cb.id \n"
+                    + "  WHERE p.id = " + id_plano5
             );
-            
+
             List vetor = qry.getResultList();
-            
-            return Integer.parseInt((String) ((List) vetor.get(0)).get(0));
+
+            return (Integer)((List) vetor.get(0)).get(0);
         } catch (NumberFormatException e) {
             return null;
         }
     }
-    
+
 }

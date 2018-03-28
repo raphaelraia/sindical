@@ -17,6 +17,7 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -388,7 +389,7 @@ public class Santander extends Cobranca {
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                List<Movimento> lista_m = bol.getListaMovimento();
+                
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "033"; // 01.3P Código do Banco na Compensação
@@ -427,9 +428,17 @@ public class Santander extends Cobranca {
                 String valor_titulo;
                 Double valor_titulo_double = new Double(0);
 
-                for (Movimento m : lista_m) {
-                    valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
+                if (bol.getNrCtrBoleto().length() != 22) {
+                    List<Movimento> lista_m = bol.getListaMovimento();
+                    for (Movimento m : lista_m) {
+                        valor_titulo_double = Moeda.soma(valor_titulo_double, m.getValor());
+                    }
+                } else if (bol.getNrCtrBoleto().length() == 22) {
+                    // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
+                    valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
+
 
                 // FIXAR VALOR 1,00 CASO FOR MENOR QUE 1,00
                 //if (mov.getValor() < 1) {
@@ -776,7 +785,10 @@ public class Santander extends Cobranca {
                 wr = new OutputStreamWriter(conn.getOutputStream());
 
                 //String xmlTicket = TICKET_CONSULTA(requestTicket, "TST");
-                String nsu = "" + boleto.getId();
+                
+                //String nsu = "" + boleto.getId(); // AMBIENTE PRODUÇÃO
+                
+                String nsu = "TST"; // AMBIENTE TESTE
 
                 String xmlTicket = TICKET_ENTRADA(requestTicket, nsu, boleto.getContaCobranca().getEstacao());
 

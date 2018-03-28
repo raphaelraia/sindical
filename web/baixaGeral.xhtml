@@ -199,7 +199,7 @@
                                     <h:outputLabel value="TIPOS DE PAGAMENTO" style="font-size: 12pt!important; font-weight: bold"/>
                                 </p:panel>
 
-                                <p:dataTable var="linha" id="tbl_confirmar" value="#{baixaGeralBean.listaValores}" emptyMessage="Nenhum valor adicionado.">
+                                <p:dataTable var="linha" id="tbl_confirmar" value="#{baixaGeralBean.listaValores}" emptyMessage="Nenhum valor adicionado." scrollable="true" scrollHeight="250">
                                     <p:column headerText="Pagamento">
                                         <h:outputText value="#{linha.tipoPagamento.descricao}" style="font-size: 11pt!important; color: red; font-weight: bold"/>
                                     </p:column>

@@ -19,12 +19,13 @@ public class SuprimentoCaixaDao extends DB {
     public List<Object> listaContasSaida() {
         try {
             String text
-                    = "SELECT p.id_p5, \n"
-                    + "       p.conta5 \n"
-                    + "  FROM plano_vw AS p \n"
-                    + " INNER JOIN fin_conta_rotina AS cr ON cr.id_plano4 = p.id_p4 \n"
+                    = "SELECT p.id, \n"
+                    + "       p.ds_conta \n"
+                    + "  FROM fin_plano5 AS p \n"
+                    + " INNER JOIN fin_conta_rotina AS cr ON cr.id_plano4 = p.id_plano4 \n"
                     + " WHERE cr.id_rotina = 2 \n"
-                    + " ORDER BY p.conta5";
+                    + "   AND p.id_conta_banco IS NOT NULL \n"
+                    + " ORDER BY p.ds_conta \n";
 
             Query qry = getEntityManager().createNativeQuery(text);
             return qry.getResultList();

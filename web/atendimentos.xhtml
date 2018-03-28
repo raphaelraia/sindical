@@ -30,7 +30,7 @@
                                             <f:selectItems value="#{atendimentosBean.listFiliais}" />
                                         </p:selectOneMenu>
                                     </p:column>
-                                </h:panelGrid> 
+                                </h:panelGrid>
                                 <h:panelGrid columns="8">
                                     <p:outputLabel value="Status: " />
                                     <p:selectOneMenu  value="#{atendimentosBean.idStatus}" >
@@ -172,6 +172,8 @@
                                     </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
+                            <br />
+                            <p:commandButton value="IMPRIMIR" icon="ui-icon-print" styleClass="bold" rendered="#{not empty atendimentosBean.listObjectAgenda}" action="#{atendimentosBean.print}" ajax="false"/>
                         </h:panelGroup>
                     </p:panel>                    
                     <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
@@ -183,6 +185,10 @@
                     <p:dialog widgetVar="dlg_sched" modal="true" resizable="false" height="400" width="1000" visible="#{atendimentosBean.showModal}" closeOnEscape="true" header="Agendamento">
                         <p:ajax event="close" update=":form_atendimentos:" listener="#{atendimentosBean.listener('close_sched')}" />
                         <h:panelGroup id="i_sched" layout="span">
+                            <h:panelGroup rendered="#{not empty atendimentosBean.objectAgenda.pessoa.pessoaComplemento.obsAviso}" >
+                                <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', atendimentosBean.objectAgenda.pessoa.pessoaComplemento.obsAviso)}" escape="false" />                                
+                                <br />
+                            </h:panelGroup>
                             <p:outputLabel value="Status: #{atendimentosBean.objectAgenda.status}" styleClass="bold font-size-12"/>
                             <br />
                             <br />
@@ -206,7 +212,7 @@
                             </h:panelGrid>                            
                             <h:panelGrid columns="6" cellspacing="5" styleClass="margin-top-max">
                                 <p:outputLabel value="Telefone: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.telefone}"/>
-                                <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.telefone}" styleClass="bold font-color-blue"/>
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.telefone}" styleClass="bold font-color-blue font-size-14"/>
                                 <p:outputLabel value="E-mail: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.email}" />
                                 <p:outputLabel value="#{atendimentosBean.objectAgenda.agendamentos.email}" styleClass="text-center bold font-color-red" />
                                 <p:outputLabel value="Contato: " rendered="#{not empty atendimentosBean.objectAgenda.agendamentos.contato}"/>
@@ -232,7 +238,7 @@
                                 <p:outputLabel value="Colaborador: " />
                                 <h:column>
                                     <h:panelGrid columns="8">
-                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold" />                                                                                                                    
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold font-size-12 font-color-red" style="text-decoration: underline " />
                                     </h:panelGrid>
                                 </h:column>
                                 <p:outputLabel value="Grupo: " />
@@ -249,7 +255,15 @@
                                 <p:outputLabel value="#{atendimentosBean.objectAgenda.valor}" styleClass="bold bold font-size-14 font-color-blue">
                                     <f:convertNumber type="currency" currencySymbol="R$" />
                                 </p:outputLabel>                            
+                                <p:outputLabel value="Agendador: " />
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:outputLabel value="#{atendimentosBean.objectAgenda.agendador}" styleClass="bold" />
+                                    </h:panelGrid>
+                                </h:column>
                             </h:panelGrid>
+                            <hr />
+                            <p:outputLabel value="OBS: #{atendimentosBean.objectAgenda.agendamentos.obs}" styleClass="bold" />
                         </h:panelGroup>
                         <f:facet name="footer">
                             <h:panelGrid cellspacing="5" columns="5" id="i_sched_act">

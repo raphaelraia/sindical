@@ -42,10 +42,88 @@ public class MensagemConvencaoBean {
     private boolean gerarAnoVencimento = false;
     private String vencimento = DataHoje.data();
     private String replicaPara = "";
-    private List<SelectItem> listaTipoServico = new ArrayList();
+
+    private final List<SelectItem> listaConvencoes = new ArrayList();
+    private final List<SelectItem> listaGrupoCidade = new ArrayList();
+    private final List<SelectItem> listaServico = new ArrayList();
+    private final List<SelectItem> listaTipoServico = new ArrayList();
 
     public MensagemConvencaoBean() {
         mensagemConvencao.setReferencia(DataHoje.data().substring(3));
+
+        this.loadListaConvencoes();
+        this.loadListaGrupoCidade();
+        this.loadListaServico();
+        this.loadListaTipoServico();
+    }
+
+    public final void loadListaConvencoes() {
+        listaConvencoes.clear();
+
+        List<Convencao> list = (List<Convencao>) new Dao().list(new Convencao(), true);
+        for (int i = 0; i < list.size(); i++) {
+            listaConvencoes.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
+        }
+    }
+
+    public final void loadListaGrupoCidade() {
+        listaGrupoCidade.clear();
+        ConvencaoCidadeDao convencaoCidadeDB = new ConvencaoCidadeDao();
+
+        Convencao convencao = (Convencao) new Dao().find(new Convencao(), Integer.parseInt(listaConvencoes.get(idConvencao).getDescription()));
+        if (convencao == null) {
+            return;
+        }
+
+        int i = 0;
+        List<GrupoCidade> select = convencaoCidadeDB.pesquisarGruposPorConvencao(convencao.getId());
+        if (select != null) {
+            while (i < select.size()) {
+                listaGrupoCidade.add(new SelectItem(
+                        i,
+                        (String) ((GrupoCidade) select.get(i)).getDescricao(),
+                        Integer.toString(select.get(i).getId()))
+                );
+                i++;
+            }
+        }
+    }
+
+    public final void loadListaServico() {
+        listaServico.clear();
+
+        int i = 0;
+        ServicosDao db = new ServicosDao();
+        List<Servicos> select = db.pesquisaTodosPeloContaCobranca(4);
+        while (i < select.size()) {
+            listaServico.add(new SelectItem(
+                    i,
+                    select.get(i).getDescricao(),
+                    Integer.toString(select.get(i).getId()))
+            );
+            i++;
+        }
+    }
+
+    public final void loadListaTipoServico() {
+        listaTipoServico.clear();
+
+        TipoServicoDao db = new TipoServicoDao();
+        List<TipoServico> select = db.pesquisaTodosPeloContaCobranca();
+
+        if (select.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Serviço Conta Cobrança não encontrado!");
+            return;
+        }
+
+        for (int i = 0; i < select.size(); i++) {
+            listaTipoServico.add(new SelectItem(
+                    i,
+                    select.get(i).getDescricao(),
+                    Integer.toString(select.get(i).getId())
+            )
+            );
+        }
     }
 
     public String replicar() {
@@ -106,9 +184,8 @@ public class MensagemConvencaoBean {
     public MensagemConvencao getMensagemConvencao() {
         if (mensagemConvencao.getId() == -1) {
             if (GenericaSessao.exists("mensagemPesquisa")) {
-                mensagemConvencao = (MensagemConvencao) GenericaSessao.getObject("mensagemPesquisa");
-                getListaConvencoes();
-                //getListaConvencoes();getListaGrupoCidade();getListaServico();getListaTipoServico();getListaMensagens();
+                mensagemConvencao = (MensagemConvencao) GenericaSessao.getObject("mensagemPesquisa", true);
+                editar(mensagemConvencao);
             }
         }
         return mensagemConvencao;
@@ -181,7 +258,7 @@ public class MensagemConvencaoBean {
         }
 
         if ((mensagemConvencao.getReferencia().length() != 7)
-                && (Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription()) != 4)) {
+                && (Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()) != 4)) {
             msgConfirma = "Referência esta incorreta";
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
@@ -206,8 +283,8 @@ public class MensagemConvencaoBean {
                 String referencia = "",
                         vencto = "",
                         diaOriginal = "";
-                int iservicos = Integer.parseInt(this.getListaServico().get(idServico).getDescription()),
-                        itiposervico = Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription());
+                int iservicos = Integer.parseInt(listaServico.get(idServico).getDescription()),
+                        itiposervico = Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription());
                 if (gerarAno && !disAcordo) {
                     ano = 12;
                     referencia = "01/01/" + mensagemConvencao.getReferencia().substring(3);
@@ -228,7 +305,7 @@ public class MensagemConvencaoBean {
                 switch (processarGrupos) {
                     //  SALVAR PARA TODOS OS GRUPOS DESTA CONVENÇÃO
                     case 1: {
-                        int conv = Integer.parseInt(this.getListaConvencoes().get(idConvencao).getDescription());
+                        int conv = Integer.parseInt(listaConvencoes.get(idConvencao).getDescription());
                         List<GrupoCidade> listgc = dbc.pesquisarGruposPorConvencao(conv);
                         for (int l = 0; l < ano; l++) {
                             for (int k = 0; k < listgc.size(); k++) {
@@ -250,7 +327,7 @@ public class MensagemConvencaoBean {
                     }
                     // SALVAR PARA TODAS AS CONVENÇÕES DESTE GRUPO
                     case 2: {
-                        int grupoC = Integer.parseInt(this.getListaGrupoCidade().get(idGrupo).getDescription());
+                        int grupoC = Integer.parseInt(listaGrupoCidade.get(idGrupo).getDescription());
                         List<Convencao> listc = dbc.pesquisarConvencaoPorGrupos(grupoC);
                         for (int l = 0; l < ano; l++) {
                             for (int k = 0; k < listc.size(); k++) {
@@ -273,15 +350,14 @@ public class MensagemConvencaoBean {
                     }
                     // SALVAR PARA TODOS OS GRUPOS E CONVENÇÕES
                     case 3: {
-                        List<SelectItem> listc = this.getListaConvencoes();
                         for (int l = 0; l < ano; l++) {
-                            for (int k = 0; k < listc.size(); k++) {
-                                List<GrupoCidade> listgc = dbc.pesquisarGruposPorConvencao(Integer.parseInt(listc.get(k).getDescription()));
+                            for (int k = 0; k < listaConvencoes.size(); k++) {
+                                List<GrupoCidade> listgc = dbc.pesquisarGruposPorConvencao(Integer.parseInt(listaConvencoes.get(k).getDescription()));
                                 for (int w = 0; w < listgc.size(); w++) {
                                     if (gerarAno && !disAcordo) {
-                                        msgConfirma = this.insertMensagem(Integer.parseInt(listc.get(k).getDescription()), listgc.get(w).getId(), iservicos, itiposervico, referencia.substring(3), vencto);
+                                        msgConfirma = this.insertMensagem(Integer.parseInt(listaConvencoes.get(k).getDescription()), listgc.get(w).getId(), iservicos, itiposervico, referencia.substring(3), vencto);
                                     } else {
-                                        msgConfirma = this.insertMensagem(Integer.parseInt(listc.get(k).getDescription()), listgc.get(w).getId(), iservicos, itiposervico, referencia, vencto);
+                                        msgConfirma = this.insertMensagem(Integer.parseInt(listaConvencoes.get(k).getDescription()), listgc.get(w).getId(), iservicos, itiposervico, referencia, vencto);
                                     }
                                 }
                             }
@@ -297,8 +373,8 @@ public class MensagemConvencaoBean {
                     }
                     // NENHUMA DESTAS OPÇÕES
                     case 4: {
-                        int conv = Integer.parseInt(this.getListaConvencoes().get(idConvencao).getDescription()),
-                                grupoC = Integer.parseInt(this.getListaGrupoCidade().get(idGrupo).getDescription());
+                        int conv = Integer.parseInt(listaConvencoes.get(idConvencao).getDescription()),
+                                grupoC = Integer.parseInt(listaGrupoCidade.get(idGrupo).getDescription());
                         for (int l = 0; l < ano; l++) {
                             if (gerarAno && !disAcordo) {
                                 msgConfirma = this.insertMensagem(conv, grupoC, iservicos, itiposervico, referencia.substring(3), vencto);
@@ -323,8 +399,8 @@ public class MensagemConvencaoBean {
                 NovoLog novoLog = new NovoLog();
                 if (processarTipoServicos) {
                     List<MensagemConvencao> lista = db.mesmoTipoServico(
-                            Integer.parseInt(this.getListaServico().get(idServico).getDescription()),
-                            Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription()),
+                            Integer.parseInt(listaServico.get(idServico).getDescription()),
+                            Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()),
                             mensagemConvencao.getReferencia().substring(3));
                     for (int i = 0; i < lista.size(); i++) {
                         lista.get(i).setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
@@ -480,7 +556,7 @@ public class MensagemConvencaoBean {
                         break;
 
                     default:
-                        
+
                         if (gerarAno && gerarAnoVencimento) {
                             mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
                             mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
@@ -494,7 +570,7 @@ public class MensagemConvencaoBean {
                             mc.setMensagemCompensacao(mensagemConvencao.getMensagemCompensacao());
                             mc.setMensagemContribuinte(mensagemConvencao.getMensagemContribuinte());
                         }
-                        
+
                         break;
                 }
 
@@ -612,11 +688,11 @@ public class MensagemConvencaoBean {
     }
 
     public List getListaMensagens() {
-        if ((!this.getListaServico().isEmpty()) && (!this.getListaTipoServico().isEmpty())) {
+        if ((!listaServico.isEmpty()) && (!listaTipoServico.isEmpty())) {
             MensagemConvencaoDao db = new MensagemConvencaoDao();
             int vetorInt[] = new int[2];
-            vetorInt[0] = Integer.parseInt(this.getListaServico().get(idServico).getDescription());
-            vetorInt[1] = Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription());
+            vetorInt[0] = Integer.parseInt(listaServico.get(idServico).getDescription());
+            vetorInt[1] = Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription());
             listaMensagens = db.pesquisaTodosOrdenados(
                     mensagemConvencao.getReferencia(),
                     vetorInt[0],
@@ -656,17 +732,18 @@ public class MensagemConvencaoBean {
         msgConfirma = "";
 
         if (mensagemConvencao.getConvencao().getId() != -1) {
-            for (int i = 0; i < getListaConvencoes().size(); i++) {
-                if (Integer.parseInt(getListaConvencoes().get(i).getDescription()) == mensagemConvencao.getConvencao().getId()) {
-                    idConvencao = (Integer) getListaConvencoes().get(i).getValue();
+            for (int i = 0; i < listaConvencoes.size(); i++) {
+                if (Integer.parseInt(listaConvencoes.get(i).getDescription()) == mensagemConvencao.getConvencao().getId()) {
+                    idConvencao = (Integer) listaConvencoes.get(i).getValue();
                     break;
                 }
             }
         }
 
+        loadListaGrupoCidade();
+        
         if (mensagemConvencao.getGrupoCidade().getId() != -1) {
-            List<SelectItem> grupo = getListaGrupoCidade();
-            for (SelectItem grupo1 : grupo) {
+            for (SelectItem grupo1 : listaGrupoCidade) {
                 if (Integer.parseInt(grupo1.getDescription()) == mensagemConvencao.getGrupoCidade().getId()) {
                     idGrupo = (Integer) grupo1.getValue();
                     break;
@@ -675,8 +752,7 @@ public class MensagemConvencaoBean {
         }
 
         if (mensagemConvencao.getTipoServico().getId() != -1) {
-            List<SelectItem> tipoServico = getListaTipoServico();
-            for (SelectItem tipoServico1 : tipoServico) {
+            for (SelectItem tipoServico1 : listaTipoServico) {
                 if (Integer.parseInt(tipoServico1.getDescription()) == mensagemConvencao.getTipoServico().getId()) {
                     idTipoServico = (Integer) tipoServico1.getValue();
                     break;
@@ -685,8 +761,7 @@ public class MensagemConvencaoBean {
         }
 
         if (mensagemConvencao.getServicos().getId() != -1) {
-            List<SelectItem> servicos = getListaServico();
-            for (SelectItem servico : servicos) {
+            for (SelectItem servico : listaServico) {
                 if (Integer.parseInt(servico.getDescription()) == mensagemConvencao.getServicos().getId()) {
                     idServico = (Integer) servico.getValue();
                     break;
@@ -696,73 +771,20 @@ public class MensagemConvencaoBean {
         return "mensagem";
     }
 
-    public List<SelectItem> getListaConvencoes() {
-        List<SelectItem> convencoes = new ArrayList<SelectItem>();
-        Dao dao = new Dao();
-        List<Convencao> list = (List<Convencao>) dao.list(new Convencao(), true);
-        for (int i = 0; i < list.size(); i++) {
-            convencoes.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
-        }
-        return convencoes;
+    public final List<SelectItem> getListaConvencoes() {
+        return listaConvencoes;
     }
 
-    public List<SelectItem> getListaGrupoCidade() {
-        List<SelectItem> grupo = new ArrayList<SelectItem>();
-        ConvencaoCidadeDao convencaoCidadeDB = new ConvencaoCidadeDao();
-        Dao dao = new Dao();
-        Convencao convencao = (Convencao) dao.find(new Convencao(), Integer.parseInt(((SelectItem) getListaConvencoes().get(idConvencao)).getDescription()));
-        if (convencao == null) {
-            return grupo;
-        }
-        int i = 0;
-        List select = convencaoCidadeDB.pesquisarGruposPorConvencao(convencao.getId());
-        if (select != null) {
-            while (i < select.size()) {
-                grupo.add(new SelectItem(
-                        i,
-                        (String) ((GrupoCidade) select.get(i)).getDescricao(),
-                        Integer.toString(((GrupoCidade) select.get(i)).getId())));
-                i++;
-            }
-        }
-        return grupo;
+    public final List<SelectItem> getListaGrupoCidade() {
+        return listaGrupoCidade;
     }
 
     public List<SelectItem> getListaTipoServico() {
-        if (listaTipoServico.isEmpty()) {
-            TipoServicoDao db = new TipoServicoDao();
-            List<TipoServico> select = db.pesquisaTodosPeloContaCobranca();
-
-            if (select.isEmpty()) {
-                GenericaMensagem.error("Atenção", "Serviço Conta Cobrança não encontrado!");
-                return listaTipoServico;
-            }
-
-            for (int i = 0; i < select.size(); i++) {
-                listaTipoServico.add(new SelectItem(
-                        i,
-                        select.get(i).getDescricao(),
-                        Integer.toString(select.get(i).getId())
-                )
-                );
-            }
-        }
         return listaTipoServico;
     }
 
-    public List<SelectItem> getListaServico() {
-        List<SelectItem> servicos = new ArrayList();
-        int i = 0;
-        ServicosDao db = new ServicosDao();
-        List select = db.pesquisaTodosPeloContaCobranca(4);
-        while (i < select.size()) {
-            servicos.add(new SelectItem(
-                    i,
-                    (String) ((Servicos) select.get(i)).getDescricao(),
-                    Integer.toString(((Servicos) select.get(i)).getId())));
-            i++;
-        }
-        return servicos;
+    public final List<SelectItem> getListaServico() {
+        return listaServico;
     }
 
     public void capturarUltimaMensagem() {
@@ -773,10 +795,10 @@ public class MensagemConvencaoBean {
         this.mensagemConvencao.getServicos().setId(-1);
         this.mensagemConvencao.setVencimento("");
         int[] id = new int[4];
-        id[0] = Integer.parseInt(this.getListaConvencoes().get(idConvencao).getDescription());
-        id[1] = Integer.parseInt(this.getListaServico().get(idServico).getDescription());
-        id[2] = Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription());
-        id[3] = Integer.parseInt(this.getListaGrupoCidade().get(idGrupo).getDescription());
+        id[0] = Integer.parseInt(listaConvencoes.get(idConvencao).getDescription());
+        id[1] = Integer.parseInt(listaServico.get(idServico).getDescription());
+        id[2] = Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription());
+        id[3] = Integer.parseInt(listaGrupoCidade.get(idGrupo).getDescription());
         MensagemConvencao msgConvencao = mensagemDB.pesquisarUltimaMensagem(id[0], id[1], id[2], id[3]);
         this.mensagemConvencao.setConvencao(msgConvencao.getConvencao());
         this.mensagemConvencao.setGrupoCidade(msgConvencao.getGrupoCidade());
@@ -808,8 +830,8 @@ public class MensagemConvencaoBean {
     }
 
     public boolean isDisAcordo() {
-        if (!getListaTipoServico().isEmpty()) {
-            if (Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription()) == 4) {
+        if (!listaTipoServico.isEmpty()) {
+            if (Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()) == 4) {
                 disAcordo = true;
                 mensagemConvencao.setDtVencimento(new Date());
                 mensagemConvencao.setReferencia("");
@@ -881,10 +903,6 @@ public class MensagemConvencaoBean {
 
     public void setReplicaPara(String replicaPara) {
         this.replicaPara = replicaPara;
-    }
-
-    public void setListaTipoServico(List<SelectItem> listaTipoServico) {
-        this.listaTipoServico = listaTipoServico;
     }
 
     public int getProcessarGruposAlterar() {

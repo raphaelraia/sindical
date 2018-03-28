@@ -1,5 +1,7 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.pessoa.Filial;
+import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
@@ -43,6 +45,12 @@ public class Baixa implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_ocorrencia")
     private Date dtOcorrencia;
+    @JoinColumn(name = "id_departamento", referencedColumnName = "id")
+    @ManyToOne
+    private Departamento departamento;
+    @JoinColumn(name = "id_filial", referencedColumnName = "id")
+    @ManyToOne
+    private Filial filial;
     
     public Baixa() {
         this.id = -1;
@@ -57,6 +65,8 @@ public class Baixa implements java.io.Serializable {
         this.troco = 0;
         this.taxaLiquidacao = 0;
         this.dtOcorrencia = null;
+        this.departamento = null;
+        this.filial = null;
     }
 
     public Baixa(int id,
@@ -70,7 +80,9 @@ public class Baixa implements java.io.Serializable {
             Usuario usuarioDesconto,
             double troco,
             double taxaLiquidacao, 
-            Date dtOcorrencia) {
+            Date dtOcorrencia,
+            Departamento departamento,
+            Filial filial) {
         this.id = id;
         this.usuario = usuario;
         this.dtBaixa = dtBaixa;
@@ -83,6 +95,8 @@ public class Baixa implements java.io.Serializable {
         this.troco = troco;
         this.taxaLiquidacao = taxaLiquidacao;
         this.dtOcorrencia = dtOcorrencia;
+        this.departamento = departamento;
+        this.filial = filial;
     }
 
     public int getId() {
@@ -203,5 +217,21 @@ public class Baixa implements java.io.Serializable {
 
     public void setDtOcorrenciaString(String dtOcorrenciaString) {
         this.dtOcorrencia = DataHoje.converte(dtOcorrenciaString);
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
+    }
+
+    public Filial getFilial() {
+        return filial;
+    }
+
+    public void setFilial(Filial filial) {
+        this.filial = filial;
     }
 }

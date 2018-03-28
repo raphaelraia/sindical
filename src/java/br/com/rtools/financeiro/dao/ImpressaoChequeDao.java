@@ -5,7 +5,6 @@
  */
 package br.com.rtools.financeiro.dao;
 
-import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ImpressoraCheque;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.principal.DB;
