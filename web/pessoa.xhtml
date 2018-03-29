@@ -17,6 +17,22 @@
                 background: #ECF3FE;
             }            
         </style>
+        <script type="text/javascript">
+            // BLOQUEIA ENTER
+            // DESABILITA ENTER
+            // DISABLED ENTERCentro Custo
+            // VERIFICA SE OQ ESTOU DIGITANDO É STRING
+            function stopRKey(evt) {
+                var evt = (evt) ? evt : ((event) ? event : null);
+                //var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null); 
+                if (evt.keyCode === 13) {
+                    return false;
+                }
+            }
+
+            document.onkeypress = stopRKey;
+
+        </script>
     </h:head> 
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -28,15 +44,17 @@
                 </f:subview>                
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:form id="form_pessoa">
+                        <h:form id="form_pessoa" >
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid columns="3">
                                     <h:column>
                                         <p:outputLabel value="#{pessoaBean.pessoa.nome} - Documento: #{pessoaBean.pessoa.documento}" styleClass="bold" />
                                     </h:column>
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-contact" update=":form_pessoa:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(pessoaBean.pessoa.id)}" title="Ver detalhes" rendered="#{pessoaBean.tipoPessoa eq 'pessoaFisica'}"/>
-                                        <p:commandButton icon="ui-icon-contact" update=":form_pessoa:i_pessoa_juridica_card" onclick="PF('dlg_pessoa_juridica_card').show()" action="#{pessoaCardBean.cardJuridica(pessoaBean.pessoa.id)}" title="Ver detalhes" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}"/>
+                                        <p:commandButton icon="ui-icon-contact" title="Ver detalhes" rendered="#{pessoaBean.tipoPessoa eq 'pessoaFisica'}">
+                                            <p:ajax event="click" update=":form_pessoa:i_pessoa_fisica_card" oncomplete="PF('dlg_pessoa_fisica_card').show()" listener="#{pessoaCardBean.cardFisica(pessoaBean.pessoa.id)}" />
+                                        </p:commandButton>
+                                        <p:commandButton icon="ui-icon-contact" update=":form_pessoa:i_pessoa_juridica_card" oncomplete="PF('dlg_pessoa_juridica_card').show()" actionListener="#{pessoaCardBean.cardJuridica(pessoaBean.pessoa.id)}" title="Ver detalhes" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}" />
                                     </h:column>
                                 </h:panelGrid>
                                 <h:panelGrid columns="3">
@@ -694,11 +712,42 @@
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'declaracao'}">
                                 <p:panel header="Declarações">
-                                    <p:selectOneMenu value="#{pessoaBean.tipoDeclaracaoPessoa}" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}">
-                                        <p:ajax event="change" update="@this tbl_declaracao_pessoa" listener="#{pessoaBean.load()}"/>
-                                        <f:selectItem itemValue="empresa_pessoa" itemLabel="Emitidas Para os Funcionários Desta Empresa"/>
-                                        <f:selectItem itemValue="empresa_conveniada" itemLabel="Emitidas para esta Empresa"/>
-                                    </p:selectOneMenu>
+
+                                    <h:panelGrid columns="8" cellspacing="5" id="i_declaracao_pessoa">
+                                        <p:selectOneMenu value="#{pessoaBean.tipoDeclaracaoPessoa}" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}">
+                                            <p:ajax event="change" update="@this i_declaracao_pessoa tbl_declaracao_pessoa" listener="#{pessoaBean.listenerDeclaracao('tipo_declaracao_pessoa')}"/>
+                                            <f:selectItem itemValue="empresa_pessoa" itemLabel="Emitidas Para os Funcionários Desta Empresa"/>
+                                            <f:selectItem itemValue="empresa_conveniada" itemLabel="Emitidas para esta Empresa"/>
+                                        </p:selectOneMenu>
+
+                                        <h:column>
+                                            no ano de  
+                                        </h:column>
+
+                                        <p:selectOneMenu value="#{pessoaBean.ano}">
+                                            <p:ajax event="change" update="@this i_declaracao_pessoa tbl_declaracao_pessoa" listener="#{pessoaBean.listenerDeclaracao('ano')}"/>
+                                            <f:selectItems value="#{pessoaBean.listAnos}" />
+                                        </p:selectOneMenu>                                        
+
+                                        <h:column>
+                                            período
+                                        </h:column>
+
+                                        <p:selectOneMenu value="#{pessoaBean.referenciaId}">
+                                            <p:ajax event="change" update="@this i_declaracao_pessoa tbl_declaracao_pessoa" listener="#{pessoaBean.listenerDeclaracao('periodo')}"/>
+                                            <f:selectItems value="#{pessoaBean.listReferencia}" />
+                                        </p:selectOneMenu>                                        
+
+                                        <h:column rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}">
+                                            Pesquisar
+                                        </h:column>
+
+                                        <p:inputText value="#{pessoaBean.descPesquisa}" maxlength="100" onclick="return false;" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}">
+                                            <p:ajax event="change" update="@this " />
+                                        </p:inputText>
+
+                                        <p:commandButton value="FILTRAR" action="#{pessoaBean.listenerDeclaracao('pessoa')}" update="tbl_declaracao_pessoa" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}"/>
+                                    </h:panelGrid>
 
                                     <h:panelGroup id="tbl_declaracao_pessoa">
                                         <p:dataTable value="#{pessoaBean.listDeclaracaoPessoa}" var="linha_declaracao" emptyMessage="Nenhuma Declaração Encontrada!" paginator="true" rows="10" rowsPerPageTemplate="10,20">
@@ -709,11 +758,11 @@
                                             <p:column headerText="Titular" rendered="#{pessoaBean.tipoPessoa eq 'pessoaFisica' or (pessoaBean.tipoPessoa eq 'pessoaJuridica' and pessoaBean.tipoDeclaracaoPessoa eq 'empresa_conveniada')}">
                                                 <p:outputLabel value="#{linha_declaracao.titular}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Funcionário" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica' and pessoaBean.tipoDeclaracaoPessoa eq 'empresa_pessoa'}">
                                                 <p:outputLabel value="#{linha_declaracao.funcionario}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Beneficiário">
                                                 <p:outputLabel value="#{linha_declaracao.beneficiario}" />
                                             </p:column>
@@ -726,6 +775,14 @@
                                                 <p:outputLabel value="#{linha_declaracao.matricula}" />
                                             </p:column>
 
+                                            <p:column headerText="Tipo" style="text-align: center">
+                                                <p:outputLabel value="#{linha_declaracao.tipo}" />
+                                            </p:column>                                            
+
+                                            <p:column headerText="Período" style="width: 150px; text-align: center">
+                                                <p:outputLabel value="#{linha_declaracao.periodo}" />
+                                            </p:column>                                            
+
                                             <p:column style="width: 50px; text-align: center">
                                                 <p:commandButton icon="ui-icon-print" action="#{declaracaoPessoaBean.print(linha_declaracao.id_declaracao)}" ajax="false"/>
                                             </p:column>
@@ -733,8 +790,10 @@
                                             <p:rowExpansion>
                                                 <h:panelGrid columns="2" style="height: 40px" styleClass="sbb">
                                                     <p:column>
-                                                        <p:outputLabel value="TIPO" style="font-weight: bold"/><br />
-                                                        <p:outputLabel value="#{linha_declaracao.tipo}"/>
+                                                        <p:outputLabel value="EMISSÂO" style="font-weight: bold"/><br />
+                                                        <h:outputLabel value="#{linha_declaracao.emissao}">
+                                                            <f:convertDateTime />
+                                                        </h:outputLabel>                                                         
                                                     </p:column>
                                                     <p:column rendered="#{pessoaBean.tipoPessoa eq 'pessoaFisica' or pessoaBean.tipoDeclaracaoPessoa eq 'empresa_pessoa'}">
                                                         <p:outputLabel value="CONVÊNIO" style="font-weight: bold"/><br />

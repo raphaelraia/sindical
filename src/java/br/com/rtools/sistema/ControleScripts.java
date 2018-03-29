@@ -27,6 +27,8 @@ public class ControleScripts implements Serializable {
     @JoinColumn(name = "id_tipo_controle_scripts", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private TipoControleScripts controleScripts;
+    @Column(name = "ds_servidor", length = 150)
+    private String servidor;
     @Column(name = "ds_descricao", length = 150)
     private String descricao;
     @Column(name = "ds_mac", length = 20)
@@ -40,17 +42,19 @@ public class ControleScripts implements Serializable {
         this.id = null;
         this.dtData = new Date();
         this.controleScripts = null;
+        this.servidor = "";
         this.descricao = "";
         this.mac = "";
         this.tamanho = 0;
         this.erro = false;
     }
 
-    public ControleScripts(Integer id, Date dtData, TipoControleScripts controleScripts, String descricao, String mac, Integer tamanho, Boolean erro) {
+    public ControleScripts(Integer id, Date dtData, TipoControleScripts controleScripts, String servidor, String descricao, String mac, Integer tamanho, Boolean erro) {
         this.id = id;
         this.dtData = dtData;
         this.controleScripts = controleScripts;
         this.descricao = descricao;
+        this.servidor = servidor;
         this.mac = mac;
         this.tamanho = tamanho;
         this.erro = erro;
@@ -110,6 +114,14 @@ public class ControleScripts implements Serializable {
 
     public void setErro(Boolean erro) {
         this.erro = erro;
+    }
+
+    public String getServidor() {
+        return servidor;
+    }
+
+    public void setServidor(String servidor) {
+        this.servidor = servidor;
     }
 
 }

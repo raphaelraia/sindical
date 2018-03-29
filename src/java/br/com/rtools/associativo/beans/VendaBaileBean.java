@@ -633,10 +633,13 @@ public class VendaBaileBean implements Serializable {
                 String sx = "A";
                 Integer idade = 0, id_categoria = null;
 
-                if (pessoa.getSocios() != null && pessoa.getSocios().getId() != -1) {
-                    sx = pessoa.getFisica().getSexo();
+                if (pessoa.getId() != -1) {
                     DataHoje dh = new DataHoje();
+                    sx = pessoa.getFisica().getSexo();
                     idade = dh.calcularIdade(pessoa.getFisica().getDtNascimento());
+                }
+                
+                if (pessoa.getSocios() != null && pessoa.getSocios().getId() != -1) {
                     id_categoria = pessoa.getSocios().getMatriculaSocios().getCategoria().getId();
                 }
 

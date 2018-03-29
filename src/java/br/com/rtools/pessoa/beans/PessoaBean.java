@@ -4,14 +4,11 @@ import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.beans.RaisBean;
 import br.com.rtools.arrecadacao.beans.WebREPISBean;
 import br.com.rtools.arrecadacao.dao.EmpregadosDao;
-import br.com.rtools.arrecadacao.dao.OposicaoDao;
-import br.com.rtools.associativo.ConfiguracaoSocial;
-import br.com.rtools.associativo.DeclaracaoPessoa;
+import br.com.rtools.associativo.DeclaracaoPeriodo;
 import br.com.rtools.associativo.ExameMedico;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
-import br.com.rtools.associativo.beans.ExameMedicoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
 import br.com.rtools.associativo.dao.DeclaracaoPessoaDao;
@@ -26,19 +23,16 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.SelectItemSort;
-import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +65,11 @@ public class PessoaBean implements Serializable {
     private List<Suspencao> listSuspensao;
     private List<DeclaracaoPessoaObject> listDeclaracaoPessoa;
     private String tipoDeclaracaoPessoa;
+    private String ano;
+    private String referencia;
+    private Integer referenciaId;
+    private List<SelectItem> listAnos;
+    private List<SelectItem> listReferencia;
     private String situacaoFuncionario;
     private List<PessoaEmpresa> listFuncionarios;
     private List<Empregados> listEmpregados;
@@ -88,10 +87,14 @@ public class PessoaBean implements Serializable {
         comoPesquisa = "";
         masc = "";
         maxl = "";
+        ano = null;
+        referencia = null;
         listaPessoa = new ArrayList();
         listSelectDetalhes = new ArrayList();
         listMatriculasInativas = new ArrayList();
         listHomologacao = new ArrayList();
+        listAnos = null;
+        listReferencia = null;
         listDeclaracaoPessoa = new ArrayList();
         tipoDeclaracaoPessoa = "empresa_conveniada";
         selectDetalhes = "";
@@ -213,33 +216,10 @@ public class PessoaBean implements Serializable {
                 listSuspensao = new SuspencaoDao().pesquisaSuspensao((Integer) pessoa.getId());
                 break;
             case "declaracao":
-                listDeclaracaoPessoa = new ArrayList();
-                DeclaracaoPessoaDao dao = new DeclaracaoPessoaDao();
-                List<List> listDeclaracao;
-                if (tipoPessoa.equals("pessoaJuridica")) {
-                    // LISTA DECLARAÇÃO JURIDICA (CONVENIADA) ou (EMPRESA DA PESSOA)
-                    listDeclaracao = dao.find(tipoDeclaracaoPessoa, pessoa.getId());
-                } else {
-                    // LISTA DECLARAÇÃO FÍSICA (BENEFICIÁRIO)
-                    listDeclaracao = dao.find("pessoa_fisica", pessoa.getId());
-                }
-                for (int i = 0; i < listDeclaracao.size(); i++) {
-                    List o = (List) listDeclaracao.get(i);
-                    listDeclaracaoPessoa.add(
-                            new DeclaracaoPessoaObject(
-                                    o.get(0),
-                                    o.get(1),
-                                    o.get(2),
-                                    o.get(3),
-                                    o.get(4),
-                                    o.get(5),
-                                    o.get(6),
-                                    o.get(7),
-                                    o.get(8),
-                                    o.get(9)
-                            )
-                    );
-                }
+                descPesquisa = "";
+                loadListAnoDeclaracaoPessoa();
+                loadListPeriodoDeclaracaoPessoa();
+                loadListDeclaracaoPessoa();
                 break;
             case "funcionarios":
                 loadListFuncionarios();
@@ -255,6 +235,93 @@ public class PessoaBean implements Serializable {
                     listAnoDeclaracaoAnualDebitos.add(new SelectItem(list.get(i), list.get(i), list.get(i)));
                 }
                 break;
+        }
+    }
+
+    public void loadListDeclaracaoPessoa() {
+        listDeclaracaoPessoa = new ArrayList();
+        DeclaracaoPessoaDao dao = new DeclaracaoPessoaDao();
+        List<List> listDeclaracao;
+        if (tipoPessoa.equals("pessoaJuridica")) {
+            // LISTA DECLARAÇÃO JURIDICA (CONVENIADA) ou (EMPRESA DA PESSOA)
+            listDeclaracao = dao.find(tipoDeclaracaoPessoa, ano, referenciaId, pessoa.getId(), descPesquisa);
+        } else {
+            // LISTA DECLARAÇÃO FÍSICA (BENEFICIÁRIO)
+            listDeclaracao = dao.find("pessoa_fisica", ano, referenciaId, pessoa.getId(), descPesquisa);
+        }
+        for (int i = 0; i < listDeclaracao.size(); i++) {
+            List o = (List) listDeclaracao.get(i);
+            listDeclaracaoPessoa.add(
+                    new DeclaracaoPessoaObject(
+                            o.get(0),
+                            o.get(1),
+                            o.get(2),
+                            o.get(3),
+                            o.get(4),
+                            o.get(5),
+                            o.get(6),
+                            o.get(7),
+                            o.get(8),
+                            o.get(9),
+                            o.get(10)
+                    )
+            );
+        }
+    }
+
+    public void loadListAnoDeclaracaoPessoa() {
+        ano = "";
+        listAnos = new ArrayList();
+        List list = new DeclaracaoPessoaDao().anos();
+        for (int i = 0; i < list.size(); i++) {
+            String a = ((List) list.get(i)).get(0).toString();
+            if (i == 0) {
+                ano = a;
+            }
+            listAnos.add(new SelectItem(a, a));
+        }
+    }
+
+    public void listenerDeclaracao(String tcase) {        
+        switch (tcase) {
+            case "tipo_declaracao_pessoa":
+                descPesquisa = "";
+                loadListAnoDeclaracaoPessoa();
+                loadListPeriodoDeclaracaoPessoa();
+                loadListDeclaracaoPessoa();
+                break;
+            case "ano":
+                descPesquisa = "";
+                loadListPeriodoDeclaracaoPessoa();
+                loadListDeclaracaoPessoa();
+                break;
+            case "periodo":
+                descPesquisa = "";
+                loadListDeclaracaoPessoa();
+                break;
+            case "pessoa":
+                loadListDeclaracaoPessoa();
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    public void loadListPeriodoDeclaracaoPessoa() {
+        referenciaId = null;
+        listReferencia = new ArrayList();
+        List<DeclaracaoPeriodo> list = new DeclaracaoPessoaDao().periodo(ano);
+        if (!list.isEmpty()) {
+            if (list.size() > 1) {
+                listReferencia.add(new SelectItem(null, "Todos períodos"));
+            }
+        }
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                referenciaId = list.get(i).getId();
+            }
+            listReferencia.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
 
@@ -615,6 +682,46 @@ public class PessoaBean implements Serializable {
         this.listEmpregados = listEmpregados;
     }
 
+    public String getAno() {
+        return ano;
+    }
+
+    public void setAno(String ano) {
+        this.ano = ano;
+    }
+
+    public List<SelectItem> getListAnos() {
+        return listAnos;
+    }
+
+    public void setListAnos(List<SelectItem> listAnos) {
+        this.listAnos = listAnos;
+    }
+
+    public String getReferencia() {
+        return referencia;
+    }
+
+    public void setReferencia(String referencia) {
+        this.referencia = referencia;
+    }
+
+    public Integer getReferenciaId() {
+        return referenciaId;
+    }
+
+    public void setReferenciaId(Integer referenciaId) {
+        this.referenciaId = referenciaId;
+    }
+
+    public List<SelectItem> getListReferencia() {
+        return listReferencia;
+    }
+
+    public void setListReferencia(List<SelectItem> listReferencia) {
+        this.listReferencia = listReferencia;
+    }
+
     public class DeclaracaoPessoaObject {
 
 //        Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa) ----> Trocar nome da coluna Titular para Funcionário
@@ -630,6 +737,7 @@ public class PessoaBean implements Serializable {
         private Object cnpj;
         private Object convenio;
         private Object id_declaracao;
+        private Object emissao;
 
         public DeclaracaoPessoaObject() {
             this.funcionario = null;
@@ -642,9 +750,10 @@ public class PessoaBean implements Serializable {
             this.cnpj = null;
             this.convenio = null;
             this.id_declaracao = null;
+            this.emissao = null;
         }
 
-        public DeclaracaoPessoaObject(Object funcionario, Object titular, Object beneficiario, Object categoria, Object matricula, Object tipo, Object periodo, Object cnpj, Object convenio, Object id_declaracao) {
+        public DeclaracaoPessoaObject(Object funcionario, Object titular, Object beneficiario, Object categoria, Object matricula, Object tipo, Object periodo, Object cnpj, Object convenio, Object id_declaracao, Object emissao) {
             this.funcionario = funcionario;
             this.titular = titular;
             this.beneficiario = beneficiario;
@@ -655,6 +764,7 @@ public class PessoaBean implements Serializable {
             this.cnpj = cnpj;
             this.convenio = convenio;
             this.id_declaracao = id_declaracao;
+            this.emissao = emissao;
         }
 
         public Object getFuncionario() {
@@ -735,6 +845,14 @@ public class PessoaBean implements Serializable {
 
         public void setId_declaracao(Object id_declaracao) {
             this.id_declaracao = id_declaracao;
+        }
+
+        public Object getEmissao() {
+            return emissao;
+        }
+
+        public void setEmissao(Object emissao) {
+            this.emissao = emissao;
         }
 
     }

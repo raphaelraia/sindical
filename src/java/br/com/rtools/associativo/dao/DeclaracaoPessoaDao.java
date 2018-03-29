@@ -5,6 +5,7 @@
  */
 package br.com.rtools.associativo.dao;
 
+import br.com.rtools.associativo.DeclaracaoPeriodo;
 import br.com.rtools.associativo.DeclaracaoPessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -136,7 +137,8 @@ public class DeclaracaoPessoaDao extends DB {
         return new ArrayList();
     }
 
-    public List find(String tcase, Integer pessoa_id) {
+    public List find(String tcase, String ano, Integer periodo_id, Integer pessoa_id, String pessoa_nome) {
+        List listWhere = new ArrayList();
         String queryString = "-- DeclaracaoPesoaDao().find( " + tcase + ").... \n\n"
                 + "      SELECT F.ds_nome       AS funcionario, -- Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa) ----> Trocar nome da coluna Titular para Funcionário\n"
                 + "             PTT.ds_nome     AS titular, -- Somente pessoa física e  (Emitidas para esta Empresa) \n"
@@ -147,7 +149,8 @@ public class DeclaracaoPessoaDao extends DB {
                 + "             DR.ds_descricao||' '||dr.nr_ano AS periodo,     \n"
                 + "             CO.ds_documento AS cnpj,                        \n"
                 + "             CO.ds_nome      AS convenio,                    \n"
-                + "             DP.id           AS id_declaracao                \n"
+                + "             DP.id           AS id_declaracao,               \n"
+                + "             DP.dt_emissao   AS emissao                      \n"
                 + "        FROM soc_declaracao_pessoa AS DP                     \n"
                 + "  INNER JOIN pes_pessoa             CO  ON CO.id  = DP.id_convenio \n"
                 + "  INNER JOIN soc_declaracao_periodo DR  ON DR.id  = DP.id_declaracao_periodo \n"
@@ -165,25 +168,83 @@ public class DeclaracaoPessoaDao extends DB {
 //              Cadastro de Pessoa Física
         switch (tcase) {
             case "pessoa_fisica":
-                queryString += " WHERE PTT.id = " + pessoa_id + " OR PP.id = " + pessoa_id + " ORDER BY ptt.ds_nome,pp.ds_nome";
+                listWhere.add("(PTT.id = " + pessoa_id + " OR PP.id = " + pessoa_id + ")");
 //              Cadastro de Pessoa Juridica (Emitidas para esta Empresa)
                 break;
             case "empresa_conveniada":
-                queryString += "WHERE CO.id = " + pessoa_id + "  ORDER BY PTT.ds_nome, PP.ds_nome ";
+                listWhere.add("CO.id = " + pessoa_id);
                 break;
             case "empresa_pessoa":
 //              Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa)
-                queryString += "WHERE JE.id_pessoa =  " + pessoa_id + " ORDER BY F.ds_nome, PTT.ds_nome, PP.ds_nome";
+                listWhere.add("JE.id_pessoa =  " + pessoa_id);
                 break;
             default:
                 break;
         }
+        if (pessoa_nome != null && !pessoa_nome.isEmpty()) {
+            if (tcase.equals("empresa_conveniada") || tcase.equals("empresa_pessoa")) {
+                listWhere.add("( UPPER(func_translate(F.ds_nome)) LIKE UPPER(func_translate('%" + pessoa_nome + "%')) OR UPPER(func_translate(PTT.ds_nome)) LIKE UPPER(func_translate('%" + pessoa_nome + "%')) OR UPPER(func_translate(PP.ds_nome)) LIKE UPPER(func_translate('%" + pessoa_nome + "%')) )");
+            }
+        }
+        if (ano != null && !ano.isEmpty()) {
+            listWhere.add("DR.nr_ano =  " + ano);
+        }
+        if (periodo_id != null) {
+            listWhere.add("DR.id =  " + periodo_id);
+        }
+        for (int i = 0; i < listWhere.size(); i++) {
+            if (i == 0) {
+                queryString += " WHERE " + listWhere.get(i).toString() + "\n";
+            } else {
+                queryString += " AND " + listWhere.get(i).toString() + "\n";
+            }
+        }
+        queryString += " ORDER BY dr.nr_ano DESC, DR.ds_descricao DESC, PTT.ds_nome, PP.ds_nome ";
         try {
-            Query qry = getEntityManager().createNativeQuery(queryString);
-            return qry.getResultList();
+            Query query = getEntityManager().createNativeQuery(queryString);
+            return query.getResultList();
         } catch (Exception e) {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public List anos() {
+        try {
+            String queryString = ""
+                    + "     SELECT DPER.nr_ano AS ano                           \n" // 0
+                    + "       FROM soc_declaracao_periodo  AS DPER              \n"
+                    + " INNER JOIN soc_declaracao_pessoa AS DP ON DP.id_declaracao_periodo = DPER.id \n"
+                    + "   GROUP BY DPER.nr_ano                                  \n"
+                    + "   ORDER BY DPER.nr_ano DESC                             ";
+            Query qry = getEntityManager().createNativeQuery(queryString);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List periodo(String ano) {
+        if (ano == null) {
+            return new ArrayList();
+        }
+        try {
+            String queryString = ""
+                    + "     SELECT DPER.* \n"
+                    + "       FROM soc_declaracao_periodo  AS DPER              \n"
+                    + "      WHERE DPER.nr_ano = " + ano + "                    \n"
+                    + "            AND DPER.id IN (                             \n"
+                    + "                             SELECT DP.id_declaracao_periodo     \n"
+                    + "                               FROM soc_declaracao_pessoa DP     \n"
+                    + "                         INNER JOIN soc_declaracao_periodo AS DPER2 ON DPER2.id = DP.id_declaracao_periodo \n"
+                    + "                              WHERE DPER2.nr_ano = " + ano + "   \n"
+                    + "                           GROUP BY DP.id_declaracao_periodo     \n"
+                    + "            )                                                    \n"
+                    + "   ORDER BY DPER.ds_descricao DESC ";
+            Query query = getEntityManager().createNativeQuery(queryString, DeclaracaoPeriodo.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }
