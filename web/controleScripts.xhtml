@@ -1,0 +1,62 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Controle Scripts</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <h:form id="form_pc">
+                <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <h:outputText value="Controle de Scripts" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="margin-top-max">
+                        <h:panelGrid columns="10" cellspacing="5">
+                            <p:outputLabel value="Data Inicial:" />
+                            <p:inputMask mask="99/99/9999" value="#{controleScriptsBean.dataInicial}" converter="#{isDateString}" styleClass="margin-left-max" size="8">
+                                    <f:ajax event="blur" render="@this" />
+                                </p:inputMask>
+                            <p:outputLabel value="Data Final:" />
+                            <p:inputMask mask="99/99/9999" value="#{controleScriptsBean.dataFinal}" converter="#{isDateString}" styleClass="margin-left-max" size="8">
+                                    <f:ajax event="blur" render="@this" />
+                                </p:inputMask>
+                            <p:commandButton value="FILTAR" action="#{controleScriptsBean.loadListControleScripts()}" update="i_tbl"/>
+                        </h:panelGrid>                        
+                    </p:panel>
+                    <h:panelGroup id="i_tbl" styleClass="no-border">
+                        <p:dataTable value="#{controleScriptsBean.listControleScripts}" var="controleScripts" scrollable="true" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="29" paginator="true" >
+                            <p:column headerText="Data" styleClass="text-center">
+                                <p:outputLabel value="#{controleScripts.dtData}">
+                                    <f:convertDateTime />
+                                </p:outputLabel>                            
+                            </p:column>
+                            <p:column headerText="Tipo" styleClass="text-center">
+                                <h:outputText value="#{controleScripts.controleScripts.descricao}"/>
+                            </p:column>
+                            <p:column headerText="Servidor/Estação">
+                                <h:outputText value="#{controleScripts.servidor}"/>
+                            </p:column>
+                            <p:column headerText="Descrição">
+                                <h:outputText value="#{controleScripts.descricao}"/>
+                            </p:column>
+                            <p:column headerText="Status" styleClass="text-center">
+                                <p:outputLabel value="#{controleScripts.erro ? '' : 'FALHOU'}" styleClass="font-color-red" />
+                            </p:column>
+                            <p:column headerText="Tamanho" styleClass="text-center">
+                                <p:outputLabel value="#{controleScripts.tamanho} MB" />
+                            </p:column>
+                        </p:dataTable>
+                    </h:panelGroup>
+                </p:panel>
+            </h:form>                     
+        </f:view>     
+    </h:body>
+</ui:composition>

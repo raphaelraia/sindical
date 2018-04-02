@@ -1906,7 +1906,7 @@ public class SociosBean implements Serializable {
 
         if (servicoPessoa.getId() == -1) {
             Fisica f = new FisicaDao().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
-            if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
+            if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null) {
                 JuridicaDao db = new JuridicaDao();
                 if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
                     GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");

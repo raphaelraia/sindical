@@ -90,8 +90,8 @@
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid id="i_panel_pessoa" columns="3" cellspacing="5">
-                                        <p:commandButton ajax="false" value="Adicionar Pessoa" action="#{chamadaPaginaBean.pesquisaSocios()}" rendered="#{vendaBaileBean.pessoa.id == -1}"/>
-                                        <p:commandButton ajax="false" value="Não Sócio" rendered="#{vendaBaileBean.pessoa.id == -1}" action="#{vendaBaileBean.pesquisaNaoSocio()}" update="formVendaBaile formVendaBaileTbl"/>
+                                        <p:commandButton ajax="false" value="Adicionar Pessoa" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" rendered="#{vendaBaileBean.pessoa.id == -1}"/>
+                                        <p:commandButton ajax="false" value="Sem Identificação" rendered="#{vendaBaileBean.pessoa.id == -1}" action="#{vendaBaileBean.pesquisaNaoSocio()}" update="formVendaBaile formVendaBaileTbl"/>
                                         <p:outputLabel value="#{vendaBaileBean.pessoa.nome}" rendered="#{vendaBaileBean.pessoa.id != -1}" styleClass="font-size-12 bold font-color-blue"/>
                                         <p:commandButton icon="ui-icon-trash" action="#{vendaBaileBean.removerPessoa}" update="formVendasBaile formVendasBaileTbl" rendered="#{vendaBaileBean.pessoa.id != -1}" disabled="#{vendaBaileBean.venda.id != -1}" style="margin-left: 15px"/>
                                     </h:panelGrid>                                    
