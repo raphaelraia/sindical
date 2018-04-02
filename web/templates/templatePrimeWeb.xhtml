@@ -45,6 +45,10 @@
                             <p:menuitem value="Alterar senha" onclick="PF('dlg_alterar_senha').show()" rendered="#{controleAcessoWebBean.pessoa.id == -1}"/>                    
                             <p:menuitem value="SAIR DO SISTEMA" action="#{controleAcessoWebBean.sairSistemaWeb}"  />              
                        </p:menuButton>
+                        
+                        <p:menuButton value="Opções" style="float: right" rendered="#{ontroleAcessoWebBean.pessoaPatronal != null}" >
+                            <p:menuitem value="SAIR DO SISTEMA" action="#{controleAcessoWebBean.sairSistemaWeb}"  />              
+                       </p:menuButton>
                     </h:column>
                 </h:panelGrid>
             </h:panelGrid>

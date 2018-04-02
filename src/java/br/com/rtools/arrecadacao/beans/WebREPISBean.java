@@ -1,6 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.CertidaoDisponivel;
+import br.com.rtools.arrecadacao.CertidaoDisponivelMensagem;
 import br.com.rtools.arrecadacao.CertidaoMensagem;
 import br.com.rtools.arrecadacao.CertidaoTipo;
 import br.com.rtools.arrecadacao.CertificadoArquivos;
@@ -686,7 +687,11 @@ public class WebREPISBean implements Serializable {
                             caminho_fundo_certidao = f.getPath();
                         }
                         
-                        observacao = cd.getObservacao();
+                        CertidaoDisponivelMensagem cdm = new CertidaoDisponivelDao().pesquisaCertidaoDisponivelMensagem(cd.getId(), result.get(0).getId());
+                        
+                        if (cdm != null){
+                            observacao = cdm.getObservacao();
+                        }
                     }
 
                     String sindicatoPeriodo = (result.get(0).getSindicato() != null) ? result.get(0).getSindicato().getNome() : "xxxxxxxxxxxxxxxxxxxx";

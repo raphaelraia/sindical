@@ -1199,6 +1199,7 @@ public class ControleAcessoWebBean implements Serializable {
             //retorno = "indexAcessoWeb.jsf?cliente=" + (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente");
         }
         limparSessaoAcessoWeb();
+        
         FacesContext.getCurrentInstance().getExternalContext().redirect(retorno);
     }
 

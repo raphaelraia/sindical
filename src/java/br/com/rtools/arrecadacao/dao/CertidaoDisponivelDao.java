@@ -6,6 +6,7 @@
 package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.CertidaoDisponivel;
+import br.com.rtools.arrecadacao.CertidaoDisponivelMensagem;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,24 @@ public class CertidaoDisponivelDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public CertidaoDisponivelMensagem pesquisaCertidaoDisponivelMensagem(Integer id_certidao_disponivel, Integer id_convencao_periodo) {
+        try {
+            
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT cdm.* \n "
+                    + " FROM arr_certidao_disponivel_mensagem cdm \n "
+                    + "WHERE cdm.id_certidao_disponivel = " + id_certidao_disponivel
+                    + "  AND cdm.id_convencao_periodo = " + id_convencao_periodo,
+                     CertidaoDisponivelMensagem.class
+            );
+
+            return (CertidaoDisponivelMensagem) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
     }
 
     public CertidaoDisponivel pesquisaCertidaoDisponivel(Integer id_cidade, Integer id_convencao, Integer id_certidao_tipo) {
