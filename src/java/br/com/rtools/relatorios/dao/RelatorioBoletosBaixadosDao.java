@@ -38,13 +38,13 @@ public class RelatorioBoletosBaixadosDao extends DB {
                     + "  INNER JOIN fin_baixa           AS B    ON B.id         = M.id_baixa  \n"
                     + "  INNER JOIN fin_forma_pagamento AS f    ON F.id_baixa   = B.id        \n"
                     + "  INNER JOIN pes_pessoa          AS p    ON P.id         = M.id_pessoa \n"
-                    + "  INNER JOIN fin_plano5          AS pl5  ON Pl5.id       = F.id_plano5 \n";
+                    + "  INNER JOIN fin_plano5          AS pl5  ON Pl5.id       = F.id_conciliacao_plano5 \n";
             // DATA BAIXA
             List listWhere = new ArrayList<>();
             listWhere.add("M.is_ativo = true");
             listWhere.add("F.id_tipo_pagamento IN (2,3)");
             listWhere.add("M.ds_documento <> ''");
-            listWhere.add("F.id_plano5 IN(SELECT id FROM fin_plano5 WHERE id_plano4 IN (SELECT id_plano4 FROM fin_conta_rotina WHERE id_rotina = 2))");
+            listWhere.add("F.id_conciliacao_plano5 IN(SELECT id FROM fin_plano5 WHERE id_plano4 IN (SELECT id_plano4 FROM fin_conta_rotina WHERE id_rotina = 2))");
             listWhere.add("M.id_servicos NOT IN ( SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4 )");
             if (!dtBS.isEmpty() || !dtBS.isEmpty()) {
                 switch (tipoDataBaixa) {

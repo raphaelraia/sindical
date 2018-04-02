@@ -36,13 +36,6 @@ ALTER TABLE arr_contribuintes_vw
 -- JOGAR REPIS.jasper, REPIS_AUXILIAR.jasper EM SINCOVAGASP
 
 
-
--- RODAR EM TODOS --------------------------------------------------------------
---------------------------------------------------------------------------------
-
-
-
-
 CREATE TABLE public.arr_certidao_disponivel_mensagem
 (
     id serial NOT NULL,
