@@ -3,6 +3,7 @@ package br.com.rtools.sistema.beans;
 import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.sistema.BackupPostgres;
 import br.com.rtools.sistema.Configuracao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.sistema.Resolucao;
@@ -42,6 +43,7 @@ public class ConfiguracaoBean implements Serializable {
     private Resolucao resolucao;
     private String resolucaoUsuario;
     private List<SisConfiguracaoEmail> listSisConfiguracaoEmail;
+    private Boolean backup;
 
     @PostConstruct
     public void init() {
@@ -56,6 +58,7 @@ public class ConfiguracaoBean implements Serializable {
         indexTipoResolucao = 2;
         listaTipoResolucao = new ArrayList();
         resolucao = new Resolucao();
+        backup = false;
     }
 
     @PreDestroy
@@ -177,6 +180,18 @@ public class ConfiguracaoBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Registro removido");
         } else {
             GenericaMensagem.warn("Erro", "Ao remover registro!");
+        }
+    }
+
+    public void backup(Configuracao c) {
+        BackupPostgres bp = new BackupPostgres();
+        bp.setUsuario(Usuario.getUsuario());
+        bp.setConfiguracao(c);
+        if (new Dao().save(bp, true)) {
+            backup = true;
+            GenericaMensagem.info("Sucesso", "Backup em processamento!!!");
+        } else {
+            GenericaMensagem.warn("Erro", "Ao enviar pedido de backup!");
         }
     }
 

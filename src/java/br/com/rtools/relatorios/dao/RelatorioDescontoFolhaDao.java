@@ -14,6 +14,7 @@ public class RelatorioDescontoFolhaDao extends DB {
      * @param relatorio_id
      * @param empresa_id
      * @param titular_id
+     * @param referencia_atual
      * @param referenciaInicial
      * @param referenciaFinal
      * @return 0 Object socio_codigo, 1 Object empresa_nome, 2 Object
@@ -25,7 +26,7 @@ public class RelatorioDescontoFolhaDao extends DB {
      * e_endereco_bairro, 13 Object e_endereco_cidade, 14 Object e_endereco_uf,
      * 15 Object e_endereco_cep, 16 Object empresa_contato
      */
-    public List find(Integer relatorio_id, Integer empresa_id, Integer titular_id, String referencia_atual) {
+    public List find(Integer relatorio_id, Integer empresa_id, Integer titular_id, String referencia_atual, String movimentos) {
         // CHAMADO: #1066 Criada por: Rogério em 15/10/2015 16:28
         try {
 
@@ -47,6 +48,11 @@ public class RelatorioDescontoFolhaDao extends DB {
             }
             if (titular_id != null) {
                 listWhere.add(" t.id = " + titular_id);
+            }
+            if (movimentos.equals("aberto")) {
+                listWhere.add("id_baixa IS NULL ");
+            } else if (movimentos.equals("pago")) {
+                listWhere.add("id_baixa IS NOT NULL ");
             }
 
             String SELECT_STRING = "", WHERE_STRING = "";
@@ -87,7 +93,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            sum(m.nr_valor_baixa)  AS valor_baixa,       \n" // 21 VALOR DA BAIXA
                         + "            ''                AS nome_socio              \n" // 22 NOME DO SÓCIO
                         + "       FROM fin_movimento     AS m                       \n"
-                        + " INNER JOIN pes_fisica AS F ON f.id_pessoa = m.id_titular \n"                         
+                        + " INNER JOIN pes_fisica AS F ON f.id_pessoa = m.id_titular \n"
                         + "  LEFT JOIN fin_baixa         AS ba ON ba.id = m.id_baixa \n"
                         + " INNER JOIN pes_pessoa        AS t  ON t.id         = m.id_titular                   \n"
                         + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
@@ -145,7 +151,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "        0 AS valor_baixa,                        --- 21 \n"
                         + "        be.ds_nome AS nome_socio                 --- 22 \n"
                         + "  FROM fin_movimento          AS m                       \n"
-                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular \n"                        
+                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular \n"
                         + " INNER JOIN pes_pessoa        AS t  ON t.id         = m.id_titular                   \n"
                         + " INNER JOIN pes_pessoa        AS be  ON be.id        = m.id_beneficiario             \n"
                         + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
@@ -208,7 +214,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "        0 AS valor_baixa,  \n"
                         + "        be.ds_nome AS nome_socio  \n"
                         + "       FROM fin_movimento     AS m \n"
-                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular \n"                        
+                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular \n"
                         + " INNER JOIN pes_pessoa   AS t ON t.id  = m.id_titular \n"
                         + " INNER JOIN pes_pessoa   AS be ON be.id = m.id_beneficiario \n"
                         + " INNER JOIN pes_pessoa   AS pj ON pj.id = m.id_pessoa \n"
@@ -231,7 +237,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + (titular_id != null ? "        AND t.id = " + titular_id : "") + " \n"
                         + "  AND m.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4) \n"
                         + "  AND x.id_pessoa IS NULL \n"
-                        + "GROUP BY \n" 
+                        + "GROUP BY \n"
                         + "        t.id,            \n"
                         + "        pj.ds_nome,      \n"
                         + "        t.ds_nome,       \n"
@@ -268,7 +274,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            right('0'||text(extract(month FROM m.dt_vencimento)),2) AS mes, \n" // 21
                         + "            text(extract(year FROM m.dt_vencimento))                AS ano  \n" // 22
                         + "       FROM fin_movimento     AS m                                          \n"
-                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular                   \n"                        
+                        + " INNER JOIN pes_fisica as f on f.id_pessoa = m.id_titular                   \n"
                         + "  LEFT JOIN soc_socios_vw     AS so  ON m.id_titular = so.codsocio          \n"
                         + " INNER JOIN fin_servicos      AS se on se.id = m.id_servicos                \n"
                         + " INNER JOIN pes_pessoa        AS t  ON t.id  = m.id_titular                 \n"

@@ -79,6 +79,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private PessoaProfissao pessoaProfissao = new PessoaProfissao();
     private PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
     private PessoaEmpresa pessoaEmpresaEdit = new PessoaEmpresa();
+    private PessoaEmpresa pessoaEmpresaNova = null;
     private Usuario usuario = new Usuario();
     private PessoaComplemento pessoaComplemento = new PessoaComplemento();
     private Socios socios = new Socios();
@@ -720,21 +721,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         alterarEnd = true;
         listaPessoa = new ArrayList();
         msgSocio = "";
-        pessoaEmpresa = (PessoaEmpresa) db.pesquisaPessoaEmpresaPorFisica(fisica.getId());
-        if (pessoaEmpresa.getId() != -1) {
-            pessoaEmpresa = (PessoaEmpresa) dao.rebind(pessoaEmpresa);
-            if (pessoaEmpresa.getFuncao() != null) {
-                profissao = pessoaEmpresa.getFuncao();
-            } else {
-                profissao = new Profissao();
-            }
-            //GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
-            renderJuridicaPesquisa = true;
-        } else {
-            GenericaSessao.remove("juridicaPesquisa");
-            profissao = new Profissao();
-            renderJuridicaPesquisa = false;
-        }
+
+        loadPessoaEmpresa();
 
         pessoaProfissao = dbp.pesquisaProfPorFisica(fisica.getId());
         if (pessoaProfissao.getId() != -1) {
@@ -765,6 +753,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         //fotoTempPerfil = "";
         clear(0);
         loadListaMovimento();
+        loadListPessoaEmpresa();
         if (pessoaComplemento.getId() == -1) {
             pessoaComplemento = (PessoaComplemento) dao.rebind(new PessoaComplementoDao().findByPessoa(fisica.getPessoa().getId()));
             if (pessoaComplemento == null) {
@@ -830,6 +819,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
             loadMalaDireta();
             loadListaInativacao();
+            loadListPessoaEmpresa();
             if (success) {
                 RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_panel_pessoa_fisica");
                 RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_end_rendered");
@@ -848,6 +838,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     pessoaUpper();
                     loadMalaDireta();
                     loadListaInativacao();
+                    loadListPessoaEmpresa();
                     RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_panel_pessoa_fisica");
                     showImagemFisica();
                 }
@@ -885,6 +876,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         loadMalaDireta();
         loadListaInativacao();
+        loadListPessoaEmpresa();
     }
 
     public String editarFisicaParametro(Fisica f) {
@@ -1152,6 +1144,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
     }
 
+    public void novaEmpresa() {
+        PessoaEmpresa pe = (PessoaEmpresa) new Dao().find(pessoaEmpresa);
+        pessoaEmpresaNova = pe;
+        listaPessoaEmpresa.add(pe);
+        pessoaEmpresa = new PessoaEmpresa();
+    }
+
     public void adicionarEmpresa() {
         if (fisica.getId() != -1 && pessoaEmpresa.getJuridica().getId() != -1) {
             if (pessoaEmpresa.getAdmissao().isEmpty()) {
@@ -1159,9 +1158,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 return;
             }
 
+            Boolean principal = false;
+            Boolean clear = true;
+            if (pessoaEmpresa.getId() != -1 && pessoaEmpresa.isPrincipal() && pessoaEmpresa.getDtDemissao() == null) {
+                principal = true;
+                clear = false;
+            }
+
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setAvisoTrabalhado(false);
-            pessoaEmpresa.setPrincipal(false);
+            pessoaEmpresa.setPrincipal(principal);
             pessoaEmpresa.setNrRegistro(nrRegistro);
 
             if (profissao.getProfissao() == null || profissao.getProfissao().isEmpty()) {
@@ -1201,8 +1207,18 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             di.commit();
 
             //RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_panel_pessoa_fisica");
-            GenericaMensagem.info("Sucesso", "Empresa Adicionada!");
-            pessoaEmpresa = new PessoaEmpresa();
+            if (clear) {
+                GenericaMensagem.info("Sucesso", "Empresa Adicionada!");
+                pessoaEmpresa = new PessoaEmpresa();
+            } else {
+                GenericaMensagem.info("Sucesso", "Registro atualizado!");
+            }
+            if (pessoaEmpresaNova != null && pessoaEmpresaNova.getId() != -1) {
+                pessoaEmpresa = (PessoaEmpresa) di.find(pessoaEmpresaNova);
+                pessoaEmpresaNova = null;
+            }
+            loadListPessoaEmpresa();
+
             profissao = new Profissao();
             renderJuridicaPesquisa = false;
         }
@@ -1380,7 +1396,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         } else {
             GenericaMensagem.warn("Erro", "Não foi possível remover esta empresa!");
         }
-        listaPessoaEmpresa.clear();
+        loadListPessoaEmpresa();
         return null;
     }
 
@@ -1416,7 +1432,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void alterarEmpresaAtual(PessoaEmpresa pe) {
         Dao di = new Dao();
-        di.openTransaction();
 
         if (!pe.getDemissao().isEmpty()) {
             GenericaMensagem.error("Atenção", "Pessoa demissionada não pode ser Reativa!");
@@ -1426,24 +1441,27 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         nrRegistro = pessoaEmpresa.getNrRegistro();
 
         if (pessoaEmpresa.getId() == -1) {
-            pe.setPrincipal(true);
-            if (!di.update(pe)) {
-                di.rollback();
+            pe.setDtAlternaPrincipal(new Date());
+            if (!di.update(pe, true)) {
                 return;
             }
-            pessoaEmpresa = pe;
         } else {
-            pessoaEmpresa.setPrincipal(false);
-            pe.setPrincipal(true);
-
-            if (!di.update(pessoaEmpresa) || !di.update(pe)) {
-                di.rollback();
+            pe.setDtAlternaPrincipal(new Date());
+            if (!di.update(pe, true)) {
                 return;
             }
-            pessoaEmpresa = pe;
+            pessoaEmpresa.setPrincipal(false);
+            if (!di.update(pessoaEmpresa, true)) {
+                return;
+            }
+            pe.setPrincipal(true);
+            if (!di.update(pe, true)) {
+                return;
+            }
         }
-
-        di.commit();
+        pessoaEmpresa = new PessoaEmpresa();
+        loadPessoaEmpresa();
+        loadListPessoaEmpresa();
     }
 
     public String associarFisica() {
@@ -1748,11 +1766,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         this.idIndexFisica = idIndexFisica;
     }
 
-    public List<PessoaEmpresa> getListaPessoaEmpresa() {
+    public void loadListPessoaEmpresa() {
+        listaPessoaEmpresa = new ArrayList();
         PessoaEmpresaDao db = new PessoaEmpresaDao();
         if (fisica.getId() != -1) {
             listaPessoaEmpresa = db.listaPessoaEmpresaPorFisica(fisica.getId());
         }
+    }
+
+    public List<PessoaEmpresa> getListaPessoaEmpresa() {
         return listaPessoaEmpresa;
     }
 
@@ -3062,7 +3084,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 + " - Admissão:  " + pessoaEmpresaEdit.getAdmissao()
                 + " - Demissão:  " + pessoaEmpresaEdit.getDemissao());
         GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
-        listaPessoaEmpresa = new ArrayList();
+        loadListPessoaEmpresa();
         pessoaEmpresaEdit = new PessoaEmpresa();
     }
 
@@ -3542,6 +3564,26 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         listNrRegistro = new ArrayList();
         for (int i = 1; i < 6; i++) {
             listNrRegistro.add(new SelectItem(i, (i + "")));
+        }
+    }
+
+    private void loadPessoaEmpresa() {
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
+        PessoaProfissaoDao dbp = new PessoaProfissaoDao();
+        pessoaEmpresa = (PessoaEmpresa) db.pesquisaPessoaEmpresaPorFisica(fisica.getId());
+        if (pessoaEmpresa.getId() != -1) {
+            pessoaEmpresa = (PessoaEmpresa) new Dao().rebind(pessoaEmpresa);
+            if (pessoaEmpresa.getFuncao() != null) {
+                profissao = pessoaEmpresa.getFuncao();
+            } else {
+                profissao = new Profissao();
+            }
+            //GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
+            renderJuridicaPesquisa = true;
+        } else {
+            GenericaSessao.remove("juridicaPesquisa");
+            profissao = new Profissao();
+            renderJuridicaPesquisa = false;
         }
     }
 

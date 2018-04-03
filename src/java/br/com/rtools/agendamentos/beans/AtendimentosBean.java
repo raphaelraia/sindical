@@ -456,11 +456,12 @@ public class AtendimentosBean implements Serializable {
                     o.get(18),
                     o.get(19),
                     o.get(20),
-                    (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(o.get(6).toString())),
                     o.get(21),
+                    (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(o.get(6).toString())),
                     o.get(22),
                     o.get(23),
-                    o.get(25)
+                    o.get(24),
+                    o.get(26)
             );
             if (Integer.parseInt(oa.getId_status().toString()) == 3 || Integer.parseInt(oa.getId_status().toString()) == 5 || Integer.parseInt(oa.getId_status().toString()) == 6) {
                 oa.setRendered(false);

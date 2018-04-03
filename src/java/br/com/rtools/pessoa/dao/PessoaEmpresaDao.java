@@ -2,6 +2,7 @@ package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -75,8 +76,9 @@ public class PessoaEmpresaDao extends DB {
             PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
             if (!list.isEmpty() && list.size() > 1) {
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).isPrincipal()) {
-                        pessoaEmpresa = (PessoaEmpresa) list.get(i);
+                    PessoaEmpresa pe = (PessoaEmpresa) new Dao().rebind(list.get(i));
+                    if (pe.isPrincipal()) {
+                        pessoaEmpresa = (PessoaEmpresa) pe;
                         break;
                     }
                 }

@@ -19,6 +19,7 @@ public class ObjectAgenda {
     private Object codigo;
     private Object nome;
     private Object documento;
+    private Object telefone;
     private Object agendador;
     private Object id_filial;
     private Object filial;
@@ -52,6 +53,7 @@ public class ObjectAgenda {
         this.codigo = null;
         this.nome = null;
         this.documento = null;
+        this.telefone = null;
         this.agendador = null;
         this.id_filial = null;
         this.filial = null;
@@ -102,7 +104,7 @@ public class ObjectAgenda {
      * @param id_convenio_grupo
      * @param id_movimento
      */
-    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos, Object convenio_grupo, Object valor, Object id_convenio_grupo, Object id_movimento) {
+    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object telefone, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos, Object convenio_grupo, Object valor, Object id_convenio_grupo, Object id_movimento) {
         this.data = data;
         this.horario_inicial = horario_inicial;
         this.horario_final = horario_final;
@@ -114,6 +116,7 @@ public class ObjectAgenda {
         this.servico = servico;
         this.codigo = codigo;
         this.nome = nome;
+        this.telefone = telefone;
         this.documento = documento;
         this.agendador = agendador;
         this.id_filial = id_filial;
@@ -385,6 +388,22 @@ public class ObjectAgenda {
 
     public void setMovimento(Movimento movimento) {
         this.movimento = movimento;
+    }
+
+    public Object getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(Object telefone) {
+        this.telefone = telefone;
+    }
+
+    public Object getId_movimento() {
+        return id_movimento;
+    }
+
+    public void setId_movimento(Object id_movimento) {
+        this.id_movimento = id_movimento;
     }
 
 }

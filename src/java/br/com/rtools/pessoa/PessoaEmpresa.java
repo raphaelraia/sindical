@@ -44,6 +44,9 @@ public class PessoaEmpresa implements java.io.Serializable {
     private boolean socio;
     @Column(name = "nr_registro", nullable = false, columnDefinition = "integer default 1")
     private Integer nrRegistro;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_alterna_principal")
+    private Date dtAlternaPrincipal;
 
     public PessoaEmpresa() {
         this.id = -1;
@@ -58,9 +61,10 @@ public class PessoaEmpresa implements java.io.Serializable {
         this.principal = true;
         this.socio = false;
         this.nrRegistro = 1;
+        this.dtAlternaPrincipal = null;
     }
 
-    public PessoaEmpresa(int id, Fisica fisica, Juridica juridica, Profissao funcao, String admissao, String demissao, String setor, boolean avisoTrabalhado, String codigo, boolean principal, boolean socio, Integer nrRegistro) {
+    public PessoaEmpresa(int id, Fisica fisica, Juridica juridica, Profissao funcao, String admissao, String demissao, String setor, boolean avisoTrabalhado, String codigo, boolean principal, boolean socio, Integer nrRegistro, Date dtAlternaPrincipal) {
         this.id = id;
         this.fisica = fisica;
         this.juridica = juridica;
@@ -73,6 +77,7 @@ public class PessoaEmpresa implements java.io.Serializable {
         this.principal = principal;
         this.socio = socio;
         this.nrRegistro = nrRegistro;
+        this.dtAlternaPrincipal = dtAlternaPrincipal;
     }
 
     public int getId() {
@@ -211,6 +216,14 @@ public class PessoaEmpresa implements java.io.Serializable {
 
     public void setNrRegistro(Integer nrRegistro) {
         this.nrRegistro = nrRegistro;
+    }
+
+    public Date getDtAlternaPrincipal() {
+        return dtAlternaPrincipal;
+    }
+
+    public void setDtAlternaPrincipal(Date dtAlternaPrincipal) {
+        this.dtAlternaPrincipal = dtAlternaPrincipal;
     }
 
 }

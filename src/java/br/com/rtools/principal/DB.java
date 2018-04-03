@@ -149,7 +149,7 @@ public class DB {
             case "ComercioRP":
                 configuracao.setCaminhoSistema(cliente);
                 configuracao.setPersistence("Sindical");
-                configuracao.setHost("200.152.187.241");
+                configuracao.setHost("45.225.170.26");
                 configuracao.setSenha("989899");
                 break;
             default:

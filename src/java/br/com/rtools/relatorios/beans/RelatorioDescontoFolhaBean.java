@@ -46,6 +46,7 @@ public class RelatorioDescontoFolhaBean implements Serializable {
 
     private String referenciaInicial;
     private String referenciaFinal;
+    private String movimentos;
 
     @PostConstruct
     public void init() {
@@ -58,6 +59,7 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         idRelatorioOrdem = null;
         referenciaInicial = null;
         referenciaFinal = null;
+        movimentos = "aberto";
         loadListaFiltro();
         loadRelatorio();
         loadRelatorioOrdem();
@@ -108,7 +110,7 @@ public class RelatorioDescontoFolhaBean implements Serializable {
 
         List<RelatorioDescontoFolha> rdfs = new ArrayList<>();
         sisProcesso.startQuery();
-        List list = new RelatorioDescontoFolhaDao().find(r.getId(), empresa_id, titular_id, rf_i);
+        List list = new RelatorioDescontoFolhaDao().find(r.getId(), empresa_id, titular_id, rf_i, movimentos);
         sisProcesso.finishQuery();
         ConfiguracaoSocial configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         for (int i = 0; i < list.size(); i++) {
@@ -244,6 +246,7 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         listFilters.add(new Filters("empresa", "Empresa", false));
         listFilters.add(new Filters("titular", "Titular", false));
         listFilters.add(new Filters("referencia", "Referência", true, true));
+        listFilters.add(new Filters("movimentos", "Movimentos", false));
     }
 
     // LISTENERS
@@ -259,6 +262,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             case "referencia":
                 referenciaInicial = null;
                 referenciaFinal = null;
+                break;
+            case "movimentos":
+                movimentos = "todos";
                 break;
         }
     }
@@ -276,11 +282,14 @@ public class RelatorioDescontoFolhaBean implements Serializable {
                     referenciaInicial = null;
                     referenciaFinal = null;
                     break;
+                case "movimentos":
+                    movimentos = "todos";
+                    break;
             }
         }
     }
 
-    // GETTERS AND SETTERS
+// GETTERS AND SETTERS
     public List<SelectItem> getListRelatorios() {
         return listRelatorio;
     }
@@ -374,6 +383,15 @@ public class RelatorioDescontoFolhaBean implements Serializable {
 
     public void setReferenciaFinal(String referenciaFinal) {
         this.referenciaFinal = referenciaFinal;
+    }
+
+    public String getMovimentos() {
+        return movimentos;
+    }
+
+    public void setMovimentos(String movimentos) {
+        this.movimentos = movimentos;
+
     }
 
     public class RelatorioDescontoFolha {

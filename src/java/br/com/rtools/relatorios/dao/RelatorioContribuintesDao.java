@@ -160,12 +160,13 @@ public class RelatorioContribuintesDao extends DB {
                     + "       p.id                     AS idPessoa              \n" // 29
                     + "        FROM pes_juridica j"
                     + "  INNER JOIN pes_pessoa             AS p on p.id = j.id_pessoa           \n"
-                    + "   LEFT JOIN pes_pessoa_endereco    AS pe on pe.id_pessoa = j.id_pessoa  \n"
-                    + "   LEFT JOIN end_endereco           AS e on e.id = pe.id_endereco        \n"
-                    + "   LEFT JOIN end_cidade             AS c on e.id_cidade = c.id           \n"
-                    + "   LEFT JOIN end_logradouro         AS l on l.id = e.id_logradouro       \n"
-                    + "   LEFT JOIN end_descricao_endereco AS de on de.id = e.id_descricao_endereco \n"
-                    + "   LEFT JOIN end_bairro             AS b on b.id = e.id_bairro               \n"
+                    + "  INNER JOIN arr_contribuintes_vw   AS CO on CO.id_juridica = j.id       \n"
+                    + "  INNER JOIN pes_pessoa_endereco    AS pe on pe.id_pessoa = j.id_pessoa  \n"
+                    + "  INNER JOIN end_endereco           AS e on e.id = pe.id_endereco        \n"
+                    + "  INNER JOIN end_cidade             AS c on e.id_cidade = c.id           \n"
+                    + "  INNER JOIN end_logradouro         AS l on l.id = e.id_logradouro       \n"
+                    + "  INNER JOIN end_descricao_endereco AS de on de.id = e.id_descricao_endereco \n"
+                    + "  INNER JOIN end_bairro             AS b on b.id = e.id_bairro               \n"
                     + "   LEFT JOIN pes_juridica           AS con on con.id = j.id_contabilidade    \n"
                     + "   LEFT JOIN pes_pessoa             AS conpes on conpes.id = con.id_pessoa   \n"
                     + "   LEFT JOIN pes_tipo_documento     AS t on t.id = p.id_tipo_documento       \n"
@@ -189,16 +190,18 @@ public class RelatorioContribuintesDao extends DB {
             // CONDICAO -----------------------------------------------------
             switch (condicao) {
                 case "contribuintes":
-                    listWhere.add("J.id IN (SELECT C.id_juridica FROM arr_contribuintes_vw C " + cg_where + ") ");
+                    // listWhere.add("J.id IN (SELECT C.id_juridica FROM arr_contribuintes_vw C " + cg_where + ") ");
                     break;
                 case "ativos":
-                    listWhere.add("J.id IN (SELECT C.id_juridica FROM arr_contribuintes_vw c WHERE C.dt_inativacao IS NULL " + cg_and + ") ");
+                    // listWhere.add("J.id IN (SELECT C.id_juridica FROM arr_contribuintes_vw c WHERE C.dt_inativacao IS NULL " + cg_and + ") ");
+                    listWhere.add("CO.dt_inativacao IS NULL");
                     break;
                 case "inativos":
-                    listWhere.add("J.id IN (SELECT C.id_juridica FROM arr_contribuintes_vw C WHERE C.dt_inativacao IS NOT NULL " + cg_and + ")");
+                    // listWhere.add("J.id IN (SELECT C.id_juridica FROM arr_contribuintes_vw C WHERE C.dt_inativacao IS NOT NULL " + cg_and + ")");
+                    listWhere.add("CO.dt_inativacao IS NOT NULL");
                     break;
                 case "naoContribuinte":
-                    listWhere.add("(J.id NOT IN (SELECT C.id_juridica FROM arr_contribuintes_vw C " + cg_where + ")) ");
+                    // listWhere.add("(J.id NOT IN (SELECT C.id_juridica FROM arr_contribuintes_vw C " + cg_where + ")) ");
                     break;
             }
 
@@ -307,7 +310,8 @@ public class RelatorioContribuintesDao extends DB {
 
             // CONVENÇÃO
             if (convencoes != null && !convencoes.isEmpty()) {
-                listWhere.add("j.id IN (select c.id_juridica from arr_contribuintes_vw c where id_convencao in (" + convencoes + ")) ");
+                // listWhere.add("j.id IN (select c.id_juridica from arr_contribuintes_vw c where id_convencao in (" + convencoes + ")) ");
+                listWhere.add("CO.id_convencao IN (" + convencoes + ") ");
             }
             // CNAES
             if (cnaes != null && !cnaes.isEmpty()) {
