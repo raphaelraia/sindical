@@ -48,10 +48,12 @@
                                 <h:outputText value="#{controleScripts.descricao}"/>
                             </p:column>
                             <p:column headerText="Status" styleClass="text-center">
-                                <p:outputLabel value="#{controleScripts.erro ? 'FALHOU' : ''}" styleClass="font-color-red" />
+                                <p:outputLabel value="#{controleScripts.erro ? 'FALHOU' : 'OK'}" styleClass="#{controleScripts.erro ? 'font-color-red bold' : 'font-color-blue bold'}" />
                             </p:column>
                             <p:column headerText="Tamanho" styleClass="text-center">
-                                <p:outputLabel value="#{controleScripts.tamanho} MB" />
+                                <p:outputLabel value="#{controleScripts.tamanho / 1024}">
+                                    <f:convertNumber maxFractionDigits="0"/>
+                                </p:outputLabel> MB
                             </p:column>
                         </p:dataTable>
                     </h:panelGroup>

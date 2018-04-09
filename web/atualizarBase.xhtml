@@ -47,7 +47,7 @@
                                     </p:selectBooleanCheckbox>
                                 </h:panelGrid>
                                 <h:outputLabel value="Script" /><br />
-                                <p:inputTextarea placeholder="Script" value="#{atualizarBaseBean.atualizarBase.script}" maxlength="5000" rows="20" style="width: 100%" addLine="true" autoResize="true" disabled="#{atualizarBaseBean.atualizarBase.id ne null and !atualizarBaseBean.updateScript}"/>
+                                <p:inputTextarea placeholder="Script" value="#{atualizarBaseBean.atualizarBase.script}" maxlength="20000" rows="20" style="width: 100%" addLine="true" autoResize="true" disabled="#{atualizarBaseBean.atualizarBase.id ne null and !atualizarBaseBean.updateScript}"/>
                                 <br />
                                 <br />
                                 <p:commandLink value="Editar" action="#{atualizarBaseBean.editScript()}" update=":form_atualizar_base:" styleClass="font-color-blue"/>

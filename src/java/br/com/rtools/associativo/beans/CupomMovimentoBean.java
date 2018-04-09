@@ -129,15 +129,17 @@ public class CupomMovimentoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Cadastrar cupons!");
             return;
         }
-        if (new FunctionsDao().inadimplente(pessoa.getId(), cupom.getCarenciaInadimplenciaDias())) {
-            GenericaMensagem.warn("Validação", "Consta inadimplência acima de " + cupom.getCarenciaInadimplenciaDias() + " dia(s)");
-            return;
-        }
         Dao dao = new Dao();
+        Cupom c = (Cupom) dao.find(new Cupom(), idCupom);
+        if (new FunctionsDao().inadimplente(pessoa.getId(), cupom.getCarenciaInadimplenciaDias())) {
+            GenericaMensagem.warn("Validação", "Existe(m) Débito(s) para esta pessoa!");
+            if(c.getBloqueiaDebito()) {
+                return;
+            }
+        }
         CupomMovimento cm = new CupomMovimento();
         NovoLog novoLog = new NovoLog();
         novoLog.saveList();
-        Cupom c = (Cupom) dao.find(new Cupom(), idCupom);
         dao.openTransaction();
         Boolean success = false;
         for (int i = 0; i < sociosCupomMovimento.size(); i++) {

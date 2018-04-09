@@ -2,6 +2,8 @@ package br.com.rtools.associativo.dao;
 
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -10,143 +12,343 @@ import javax.persistence.Query;
 public class ExtratoTelaSocialDao extends DB {
 
     public List<Vector> listaMovimentosSocial(
-            String porPesquisa, String ordenacao, String tipoDataPesquisa, String dataInicial, String dataFinal, String dataRefInicial, String dataRefFinal, String boletoInicial, String boletoFinal, String tipoPessoa, Integer id_pessoa, Integer id_servico, Integer id_tipo_servico, Integer id_status_retorno, String id_boleto_adicionado_remessa, Integer id_conta_cobranca
+            String tipo, String ordenacao, String faixa_data, String tipo_data, String data_inicial, String data_final, String referencia_inicial, String referencia_final, String boleto_inicial, String boleto_final, String tipo_pessoa, Integer pessoa_id, Integer id_servico, Integer id_tipo_servico, Integer id_status_retorno, String id_boleto_adicionado_remessa, Integer id_conta_cobranca, Integer filial_id
     ) {
+        List listWhere = new ArrayList();
+        String queryString
+                = "      -- ExtratoTelaSocialDao->listaMovimentosSocial(" + Usuario.getUsuario().getPessoa().getNome() + ") \n\n"
+                + "      SELECT M.id,                                           \n " // 00
+                + "             PR.ds_documento,                                \n " // 01
+                + "             PR.ds_nome,                                     \n " // 02
+                + "             PT.ds_nome,                                     \n " // 03
+                + "             PB.ds_nome,                                     \n " // 04
+                + "             BO.ds_boleto AS boleto,                         \n " // 05
+                + "             S.ds_descricao,                                 \n " // 06
+                + "             TS.ds_descricao,                                \n " // 07
+                + "             M.ds_referencia,                                \n " // 08
+                + "             M.dt_vencimento,                                \n " // 09
+                + "             M.nr_valor,                                     \n " // 10
+                + "             B.dt_baixa,                                     \n " // 11
+                + "             M.nr_valor_baixa,                               \n " // 12
+                + "             M.nr_taxa,                                      \n " // 13
+                + "             M.id_baixa,                                     \n " // 14
+                + "             BO.id,                                          \n " // 15
+                + "             PT.ds_documento,                                \n " // 16
+                + "             PB.ds_documento,                                \n " // 17
+                + "             BO.dt_vencimento,                               \n " // 18
+                + "             BO.dt_vencimento_original,                      \n " // 19
+                + "             B.dt_importacao,                                \n " // 20
+                + "             B.dt_ocorrencia                                 \n " // 21
+                + "        FROM fin_movimento M \n "
+                + "  INNER JOIN pes_pessoa       PR ON PR.id = M.id_pessoa -- RESPONSAVEL           \n "
+                + "  INNER JOIN pes_pessoa       PT ON PT.id = M.id_titular -- TITULAR              \n "
+                + "  INNER JOIN pes_pessoa       PB ON PB.id = M.id_beneficiario -- BENEFICIARIO    \n "
+                + "  INNER JOIN fin_servicos     S  ON S.id  = M.id_servicos                        \n "
+                + "  INNER JOIN fin_tipo_servico TS ON TS.id = M.id_tipo_servico                    \n "
+                + "   LEFT JOIN fin_baixa        B  ON B.id  = M.id_baixa                           \n "
+                + "   LEFT JOIN fin_boleto       BO ON BO.nr_ctr_boleto = M.nr_ctr_boleto           \n ";
+        // PEGAR MOVIMENTOS QUE FORAM EXCLUIDOS ----------------------------------
+        //                + "   LEFT JOIN fin_movimento_inativo mi ON m.id = mi.id_movimento \n "
+        //                + "   LEFT JOIN seg_usuario u ON u.id = mi.id_usuario \n "
+        //                + "   LEFT JOIN pes_pessoa pu ON pu.id = u.id_pessoa \n "
+        // PEGAR MOVIMENTOS QUE FORAM EXCLUIDOS ----------------------------------
+        // + "  WHERE M.is_ativo = true AND s.id NOT IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4) \n ";
+        listWhere.add("M.id_servicos NOT IN (SELECT SR.id_servicos FROM fin_servico_rotina SR WHERE SR.id_rotina = 4) ");
+        listWhere.add("M.is_ativo = true");
 
-        String text
-                = " SELECT m.id, \n " // 00
-                + "        pr.ds_documento, \n " // 01
-                + "        pr.ds_nome, \n " // 02
-                + "        pt.ds_nome, \n " // 03
-                + "        pb.ds_nome, \n " // 04
-                + "        bo.ds_boleto as boleto, \n " // 05
-                + "        s.ds_descricao, \n " // 06
-                + "        ts.ds_descricao, \n " // 07
-                + "        m.ds_referencia, \n " // 08
-                + "        m.dt_vencimento, \n " // 09
-                + "        m.nr_valor, \n " // 10
-                + "        b.dt_baixa, \n " // 11
-                + "        m.nr_valor_baixa, \n " // 12
-                + "        m.nr_taxa, \n " // 13
-                + "        m.id_baixa, \n " // 14
-                + "        bo.id, \n " // 15
-                + "        pt.ds_documento, \n " // 16
-                + "        pb.ds_documento, \n " // 17
-                + "        bo.dt_vencimento, \n " // 18
-                + "        bo.dt_vencimento_original, \n " // 19
-                + "        b.dt_importacao \n " // 20
-                + "   FROM fin_movimento m \n "
-                + "  INNER JOIN pes_pessoa pr ON pr.id = m.id_pessoa -- RESPONSAVEL \n "
-                + "  INNER JOIN pes_pessoa pt ON pt.id = m.id_titular -- TITULAR \n "
-                + "  INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario -- BENEFICIARIO \n "
-                + "  INNER JOIN fin_servicos s ON s.id = m.id_servicos \n "
-                + "  INNER JOIN fin_tipo_servico ts ON ts.id = m.id_tipo_servico \n "
-                + "   LEFT JOIN fin_baixa b ON b.id = m.id_baixa \n "
-                + "   LEFT JOIN fin_boleto bo ON bo.nr_ctr_boleto = m.nr_ctr_boleto \n "
-                // PEGAR MOVIMENTOS QUE FORAM EXCLUIDOS ----------------------------------
-                //                + "   LEFT JOIN fin_movimento_inativo mi ON m.id = mi.id_movimento \n "
-                //                + "   LEFT JOIN seg_usuario u ON u.id = mi.id_usuario \n "
-                //                + "   LEFT JOIN pes_pessoa pu ON pu.id = u.id_pessoa \n "
-                // PEGAR MOVIMENTOS QUE FORAM EXCLUIDOS ----------------------------------
-                + "  WHERE m.is_ativo = true AND s.id NOT IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4) \n ";
-
-        String and = "", order = "";
-
-        switch (porPesquisa) {
+        switch (tipo) {
             case "todos":
                 break;
 
             case "recebidas":
-                and += " AND m.id_baixa IS NOT NULL \n ";
+                listWhere.add("M.id_baixa IS NOT NULL");
                 break;
 
-            case "naoRecebidas":
-                and += " AND m.id_baixa IS NULL \n ";
+            case "nao_recebidas":
+                listWhere.add("M.id_baixa IS NULL");
                 break;
 
             case "atrasadas":
-                and += " AND m.id_baixa IS NULL AND m.dt_vencimento < CURRENT_DATE \n ";
+                listWhere.add("M.id_baixa IS NULL AND m.dt_vencimento < CURRENT_DATE");
                 break;
         }
 
-        if (id_pessoa != null && id_pessoa != -1) {
-            switch (tipoPessoa) {
+        if (pessoa_id != null && pessoa_id != -1) {
+            switch (tipo_pessoa) {
                 case "nenhum":
-                    //and += " AND m.id_pessoa = "+id_pessoa;
+                    //and += " AND M.id_pessoa = "+pessoa_id;
                     break;
-
                 case "responsavel":
-                    and += " AND m.id_pessoa = " + id_pessoa;
+                    listWhere.add("M.id_pessoa = " + pessoa_id);
                     break;
-
                 case "titular":
-                    and += " AND m.id_titular = " + id_pessoa;
+                    listWhere.add("M.id_titular = " + pessoa_id);
                     break;
-
                 case "beneficiario":
-                    and += " AND m.id_beneficiario = " + id_pessoa;
+                    listWhere.add("M.id_beneficiario = " + pessoa_id);
                     break;
             }
         }
-
-        switch (tipoDataPesquisa) {
-            case "recebimento":
-                if (!dataInicial.isEmpty() && dataFinal.isEmpty()) {
-                    and += " and b.dt_baixa >= '" + dataInicial + "'";
-                } else if (!dataInicial.isEmpty() && !dataFinal.isEmpty()) {
-                    and += " and b.dt_baixa >= '" + dataInicial + "' and b.dt_baixa <= '" + dataFinal + "'";
-                } else if (dataInicial.isEmpty() && !dataFinal.isEmpty()) {
-                    and += "' and b.dt_baixa <= '" + dataFinal + "'";
+        switch (faixa_data) {
+            case "ocorrencia":
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_ocorrencia = '" + data_inicial + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_ocorrencia >= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_ocorrencia <= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            listWhere.add("BA.dt_ocorrencia >= '" + data_inicial + "' AND BA.dt_ocorrencia <= '" + data_final + "'");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "baixa":
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_baixa = '" + data_inicial + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_baixa >= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_baixa <= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            listWhere.add("BA.dt_baixa >= '" + data_inicial + "' AND BA.dt_baixa <= '" + data_final + "'");
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
             case "importacao":
-                if (!dataInicial.isEmpty() && dataFinal.isEmpty()) {
-                    and += " and b.dt_importacao >= '" + dataInicial + "'";
-                } else if (!dataInicial.isEmpty() && !dataFinal.isEmpty()) {
-                    and += " and b.dt_importacao >= '" + dataInicial + "' and b.dt_importacao <= '" + dataFinal + "'";
-                } else if (dataInicial.isEmpty() && !dataFinal.isEmpty()) {
-                    and += "' and b.dt_importacao <= '" + dataFinal + "'";
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_importacao = '" + data_inicial + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_importacao >= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("BA.dt_importacao <= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            listWhere.add("BA.dt_importacao >= '" + data_inicial + "' AND BA.dt_importacao <= '" + data_final + "'");
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
             case "vencimento":
-                if (!dataInicial.isEmpty() && dataFinal.isEmpty()) {
-                    and += " and m.dt_vencimento >= '" + dataInicial + "'";
-                } else if (!dataInicial.isEmpty() && !dataFinal.isEmpty()) {
-                    and += " and m.dt_vencimento >= '" + dataInicial + "' and m.dt_vencimento <= '" + dataFinal + "'";
-                } else if (dataInicial.isEmpty() && !dataFinal.isEmpty()) {
-                    and += "' and m.dt_vencimento <= '" + dataFinal + "'";
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("M.dt_vencimento = '" + data_inicial + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("M.dt_vencimento >= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("M.dt_vencimento <= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            listWhere.add("M.dt_vencimento >= '" + data_inicial + "' AND M.dt_vencimento <= '" + data_final + "'");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "lancamento":
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("L.dt_lancamento = '" + data_inicial + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("L.dt_lancamento >= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("L.dt_lancamento <= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            listWhere.add("L.dt_lancamento >= '" + data_inicial + "' AND L.dt_lancamento <= '" + data_final + "'");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "registro":
+                switch (tipo_data) {
+                    case "igual":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("B.dt_cobranca_registrada = '" + data_inicial + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("B.dt_cobranca_registrada >= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!data_inicial.isEmpty()) {
+                            listWhere.add("B.dt_cobranca_registrada <= '" + data_inicial + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+                            listWhere.add("B.dt_cobranca_registrada >= '" + data_inicial + "' AND B.dt_cobranca_registrada <= '" + data_final + "'");
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
             case "referencia":
-                if (!dataRefInicial.isEmpty() && dataRefFinal.isEmpty()) {
-                    String ini = dataRefInicial.substring(3, 7) + dataRefInicial.substring(0, 2);
-                    and += " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "'";
-                } else if (!dataRefInicial.isEmpty() && !dataRefFinal.isEmpty()) {
-                    String ini = dataRefInicial.substring(3, 7) + dataRefInicial.substring(0, 2);
-                    String fin = dataRefFinal.substring(3, 7) + dataRefFinal.substring(0, 2);
-                    and += " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "' and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "'";
-                } else if (dataRefInicial.isEmpty() && !dataRefFinal.isEmpty()) {
-                    String fin = dataRefFinal.substring(3, 7) + dataRefFinal.substring(0, 2);
-                    and += "' substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "'";
+
+                switch (tipo_data) {
+                    case "igual":
+                        if (!referencia_inicial.isEmpty()) {
+                            String ini = referencia_inicial.substring(3, 7) + referencia_inicial.substring(0, 2);
+                            listWhere.add("substring(M.ds_referencia, 4, 8)|| substring(M.ds_referencia, 0, 3) = '" + ini + "'");
+                        }
+                        break;
+                    case "apartir":
+                        if (!referencia_inicial.isEmpty()) {
+                            String ini = referencia_final.substring(3, 7) + referencia_final.substring(0, 2);
+                            listWhere.add("substring(M.ds_referencia, 4, 8)|| substring(M.ds_referencia, 0, 3) >= '" + ini + "'");
+                        }
+                        break;
+                    case "ate":
+                        if (!referencia_inicial.isEmpty()) {
+                            String ini = referencia_final.substring(3, 7) + referencia_final.substring(0, 2);
+                            listWhere.add("substring(M.ds_referencia, 4, 8)|| substring(M.ds_referencia, 0, 3) <= '" + ini + "'");
+                        }
+                        break;
+                    case "faixa":
+                        if (!referencia_inicial.isEmpty() && !referencia_final.isEmpty()) {
+                            String ini = referencia_inicial.substring(3, 7) + referencia_inicial.substring(0, 2);
+                            String fin = referencia_final.substring(3, 7) + referencia_final.substring(0, 2);
+                            listWhere.add("substring(M.ds_referencia, 4, 8)|| substring(M.ds_referencia, 0, 3) >= '" + ini + "' AND substring(M.ds_referencia, 4, 8)|| substring(M.ds_referencia, 0, 3) <= '" + fin + "' \n ");
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
         }
+//        switch (tipoDataPesquisa) {
+//            case "recebimento":
+//                if (!dataInicial.isEmpty() && dataFinal.isEmpty()) {
+//                    and += " and b.dt_baixa >= '" + dataInicial + "'";
+//                } else if (!dataInicial.isEmpty() && !dataFinal.isEmpty()) {
+//                    and += " and b.dt_baixa >= '" + dataInicial + "' and b.dt_baixa <= '" + dataFinal + "'";
+//                } else if (dataInicial.isEmpty() && !dataFinal.isEmpty()) {
+//                    and += "' and b.dt_baixa <= '" + dataFinal + "'";
+//                }
+//                break;
+//            case "importacao":
+//                if (!dataInicial.isEmpty() && dataFinal.isEmpty()) {
+//                    and += " and b.dt_importacao >= '" + dataInicial + "'";
+//                } else if (!dataInicial.isEmpty() && !dataFinal.isEmpty()) {
+//                    and += " and b.dt_importacao >= '" + dataInicial + "' and b.dt_importacao <= '" + dataFinal + "'";
+//                } else if (dataInicial.isEmpty() && !dataFinal.isEmpty()) {
+//                    and += "' and b.dt_importacao <= '" + dataFinal + "'";
+//                }
+//                break;
+//            case "vencimento":
+//                if (!dataInicial.isEmpty() && dataFinal.isEmpty()) {
+//                    and += " and m.dt_vencimento >= '" + dataInicial + "'";
+//                } else if (!dataInicial.isEmpty() && !dataFinal.isEmpty()) {
+//                    and += " and m.dt_vencimento >= '" + dataInicial + "' and m.dt_vencimento <= '" + dataFinal + "'";
+//                } else if (dataInicial.isEmpty() && !dataFinal.isEmpty()) {
+//                    and += "' and m.dt_vencimento <= '" + dataFinal + "'";
+//                }
+//                break;
+//            case "referencia":
+//                if (!dataRefInicial.isEmpty() && dataRefFinal.isEmpty()) {
+//                    String ini = dataRefInicial.substring(3, 7) + dataRefInicial.substring(0, 2);
+//                    and += " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "'";
+//                } else if (!dataRefInicial.isEmpty() && !dataRefFinal.isEmpty()) {
+//                    String ini = dataRefInicial.substring(3, 7) + dataRefInicial.substring(0, 2);
+//                    String fin = dataRefFinal.substring(3, 7) + dataRefFinal.substring(0, 2);
+//                    and += " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "' and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "'";
+//                } else if (dataRefInicial.isEmpty() && !dataRefFinal.isEmpty()) {
+//                    String fin = dataRefFinal.substring(3, 7) + dataRefFinal.substring(0, 2);
+//                    and += "' substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "'";
+//                }
+//                break;
+//        }
 
-        if (!boletoInicial.isEmpty() && boletoFinal.isEmpty()) {
-            and += " and bo.ds_boleto >= '" + boletoInicial + "'";
-        } else if (!boletoInicial.isEmpty() && !boletoFinal.isEmpty()) {
-            and += " and bo.ds_boleto >= '" + boletoInicial + "'"
-                    + " and bo.ds_boleto <= '" + boletoFinal + "'";
-        } else if (boletoInicial.isEmpty() && !boletoFinal.isEmpty()) {
-            and += " and bo.ds_boleto <= '" + boletoFinal + "'";
+        if (!boleto_inicial.isEmpty() || !boleto_final.isEmpty()) {
+            if (boleto_inicial.equals("0")) {
+                boleto_inicial = "";
+            }
+            if (boleto_final.equals("0")) {
+                boleto_final = "";
+            }
+            if (!boleto_inicial.isEmpty() && boleto_final.isEmpty()) {
+                listWhere.add("B.ds_boleto >= '" + boleto_inicial + "' ");
+            } else if (!boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
+                listWhere.add("B.ds_boleto >= '" + boleto_inicial + "'");
+                listWhere.add("B.ds_boleto <= '" + boleto_final + "' ");
+            } else if (boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
+                listWhere.add("B.ds_boleto <= '" + boleto_final + "'");
+            }
+        }
+
+        if (filial_id != null) {
+            listWhere.add("L.id_filial = " + filial_id);
         }
 
         if (id_servico != 0) {
-            and += " AND m.id_servicos = " + id_servico;
+            listWhere.add("M.id_servicos = " + id_servico);
         }
 
         if (id_tipo_servico != 0) {
-            and += " AND m.id_tipo_servico = " + id_tipo_servico;
+            listWhere.add("M.id_tipo_servico = " + id_tipo_servico);
         }
 
         switch (id_status_retorno) {
@@ -155,48 +357,59 @@ public class ExtratoTelaSocialDao extends DB {
                 break;
             case -2:
                 // NÃO REGISTRADOS
-                and += " AND (bo.id_status_retorno IS NULL OR bo.id_status_retorno = 4) AND bo.dt_vencimento > CURRENT_DATE";
+                listWhere.add("(BO.id_status_retorno IS NULL OR BO.id_status_retorno = 4) AND BO.dt_vencimento > CURRENT_DATE");
                 break;
             default:
                 // STATUS
-                and += " AND bo.id_status_retorno = " + id_status_retorno;
+                listWhere.add("BO.id_status_retorno = " + id_status_retorno);
                 break;
         }
-        
+
         if (!id_boleto_adicionado_remessa.isEmpty()) {
-            and += " AND bo.id NOT IN (" + id_boleto_adicionado_remessa + ")";
+            listWhere.add("BO.id NOT IN (" + id_boleto_adicionado_remessa + ")");
         }
 
         if (id_conta_cobranca != -1) {
-            and += " AND bo.id_conta_cobranca = " + id_conta_cobranca;
+            listWhere.add("BO.id_conta_cobranca = " + id_conta_cobranca);
         }
-        
+        for (int i = 0; i < listWhere.size(); i++) {
+            if (i == 0) {
+                queryString += " WHERE " + listWhere.get(i).toString() + " \n";
+            } else {
+                queryString += " AND " + listWhere.get(i).toString() + " \n";
+            }
+        }
+        String orderBy = "";
         switch (ordenacao) {
             case "referencia":
-                order += " ORDER BY substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) DESC \n";
+                orderBy += " ORDER BY substring(M.ds_referencia, 4, 8)|| substring(M.ds_referencia, 0, 3) DESC \n";
                 break;
 
             case "vencimento":
-                order += " ORDER BY m.dt_vencimento DESC \n";
+                orderBy += " ORDER BY M.dt_vencimento DESC \n";
                 break;
 
-            case "quitacao":
-                order += " ORDER BY b.dt_baixa DESC \n";
+            case "baixa":
+                orderBy += " ORDER BY B.dt_baixa DESC \n";
+                break;
+
+            case "ocorrencia":
+                orderBy += " ORDER BY B.dt_ocorrencia DESC \n";
                 break;
 
             case "importacao":
-                order += " ORDER BY b.dt_importacao DESC \n";
+                orderBy += " ORDER BY B.dt_importacao DESC \n";
                 break;
 
             case "boleto":
-                order += " ORDER BY bo.ds_boleto DESC \n";
+                orderBy += " ORDER BY BO.ds_boleto DESC \n";
                 break;
         }
 
+        queryString += orderBy + " LIMIT 15000 ";
+        Debugs.put("habilitaDebugQuery", queryString);
         try {
-            Query qry = getEntityManager().createNativeQuery(
-                    text + and + order + " LIMIT 15000 "
-            );
+            Query qry = getEntityManager().createNativeQuery(queryString);
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

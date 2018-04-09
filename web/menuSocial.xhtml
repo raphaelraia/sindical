@@ -75,6 +75,8 @@
                                             <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
                                         </p:submenu>
                                         
+                                        <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupom')}" />
+                                        
                                         <p:menuitem value="Banda"               action="#{chamadaPaginaBean.bandas}" />
                                     </p:submenu>
 
@@ -85,8 +87,7 @@
                                         <p:menuitem value="Modelo" action="#{chamadaPaginaBean.pagina('modeloCarteirinha')}"/>
                                     </p:submenu>
 
-                                    <p:menuitem value="Administradora"          action="#{chamadaPaginaBean.pagina('administradora')}" />
-                                    <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupom')}" />
+                                    <p:menuitem value="Administradora"          action="#{chamadaPaginaBean.pagina('administradora')}" />                                    
 
                                     <p:submenu label="Suporte">
                                         <p:menuitem value="Feriados"            action="#{chamadaPaginaBean.pagina('feriados')}" />
@@ -100,14 +101,14 @@
                                         <p:menuitem value="Sorteio Categoria"   disabled="true"/>
                                         <p:menuitem value="Sorteio Status"      disabled="true"/>
                                         <p:menuitem value="Período Mensalidade" action="#{chamadaPaginaBean.pagina('periodoMensalidade')}" />
+                                        <p:menuitem value="Credenciadores"             action="#{chamadaPaginaBean.pagina('credenciadores')}" />
                                     </p:submenu>
 
                                     <p:submenu label="Declarações">
                                         <p:menuitem value="Tipo" action="#{chamadaPaginaBean.pagina('declaracaoTipo')}" />
                                         <p:menuitem value="Grupo" action="#{chamadaPaginaBean.pagina('declaracaoGrupo')}" />
                                         <p:menuitem value="Emissão" action="#{chamadaPaginaBean.pagina('declaracaoPessoa')}" />
-                                    </p:submenu>
-                                    <p:menuitem value="Credenciadores"             action="#{chamadaPaginaBean.pagina('credenciadores')}" />
+                                    </p:submenu>                                    
                                 </p:submenu>
 
                                 <p:submenu label="Movimento" style="margin-right: 15px">

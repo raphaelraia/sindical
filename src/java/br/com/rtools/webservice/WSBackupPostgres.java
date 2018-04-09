@@ -3,6 +3,7 @@ package br.com.rtools.webservice;
 import br.com.rtools.sistema.BackupPostgres;
 import br.com.rtools.sistema.dao.BackupPostgresDao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,6 +29,21 @@ public class WSBackupPostgres implements Serializable {
 
     public void exists() {
         try {
+            try {
+                Integer backup_postgres_id = Integer.parseInt(GenericaRequisicao.getParametro("backup_postgres_id"));
+                if (backup_postgres_id != null && backup_postgres_id != 0) {
+                    Dao dao = new Dao();
+                    BackupPostgres bp = (BackupPostgres) dao.find(new BackupPostgres(), backup_postgres_id);
+                    if(bp != null) {
+                        bp = (BackupPostgres) dao.rebind(bp);
+                        bp.setDtProcessado(new Date());
+                        dao.update(bp, true);
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ExternalContext externalContext = facesContext.getExternalContext();
             externalContext.setResponseContentType("application/json");
@@ -37,7 +53,7 @@ public class WSBackupPostgres implements Serializable {
             try {
                 BackupPostgres bp = new BackupPostgresDao().exist();
                 if (bp != null) {
-                    bp.setDtProcessado(new Date());
+                    bp = (BackupPostgres) new Dao().rebind(bp);
                     new Dao().update(bp, true);
                 }
                 JSONObject obj = new JSONObject();

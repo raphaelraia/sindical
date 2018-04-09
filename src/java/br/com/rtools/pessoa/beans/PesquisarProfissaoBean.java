@@ -22,18 +22,21 @@ public class PesquisarProfissaoBean implements Serializable {
         combo = "profissao";
         listaProfissao = new ArrayList();
     }
-    
+
     public void sortByProfissao() {
         //profissaoOrder = SortOrder.unsorted;
-    }  
+    }
 
     public List<Profissao> getListaProfissao() {
         if (listaProfissao.isEmpty() && !por.isEmpty()) {
             ProfissaoDao db = new ProfissaoDao();
-            if (!descricaoProfissao.isEmpty()) 
+            if (!descricaoProfissao.isEmpty()) {
                 listaProfissao = (List<Profissao>) db.pesquisaProfParametros(por, combo, descricaoProfissao);
-            else
+            } else if (!profissao.getDescricaoPesquisa().isEmpty()) {
+                listaProfissao = (List<Profissao>) db.pesquisaProfParametros(por, combo, profissao.getDescricaoPesquisa());
+            } else {
                 listaProfissao = (List<Profissao>) db.pesquisaProfParametros(por, combo, profissao.getProfissao());
+            }
         }
         return listaProfissao;
     }

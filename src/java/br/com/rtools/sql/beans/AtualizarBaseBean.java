@@ -307,7 +307,9 @@ public class AtualizarBaseBean implements Serializable {
         selectedConfiguracao = null;
         List<Configuracao> list = new Dao().list(new Configuracao(), true);
         for (int i = 0; i < list.size(); i++) {
-            listConfiguracao.put(list.get(i).getIdentifica(), list.get(i).getId());
+            if(list.get(i).getAtivo()) {
+                listConfiguracao.put(list.get(i).getIdentifica(), list.get(i).getId());                
+            }
         }
     }
 

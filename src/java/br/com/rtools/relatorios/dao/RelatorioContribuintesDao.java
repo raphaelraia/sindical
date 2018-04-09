@@ -177,8 +177,7 @@ public class RelatorioContribuintesDao extends DB {
                     + "   LEFT JOIN end_logradouro         AS lcon  on lcon.id = econ.id_logradouro \n"
                     + "   LEFT JOIN end_descricao_endereco AS decon on decon.id = econ.id_descricao_endereco \n"
                     + "   LEFT JOIN end_bairro             AS bcon  on bcon.id = econ.id_bairro     \n"
-                    + "   LEFT JOIN pes_centro_comercial   AS CECOM ON CECOM.id_juridica = j.id     \n"
-                    + "   LEFT JOIN arr_contribuintes_inativos  AS ACC ON ACC.id_juridica = j.id     \n";
+                    + "   LEFT JOIN pes_centro_comercial   AS CECOM ON CECOM.id_juridica = j.id     \n"; 
 
             // CONVENCAO GRUPO --------------------------------------------
             String cg_where = "", cg_and = "";

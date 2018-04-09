@@ -59,7 +59,7 @@ public class ExtratoTelaBean implements Serializable {
     private String porPesquisa = "";
     private String geraPesquisa = "naoVerificar";
     private String tipoData = "faixa";
-    private String tipoDataPesquisa = "vencimento";
+    private String tipoDataPesquisa = "ocorrencia";
     private String ordenacao = "referencia";
     private String dataInicial = "";
     private String dataFinal = "";
@@ -334,7 +334,7 @@ public class ExtratoTelaBean implements Serializable {
                 statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
                 break;
         }
-        
+
         // ADICIONA BOLETO QUE FOI SELECIONADO NA TELA
         for (Movimento mov : lista_movimento_validado) {
 
@@ -524,10 +524,10 @@ public class ExtratoTelaBean implements Serializable {
             return;
         }
 
-        if (!visibleModalRemessa){
+        if (!visibleModalRemessa) {
             id_boleto_adicionado_remessa = "";
         }
-        
+
         Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
 
         // TODOS BOLETOS / BOLETO REGISTRADO / BOLETO LIQUIDADO
@@ -822,7 +822,11 @@ public class ExtratoTelaBean implements Serializable {
                     listMovimentoAcordo, // ARG 27 MOVIMENTOS ACORDO
                     linha_list.get(22), // ARG 28 null
                     m, //  ARG 29 MOVIMENTO
-                    linha_list.get(24) //  ARG 30 id_boleto
+                    linha_list.get(24), //  ARG 30 id_boleto
+                    linha_list.get(25), //  ARG 31 Data ocorrência
+                    null,
+                    null,
+                    null
             )
             );
 

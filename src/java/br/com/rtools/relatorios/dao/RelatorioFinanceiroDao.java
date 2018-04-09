@@ -18,7 +18,7 @@ import javax.persistence.Query;
 
 public class RelatorioFinanceiroDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, String tipo_caixa, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String tipo_pessoa, String tipo_situacao, Integer id_filial, String order, Relatorios relatorio) {
+    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataBaixa, String dataBaixaFinal, String dataOcorrencia, String dataOcorrenciaFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, String tipo_caixa, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String tipo_pessoa, String tipo_situacao, Integer id_filial, String order, Relatorios relatorio) {
 //        String select
 //                = "SELECT \n "
 //                + "       grupo, \n "
@@ -111,12 +111,21 @@ public class RelatorioFinanceiroDao extends DB {
         }
 
         // DATA QUITAÇÃO ---
-        if (!dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-            list_where.add(" m.baixa BETWEEN '" + dataQuitacao + "' AND '" + dataQuitacaoFinal + "' ");
-        } else if (!dataQuitacao.isEmpty() && dataQuitacaoFinal.isEmpty()) {
-            list_where.add(" m.baixa >= '" + dataQuitacao + "' ");
-        } else if (dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-            list_where.add(" m.baixa <= '" + dataQuitacaoFinal + "' ");
+        if (!dataBaixa.isEmpty() && !dataBaixaFinal.isEmpty()) {
+            list_where.add(" m.baixa BETWEEN '" + dataBaixa + "' AND '" + dataBaixaFinal + "' ");
+        } else if (!dataBaixa.isEmpty() && dataBaixaFinal.isEmpty()) {
+            list_where.add(" m.baixa >= '" + dataBaixa + "' ");
+        } else if (dataBaixa.isEmpty() && !dataBaixaFinal.isEmpty()) {
+            list_where.add(" m.baixa <= '" + dataBaixaFinal + "' ");
+        }
+        
+        // DATA OCORRÊNCIA ---
+        if (!dataOcorrencia.isEmpty() && !dataOcorrenciaFinal.isEmpty()) {
+            list_where.add(" m.ocorrencia BETWEEN '" + dataOcorrencia + "' AND '" + dataOcorrenciaFinal + "' ");
+        } else if (!dataOcorrencia.isEmpty() && dataOcorrenciaFinal.isEmpty()) {
+            list_where.add(" m.ocorrencia >= '" + dataOcorrencia + "' ");
+        } else if (dataOcorrencia.isEmpty() && !dataOcorrenciaFinal.isEmpty()) {
+            list_where.add(" m.ocorrencia <= '" + dataOcorrenciaFinal + "' ");
         }
 
         // DATA IMPORTACAO ---

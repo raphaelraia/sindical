@@ -39,148 +39,175 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Extrato Tela Social" styleClass="fonteHeader" />
                         <h:form id="formExtratoTelaSocial">
-                            
-                            <h:panelGrid id="header_opcoes" columns="5" style="clear: both;">
-                                <h:column>
-                                    <p:outputLabel value="Filtrar por" /><br />
-                                    <p:selectOneMenu value="#{extratoTelaSocialBean.porPesquisa}" style="margin-right: 20px">
-                                        <p:ajax event="change" update="@this" />
-                                        <f:selectItem itemValue="todos"             itemLabel="Todas"/>
-                                        <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
-                                        <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
-                                        <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
-                                    </p:selectOneMenu>
-                                </h:column>
+                            <div class="clear"></div>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid id="header_opcoes" columns="8" cellspacing="5">
+                                    <h:column>
+                                        <p:outputLabel value="Filtrar por" /><br />
+                                        <p:selectOneMenu value="#{extratoTelaSocialBean.porPesquisa}">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItem itemValue="todos"             itemLabel="Todas"/>
+                                            <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
+                                            <f:selectItem itemValue="nao_recebidas"     itemLabel="Não Recebidas"/>
+                                            <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
 
-                                <h:column>
-                                    <p:outputLabel value="Status do Boleto"/><br />
-                                    <p:selectOneMenu value="#{extratoTelaSocialBean.indexListaStatusRetorno}" style="margin-right: 20px">
-                                        <p:ajax event="change" update="header_opcoes" global="false" listener="#{extratoTelaSocialBean.changeStatusRetorno}"/>
-                                        <f:selectItems value="#{extratoTelaSocialBean.listaStatusRetorno}" />
-                                    </p:selectOneMenu>
-                                </h:column>
+                                    <h:column>
+                                        <p:outputLabel value="Status do Boleto"/><br />
+                                        <p:selectOneMenu value="#{extratoTelaSocialBean.indexListaStatusRetorno}" >
+                                            <p:ajax event="change" update="header_opcoes" global="false" listener="#{extratoTelaSocialBean.changeStatusRetorno}"/>
+                                            <f:selectItems value="#{extratoTelaSocialBean.listaStatusRetorno}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
 
-                                <h:column>
-                                    <p:outputLabel value="Ordenação" /><br />
-                                    <p:selectOneMenu value="#{extratoTelaSocialBean.ordenacao}">
-                                        <p:ajax event="change" update="@this"/>
-                                        <f:selectItem itemValue="referencia" itemLabel="Referência"/>
-                                        <f:selectItem itemValue="vencimento" itemLabel="Vencimento"/>
-                                        <f:selectItem itemValue="quitacao"   itemLabel="Quitação"/>
-                                        <f:selectItem itemValue="importacao" itemLabel="Importação"/>
-                                        <f:selectItem itemValue="boleto"     itemLabel="Boleto"/>
-                                    </p:selectOneMenu>
-                                </h:column>
+                                    <h:column>
+                                        <p:outputLabel value="Ordenação" /><br />
+                                        <p:selectOneMenu value="#{extratoTelaSocialBean.ordenacao}">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItem itemValue="referencia" itemLabel="Referência"/>
+                                            <f:selectItem itemValue="vencimento" itemLabel="Vencimento"/>
+                                            <f:selectItem itemValue="baixa"      itemLabel="Baixa"/>
+                                            <f:selectItem itemValue="ocorrencia" itemLabel="Ocorrência"/>
+                                            <f:selectItem itemValue="importacao" itemLabel="Importação"/>
+                                            <f:selectItem itemValue="boleto"     itemLabel="Boleto"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
 
-                                <h:column>
-                                    <h:panelGrid>                                    
-                                        <p:outputLabel value="Conta Cobrança" />
-                                        <h:panelGrid rendered="#{extratoTelaSocialBean.statusRemessa.id eq -1}">
-                                            <p:selectOneMenu value="#{extratoTelaSocialBean.indexConta}" autoWidth="false" style="width: 250px">
-                                                <p:ajax event="change" update="formExtratoTelaSocial" listener="#{extratoTelaSocialBean.alterarContaRemessa()}"/>
-                                                <f:selectItems value="#{extratoTelaSocialBean.listaConta}" />
-                                            </p:selectOneMenu>
-                                        </h:panelGrid>                                    
+                                    <h:column>
+                                        <h:panelGrid>                                    
+                                            <p:outputLabel value="Conta Cobrança" />
+                                            <h:panelGrid rendered="#{extratoTelaSocialBean.statusRemessa.id eq -1}">
+                                                <p:selectOneMenu value="#{extratoTelaSocialBean.indexConta}" autoWidth="false" style="width: 250px">
+                                                    <p:ajax event="change" update="formExtratoTelaSocial" listener="#{extratoTelaSocialBean.alterarContaRemessa()}"/>
+                                                    <f:selectItems value="#{extratoTelaSocialBean.listaConta}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>                                    
 
-                                        <h:panelGrid rendered="#{extratoTelaSocialBean.statusRemessa.id ne -1}">
-                                            <h:panelGrid columns="2">
-                                                <p:outputLabel value="#{extratoTelaSocialBean.contaSelecionada.apelido} - #{extratoTelaSocialBean.contaSelecionada.codCedente} - #{extratoTelaSocialBean.contaSelecionada.contaBanco.banco.banco}" style="font-weight: bold; font-size: 11pt!important"/>
-                                                <p:commandButton icon="ui-icon-close" action="#{extratoTelaSocialBean.fecharModalRemessa()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes"/>
+                                            <h:panelGrid rendered="#{extratoTelaSocialBean.statusRemessa.id ne -1}">
+                                                <h:panelGrid columns="2">
+                                                    <p:outputLabel value="#{extratoTelaSocialBean.contaSelecionada.apelido} - #{extratoTelaSocialBean.contaSelecionada.codCedente} - #{extratoTelaSocialBean.contaSelecionada.contaBanco.banco.banco}" style="font-weight: bold; font-size: 11pt!important"/>
+                                                    <p:commandButton icon="ui-icon-close" action="#{extratoTelaSocialBean.fecharModalRemessa()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes"/>
+                                                </h:panelGrid>
                                             </h:panelGrid>
                                         </h:panelGrid>
-                                    </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:panelGrid>                                    
+                                            <p:outputLabel value="Filial" rendered="false"/>
+                                            <p:selectOneMenu value="#{extratoTelaSocialBean.idFilial}" style="width: 330px!important" autoWidth="false" rendered="false">
+                                                <p:ajax event="change" update="@this"  global="false" />
+                                                <f:selectItems value="#{extratoTelaSocialBean.listaFilial}"/> 
+                                            </p:selectOneMenu>  
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="FILTRAR LISTA" style="font-weight: bold; " action="#{extratoTelaSocialBean.loadLista()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes" />
+                                    </h:column>
+                                </h:panelGrid>                                 
+                            </p:panel>
+
+                            <h:panelGrid columns="3" styleClass="margin-top-max" style="width: 100%">
+                                <h:column>
+                                    <p:panel id="i_fieldset_data" header="DATA" style="height: 160px; width: 240px">
+                                        <h:panelGrid>
+                                            <h:column>
+                                                <h:panelGrid columns="2">
+                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.tipoDataPesquisa}" style="width: 100px!important" autoWidth="false">
+                                                        <p:ajax event="change" update="i_fieldset_data" global="false" listener="#{extratoTelaSocialBean.limparDatas}"/>
+                                                        <f:selectItem itemValue="importacao"  itemLabel="Importação" />
+                                                        <f:selectItem itemValue="ocorrencia"  itemLabel="Recebimento(Ocorrência)" />
+                                                        <f:selectItem itemValue="vencimento"  itemLabel="Vencimento" />
+                                                        <f:selectItem itemValue="baixa"       itemLabel="Baixa" />
+                                                        <f:selectItem itemValue="referencia"  itemLabel="Referência" />
+                                                        <f:selectItem itemValue="lancamento"  itemLabel="Lançamento" />
+                                                        <f:selectItem itemValue="registro"    itemLabel="Registro" />
+                                                    </p:selectOneMenu>
+                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.tipoData}">
+                                                        <p:ajax event="change" update="i_fieldset_data" global="false" listener="#{extratoTelaSocialBean.limparTipoDatas}"/>
+                                                        <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                        <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                        <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                        <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                    </p:selectOneMenu>                                                        
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <h:column>
+                                                <h:panelGrid columns="2" rendered="#{extratoTelaSocialBean.tipoDataPesquisa ne 'referencia'}" style="width: 100%">
+                                                    <p:outputLabel value="Data #{extratoTelaSocialBean.tipoData eq 'faixa' ? 'Inicial' : ''}" style="font-weight: bold"/>
+                                                    <p:inputMask value="#{extratoTelaSocialBean.dataInicial}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____" converter="#{isDateString}">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputMask>
+                                                    <p:outputLabel value="Data Final:" style="font-weight: bold" rendered="#{extratoTelaSocialBean.tipoData eq 'faixa'}"/>
+                                                    <p:inputMask value="#{extratoTelaSocialBean.dataFinal}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____" converter="#{isDateString}" rendered="#{extratoTelaSocialBean.tipoData eq 'faixa'}">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputMask>
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <h:column>
+                                                <h:panelGrid columns="2" rendered="#{extratoTelaSocialBean.tipoDataPesquisa eq 'referencia'}" style="width: 100%">
+                                                    <p:outputLabel value="Mês/Ano #{extratoTelaSocialBean.tipoData eq 'faixa' ? 'Inicial' : ''}" style="font-weight: bold"/>
+                                                    <p:inputMask value="#{extratoTelaSocialBean.dataRefInicial}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____" converter="#{isDateReference}">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputMask>
+
+                                                    <p:outputLabel value="Mês/Ano Final:" style="font-weight: bold" rendered="#{extratoTelaSocialBean.tipoData eq 'faixa'}"/>
+                                                    <p:inputMask value="#{extratoTelaSocialBean.dataRefFinal}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____" converter="#{isDateReference}" rendered="#{extratoTelaSocialBean.tipoData eq 'faixa'}">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputMask>
+                                                </h:panelGrid>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+
+
                                 </h:column>
 
                                 <h:column>
-                                    <br />
-                                    <p:commandButton value="FILTRAR LISTA" style="float: right; font-weight: bold; margin-left: 255px" action="#{extratoTelaSocialBean.loadLista()}" update="formExtratoTelaSocial formExtratoTelaSocialOpcoes" />
+                                    <p:panel id="i_fieldset_boleto" header="Nº DE BOLETO"  style="height: 160px; width: 190px">
+                                        <h:panelGrid> 
+                                            <p:outputLabel value="Boleto Inicial" style="font-weight: bold"/>
+                                            <p:inputText value="#{extratoTelaSocialBean.boletoInicial}" style="text-align: right">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText> 
+                                            <p:outputLabel value="Boleto Final" style="font-weight: bold"/>
+                                            <p:inputText value="#{extratoTelaSocialBean.boletoFinal}" style="text-align: right">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </p:panel>
                                 </h:column>
-                            </h:panelGrid>
 
-                            <p:panel styleClass="fundoCinza" style="margin-top: 10px">
-                                <h:panelGrid columns="3">
-                                    <h:column>
-                                        <p:fieldset id="i_fieldset_data" legend="Data" toggleable="false" toggleSpeed="500" style="height: 150px">
-                                            <p:ajax event="toggle" update="@this" />
+                                <h:column>
+                                    <p:panel id="i_fieldset_pessoa" header="SERVIÇOS E PESSOA"  style="height: 160px;">
 
-                                            <p:selectOneMenu value="#{extratoTelaSocialBean.tipoDataPesquisa}" style="width: 200px">
-                                                <p:ajax event="change" update="i_fieldset_data" global="false" listener="#{extratoTelaSocialBean.limparDatas}"/>
-                                                <f:selectItem itemValue="importacao"  itemLabel="Faixa de Importação"/>
-                                                <f:selectItem itemValue="recebimento" itemLabel="Faixa de Recebimento"/>
-                                                <f:selectItem itemValue="vencimento"  itemLabel="Faixa de Vencimento"/>
-                                                <f:selectItem itemValue="referencia"  itemLabel="Faixa de Referência"/>
-                                                <f:selectItem itemValue="registro"    itemLabel="Faixa de Registro"/>
-                                            </p:selectOneMenu>
-
-                                            <h:panelGrid columns="2" rendered="#{extratoTelaSocialBean.tipoDataPesquisa != 'referencia'}" style="width: 100%">
-                                                <p:outputLabel value="Data Inicial:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaSocialBean.dataInicial}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-
-                                                <p:outputLabel value="Data Final:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaSocialBean.dataFinal}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-                                            </h:panelGrid>
-
-                                            <h:panelGrid columns="2" rendered="#{extratoTelaSocialBean.tipoDataPesquisa == 'referencia'}" style="width: 100%">
-                                                <p:outputLabel value="Mês/Ano Inicial:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaSocialBean.dataRefInicial}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-
-                                                <p:outputLabel value="Mês/Ano Final:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaSocialBean.dataRefFinal}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-                                            </h:panelGrid>
-                                        </p:fieldset>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:fieldset id="i_fieldset_boleto" legend="Número de Boleto" toggleable="false" toggleSpeed="500" style="height: 150px">
-                                            <p:ajax event="toggle" update="@this" />
-
-                                            <h:panelGrid>
-                                                <p:outputLabel value="Boleto Inicial" style="font-weight: bold"/>
-                                                <p:inputText value="#{extratoTelaSocialBean.boletoInicial}" style="text-align: right">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </h:panelGrid>
-
-                                            <h:panelGrid>
-                                                <p:outputLabel value="Boleto Final" style="font-weight: bold"/>
-                                                <p:inputText value="#{extratoTelaSocialBean.boletoFinal}" style="text-align: right">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </h:panelGrid>
-                                        </p:fieldset>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:fieldset id="i_fieldset_pessoa" legend="Serviços e Pessoa" toggleable="false" toggleSpeed="500" style="height: 150px">
-                                            <p:ajax event="toggle" update="@this" />
-
-                                            <h:panelGrid columns="3">
-                                                <h:column>
-                                                    <p:outputLabel value="Serviços" style="font-weight: bold"/><br />
-                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.idServicos}" style="width: 350px" autoWidth="false">
+                                        <h:panelGrid columns="3" style="width: 100%">
+                                            <h:column>
+                                                <h:panelGrid>
+                                                    <p:outputLabel value="Serviços" style="font-weight: bold"/>
+                                                    <p:selectOneMenu value="#{extratoTelaSocialBean.idServicos}" style="width: 350px" autoWidth="false" filter="true" caseSensitive="false">
                                                         <p:ajax event="change" update="@this" global="false"/>
                                                         <f:selectItems value="#{extratoTelaSocialBean.listaServicos}"/>
                                                     </p:selectOneMenu>
-                                                </h:column>
+                                                </h:panelGrid>
+                                            </h:column>
 
-                                                <h:column>
-                                                    <p:outputLabel value="Tipo" style="font-weight: bold"/><br />
+                                            <h:column>
+                                                <h:panelGrid>
+                                                    <p:outputLabel value="Tipo" style="font-weight: bold"/>
                                                     <p:selectOneMenu value="#{extratoTelaSocialBean.idTipoServico}" style="width: 100px" autoWidth="false">
                                                         <p:ajax event="change" update="@this" global="false"/>
                                                         <f:selectItems value="#{extratoTelaSocialBean.listaTipoServico}"/>
                                                     </p:selectOneMenu>
-                                                </h:column>
+                                                </h:panelGrid>
+                                            </h:column>
 
-                                                <h:column>
-                                                    <p:outputLabel value="Tipo de Pessoa" style="font-weight: bold"/><br />
+                                            <h:column>
+                                                <h:panelGrid>
+                                                    <p:outputLabel value="Tipo de Pessoa" style="font-weight: bold"/>
                                                     <p:selectOneMenu value="#{extratoTelaSocialBean.tipoPessoa}" style="width: 100px" autoWidth="false">
                                                         <p:ajax event="change" update="@this formExtratoTelaSocial" listener="#{extratoTelaSocialBean.loadLista()}" />
                                                         <f:selectItem itemValue="nenhum"  itemLabel="-- Selecione o tipo de Pessoa --" />
@@ -188,33 +215,35 @@
                                                         <f:selectItem itemValue="titular"      itemLabel="Titular"/>
                                                         <f:selectItem itemValue="beneficiario" itemLabel="Beneficiário"/>
                                                     </p:selectOneMenu>
-                                                </h:column>
-                                            </h:panelGrid>
+                                                </h:panelGrid>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid>
+                                            <p:outputLabel value="Pessoa" styleClass="bold"/>                                                        
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="4">
+                                            <p:inputText value="#{extratoTelaSocialBean.pessoa.documento}" disabled="true" style="width: 130px; font-weight: bold; opacity: .5"/>
+                                            <p:inputText value="#{extratoTelaSocialBean.pessoa.nome}" disabled="true" style="width: #{(configuracaoBean.resolucao.tipoResolucao.tamanho == '1200' || configuracaoBean.resolucao.tipoResolucao.tamanho == '') ? '445px' : '260px'}; font-weight: bold; opacity: .5"/>
+                                            <p:commandButton icon="ui-icon-search" alt="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" disabled="#{extratoTelaSocialBean.tipoPessoa eq 'nenhum'}"/>
+                                            <p:commandButton icon="ui-icon-close" alt="Excluir Pessoa" action="#{extratoTelaSocialBean.removerPessoa()}" update="i_fieldset_pessoa" disabled="#{extratoTelaSocialBean.tipoPessoa eq 'nenhum'}"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </h:column>
 
-                                            <h:panelGrid columns="3">
-                                                <h:column>
-                                                    <p:outputLabel value="Pessoa" style="font-weight: bold"/><br />
-                                                    <p:inputText value="#{extratoTelaSocialBean.pessoa.documento}" disabled="true" style="width: 130px; font-weight: bold; opacity: .5"/>
-                                                    <p:inputText value="#{extratoTelaSocialBean.pessoa.nome}" disabled="true" style="width: #{(configuracaoBean.resolucao.tipoResolucao.tamanho == '1200' || configuracaoBean.resolucao.tipoResolucao.tamanho == '') ? '445px' : '260px'}; font-weight: bold; opacity: .5"/>
-                                                    <p:commandButton icon="ui-icon-search" alt="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" disabled="#{extratoTelaSocialBean.tipoPessoa eq 'nenhum'}"/>
-                                                    <p:commandButton icon="ui-icon-close" alt="Excluir Pessoa" action="#{extratoTelaSocialBean.removerPessoa()}" update="i_fieldset_pessoa" disabled="#{extratoTelaSocialBean.tipoPessoa eq 'nenhum'}"/>
-                                                </h:column>
-                                            </h:panelGrid>
-                                        </p:fieldset>
-                                    </h:column>
+                            </h:panelGrid>
 
-                                </h:panelGrid>
-                            </p:panel>
 
                             <p:messages id="i_msg" closable="true" showDetail="true" autoUpdate="true"/>
 
-                            <p:dataTable value="#{extratoTelaSocialBean.listaMovimento}" var="linha" id="tbl" rows="500" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
+                            <p:dataTable value="#{extratoTelaSocialBean.listaMovimento}" var="linha" id="tbl" rows="50" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%" styleClass="margin-top-max">
                                 <f:facet name="header">
-                                    <h:panelGrid style="width: 100%; text-align: left">
-                                        <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.selecionaTodos}" itemLabel="Selecionar Todos Movimentos da lista">
+                                    <h:panelGroup>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.selecionaTodos}" itemLabel="Selecionar Todos Movimentos da lista" styleClass="font-color-red float-left">
                                             <p:ajax event="change" update="@this @form" listener="#{extratoTelaSocialBean.marcarTodos()}"/>
                                         </p:selectBooleanCheckbox>
-                                    </h:panelGrid>
+                                        <br />
+                                    </h:panelGroup>
                                 </f:facet>
 
                                 <p:column style="width:15px">  
@@ -256,15 +285,21 @@
                                 </p:column>
 
                                 <p:column headerText="Vencto" style="width: 60px; text-align: center">
-                                    <p:outputLabel value="#{extratoTelaSocialBean.converteData(linha.argumento1[9])}" />
+                                    <p:outputLabel value="#{linha.argumento1[9]}">
+                                        <f:convertDateTime />
+                                    </p:outputLabel>
                                 </p:column>
 
                                 <p:column headerText="Valor" style="width: 60px; text-align: right">
-                                    <p:outputLabel value="#{extratoTelaSocialBean.converteValor(linha.argumento1[10])}" />
+                                    <p:outputLabel value="#{linha.argumento1[10]}">
+                                        <f:convertNumber type="currency" currencySymbol=""/>
+                                    </p:outputLabel>
                                 </p:column>
-
-                                <p:column headerText="Quitação" style="text-align: center; width: 60px">
-                                    <p:outputLabel value="#{extratoTelaSocialBean.converteData(linha.argumento1[11])}" />
+                                
+                                <p:column headerText="#{extratoTelaSocialBean.tipoDataPesquisa eq 'ocorrencia' ? 'Recebimento(Ocorrência)' : 'Baixa'}" style="text-align: center; width: 60px">
+                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? linha.argumento1[21] : linha.argumento1[11]}">
+                                        <f:convertDateTime />
+                                    </p:outputLabel>
                                 </p:column>
 
                                 <p:column headerText="Vlr Baixa" style="width: 60px; text-align: right">
@@ -305,6 +340,23 @@
                                         <p:column>
                                             <p:outputLabel value="Data de Importação" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{extratoTelaSocialBean.converteData(linha.argumento1[20])}" />
+                                        </p:column>
+
+                                        <p:column>
+                                            <c:choose>
+                                                <c:when test="#{extratoTelaSocialBean.tipoDataPesquisa eq 'importacao' or extratoTelaSocialBean.tipoDataPesquisa eq 'vencimento' or extratoTelaSocialBean.tipoDataPesquisa eq 'baixa' or extratoTelaSocialBean.tipoDataPesquisa eq 'referencia' or extratoTelaSocialBean.tipoDataPesquisa eq 'lancamento'or extratoTelaSocialBean.tipoDataPesquisa eq 'registro'}">
+                                                    <p:outputLabel value="Recebimento(Ocorrência)" style="font-weight: bold" /><br />
+                                                    <p:outputLabel value="#{linha.argumento1[21]}">
+                                                        <f:convertDateTime />
+                                                    </p:outputLabel>
+                                                </c:when>                                                
+                                                <c:when test="#{extratoTelaSocialBean.tipoDataPesquisa eq 'ocorrencia'}">
+                                                    <p:outputLabel value="Baixa" style="font-weight: bold"  /><br />
+                                                    <p:outputLabel value="#{linha.argumento1[11]}">
+                                                        <f:convertDateTime />
+                                                    </p:outputLabel>
+                                                </c:when>
+                                            </c:choose>
                                         </p:column>
                                     </h:panelGrid>
                                 </p:rowExpansion>                                
@@ -409,21 +461,21 @@
 
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:dialog widgetVar="dlg_gerar_remessa" header="Gerador Arquivo Remessa" resizable="false" draggable="false" width="950" position="top" visible="#{extratoTelaSocialBean.visibleModalRemessa}">
                                 <p:ajax event="close" update="formExtratoTelaSocial" listener="#{extratoTelaSocialBean.fecharModalRemessa}"/>
-                                
+
                                 <h:panelGrid id="dlg_gerar_remessa" style="width: 100%">
                                     <p:messages autoUpdate="true" closable="true" showDetail="true" />
-                                    
+
                                     <h:panelGrid columns="2">
                                         <p:selectBooleanButton value="#{extratoTelaSocialBean.verListaRemessa}" onLabel="NÃO VER LISTA DE BOLETO" offLabel="VER LISTA DE BOLETO" onIcon="ui-icon-close" offIcon="ui-icon-check" style="margin-right: 15px">
                                             <p:ajax update="dlg_gerar_remessa" />
                                         </p:selectBooleanButton>
-                                        
+
                                         <p:outputLabel value="#{extratoTelaSocialBean.contaSelecionada.apelido} - #{extratoTelaSocialBean.contaSelecionada.codCedente} - #{extratoTelaSocialBean.contaSelecionada.contaBanco.banco.banco}" style="font-weight: bold; font-size: 11pt!important; "/>
                                     </h:panelGrid>
-                                    
+
                                     <p:separator />
 
                                     <h:panelGrid rendered="#{extratoTelaSocialBean.verListaRemessa}">
@@ -435,7 +487,7 @@
                                             <p:column headerText="Boleto" style="width: 150px; text-align: center">
                                                 <h:outputText value="#{linha_remessa.boleto.boletoComposto}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Pessoa">
                                                 <h:outputText value="#{linha_remessa.boleto.pessoa.nome}" />
                                             </p:column>
@@ -443,12 +495,12 @@
                                             <p:column headerText="Vencimento" style="width: 80px; text-align: center">
                                                 <h:outputText value="#{linha_remessa.boleto.vencimento}" />
                                             </p:column>
-                                            
+
                                             <p:column headerText="Status" style="width: 80px; text-align: center">
                                                 <h:outputText value="#{linha_remessa.statusRemessa.descricao}" style="font-weight: bold"/>
                                             </p:column>
                                         </p:dataTable>
-                                        
+
                                         <h:panelGrid columns="4">
                                             <h:column>
                                                 <div style="width: 15px; height: 15px; border:1px solid black;" class="tblExtratoTelaT1"></div>
@@ -456,7 +508,7 @@
                                             <h:column>
                                                 <b>Adicionados Automáticamente</b>
                                             </h:column>
-                                            
+
                                             <h:column>
                                                 <div style="width: 15px; height: 15px; border:1px solid black;"></div>
                                             </h:column>
@@ -464,14 +516,14 @@
                                                 <b>Adicionados por mim</b>
                                             </h:column>
                                         </h:panelGrid>
-                                            
+
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <p:outputLabel value="Quantidade de Boletos: " /><p:outputLabel value="#{extratoTelaSocialBean.listaBoletoRemessa.size()}" style="font-weight: bold"/>
                                         </h:column>
-                                        
+
                                         <h:column>
                                             <p:outputLabel value="Limite médio de Arquivo: " /><p:outputLabel value="2000" style="font-weight: bold"/>
                                         </h:column>
@@ -565,7 +617,7 @@
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar exclusão de Acordos" onclick="PF('dlg_acordo').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
-                        
+
                         </h:form>
 
                     </p:panel>

@@ -20,6 +20,7 @@ import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.seguranca.Registro;
@@ -100,6 +101,9 @@ public class ExtratoTelaSocialBean implements Serializable {
     private Boolean verListaRemessa = false;
     private StatusRemessa statusRemessa = new StatusRemessa();
     private String id_boleto_adicionado_remessa = "";
+    private String tipoData = "faixa";
+    private List<SelectItem> listaFilial = new ArrayList();
+    private Integer idFilial = null;
 
     @PostConstruct
     public void init() {
@@ -237,7 +241,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                 }
 
                 lista_boleto_validado.add(bol);
-                
+
             }
             return lista_boleto_validado;
         }
@@ -251,7 +255,7 @@ public class ExtratoTelaSocialBean implements Serializable {
 
     public void adicionarRemessa(String opcao) {
         id_boleto_adicionado_remessa = "";
-        
+
         if (contaSelecionada.getId() == -1) {
             GenericaMensagem.error("ATENÇÃO", "Selecione uma Conta Cobrança para continuar!");
             PF.update("formExtratoTelaSocial");
@@ -410,10 +414,10 @@ public class ExtratoTelaSocialBean implements Serializable {
         vlTotal = "0,00";
         vlLiquido = "0,00";
 
-        if (!visibleModalRemessa){
+        if (!visibleModalRemessa) {
             id_boleto_adicionado_remessa = "";
         }
-        
+
         Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
 
         // TODOS BOLETOS / BOLETO REGISTRADO / BOLETO LIQUIDADO
@@ -429,7 +433,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         List<Vector> result = dao.listaMovimentosSocial(
-                porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()), id_status_retorno, id_boleto_adicionado_remessa, contaSelecionada.getId()
+                porPesquisa, ordenacao, tipoDataPesquisa, tipoData, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()), id_status_retorno, id_boleto_adicionado_remessa, contaSelecionada.getId(), idFilial
         );
 
         double valor = 0, valor_baixa = 0, valor_taxa = 0;
@@ -1258,4 +1262,52 @@ public class ExtratoTelaSocialBean implements Serializable {
     public void setStatusRemessa(StatusRemessa statusRemessa) {
         this.statusRemessa = statusRemessa;
     }
+
+    public String getTipoData() {
+        return tipoData;
+    }
+
+    public void setTipoData(String tipoData) {
+        this.tipoData = tipoData;
+    }
+
+    public void limparTipoDatas() {
+        dataInicial = "";
+        dataFinal = "";
+        dataRefInicial = "";
+        dataRefFinal = "";
+    }
+
+    public List<SelectItem> getListaFilial() {
+        if (listaFilial.isEmpty()) {
+            idFilial = null;
+            listaFilial.add(new SelectItem(null, "-- SELECIONAR -- "));
+            List<Filial> list = new Dao().list(new Filial(), true);
+            for (int i = 0; i < list.size(); i++) {
+                listaFilial.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getPessoa().getNome()));
+            }
+        }
+        return listaFilial;
+    }
+
+    public void setListaFilial(List<SelectItem> listaFilial) {
+        this.listaFilial = listaFilial;
+    }
+
+    public String getId_boleto_adicionado_remessa() {
+        return id_boleto_adicionado_remessa;
+    }
+
+    public void setId_boleto_adicionado_remessa(String id_boleto_adicionado_remessa) {
+        this.id_boleto_adicionado_remessa = id_boleto_adicionado_remessa;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
+    }
+
 }

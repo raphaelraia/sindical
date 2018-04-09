@@ -166,6 +166,9 @@ public class Dao extends DB implements DaoInterface {
      */
     @Override
     public boolean update(final Object objeto) {
+        if (objeto == null) {
+            return false;
+        }
         if (!activeSession()) {
             return false;
         }
@@ -213,6 +216,9 @@ public class Dao extends DB implements DaoInterface {
      */
     @Override
     public boolean update(final Object objeto, boolean transactionComplete) {
+        if (objeto == null) {
+            return false;
+        }
         if (activeSession()) {
             return false;
         }
