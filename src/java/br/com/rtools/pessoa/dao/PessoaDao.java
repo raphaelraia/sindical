@@ -6,6 +6,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.PessoaSemCadastro;
+import br.com.rtools.pessoa.StatusCobranca;
 import br.com.rtools.utilitarios.AnaliseString;
 import java.util.ArrayList;
 import java.util.List;
@@ -413,5 +414,20 @@ public class PessoaDao extends DB {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    public List<StatusCobranca> listaStatusCobranca() {
+        try {
+            String queryString
+                    = "    SELECT sc.* \n"
+                    + "      FROM pes_status_cobranca sc \n"
+                    + "     ORDER BY sc.id";
+            Query query = getEntityManager().createNativeQuery(queryString, StatusCobranca.class);
+
+            return query.getResultList();
+
+        } catch (Exception e) {
+        }
+        return new ArrayList();
     }
 }

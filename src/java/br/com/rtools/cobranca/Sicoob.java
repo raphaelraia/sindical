@@ -406,15 +406,19 @@ public class Sicoob extends Cobranca {
 
             Double valor_total_lote = (double) 0;
 
+            // QUANTIDADE DE SEGMENTOS [ P / Q / Y-53 / R ]
+            Integer quantidade_lote = 0;
+
             // body ------------------------------------------------------------
             // -----------------------------------------------------------------
             Integer sequencial_registro_lote = 1;
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                
+
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
+                quantidade_lote++;
                 CONTEUDO_REMESSA += "756"; // 01.3P Código do Banco na Compensação: "756"
                 CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3P "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
                 CONTEUDO_REMESSA += "3"; // 03.3P Tipo de Registro: "3"
@@ -467,11 +471,23 @@ public class Sicoob extends Cobranca {
                 String aceite = boleto_rem.getContaCobranca().getAceite().equals("N") ? boleto_rem.getContaCobranca().getAceite() : "A";
                 CONTEUDO_REMESSA += aceite; // 25.3P "Identific. de Título Aceito/Não Aceito: Código adotado pela FEBRABAN para identificar se o título de cobrança foi aceito (reconhecimento da dívida pelo Pagador). 'A'  =  Aceite 'N'  =  Não Aceite"
                 CONTEUDO_REMESSA += DataHoje.data().replace("/", ""); // 26.3P Data da Emissão do Título
-                CONTEUDO_REMESSA += "0"; // 27.3P "Código do Juros de Mora: '0'  =  Isento '1'  =  Valor por Dia '2'  =  Taxa Mensal"
-                CONTEUDO_REMESSA += "00000000"; // 28.3P Data do Juros de Mora: preencher com a Data de Vencimento do Título formato DDMMAAAA
-                CONTEUDO_REMESSA += "000000000000000"; // 29.3P Juros Mora
-                CONTEUDO_REMESSA += "0"; // 30.3P "Código do Desconto 1 '0'  =  Não Conceder desconto '1'  =  Valor Fixo Até a Data Informada '2'  =  Percentual Até a Data Informada"
 
+                CONTEUDO_REMESSA += "0"; // 
+                CONTEUDO_REMESSA += "00000000"; // 
+                CONTEUDO_REMESSA += "000000000000000"; // 
+
+                if (boleto_rem.getContaCobranca().getJurosMensal() <= 0) {
+                    CONTEUDO_REMESSA += "0"; // 27.3P "Código do Juros de Mora: '0'  =  Isento '1'  =  Valor por Dia '2'  =  Taxa Mensal"
+                    CONTEUDO_REMESSA += "00000000"; // 28.3P Data do Juros de Mora: preencher com a Data de Vencimento do Título formato DDMMAAAA
+                    CONTEUDO_REMESSA += "000000000000000"; // 29.3P Juros Mora
+                } else {
+                    CONTEUDO_REMESSA += "2"; //  27.3P "Código do Juros de Mora: '0'  =  Isento '1'  =  Valor por Dia '2'  =  Taxa Mensal"
+                    CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 28.3P Data do Juros de Mora: preencher com a Data de Vencimento do Título formato DDMMAAAA
+                    String jr = Moeda.converteDoubleToString(boleto_rem.getContaCobranca().getJurosMensal()).replace(".", "").replace(",", "");
+                    CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - jr.length()) + jr;  // 29.3P Juros Mora
+                }
+
+                CONTEUDO_REMESSA += "0"; // 30.3P "Código do Desconto 1 '0'  =  Não Conceder desconto '1'  =  Valor Fixo Até a Data Informada '2'  =  Percentual Até a Data Informada"
                 CONTEUDO_REMESSA += "00000000"; // 31.3P Data do Desconto 1
                 CONTEUDO_REMESSA += "000000000000000"; // 32.3P Valor/Percentual a ser Concedido
                 CONTEUDO_REMESSA += "000000000000000"; // 33.3P Valor do IOF a ser Recolhido
@@ -496,6 +512,7 @@ public class Sicoob extends Cobranca {
 
                 // tipo 3 - segmento Q -------------------------------------------------------
                 // ---------------------------------------------------------------------------
+                quantidade_lote++;
                 CONTEUDO_REMESSA += "756"; // 01.3Q Código do Banco na Compensação: "756"
                 CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3Q "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
                 CONTEUDO_REMESSA += "3"; // 03.3Q Tipo de Registro: "3"
@@ -559,12 +576,67 @@ public class Sicoob extends Cobranca {
                 CONTEUDO_REMESSA += "   "; // 20.3Q "Cód. Bco. Corresp. na Compensação: Caso o Beneficiário não tenha contratado a opção de Banco Correspondente com o Sicoob, preencher com ""000""; Caso o Beneficiário tenha contratado a opção de Banco Correspondente com o Sicoob e a emissão seja a cargo do Sicoob (SEQ 17.3.P do Segmento P do Detalhe), preencher com ""001"" (Banco do Brasil) ou ""237"" (Banco Bradesco)."
                 CONTEUDO_REMESSA += "                    "; // 21.3Q "Nosso Nº no Banco Correspondente: ""1323739"" (Banco do Brasil) ou ""4498893"" (Banco Bradesco). O campo NN deve ser preenchido, somente nos casos em que o campo anterior tenha indicado o uso do Banco Correspondente. Obs.: O preenchimento deste campo será alinha à esquerda a partir da posição 213 indo até 219."
                 CONTEUDO_REMESSA += "        "; // 22.3Q Uso Exclusivo FEBRABAN/CNAB
+
                 if (CONTEUDO_REMESSA.length() != 240) {
                     dao.rollback();
                     return new RespostaArquivoRemessa(null, "Segmento Q menor que 240: " + CONTEUDO_REMESSA);
                 }
+
                 buff_writer.write(CONTEUDO_REMESSA + "\r\n");
                 CONTEUDO_REMESSA = "";
+
+                // CRIA O SEGMENTO R CASO TENHA MULTA EM CONTA COBRANÇA
+                if (boleto_rem.getContaCobranca().getMulta() > 0) {
+                    // tipo 3 - segmento R -------------------------------------------------------
+                    // ---------------------------------------------------------------------------
+                    quantidade_lote++;
+                    CONTEUDO_REMESSA += "756"; // 01.3R Código do Banco na Compensação: "756"
+                    CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.3R 
+                    CONTEUDO_REMESSA += "3"; // 03.3R Tipo de Registro: "3"
+
+                    sequencial_registro_lote++;
+                    CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3R
+                    CONTEUDO_REMESSA += "R"; // 05.3R Cód. Segmento do Registro Detalhe: "R"
+                    CONTEUDO_REMESSA += " "; // 06.3R Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+                    CONTEUDO_REMESSA += "01"; // 07.3R '01'  =  Entrada de Títulos
+
+                    CONTEUDO_REMESSA += "0"; // 08.3R Código do Desconto 2 '0'  =  Não Conceder desconto '1'  =  Valor Fixo Até a Data Informada '2'  =  Percentual Até a Data Informada
+                    CONTEUDO_REMESSA += "00000000"; // 09.3R Data do Desconto 2
+                    CONTEUDO_REMESSA += "000000000000000"; // 10.3R Valor/Percentual a ser Concedido
+
+                    CONTEUDO_REMESSA += "0"; // 11.3R Código do Desconto 3 '0'  =  Não Conceder desconto '1'  =  Valor Fixo Até a Data Informada '2'  =  Percentual Até a Data Informada
+                    CONTEUDO_REMESSA += "00000000"; // 12.3R Data do Desconto 3: "00000000"
+                    CONTEUDO_REMESSA += "000000000000000"; // 13.3R Valor/Percentual a ser Concedido: "000000000000000"
+
+                    CONTEUDO_REMESSA += "2"; // 14.3R Código da Multa: '0'  =  Isento '1'  =  Valor Fixo '2'  =  Percentual
+                    CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 15.3R Data da Multa: preencher com a Data de Vencimento do Título formato DDMMAAAA
+                    String ml = Moeda.converteDoubleToString(boleto_rem.getContaCobranca().getMulta()).replace(".", "").replace(",", "");
+                    CONTEUDO_REMESSA += "000000000000000".substring(0, 15 - ml.length()) + ml;  // 16.3R Valor/Percentual a Ser Aplicado Ex: 0000000000220 = 2,20%; Ex: 0000000001040 = 10,40%
+
+                    CONTEUDO_REMESSA += "          ";  // 17.3R Informação ao Pagador: Preencher com espaços em branco
+                    CONTEUDO_REMESSA += "                                        ";  // 18.3R Informação 3 Mensagem 3
+                    CONTEUDO_REMESSA += "                                        ";  // 19.3R Informação 4 Mensagem 4
+                    CONTEUDO_REMESSA += "                    ";  // 20.3R Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+                    CONTEUDO_REMESSA += "00000000";  // 21.3R Cód. Ocor. do Pagador: "00000000"
+                    CONTEUDO_REMESSA += "000";  // 22.3R Cód. do Banco na Conta do Débito: "000"
+                    CONTEUDO_REMESSA += "00000";  // 23.3R Código da Agência do Débito: "00000"
+                    CONTEUDO_REMESSA += " ";  // 24.3R Dígito Verificador da Agência: Preencher com espaços em branco
+                    CONTEUDO_REMESSA += "000000000000";  // 25.3R Conta Corrente para Débito: "000000000000"
+                    CONTEUDO_REMESSA += " ";  // 26.3R Dígito Verificador da Conta: Preencher com espaços em branco
+                    CONTEUDO_REMESSA += " ";  // 27.3R Dígito Verificador Ag/Conta: Preencher com espaços em branco
+                    CONTEUDO_REMESSA += "0";  // 28.3R Aviso para Débito Automático: "0"
+                    CONTEUDO_REMESSA += "         ";  // 29.3R Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
+
+                    if (CONTEUDO_REMESSA.length() != 240) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, "Segmento R menor que 240: " + CONTEUDO_REMESSA);
+                    }
+
+                    buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
+                    CONTEUDO_REMESSA = "";
+
+                }
 
                 sequencial_registro_lote++;
 
@@ -588,8 +660,8 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "0000".substring(0, 4 - ("" + sequencial_lote).length()) + ("" + sequencial_lote); // 02.5 "Lote de Serviço: Número seqüencial para identificar univocamente um lote de serviço. Criado e controlado pelo responsável pela geração magnética dos dados contidos no arquivo. Preencher com '0001' para o primeiro lote do arquivo. Para os demais: número do lote anterior acrescido de 1. O número não poderá ser repetido dentro do arquivo."
             CONTEUDO_REMESSA += "5"; // 03.5 Tipo de Registro: "5"
             CONTEUDO_REMESSA += "         "; // 04.5 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
-            Integer quantidade_lote = (3 * listaBoletoRemessa.size()) + 2;
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote).length()) + ("" + quantidade_lote); // 05.5 Quantidade de Registros no Lote
+            Integer quantidade_lote_fim = quantidade_lote + 2;
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_lote_fim).length()) + ("" + quantidade_lote_fim); // 05.5 Quantidade de Registros no Lote
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + listaBoletoRemessa.size()).length()) + ("" + listaBoletoRemessa.size()); // 06.5 Quantidade de Títulos em Cobrança
             String valor_total = valor_total_lote.toString().replace(".", "").replace(",", "");
             CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - valor_total.length()) + valor_total; // 07.5 Valor Total dosTítulos em Carteiras
@@ -617,7 +689,7 @@ public class Sicoob extends Cobranca {
             CONTEUDO_REMESSA += "         "; // 04.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
             CONTEUDO_REMESSA += "000001"; // 05.9 Quantidade de Lotes do Arquivo
 
-            Integer quantidade_registros = (2 * listaBoletoRemessa.size()) + 4;
+            Integer quantidade_registros = quantidade_lote + 4;
             CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + quantidade_registros).length()) + ("" + quantidade_registros); // 06.9 Quantidade de Registros do Arquivo
             CONTEUDO_REMESSA += "000000"; // 07.9 Qtde de Contas p/ Conc. (Lotes): "000000"
             CONTEUDO_REMESSA += "                                                                                                                                                                                                             "; // 08.9 Uso Exclusivo FEBRABAN/CNAB: Preencher com espaços em branco
@@ -662,12 +734,11 @@ public class Sicoob extends Cobranca {
 
         Registro reg = Registro.get();
         Pessoa pessoa = db_social.responsavelBoleto(boleto.getNrCtrBoleto());
-        
-        
-        if (pessoa.getPessoaEndereco() == null){
+
+        if (pessoa.getPessoaEndereco() == null) {
             return new RespostaWebService(null, "Pessoa: " + pessoa.getNome() + " NÃO TEM ENDEREÇO TIPO 2");
         }
-        
+
         List<Movimento> lista_movimento = db_social.listaMovimentosPorNrCtrBoleto(boleto.getNrCtrBoleto());
 
         if (valor < 1) {
@@ -825,6 +896,18 @@ public class Sicoob extends Cobranca {
             params.add(new BasicNameValuePair("referencia", lista_movimento.get(0).getReferencia().replace("/", "")));
             params.add(new BasicNameValuePair("valor", Moeda.converteR$Double(valor).replace(".", "").replace(",", ".")));
             params.add(new BasicNameValuePair("id_boleto", "" + boleto.getId()));
+
+            if (boleto.getContaCobranca().getJurosMensal() > 0) {
+                params.add(new BasicNameValuePair("juros_mensal", "" + boleto.getContaCobranca().getJurosMensal()));
+            } else {
+                params.add(new BasicNameValuePair("juros_mensal", "0"));
+            }
+
+            if (boleto.getContaCobranca().getMulta() > 0) {
+                params.add(new BasicNameValuePair("multa", "" + boleto.getContaCobranca().getMulta()));
+            } else {
+                params.add(new BasicNameValuePair("multa", "0"));
+            }
 
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 

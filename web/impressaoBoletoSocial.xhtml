@@ -93,6 +93,18 @@
                                         <h:outputLabel value="Responsável"/><br />
                                         <p:inputText value="#{impressaoBoletoSocialBean.strResponsavel}" style="width: 170px"/>
                                     </p:column>
+                                    
+                                    <p:column rendered="false">
+                                        <h:outputLabel value="Tipo Envio"/><br />
+                                        <p:selectOneMenu value="#{impressaoBoletoSocialBean.tipoEnvio}">
+                                            <p:ajax event="change" update="formImpressaoBoletoSocial"/>
+                                            <f:selectItem itemValue="-1" itemLabel="Todos(Correios)" />
+                                            <f:selectItem itemValue="1" itemLabel="Com Email" />
+                                            <f:selectItem itemValue="2" itemLabel="Sem Email(Correios)" />
+                                            <f:selectItem itemValue="3" itemLabel="Definidos como Correios" />
+                                            <f:selectItem itemValue="4" itemLabel="Definidos como Email" />
+                                        </p:selectOneMenu>
+                                    </p:column>
 
                                     <p:column>
                                         <br />

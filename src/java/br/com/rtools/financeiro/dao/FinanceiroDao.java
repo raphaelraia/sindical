@@ -723,7 +723,7 @@ public class FinanceiroDao extends DB {
         }
     }
 
-    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String dataEnd, String tipo, String documento, String boletoRegistrado, String mesAno) {
+    public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String dataEnd, String tipo, String documento, String boletoRegistrado, String mesAno, Integer tipoEnvio) {
 
         String text_qry = "", where = "", inner_join = "";
 
@@ -735,9 +735,9 @@ public class FinanceiroDao extends DB {
 
         where = " WHERE b.ativo = true \n ";
 
+        inner_join += " INNER JOIN pes_pessoa p ON p.id = b.codigo \n ";
         // DOCUMENTO --
         if (!documento.isEmpty()) {
-            inner_join += " INNER JOIN pes_pessoa p ON p.id = b.codigo \n ";
             where += " AND p.ds_documento = '" + documento + "' \n ";
         }
 
@@ -773,6 +773,31 @@ public class FinanceiroDao extends DB {
             case "nao_registrados":
                 where += " AND b.data_cobranca_registrada IS NULL \n ";
                 break;
+            default:
+                break;
+        }
+        
+        // TIPO DE ENVIO
+        switch (tipoEnvio) {
+            // COM EMAIL
+            case 1:
+                where += " AND (p.ds_email1 <> '' AND p.ds_email1 IS NOT NULL) \n ";
+                break;
+            // SEM EMAIL
+            case 2:
+                where += " AND (p.ds_email1 = '' OR p.ds_email1 IS NULL) \n ";
+                break;
+            // DEFINIDOS COMO CORREIOS
+            case 3:
+                inner_join += " INNER JOIN pes_pessoa_complemento pc ON pc.id_pessoa = p.id \n ";
+                where += " AND pc.id_status_cobranca = 1 \n ";
+                break;
+            // DEFINIDOS COMO EMAIL
+            case 4:
+                inner_join += " INNER JOIN pes_pessoa_complemento pc ON pc.id_pessoa = p.id \n ";
+                where += " AND pc.id_status_cobranca = 2 \n ";
+                break;
+            // TODOS
             default:
                 break;
         }

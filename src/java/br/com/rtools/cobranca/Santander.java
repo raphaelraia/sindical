@@ -166,7 +166,7 @@ public class Santander extends Cobranca {
         fimCodigoBarras += "0000000000000".substring(0, 13 - nossoNumero.length()) + nossoNumero;       // nosso numero
 
         fimCodigoBarras += "0";       // IOS -- [ 0 demais clientes ] -- [ 7 - 7% ] -- limitado a [ 9% - 9 ]
-        fimCodigoBarras += "102";
+        fimCodigoBarras += "101";
 
         return iniCodigoBarras + this.moduloOnzeDV(iniCodigoBarras + fimCodigoBarras) + fimCodigoBarras;
     }
@@ -189,7 +189,7 @@ public class Santander extends Cobranca {
         // TERCEIRO GRUPO --
         String terceiro_grupo = nossoNumero.substring(7, 13);
         terceiro_grupo += "0"; // IOS -- [ 0 demais clientes ] -- [ 7 - 7% ] -- limitado a [ 9% - 9 ]
-        terceiro_grupo += "102";
+        terceiro_grupo += "101";
         terceiro_grupo += moduloDez(terceiro_grupo);
 
         // QUARTO GRUPO

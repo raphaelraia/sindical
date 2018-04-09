@@ -27,6 +27,14 @@
                         <f:selectItems value="#{pessoaComplementoBean.listaDataVencimento}" />
                     </p:selectOneMenu>
                 </p:column>
+                
+                <p:column>
+                    <h:outputLabel value="Status Cobrança" /><br />
+                    <p:selectOneMenu value="#{pessoaComplementoBean.indexStatusCobranca}">
+                        <p:ajax event="change" listener="#{pessoaComplementoBean.update(idPessoa)}" update="i_panel_complemento"/>
+                        <f:selectItems value="#{pessoaComplementoBean.listaStatusCobranca}" />
+                    </p:selectOneMenu>
+                </p:column>
 
                 <p:column rendered="false">
                     <br />

@@ -3,6 +3,7 @@ package br.com.rtools.financeiro;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.sistema.Periodo;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
@@ -65,7 +66,7 @@ public class ServicoPessoa implements java.io.Serializable {
     private Date dtInativacao;
     @Column(name = "ds_motivo_inativacao", length = 500)
     private String motivoInativacao;
-    @JoinColumn(name = "id_periodo_cobranca", referencedColumnName = "id")
+    @JoinColumn(name = "id_periodo_cobranca", referencedColumnName = "id", columnDefinition = "integer default 3")
     @ManyToOne
     private Periodo periodoCobranca;
 
@@ -90,7 +91,7 @@ public class ServicoPessoa implements java.io.Serializable {
         this.parceiro = null;
         this.dtInativacao = null;
         this.motivoInativacao = "";
-        this.periodoCobranca = null;
+        this.periodoCobranca = (Periodo) new Dao().find(new Periodo(), 3);
     }
 
     public ServicoPessoa(int id, String emissao, Pessoa pessoa, boolean descontoFolha, Servicos servicos, double nr_desconto, String referenciaVigoracao,

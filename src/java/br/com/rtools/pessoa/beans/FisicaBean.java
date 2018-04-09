@@ -184,7 +184,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private Integer idServicosAutorizados;
     private List<SelectItem> listNrRegistro;
     private Integer nrRegistro = 1;
-
+    
     public FisicaBean() {
         GenericaSessao.remove("pessoaComplementoBean");
         GenericaSessao.remove("sessaoSisAutorizacao");
@@ -199,7 +199,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         listServicosAutorizados = new ArrayList();
         loadListNrRegistro();
     }
-
+    
     public void loadListServicosAutorizados() {
         listServicosAutorizados = new ArrayList();
         ServicoRotinaDao srd = new ServicoRotinaDao();
@@ -400,7 +400,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (fisica.getPessoa().getNome().equals("")) {
                 mensagem = "O campo nome não pode ser nulo! ";
                 return;
-            }
+            }            
             if (dao.save(pessoa)) {
                 fisica.setNacionalidade(pais);
                 fisica.setPessoa(pessoa);

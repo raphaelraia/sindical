@@ -55,16 +55,16 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
     public final void loadValorServico() {
         desabilitaValor = false;
-        
+
         valor = (double) 0;
         valorTotal = (double) 0;
         desconto = (double) 0;
-        
-        if (listaServicos.get(indexServicos).getDescription() == null){
+
+        if (listaServicos.get(indexServicos).getDescription() == null) {
             GenericaMensagem.error("ATENÇÃO", "CADASTRE SERVIÇOS PARA ESTA ROTINA!");
             return;
         }
-        
+
         Servicos se = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(listaServicos.get(indexServicos).getDescription()));
 
         if (se != null && matriculaAgendamento.getServicoPessoa().getPessoa().getId() != -1) {
@@ -108,7 +108,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
         ServicosDao db = new ServicosDao();
         List<Servicos> select = db.pesquisaTodos(427);
-        if (!select.isEmpty()){
+        if (!select.isEmpty()) {
             for (int i = 0; i < select.size(); i++) {
                 listaServicos.add(
                         new SelectItem(
@@ -118,7 +118,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
                         )
                 );
             }
-        }else{
+        } else {
             listaServicos.add(new SelectItem(0, "NENHUM SERVIÇO ADICIONADO PARA ESTA ROTINA", null));
         }
     }
@@ -128,7 +128,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
             GenericaMensagem.error("ATENÇÃO", "PESQUISE UMA PESSOA PARA SALVAR!");
             return;
         }
-        
+
         if (listaServicos.get(indexServicos).getDescription() == null) {
             GenericaMensagem.error("ATENÇÃO", "ADICIONE SERVIÇOS PARA ESTA ROTINA!");
             return;

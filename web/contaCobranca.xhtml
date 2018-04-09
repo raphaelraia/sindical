@@ -44,10 +44,10 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid style="margin-top: 10px" columns="8">
+                                <h:panelGrid style="margin-top: 10px" columns="10">
                                     <p:column>
-                                        <h:outputLabel value="Código do Cedente" for="idCodigoCedente"/><br />
-                                        <p:inputText id="idCodigoCedente" value="#{contaCobrancaBean.contaCobranca.codCedente}" size="16" maxlength="100" title="Código do Cedente">
+                                        <h:outputLabel value="Código Cedente" for="idCodigoCedente"/><br />
+                                        <p:inputText id="idCodigoCedente" value="#{contaCobrancaBean.contaCobranca.codCedente}" size="12" maxlength="100" title="Código do Cedente">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </p:column>
@@ -63,8 +63,8 @@
                                     </p:column>
 
                                     <p:column>
-                                        <h:outputLabel value="Espécie Documento" for="idEspecieDocumento"/><br />
-                                        <p:inputText id="idEspecieDocumento" value="#{contaCobrancaBean.contaCobranca.especieDoc}" size="14" maxlength="50" title="Espécie Documento" />                                        
+                                        <h:outputLabel value="Esp. Doc." for="idEspecieDocumento"/><br />
+                                        <p:inputText id="idEspecieDocumento" value="#{contaCobrancaBean.contaCobranca.especieDoc}" size="6" maxlength="50" title="Espécie Documento" />                                        
                                     </p:column>
 
                                     <p:column>
@@ -79,7 +79,21 @@
                                     
                                     <p:column>
                                         <h:outputLabel value="Nr. Dias Baixa do Registro" for="idNrDBR"/><br />
-                                        <p:inputText id="idNrDBR" value="#{contaCobrancaBean.contaCobranca.registrosDiasVencidos}" size="5" maxlength="5" title="Aceite" converter="#{thisNumber}">
+                                        <p:inputText id="idNrDBR" value="#{contaCobrancaBean.contaCobranca.registrosDiasVencidos}" size="25" maxlength="5" title="Aceite" converter="#{thisNumber}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="% Multa"/><br />
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.multa}" size="6" maxlength="5" title="Multa">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="% Juros Mensal"/><br />
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.jurosMensal}" size="10" maxlength="5" title="Juros Mensal">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </p:column>

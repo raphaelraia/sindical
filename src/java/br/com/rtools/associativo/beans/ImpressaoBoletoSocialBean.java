@@ -79,6 +79,8 @@ public class ImpressaoBoletoSocialBean {
     private String valorTotal = "0,00";
 
     private String boletoRegistrado = "todos";
+    
+    private Integer tipoEnvio = -1;
 
     @PostConstruct
     public void init() {
@@ -191,7 +193,7 @@ public class ImpressaoBoletoSocialBean {
 
         if (!strResponsavel.isEmpty() || !strLote.isEmpty() || !strData.isEmpty() || !strDocumento.isEmpty() || !strMesAno.isEmpty()) {
             FinanceiroDao dao = new FinanceiroDao();
-            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, strDataEnd, tipo, strDocumento, boletoRegistrado, strMesAno);
+            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, strDataEnd, tipo, strDocumento, boletoRegistrado, strMesAno, tipoEnvio);
 
             int contador = 1;
             for (int i = 0; i < lista_agrupado.size(); i++) {
@@ -618,5 +620,13 @@ public class ImpressaoBoletoSocialBean {
 
     public void setStrDataEnd(String strDataEnd) {
         this.strDataEnd = strDataEnd;
+    }
+    
+    public Integer getTipoEnvio() {
+        return tipoEnvio;
+    }
+
+    public void setTipoEnvio(Integer tipoEnvio) {
+        this.tipoEnvio = tipoEnvio;
     }
 }

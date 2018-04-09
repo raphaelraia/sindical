@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.pessoa.StatusCobranca;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
@@ -83,7 +84,11 @@ public class ConfiguracaoSocial implements Serializable {
     private Integer nrReferencia;
     @Column(name = "is_cobranca_periodica_mes_fixo", nullable = false, columnDefinition = "boolean default true")
     private Boolean cobrancaPeriodicaMesFixo;
-
+    @JoinColumn(name = "id_status_cobranca", referencedColumnName = "id")
+    @ManyToOne
+    private StatusCobranca statusCobranca;
+    
+    
     public ConfiguracaoSocial() {
         this.id = -1;
         this.diasInativaDemissionado = 0;
@@ -115,9 +120,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.cobrancaCarteirinhaNaoSocio = false;
         this.nrReferencia = 0;
         this.cobrancaPeriodicaMesFixo = false;
+        this.statusCobranca = (StatusCobranca) new Dao().find(new StatusCobranca(), 1);
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite, Boolean cobrancaCarteirinhaNaoSocio, Integer nrReferencia, Boolean cobrancaPeriodicaMesFixo) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite, Boolean cobrancaCarteirinhaNaoSocio, Integer nrReferencia, Boolean cobrancaPeriodicaMesFixo, StatusCobranca statusCobranca) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -148,7 +154,7 @@ public class ConfiguracaoSocial implements Serializable {
         this.cobrancaCarteirinhaNaoSocio = cobrancaCarteirinhaNaoSocio;
         this.nrReferencia = nrReferencia;
         this.cobrancaPeriodicaMesFixo = cobrancaPeriodicaMesFixo;
-
+        this.statusCobranca = statusCobranca;
     }
 
     public Integer getId() {
@@ -409,6 +415,14 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setCobrancaPeriodicaMesFixo(Boolean cobrancaPeriodicaMesFixo) {
         this.cobrancaPeriodicaMesFixo = cobrancaPeriodicaMesFixo;
+    }
+
+    public StatusCobranca getStatusCobranca() {
+        return statusCobranca;
+    }
+
+    public void setStatusCobranca(StatusCobranca statusCobranca) {
+        this.statusCobranca = statusCobranca;
     }
 
 }

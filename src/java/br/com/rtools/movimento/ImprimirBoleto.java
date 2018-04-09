@@ -641,8 +641,7 @@ public class ImprimirBoleto implements Serializable {
                         if (convencao == null) {
                             return arquivo;
                         }
-                        MensagemConvencao mc = new MensagemConvencao();
-                        mc = dbm.verificaMensagem(convencao.getId(),
+                        MensagemConvencao mc = dbm.verificaMensagem(convencao.getId(),
                                 lista.get(i).getServicos().getId(),
                                 lista.get(i).getTipoServico().getId(),
                                 dbgc.grupoCidadesPorPessoa(lista.get(i).getPessoa().getId(), convencao.getId()).getId(), "");
@@ -717,7 +716,6 @@ public class ImprimirBoleto implements Serializable {
                         cobranca.getNossoNumeroFormatado(),//nossonum (nosso numero)
                         DataHoje.data(),// datadoc
                         listaVencimentos.get(i),// VENCIMENTO
-                        //lista.get(i).getVencimento(),// VENCIMENTO
                         cobranca.codigoBanco(),// codbanco
                         boletox.getContaCobranca().getMoeda(),//moeda
                         boletox.getContaCobranca().getEspecieMoeda(),// especie_doc
@@ -729,7 +727,6 @@ public class ImprimirBoleto implements Serializable {
                         boletox.getContaCobranca().getLayout().getId() == 2 ? lista.get(i).getReferencia() : lista.get(i).getReferencia().substring(3),// competência / exercicio
                         swap[16],//nomeentidade
                         swap[40],
-                        //   ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper"),//LAYOUT
                         mensagem,//movDB.pesquisaMensagemCobranca(lista.get(i).getId()).getMensagemConvencao().getMensagemContribuinte(),//mensagem
                         boletox.getContaCobranca().getLocalPagamento(),//local_pag
                         swap[18],//endent
@@ -2272,7 +2269,7 @@ public class ImprimirBoleto implements Serializable {
     METODO ANTIGO
      */
     public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
-        
+
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
         ConfiguracaoSocial cs = (ConfiguracaoSocial.get());
@@ -2304,12 +2301,13 @@ public class ImprimirBoleto implements Serializable {
             for (Boleto boleto : listaBoleto) {
                 // PESSOA RESPONSÁVEL PELO BOLETO
                 Pessoa pessoa = dbs.responsavelBoleto(boleto.getNrCtrBoleto());
-                
-                if (DataHoje.menorData(boleto.getVencimento(), DataHoje.data())){
-                    GenericaMensagem.fatal("Atenção", "Boleto " + boleto.getBoletoComposto() + " vencido!");
-                    return new byte[0];
-                }
-                
+
+                // VERIFICA SE O BOLETO ESTA VENCIDO
+//                if (DataHoje.menorData(boleto.getVencimento(), DataHoje.data())) {
+//                    GenericaMensagem.fatal("Atenção", "Boleto " + boleto.getBoletoComposto() + " vencido!");
+//                    return new byte[0];
+//                }
+
                 String contabilidade = "";
                 if (lista_socio.isEmpty()) {
                     if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {
@@ -2350,7 +2348,6 @@ public class ImprimirBoleto implements Serializable {
                     mensagemAtrasadas = "Mensalidade(s) Atrasada(s) Corrigida(s) de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
                 }
 
-                // 
                 HashMap hash = new HashMap();
                 if (boleto.getDtCobrancaRegistrada() == null) {
                     hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
@@ -2375,7 +2372,11 @@ public class ImprimirBoleto implements Serializable {
                     lista_socio.get(i).set(20, boleto.getBoletoComposto());
                 }
 
-                if (cobranca == null) {
+                // CHAMADO ROGÉRIO #2390 PEDIU PARA TIRAR O VALOR APENAS NO CODIGO DE BARRAS E REPRESENTAÇÃO
+                // CASO BOLETO FOR SEM REGISTRO
+                if (boleto.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
+                    cobranca = Cobranca.retornaCobranca(null, new Double(0), boleto.getDtVencimento(), boleto);
+                } else {
                     cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
                 }
 
@@ -2582,7 +2583,14 @@ public class ImprimirBoleto implements Serializable {
                         }
                         linha.set(20, boleto.getBoletoComposto());
                         // 03/01/2017 - FIM DA ALTERAÇÃO
-                        Cobranca cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
+                        Cobranca cobranca;
+                        // CHAMADO ROGÉRIO #2390 PEDIU PARA TIRAR O VALOR APENAS NO CODIGO DE BARRAS E REPRESENTAÇÃO
+                        // CASO BOLETO FOR SEM REGISTRO
+                        if (boleto.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
+                            cobranca = Cobranca.retornaCobranca(null, new Double(0), boleto.getDtVencimento(), boleto);
+                        } else {
+                            cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
+                        }
 
                         representacao = cobranca.representacao();
                         codigo_barras = cobranca.codigoBarras();
@@ -2616,7 +2624,14 @@ public class ImprimirBoleto implements Serializable {
                     linha.set(20, boleto.getBoletoComposto());
                     // 03/01/2017 - FIM DA ALTERAÇÃO
 
-                    Cobranca cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
+                    Cobranca cobranca;
+                    // CHAMADO ROGÉRIO #2390 PEDIU PARA TIRAR O VALOR APENAS NO CODIGO DE BARRAS E REPRESENTAÇÃO
+                    // CASO BOLETO FOR SEM REGISTRO
+                    if (boleto.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
+                        cobranca = Cobranca.retornaCobranca(null, new Double(0), boleto.getDtVencimento(), boleto);
+                    } else {
+                        cobranca = Cobranca.retornaCobranca(null, valor_boleto, boleto.getDtVencimento(), boleto);
+                    }
 
                     representacao = cobranca.representacao();
                     codigo_barras = cobranca.codigoBarras();
