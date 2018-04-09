@@ -117,20 +117,21 @@ public class AgendamentosDao extends DB {
                     + "             P.id AS codigo,                             \n" // 9
                     + "             P.ds_nome AS nome,                          \n" // 10
                     + "             P.ds_documento AS documento,                \n" // 11
-                    + "             PU.ds_nome AS agendador,                    \n" // 12
-                    + "             H.id_filial AS id_filial,                   \n" // 13
-                    + "             FIL.ds_nome AS filial,                      \n" // 14
-                    + "             FIL.ds_documento AS filial_documento,       \n" // 15
-                    + "             CONV.id AS id_colaborador,                  \n" // 16
-                    + "             CONV.ds_nome AS colaborador,                \n" // 17
-                    + "             CONV.ds_documento AS colaborador_documento, \n" // 18
-                    + "             CSG.id AS id_convenio_sub_grupo,            \n" // 19
-                    + "             CSG.ds_descricao AS convenio_sub_grupo,     \n" // 20
-                    + "             CG.ds_descricao AS convenio_grupo,          \n" // 21
-                    + "             func_valor_servico(P.id, S.id, current_date, 0, 0) AS valor,\n" // 22
-                    + "             CG.id AS id_grupo,                          \n" // 23
-                    + "             ASE.id AS id_agendamento_servico,           \n" // 24
-                    + "             ASE.id_movimento AS id_movimento            \n" // 25
+                    + "             A.ds_telefone AS telefone,                  \n" // 12
+                    + "             PU.ds_nome AS agendador,                    \n" // 13
+                    + "             H.id_filial AS id_filial,                   \n" // 14
+                    + "             FIL.ds_nome AS filial,                      \n" // 15
+                    + "             FIL.ds_documento AS filial_documento,       \n" // 16
+                    + "             CONV.id AS id_colaborador,                  \n" // 17
+                    + "             CONV.ds_nome AS colaborador,                \n" // 18
+                    + "             CONV.ds_documento AS colaborador_documento, \n" // 19
+                    + "             CSG.id AS id_convenio_sub_grupo,            \n" // 20
+                    + "             CSG.ds_descricao AS convenio_sub_grupo,     \n" // 21
+                    + "             CG.ds_descricao AS convenio_grupo,          \n" // 22
+                    + "             func_valor_servico(P.id, S.id, current_date, 0, 0) AS valor,\n" // 23
+                    + "             CG.id AS id_grupo,                          \n" // 24
+                    + "             ASE.id AS id_agendamento_servico,           \n" // 25
+                    + "             ASE.id_movimento AS id_movimento            \n" // 26
                     + "        FROM ag_agendamento_servico ASE                  \n"
                     + "  INNER JOIN ag_agendamento A ON A.id = ASE.id_agendamento\n"
                     + "  INNER JOIN ag_agendamento_horario AH ON AH.id_agendamento = ASE.id_agendamento     \n"
@@ -190,6 +191,7 @@ public class AgendamentosDao extends DB {
                     + "		   P.id,                        \n"
                     + "		   P.ds_nome,                   \n"
                     + "		   P.ds_documento,              \n"
+                    + "            A.ds_telefone,               \n"
                     + "		   PU.ds_nome,                  \n"
                     + "		   H.id_filial,                 \n"
                     + "		   FIL.ds_nome,                 \n"

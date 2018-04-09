@@ -394,7 +394,7 @@
                                     <p:tab title="Local de Trabalho" id="i_panel_profissao">
                                         <h:column>
                                             <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
-                                            <p:panel header="EMPREGO ATUAL">
+                                            <p:panel header="#{fisicaBean.pessoaEmpresa.id eq -1 ? 'CADASTRAR' : ''} EMPREGO #{(fisicaBean.pessoaEmpresa.id ne -1 ) ? (fisicaBean.pessoaEmpresa.principal ? 'ATUAL (PRINCIPAL)' : 'ATUAL') : ''}">
 
                                                 <h:panelGrid columns="2">
                                                     <h:column>
@@ -458,7 +458,10 @@
                                                     </h:column>
 
                                                     <h:column>
-                                                        <p:commandButton value="Adicionar Empresa" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1 and fisicaBean.fisica.id != -1}"/>
+                                                        <h:panelGrid columns="2">
+                                                            <p:commandButton value="#{fisicaBean.pessoaEmpresa.id == -1 ? 'Adicionar Empresa' : 'Atualizar'}" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1 and fisicaBean.fisica.id != -1}"/>
+                                                            <p:commandButton value="Nova" action="#{fisicaBean.novaEmpresa}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.fisica.id != -1 and fisicaBean.pessoaEmpresa.id != -1 and fisicaBean.pessoaEmpresa.principal}"/>                                                            
+                                                        </h:panelGrid>
                                                     </h:column>
                                                     <p:watermark value="CBO" for="i_cbo"/>
                                                     <p:watermark value="Profissão" for="i_profissao"/>
@@ -494,8 +497,8 @@
                                                     <p:column styleClass="text-center">
                                                         <p:outputLabel value="#{pessoaEmpresa.socio ? 'SÓCIO DA EMPRESA' : ''}" styleClass="bold font-color-red"/>
                                                     </p:column>
-                                                    <p:column headerText="Nr. Registro">
-                                                        <p:outputLabel value="#{pessoaEmpresa.nrRegistro}" />
+                                                    <p:column headerText="Nr. Registro" styleClass="text-center">
+                                                        <p:outputLabel value="#{pessoaEmpresa.nrRegistro}" styleClass="bold font-size-14"/>
                                                     </p:column>
                                                     <p:column width="30">
                                                         <h:column rendered="#{!pessoaEmpresa.socio}">
@@ -504,7 +507,14 @@
                                                     </p:column>                                
                                                     <p:column width="30">
                                                         <h:column rendered="#{!pessoaEmpresa.socio}">
-                                                            <p:commandButton icon="ui-icon-arrowthick-2-e-w" action="#{fisicaBean.alterarEmpresaAtual(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Alterar Empresa Atual"/>
+                                                            <h:column rendered="#{pessoaEmpresa.dtDemissao == null}">
+                                                                <p:commandButton icon="ui-icon-arrowthick-2-e-w" action="#{fisicaBean.alterarEmpresaAtual(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Alterar Empresa Atual" rendered="#{!pessoaEmpresa.principal}"/>
+                                                            </h:column>
+                                                        </h:column>
+                                                    </p:column>                                
+                                                    <p:column width="60" styleClass="text-center">
+                                                        <h:column rendered="#{pessoaEmpresa.principal}">
+                                                            Principal
                                                         </h:column>
                                                     </p:column>                                
                                                 </p:dataTable>

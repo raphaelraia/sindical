@@ -134,7 +134,7 @@
                                     </h:panelGrid>
                                 </f:facet>
                                 <h:panelGroup id="i_panel_grid" style="width: 100%">
-                                    <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[0]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index" disabledSelection="#{cartaoSocialBean.liberaReimpressaoPorData(linha[4])}">
+                                    <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[19]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index" disabledSelection="#{cartaoSocialBean.liberaReimpressaoPorData(linha[4])}">
 
                                         <f:facet name="header" >
                                             <p:outputLabel value="Selecionados #{cartaoSocialBean.listaSelecionado.size()} de #{cartaoSocialBean.listaCarteirinha.size()}" />

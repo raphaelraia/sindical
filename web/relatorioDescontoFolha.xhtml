@@ -80,11 +80,27 @@
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
+                                <p:column rendered="#{relatorioDescontoFolhaBean.listFilters[3].active}">
+                                    <p:panel header="Movimentos" styleClass="margin-top-max">
+                                        <h:panelGrid columns="2">
+                                            <h:column>
+                                                <h:panelGrid columns="4">
+                                                    <p:selectOneMenu value="#{relatorioDescontoFolhaBean.movimentos}">
+                                                        <p:ajax event="change" update="@this" />
+                                                        <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                        <f:selectItem itemValue="pago" itemLabel="Pagos" />
+                                                        <f:selectItem itemValue="aberto" itemLabel="Abertos" />
+                                                    </p:selectOneMenu>                                                 
+                                                </h:panelGrid>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
                             </h:panelGrid>
                         </h:column>
                     </h:panelGrid>
                     <h:panelGrid columns="1" id="i_btns">
-                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioDescontoFolhaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" onclick="form.target='_BLANK'"/>
+                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioDescontoFolhaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" onclick="form.target = '_BLANK'"/>
                         <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
                             <p:ajax event="change" update="@this" />
                         </p:selectBooleanCheckbox>                        

@@ -48,7 +48,7 @@
                                 <h:outputText value="#{controleScripts.descricao}"/>
                             </p:column>
                             <p:column headerText="Status" styleClass="text-center">
-                                <p:outputLabel value="#{controleScripts.erro ? '' : 'FALHOU'}" styleClass="font-color-red" />
+                                <p:outputLabel value="#{controleScripts.erro ? 'FALHOU' : ''}" styleClass="font-color-red" />
                             </p:column>
                             <p:column headerText="Tamanho" styleClass="text-center">
                                 <p:outputLabel value="#{controleScripts.tamanho} MB" />

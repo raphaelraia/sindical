@@ -313,7 +313,7 @@ public class Pessoa implements Serializable {
         if (this.id != -1) {
             JuridicaDao juridicaDB = new JuridicaDao();
             juridica = juridicaDB.pesquisaJuridicaPorPessoa(this.id);
-            if (juridica.getId() != -1) {
+            if (juridica != null && juridica.getId() != -1) {
                 juridica = (Juridica) new Dao().rebind(juridica);
                 juridica.setPessoa(null);
             }
@@ -328,10 +328,10 @@ public class Pessoa implements Serializable {
         if (this.id != -1) {
             FisicaDao fisicaDB = new FisicaDao();
             fisica = fisicaDB.pesquisaFisicaPorPessoa(this.id);
-            if (fisica.getId() != -1) {
+            if (fisica != null && fisica.getId() != -1) {
                 fisica = (Fisica) new Dao().rebind(fisica);
+                fisica.setPessoa(null);
             }
-            fisica.setPessoa(null);
         }
         return fisica;
     }
