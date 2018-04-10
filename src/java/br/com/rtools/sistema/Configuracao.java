@@ -41,6 +41,8 @@ public class Configuracao implements Serializable {
     private String host;
     @Column(name = "ds_senha", length = 300)
     private String senha;
+    @Column(name = "ds_database_server_alias", length = 50)
+    private String databaseServerAlias;
 
     public Configuracao() {
         this.id = null;
@@ -54,9 +56,10 @@ public class Configuracao implements Serializable {
         this.ativo = true;
         this.host = "";
         this.senha = "";
+        this.databaseServerAlias = "";
     }
 
-    public Configuracao(Integer id, String nomeCliente, String persistence, String caminhoSistema, String identifica, Juridica juridica, Integer acessos, String cadastro, Boolean ativo, String host, String senha) {
+    public Configuracao(Integer id, String nomeCliente, String persistence, String caminhoSistema, String identifica, Juridica juridica, Integer acessos, String cadastro, Boolean ativo, String host, String senha, String databaseServerAlias) {
         this.id = id;
         this.nomeCliente = nomeCliente;
         this.persistence = persistence;
@@ -68,6 +71,7 @@ public class Configuracao implements Serializable {
         this.ativo = ativo;
         this.host = "";
         this.senha = "";
+        this.databaseServerAlias = "";
     }
 
     public Integer getId() {
@@ -166,9 +170,17 @@ public class Configuracao implements Serializable {
         this.senha = senha;
     }
 
+    public String getDatabaseServerAlias() {
+        return databaseServerAlias;
+    }
+
+    public void setDatabaseServerAlias(String databaseServerAlias) {
+        this.databaseServerAlias = databaseServerAlias;
+    }
+
     @Override
     public String toString() {
-        return "Configuracao{" + "id=" + id + ", nomeCliente=" + nomeCliente + ", persistence=" + persistence + ", caminhoSistema=" + caminhoSistema + ", identifica=" + identifica + ", juridica=" + juridica + ", acessos=" + acessos + ", dtCadastro=" + dtCadastro + ", ativo=" + ativo + ", host=" + host + ", senha=" + senha + '}';
+        return "Configuracao{" + "id=" + id + ", nomeCliente=" + nomeCliente + ", persistence=" + persistence + ", caminhoSistema=" + caminhoSistema + ", identifica=" + identifica + ", juridica=" + juridica + ", acessos=" + acessos + ", dtCadastro=" + dtCadastro + ", ativo=" + ativo + ", host=" + host + ", senha=" + senha + ", databaseServerAlias=" + databaseServerAlias + '}';
     }
 
 }

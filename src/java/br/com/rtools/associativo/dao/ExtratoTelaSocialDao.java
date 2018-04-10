@@ -38,13 +38,16 @@ public class ExtratoTelaSocialDao extends DB {
                 + "             BO.dt_vencimento,                               \n " // 18
                 + "             BO.dt_vencimento_original,                      \n " // 19
                 + "             B.dt_importacao,                                \n " // 20
-                + "             B.dt_ocorrencia                                 \n " // 21
+                + "             B.dt_ocorrencia,                                \n " // 21
+                + "             R.ds_rotina                                     \n " // 22
                 + "        FROM fin_movimento M \n "
+                + "  INNER JOIN fin_lote         L  ON L.id  = M.id_lote                            \n "
                 + "  INNER JOIN pes_pessoa       PR ON PR.id = M.id_pessoa -- RESPONSAVEL           \n "
                 + "  INNER JOIN pes_pessoa       PT ON PT.id = M.id_titular -- TITULAR              \n "
                 + "  INNER JOIN pes_pessoa       PB ON PB.id = M.id_beneficiario -- BENEFICIARIO    \n "
                 + "  INNER JOIN fin_servicos     S  ON S.id  = M.id_servicos                        \n "
                 + "  INNER JOIN fin_tipo_servico TS ON TS.id = M.id_tipo_servico                    \n "
+                + "  INNER JOIN seg_rotina       R  ON R.id  = L.id_rotina                          \n "
                 + "   LEFT JOIN fin_baixa        B  ON B.id  = M.id_baixa                           \n "
                 + "   LEFT JOIN fin_boleto       BO ON BO.nr_ctr_boleto = M.nr_ctr_boleto           \n ";
         // PEGAR MOVIMENTOS QUE FORAM EXCLUIDOS ----------------------------------
@@ -94,22 +97,22 @@ public class ExtratoTelaSocialDao extends DB {
                 switch (tipo_data) {
                     case "igual":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_ocorrencia = '" + data_inicial + "'");
+                            listWhere.add("B.dt_ocorrencia = '" + data_inicial + "'");
                         }
                         break;
                     case "apartir":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_ocorrencia >= '" + data_inicial + "'");
+                            listWhere.add("B.dt_ocorrencia >= '" + data_inicial + "'");
                         }
                         break;
                     case "ate":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_ocorrencia <= '" + data_inicial + "'");
+                            listWhere.add("B.dt_ocorrencia <= '" + data_inicial + "'");
                         }
                         break;
                     case "faixa":
                         if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
-                            listWhere.add("BA.dt_ocorrencia >= '" + data_inicial + "' AND BA.dt_ocorrencia <= '" + data_final + "'");
+                            listWhere.add("B.dt_ocorrencia >= '" + data_inicial + "' AND B.dt_ocorrencia <= '" + data_final + "'");
                         }
                         break;
                     default:
@@ -120,22 +123,22 @@ public class ExtratoTelaSocialDao extends DB {
                 switch (tipo_data) {
                     case "igual":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_baixa = '" + data_inicial + "'");
+                            listWhere.add("B.dt_baixa = '" + data_inicial + "'");
                         }
                         break;
                     case "apartir":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_baixa >= '" + data_inicial + "'");
+                            listWhere.add("B.dt_baixa >= '" + data_inicial + "'");
                         }
                         break;
                     case "ate":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_baixa <= '" + data_inicial + "'");
+                            listWhere.add("B.dt_baixa <= '" + data_inicial + "'");
                         }
                         break;
                     case "faixa":
                         if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
-                            listWhere.add("BA.dt_baixa >= '" + data_inicial + "' AND BA.dt_baixa <= '" + data_final + "'");
+                            listWhere.add("B.dt_baixa >= '" + data_inicial + "' AND B.dt_baixa <= '" + data_final + "'");
                         }
                         break;
                     default:
@@ -146,22 +149,22 @@ public class ExtratoTelaSocialDao extends DB {
                 switch (tipo_data) {
                     case "igual":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_importacao = '" + data_inicial + "'");
+                            listWhere.add("B.dt_importacao = '" + data_inicial + "'");
                         }
                         break;
                     case "apartir":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_importacao >= '" + data_inicial + "'");
+                            listWhere.add("B.dt_importacao >= '" + data_inicial + "'");
                         }
                         break;
                     case "ate":
                         if (!data_inicial.isEmpty()) {
-                            listWhere.add("BA.dt_importacao <= '" + data_inicial + "'");
+                            listWhere.add("B.dt_importacao <= '" + data_inicial + "'");
                         }
                         break;
                     case "faixa":
                         if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
-                            listWhere.add("BA.dt_importacao >= '" + data_inicial + "' AND BA.dt_importacao <= '" + data_final + "'");
+                            listWhere.add("B.dt_importacao >= '" + data_inicial + "' AND B.dt_importacao <= '" + data_final + "'");
                         }
                         break;
                     default:

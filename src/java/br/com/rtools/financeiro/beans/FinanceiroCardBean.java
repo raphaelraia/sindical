@@ -18,6 +18,14 @@ public class FinanceiroCardBean implements Serializable {
     private Baixa baixa = new Baixa();
     private List<FormaPagamento> listFormaPagamento = new ArrayList();
 
+    public void cardFormaPagamentoBaixa(String baixa_id) {
+        try {
+            cardFormaPagamentoBaixa(Integer.parseInt(baixa_id));
+        } catch (NumberFormatException e) {
+
+        }
+    }
+
     public void cardFormaPagamentoBaixa(Integer baixa_id) {
         close();
         Dao dao = new Dao();

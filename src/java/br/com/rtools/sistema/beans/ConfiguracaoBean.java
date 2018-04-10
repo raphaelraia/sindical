@@ -16,12 +16,8 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Upload;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,7 +26,6 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.JOptionPane;
 import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
@@ -205,13 +200,13 @@ public class ConfiguracaoBean implements Serializable {
         bp.setConfiguracao(c);
         if (new Dao().save(bp, true)) {
             backup = true;
-            Socket cliente = new Socket();
-            cliente.connect(new InetSocketAddress("192.168.15.160", 5465), 1000);
+            // Socket cliente = new Socket();
+            // cliente.connect(new InetSocketAddress("192.168.15.160", 5465), 1000);
             // cliente.connect(new InetSocketAddress("192.168.15.160", 5465), (1000 * 60 * 10));
-            ObjectInputStream entrada = new ObjectInputStream(cliente.getInputStream());
-            Date data_atual = (Date) entrada.readObject();
-            entrada.close();
-            System.out.println("Conexão encerrada");
+            // ObjectInputStream entrada = new ObjectInputStream(cliente.getInputStream());
+            // Date data_atual = (Date) entrada.readObject();
+            // entrada.close();
+            // System.out.println("Conexão encerrada");
             GenericaMensagem.info("Sucesso", "Backup em processamento!!!");
         } else {
             GenericaMensagem.warn("Erro", "Ao enviar pedido de backup!");

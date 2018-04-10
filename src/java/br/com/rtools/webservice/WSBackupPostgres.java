@@ -38,6 +38,7 @@ public class WSBackupPostgres implements Serializable {
                         bp = (BackupPostgres) dao.rebind(bp);
                         bp.setDtProcessado(new Date());
                         dao.update(bp, true);
+                        return;
                     }
                 }
             } catch (Exception e) {
@@ -60,7 +61,8 @@ public class WSBackupPostgres implements Serializable {
 
                 JSONArray list = new JSONArray();
                 if (bp != null) {
-                    obj.put("identificador", bp.getConfiguracao().getIdentifica());
+                    obj.put("server", bp.getConfiguracao().getDatabaseServerAlias());
+                    obj.put("database", bp.getConfiguracao().getIdentifica());
                     obj.put("backup_postgres_id", bp.getId());
                     externalContext.getResponseOutputWriter().write(obj.toString());
                     facesContext.responseComplete();

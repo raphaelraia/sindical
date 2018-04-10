@@ -295,7 +295,7 @@
                                         <f:convertNumber type="currency" currencySymbol=""/>
                                     </p:outputLabel>
                                 </p:column>
-                                
+
                                 <p:column headerText="#{extratoTelaSocialBean.tipoDataPesquisa eq 'ocorrencia' ? 'Recebimento(Ocorrência)' : 'Baixa'}" style="text-align: center; width: 60px">
                                     <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? linha.argumento1[21] : linha.argumento1[11]}">
                                         <f:convertDateTime />
@@ -327,19 +327,29 @@
                                             <p:outputLabel value="#{linha.argumento1[17]}" />
                                         </p:column>
 
+
                                         <p:column>
+                                            <p:outputLabel value="Rotina" style="font-weight: bold"/><br />
+                                            #{linha.argumento1[22]}
+                                        </p:column>                                        
+
+                                        <p:column rendered="#{linha.argumento1[18] ne null}">
                                             <p:outputLabel value="Vencimento do Boleto" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{extratoTelaSocialBean.converteData(linha.argumento1[18])}" />
                                         </p:column>
 
-                                        <p:column>
+                                        <p:column rendered="#{linha.argumento1[19] ne null}">
                                             <p:outputLabel value="Vencimento Original do Boleto" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{extratoTelaSocialBean.converteData(linha.argumento1[19])}" />
+                                            <p:outputLabel value="#{linha.argumento1[19]}">
+                                                <f:convertDateTime />
+                                            </p:outputLabel>
                                         </p:column>
 
-                                        <p:column>
+                                        <p:column rendered="#{linha.argumento1[20] ne null}">
                                             <p:outputLabel value="Data de Importação" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{extratoTelaSocialBean.converteData(linha.argumento1[20])}" />
+                                            <p:outputLabel value="#{linha.argumento1[20]}">
+                                                <f:convertDateTime />
+                                            </p:outputLabel>
                                         </p:column>
 
                                         <p:column>
@@ -358,6 +368,10 @@
                                                 </c:when>
                                             </c:choose>
                                         </p:column>
+
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                        <p:commandButton value="FORMAS DE PAGTO" update=":formExtratoTelaSocial:i_forma_pagto_baixa" onclick="PF('dlg_forma_pagto_baixa').show()" action="#{financeiroCardBean.cardFormaPagamentoBaixa(linha.argumento1[14])}" title="Ver detalhes" rendered="#{linha.argumento1[12] ne 0 and linha.argumento1[14] ne null}"/>
                                     </h:panelGrid>
                                 </p:rowExpansion>                                
                             </p:dataTable>
@@ -393,6 +407,12 @@
                                     <h:inputText id="idSomarVlLiquido" value="#{extratoTelaSocialBean.vlLiquido}" size="15" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
                                 </h:column>
                             </h:panelGrid>
+                            <p:dialog widgetVar="dlg_forma_pagto_baixa" modal="true" resizable="false" height="400" width="600" header="FORMAS DE PAGAMENTO DA BAIXA">
+                                <p:ajax event="close" listener="#{financeiroCardBean.close}"/>  
+                                <h:panelGroup layout="block" id="i_forma_pagto_baixa">
+                                    <ui:include src="templates/templateFormaPagtoBaixa.xhtml" />
+                                </h:panelGroup>
+                            </p:dialog>
                         </h:form>
 
                         <h:form id="formExtratoTelaSocialOpcoes">
