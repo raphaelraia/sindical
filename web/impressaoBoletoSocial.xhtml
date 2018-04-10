@@ -61,7 +61,7 @@
                             <p:poll id="i_reload" interval="60" update="i_reload i_datatable_boletos" delay="15" ignoreAutoUpdate="true" />
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:outputLabel value="Opção Marcar" style="font-size: 12pt!important"/><br />
-                                <h:panelGrid columns="4">
+                                <h:panelGrid columns="13">
                                     <p:column>
                                         <h:outputLabel value="De" /><br />
                                         <p:inputText size="4" value="#{impressaoBoletoSocialBean.de}"/>
@@ -81,9 +81,7 @@
                                         <br />
                                         <p:commandButton icon="ui-icon-close" action="#{impressaoBoletoSocialBean.desmarcarTudo()}" update="tbl i_panel_quantidade" />
                                     </p:column>
-                                </h:panelGrid>
-                                
-                                <h:panelGrid columns="9">
+                                    
                                     <p:column id="i_documento">
                                         <h:outputText value="Documento" /><br />
                                         <p:inputMask value="#{impressaoBoletoSocialBean.strDocumento}" mask="#{(impressaoBoletoSocialBean.tipo eq 'juridica') ? '99.999.999/9999-99' : '999.999.999-99'}" style="width: 140px"/>
@@ -92,18 +90,6 @@
                                     <p:column>
                                         <h:outputLabel value="Responsável"/><br />
                                         <p:inputText value="#{impressaoBoletoSocialBean.strResponsavel}" style="width: 170px"/>
-                                    </p:column>
-                                    
-                                    <p:column rendered="false">
-                                        <h:outputLabel value="Tipo Envio"/><br />
-                                        <p:selectOneMenu value="#{impressaoBoletoSocialBean.tipoEnvio}">
-                                            <p:ajax event="change" update="formImpressaoBoletoSocial"/>
-                                            <f:selectItem itemValue="-1" itemLabel="Todos(Correios)" />
-                                            <f:selectItem itemValue="1" itemLabel="Com Email" />
-                                            <f:selectItem itemValue="2" itemLabel="Sem Email(Correios)" />
-                                            <f:selectItem itemValue="3" itemLabel="Definidos como Correios" />
-                                            <f:selectItem itemValue="4" itemLabel="Definidos como Email" />
-                                        </p:selectOneMenu>
                                     </p:column>
 
                                     <p:column>
@@ -132,7 +118,7 @@
                                     </p:column>
 
                                     <p:column>
-                                        
+
                                         <h:panelGrid columns="2">
                                             <h:outputLabel value="Data Proc Ini." />
                                             <h:outputLabel value="Final." />
@@ -144,14 +130,28 @@
                                             </p:inputMask>                                            
                                         </h:panelGrid>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Mês/Ano(vencto)" /><br />
                                         <p:inputMask value="#{impressaoBoletoSocialBean.strMesAno}" mask="99/9999" style="width: 110px; text-align: center" converter="#{isDateReference}">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputMask>
                                     </p:column>
-                                    
+                                </h:panelGrid>  
+
+                                <h:panelGrid columns="3">
+                                    <p:column>
+                                        <h:outputLabel value="Tipo Envio"/><br />
+                                        <p:selectOneMenu value="#{impressaoBoletoSocialBean.tipoEnvio}">
+                                            <p:ajax event="change" update="formImpressaoBoletoSocial"/>
+                                            <f:selectItem itemValue="-1" itemLabel="Todos(Correios)" />
+                                            <f:selectItem itemValue="1" itemLabel="Com Email" />
+                                            <f:selectItem itemValue="2" itemLabel="Sem Email(Correios)" />
+                                            <f:selectItem itemValue="3" itemLabel="Definidos como Correios" />
+                                            <f:selectItem itemValue="4" itemLabel="Definidos como Email" />
+                                        </p:selectOneMenu>
+                                    </p:column>
+
                                     <p:column>
                                         <h:outputLabel value="Boleto Registrado" /><br />
                                         <p:selectOneMenu value="#{impressaoBoletoSocialBean.boletoRegistrado}">
@@ -161,17 +161,19 @@
                                             <f:selectItem itemValue="nao_registrados" itemLabel="Não Registrados" />
                                         </p:selectOneMenu>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="Filtrar" action="#{impressaoBoletoSocialBean.loadLista()}" update="formImpressaoBoletoSocial"/>
+                                        <p:commandButton icon="ui-icon-search" value="Filtrar" action="#{impressaoBoletoSocialBean.loadLista()}" update="formImpressaoBoletoSocial"/>
                                     </p:column>
-                                </h:panelGrid>        
+                                </h:panelGrid>
                             </p:panel>
+                            
                             <p:messages autoUpdate="false" closable="true" showDetail="true"/>
                             <p:growl autoUpdate="false" showDetail="true" />
+                            
                             <h:panelGroup id="i_datatable_boletos" layout="block">
-                                
+
                                 <p:dataTable var="linha" id="tbl" value="#{impressaoBoletoSocialBean.listaGrid}" rowKey="#{linha.argumento0}" emptyMessage="Nenhum Boleto Encontrado!" paginator="true" rows="10">
                                     <p:column headerText="" style="text-align: center; width: 40px">
                                         <p:commandLink value="#{linha.argumento0}" />
