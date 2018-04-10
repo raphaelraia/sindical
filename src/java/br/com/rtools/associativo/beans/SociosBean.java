@@ -1922,8 +1922,10 @@ public class SociosBean implements Serializable {
                         }
                     }
                 } else {
-                    GenericaMensagem.warn("Atenção", "Sócio com EMPRESA NÃO CONTRIBUINTE não pode ser salvo!");
-                    return false;
+                    if(servicoCategoria.getCategoria().isVotante()) {
+                        GenericaMensagem.warn("Atenção", "Sócio (Votante) com EMPRESA NÃO CONTRIBUINTE não pode ser salvo!");
+                        return false;
+                    }
                 }
             }
         }

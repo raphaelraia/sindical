@@ -396,12 +396,12 @@
                                             <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
                                             <p:panel header="#{fisicaBean.pessoaEmpresa.id eq -1 ? 'CADASTRAR' : ''} EMPREGO #{(fisicaBean.pessoaEmpresa.id ne -1 ) ? (fisicaBean.pessoaEmpresa.principal ? 'ATUAL (PRINCIPAL)' : 'ATUAL') : ''}">
 
-                                                <h:panelGrid columns="2">
+                                                <h:panelGrid columns="2" cellspacing="5">
                                                     <h:column>
                                                         <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" id="i_pesquisar_empresa"/>
                                                     </h:column>
                                                     <h:column>
-                                                        <h:panelGrid columns="5">
+                                                        <h:panelGrid columns="5" cellspacing="10">
                                                             <p:outputLabel value="PESQUISAR EMPRESA " rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id == -1}" style="border-bottom: 1px dashed gray; color: gray;" for="i_pesquisar_empresa"/>
                                                             <p:outputLabel value="CNPJ: #{fisicaBean.pessoaEmpresa.juridica.pessoa.documento} - #{fisicaBean.pessoaEmpresa.juridica.pessoa.nome}"  rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" for="i_pesquisar_empresa"  style="font-weight: bold"/>
                                                             <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.removerJuridicaPesquisada}" rendered="#{fisicaBean.renderJuridicaPesquisa}" />
@@ -409,67 +409,83 @@
                                                             <h:commandLink action="#{juridicaBean.editar(fisicaBean.pessoaEmpresa.juridica, true)}" value="Alterar cadastro" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" actionListener="#{chamadaPaginaBean.backButton}" />
                                                         </h:panelGrid>
                                                     </h:column>
-                                                    <p:outputLabel value="Nome Fantasia: "/>
-                                                    <p:outputLabel value="#{fisicaBean.pessoaEmpresa.juridica.fantasia}" style="font-weight: bold"/>
                                                 </h:panelGrid>
+                                                <h:panelGroup rendered="#{fisicaBean.pessoaEmpresa.juridica.id ne -1}">
+                                                    <h:panelGrid columns="2" cellspacing="10">
+                                                        <p:outputLabel value="NOME FANTASIA: " />
+                                                        <p:outputLabel value="#{fisicaBean.pessoaEmpresa.juridica.fantasia}" style="font-weight: bold" />
+                                                    </h:panelGrid>
 
-                                                <h:panelGrid columns="3" style="margin-top: 10px">
-                                                    <h:column>                                        
-                                                        <p:outputLabel value="Data Admissão" /><br />
-                                                        <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.admissao}" mask="99/99/9999" style="margin-right: 20px; text-align: center">
-                                                            <p:ajax event="change" update="@this" global="false"/>
-                                                        </p:inputMask>
-                                                    </h:column>
+                                                    <h:panelGrid columns="4" cellspacing="10">
+                                                        <h:column> 
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="DT. ADMISSÃO" />
+                                                                <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.admissao}" mask="99/99/9999" styleClass="text-center" converter="#{isDateString}">
+                                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                                </p:inputMask>
+                                                            </h:panelGrid>
+                                                        </h:column>
 
-                                                    <h:column>
-                                                        <p:outputLabel value="Data Demissão" /><br />
-                                                        <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.demissao}" mask="99/99/9999" style="text-align: center">
-                                                            <p:ajax event="change" update="@this" />
-                                                        </p:inputMask>
-                                                    </h:column>
+                                                        <h:column>
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="DT. DEMISSÃO" />
+                                                                <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.demissao}" mask="99/99/9999" styleClass="text-center" converter="#{isDateString}">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputMask>
+                                                            </h:panelGrid>
+                                                        </h:column>
 
-                                                    <h:column>
-                                                        <p:outputLabel value="Código" /><br />
-                                                        <p:inputText size="10" value="#{fisicaBean.pessoaEmpresa.codigo}">
-                                                            <p:ajax event="change" update="@this" global="false"/>
-                                                        </p:inputText>
-                                                    </h:column>
+                                                        <h:column>
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="CÓDIGO" />
+                                                                <p:inputText size="10" value="#{fisicaBean.pessoaEmpresa.codigo}" styleClass="text-center">
+                                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                                </p:inputText>
+                                                            </h:panelGrid>
+                                                        </h:column>
 
-                                                    <h:column>
-                                                        <p:outputLabel value="Registro" /><br />
-                                                        <p:selectOneMenu value="#{fisicaBean.nrRegistro}" disabled="#{fisicaBean.pessoaEmpresa.id ne -1}">
-                                                            <p:ajax event="change" update="@this"/>
-                                                            <f:selectItems value="#{fisicaBean.listNrRegistro}" />
-                                                        </p:selectOneMenu>  
-                                                    </h:column>
-                                                </h:panelGrid>                                
+                                                        <h:column>
+                                                            <h:panelGrid style="margin-left: 25px">
+                                                                <p:outputLabel value="REGISTRO" />
+                                                                <p:selectOneMenu value="#{fisicaBean.nrRegistro}" disabled="#{fisicaBean.pessoaEmpresa.id ne -1}">
+                                                                    <p:ajax event="change" update="@this"/>
+                                                                    <f:selectItems value="#{fisicaBean.listNrRegistro}" />
+                                                                </p:selectOneMenu>  
+                                                            </h:panelGrid>
+                                                        </h:column>
+                                                    </h:panelGrid>                                
+                                                    <h:panelGrid columns="5" cellspacing="10">
 
-                                                <h:panelGrid columns="3" style="margin-top: 15px">
-                                                    <h:column>
-                                                        <p:commandButton icon="ui-icon-search" value="Função" onclick="PF('dgl_painel_profissao').show();" />
-                                                    </h:column>
+                                                        
+                                                        <h:column rendered="#{fisicaBean.profissao.id ne -1}">
+                                                            <h:panelGroup id="idFuncao">                                                                
+                                                                <h:panelGrid columns="4" >
+                                                                    <p:inputText size="5" value="#{fisicaBean.profissao.cbo}"  readonly="true" placeholder="CBO"/>
+                                                                    <p:inputText size="40" value="#{fisicaBean.profissao.profissao}"  readonly="true" placeholder="Profissão"/>
+                                                                    <p:inputText size="20" value="#{fisicaBean.pessoaEmpresa.setor}"  placeholder="Setor"/>
+                                                                </h:panelGrid>
+                                                            </h:panelGroup>
+                                                        </h:column>
 
-                                                    <h:column>
-                                                        <h:panelGrid columns="4" id="idFuncao" >
-                                                            <p:inputText size="5" id="i_cbo" value="#{fisicaBean.profissao.cbo}"  readonly="true" />
-                                                            <p:inputText size="40" id="i_profissao" value="#{fisicaBean.profissao.profissao}"  readonly="true" />
-                                                            <p:inputText size="20" id="i_setor" value="#{fisicaBean.pessoaEmpresa.setor}"  />
-                                                        </h:panelGrid>
-                                                    </h:column>
+                                                        <h:column rendered="#{fisicaBean.profissao.id ne -1}">
 
-                                                    <h:column>
-                                                        <h:panelGrid columns="2">
-                                                            <p:commandButton value="#{fisicaBean.pessoaEmpresa.id == -1 ? 'Adicionar Empresa' : 'Atualizar'}" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1 and fisicaBean.fisica.id != -1}"/>
-                                                            <p:commandButton value="Nova" action="#{fisicaBean.novaEmpresa}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.fisica.id != -1 and fisicaBean.pessoaEmpresa.id != -1 and fisicaBean.pessoaEmpresa.principal}"/>                                                            
-                                                        </h:panelGrid>
-                                                    </h:column>
-                                                    <p:watermark value="CBO" for="i_cbo"/>
-                                                    <p:watermark value="Profissão" for="i_profissao"/>
-                                                    <p:watermark value="Setor" for="i_setor"/>
-                                                </h:panelGrid>
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandButton icon="#{fisicaBean.profissao.id eq -1 ? 'ui-icon-search' : 'ui-icon-transfer-e-w' }" value="#{fisicaBean.profissao.id eq -1 ? 'PESQUISAR FUNÇÃO' : 'ALTERAR FUNÇÃO'}" onclick="PF('dgl_painel_profissao').show();" />
+                                                        </h:column>
+                                                    </h:panelGrid>
+                                                </h:panelGroup>
+                                                <f:facet name="footer">
+                                                    <h:panelGrid columns="2" rendered="#{fisicaBean.fisica.id != -1}">
+                                                        <p:commandButton value="#{fisicaBean.pessoaEmpresa.id == -1 ? 'Adicionar Empresa' : 'Atualizar'}" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1}"/>
+                                                        <p:commandButton value="Nova" action="#{fisicaBean.novaEmpresa}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.fisica.id != -1 and fisicaBean.pessoaEmpresa.id != -1 and fisicaBean.pessoaEmpresa.principal}"/>                                                            
+                                                    </h:panelGrid>
+                                                </f:facet>
+
                                             </p:panel>
 
-                                            <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max">
+                                            <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max" rendered="#{not empty fisicaBean.listaPessoaEmpresa}">
                                                 <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!" >
                                                     <p:column width="30" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq 1}">
                                                         <h:column rendered="#{!pessoaEmpresa.socio}">
@@ -759,7 +775,9 @@
                                         <h:panelGrid columns="7">
                                             <p:column>
                                                 <h:outputLabel value="Profissão" /><br />
-                                                <p:inputText size="20" value="#{fisicaBean.profissao.profissao}" onkeypress="return event.keyCode !== 13;" />
+                                                <p:inputText size="20" value="#{fisicaBean.descricaoProfissao}" onkeypress="return event.keyCode !== 13;">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
                                             </p:column>
 
                                             <p:column>

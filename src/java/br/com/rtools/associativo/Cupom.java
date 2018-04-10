@@ -40,6 +40,8 @@ public class Cupom implements Serializable {
     private Integer carenciaInadimplenciaDias;
     @Column(name = "is_ativo", columnDefinition = "boolean default true")
     private Boolean ativo;
+    @Column(name = "is_bloqueia_debito", columnDefinition = "boolean default true")
+    private Boolean bloqueiaDebito;
 
     @Transient
     private Boolean selected;
@@ -56,9 +58,10 @@ public class Cupom implements Serializable {
         this.ativo = true;
         this.selected = false;
         this.listCupomCategoria = null;
+        this.bloqueiaDebito = false;
     }
 
-    public Cupom(Integer id, String descricao, String obs, Date dtData, Integer carenciaInadimplenciaDias, Boolean ativo) {
+    public Cupom(Integer id, String descricao, String obs, Date dtData, Integer carenciaInadimplenciaDias, Boolean ativo, Boolean bloqueiaDebito) {
         this.id = id;
         this.descricao = descricao;
         this.obs = obs;
@@ -67,6 +70,7 @@ public class Cupom implements Serializable {
         this.ativo = ativo;
         this.selected = false;
         this.listCupomCategoria = null;
+        this.bloqueiaDebito = bloqueiaDebito;
     }
 
     public Integer getId() {
@@ -158,6 +162,14 @@ public class Cupom implements Serializable {
 
     public void setObs(String obs) {
         this.obs = obs;
+    }
+
+    public Boolean getBloqueiaDebito() {
+        return bloqueiaDebito;
+    }
+
+    public void setBloqueiaDebito(Boolean bloqueiaDebito) {
+        this.bloqueiaDebito = bloqueiaDebito;
     }
 
 }

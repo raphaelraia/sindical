@@ -364,8 +364,8 @@ public class CartaoSocialBean implements Serializable {
                         PessoaEmpresa pe = db.pesquisaPessoaEmpresaPorPessoa(pessoa.getId());
                         //PessoaEmpresa pe = db.pesquisaPessoaEmpresaPorPessoa(titular_id);
                         if (pe.getId() == -1) {
-                            GenericaMensagem.error("Atenção", "Empresa Não Vinculada a pessoa " + pessoa.getNome());
-                            validacao = true;
+                            GenericaMensagem.error("Atenção", "Sócio Sem Empresa Vinculada. Fazer o RECADASTRAMENTO !" + pessoa.getNome());
+                            validacao = false;
                             listaSelecionado = new ArrayList();
                         }
                     }

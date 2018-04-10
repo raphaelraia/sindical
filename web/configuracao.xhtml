@@ -73,7 +73,7 @@
                             </p:panel>
                             <p:panel header="Backups" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max">
                                 <p:column width="30" styleClass="text-center">
-                                    <p:commandButton action="#{configuracaoBean.remove(sisConfiguracaoEmail)}" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_c:"/>
+                                    <p:commandButton action="#{configuracaoBean.backup(configuracaoBean.configuracao)}" value="GERAR BACKUP (Em desenvolvimento)" update=":form_c:" disabled="true"/>
                                 </p:column>
                             </p:panel>
                             <h:panelGrid columns="4" styleClass="margin-top-max">

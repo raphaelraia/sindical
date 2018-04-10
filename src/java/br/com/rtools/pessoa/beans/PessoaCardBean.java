@@ -347,7 +347,7 @@ public class PessoaCardBean implements Serializable {
                 return "CONTRIBUINTE INATIVO";
             } else {
                 if(p.getJuridica() != null) {
-                    if(p.getJuridica().getCnae() != null) {
+                    if(p.getJuridica().getCnae() != null && p.getJuridica().getCnae().getId() != -1) {
                         if(p.getJuridica().getCnae().getId() == 1) {
                             return "SERVIÇO CONTÁBIL";
                         } else {
@@ -355,7 +355,7 @@ public class PessoaCardBean implements Serializable {
                         }                        
                     }
                 }
-                return "CONTRIBUINTE";
+                return "NÃO CONTRIBUINTE";
             }
         } catch (Exception e) {
             e.getMessage();

@@ -49,6 +49,8 @@
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
                                             <h:column />
+                                            <p:selectBooleanCheckbox value="#{cupomBean.cupom.bloqueiaDebito}" itemLabel="Bloqueia Débito" />
+                                            <h:column />
                                             <p:selectBooleanCheckbox value="#{cupomBean.cupom.ativo}" itemLabel="Ativo" />
                                         </h:panelGrid>
                                     </h:column>
