@@ -12,12 +12,14 @@ import br.com.rtools.sistema.TipoResolucao;
 import br.com.rtools.sistema.dao.BackupPostgresDao;
 import br.com.rtools.sistema.dao.SisConfiguracaoEmailDao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Upload;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -187,11 +189,12 @@ public class ConfiguracaoBean implements Serializable {
 
     /**
      * SocketServer 5465
-     * @param c 
+     *
+     * @param c
      */
     public void backup(Configuracao c) throws IOException, ClassNotFoundException {
         BackupPostgres exists = new BackupPostgresDao().exist();
-        if(exists != null) {
+        if (exists != null) {
             GenericaMensagem.warn("Validação", "Existe um backup em andamento para o cliente " + exists.getConfiguracao().getIdentifica() + "!!!");
             return;
         }
@@ -207,7 +210,9 @@ public class ConfiguracaoBean implements Serializable {
             // Date data_atual = (Date) entrada.readObject();
             // entrada.close();
             // System.out.println("Conexão encerrada");
-            GenericaMensagem.info("Sucesso", "Backup em processamento!!!");
+            GenericaMensagem.info("Sucesso", "Backup em processamento!!! Ficara pronto dentro de 5 minutos. Backup ID: " + bp.getId());
+            GenericaMensagem.info("Se o arquivo não existir", "/backupbancos/" + DataHoje.livre(new Date(), "yyyy") + "/" + DataHoje.livre(new Date(), "MM") + "/" + DataHoje.livre(new Date(), "dd") + "/" + c.getDatabaseServerAlias() + "/" + c.getIdentifica() + ".backup");
+            GenericaMensagem.info("Se o arquivo já existir", "/backupbancos/" + DataHoje.livre(new Date(), "yyyy") + "/" + DataHoje.livre(new Date(), "MM") + "/" + DataHoje.livre(new Date(), "dd") + "/" + c.getDatabaseServerAlias() + "/" + c.getIdentifica() + "_" + bp.getId() + ".backup");
         } else {
             GenericaMensagem.warn("Erro", "Ao enviar pedido de backup!");
         }

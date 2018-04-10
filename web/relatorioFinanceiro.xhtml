@@ -218,10 +218,21 @@
                                                 <h:column>
                                                     <p:panel styleClass="fundoCinza">
                                                         <h:panelGrid columns="1">
-                                                            <p:outputLabel value="Quitação" style="font-weight: bold"/>
-                                                            <p:inputMask value="#{relatorioFinanceiroBean.dataQuitacao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="Baixa" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroBean.dataBaixa}" style="text-align: center" size="8" mask="99/99/9999"/>
                                                             <p:outputLabel value="até" style="font-weight: bold" />
-                                                            <p:inputMask value="#{relatorioFinanceiroBean.dataQuitacaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroBean.dataBaixaFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+                                                
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Ocorrência" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroBean.dataOcorrencia}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroBean.dataOcorrenciaFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
                                                         </h:panelGrid>
                                                     </p:panel>
                                                 </h:column>

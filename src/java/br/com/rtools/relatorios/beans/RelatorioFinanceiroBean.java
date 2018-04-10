@@ -84,8 +84,10 @@ public class RelatorioFinanceiroBean implements Serializable {
     private String dataEmissaoFinal = "";
     private String dataVencimento = "";
     private String dataVencimentoFinal = "";
-    private String dataQuitacao = "";
-    private String dataQuitacaoFinal = "";
+    private String dataBaixa = "";
+    private String dataBaixaFinal = "";
+    private String dataOcorrencia = "";
+    private String dataOcorrenciaFinal = "";
     private String dataImportacao = "";
     private String dataImportacaoFinal = "";
     private String dataCredito = "";
@@ -396,8 +398,8 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
 
         // DATAS
-        String dtEmissao = "", dtVencimento = "", dtQuitacao = "", dtImportacao = "", dtCredito = "", dtFechamentoCaixa = "";
-        String dtEmissaoFinal = "", dtVencimentoFinal = "", dtQuitacaoFinal = "", dtImportacaoFinal = "", dtCreditoFinal = "", dtFechamentoCaixaFinal = "";
+        String dtEmissao = "", dtVencimento = "", dtBaixa = "", dtOcorrencia = "", dtImportacao = "", dtCredito = "", dtFechamentoCaixa = "";
+        String dtEmissaoFinal = "", dtVencimentoFinal = "", dtBaixaFinal = "", dtOcorrenciaFinal = "", dtImportacaoFinal = "", dtCreditoFinal = "", dtFechamentoCaixaFinal = "";
         if (listaFiltros.get(4).ativo) {
             // EMISSÃO --------------
             if (!dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()) {
@@ -424,16 +426,28 @@ public class RelatorioFinanceiroBean implements Serializable {
                 dtVencimentoFinal = dataVencimentoFinal;
             }
 
-            if (!dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-                ldescricao.add("Data de Quitação de: " + dataQuitacao + " à " + dataQuitacaoFinal);
-                dtQuitacao = dataQuitacao;
-                dtQuitacaoFinal = dataQuitacaoFinal;
-            } else if (!dataQuitacao.isEmpty() && dataQuitacaoFinal.isEmpty()) {
-                ldescricao.add("Data de Quitação: " + dataQuitacao);
-                dtQuitacao = dataQuitacao;
-            } else if (dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-                ldescricao.add("Data de Quitação até: " + dataQuitacaoFinal);
-                dtQuitacaoFinal = dataQuitacaoFinal;
+            if (!dataBaixa.isEmpty() && !dataBaixaFinal.isEmpty()) {
+                ldescricao.add("Data de Baixa de: " + dataBaixa + " à " + dataBaixaFinal);
+                dtBaixa = dataBaixa;
+                dtBaixaFinal = dataBaixaFinal;
+            } else if (!dataBaixa.isEmpty() && dataBaixaFinal.isEmpty()) {
+                ldescricao.add("Data de Baixa: " + dataBaixa);
+                dtBaixa = dataBaixa;
+            } else if (dataBaixa.isEmpty() && !dataBaixaFinal.isEmpty()) {
+                ldescricao.add("Data de Baixa até: " + dataBaixaFinal);
+                dtBaixaFinal = dataBaixaFinal;
+            }
+
+            if (!dataOcorrencia.isEmpty() && !dataOcorrenciaFinal.isEmpty()) {
+                ldescricao.add("Data de Ocorrência de: " + dataOcorrencia + " à " + dataOcorrenciaFinal);
+                dtOcorrencia = dataOcorrencia;
+                dtOcorrenciaFinal = dataOcorrenciaFinal;
+            } else if (!dataOcorrencia.isEmpty() && dataOcorrenciaFinal.isEmpty()) {
+                ldescricao.add("Data de Ocorrência: " + dataOcorrencia);
+                dtOcorrencia = dataOcorrencia;
+            } else if (dataOcorrencia.isEmpty() && !dataOcorrenciaFinal.isEmpty()) {
+                ldescricao.add("Data de Ocorrência até: " + dataOcorrenciaFinal);
+                dtOcorrenciaFinal = dataOcorrenciaFinal;
             }
 
             if (!dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()) {
@@ -547,7 +561,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
 
-        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, tipo_pessoa, tipo_situacao, id_filial, ordem, relatorios);
+        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtBaixa, dtBaixaFinal, dtOcorrencia, dtOcorrenciaFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, tipo_pessoa, tipo_situacao, id_filial, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -781,14 +795,6 @@ public class RelatorioFinanceiroBean implements Serializable {
         this.dataVencimento = dataVencimento;
     }
 
-    public String getDataQuitacao() {
-        return dataQuitacao;
-    }
-
-    public void setDataQuitacao(String dataQuitacao) {
-        this.dataQuitacao = dataQuitacao;
-    }
-
     public String getDataImportacao() {
         return dataImportacao;
     }
@@ -925,12 +931,20 @@ public class RelatorioFinanceiroBean implements Serializable {
         this.dataVencimentoFinal = dataVencimentoFinal;
     }
 
-    public String getDataQuitacaoFinal() {
-        return dataQuitacaoFinal;
+    public String getDataBaixa() {
+        return dataBaixa;
     }
 
-    public void setDataQuitacaoFinal(String dataQuitacaoFinal) {
-        this.dataQuitacaoFinal = dataQuitacaoFinal;
+    public void setDataBaixa(String dataBaixa) {
+        this.dataBaixa = dataBaixa;
+    }
+
+    public String getDataBaixaFinal() {
+        return dataBaixaFinal;
+    }
+
+    public void setDataBaixaFinal(String dataBaixaFinal) {
+        this.dataBaixaFinal = dataBaixaFinal;
     }
 
     public String getDataImportacaoFinal() {
@@ -1019,6 +1033,22 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     public void setTipoSituacao(String tipoSituacao) {
         this.tipoSituacao = tipoSituacao;
+    }
+
+    public String getDataOcorrencia() {
+        return dataOcorrencia;
+    }
+
+    public void setDataOcorrencia(String dataOcorrencia) {
+        this.dataOcorrencia = dataOcorrencia;
+    }
+
+    public String getDataOcorrenciaFinal() {
+        return dataOcorrenciaFinal;
+    }
+
+    public void setDataOcorrenciaFinal(String dataOcorrenciaFinal) {
+        this.dataOcorrenciaFinal = dataOcorrenciaFinal;
     }
 
     public class Filtros {
