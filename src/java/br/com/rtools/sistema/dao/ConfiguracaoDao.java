@@ -115,6 +115,6 @@ public class ConfiguracaoDao extends DB {
         if (colum_filter_key == null || colum_filter_key.isEmpty() || colum_filter_value == null || colum_filter_value.isEmpty()) {
             return new ArrayList();
         }
-        return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, "");
+        return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, "AND is_ativo=true");
     }
 }

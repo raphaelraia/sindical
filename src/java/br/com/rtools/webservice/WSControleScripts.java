@@ -28,6 +28,9 @@ public class WSControleScripts implements Serializable {
     public void storeDataBaseServer() {
         try {
             String database_server = GenericaRequisicao.getParametro("database_server");
+            if(database_server == null || !database_server.isEmpty()) {
+                return;
+            }
             // String device = GenericaRequisicao.getParametro("device");
             // String type = GenericaRequisicao.getParametro("type");
             // String mac = GenericaRequisicao.getParametro("mac");
@@ -36,8 +39,7 @@ public class WSControleScripts implements Serializable {
             String tamanho = GenericaRequisicao.getParametro("tamanho");
             String server = GenericaRequisicao.getParametro("server");
             String backup_postgres_id = GenericaRequisicao.getParametro("backup_postgres_id");
-            ControleScripts controleScripts = new ControleScripts();
-            controleScripts.setControleScripts((TipoControleScripts) new Dao().find(new TipoControleScripts(), 1));
+            ControleScripts controleScripts = new ControleScripts();            
             controleScripts.setDescricao(database_server);
             Configuracao c = new ConfiguracaoDao().find(database_server);
             if (c != null) {
@@ -57,6 +59,9 @@ public class WSControleScripts implements Serializable {
             }
             if (backup_postgres_id != null && !backup_postgres_id.isEmpty()) {
                 controleScripts.setBackupPostgres((BackupPostgres) new Dao().find(new BackupPostgres(), Integer.parseInt(backup_postgres_id)));
+                controleScripts.setControleScripts((TipoControleScripts) new Dao().find(new TipoControleScripts(), 2));
+            } else {
+                controleScripts.setControleScripts((TipoControleScripts) new Dao().find(new TipoControleScripts(), 1));
             }
             new Dao().save(controleScripts, true);
         } catch (Exception e) {

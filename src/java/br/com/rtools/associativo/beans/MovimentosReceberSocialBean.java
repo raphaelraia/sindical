@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.TipoRecibo;
 import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.financeiro.beans.ConfiguracaoFinanceiroBean;
+import br.com.rtools.financeiro.beans.PlanilhaDebitoBean;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
@@ -2161,6 +2162,11 @@ public class MovimentosReceberSocialBean implements Serializable {
             return gu.getSubGrupoConvenio().getEncaminhamento();
         }
         return false;
+    }
+
+    public String imprimirPlanilha() {
+        PlanilhaDebitoBean.printNoNStatic(new ArrayList());
+        return null;
     }
 
     public class LinhaBoletosAnexo {

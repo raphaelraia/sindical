@@ -1,10 +1,10 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:c="http://java.sun.com/jsp/jstl/core"
-      xmlns:p="http://primefaces.org/ui">
-    
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
     <h:head>
         <title>web - Impressão Contribuinte</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
@@ -12,11 +12,11 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }            
-                        
+
             .ui-panel-title, .ui-panel-titlebar {
                 text-align: center !important;
             }
-            
+
             .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
             }            
         </style>
@@ -30,7 +30,7 @@
             <ui:include src="templates/templatePrimeWeb.xhtml"/>
             <ui:include src="templates/templateStatus.xhtml"/>
         </f:subview>
-        
+
         <f:view>
             <h:form id="formWebContribuinte">
                 <p:panel header="DADOS DO CONTRIBUINTE" style="margin: 0 auto; width: 1024px" rendered="false">
@@ -45,11 +45,11 @@
                         </h:column>
                     </h:panelGrid>
                 </p:panel>
-                
+
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <h:outputText value="Impressão de Boletos" styleClass="fonteHeader" />
                 </h:panelGrid>
-                
+
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <h:panelGrid columns="2" style="width: 100%">
                         <h:column>
@@ -58,20 +58,28 @@
                                 <p:ajax event="change" update="i_panel_lista" />
                             </p:inputMask>
                         </h:column>
-                        
+
                         <h:column>
-                            <p:commandButton value="Criar um novo Boleto" style="float: right" onclick="PF('dlg_novo_boleto').show()"/>
+                            <h:panelGrid columns="3" styleClass="float-right">
+                                <p:selectBooleanCheckbox value="#{webContribuintesBean.impVerso}" itemLabel="Imprimir Verso">
+                                    <p:ajax event="change" update="@this" />
+                                </p:selectBooleanCheckbox>
+                                <p:commandLink action="#{webContribuintesBean.imprimirComValorCalculado}" target="_blank" update="formWebContribuinte:i_msg" ajax="false">
+                                    <p:commandButton value="Imprimir" />
+                                </p:commandLink>
+                                <p:commandButton value="Criar um novo Boleto" style="float: right" onclick="PF('dlg_novo_boleto').show()"/>
+                            </h:panelGrid>
                         </h:column>
                     </h:panelGrid>
                 </h:panelGrid>
-                
+
                 <h:panelGrid id="i_panel_lista" style="margin: 0 auto; width: 1024px">
                     <p:messages id="i_msg" showDetail="true" closable="true" />
                     <p:dataTable var="linha" value="#{webContribuintesBean.listaMovimento}" selection="#{webContribuintesBean.listaMovimentoSelecionado}" rowKey="#{linha.argumento16}" scrollable="true" scrollHeight="400" emptyMessage="Nenhum boleto encontrado">
 
-                        
+
                         <p:column selectionMode="multiple" style="width: 20px"/>
-                        
+
                         <p:column headerText="Ref - Contribuição - Tipo" width="200">
                             <p:outputLabel value="#{linha.argumento4} - #{linha.argumento2.descricao} - #{linha.argumento3.descricao}" style="font-size: 9pt!important"/>
                         </p:column>
@@ -79,7 +87,7 @@
                         <p:column headerText="Vencimento" style="text-align: center" width="80">
                             <p:outputLabel value="#{linha.argumento5}" style="font-size: 9pt!important"/>
                         </p:column>
-                        
+
                         <p:column headerText="Pagar na Data" style="text-align: center" width="115">
                             <p:selectOneMenu value="#{linha.argumento20}" rendered="#{linha.argumento18}" style="width: 115px">
                                 <p:ajax event="change" update="@this" global="false"/>
@@ -93,7 +101,7 @@
                                            oncomplete="PF('i_dlg_valor').show()" update=":formWebContribuinte:i_dlg_valor_folha"/>                            
                             <h:outputText value="#{linha.argumento6}" rendered="#{!linha.argumento19}"/>
                         </p:column>
-                        
+
                         <p:column headerText="Calculado" style="text-align: right" width="60">
                             <p:outputLabel value="#{linha.argumento12}" style="font-size: 8pt!important"/>
                         </p:column>
@@ -116,17 +124,7 @@
                     </p:dataTable>
                 </h:panelGrid>
 
-                <h:panelGrid style="margin: 0 auto; width: 1024px;">
-                    <h:panelGrid columns="2">
-                        <p:selectBooleanCheckbox value="#{webContribuintesBean.impVerso}" itemLabel="Imprimir Verso">
-                            <p:ajax event="change" update="@this" />
-                        </p:selectBooleanCheckbox>
-                        <p:commandLink action="#{webContribuintesBean.imprimirComValorCalculado}" target="_blank" update="formWebContribuinte:i_msg" ajax="false">
-                            <p:commandButton value="Imprimir" />
-                        </p:commandLink>
-                    </h:panelGrid>
-                </h:panelGrid>
-                
+
                 <p:dialog widgetVar="dlg_novo_boleto" modal="true" header="Adicionar novo Boleto" resizable="false" style="width: 460px">
                     <p:messages autoUpdate="true" showDetail="true" closable="true"/>
                     <h:panelGrid id="i_panel_novo_boleto" columns="4">
@@ -136,7 +134,7 @@
                                 <p:ajax event="blur" update="@this i_panel_novo_boleto" listener="#{webContribuintesBean.validaReferencia}" global="false"/>
                             </p:inputMask>
                         </h:column>
-                        
+
                         <h:column>
                             <h:outputLabel value="Contribuição"/><br />
                             <p:selectOneMenu value="#{webContribuintesBean.idServicos}" style="padding-right: 20px">
@@ -144,7 +142,7 @@
                                 <f:selectItems value="#{webContribuintesBean.listaServicos}"/>
                             </p:selectOneMenu>
                         </h:column>
-                        
+
                         <h:column>
                             <h:outputLabel value="Tipo Serviço" /><br />
                             <p:selectOneMenu value="#{webContribuintesBean.idTipoServico}" style="padding-right: 20px">
@@ -159,7 +157,7 @@
                         </h:column>
                     </h:panelGrid>
                 </p:dialog>
-                
+
                 <p:dialog id="i_dlg_valor_folha" widgetVar="i_dlg_valor" header="Valor do Boleto" resizable="false" modal="true">
                     <p:tabView id="i_tab_view">
                         <p:tab title="Valor Simples">
@@ -187,10 +185,10 @@
                                 </h:panelGrid>
 
                                 <h:panelGrid>
-                                        <h:outputText id="lbEdit2"  value="#{webContribuintesBean.labelFolha2}" />
-                                        <p:inputText disabled="#{webContribuintesBean.mostrarPainel}" dir="RTL" id="qfun" size="10" value="#{webContribuintesBean.qtdFuncionario}" >
-                                            <p:ajax event="change" update="qfun"/>
-                                        </p:inputText>
+                                    <h:outputText id="lbEdit2"  value="#{webContribuintesBean.labelFolha2}" />
+                                    <p:inputText disabled="#{webContribuintesBean.mostrarPainel}" dir="RTL" id="qfun" size="10" value="#{webContribuintesBean.qtdFuncionario}" >
+                                        <p:ajax event="change" update="qfun"/>
+                                    </p:inputText>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2">

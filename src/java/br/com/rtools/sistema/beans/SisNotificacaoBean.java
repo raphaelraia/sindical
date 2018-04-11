@@ -13,6 +13,7 @@ import br.com.rtools.sistema.SisNotificacaoCliente;
 import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.sistema.dao.SisConfiguracaoEmailDao;
 import br.com.rtools.sistema.dao.SisNotificacaoClienteDao;
+import br.com.rtools.sistema.dao.SisNotificacaoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -260,7 +261,7 @@ public class SisNotificacaoBean implements Serializable {
 
     public List<SisNotificacao> getListSisNotificacao() {
         if (listSisNotificacao.isEmpty()) {
-            listSisNotificacao = new Dao().list(new SisNotificacao(), true);
+            listSisNotificacao = new SisNotificacaoDao().findAll();
         }
         return listSisNotificacao;
     }

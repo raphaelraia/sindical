@@ -39,12 +39,20 @@
                                 </p:column>
                                 <p:outputLabel value="Identificador: " />
                                 <p:inputText value="#{configuracaoBean.configuracao.identifica}" />
+                                <p:outputLabel value="Local do servidor de dados: "  rendered="#{configuracaoBean.configuracao.id ne null}"/>
+                                <p:selectOneMenu value="#{configuracaoBean.configuracao.databaseServerAlias}" disabled="#{empty configuracaoBean.configuracao.databaseServerAlias ? false : true}" rendered="#{configuracaoBean.configuracao.id ne null}">
+                                    <f:selectItem itemValue="" itemLabel="NENHUM" />
+                                    <f:selectItem itemValue="servidor100" itemLabel="SERVIDOR 100 (IP 100) - servidor100" itemDescription="servidor100" />
+                                    <f:selectItem itemValue="servidor35" itemLabel="SERVIDOR 35 (IP 35) - servidor35"  itemDescription="servidor35"/>
+                                    <f:selectItem itemValue="sinecol" itemLabel="COMERCIO LIMEIRA (EXTERNO) - sinecol"  itemDescription="sinecol"/>
+                                    <f:selectItem itemValue="comerciorp" itemLabel="COMERCIO RIBEIRÃO (EXTERNO) - comerciorp"  itemDescription="comerciorp"/>
+                                </p:selectOneMenu>
                                 <p:outputLabel value="Acessos: " />
                                 <p:inputText value="#{configuracaoBean.configuracao.acessos}" disabled="true"/>
                                 <p:outputLabel value="Ativo: " />
                                 <p:selectBooleanCheckbox id="idAtiva"  value="#{configuracaoBean.configuracao.ativo}" itemLabel="Ativo">
                                     <p:ajax event="change" update="@this" />
-                                </p:selectBooleanCheckbox>                            
+                                </p:selectBooleanCheckbox>
                             </h:panelGrid>
                             <p:panel header="Emails para notificações" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max">
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
@@ -71,7 +79,7 @@
                                     </p:column>
                                 </p:dataTable>
                             </p:panel>
-                            <p:panel header="Backups" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max">
+                            <p:panel header="Backups" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max" style="border: 1px solid orange">
                                 <p:column width="30" styleClass="text-center">
                                     <p:commandButton action="#{configuracaoBean.backup(configuracaoBean.configuracao)}" value="GERAR BACKUP (Em desenvolvimento)" update=":form_c:" disabled="false"/>
                                 </p:column>
