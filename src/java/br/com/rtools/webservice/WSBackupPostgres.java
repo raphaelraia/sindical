@@ -34,7 +34,7 @@ public class WSBackupPostgres implements Serializable {
                 if (backup_postgres_id != null && backup_postgres_id != 0) {
                     Dao dao = new Dao();
                     BackupPostgres bp = (BackupPostgres) dao.find(new BackupPostgres(), backup_postgres_id);
-                    if(bp != null) {
+                    if (bp != null) {
                         bp = (BackupPostgres) dao.rebind(bp);
                         bp.setDtProcessado(new Date());
                         dao.update(bp, true);
@@ -55,6 +55,7 @@ public class WSBackupPostgres implements Serializable {
                 BackupPostgres bp = new BackupPostgresDao().exist();
                 if (bp != null) {
                     bp = (BackupPostgres) new Dao().rebind(bp);
+                    bp.setDtEnviado(new Date());
                     new Dao().update(bp, true);
                 }
                 JSONObject obj = new JSONObject();

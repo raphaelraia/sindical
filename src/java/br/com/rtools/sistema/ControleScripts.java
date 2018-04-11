@@ -40,6 +40,9 @@ public class ControleScripts implements Serializable {
     @JoinColumn(name = "id_backup_postgres", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private BackupPostgres backupPostgres;
+    @JoinColumn(name = "id_configuracao", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Configuracao configuracao;
 
     public ControleScripts() {
         this.id = null;
@@ -51,9 +54,10 @@ public class ControleScripts implements Serializable {
         this.tamanho = 0;
         this.erro = false;
         this.backupPostgres = null;
+        this.configuracao = null;
     }
 
-    public ControleScripts(Integer id, Date dtData, TipoControleScripts controleScripts, String servidor, String descricao, String mac, Integer tamanho, Boolean erro, BackupPostgres backupPostgres) {
+    public ControleScripts(Integer id, Date dtData, TipoControleScripts controleScripts, String servidor, String descricao, String mac, Integer tamanho, Boolean erro, BackupPostgres backupPostgres, Configuracao configuracao) {
         this.id = id;
         this.dtData = dtData;
         this.controleScripts = controleScripts;
@@ -63,6 +67,7 @@ public class ControleScripts implements Serializable {
         this.tamanho = tamanho;
         this.erro = erro;
         this.backupPostgres = backupPostgres;
+        this.configuracao = configuracao;
     }
 
     public Integer getId() {
@@ -135,6 +140,14 @@ public class ControleScripts implements Serializable {
 
     public void setBackupPostgres(BackupPostgres backupPostgres) {
         this.backupPostgres = backupPostgres;
+    }
+
+    public Configuracao getConfiguracao() {
+        return configuracao;
+    }
+
+    public void setConfiguracao(Configuracao configuracao) {
+        this.configuracao = configuracao;
     }
 
 }

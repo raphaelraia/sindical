@@ -22,17 +22,21 @@
                         <h:panelGrid columns="10" cellspacing="5">
                             <p:outputLabel value="Data Inicial:" />
                             <p:inputMask mask="99/99/9999" value="#{controleScriptsBean.dataInicial}" converter="#{isDateString}" styleClass="margin-left-max" size="8">
-                                    <f:ajax event="blur" render="@this" />
-                                </p:inputMask>
+                                <f:ajax event="blur" render="@this" />
+                            </p:inputMask>
                             <p:outputLabel value="Data Final:" />
                             <p:inputMask mask="99/99/9999" value="#{controleScriptsBean.dataFinal}" converter="#{isDateString}" styleClass="margin-left-max" size="8">
-                                    <f:ajax event="blur" render="@this" />
-                                </p:inputMask>
+                                <f:ajax event="blur" render="@this" />
+                            </p:inputMask>
                             <p:commandButton value="FILTAR" action="#{controleScriptsBean.loadListControleScripts()}" update="i_tbl"/>
                         </h:panelGrid>                        
                     </p:panel>
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
                     <h:panelGroup id="i_tbl" styleClass="no-border">
                         <p:dataTable value="#{controleScriptsBean.listControleScripts}" var="controleScripts" scrollable="true" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="29" paginator="true" >
+                            <p:column style="width:15px">  
+                                <p:rowToggler />  
+                            </p:column> 
                             <p:column headerText="Data" styleClass="text-center">
                                 <p:outputLabel value="#{controleScripts.dtData}">
                                     <f:convertDateTime />
@@ -45,7 +49,7 @@
                                 <h:outputText value="#{controleScripts.servidor}"/>
                             </p:column>
                             <p:column headerText="Descrição">
-                                <h:outputText value="#{controleScripts.descricao}"/>
+                                <h:outputText value="#{controleScripts.descricao}#{controleScripts.backupPostgres != null ? ('_').concat(controleScripts.backupPostgres.id) : ''}"/>
                             </p:column>
                             <p:column headerText="Status" styleClass="text-center">
                                 <p:outputLabel value="#{controleScripts.erro ? 'FALHOU' : 'OK'}" styleClass="#{controleScripts.erro ? 'font-color-red bold' : 'font-color-blue bold'}" />
@@ -55,6 +59,30 @@
                                     <f:convertNumber maxFractionDigits="0"/>
                                 </p:outputLabel> MB
                             </p:column>
+                            <p:column width="80" styleClass="text-center">
+                                <h:column rendered="#{controleScripts.configuracao ne null and controleScripts.tamanho == 0}">
+                                    <p:commandButton action="#{configuracaoBean.backup(controleScripts.configuracao)}" value="BACKUP" update=":form_pc:" disabled="false"/>
+                                </h:column>                                
+                            </p:column>
+                            <p:rowExpansion>
+                                <h:panelGrid styleClass="sbb">
+                                    <h:column>
+                                        CLIENTE: #{controleScripts.configuracao.juridica.pessoa.nome}                                        
+                                    </h:column>
+                                    <h:column>
+                                        PEDIDO DE BACKUP:                                       
+                                        <p:outputLabel value="#{controleScripts.backupPostgres.dtPedido}">
+                                            <f:convertDateTime />
+                                        </p:outputLabel>  
+                                    </h:column>
+                                    <h:column>
+                                        PROCESSADO: 
+                                        <p:outputLabel value="#{controleScripts.backupPostgres.dtProcessado}">
+                                            <f:convertDateTime />
+                                        </p:outputLabel>                                                                               
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:rowExpansion>
                         </p:dataTable>
                     </h:panelGroup>
                 </p:panel>

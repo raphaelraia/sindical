@@ -23,6 +23,29 @@ public class ConfiguracaoDao extends DB {
         return false;
     }
 
+    public Configuracao find(String identificador) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.identifica = :identificador ");
+            query.setParameter("identificador", identificador);
+            query.setMaxResults(1);
+            return (Configuracao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Configuracao find(String identificador, String server) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.identifica = :identificador AND C.databaseServerAlias = :server");
+            query.setParameter("identificador", identificador);
+            query.setParameter("server", server);
+            query.setMaxResults(1);
+            return (Configuracao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public boolean existeIdentificadorPessoa(Configuracao configuracao) {
         try {
             Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.identifica = :identificador AND C.juridica.id = :idJuridica ");

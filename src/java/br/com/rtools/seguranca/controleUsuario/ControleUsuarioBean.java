@@ -96,7 +96,7 @@ public class ControleUsuarioBean implements Serializable {
         if (nomeCliente == null) {
             return true;
         }
-        if (nomeCliente.equals("Rtools") || nomeCliente.equals("Sindical") || nomeCliente.equals("ComercioLimeira")) {
+        if (nomeCliente.equals("Rtools") || nomeCliente.equals("Sindical") || nomeCliente.equals("ComercioLimeira") || nomeCliente.equals("ComercioRP") ) {
             return true;
         }
         ResultSet rs;

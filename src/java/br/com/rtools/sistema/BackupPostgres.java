@@ -23,6 +23,9 @@ public class BackupPostgres implements Serializable {
     @Column(name = "dt_pedido")
     @Temporal(TemporalType.DATE)
     private Date dtPedido;
+    @Column(name = "dt_enviado")
+    @Temporal(TemporalType.DATE)
+    private Date dtEnviado;
     @Column(name = "dt_processado")
     @Temporal(TemporalType.DATE)
     private Date dtProcessado;
@@ -32,14 +35,16 @@ public class BackupPostgres implements Serializable {
         this.configuracao = null;
         this.usuario = null;
         this.dtPedido = new Date();
+        this.dtEnviado = null;
         this.dtProcessado = null;
     }
 
-    public BackupPostgres(Integer id, Configuracao configuracao, Usuario usuario, Date dtPedido, Date dtProcessado) {
+    public BackupPostgres(Integer id, Configuracao configuracao, Usuario usuario, Date dtPedido, Date dtEnviado, Date dtProcessado) {
         this.id = id;
         this.configuracao = configuracao;
         this.usuario = usuario;
         this.dtPedido = dtPedido;
+        this.dtEnviado = dtEnviado;
         this.dtProcessado = dtProcessado;
     }
 
@@ -73,6 +78,14 @@ public class BackupPostgres implements Serializable {
 
     public void setDtPedido(Date dtPedido) {
         this.dtPedido = dtPedido;
+    }
+
+    public Date getDtEnviado() {
+        return dtEnviado;
+    }
+
+    public void setDtEnviado(Date dtEnviado) {
+        this.dtEnviado = dtEnviado;
     }
 
     public Date getDtProcessado() {
