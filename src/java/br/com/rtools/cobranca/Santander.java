@@ -659,7 +659,7 @@ public class Santander extends Cobranca {
         
         JÁ TESTEI VERSÕES MAIS RECENTES ATÉ A DATA 28/03/2018 E NENHUMA DEU CERTO
         
-        VERSÕES ANTERIORES TAMBÉM FORAM TESTADAS E NÃO FUNCIONÁRAM
+        VERSÕES ANTERIORES TAMBÉM FORAM TESTADAS E NÃO FUNCIONARAM
         
         ATENÇÃO ----------------------------------------------------------------
         ATENÇÃO ----------------------------------------------------------------

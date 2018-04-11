@@ -61,25 +61,13 @@ ALTER TABLE public.arr_certidao_disponivel_mensagem
     OWNER to postgres;
 
 
--- RODAR EM TODOS --------------------------------------------------------------
+-- RODAR EM COMERCIO LIMEIRA ---------------------------------------------------
 --------------------------------------------------------------------------------
 
 ALTER TABLE fin_conta_cobranca ADD COLUMN pe_multa double precision DEFAULT 0;
 
 
 ALTER TABLE fin_conta_cobranca ADD COLUMN pe_juros_mensal double precision DEFAULT 0;
-
-
--- ATENÇÃO ---------------------------------------------------------------------
--- ATENÇÃO ---------------------------------------------------------------------
--- ATENÇÃO ---------------------------------------------------------------------
--- ATUALIZAR O PROJETO DO WEBSERVICE BOLETO ------------------------------------
-
-ALTER TABLE fin_boleto ADD COLUMN pe_multa double precision DEFAULT 0;
-
-
-ALTER TABLE fin_boleto ADD COLUMN pe_juros_mensal double precision DEFAULT 0;
-
 
 ALTER TABLE conf_social ADD COLUMN id_status_cobranca integer default 1;
 ALTER TABLE conf_social
