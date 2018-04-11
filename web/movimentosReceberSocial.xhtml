@@ -457,7 +457,7 @@
                                     </p:rowExpansion>
                                 </p:dataTable>      
 
-                                <h:panelGrid columns="5" styleClass="margin-top-max">
+                                <h:panelGrid columns="5" styleClass="margin-top-max" rendered="false">
                                     <h:commandLink action="#{movimentosReceberSocialBean.imprimirPlanilha}" title="Planilha Débito" target="_blank" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0}">
                                         <p:button value="Planilha Débito" icon="ui-icon-print" />
                                     </h:commandLink>
