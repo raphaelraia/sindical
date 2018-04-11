@@ -523,7 +523,8 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
 
                     movim.setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                     // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
-                    if (!movimentoBefore.getVencimento().equals(movim.getVencimento())) {
+                    //if (!movimentoBefore.getVencimento().equals(movim.getVencimento())) {
+                    if (!movimentoBefore.getVencimento().equals(((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento())) {
                         Boleto bol = finDB.pesquisaBoletos(movim.getNrCtrBoleto());
                         if (bol != null) {
                             if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {

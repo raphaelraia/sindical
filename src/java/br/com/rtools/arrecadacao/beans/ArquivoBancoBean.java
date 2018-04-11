@@ -1030,7 +1030,7 @@ public final class ArquivoBancoBean implements Serializable {
                                 dr.getMovimento().getPessoa().getDocumento(),
                                 dr.getMovimento().getPessoa().getNome(),
                                 dr.getMovimento().getDocumento(),
-                                dr.getMovimento().getBaixa() != null ? dr.getMovimento().getBaixa().getDtImportacao() : null
+                                dr.getMovimento().getBaixa() != null ? dr.getMovimento().getBaixa().getDtOcorrencia() : null
                         )
                 );
             } else {
