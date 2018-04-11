@@ -28,7 +28,7 @@ public class WSControleScripts implements Serializable {
     public void storeDataBaseServer() {
         try {
             String database_server = GenericaRequisicao.getParametro("database_server");
-            if(database_server == null || !database_server.isEmpty()) {
+            if(database_server == null || database_server.isEmpty()) {
                 return;
             }
             // String device = GenericaRequisicao.getParametro("device");
