@@ -6,6 +6,8 @@
 package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -24,7 +26,7 @@ public class MovimentoReceberDao extends DB {
      */
     public List pesquisaListaMovimentos(Integer pessoa_id) {
         try {
-            String textoQuery = "-- MovimentosReceberDao->pesquisaListaMovimentos(Integer pessoa_id:" + pessoa_id + ") \n\n"
+            String textoQuery = "-- MovimentosReceberDao->pesquisaListaMovimentos(Integer pessoa_id:" + pessoa_id + ", Operador" + Usuario.getUsuario().getLogin() + ") \n\n"
                     + ""
                     + "     SELECT m.ds_documento Boleto,                           \n" // 0
                     + "            se.ds_descricao          AS Servico,             \n" // 1
@@ -57,8 +59,8 @@ public class MovimentoReceberDao extends DB {
                     + "        AND m.id_servicos IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4) \n"
                     + "   ORDER BY m.dt_vencimento \n";
 
+            Debugs.put("habilitaDebugQuery", textoQuery);
             Query qry = getEntityManager().createNativeQuery(textoQuery);
-
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

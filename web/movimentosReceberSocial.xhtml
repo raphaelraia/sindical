@@ -257,12 +257,13 @@
                                 </p:column>
                             </h:panelGrid>
 
-                            <h:panelGrid style="clear: both; width: 100%">
+                            <h:panelGrid style="width: 100%">
                                 <p:messages id="i_msg" showDetail="true" closable="true" />  
                             </h:panelGrid>
 
-                            <h:panelGroup id="tbl">
-                                <p:dataTable value="#{movimentosReceberSocialBean.listaMovimento}" var="linha" style="clear: both; font-size: 8pt!important" paginator="true" rows="10" emptyMessage="Nenhuma pendência foi encontrada!" rowStyleClass="#{linha.argumento28}" scrollable="true" scrollWidth="100%">
+                            <h:panelGroup id="i_list_movimentos">
+
+                                <p:dataTable value="#{movimentosReceberSocialBean.listaMovimento}" var="linha" style="clear: both; font-size: 8pt!important" paginator="true" rows="10" emptyMessage="Nenhuma pendência foi encontrada!" rowStyleClass="#{linha.argumento28}" scrollable="true" scrollWidth="100%" id="tbl">
                                     <f:facet name="header">
                                         <p:commandButton id="toggler" type="button" value="Colunas" style="float: right" icon="ui-icon-calculator" />
                                         <p:columnToggler datasource="tbl" trigger="toggler" />
@@ -456,6 +457,7 @@
 
                                     </p:rowExpansion>
                                 </p:dataTable>      
+
 
                                 <h:panelGrid columns="5" styleClass="margin-top-max" rendered="false">
                                     <h:commandLink action="#{movimentosReceberSocialBean.imprimirPlanilha}" title="Planilha Débito" target="_blank" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0}">

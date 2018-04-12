@@ -34,17 +34,20 @@
                             <p:growl id="id_messages_growl" showDetail="true" showSummary="true" autoUpdate="true" />
                             <h:outputText value="Movimentos a Receber" styleClass="fonteHeader"/>
                             <div class="clear"></div>
-                            <h:panelGrid columns="6" id="i_grid_pessoa">
-                                <p:commandButton icon="ui-icon-search" value="Pesquisa Pessoa: " action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" />
-                                <p:outputLabel value="#{movimentosReceberBean.pessoa.nome}" title="#{movimentosReceberBean.pessoa.nome}" styleClass="negritoDescricao" style="overflow-x: hidden"/>
-                                <p:commandButton icon="ui-icon-close" action="#{movimentosReceberBean.removerPesquisa}" rendered="#{movimentosReceberBean.pessoa.id != -1}" update=":form_movimento_receber:" />
-                            </h:panelGrid>
+                            <h:panelGroup id="i_grid_pessoa">
+                                <h:panelGrid columns="6" styleClass="margin-top-max" cellspacing="10">
+                                    <p:commandButton icon="ui-icon-search" value="PESQUISAR PESSOA" action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" />
+                                    <p:outputLabel value="#{movimentosReceberBean.pessoa.nome}" styleClass="bold font-size-12" rendered="#{movimentosReceberBean.pessoa.id != -1}" />
+                                    <p:outputLabel value="(#{movimentosReceberBean.pessoa.documento})" styleClass="bold" rendered="#{movimentosReceberBean.pessoa.id != -1}" />
+                                    <p:commandButton icon="ui-icon-close" action="#{movimentosReceberBean.removerPesquisa}" rendered="#{movimentosReceberBean.pessoa.id != -1}" update=":form_movimento_receber:" />
+                                </h:panelGrid>
+                            </h:panelGroup>
                             <h:panelGrid rendered="#{movimentosReceberBean.bloqueioRotina != null}">
                                 <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'ACORDO BLOQUEADO POR:', movimentosReceberBean.bloqueioRotina.usuario.pessoa.nome.concat(' - Empresa: ').concat(movimentosReceberBean.bloqueioRotina.pessoa.nome))}" escape="false" />
                                 <p:commandButton value="Desbloquear" action="#{movimentosReceberBean.removeBloqueioRotina}" rendered="#{movimentosReceberBean.unlock}" update=":form_movimento_receber:" style="color: red;"/>
                             </h:panelGrid>
                             <h:panelGrid id="tbl" styleClass="margin-top-max no-border">
-                                <p:dataTable value="#{movimentosReceberBean.listMovimentoReceber}" var="listMovimentoReceber" rowIndexVar="index" emptyMessage="Nenhum movimento encontrado!">
+                                <p:dataTable value="#{movimentosReceberBean.listMovimentoReceber}" var="listMovimentoReceber" rowIndexVar="index" emptyMessage="Nenhum movimento encontrado!" scrollHeight="270" scrollable="true" >
                                     <p:column styleClass="text-center" width="20" rendered="#{!movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
                                         <f:facet name="header">
                                             <p:selectBooleanCheckbox  value="#{movimentosReceberBean.marcarTodos}" disabled="#{movimentosReceberBean.listMovimentoReceber.size() == 0 or movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">

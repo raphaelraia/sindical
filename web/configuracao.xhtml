@@ -42,10 +42,7 @@
                                 <p:outputLabel value="Local do servidor de dados: "  rendered="#{configuracaoBean.configuracao.id ne null}"/>
                                 <p:selectOneMenu value="#{configuracaoBean.configuracao.databaseServerAlias}" disabled="#{empty configuracaoBean.configuracao.databaseServerAlias ? false : true}" rendered="#{configuracaoBean.configuracao.id ne null}">
                                     <f:selectItem itemValue="" itemLabel="NENHUM" />
-                                    <f:selectItem itemValue="servidor100" itemLabel="SERVIDOR 100 (IP 100) - servidor100" itemDescription="servidor100" />
-                                    <f:selectItem itemValue="servidor35" itemLabel="SERVIDOR 35 (IP 35) - servidor35"  itemDescription="servidor35"/>
-                                    <f:selectItem itemValue="sinecol" itemLabel="COMERCIO LIMEIRA (EXTERNO) - sinecol"  itemDescription="sinecol"/>
-                                    <f:selectItem itemValue="comerciorp" itemLabel="COMERCIO RIBEIRÃO (EXTERNO) - comerciorp"  itemDescription="comerciorp"/>
+                                    <f:selectItems value="#{configuracaoBean.listServidor}"/>
                                 </p:selectOneMenu>
                                 <p:outputLabel value="Acessos: " />
                                 <p:inputText value="#{configuracaoBean.configuracao.acessos}" disabled="true"/>

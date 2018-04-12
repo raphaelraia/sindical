@@ -288,7 +288,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 
     @Override
     public synchronized void carregarFolha(Object valor) {
-       
+
     }
 
     @Override
@@ -530,6 +530,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
                     pessoa = new Pessoa();
                 }
             }
+            // loadListMovimentosReceber();
             getListMovimentoReceber();
             // calcula();
         }
@@ -572,12 +573,16 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         this.marcarTodos = marcarTodos;
     }
 
-    public List<ListMovimentoReceber> getListMovimentoReceber() {
+    public void loadListMovimentosReceber() {
         if (listMovimentoReceber.isEmpty() && pessoa.getId() != -1) {
             MovimentoReceberDao db = new MovimentoReceberDao();
             List lista = db.pesquisaListaMovimentos(pessoa.getId());
             listMovimentoReceber = PlanilhaDebitoBean.load(lista);
         }
+    }
+
+    public List<ListMovimentoReceber> getListMovimentoReceber() {
+        loadListMovimentosReceber();
         return listMovimentoReceber;
     }
 
