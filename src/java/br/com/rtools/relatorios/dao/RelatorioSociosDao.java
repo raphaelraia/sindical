@@ -898,7 +898,7 @@ public class RelatorioSociosDao extends DB {
             subquery += " ) \n";
             listWhere.add(subquery);
         }
-
+        
         if (chk_validade_dependente != null) {
             if (chk_validade_dependente) {
                 listWhere.add(" (so.validade IS NULL OR so.validade = '')");
@@ -921,6 +921,7 @@ public class RelatorioSociosDao extends DB {
         if (ordemAniversario) {
             ordem += " extract(day from p.dt_nascimento), extract(month from p.dt_nascimento), extract(year from p.dt_nascimento) ";
         }
+        // listWhere.add(" P.codigo <> 2158 ");
         for (int i = 0; i < listWhere.size(); i++) {
             if (i == 0) {
                 queryString += " WHERE " + listWhere.get(i).toString() + " \n";
@@ -941,6 +942,7 @@ public class RelatorioSociosDao extends DB {
             queryString = queryString + ordem;
             Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
+             // query.setMaxResults(206);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
@@ -1086,7 +1088,7 @@ public class RelatorioSociosDao extends DB {
 
         try {
             Debugs.put("habilitaDebugQuery", textQry);
-            Query qry = getEntityManager().createNativeQuery(textQry);
+            Query qry = getEntityManager().createNativeQuery(textQry);        
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

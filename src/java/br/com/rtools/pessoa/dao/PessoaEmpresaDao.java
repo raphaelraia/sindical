@@ -52,6 +52,31 @@ public class PessoaEmpresaDao extends DB {
         return new ArrayList();
     }
 
+    public List<PessoaEmpresa> findBy(Integer fisica_id, Integer juridica_id, String admissao, String demissao, Integer registro) {
+        try {
+            try {
+                String queryString = ""
+                        + "     SELECT PE.*\n"
+                        + "       FROM pes_pessoa_empresa PE                    \n"
+                        + "      WHERE PE.id_fisica = " + fisica_id + "         \n"
+                        + "        AND PE.id_juridica = " + juridica_id + "     \n"
+                        + "        AND PE.dt_admissao = '" + admissao + "'      \n"
+                        + "        AND PE.dt_demissao = '" + demissao + "'      \n"
+                        + "        AND PE.nr_registro = " + registro + "        \n"
+                        + "        AND (  (SELECT PE.id FROM hom_agendamento AGE WHERE AGE.id_pessoa_empresa = PE.id AND AGE.id_status NOT IN(2,6,8,9,3,4)) IS NOT NULL \n"
+                        + "            OR (SELECT PE.id FROM hom_agendamento AGE WHERE AGE.id_pessoa_empresa = PE.id) IS NULL \n"
+                        + "        )";
+                Query query = getEntityManager().createNativeQuery(queryString, PessoaEmpresa.class);
+                return query.getResultList();
+            } catch (Exception e) {
+                e.getMessage();
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
     public List listaPessoaEmpresaTodos(int id) {
         try {
             Query qry = getEntityManager().createQuery("select pesEmp "

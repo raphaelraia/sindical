@@ -26,6 +26,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -67,7 +68,7 @@ public class CartaoSocialBean implements Serializable {
     private List<List> listaSelecionadoMemoria = new ArrayList();
     private List<SelectItem> listFilial = new ArrayList();
     private List listaHistorico = new ArrayList();
-    private String por = ""; 
+    private String por = "";
     private String porLabel = "";
     private String indexOrdem = "0";
     private Integer page;
@@ -151,6 +152,9 @@ public class CartaoSocialBean implements Serializable {
             if (GenericaSessao.exists("inPessoasImprimir")) {
                 inPessoasImprimir = GenericaSessao.getString("inPessoasImprimir", true);
             }
+            SisProcesso sisProcesso = new SisProcesso();
+            sisProcesso.start();
+            sisProcesso.setProcesso("Lista Cartão Social");
             listaCarteirinha = new ArrayList();
             listaCarteirinha = new SocioCarteirinhaDao().find(status, filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, inPessoasImprimir);
             if (!inPessoasImprimir.isEmpty()) {
@@ -165,6 +169,7 @@ public class CartaoSocialBean implements Serializable {
                     listaCarteirinha = new SocioCarteirinhaDao().find("nao_impressos", filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, "");
                 }
             }
+            sisProcesso.finish();
         }
     }
 

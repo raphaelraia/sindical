@@ -218,11 +218,14 @@
                                 </p:dataTable>
                             </p:panel>
 
-                            <h:panelGrid columns="4" style="float: left" styleClass="margin-top-max">
+                            <h:panelGrid columns="10" styleClass="margin-top-max" cellspacing="5">
                                 <p:commandButton value="Salvar" onclick="PF('i_dlg_s').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
-                                <p:commandButton value="Novo" action="#{relatorioBean.clear(0)}" update=":form_relatorio:"/>
+                                <p:commandButton value="Novo" action="#{relatorioBean.clear(0)}" update=":form_relatorio: :form_files:"/>
                                 <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_e').show()"/>
                                 <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaRelatorios')}" />
+                                <p:commandLink value="JASPER: " type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and relatorioBean.relatorio.id ne -1}" styleClass="font-color-red bold" update=":form_files:i_form_files_rela"/>
+                                <h:outputLabel value="#{relatorioBean.modelo}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and relatorioBean.relatorio.id ne -1}" styleClass="bold"/>
+                                <p:commandButton icon="ui-icon-close" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and relatorioBean.relatorio.id ne -1 and relatorioBean.modelo.contains('Personalizado') }" action="#{relatorioBean.remove()}" update="form_relatorio" />
                             </h:panelGrid>
 
                             <p:dialog widgetVar="dlg_ver_query" header="Query Parcial" resizable="false" width="600" modal="true">
@@ -238,7 +241,7 @@
 
                             <p:dialog widgetVar="i_dlg_s" header="Salvar este Relatório" resizable="false" width="400" modal="true">
                                 <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{relatorioBean.save()}" onclick="PF('i_dlg_s').hide()" update="form_relatorio" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close" />       
                             </p:dialog>
 
                             <p:dialog widgetVar="i_dlg_e" header="Excluir este Relatório" resizable="false" width="400" modal="true">
@@ -247,6 +250,33 @@
                             </p:dialog>                        
                         </h:form>
                     </p:panel>
+                    <h:form id="form_files" enctype="multipart/form-data" acceptcharset="UTF-8">
+                        <p:dialog id="id_anexos" widgetVar="dlg_upload" modal="true" width="500" height="400" header="Anexar arquivos" closable="true" closeOnEscape="true">
+                            <h:outputLabel value="#{relatorioBean.relatorio.jasperName}" styleClass="font-size-12 bold"/>
+                            <br />
+                            <br />
+                            <h:panelGrid columns="3" id="i_form_files_rela">                                
+                                <h:outputLabel value="ENVIAR PARA:" />
+                                <p:selectOneMenu value="#{relatorioBean.cliente}" filter="true" filterMatchMode="startsWith">
+                                    <p:ajax event="change" update="@this" />
+                                    <f:selectItems value="#{relatorioBean.listClientes}" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>
+                            <br />
+                            <br />
+                            <p:fileUpload label="Procurar"
+                                          cancelLabel="Cancelar"
+                                          uploadLabel="Anexar"
+                                          mode="advanced"                                          
+                                          dragDropSupport="false"
+                                          multiple="false"
+                                          fileLimit="1" 
+                                          allowTypes="/(\.|\/)(jasper)$/"                                          
+                                          invalidFileMessage="Arquivo inválido (.jasper)"
+                                          fileUploadListener="#{relatorioBean.uploadJasper}" update=":form_relatorio: :form_relatorio:i_msg"
+                                          oncomplete="PF('dlg_upload').hide()" />
+                        </p:dialog>
+                    </h:form> 
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

@@ -2,7 +2,6 @@ package br.com.rtools.sistema.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.sistema.SisNotificacao;
-import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;

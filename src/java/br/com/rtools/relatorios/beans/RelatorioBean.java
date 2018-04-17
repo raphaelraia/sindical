@@ -10,10 +10,16 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.sistema.ConfiguracaoUpload;
+import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.Upload;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +27,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
+import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -42,9 +51,11 @@ public class RelatorioBean implements Serializable {
     private List<RelatorioJoin> listaRelatorioJoin;
     private List<SelectItem> listRelatorioTipo;
     private Integer relatorio_tipo_id;
+    private List<SelectItem> listClientes;
 
     private String textQuery;
     private String description;
+    private String cliente;
 
     @PostConstruct
     public void init() {
@@ -59,12 +70,14 @@ public class RelatorioBean implements Serializable {
         relatorioGrupo = new RelatorioGrupo();
         relatorioJoin = new RelatorioJoin();
         listaRelatorioParametro = new ArrayList();
+        listClientes = new ArrayList();
         listaRelatorioGrupo = new ArrayList();
         listaRelatorioJoin = new ArrayList();
         textQuery = "";
         description = "";
         loadListRotinas();
         loadListRelatorioTipo();
+        loadListClientes();
         listRelatorio = new Dao().list(new Relatorios(), true);
     }
 
@@ -280,6 +293,26 @@ public class RelatorioBean implements Serializable {
                 rotina_id = list.get(i).getId();
             }
             listRotina.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+        }
+    }
+
+    public void loadListClientes() {
+        String sessaoCliente = GenericaSessao.getString("sessaoCliente");
+        listClientes = new ArrayList();
+        if (sessaoCliente.equals("Sindical") || sessaoCliente.equals("ComercioLimeira") || sessaoCliente.equals("Rtools")) {
+            listClientes.add(new SelectItem("default", "Padrão"));
+        }
+        if (sessaoCliente.equals("Rtools")) {
+            List<Configuracao> list = new ConfiguracaoDao().listAllActives();
+            cliente = "default";
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getNotificacoes()) {
+                    listClientes.add(new SelectItem(list.get(i).getIdentifica(), list.get(i).getIdentifica()));
+                }
+            }
+        } else {
+            cliente = sessaoCliente;
+            listClientes.add(new SelectItem(sessaoCliente, sessaoCliente));
         }
     }
 
@@ -663,6 +696,76 @@ public class RelatorioBean implements Serializable {
 
     public void setRelatorio_tipo_id(Integer relatorio_tipo_id) {
         this.relatorio_tipo_id = relatorio_tipo_id;
+    }
+
+    public void uploadJasper(FileUploadEvent event) {
+        upload(event, "jasper");
+    }
+
+    public void upload(FileUploadEvent event, String tcase) {
+        ConfiguracaoUpload configuracaoUpload = new ConfiguracaoUpload();
+        configuracaoUpload.setArquivo(event.getFile().getFileName());
+        List extensions = new ArrayList();
+        if (tcase.equals("jasper")) {
+            extensions.add("jasper");
+            configuracaoUpload.setTiposPermitidos(extensions);
+        }
+        if (!event.getFile().getFileName().equals(relatorio.getJasperName())) {
+            PF.update("form_relatorio");
+            Messages.warn("Validação", "Arquivo enviado tem nome diferente do nome do JASPER!!!");
+            return;
+        }
+        if (cliente.equals("default")) {
+            configuracaoUpload.setCliente(null);
+            configuracaoUpload.setFolder("Relatorios");
+        } else {
+            configuracaoUpload.setCliente(cliente);
+            configuracaoUpload.setDiretorio("Relatorios");
+        }
+        configuracaoUpload.setEvent(event);
+        configuracaoUpload.setSubstituir(true);
+        configuracaoUpload.setResourceFolder(false);
+        if (Upload.enviar(configuracaoUpload, false)) {
+            // listFiles.clear();
+        }
+        // getListFiles();
+    }
+
+    public void remove() {
+        if (getModelo().contains("Personalizado")) {
+            String sessaoCliente = GenericaSessao.getString("sessaoCliente");
+            String c = sessaoCliente;
+            if (sessaoCliente.equals("Rtools")) {
+                c = cliente;
+            }
+            String diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + c + "/" + "Relatorios" + "/" + relatorio.getJasperName());
+            if (new File(diretorio).exists()) {
+                new File(diretorio).delete();
+                Messages.info("Sucesso", "Arquivo removido!!!");
+                return;
+            }
+        }
+        Messages.warn("Importante", "Não é possível remover o arquivo principal!!!");
+    }
+
+    public String getModelo() {
+        return relatorio.getModelo(cliente);
+    }
+
+    public List<SelectItem> getListClientes() {
+        return listClientes;
+    }
+
+    public void setListClientes(List<SelectItem> listClientes) {
+        this.listClientes = listClientes;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
     }
 
 }

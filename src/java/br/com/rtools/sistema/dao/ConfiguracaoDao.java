@@ -33,7 +33,7 @@ public class ConfiguracaoDao extends DB {
             return null;
         }
     }
-    
+
     public Configuracao find(String identificador, String server) {
         try {
             Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.identifica = :identificador AND C.databaseServerAlias = :server");
@@ -97,6 +97,10 @@ public class ConfiguracaoDao extends DB {
         return findNotInByTabela(table, "id_configuracao", colum_filter_key, colum_filter_value, true);
     }
 
+    public List findNotInByTabela(String table, String colum_filter_key, String colum_filter_value, String where) {
+        return findNotInByTabela(table, "id_configuracao", colum_filter_key, colum_filter_value, where, false);
+    }
+
     /**
      * Nome da tabela onde esta a lista de filiais Ex:
      * findNotInByTabela('seg_filial_rotina', 'id_filial', 1);
@@ -109,12 +113,30 @@ public class ConfiguracaoDao extends DB {
      * @param is_ativo default null
      */
     public List findNotInByTabela(String table, String column, String colum_filter_key, String colum_filter_value, Boolean is_ativo) {
+        return findNotInByTabela(table, column, colum_filter_key, colum_filter_value, "", false);
+    }
+
+    public List findNotInByTabela(String table, String column, String colum_filter_key, String colum_filter_value, String where, Boolean is_ativo) {
         if (column == null || column.isEmpty()) {
             column = "id_configuracao";
         }
         if (colum_filter_key == null || colum_filter_key.isEmpty() || colum_filter_value == null || colum_filter_value.isEmpty()) {
             return new ArrayList();
         }
-        return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, "");
+        if (is_ativo) {
+            where += " AND is_ativo=" + is_ativo;
+        } else {
+            where += " AND is_ativo=true";
+        }
+        return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, where);
+    }
+    
+        public List<Configuracao> listAllActives() {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.ativo = true ORDER BY C.identifica ASC");
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }

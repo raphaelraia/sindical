@@ -22,12 +22,12 @@ public class DBExternal {
     }
 
     public Connection getConnection(Boolean sQLException) {
+        Properties props = new Properties();
+        String uri = "jdbc:postgresql://" + this.url + ":" + port + "/" + database;
         try {
             //Configuracao c = DB.servidor(GenericaSessao.getString("sessaoCliente"));
             //String url = "jdbc:postgresql://200.158.101.9:5432/Rtools";
-            String uri = "jdbc:postgresql://" + this.url + ":" + port + "/" + database;
             // String uri = "jdbc:postgresql://" + c.getHost() + ":" + port + "/" + c.getPersistence();
-            Properties props = new Properties();
             props.setProperty("user", user);
             props.setProperty("password", password);
             // props.setProperty("password", c.getSenha());
@@ -37,7 +37,7 @@ public class DBExternal {
         } catch (SQLException e) {
             System.err.println(e.getMessage());
             if (sQLException) {
-                Messages.warn("SQLException", e.getMessage());
+                Messages.warn("SQLException", e.getMessage() + " - " + props.toString() + " - " + uri);
             }
         }
         return null;

@@ -24,9 +24,9 @@
             <p:panel style="margin: auto 0;">
                 <h:form id="form_grid_pesquisa_sis_pessoa">
                     <h:panelGrid id="i_panel_grid" style="width: 100%">
-                        <p:dataTable value="#{sisNotificacaoBean.listSisNotificacao}" var="sisNotificacao" id="tbl" emptyMessage="Nenhuma registro encontrado" scrollHeight="400" scrollable="true">
+                        <p:dataTable value="#{sisNotificacaoBean.listSisNotificacao}" var="sisNotificacao" id="tbl" emptyMessage="Nenhuma registro encontrado" scrollHeight="400" scrollable="true" paginator="true" rows="5">
                             <p:column styleClass="text-center" width="25">
-                                <p:commandButton icon="ui-icon-link" action="#{sisNotificacaoBean.edit(sisNotificacao)}" />
+                                <p:commandButton icon="ui-icon-pencil" action="#{sisNotificacaoBean.edit(sisNotificacao)}" />
                             </p:column>
                             <p:column headerText="Inicio" width="80">
                                 #{sisNotificacao.inicialString}

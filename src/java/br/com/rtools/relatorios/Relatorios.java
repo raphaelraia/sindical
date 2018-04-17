@@ -2,11 +2,15 @@ package br.com.rtools.relatorios;
 
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.utilitarios.GenericaSessao;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.persistence.*;
+import javax.servlet.ServletContext;
 
 @Entity
 @Table(name = "sis_relatorios")
@@ -230,6 +234,34 @@ public class Relatorios implements Serializable {
             return r.getId();
         }
         return null;
+    }
+
+    public String getJasperName() {
+        String j = jasper;
+        if (!j.isEmpty()) {
+            if (j.contains("Relatorios")) {
+                j = j.replace("Relatorios", "");
+                j = j.replace("/", "");
+            }
+        }
+        return j;
+    }
+
+    public String getModelo(String cliente) {
+        String sessaoCliente = GenericaSessao.getString("sessaoCliente");
+        String c = sessaoCliente;
+        if (sessaoCliente.equals("Rtools")) {
+            c = cliente;
+        }
+        String diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + c + "/" + "Relatorios" + "/" + this.getJasperName());
+        if (new File(diretorio).exists()) {
+            return "Personalizado (" + cliente + ")";
+        }
+        diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios" + "/" + this.getJasperName());
+        if (new File(diretorio).exists()) {
+            return "Padrão";
+        }
+        return "Não Encontrado";
     }
 
 }

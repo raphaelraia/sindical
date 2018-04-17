@@ -194,17 +194,25 @@ public class Upload implements Serializable {
             return false;
         }
         String cliente = "";
-        if (GenericaSessao.exists("sessaoCliente")) {
-            cliente = GenericaSessao.getString("sessaoCliente");
-            if (cliente.equals("")) {
-                return false;
+        if (cu.getCliente() == null) {
+            if (GenericaSessao.exists("sessaoCliente")) {
+                cliente = GenericaSessao.getString("sessaoCliente");
+                if (cliente.equals("")) {
+                    return false;
+                }
             }
+        } else {
+            cliente = cu.getCliente();
         }
         String diretorio = "";
-        if (cu.isResourceFolder()) {
-            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + cliente.toLowerCase() + "/" + cu.getDiretorio();
+        if (cu.getFolder() == null) {
+            if (cu.isResourceFolder()) {
+                diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + cliente.toLowerCase() + "/" + cu.getDiretorio();
+            } else {
+                diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + cliente + "/" + cu.getDiretorio());
+            }
         } else {
-            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + cliente + "/" + cu.getDiretorio());
+            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/" + cu.getFolder());
         }
         if (criarDiretorios) {
             if (diretorio.equals("")) {

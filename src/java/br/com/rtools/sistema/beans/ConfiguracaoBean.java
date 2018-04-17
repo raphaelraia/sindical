@@ -7,6 +7,7 @@ import br.com.rtools.sistema.BackupPostgres;
 import br.com.rtools.sistema.Configuracao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.sistema.Resolucao;
+import br.com.rtools.sistema.Servidor;
 import br.com.rtools.sistema.SisConfiguracaoEmail;
 import br.com.rtools.sistema.TipoResolucao;
 import br.com.rtools.sistema.dao.BackupPostgresDao;
@@ -48,6 +49,8 @@ public class ConfiguracaoBean implements Serializable {
     private String resolucaoUsuario;
     private List<SisConfiguracaoEmail> listSisConfiguracaoEmail;
     private Boolean backup;
+    private List<SelectItem> listServidor;
+    private Integer idServidor;
 
     @PostConstruct
     public void init() {
@@ -61,8 +64,10 @@ public class ConfiguracaoBean implements Serializable {
         sisConfiguracaoEmail = new SisConfiguracaoEmail();
         indexTipoResolucao = 2;
         listaTipoResolucao = new ArrayList();
+        listServidor = new ArrayList();
         resolucao = new Resolucao();
         backup = false;
+        loadListServidor();
     }
 
     @PreDestroy
@@ -383,5 +388,33 @@ public class ConfiguracaoBean implements Serializable {
 
     public void setSisConfiguracaoEmail(SisConfiguracaoEmail sisConfiguracaoEmail) {
         this.sisConfiguracaoEmail = sisConfiguracaoEmail;
+    }
+
+    public void loadListServidor() { 
+        Dao dao = new Dao();
+        listServidor = new ArrayList();
+        List<Servidor> list = dao.list(new Servidor(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if(i == 0) {
+                configuracao.setDatabaseServerAlias(list.get(i).getAlias());
+            }
+            listServidor.add(new SelectItem(list.get(i).getAlias(), list.get(i).getApelido(), list.get(i).getApelido()));
+        }
+    }
+
+    public List<SelectItem> getListServidor() {
+        return listServidor;
+    }
+
+    public void setListServidor(List<SelectItem> listServidor) {
+        this.listServidor = listServidor;
+    }
+
+    public Integer getIdServidor() {
+        return idServidor;
+    }
+
+    public void setIdServidor(Integer idServidor) {
+        this.idServidor = idServidor;
     }
 }
