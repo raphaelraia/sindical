@@ -2475,6 +2475,7 @@ public class MatriculaAcademiaBean implements Serializable {
             if (!listaMovimentoAuxiliar.isEmpty()) {
                 GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
                 GenericaSessao.put("tipo_recibo_imprimir", dao.find(new TipoRecibo(), 1));
+                GenericaSessao.put("caixa_banco", "caixa");
                 return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
             }
         }

@@ -191,6 +191,7 @@ public class CaixaFederal extends ArquivoRetorno {
                                 //linha_segmento.setNossoNumero(linhas.get(i).substring(40, 57));
                                 
                                 // *** ATENÇÃO *** - NOSSO NÚMERO DO SISTEMA SINDICAL VEM JUNTO COM O CJNP DA EMPRESA
+                                // *** ATENÇÃO *** - OS DOIS ÚLTIMOS DÍGITOS QUANDO FOR NOSSO NÚMERO NÃO ENTRAM NA PESQUISA
                                 linha_segmento.setNossoNumero(linhas.get(i).substring(135, 147));
                                 
                                 linha_segmento.setValorTaxa(linhas.get(i).substring(199, 214));

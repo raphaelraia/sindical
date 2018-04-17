@@ -43,7 +43,7 @@ public class Baixa implements java.io.Serializable {
     @Column(name = "nr_taxa_liquidacao")
     private double taxaLiquidacao;
     @Temporal(TemporalType.DATE)
-    @Column(name = "dt_ocorrencia")
+    @Column(name = "dt_ocorrencia", nullable = false)
     private Date dtOcorrencia;
     @JoinColumn(name = "id_departamento", referencedColumnName = "id")
     @ManyToOne

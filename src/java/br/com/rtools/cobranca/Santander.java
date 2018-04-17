@@ -647,7 +647,7 @@ public class Santander extends Cobranca {
     }
 
     @Override
-    public RespostaWebService registrarBoleto() {
+    public RespostaWebService registrarBoleto(String vencimentoRegistro) {
 
         /*
         
