@@ -130,4 +130,13 @@ public class ConfiguracaoDao extends DB {
         }
         return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, where);
     }
+    
+        public List<Configuracao> listAllActives() {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.ativo = true ORDER BY C.identifica ASC");
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 }

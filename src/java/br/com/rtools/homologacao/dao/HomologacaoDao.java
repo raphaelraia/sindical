@@ -1173,7 +1173,7 @@ public class HomologacaoDao extends DB {
         }
         return null;
     }
-    
+
     public PessoaEmpresa pesquisaPessoaEmpresaAdmissao(int id_fisica, int id_juridica, String dataAdmissao, Integer nrRegistro) {
         try {
             Query qry = getEntityManager().createQuery(

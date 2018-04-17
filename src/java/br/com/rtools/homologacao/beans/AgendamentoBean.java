@@ -1500,6 +1500,12 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 PessoaEmpresaDao db = new PessoaEmpresaDao();
                 List<PessoaEmpresa> list_pe = db.listaPessoaEmpresaPorFisicaEmpresaDemissao(fisica.getId(), juridica.getId());
 
+                if (list_pe.isEmpty()) {
+                    if (fisica.getId() != -1 && pessoaEmpresa.getDtAdmissao() != null && pessoaEmpresa.getDtDemissao() != null) {
+                        list_pe = db.findBy(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao(), pessoaEmpresa.getDemissao(), pessoaEmpresa.getNrRegistro());
+                    }
+                }
+
                 if (!list_pe.isEmpty()) {
                     pessoaEmpresa = list_pe.get(0);
 
