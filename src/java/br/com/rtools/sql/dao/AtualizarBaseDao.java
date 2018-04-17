@@ -10,7 +10,7 @@ public class AtualizarBaseDao extends DB {
 
     public List<AtualizarBase> find() {
         try {
-            Query query = getEntityManager().createQuery("SELECT AB FROM AtualizarBase AS AB ORDER BY AB.dtAgendamento DESC");
+            Query query = getEntityManager().createQuery("SELECT AB FROM AtualizarBase AS AB ORDER BY AB.dtCadastro DESC");
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

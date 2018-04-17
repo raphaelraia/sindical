@@ -2595,6 +2595,12 @@
             <to-view-id>/controleScripts.jsf</to-view-id>
             <redirect/>
         </navigation-case>  
+        
+        <navigation-case>
+            <from-outcome>monitor</from-outcome>
+            <to-view-id>/monitor.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
     </navigation-rule>
     
     <lifecycle>

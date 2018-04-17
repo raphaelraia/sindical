@@ -40,14 +40,22 @@
                                 <p:outputLabel value="Identificador: " />
                                 <p:inputText value="#{configuracaoBean.configuracao.identifica}" />
                                 <p:outputLabel value="Local do servidor de dados: "  rendered="#{configuracaoBean.configuracao.id ne null}"/>
-                                <p:selectOneMenu value="#{configuracaoBean.configuracao.databaseServerAlias}" disabled="#{empty configuracaoBean.configuracao.databaseServerAlias ? false : true}" rendered="#{configuracaoBean.configuracao.id ne null}">
+                                <p:selectOneMenu value="#{configuracaoBean.configuracao.databaseServerAlias}" rendered="#{configuracaoBean.configuracao.id ne null}">
                                     <f:selectItem itemValue="" itemLabel="NENHUM" />
                                     <f:selectItems value="#{configuracaoBean.listServidor}"/>
                                 </p:selectOneMenu>
                                 <p:outputLabel value="Acessos: " />
                                 <p:inputText value="#{configuracaoBean.configuracao.acessos}" disabled="true"/>
-                                <p:outputLabel value="Ativo: " />
-                                <p:selectBooleanCheckbox id="idAtiva"  value="#{configuracaoBean.configuracao.ativo}" itemLabel="Ativo">
+                                <h:column />
+                                <p:selectBooleanCheckbox  value="#{configuracaoBean.configuracao.executaScripts}" itemLabel="Executa Scripts?">
+                                    <p:ajax event="change" update="@this" />
+                                </p:selectBooleanCheckbox>
+                                <h:column />
+                                <p:selectBooleanCheckbox  value="#{configuracaoBean.configuracao.notificacoes}" itemLabel="Notificações?">
+                                    <p:ajax event="change" update="@this" />
+                                </p:selectBooleanCheckbox>
+                                <h:column />
+                                <p:selectBooleanCheckbox id="idAtiva"  value="#{configuracaoBean.configuracao.ativo}" itemLabel="Ativo?">
                                     <p:ajax event="change" update="@this" />
                                 </p:selectBooleanCheckbox>
                             </h:panelGrid>
@@ -76,7 +84,7 @@
                                     </p:column>
                                 </p:dataTable>
                             </p:panel>
-                            <p:panel header="Backups" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max" style="border: 1px solid orange">
+                            <p:panel header="Backups" rendered="#{configuracaoBean.configuracao.id ne null and configuracaoBean.configuracao.ativo}" styleClass="margin-top-max" style="border: 1px solid orange">
                                 <p:column width="30" styleClass="text-center">
                                     <p:commandButton action="#{configuracaoBean.backup(configuracaoBean.configuracao)}" value="GERAR BACKUP (Em desenvolvimento)" update=":form_c:" disabled="false"/>
                                 </p:column>

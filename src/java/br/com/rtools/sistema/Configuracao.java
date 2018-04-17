@@ -43,6 +43,10 @@ public class Configuracao implements Serializable {
     private String senha;
     @Column(name = "ds_database_server_alias", length = 50)
     private String databaseServerAlias;
+    @Column(name = "is_notificacoes", columnDefinition = "boolean default false")
+    private Boolean notificacoes;
+    @Column(name = "is_executa_scripts", columnDefinition = "boolean default false")
+    private Boolean executaScripts;
 
     public Configuracao() {
         this.id = null;
@@ -57,9 +61,11 @@ public class Configuracao implements Serializable {
         this.host = "";
         this.senha = "";
         this.databaseServerAlias = "";
+        this.notificacoes = false;
+        this.executaScripts = false;
     }
 
-    public Configuracao(Integer id, String nomeCliente, String persistence, String caminhoSistema, String identifica, Juridica juridica, Integer acessos, String cadastro, Boolean ativo, String host, String senha, String databaseServerAlias) {
+    public Configuracao(Integer id, String nomeCliente, String persistence, String caminhoSistema, String identifica, Juridica juridica, Integer acessos, String cadastro, Boolean ativo, String host, String senha, String databaseServerAlias, Boolean notificacoes, Boolean executaScripts) {
         this.id = id;
         this.nomeCliente = nomeCliente;
         this.persistence = persistence;
@@ -72,6 +78,8 @@ public class Configuracao implements Serializable {
         this.host = "";
         this.senha = "";
         this.databaseServerAlias = "";
+        this.notificacoes = false;
+        this.executaScripts = false;
     }
 
     public Integer getId() {
@@ -178,9 +186,20 @@ public class Configuracao implements Serializable {
         this.databaseServerAlias = databaseServerAlias;
     }
 
-    @Override
-    public String toString() {
-        return "Configuracao{" + "id=" + id + ", nomeCliente=" + nomeCliente + ", persistence=" + persistence + ", caminhoSistema=" + caminhoSistema + ", identifica=" + identifica + ", juridica=" + juridica + ", acessos=" + acessos + ", dtCadastro=" + dtCadastro + ", ativo=" + ativo + ", host=" + host + ", senha=" + senha + ", databaseServerAlias=" + databaseServerAlias + '}';
+    public Boolean getNotificacoes() {
+        return notificacoes;
+    }
+
+    public void setNotificacoes(Boolean notificacoes) {
+        this.notificacoes = notificacoes;
+    }
+
+    public Boolean getExecutaScripts() {
+        return executaScripts;
+    }
+
+    public void setExecutaScripts(Boolean executaScripts) {
+        this.executaScripts = executaScripts;
     }
 
 }

@@ -136,7 +136,7 @@ public class ExtratoTelaBean implements Serializable {
         if (cab.getListaExtratoTela(false)) {
             porPesquisa = "todos";
         } else {
-            porPesquisa = "naoRecebidas";
+            porPesquisa = "nao_recebidas";
         }
         listMovimentos = new ArrayList();
 
@@ -434,7 +434,7 @@ public class ExtratoTelaBean implements Serializable {
     public void changeStatusRetorno() {
         Integer id_status_retorno = Integer.valueOf(listaStatusRetorno.get(indexListaStatusRetorno).getDescription());
         if (id_status_retorno == -2) {
-            porPesquisa = "naoRecebidas";
+            porPesquisa = "nao_recebidas";
         }
     }
 

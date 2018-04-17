@@ -18,25 +18,31 @@
                 <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                     <h:outputText value="Pesquisa Configuração" styleClass="fonteHeader" />
                     <div class="clear"></div>
-                </p:panel>
-                <p:panel id="i_tbl" styleClass="no-border">
-                    <p:dataTable value="#{configuracaoBean.listaConfiguracao}" var="configuracao" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
-                        <p:column width="25">
-                            <p:commandButton icon="ui-icon-link" action="#{configuracaoBean.edit(configuracao)}" title="Editar: #{configuracao.id}" />
-                        </p:column>
-                        <p:column headerText="Cliente">
-                            <h:outputText value="#{configuracao.juridica.pessoa.nome}"/>
-                        </p:column>
-                        <p:column headerText="Identificador" width="150">
-                            <h:outputText value="#{configuracao.identifica}"/>
-                        </p:column>
-                        <p:column headerText="Acessos" width="50" styleClass="text-center">
-                            <h:outputText value="#{configuracao.acessos}" />
-                        </p:column>
-                        <p:column width="30" headerText="Ativo" styleClass="text-center">
-                            <p:selectBooleanCheckbox value="#{configuracao.ativo}" disabled="true"/>
-                        </p:column>
-                    </p:dataTable>
+                    <p:panel id="i_tbl" styleClass="no-border">
+                        <p:dataTable value="#{configuracaoBean.listaConfiguracao}" var="configuracao" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
+                            <p:column width="25">
+                                <p:commandButton icon="ui-icon-pencil" action="#{configuracaoBean.edit(configuracao)}" title="Editar: #{configuracao.id}" />
+                            </p:column>
+                            <p:column headerText="Identificador">
+                                <h:outputText value="#{configuracao.identifica}"/>
+                            </p:column>
+                            <p:column headerText="Cliente">
+                                <h:outputText value="#{configuracao.juridica.pessoa.nome}"/>
+                            </p:column>
+                            <p:column headerText="Acessos" width="80" styleClass="text-center">
+                                <h:outputText value="#{configuracao.acessos}" />
+                            </p:column>
+                            <p:column width="50" headerText="Ativo" styleClass="text-center">
+                                <p:selectBooleanCheckbox value="#{configuracao.ativo}" disabled="true"/>
+                            </p:column>
+                            <p:column width="50" headerText="Notif." styleClass="text-center">
+                                <p:selectBooleanCheckbox value="#{configuracao.notificacoes}" disabled="true"/>
+                            </p:column>
+                            <p:column width="50" headerText="Scripts" styleClass="text-center">
+                                <p:selectBooleanCheckbox value="#{configuracao.executaScripts}" disabled="true"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
                 </p:panel>
             </h:form>                     
         </f:view>     

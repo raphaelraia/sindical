@@ -56,7 +56,7 @@ public class SisNotificacaoBean implements Serializable {
     public void loadClientes() {
         if (sisNotificacao.getId() != null) {
             ConfiguracaoDao configuracaoDao = new ConfiguracaoDao();
-            List<Configuracao> list = configuracaoDao.findNotInByTabela("sis_notificacao_cliente", "id_notificacao", "" + sisNotificacao.getId());
+            List<Configuracao> list = configuracaoDao.findNotInByTabela("sis_notificacao_cliente", "id_notificacao", "" + sisNotificacao.getId(), " AND is_notificacoes=true");
             idClientes = 0;
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {

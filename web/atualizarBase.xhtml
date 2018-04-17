@@ -27,7 +27,7 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}"> 
                         <h:outputText value="Atualizar Base" styleClass="fonteHeader" />
                         <div class="clear"></div>
-                        <h:form id="form_atualizar_base">
+                        <h:form id="form_atualizar_base">                            
                             <c:set scope="request" var="object" value="${atualizarBaseBean.atualizarBase}"/>
                             <p:panel header="Data: #{atualizarBaseBean.atualizarBase.dataCadastro} - Hora #{atualizarBaseBean.atualizarBase.horaCadastro}">
                                 <h:panelGrid columns="2" cellpadding="3" id="i_panel_config">
@@ -41,62 +41,91 @@
                                     <h:outputLabel value="#{atualizarBaseBean.atualizarBase.dtProcessamento}">
                                         <f:convertDateTime />
                                     </h:outputLabel>
-                                    <p:column />
-                                    <p:selectBooleanCheckbox value="#{atualizarBaseBean.atualizarBase.reiniciar}" itemLabel="Ao iniciar" disabled="true">
-                                        <p:ajax event="change" update="@this" />
-                                    </p:selectBooleanCheckbox>
-                                </h:panelGrid>
-                                <h:outputLabel value="Script" /><br />
-                                <p:inputTextarea placeholder="Script" value="#{atualizarBaseBean.atualizarBase.script}" maxlength="20000" rows="20" style="width: 100%" addLine="true" autoResize="true" disabled="#{atualizarBaseBean.atualizarBase.id ne null and !atualizarBaseBean.updateScript}"/>
-                                <br />
-                                <br />
-                                <p:commandLink value="Editar" action="#{atualizarBaseBean.editScript()}" update=":form_atualizar_base:" styleClass="font-color-blue"/>
+                                </h:panelGrid>                                
                                 <f:facet name="footer">
                                     <h:panelGrid columns="5">
-                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" type="button"  />
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" type="button" />
                                         <p:commandButton value="Novo" action="#{atualizarBaseBean.listener(1)}" update=":form_atualizar_base:"/>
                                         <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" type="button"/>
                                         <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaAtualizarBase')}" />
                                     </h:panelGrid>
                                 </f:facet>
-                            </p:panel>
-                            <p:panel id="i_clientes" rendered="#{atualizarBaseBean.atualizarBase.id ne null}" styleClass="margin-top-max">
+                            </p:panel> 
 
-                                <h:panelGrid columns="10" cellpadding="5">
-                                    <p:outputLabel value="Clientes: " styleClass="margin-left-max" />
-                                    <p:selectCheckboxMenu  label="Selecionar" value="#{atualizarBaseBean.selectedConfiguracao}" >
-                                        <f:selectItems value="#{atualizarBaseBean.listConfiguracao}" />
-                                    </p:selectCheckboxMenu>                                    
-                                    <p:commandButton value="Adicionar" action="#{atualizarBaseBean.add}" update=":form_atualizar_base:" />
+                            <h:panelGroup id="i_clientes">
+                                <p:panel rendered="#{atualizarBaseBean.atualizarBase.id ne null and not empty atualizarBaseBean.listAtualizarBaseScripts}" styleClass="margin-top-max" header="CLIENTE(S)" toggleable="true" collapsed="true">
+                                    <h:panelGrid columns="2" cellpadding="5">
+                                        <p:selectCheckboxMenu  label="Selecionar" value="#{atualizarBaseBean.selectedConfiguracao}" >
+                                            <f:selectItems value="#{atualizarBaseBean.listConfiguracao}" />
+                                        </p:selectCheckboxMenu>                                    
+                                        <p:commandButton value="Adicionar" action="#{atualizarBaseBean.add}" update=":form_atualizar_base:" />
+                                    </h:panelGrid>
+
+                                    <p:dataTable value="#{atualizarBaseBean.listAtualizarBaseCliente}" var="clientes" scrollable="true" scrollHeight="200" id="i_tbl_abc" rowSelectMode="checkbox" selection="#{atualizarBaseBean.selected}" rowKey="#{clientes.id}" emptyMessage="Nenhum cliente adicionado">
+                                        <p:ajax event="rowSelectCheckbox" update="@this :form_atualizar_base:i_tbl_abc" listener="#{atualizarBaseBean.onRowSelect}"/>
+                                        <p:ajax event="rowUnselectCheckbox" update="@this :form_atualizar_base:i_tbl_abc" listener="#{atualizarBaseBean.onRowUnselect}"/>
+
+                                        <p:column selectionMode="multiple" width="25" styleClass="text-center" />
+                                        <p:column width="25">
+                                            <p:commandButton action="#{atualizarBaseBean.remove(clientes)}" update=":form_atualizar_base:" icon="ui-icon-close" />
+                                        </p:column>
+                                        <p:column headerText="Identificador">
+                                            #{clientes.cliente.identifica}
+                                        </p:column>
+                                        <p:column headerText="Cliente">
+                                            #{clientes.cliente.juridica.pessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="Data da execução" width="80">
+                                            <h:outputLabel value="#{clientes.dtAtualizacao}">
+                                                <f:convertDateTime />
+                                            </h:outputLabel>                                        
+                                        </p:column>
+                                        <p:column headerText="Operador">
+                                            #{clientes.usuario.pessoa.nome}
+                                        </p:column>
+                                        <p:column width="25">
+                                            <p:commandButton action="#{atualizarBaseBean.rollback(clientes)}" update=":form_atualizar_base:" icon="ui-icon-arrowreturnthick-1-w" title="Tentar novamente"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                    <br />
+                                    <p:commandButton value="Executar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_run').show()" type="button"  rendered="#{not empty atualizarBaseBean.listAtualizarBaseCliente}"/>
+                                </p:panel>
+                            </h:panelGroup>
+                            <p:panel id="i_scripts" rendered="#{atualizarBaseBean.atualizarBase.id ne null}" styleClass="margin-top-max" header="SQL" toggleable="true" collapsed="true">
+                                <h:panelGrid columns="5" cellspacing="10">
+                                    <h:outputLabel value="Evento" />
+                                    <p:selectOneMenu value="#{atualizarBaseBean.idSqlEvent}">
+                                        <f:selectItems value="#{atualizarBaseBean.listSqlEvent}" />
+                                    </p:selectOneMenu> 
+                                    <p:commandButton value="#{atualizarBaseBean.atualizarBaseScript.id eq null ? 'Adicionar' : 'Atualizar'}" action="#{atualizarBaseBean.storeScript}" update=":form_atualizar_base: :form_atualizar_base:i_sql_messages"/>                                    
                                 </h:panelGrid>
+                                <p:messages autoUpdate="false" showSummary="true" showDetail="true" id="i_sql_messages" closable="true"/>
+                                <p:inputTextarea placeholder="Script" value="#{atualizarBaseBean.atualizarBaseScript.script}" maxlength="20000" rows="20" style="width: 100%" addLine="true" autoResize="true" disabled="#{atualizarBaseBean.atualizarBase.id ne null and !atualizarBaseBean.updateScript}" />
+                                <br />
+                                <br />
+                                <p:commandLink value="Editar" action="#{atualizarBaseBean.editScript()}" update=":form_atualizar_base:" styleClass="font-color-blue" rendered="#{atualizarBaseBean.atualizarBase.id ne null}"/>
+                                <br />
+                                <hr />
 
-                                <p:dataTable value="#{atualizarBaseBean.listAtualizarBaseCliente}" var="clientes" scrollable="true" scrollHeight="200" id="i_tbl_abc" rowSelectMode="checkbox" selection="#{atualizarBaseBean.selected}" rowKey="#{clientes.id}" emptyMessage="Nenhum cliente adicionado">
-                                    <p:ajax event="rowSelectCheckbox" update="@this :form_atualizar_base:i_tbl_abc" listener="#{atualizarBaseBean.onRowSelect}"/>
-                                    <p:ajax event="rowUnselectCheckbox" update="@this :form_atualizar_base:i_tbl_abc" listener="#{atualizarBaseBean.onRowUnselect}"/>
-
-                                    <p:column selectionMode="multiple" width="25" styleClass="text-center" />
-                                    <p:column width="25">
-                                        <p:commandButton action="#{atualizarBaseBean.remove(clientes)}" update=":form_atualizar_base:" icon="ui-icon-close" />
-                                    </p:column>
-                                    <p:column headerText="Identificador">
-                                        #{clientes.cliente.identifica}
-                                    </p:column>
-                                    <p:column headerText="Cliente">
-                                        #{clientes.cliente.juridica.pessoa.nome}
-                                    </p:column>
-                                    <p:column headerText="Data da execução">
-                                        <h:outputLabel value="#{clientes.dtAtualizacao}">
-                                            <f:convertDateTime />
-                                        </h:outputLabel>                                        
-                                    </p:column>
-                                    <p:column headerText="Operador">
-                                        #{clientes.usuario.pessoa.nome}
-                                    </p:column>
-                                </p:dataTable>
-
-                                <f:facet name="footer">
-                                    <p:commandButton value="Executar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_run').show()" type="button"  />
-                                </f:facet>
+                                <h:panelGroup rendered="#{not empty atualizarBaseBean.listAtualizarBaseScripts}">
+                                    <p:dataTable value="#{atualizarBaseBean.listAtualizarBaseScripts}" var="scripts" paginator="true" rows="1">
+                                        <p:column width="30" styleClass="text-center">
+                                            <p:commandButton action="#{atualizarBaseBean.editScript(scripts)}" icon="ui-icon-pencil" update=":form_atualizar_base:i_scripts"/>
+                                        </p:column>
+                                        <p:column headerText="Sql Event" width="100" styleClass="text-center">
+                                            #{scripts.sqlEvents.descricao}
+                                        </p:column>
+                                        <p:column headerText="Query(ies)" width="800">
+                                            <h:inputTextarea value="#{scripts.script}" readonly="true" style="width: 100%; border: 0; min-height: 300px"/>
+                                        </p:column>
+                                        <p:column headerText="Executado">
+                                            #{scripts.dtProcessamento}
+                                        </p:column>
+                                        <p:column width="30" styleClass="text-center">
+                                            <p:commandButton action="#{atualizarBaseBean.removeScript(scripts)}" icon="ui-icon-close" update=":form_atualizar_base:i_scripts"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
                             </p:panel>
                             <p:dialog widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja salvar este registro?">
                                 <f:facet name="footer">
