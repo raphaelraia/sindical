@@ -94,7 +94,7 @@ public class AtualizarBaseBean implements Serializable {
             loadListAtualizarBase();
         } else {
             GenericaMensagem.warn("Erro", "Ao atualizar registro!");
-        }        
+        }
         updateScript = false;
         loadListAtualizarBase();
     }
@@ -440,6 +440,11 @@ public class AtualizarBaseBean implements Serializable {
         if (atualizarBaseScript.getScript().isEmpty()) {
             Messages.warn("Validação", "Script vazio!!!");
             return;
+        }
+        if (idSqlEvent != 2) {
+            if (atualizarBaseScript.getScript().toUpperCase().contains("SELECT")) {
+                Messages.warn("Importação", "Podem ocorrer erros se o evento não for para SELECT!!!!");
+            }
         }
         atualizarBaseScript.setScript(atualizarBaseScript.getScript().replace("'", "'''"));
         if (atualizarBaseScript.getId() == null) {
