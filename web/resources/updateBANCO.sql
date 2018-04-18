@@ -78,12 +78,12 @@ ALTER TABLE conf_social
 
 UPDATE pes_pessoa_complemento SET id_status_cobranca = 1 
  WHERE id_status_cobranca IS NULL 
-   AND id_pessoa IN (SELECT id_pessoa FROM pes_fisica);
+   AND id_pessoa NOT IN (SELECT id_pessoa FROM pes_fisica);
 
 UPDATE pes_pessoa_complemento SET id_status_cobranca = 1 
  WHERE is_cobranca_email = false 
-   AND id_pessoa IN (SELECT id_pessoa FROM pes_juridica);
+   AND id_pessoa NOT IN (SELECT id_pessoa FROM pes_juridica);
    
 UPDATE pes_pessoa_complemento SET id_status_cobranca = 2 
  WHERE is_cobranca_email = true
-   AND id_pessoa IN (SELECT id_pessoa FROM pes_juridica);
+   AND id_pessoa NOT IN (SELECT id_pessoa FROM pes_juridica);
