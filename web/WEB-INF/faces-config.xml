@@ -2601,6 +2601,13 @@
             <to-view-id>/monitor.jsf</to-view-id>
             <redirect/>
         </navigation-case>  
+        
+        <navigation-case>
+            <from-outcome>pgStatActivity</from-outcome>
+            <to-view-id>/pgStatActivity.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
