@@ -409,6 +409,13 @@
                                     </p:selectBooleanCheckbox>                                        
                                 </h:panelGrid>
                             </p:tab>                                
+                            <p:tab title="Externas">
+                                <h:panelGrid columns="2">
+                                    <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.sisNotificacao}" itemLabel="Exibir Comunicados da Rtools">
+                                        <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages"/>
+                                    </p:selectBooleanCheckbox>                                        
+                                </h:panelGrid>
+                            </p:tab>                                
                         </p:tabView>
                     </p:panel>
                     <div style="clear: both;"></div>

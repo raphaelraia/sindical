@@ -330,6 +330,7 @@ public class ChamadaPaginaBean implements Serializable {
         if (!forceCloseSession()) {
             return "sessaoExpirou";
         }
+        Sessions.remove("loadNotificacao");
         paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         urlAtual = converteURL(paginaRequerida.getRequestURI());
         GenericaSessao.put("urlRetorno", urlAtual);

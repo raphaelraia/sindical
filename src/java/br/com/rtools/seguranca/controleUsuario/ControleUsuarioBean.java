@@ -8,6 +8,7 @@ import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.UsuarioHistoricoAcesso;
 import br.com.rtools.seguranca.dao.UsuarioHistoricoAcessoDao;
@@ -258,6 +259,7 @@ public class ControleUsuarioBean implements Serializable {
             usuario = new Usuario();
             msgErro = "";
             atualizaDemissionaSocios();
+            Registro.get();
         } else {
             //log.live("Login de acesso tentativa de acesso usr:" + user + "/sen: " + senh);
             usuario = new Usuario();

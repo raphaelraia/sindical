@@ -1,6 +1,7 @@
 package br.com.rtools.principal;
 
 import br.com.rtools.utilitarios.Messages;
+import br.com.rtools.utilitarios.Sessions;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,6 +17,7 @@ public class DBExternal {
     private String database = "Rtools";
     private String user = "postgres";
     private String password = "r#@tools";
+    private String ApplicationName = "";
 
     public Connection getConnection() {
         return getConnection(false);
@@ -30,6 +32,17 @@ public class DBExternal {
             // String uri = "jdbc:postgresql://" + c.getHost() + ":" + port + "/" + c.getPersistence();
             props.setProperty("user", user);
             props.setProperty("password", password);
+            String applicationName = this.ApplicationName;
+            if (ApplicationName.isEmpty()) {
+                if (Sessions.exists("sessaoCliente")) {
+                    applicationName = Sessions.getString("sessaoCliente");
+                } else {
+                    applicationName = "External";
+                }
+            }
+            props.setProperty("ApplicationName", applicationName + " - Sindical");
+            props.setProperty("connectTimeout", "300");
+            props.setProperty("assumeMinServerVersion", "9.0");
             // props.setProperty("password", c.getSenha());
             //props.setProperty("ssl", "true");
             Connection conn = DriverManager.getConnection(uri, props);
@@ -94,5 +107,13 @@ public class DBExternal {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getApplicationName() {
+        return ApplicationName;
+    }
+
+    public void setApplicationName(String ApplicationName) {
+        this.ApplicationName = ApplicationName;
     }
 }

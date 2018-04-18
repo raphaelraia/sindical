@@ -15,6 +15,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -131,6 +132,7 @@ public class RegistroEmpresarialBean implements Serializable {
         }
         if (dao.update(registro)) {
             dao.commit();
+            Sessions.put("sessaoRegistro", registro);
             GenericaMensagem.info("Sucesso", "Registro atualizado");
         } else {
             dao.rollback();
@@ -143,6 +145,7 @@ public class RegistroEmpresarialBean implements Serializable {
         dao.openTransaction();
         if (dao.update(registro)) {
             dao.commit();
+            Sessions.put("sessaoRegistro", registro);
             GenericaMensagem.info("Sucesso", "Registro atualizado");
         } else {
             dao.rollback();

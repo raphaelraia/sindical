@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Sessions;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -128,6 +129,8 @@ public class Registro implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_atualiza_agendamentos")
     private Date dataAtualizaAgendamentos;
+    @Column(name = "sis_is_notificacao", columnDefinition = "boolean default false", nullable = false)
+    private boolean sisNotificacao;
 
     public Registro() {
         this.id = -1;
@@ -183,6 +186,7 @@ public class Registro implements Serializable {
         this.acessoWebDocumentoCEI = false;
         this.mei = false;
         this.dataAtualizaAgendamentos = null;
+        this.sisNotificacao = true;
     }
 
     public Registro(int id,
@@ -239,7 +243,8 @@ public class Registro implements Serializable {
             boolean acessoWebDocumentoCPF,
             boolean acessoWebDocumentoCEI,
             boolean mei,
-            Date dataAtualizaAgendamentos) {
+            Date dataAtualizaAgendamentos,
+            boolean sisNotificacao) {
         this.id = id;
         this.filial = filial;
         this.tipoEmpresa = tipoEmpresa;
@@ -292,6 +297,7 @@ public class Registro implements Serializable {
         this.acessoWebDocumentoCEI = acessoWebDocumentoCEI;
         this.mei = mei;
         this.dataAtualizaAgendamentos = dataAtualizaAgendamentos;
+        this.sisNotificacao = sisNotificacao;
     }
 
     public int getId() {
@@ -648,7 +654,6 @@ public class Registro implements Serializable {
     public void setValidadeBarras(boolean validadeBarras) {
         this.validadeBarras = validadeBarras;
     }
- 
 
     public int getHomolocaoLimiteMeses() {
         return homolocaoLimiteMeses;
@@ -707,7 +712,14 @@ public class Registro implements Serializable {
     }
 
     public static Registro get() {
-        return (Registro) new Dao().find(new Registro(), 1);
+        Registro r;
+        if (Sessions.exists("sessaoRegistro")) {
+            r = (Registro) Sessions.getObject("sessaoRegistro");
+        } else {
+            r = (Registro) new Dao().find(new Registro(), 1);
+            Sessions.put("sessaoRegistro", r);
+        }
+        return r;
     }
 
     public boolean isAcessoWebDocumentoCNPJ() {
@@ -757,7 +769,13 @@ public class Registro implements Serializable {
     public void setDataAtualizaAgendamentos(Date dataAtualizaAgendamentos) {
         this.dataAtualizaAgendamentos = dataAtualizaAgendamentos;
     }
-    
-    
+
+    public boolean isSisNotificacao() {
+        return sisNotificacao;
+    }
+
+    public void setSisNotificacao(boolean sisNotificacao) {
+        this.sisNotificacao = sisNotificacao;
+    }
 
 }
