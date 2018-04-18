@@ -31,12 +31,27 @@
                             <p:growl autoUpdate="true" showDetail="true" showSummary="true" />
                             <p:poll autoStart="true" delay="10" global="false" interval="120" update=":form_pg_stat_activity:id_pg_stat_activity"  listener="#{pgStatActivityBean.loadListPgStatActivity}"/>
                             <p:panel header="pg_stat_activity">
-                                <p:commandButton value="Atualizar" action="#{pgStatActivityBean.loadListPgStatActivity}" update=":form_pg_stat_activity:id_pg_stat_activity" />
+                                <h:panelGrid columns="10" cellspacing="10">
+                                    <p:outputLabel value="Datname: " rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                    <p:selectOneMenu value="#{pgStatActivityBean.dataBase}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
+                                        <p:ajax event="change" update="@this" global="false"/>
+                                        <f:selectItem itemLabel="All" itemValue=""/>
+                                        <f:selectItems value="#{pgStatActivityBean.listDataBase}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="State: " />
+                                    <p:selectOneMenu value="#{pgStatActivityBean.state}">
+                                        <p:ajax event="change" update="@this" global="false"/>
+                                        <f:selectItem itemLabel="All" itemValue=""/>
+                                        <f:selectItem itemLabel="idle" itemValue="idle"/>
+                                        <f:selectItem itemLabel="active" itemValue="active"/>
+                                    </p:selectOneMenu>
+                                    <p:commandButton value="Atualizar" action="#{pgStatActivityBean.loadListPgStatActivity}" update=":form_pg_stat_activity:id_pg_stat_activity" />
+                                </h:panelGrid>
                             </p:panel>
                             <br />                            
                             <br />                            
                             <h:panelGroup id="id_pg_stat_activity">
-                                <p:dataTable value="#{pgStatActivityBean.listPgStatActivity}" var="pgStatActivity" scrollable="true" scrollHeight="300">
+                                <p:dataTable value="#{pgStatActivityBean.listPgStatActivity}" var="pgStatActivity" scrollable="true" scrollHeight="300" emptyMessage="Empty">
                                     <p:column width="15">  
                                         <p:rowToggler />  
                                     </p:column>  
@@ -79,6 +94,9 @@
                                     </p:column>
                                     <p:column headerText="state" styleClass="text-center">
                                         #{pgStatActivity.state}
+                                    </p:column>
+                                    <p:column headerText="query" styleClass="text-center">
+                                        #{pgStatActivity.queryResume}
                                     </p:column>
                                     <p:column styleClass="text-center" width="30">
                                         <p:commandButton icon="ui-icon-close" action="#{pgStatActivityBean.pgTerminateBackend(pgStatActivity.pid)}" update=":form_pg_stat_activity:" />

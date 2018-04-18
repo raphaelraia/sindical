@@ -1,6 +1,8 @@
 package br.com.rtools.sql.beans;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Sessions;
 import java.io.Serializable;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.model.SelectItem;
 import javax.persistence.Query;
 
 @ManagedBean
@@ -15,8 +18,12 @@ import javax.persistence.Query;
 public class PgStatActivityBean implements Serializable {
 
     private List<PgStatActivity> listPgStatActivity;
+    private List<SelectItem> listDataBase;
+    private String dataBase = "";
+    private String state = "";
 
     public PgStatActivityBean() {
+        loadListDataBase();
         loadListPgStatActivity();
     }
 
@@ -57,6 +64,43 @@ public class PgStatActivityBean implements Serializable {
 
     public void setListPgStatActivity(List<PgStatActivity> listPgStatActivity) {
         this.listPgStatActivity = listPgStatActivity;
+    }
+
+    public List<SelectItem> getListDataBase() {
+        return listDataBase;
+    }
+
+    public void setListDataBase(List<SelectItem> listDataBase) {
+        this.listDataBase = listDataBase;
+    }
+
+    private void loadListDataBase() {
+        listDataBase = new ArrayList();
+        if (Sessions.getString("sessaoCliente").equals("Rtools")) {
+            List<Configuracao> list = new ConfiguracaoDao().listAllActives();
+            Configuracao configuracao = new ConfiguracaoDao().find("Rtools");
+            for (int i = 0; i < list.size(); i++) {
+                if (configuracao.getDatabaseServerAlias().equals(list.get(i).getDatabaseServerAlias())) {
+                    listDataBase.add(new SelectItem(list.get(i).getIdentifica(), list.get(i).getIdentifica()));
+                }
+            }
+        }
+    }
+
+    public String getDataBase() {
+        return dataBase;
+    }
+
+    public void setDataBase(String dataBase) {
+        this.dataBase = dataBase;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public class PgStatActivity {
@@ -225,6 +269,19 @@ public class PgStatActivityBean implements Serializable {
             this.query = query;
         }
 
+        public String getQueryResume() {
+            String resume = "";
+            try {
+                resume = query.toString();
+                if (resume.length() > 50) {
+                    resume = resume.substring(0, 50) + "...";
+                }
+            } catch (Exception e) {
+
+            }
+            return resume;
+        }
+
     }
 
     public List pgStatActivity() {
@@ -248,15 +305,25 @@ public class PgStatActivityBean implements Serializable {
                     + "       PSA.waiting,          \n" // 13
                     + "       PSA.state,            \n" // 14
                     + "       PSA.query             \n" // 15
-                    + "  FROM pg_stat_activity PSA ";
+                    + "  FROM pg_stat_activity PSA  \n"
+                    + " WHERE pid <> 0              ";
             String datname = null;
-            if(Sessions.exists("sessaoCliente")) {
+            if (Sessions.exists("sessaoCliente")) {
                 datname = Sessions.getString("sessaoCliente");
-                if(datname.equals("ComercioRP")) {
+                if (datname.equals("ComercioRP")) {
                     datname = "Sindical";
                 }
-                if(!Sessions.getString("sessaoCliente").equals("Rtools")) {
-                    queryString += " WHERE PSA.datname LIKE '"+datname+"'";
+                if (listDataBase.isEmpty()) {
+                    if (!Sessions.getString("sessaoCliente").equals("Rtools")) {
+                        queryString += " AND PSA.datname = '" + datname + "'";
+                    }
+                } else {
+                    if (dataBase != null && !dataBase.isEmpty()) {
+                        queryString += " AND PSA.datname = '" + dataBase + "'";
+                    }
+                }
+                if (state != null && !state.isEmpty()) {
+                    queryString += " AND PSA.state = '" + state + "'";
                 }
             }
             queryString += "   ORDER BY PSA.datname ASC, PSA.application_name \n";
@@ -278,12 +345,12 @@ public class PgStatActivityBean implements Serializable {
             String queryString = "SELECT pg_terminate_backend(" + id + ")";
             Query query = db.getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
-            if(true) {
+            if (true) {
                 loadListPgStatActivity();
                 Messages.info("Sucesso", "Processo finalizado!!!");
             }
         } catch (Exception e) {
-             
+
         }
 
     }
