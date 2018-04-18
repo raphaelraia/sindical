@@ -18,9 +18,13 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.retornos.CasoSindical;
+import br.com.rtools.retornos.ContinuaBaixa;
 import br.com.rtools.retornos.LinhaSegmento;
 import br.com.rtools.retornos.ObjetoArquivo;
+import br.com.rtools.retornos.ObjetoDetalheRetorno;
 import br.com.rtools.retornos.ObjetoRetorno;
+import br.com.rtools.retornos.RetornoCasoSindical;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import java.io.BufferedReader;
@@ -87,196 +91,6 @@ public abstract class ArquivoRetorno {
         this.contaCobranca = contaCobranca;
     }
 
-    public void voltarBoleto(Boleto boleto, String nr_ctr) {
-        boleto.setDtRegistroBaixa(null);
-        boleto.setAtivo(true);
-        boleto.setNrCtrBoleto(nr_ctr);
-        new Dao().update(boleto, true);
-    }
-
-    public String continuaBaixaArr(Movimento m, StatusRetorno sr, Retorno retorno) {
-        if (sr != null) {
-            Boleto bol = m.getBoleto();
-
-            if (bol == null) {
-                return "BOLETO NÃO PODE SER ENCONTRADO!";
-            }
-
-            bol.setStatusRetorno(sr);
-            bol.setDtStatusRetorno(DataHoje.dataHoje());
-
-            Dao dao = new Dao();
-
-            RetornoBanco rb = new RetornoBanco(-1, retorno, bol.getBoletoComposto(), sr, m);
-
-            dao.save(rb, true);
-
-            switch (sr.getId()) {
-                // BOLETO REJEITADO
-                case 1:
-                    dao.update(bol, true);
-                    return "Boleto foi Rejeitado";
-                // BOLETO REGISTRADO
-                case 2:
-                    bol.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    dao.update(bol, true);
-                    return "Boleto está Registrado";
-                // BOLETO LIQUIDADO
-                case 3:
-                    bol.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    dao.update(bol, true);
-                    return "";
-                // BOLETO EXCLUIDO
-                case 6:
-                    new Dao().update(bol, true);
-//                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
-                    if (m.getBaixa() != null) {
-                        return "Boleto já quitado não pode ser excluído!";
-                    }
-
-                    Movimento mov_antigo = (Movimento) dao.find(m);
-                    MovimentoDao dbm = new MovimentoDao();
-
-                    m.setVencimento(mov_antigo.getVencimento());
-                    int id_boleto = dbm.inserirBoletoNativo(bol.getContaCobranca().getId());
-
-                    dbm.insertMovimentoBoleto(bol.getContaCobranca().getId(), bol.getBoletoComposto());
-
-                    String nr_ctr = bol.getNrCtrBoleto();
-
-                    bol.setDtRegistroBaixa(DataHoje.dataHoje());
-                    bol.setAtivo(false);
-                    bol.setNrCtrBoleto("");
-                    dao.update(bol, true);
-
-                    dao.openTransaction();
-                    if (id_boleto != -1) {
-                        Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
-
-                        bol_novo.setNrCtrBoleto(String.valueOf(m.getId()));
-                        bol_novo.setVencimento(mov_antigo.getVencimento());
-                        bol_novo.setVencimentoOriginal(mov_antigo.getVencimentoOriginal());
-
-                        m.setDocumento(bol_novo.getBoletoComposto());
-                        m.setNrCtrBoleto(bol_novo.getNrCtrBoleto());
-
-                        if (!dao.update(m)) {
-                            dao.rollback();
-                            voltarBoleto(bol, nr_ctr);
-                            return "Erro ao Atualizar Movimento ID " + m.getId();
-
-                        }
-
-                        if (!dao.update(bol_novo)) {
-                            dao.rollback();
-                            voltarBoleto(bol, nr_ctr);
-                            return "Erro ao Atualizar Boleto ID " + bol_novo.getId();
-                        }
-
-                        dao.commit();
-                        bol = bol_novo;
-                    } else {
-                        dao.rollback();
-                        voltarBoleto(bol, nr_ctr);
-                        return "Erro ao Gerar Novo Boleto";
-                    }
-
-//
-//                    if (m.getAcordo() != null) {
-//                        return "Boleto do tipo acordo não pode ser excluído!";
-//                    }
-//
-//                    String motivo_exclusao = "Boleto excluído pelo arquivo retorno";
-//
-//                    String ret = GerarMovimento.inativarUmMovimento(m, motivo_exclusao);
-//
-//                    if (!ret.isEmpty()) {
-//                        return "Não foi possível excluir, " + ret;
-//                    }
-//                    return "Boleto Excluído";
-                    return "Boleto Baixado(excluído) pelo Banco";
-                default:
-                    return "Status do Retorno não encontrado, verificar manual";
-            }
-        }
-        return "Status do Retorno não encontrado, verificar manual";
-    }
-
-    public String continuaBaixaSoc(Boleto b, StatusRetorno sr, Retorno retorno) {
-        if (sr != null) {
-
-            b.setStatusRetorno(sr);
-            b.setDtStatusRetorno(DataHoje.dataHoje());
-
-            RetornoBanco rb = new RetornoBanco(-1, retorno, b.getBoletoComposto(), sr, null);
-
-            Dao dao = new Dao();
-
-            dao.save(rb, true);
-
-            switch (sr.getId()) {
-                // BOLETO REJEITADO
-                case 1:
-                    dao.update(b, true);
-                    return "Boleto foi Rejeitado";
-                // BOLETO REGISTRADO
-                case 2:
-                    b.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    dao.update(b, true);
-                    return "Boleto está Registrado";
-                // BOLETO LIQUIDADO
-                case 3:
-                    b.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    dao.update(b, true);
-                    return "";
-                // BOLETO EXCLUIDO
-                case 6:
-                    dao.update(b, true);
-//                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
-//                    List<Movimento> lm = b.getListaMovimento();
-//
-//                    if (lm.isEmpty()) {
-//                        return "Lista de Movimentos não encontrado";
-//                    }
-//
-//                    for (Movimento m : lm) {
-//                        if (m.getBaixa() != null) {
-//                            return "Boleto já quitado não pode ser excluído!";
-//                        }
-//
-//                        if (m.getBaixa() != null && m.getBaixa().getFechamentoCaixa() != null) {
-//                            return "Boleto com caixa fechado não pode ser excluído!";
-//                        }
-//
-//                        if (m.getAcordo() != null) {
-//                            return "Boleto do tipo acordo não pode ser excluído!";
-//                        }
-//                    }
-//
-//                    String motivo_exclusao = "Boleto excluído pelo arquivo retorno";
-//
-//                    Dao dao = new Dao();
-//                    dao.openTransaction();
-//
-//                    String ret = GerarMovimento.inativarArrayMovimento(lm, motivo_exclusao, dao);
-//
-//                    if (!ret.isEmpty()) {
-//                        dao.rollback();
-//                        return "Não foi possível excluir, " + ret;
-//                    }
-//                    
-//                    dao.commit();
-//                    
-//                    return "Boleto Excluído";
-                    return "Boleto Baixado(excluído) pelo Banco";
-                default:
-                    return "Status do Retorno não encontrado, verificar manual";
-            }
-        }
-
-        return "Status do Retorno não encontrado, verificar manual";
-    }
-
     protected String baixarArquivo(List<ObjetoRetorno> lista_objeto_retorno, String caminho, Usuario usuario) {
         GenericaSessao.remove("detalhes_retorno_banco");
 
@@ -298,14 +112,14 @@ public abstract class ArquivoRetorno {
         flDes.mkdir();
         TipoServico tipoServico;
         HashMap hash_detalhes = new LinkedHashMap();
-        List<ObjectDetalheRetorno> lista_detalhe = new ArrayList();
+        List<ObjetoDetalheRetorno> lista_detalhe = new ArrayList();
 
         String data_fechamento_diario = DataHoje.converteData(new FechamentoDiarioDao().ultimaDataContaSaldo());
 
         for (ObjetoRetorno ob : lista_objeto_retorno) {
 
             if (!ob.getErro().isEmpty()) {
-                lista_detalhe.add(new ObjectDetalheRetorno(null, 7, ob.getErro()));
+                lista_detalhe.add(new ObjetoDetalheRetorno(null, 7, ob.getErro()));
                 continue;
             }
 
@@ -370,304 +184,160 @@ public abstract class ArquivoRetorno {
                         // ----------------------------------------------------------------------------------------------------------------------------
                         // ----------------------------------------------------------------------------------------------------------------------------
 
-                        // 1 caso VERIFICA SE EXISTE BOLETO PELO NUMERO DO BOLETO JA BAIXADO -------------------------------------------------------------------
+                        // 1 caso VERIFICA SE EXISTE BOLETO PELO NUMERO DO BOLETO JA BAIXADO -------------------------------------------------
                         // -------------------------------------------------------------------------------------------------------------------
-                        String numeroComposto
-                                = linha_segmento.getNossoNumero()
-                                + linha_segmento.getDataPagamento()
-                                + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
+                        RetornoCasoSindical rcs = new CasoSindical().CASO_1(
+                                this.getContaCobranca().getId(),
+                                linha_segmento.getNossoNumero(),
+                                linha_segmento.getDataPagamento(),
+                                linha_segmento.getValorPago(),
+                                tipoServico,
+                                referencia,
+                                dataVencto,
+                                linha_segmento.getValorTaxa(),
+                                linha_segmento.getValorCredito(),
+                                usuario,
+                                linha_segmento.getDataCredito(),
+                                Integer.valueOf(objeto_arquivo.getSequencialArquivo())
+                        );
 
-                        String cnpjPagador = linha_segmento.getCnpjPagador();
-                        String cnpjComposto = "";
+                        if (rcs.getRetorno() == true) {
 
-                        boolean novo_layout_sindical = false;
-                        try {
-                            if (cnpjPagador.isEmpty() || Integer.valueOf(cnpjPagador) == 0) {
-                                cnpjPagador = linha_segmento.getNossoNumero();
+                            lista_detalhe.add(rcs.getOdr());
 
-                                cnpjComposto
-                                        = cnpjPagador
-                                        + linha_segmento.getDataPagamento()
-                                        + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
-
-                                novo_layout_sindical = false;
-                            }
-                        } catch (NumberFormatException e) {
-                            cnpjPagador = linha_segmento.getCnpjPagador();
-
-                            // obs. COLOCO "000" DEVIDO AO CASO ( 3 e 4 ) DA QUERY DO ROGÉRIO EXIGIR 16 CARACTERES NO CNPJ PARA PESQUISAR
-                            cnpjComposto
-                                    = "000" + cnpjPagador
-                                    + linha_segmento.getDataPagamento()
-                                    + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length());
-
-                            novo_layout_sindical = true;
-                        }
-
-                        movimento = db.pesquisaMovPorNumDocumentoListBaixadoArr(linha_segmento.getNossoNumero(), this.getContaCobranca().getId());
-
-                        if (!movimento.isEmpty()) {
-                            // EXISTE O BOLETO  MAS CONTEM VALORES DIFERENTES --------------
-                            Movimento mov2 = movimento.get(0);
-
-                            Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
-
-                            movimento = db.pesquisaMovPorNumPessoaListBaixado(numeroComposto, this.getContaCobranca().getId());
-                            if (movimento.isEmpty()) {
-                                Movimento movi = new Movimento(-1,
-                                        null,
-                                        servicos.getPlano5(),
-                                        mov2.getPessoa(),
-                                        servicos,
-                                        null,
-                                        tipoServico,
-                                        null,
-                                        0,
-                                        referencia,
-                                        dataVencto,
-                                        1,
-                                        true,
-                                        "E",
-                                        false,
-                                        mov2.getPessoa(),
-                                        mov2.getPessoa(),
-                                        numeroComposto,
-                                        "",
-                                        dataVencto,
-                                        0, 0, 0, 0, 0,
-                                        Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100),
-                                        Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100),
-                                        (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
-                                        0, null);
-
-                                StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
-
-                                if (sr.getStatus()) {
-                                    double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
-
-                                    GerarMovimento.baixarMovimento(
-                                            movi,
-                                            usuario,
-                                            DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
-                                            valor_liquido,
-                                            DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())),
-                                            numeroComposto,
-                                            Integer.valueOf(objeto_arquivo.getSequencialArquivo())
-                                    );
-
-                                    lista_detalhe.add(new ObjectDetalheRetorno(movi, 1, "Boleto Baixado pelo Número"));
-                                }
-                            } else if (movimento.get(0).getBaixa().getSequenciaBaixa() == 0) {
-                                movimento.get(0).getBaixa().setSequenciaBaixa(Integer.valueOf(objeto_arquivo.getSequencialArquivo()));
-                                dao = new Dao();
-                                dao.openTransaction();
-                                if (dao.update(movimento.get(0).getBaixa())) {
-                                    dao.commit();
-                                } else {
-                                    dao.rollback();
-                                }
-                            }
-
-                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 2, "Boleto já Baixado"));
-                            movimento.clear();
                             continue;
                         }
 
                         // 2 caso VERIFICA SE EXISTE BOLETO PELO NUMERO DO BOLETO AINDA NÃO BAIXADO -------------------------------------------------------------------
-                        movimento = db.pesquisaMovPorNumDocumentoListSindical(linha_segmento.getNossoNumero(), this.getContaCobranca().getId());
-                        if (!movimento.isEmpty()) {
-                            // ENCONTROU O BOLETO PRA BAIXAR
+                        rcs = new CasoSindical().CASO_2(
+                                this.getContaCobranca().getId(),
+                                linha_segmento.getNossoNumero(),
+                                linha_segmento.getStatusRetorno(),
+                                objeto_arquivo.getRetorno(),
+                                linha_segmento.getValorPago(),
+                                linha_segmento.getValorTaxa(),
+                                linha_segmento.getValorCredito(),
+                                usuario,
+                                linha_segmento.getDataPagamento(),
+                                linha_segmento.getDataCredito(),
+                                Integer.valueOf(objeto_arquivo.getSequencialArquivo())
+                        );
 
-                            String retorno_continua = continuaBaixaArr(movimento.get(0), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
-                            if (!retorno_continua.isEmpty()) {
-                                lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 3, retorno_continua));
-                                continue;
-                            }
+                        if (rcs.getRetorno() == true) {
 
-                            movimento.get(0).setValorBaixa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
-                            movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100));
+                            lista_detalhe.add(rcs.getOdr());
 
-                            double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
-
-                            GerarMovimento.baixarMovimento(
-                                    movimento.get(0),
-                                    usuario,
-                                    DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
-                                    valor_liquido,
-                                    DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())),
-                                    numeroComposto,
-                                    Integer.valueOf(objeto_arquivo.getSequencialArquivo())
-                            );
-
-                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 3, "Boleto Baixado pelo Número"));
                             continue;
                         }
 
-                        // 3 caso VERIFICA SE EXISTE BOLETO PELO CNPJ DA EMPRESA + DATA DE PAGAMENTO + VALOR PAGO BAIXADO ---------------------------
-                        // ------------------------------------------------------------------------------------------------------
-                        movimento = db.pesquisaMovPorNumPessoaListBaixado(cnpjComposto, this.getContaCobranca().getId());
+                        String VALIDA = validaCNPJ(linha_segmento.getCnpjPagador(), objeto_arquivo.getCnpj());
+                        switch (VALIDA) {
+                            case "nosso_numero":
 
-                        if (!movimento.isEmpty()) {
-                            // EXISTE O BOLETO PELO CNPJ DA EMPRESA + DATA DE PAGAMENTO BAIXADO --------------
-                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 4, "Boleto já Baixado"));
-                            movimento.clear();
-                            continue;
-                        }
-
-                        // 4 caso VERIFICA SE EXISTE BOLETO PELO CNPJ DA EMPRESA ------------------------------------------------
-                        // ------------------------------------------------------------------------------------------------------
-                        // obs. query modelo antigo, futuramente pode apagar quando o layout das sindicais forem todos novos ( deixando apenas a de baixo )
-                        List<Juridica> listJuridica = dbJur.pesquisaJuridicaParaRetorno(cnpjPagador);
-
-                        // obs. query nova para o layout sindical novo
-                        if (listJuridica.isEmpty()) {
-                            listJuridica = dbJur.pesquisaJuridicaParaRetornoComMascara(cnpjPagador);
-                        }
-
-                        if (!listJuridica.isEmpty()) {
-                            movimento = db.pesquisaMovimentoChaveValor(listJuridica.get(0).getPessoa().getId(), referencia, this.getContaCobranca().getId(), tipoServico.getId());
-
-                            if (!movimento.isEmpty()) {
-                                String retorno_continua = continuaBaixaArr(movimento.get(0), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
-                                if (!retorno_continua.isEmpty()) {
-                                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 5, retorno_continua));
-                                    continue;
-                                }
-
-                                movimento.get(0).setValorBaixa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
-                                movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100));
-
-                                double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
-                                GerarMovimento.baixarMovimento(
-                                        movimento.get(0),
+                                // 1 caso VERIFICA SE EXISTE BOLETO PELO NUMERO DO BOLETO JA BAIXADO -------------------------------------------------
+                                // -------------------------------------------------------------------------------------------------------------------
+                                rcs = new CasoSindical().CASO_1(
+                                        this.getContaCobranca().getId(),
+                                        linha_segmento.getCnpjPagador(),
+                                        linha_segmento.getDataPagamento(),
+                                        linha_segmento.getValorPago(),
+                                        tipoServico,
+                                        referencia,
+                                        dataVencto,
+                                        linha_segmento.getValorTaxa(),
+                                        linha_segmento.getValorCredito(),
                                         usuario,
-                                        DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
-                                        valor_liquido,
-                                        DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())),
-                                        numeroComposto,
+                                        linha_segmento.getDataCredito(),
                                         Integer.valueOf(objeto_arquivo.getSequencialArquivo())
                                 );
 
-                                lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 5, "Boleto Baixado pelo CNPJ"));
+                                if (rcs.getRetorno() == true) {
+
+                                    lista_detalhe.add(rcs.getOdr());
+
+                                    continue;
+                                }
+
+                                // 2 caso VERIFICA SE EXISTE BOLETO PELO NUMERO DO BOLETO AINDA NÃO BAIXADO -------------------------------------------------------------------
+                                rcs = new CasoSindical().CASO_2(
+                                        this.getContaCobranca().getId(),
+                                        linha_segmento.getCnpjPagador(),
+                                        linha_segmento.getStatusRetorno(),
+                                        objeto_arquivo.getRetorno(),
+                                        linha_segmento.getValorPago(),
+                                        linha_segmento.getValorTaxa(),
+                                        linha_segmento.getValorCredito(),
+                                        usuario,
+                                        linha_segmento.getDataPagamento(),
+                                        linha_segmento.getDataCredito(),
+                                        Integer.valueOf(objeto_arquivo.getSequencialArquivo())
+                                );
+
+                                if (rcs.getRetorno() == true) {
+
+                                    lista_detalhe.add(rcs.getOdr());
+                                }
+
+                                break;
+                            case "cnpj":
+                            case "cnpj_sem_dv":
+
+                                if (VALIDA.equals("cnpj_sem_dv")) {
+                                    String cnpj_sem_dv = linha_segmento.getCnpjPagador().substring(linha_segmento.getCnpjPagador().length() - 12, linha_segmento.getCnpjPagador().length());
+                                    String digito = ValidaDocumentos.retonarDigitoCNPJ(cnpj_sem_dv);
+
+                                    linha_segmento.setCnpjPagador(cnpj_sem_dv + digito);
+                                }
+                                
+                                // 3 caso VERIFICA SE EXISTE BOLETO PELO CNPJ DA EMPRESA + DATA DE PAGAMENTO + VALOR PAGO BAIXADO ---------------------------
+                                // ------------------------------------------------------------------------------------------------------
+                                rcs = new CasoSindical().CASO_3(
+                                        this.getContaCobranca().getId(),
+                                        linha_segmento.getCnpjPagador(),
+                                        linha_segmento.getDataPagamento(),
+                                        linha_segmento.getValorPago()
+                                );
+
+                                if (rcs.getRetorno() == true) {
+
+                                    lista_detalhe.add(rcs.getOdr());
+
+                                    continue;
+                                }
+
+                                // 4 caso VERIFICA SE EXISTE BOLETO PELO CNPJ DA EMPRESA ------------------------------------------------
+                                // ------------------------------------------------------------------------------------------------------
+                                rcs = new CasoSindical().CASO_4(
+                                        this.getContaCobranca().getId(),
+                                        linha_segmento.getCnpjPagador(),
+                                        linha_segmento.getDataPagamento(),
+                                        linha_segmento.getValorPago(),
+                                        referencia,
+                                        tipoServico,
+                                        linha_segmento.getStatusRetorno(),
+                                        objeto_arquivo.getRetorno(),
+                                        linha_segmento.getValorTaxa(),
+                                        linha_segmento.getValorCredito(),
+                                        usuario,
+                                        linha_segmento.getDataCredito(),
+                                        Integer.valueOf(objeto_arquivo.getSequencialArquivo()),
+                                        dataVencto
+                                );
+
+                                if (rcs.getRetorno() == true) {
+
+                                    lista_detalhe.add(rcs.getOdr());
+
+                                    continue;
+                                }
+                                break;
+                            case "cpf":
+                                lista_detalhe.add(new ObjetoDetalheRetorno(null, 7, "Baixa para CPF não existe"));
                                 continue;
-                            }
-
-                            Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
-                            Movimento movi = new Movimento(
-                                    -1,
-                                    null,
-                                    servicos.getPlano5(),
-                                    listJuridica.get(0).getPessoa(),
-                                    servicos,
-                                    null,
-                                    tipoServico,
-                                    null,
-                                    0,
-                                    referencia,
-                                    dataVencto,
-                                    1,
-                                    true,
-                                    "E",
-                                    false,
-                                    listJuridica.get(0).getPessoa(),
-                                    listJuridica.get(0).getPessoa(),
-                                    linha_segmento.getNossoNumero() + linha_segmento.getDataPagamento() + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length()),
-                                    "",
-                                    dataVencto,
-                                    0, 0, 0, 0, 0,
-                                    Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100),
-                                    Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100),
-                                    (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
-                                    0,
-                                    null
-                            );
-
-                            StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
-
-                            if (sr.getStatus()) {
-                                String retorno_continua = continuaBaixaArr(movi, linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
-                                if (!retorno_continua.isEmpty()) {
-                                    lista_detalhe.add(new ObjectDetalheRetorno(movi, 6, retorno_continua));
-                                    continue;
-                                }
-
-                                double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
-                                GerarMovimento.baixarMovimento(
-                                        movi,
-                                        usuario,
-                                        DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
-                                        valor_liquido,
-                                        DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())),
-                                        numeroComposto,
-                                        Integer.valueOf(objeto_arquivo.getSequencialArquivo())
-                                );
-
-                                lista_detalhe.add(new ObjectDetalheRetorno(movi, 6, "Boleto Baixado pelo CNPJ"));
-                            }
-                        } else {
-
-                            Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
-                            Movimento movi = new Movimento(
-                                    -1,
-                                    null,
-                                    servicos.getPlano5(),
-                                    (Pessoa) dao.find(new Pessoa(), 0),
-                                    servicos,
-                                    null,
-                                    tipoServico,
-                                    null,
-                                    0,
-                                    referencia,
-                                    dataVencto,
-                                    1,
-                                    true,
-                                    "E",
-                                    false,
-                                    (Pessoa) dao.find(new Pessoa(), 0),
-                                    (Pessoa) dao.find(new Pessoa(), 0),
-                                    linha_segmento.getNossoNumero() + linha_segmento.getDataPagamento() + linha_segmento.getValorPago().substring(5, linha_segmento.getValorPago().length()),
-                                    "",
-                                    dataVencto,
-                                    0, 0, 0, 0, 0,
-                                    Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100),
-                                    Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100),
-                                    (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
-                                    0,
-                                    null
-                            );
-
-                            StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi);
-
-                            if (sr.getStatus()) {
-                                String retorno_continua = continuaBaixaArr(movi, linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
-                                if (!retorno_continua.isEmpty()) {
-                                    lista_detalhe.add(new ObjectDetalheRetorno(movi, 7, retorno_continua));
-                                    continue;
-                                }
-
-                                double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
-
-                                DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
-                                List<DocumentoInvalido> listaDI = dbDocInv.pesquisaNumeroBoleto(linha_segmento.getNossoNumero());
-
-                                if (listaDI.isEmpty()) {
-                                    DocumentoInvalido di = new DocumentoInvalido(-1, linha_segmento.getNossoNumero(), false, DataHoje.data());
-                                    dao.save(di, true);
-                                }
-
-                                GerarMovimento.baixarMovimento(
-                                        movi,
-                                        usuario,
-                                        DataHoje.colocarBarras(linha_segmento.getDataPagamento()),
-                                        valor_liquido,
-                                        DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())),
-                                        numeroComposto,
-                                        Integer.valueOf(objeto_arquivo.getSequencialArquivo())
-                                );
-
-                                lista_detalhe.add(new ObjectDetalheRetorno(movi, 7, "Boleto não encontrado criado para pessoa (zero) - " + linha_segmento.getNossoNumero()));
-                            }
+                            default:
+                                lista_detalhe.add(new ObjetoDetalheRetorno(null, 7, "Campo CNPJ Pagante inválido"));
                         }
+
                     }
 
                 }
@@ -693,9 +363,9 @@ public abstract class ArquivoRetorno {
 
                             if (!movimento.isEmpty()) {
                                 if (movimento.size() == 1) {
-                                    String retorno_continua = continuaBaixaArr(movimento.get(0), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
+                                    String retorno_continua = new ContinuaBaixa().arr(movimento.get(0), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
                                     if (!retorno_continua.isEmpty()) {
-                                        lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, retorno_continua));
+                                        lista_detalhe.add(new ObjetoDetalheRetorno(movimento.get(0), 8, retorno_continua));
                                         continue;
                                     }
 
@@ -703,13 +373,15 @@ public abstract class ArquivoRetorno {
                                     movimento.get(0).setTaxa(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100));
 
                                     double valor_liquido = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
-                                    GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(linha_segmento.getDataPagamento()), valor_liquido, DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())), "", Integer.valueOf(objeto_arquivo.getSequencialArquivo()));
+                                    double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
 
-                                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
+                                    GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(linha_segmento.getDataPagamento()), valor_pago, valor_liquido, DataHoje.converte(DataHoje.colocarBarras(linha_segmento.getDataCredito())), "", Integer.valueOf(objeto_arquivo.getSequencialArquivo()));
+
+                                    lista_detalhe.add(new ObjetoDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
                                 } else {
                                     String detalhe = "";
 
-                                    String retorno_continua = continuaBaixaArr(movimento.get(0), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
+                                    String retorno_continua = new ContinuaBaixa().arr(movimento.get(0), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
 
                                     if (!retorno_continua.isEmpty()) {
                                         detalhe = retorno_continua;
@@ -732,17 +404,17 @@ public abstract class ArquivoRetorno {
                                         detalhe = xt;
                                     }
 
-                                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 7, detalhe));
+                                    lista_detalhe.add(new ObjetoDetalheRetorno(movimento.get(0), 7, detalhe));
                                 }
                             } else {
                                 String xt = "Boleto não Encontrado - " + linha_segmento.getNossoNumero()
                                         + " - Data de Vencimento: " + DataHoje.colocarBarras(linha_segmento.getDataVencimento())
                                         + " - Data de Pagamento: " + DataHoje.colocarBarras(linha_segmento.getDataPagamento())
                                         + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100));
-                                lista_detalhe.add(new ObjectDetalheRetorno(null, 7, xt));
+                                lista_detalhe.add(new ObjetoDetalheRetorno(null, 7, xt));
                             }
                         } else {
-                            lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 2, "Boleto Já Baixado"));
+                            lista_detalhe.add(new ObjetoDetalheRetorno(movimento.get(0), 2, "Boleto Já Baixado"));
                         }
                         movimento.clear();
                     }
@@ -771,6 +443,40 @@ public abstract class ArquivoRetorno {
             }
         }
         return result;
+    }
+
+    public String validaCNPJ(String cnpj, String cnpj_sindicato) {
+        if (cnpj.trim().isEmpty()) {
+            return "";
+        }
+
+        try {
+            if (Integer.valueOf(cnpj) == 0) {
+                return "";
+            } else {
+                return "nosso_numero";
+            }
+        } catch (NumberFormatException e) {
+            if (ValidaDocumentos.isValidoCNPJ(cnpj)) {
+                if (cnpj.equals(cnpj_sindicato)) {
+                    return "";
+                }
+
+                return "cnpj";
+            }
+
+            String cnpj_sem_dv = cnpj.substring(cnpj.length() - 12, cnpj.length());
+            String digito = ValidaDocumentos.retonarDigitoCNPJ(cnpj_sem_dv);
+
+            if (ValidaDocumentos.isValidoCNPJ(cnpj_sem_dv + digito)) {
+                return "cnpj_sem_dv";
+            }
+
+            if (ValidaDocumentos.isValidoCPF(cnpj.substring(4))) {
+                return "cpf";
+            }
+        }
+        return "";
     }
 
     protected String baixarArquivoPadrao(List<ObjetoRetorno> listaParametros, Usuario usuario) {
@@ -858,7 +564,7 @@ public abstract class ArquivoRetorno {
                                     continue;
                                 }
 
-                                String retorno_continua = continuaBaixaSoc(lista_movimento.get(0).getBoleto(), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
+                                String retorno_continua = new ContinuaBaixa().soc(lista_movimento.get(0).getBoleto(), linha_segmento.getStatusRetorno(), objeto_arquivo.getRetorno());
 
                                 if (!retorno_continua.isEmpty()) {
                                     Object[] log = new Object[3];
@@ -885,12 +591,14 @@ public abstract class ArquivoRetorno {
                                 // 8 - BOLETO NÃO ENCONTRADO - [1] string Número do Boleto
                                 // 9 - ERRO AO ALTERAR MOVIMENTO COM VALOR BAIXA CORRETO - [1] obj Movimento
                                 Double valor_credito = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
+                                Double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
 
                                 Object[] log = GerarMovimento.baixarMovimentoSocial(
                                         lista_movimento, // lista de movimentos
                                         usuario, // usuario que esta baixando
                                         DataHoje.colocarBarras(linha_segmento.getDataPagamento()), // data do pagamento
-                                        valor_credito, // valor liquido ( total pago )
+                                        valor_pago, // valor pago ( total pago )
+                                        valor_credito, // valor liquido ( total que entrou na conta ) - taxas
                                         DataHoje.colocarBarras(linha_segmento.getDataCredito()), // data do credito
                                         Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorTaxa())), 100), // valor taxa
                                         Integer.valueOf(objeto_arquivo.getSequencialArquivo())
@@ -919,7 +627,7 @@ public abstract class ArquivoRetorno {
                                     + " - Valor Pago: " + Moeda.converteR$Double(Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100));
                             lista_logs.add(log);
                         }
-                        
+
                         lista_movimento.clear();
                     }
                 }
@@ -951,44 +659,6 @@ public abstract class ArquivoRetorno {
 
     public void setContaCobranca(ContaCobranca contaCobranca) {
         this.contaCobranca = contaCobranca;
-    }
-
-    public class ObjectDetalheRetorno {
-
-        private Movimento movimento;
-        private Integer codigo;
-        private String detalhe;
-
-        public ObjectDetalheRetorno(Movimento movimento, Integer codigo, String detalhe) {
-            this.movimento = movimento;
-            this.codigo = codigo;
-            this.detalhe = detalhe;
-        }
-
-        public Movimento getMovimento() {
-            return movimento;
-        }
-
-        public void setMovimento(Movimento movimento) {
-            this.movimento = movimento;
-        }
-
-        public Integer getCodigo() {
-            return codigo;
-        }
-
-        public void setCodigo(Integer codigo) {
-            this.codigo = codigo;
-        }
-
-        public String getDetalhe() {
-            return detalhe;
-        }
-
-        public void setDetalhe(String detalhe) {
-            this.detalhe = detalhe;
-        }
-
     }
 
 }

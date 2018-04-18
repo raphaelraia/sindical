@@ -727,8 +727,8 @@ public class Sicoob extends Cobranca {
     }
 
     @Override
-    public RespostaWebService registrarBoleto() {
-        MovimentoDao dbm = new MovimentoDao();
+    public RespostaWebService registrarBoleto(String vencimentoRegistro) {
+
         MovimentosReceberSocialDao db_social = new MovimentosReceberSocialDao();
         Dao dao = new Dao();
 
@@ -746,50 +746,15 @@ public class Sicoob extends Cobranca {
         }
 
         if (boleto.getDtCobrancaRegistrada() != null) {
-            int id_boleto = dbm.inserirBoletoNativo(boleto.getContaCobranca().getId());
+            
+            Boleto b = super.gerarNovoBoleto(boleto, vencimentoRegistro);
 
-            dbm.insertMovimentoBoleto(boleto.getContaCobranca().getId(), boleto.getBoletoComposto());
-
-            String nr_ctr = boleto.getNrCtrBoleto();
-
-            boleto.setDtRegistroBaixa(DataHoje.dataHoje());
-            boleto.setAtivo(false);
-            boleto.setNrCtrBoleto("");
-            dao.update(boleto, true);
-
-            dao.openTransaction();
-            if (id_boleto != -1) {
-
-                Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
-
-                bol_novo.setNrCtrBoleto(nr_ctr);
-                bol_novo.setVencimento(boleto.getVencimento());
-                bol_novo.setVencimentoOriginal(boleto.getVencimentoOriginal());
-
-                for (int i = 0; i < lista_movimento.size(); i++) {
-                    lista_movimento.get(i).setDocumento(bol_novo.getBoletoComposto());
-                    lista_movimento.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
-
-                    if (!dao.update(lista_movimento.get(i))) {
-                        dao.rollback();
-                        voltarBoleto(boleto, nr_ctr);
-                        return new RespostaWebService(null, "Erro ao Atualizar Movimento ID " + lista_movimento.get(i).getId());
-                    }
-                }
-
-                if (!dao.update(bol_novo)) {
-                    dao.rollback();
-                    voltarBoleto(boleto, nr_ctr);
-                    return new RespostaWebService(null, "Erro ao Atualizar Boleto ID " + bol_novo.getId());
-                }
-
-                dao.commit();
-                boleto = bol_novo;
+            if (b == null) {
+                return new RespostaWebService(null, "Erro ao gerar novo Boleto");
             } else {
-                dao.rollback();
-                voltarBoleto(boleto, nr_ctr);
-                return new RespostaWebService(null, "Erro ao Gerar Novo Boleto");
+                boleto = b;
             }
+            
         }
 
         try {

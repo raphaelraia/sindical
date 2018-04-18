@@ -159,7 +159,7 @@ public class ImprimirBoleto implements Serializable {
             return hash;
         }
 
-        RespostaWebService resp = cobranca.registrarBoleto();
+        RespostaWebService resp = cobranca.registrarBoleto(vencimento);
 
         if (resp.getBoleto() == null) {
             hash.put("boleto", null);
@@ -173,15 +173,14 @@ public class ImprimirBoleto implements Serializable {
     }
 
     public HashMap registrarMovimentos(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos) {
-        MovimentoDao dbm = new MovimentoDao();
-        Registro reg = Registro.get();
+        
         Dao dao = new Dao();
 
         List<Movimento> listaAdd = new ArrayList();
 
         HashMap hash = new LinkedHashMap();
         for (int i = 0; i < lista.size(); i++) {
-            Boleto bol = dbm.pesquisaBoletos(lista.get(i).getNrCtrBoleto());
+            Boleto bol = lista.get(i).getBoleto();
             if (bol == null) {
                 hash.put("lista", new ArrayList());
                 hash.put("mensagem", "Boleto para o Movimento ID " + lista.get(i).getId() + " não encontrado, contate o Administrador.");
@@ -252,7 +251,7 @@ public class ImprimirBoleto implements Serializable {
             Movimento mov_antigo = (Movimento) dao.find(lista.get(i));
             lista.get(i).setVencimento(mov_antigo.getVencimento());
 
-            Cobranca cobranca = Cobranca.retornaCobranca(null, listaValores.get(i), DataHoje.converte(listaVencimentos.get(i)), lista.get(i).getBoleto());
+            Cobranca cobranca = Cobranca.retornaCobranca(null, listaValores.get(i), DataHoje.converte(listaVencimentos.get(i)), bol);
 
             if (cobranca == null) {
                 hash.put("lista", new ArrayList());
@@ -260,7 +259,7 @@ public class ImprimirBoleto implements Serializable {
                 return hash;
             }
 
-            RespostaWebService resp = cobranca.registrarBoleto();
+            RespostaWebService resp = cobranca.registrarBoleto(listaVencimentos.get(i));
 
             if (resp.getBoleto() == null) {
                 hash.put("lista", new ArrayList());

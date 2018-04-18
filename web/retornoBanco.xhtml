@@ -75,16 +75,22 @@
                                         <f:facet name="header">
                                             <h:outputLabel value="Documentos para verificação" />
                                         </f:facet>
-                                        <p:column headerText="Excluir Verificação" style="text-align: center">
+                                        <p:column headerText="Excluir" style="width: 80px; text-align: center">
                                             <h:selectBooleanCheckbox value="#{linha.argumento0}" rendered="#{linha.argumento4}"/>
                                         </p:column>
 
-                                        <p:column headerText="Documento">
+                                        <p:column headerText="Documento" style="text-align: center">
                                             <h:outputText value="#{linha.argumento1}"/>
                                         </p:column>
 
-                                        <p:column headerText="Status" style="text-align: center">
-                                            <h:outputText value="#{linha.argumento2}"/>
+                                        <p:column headerText="Status" style="width: 140px; text-align: center">
+                                            <h:outputText value="#{linha.argumento2}" rendered="#{linha.argumento2 eq '** INVÁLIDO **'}" style=""/>
+                                            <h:outputText value="#{linha.argumento2}" rendered="#{linha.argumento2 eq '** VERIFICAR **'}" style="color: red; font-weight: bold"/>
+                                            <h:outputText value="#{linha.argumento2}" rendered="#{linha.argumento2 eq '** CADASTRADO **'}" style="color: blue; font-weight: bold"/>
+                                        </p:column>
+                                        
+                                        <p:column headerText="Data de Importação" style="width: 80px; text-align: center">
+                                            <h:outputText value="#{linha.argumento5}"/>
                                         </p:column>
                                     </p:dataTable>
                                 </p:column>

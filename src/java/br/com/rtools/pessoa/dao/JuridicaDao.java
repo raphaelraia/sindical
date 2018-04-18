@@ -76,67 +76,75 @@ public class JuridicaDao extends DB {
             field = "p.ds_documento";
         }
         if (offset == null && !contabilidade) {
-            textQuery = " SELECT COUNT(*) ";
+            textQuery = " SELECT COUNT(*) \n ";
         } else {
-            textQuery = " SELECT j.* ";
+            textQuery = " SELECT j.* \n ";
         }
-        textQuery = textQuery + ""
-                + "       FROM pes_juridica j                                   "
-                + " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa               "
-                + " LEFT JOIN pes_juridica cont ON cont.id = j.id_contabilidade "
-                + " LEFT JOIN pes_pessoa pc ON pc.id = cont.id_pessoa           ";
-        if (por.equals("codigo")) {
-            textQuery = textQuery + " WHERE " + field + " = " + desc + "";
-        } else {
-            textQuery = textQuery + " WHERE LOWER(TRANSLATE(" + field + ")) LIKE ('" + desc + "')";
-
+        textQuery = textQuery 
+                + "       FROM pes_juridica j                                    \n "
+                + " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa                \n "
+                + " LEFT JOIN pes_juridica cont ON cont.id = j.id_contabilidade  \n "
+                + " LEFT JOIN pes_pessoa pc ON pc.id = cont.id_pessoa            \n ";
+        
+        switch (por){
+            case "codigo":
+                textQuery = textQuery + " WHERE " + field + " = " + desc + "  \n ";
+                break;
+            case "cnpj":
+            case "cpf":
+            case "cei":
+                textQuery = textQuery + " WHERE " + field + " LIKE ('" + desc + "') \n ";
+                break;
+            default:
+                textQuery = textQuery + " WHERE LOWER(TRANSLATE(" + field + ")) LIKE ('" + desc + "') \n ";
+                break;
         }
-
+        
         if (isAtivas) {
-            textQuery += " AND j.id IN (SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL) ";
+            textQuery += " AND j.id IN (SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL)  \n ";
             // textQuery += " AND j.id != id_contabilidade ";
         }
         if (isContabilidades) {
-            textQuery += " AND j.id IN (SELECT id_contabilidade FROM pes_juridica WHERE id_contabilidade IS NOT NULL) ";
+            textQuery += " AND j.id IN (SELECT id_contabilidade FROM pes_juridica WHERE id_contabilidade IS NOT NULL)  \n ";
         }
         if (offset != null) {
-            textQuery += "  ORDER BY p.ds_nome ";
+            textQuery += "  ORDER BY p.ds_nome  \n ";
         }
 
         if (por.equals("endereco")) {
             if (offset == null && !contabilidade) {
-                textQuery = " SELECT COUNT(*) ";
+                textQuery = " SELECT COUNT(*) \n ";
             } else {
-                textQuery = " SELECT jur.* ";
+                textQuery = " SELECT jur.* \n ";
             }
-            textQuery = textQuery + ""
-                    + "        FROM pes_pessoa_endereco pesend                                                                                                                               "
-                    + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                            "
-                    + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                      "
-                    + "  INNER JOIN end_cidade cid ON (cid.id = ende.id_cidade)                                                                                                              "
-                    + "  INNER JOIN end_descricao_endereco enddes ON (enddes.id = ende.id_descricao_endereco)                                                                                "
-                    + "  INNER JOIN end_bairro bai ON (bai.id = ende.id_bairro)                                                                                                              "
-                    + "  INNER JOIN end_logradouro logr ON (logr.id = ende.id_logradouro)                                                                                                    "
-                    + "  INNER JOIN pes_juridica jur ON (jur.id_pessoa = pes.id)                                                                                                             "
-                    + "  WHERE (LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || pesend.ds_numero || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf )) LIKE '%" + desc + "%' "
-                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf )) LIKE '%" + desc + "%' "
-                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  || ', ' || cid.ds_uf )) LIKE '%" + desc + "%'                               "
-                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  )) LIKE '%" + desc + "%'                                                    "
-                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao)) LIKE '%" + desc + "%' || ', ' || pesend.ds_numero                                                   "
-                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                               "
-                    + "     OR LOWER(TRANSLATE(enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                                                           "
-                    + "     OR LOWER(TRANSLATE(cid.ds_cidade)) LIKE '%" + desc + "%'                                                                                                                 "
-                    + "     OR LOWER(TRANSLATE(ende.ds_cep)) = '" + desc + "') "
-                    + "    AND pesend.id_tipo_endereco = 2 ";
+            textQuery = textQuery 
+                    + "        FROM pes_pessoa_endereco pesend                                                                                                                                \n "
+                    + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                             \n "
+                    + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                       \n "
+                    + "  INNER JOIN end_cidade cid ON (cid.id = ende.id_cidade)                                                                                                               \n "
+                    + "  INNER JOIN end_descricao_endereco enddes ON (enddes.id = ende.id_descricao_endereco)                                                                                 \n "
+                    + "  INNER JOIN end_bairro bai ON (bai.id = ende.id_bairro)                                                                                                               \n "
+                    + "  INNER JOIN end_logradouro logr ON (logr.id = ende.id_logradouro)                                                                                                     \n "
+                    + "  INNER JOIN pes_juridica jur ON (jur.id_pessoa = pes.id)                                                                                                              \n "
+                    + "  WHERE (LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || pesend.ds_numero || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf )) LIKE '%" + desc + "%'  \n "
+                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf )) LIKE '%" + desc + "%'  \n "
+                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  || ', ' || cid.ds_uf )) LIKE '%" + desc + "%'                                \n "
+                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  )) LIKE '%" + desc + "%'                                                     \n "
+                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao)) LIKE '%" + desc + "%' || ', ' || pesend.ds_numero                                                    \n "
+                    + "     OR LOWER(TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                                \n "
+                    + "     OR LOWER(TRANSLATE(enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                                                            \n "
+                    + "     OR LOWER(TRANSLATE(cid.ds_cidade)) LIKE '%" + desc + "%'                                                                                                                  \n "
+                    + "     OR LOWER(TRANSLATE(ende.ds_cep)) = '" + desc + "')  \n "
+                    + "    AND pesend.id_tipo_endereco = 2  \n ";
             if (isAtivas) {
-                textQuery += " AND jur.id IN (SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL) ";
+                textQuery += " AND jur.id IN (SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL)  \n ";
                 // textQuery += " AND j.id != id_contabilidade ";
             }
             if (isContabilidades) {
-                textQuery += " AND jur.id IN (SELECT id_contabilidade FROM pes_juridica WHERE id_contabilidade IS NOT NULL) ";
+                textQuery += " AND jur.id IN (SELECT id_contabilidade FROM pes_juridica WHERE id_contabilidade IS NOT NULL)  \n ";
             }
             if (offset != null) {
-                textQuery += " ORDER BY pes.ds_nome ";
+                textQuery += " ORDER BY pes.ds_nome  \n ";
             }
         }
         if (offset != null && limit != null) {
@@ -230,7 +238,7 @@ public class JuridicaDao extends DB {
                     "SELECT j.* \n "
                     + "  FROM pes_pessoa p \n "
                     + " INNER JOIN pes_juridica j ON j.id_pessoa = p.id \n "
-                    + " WHERE '000" + doc + "' = '000'||SUBSTRING(REPLACE(REPLACE(REPLACE(p.ds_documento,'/',''),'-',''),'.',''),1,12)", Juridica.class
+                    + " WHERE '" + doc + "' = REPLACE(REPLACE(REPLACE(p.ds_documento,'/',''),'-',''),'.','')", Juridica.class
             );
             qry.setParameter("doc", doc);
             result = qry.getResultList();

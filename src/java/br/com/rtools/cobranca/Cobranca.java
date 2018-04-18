@@ -1,6 +1,8 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -169,7 +171,7 @@ public abstract class Cobranca {
 
     public abstract RespostaArquivoRemessa gerarRemessa400();
 
-    public abstract RespostaWebService registrarBoleto();
+    public abstract RespostaWebService registrarBoleto(String vencimentoRegistro);
 
     public void voltarBoleto(Boleto boleto, String nr_ctr) {
         boleto.setDtRegistroBaixa(null);
@@ -197,5 +199,69 @@ public abstract class Cobranca {
             teste = GenericaSessao.getBoolean("webServiceBoletoTest");
         }
         return teste;
+    }
+
+    public Boleto gerarNovoBoleto(Boleto b_antigo, String novo_vencimento) {
+        Boleto bol_novo = null;
+        
+        MovimentoDao dbm = new MovimentoDao();
+
+        int id_boleto = dbm.inserirBoletoNativo(b_antigo.getContaCobranca().getId());
+
+        dbm.insertMovimentoBoleto(b_antigo.getContaCobranca().getId(), b_antigo.getBoletoComposto());
+
+        String nr_ctr = b_antigo.getNrCtrBoleto();
+
+        b_antigo.setDtRegistroBaixa(DataHoje.dataHoje());
+        b_antigo.setAtivo(false);
+        b_antigo.setNrCtrBoleto("");
+        
+        Dao dao = new Dao();
+        
+        dao.update(b_antigo, true);
+
+        dao.openTransaction();
+        
+        if (id_boleto != -1) {
+
+            bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
+
+            bol_novo.setNrCtrBoleto(nr_ctr);
+            //bol_novo.setVencimento(b_antigo.getVencimento());
+            //bol_novo.setVencimentoOriginal(b_antigo.getVencimentoOriginal());
+            
+            bol_novo.setVencimento(novo_vencimento);
+            bol_novo.setVencimentoOriginal(novo_vencimento);
+
+            List<Movimento> lm = b_antigo.getListaMovimento();
+            
+            for (int i = 0; i < lm.size(); i++) {
+                lm.get(i).setDocumento(bol_novo.getBoletoComposto());
+                lm.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
+
+                if (!dao.update(lm.get(i))) {
+                    dao.rollback();
+                    voltarBoleto(b_antigo, nr_ctr);
+                    //return new RespostaWebService(null, "Erro ao Atualizar Movimento ID " + lista_movimento.get(i).getId());
+                    return null;
+                }
+            }
+
+            if (!dao.update(bol_novo)) {
+                dao.rollback();
+                voltarBoleto(b_antigo, nr_ctr);
+                //return new RespostaWebService(null, "Erro ao Atualizar Boleto ID " + bol_novo.getId());
+                return null;
+            }
+
+            dao.commit();
+        } else {
+            dao.rollback();
+            voltarBoleto(boleto, nr_ctr);
+            //return new RespostaWebService(null, "Erro ao Gerar Novo Boleto");
+            return null;
+        }
+
+        return bol_novo;
     }
 }

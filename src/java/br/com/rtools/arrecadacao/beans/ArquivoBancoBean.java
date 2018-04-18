@@ -14,7 +14,6 @@ import br.com.rtools.retornos.*;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.*;
-import br.com.rtools.utilitarios.ArquivoRetorno.ObjectDetalheRetorno;
 import java.io.*;
 import java.util.*;
 import javax.faces.bean.ManagedBean;
@@ -50,7 +49,7 @@ public final class ArquivoBancoBean implements Serializable {
     private int index_contribuicao = 0;
     private List<SelectItem> listaServicos = new ArrayList();
     private List<String> listaArquivosPendentes = new ArrayList();
-    private List<ObjectDetalheRetorno> listaDetalheRetornoBanco = new ArrayList();
+    private List<ObjetoDetalheRetorno> listaDetalheRetornoBanco = new ArrayList();
 
     private String tipo = "";
 
@@ -81,7 +80,7 @@ public final class ArquivoBancoBean implements Serializable {
         listaDocumentos.clear();
 
         DataObject dtObject;
-        String documento, digito;
+        String documento;
 
         DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
         List<DocumentoInvalido> listaDoc = dbDocInv.pesquisaTodos();
@@ -92,14 +91,14 @@ public final class ArquivoBancoBean implements Serializable {
         }
 
         listaDocCadastrado = dbDocInv.pesquisaNumeroBoletoPessoa();
+
+        ContaCobranca cc = dbDocInv.pesquisaContaCobrancaSindical();
+
         for (int i = 0; i < listaDoc.size(); i++) {
             Boolean encontrado = false;
             for (int w = 0; w < listaDocCadastrado.size(); w++) {
                 if (listaDoc.get(i).getId() == listaDocCadastrado.get(w).getId()) {
-                    documento = listaDoc.get(i).getDocumentoInvalido().substring(
-                            listaDoc.get(i).getDocumentoInvalido().length() - 12,
-                            listaDoc.get(i).getDocumentoInvalido().length()
-                    );
+                    documento = listaDoc.get(i).getDocumentoInvalido();
 
                     List<Juridica> lj = new JuridicaDao().pesquisaJuridicaPorDocSubstring(documento);
                     String mascaraDocumento = "";
@@ -108,8 +107,9 @@ public final class ArquivoBancoBean implements Serializable {
                             mascaraDocumento = AnaliseString.mascaraCPF(documento);
                             break;
                         case 2:
-                            digito = ValidaDocumentos.retonarDigitoCNPJ(documento);
-                            mascaraDocumento = AnaliseString.mascaraCnpj(documento + digito);
+                            if (!documento.substring(0, 4).equals(cc.getBoletoInicial().substring(0, 4)) || !documento.substring(1, 6).equals("00000")) {
+                                mascaraDocumento = AnaliseString.mascaraCnpj(documento);
+                            }
                             break;
                         case 3:
                             mascaraDocumento = AnaliseString.mascaraCEI(documento);
@@ -122,7 +122,7 @@ public final class ArquivoBancoBean implements Serializable {
                             "** CADASTRADO **",// -- STATUS
                             listaDoc.get(i),
                             false,
-                            listaDoc.get(i).getDtImportacao()
+                            listaDoc.get(i).getImportacao()
                     );
 
                     listaDocumentos.add(dtObject);
@@ -131,29 +131,26 @@ public final class ArquivoBancoBean implements Serializable {
                 }
             }
             if (!encontrado) {
-                documento = listaDoc.get(i).getDocumentoInvalido().substring(
-                        listaDoc.get(i).getDocumentoInvalido().length() - 12,
-                        listaDoc.get(i).getDocumentoInvalido().length()
-                );
-                digito = ValidaDocumentos.retonarDigitoCNPJ(documento);
-                if (ValidaDocumentos.isValidoCNPJ(documento + digito)) {
+                documento = listaDoc.get(i).getDocumentoInvalido();
+
+                if (ValidaDocumentos.isValidoCNPJ(documento) && (!documento.substring(0, 4).equals(cc.getBoletoInicial().substring(0, 4)) || !documento.substring(1, 6).equals("00000"))) {
                     dtObject = new DataObject(
                             false,
-                            AnaliseString.mascaraCnpj(documento + digito),// -- DOCUMENTO
+                            AnaliseString.mascaraCnpj(documento),// -- DOCUMENTO
                             "** VERIFICAR **",// -- STATUS
                             listaDoc.get(i),
                             true,
-                            listaDoc.get(i).getDtImportacao()
+                            listaDoc.get(i).getImportacao()
                     );
                     listaDocumentos.add(dtObject);
                 } else {
                     dtObject = new DataObject(
                             false,
                             documento,// -- DOCUMENTO
-                            "** INVALIDO **",// -- STATUS
+                            "** INVÁLIDO **",// -- STATUS
                             listaDoc.get(i),
                             true,
-                            listaDoc.get(i).getDtImportacao()
+                            listaDoc.get(i).getImportacao()
                     );
                     listaDocumentos.add(dtObject);
                 }
@@ -983,7 +980,8 @@ public final class ArquivoBancoBean implements Serializable {
                             -1,
                             listaDocumentos.get(i).getArgumento1().toString(),
                             true,
-                            DataHoje.converteData((Date) ((DataObject) listaDocumentos.get(i)).getArgumento5())));
+                            (String) ((DataObject) listaDocumentos.get(i)).getArgumento5())
+                    );
                 }
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaDocs);
@@ -1023,7 +1021,7 @@ public final class ArquivoBancoBean implements Serializable {
         }
         List lista_detalhes = new ArrayList();
 
-        for (ObjectDetalheRetorno dr : listaDetalheRetornoBanco) {
+        for (ObjetoDetalheRetorno dr : listaDetalheRetornoBanco) {
             if (dr.getMovimento() != null) {
                 lista_detalhes.add(
                         new DetalheRetornoArr(
@@ -1120,14 +1118,14 @@ public final class ArquivoBancoBean implements Serializable {
         this.listaDocumentos = listaDocumentos;
     }
 
-    public List<ObjectDetalheRetorno> getListaDetalheRetornoBanco() {
+    public List<ObjetoDetalheRetorno> getListaDetalheRetornoBanco() {
         if (GenericaSessao.exists("detalhes_retorno_banco")) {
             listaDetalheRetornoBanco = GenericaSessao.getList("detalhes_retorno_banco", true);
         }
         return listaDetalheRetornoBanco;
     }
 
-    public void setListaDetalheRetornoBanco(List<ObjectDetalheRetorno> listaDetalheRetornoBanco) {
+    public void setListaDetalheRetornoBanco(List<ObjetoDetalheRetorno> listaDetalheRetornoBanco) {
         this.listaDetalheRetornoBanco = listaDetalheRetornoBanco;
 
     }

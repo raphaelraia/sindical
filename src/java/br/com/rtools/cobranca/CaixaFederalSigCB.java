@@ -1127,7 +1127,7 @@ public class CaixaFederalSigCB extends Cobranca {
     }
 
     @Override
-    public RespostaWebService registrarBoleto() {
+    public RespostaWebService registrarBoleto(String vencimentoRegistro) {
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
     }
 
