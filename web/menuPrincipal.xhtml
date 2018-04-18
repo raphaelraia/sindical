@@ -78,29 +78,37 @@
                                         <p:menuitem value="Locadora"    action="#{chamadaPaginaBean.pagina('configuracaoLocadora')}"    />
                                     </p:submenu>  
                                     <p:separator />  
-                                    <p:menuitem value="Pesquisar Logs"              action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
                                     <p:submenu label="Sistema">
-                                        <p:menuitem value="Dispositivos"            action="#{chamadaPaginaBean.pagina('dispositivo')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                                        <p:menuitem value="Controle de Scripts"     action="#{chamadaPaginaBean.pagina('controleScripts')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
-                                        <p:menuitem value="Configurações"           action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
-                                        <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                                        <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                                        <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
-                                        <p:menuitem value="Atualizar Base"          action="#{chamadaPaginaBean.pagina('atualizarBase')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and controleUsuarioBean.clienteString eq 'Rtools'}" />
                                         <p:menuitem value="Autorização"             action="#{chamadaPaginaBean.pagina('sisAutorizacoes')}" />
-                                        <p:menuitem value="Importação"              action="#{chamadaPaginaBean.pagina('importacao')}" />
-                                        <p:menuitem value="Canvas"                  action="#{chamadaPaginaBean.pagina('canvas')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                                        <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('historicoAcessos')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                                        <p:menuitem value="PgStatActivity"          action="#{chamadaPaginaBean.pagina('pgStatActivity')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        <p:menuitem value="Configurações"           action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                        <p:menuitem value="Dispositivos"            action="#{chamadaPaginaBean.pagina('dispositivo')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>                                        
+                                        <p:submenu label="Implantação">
+                                            <p:menuitem value="Importação"              action="#{chamadaPaginaBean.pagina('importacao')}" />                                            
+                                        </p:submenu>
+                                        <p:submenu label="Banco de Dados" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
+                                            <p:menuitem value="Atualizar Base"          action="#{chamadaPaginaBean.pagina('atualizarBase')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}" />
+                                            <p:menuitem value="PgStatActivity"          action="#{chamadaPaginaBean.pagina('pgStatActivity')}" />
+                                        </p:submenu>
+                                        <p:submenu label="Avançado" >
+                                            <p:menuitem value="Logs"                    action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
+                                            <p:menuitem value="Controle de Scripts"     action="#{chamadaPaginaBean.pagina('controleScripts')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools' and segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                            <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                            <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('usuarioHistoricoAcesso')}" />
+                                            <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('historicoAcessos')}" rendered="false"/>
+                                        </p:submenu>
+                                        <p:submenu label="Experimental" rendered="false">
+                                            <p:menuitem value="Canvas"                  action="#{chamadaPaginaBean.pagina('canvas')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        </p:submenu>
+                                        <p:submenu label="Suporte">
+                                            <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>                                            
+                                        </p:submenu>
                                     </p:submenu>
-                                    <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
+                                    <p:submenu label="Ordem Serviço" rendered="false">
                                         <p:menuitem value="Ordem Serviço" />
                                         <p:menuitem value="Prioridade" />
                                         <p:menuitem value="Status" />                                            
                                     </p:submenu>
-                                    <p:submenu label="Relatório">
-                                        <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('usuarioHistoricoAcesso')}" />
-                                    </p:submenu>                                    
                                     <p:menuitem value="Sair do Sistema" action="#{usuarioBean.sairSistema}" /> 
                                 </p:submenu>
                                 <p:submenu label="Departamentos" icon="ui-icon-document" style="margin-right: 15px">
