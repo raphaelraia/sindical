@@ -316,6 +316,9 @@ public class MovimentosReceberSocialDao extends DB {
     }
 
     public List<Movimento> listaMovimentosPorNrCtrBoleto(String nr_ctr_boleto) {
+        if (nr_ctr_boleto.isEmpty()) {
+            return new ArrayList();
+        }
 //        String textqry
 //            = " SELECT m " +
 //                "  FROM Movimento m " +
@@ -341,6 +344,9 @@ public class MovimentosReceberSocialDao extends DB {
     }
 
     public Pessoa responsavelBoleto(String nr_ctr_boleto) {
+        if (nr_ctr_boleto.isEmpty()) {
+            return null;
+        }
         String textqry
                 = " SELECT m.id_pessoa \n "
                 + "  FROM fin_boleto b \n "
