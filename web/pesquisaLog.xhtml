@@ -61,7 +61,7 @@
                                                 <p:selectBooleanButton value="#{pesquisaLogBean.filtro[4]}" onLabel="Texto - Edição" offLabel="Texto - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;">
                                                     <p:ajax event="change" update="@this, :form_logs:id_panel_logs" listener="#{pesquisaLogBean.clear}" />
                                                 </p:selectBooleanButton>
-                                                <p:commandButton value="Filtrar" title="Filtrar" styleClass="margin-top-max" update=":form_logs_list:" action="#{pesquisaLogBean.listLogs.clear()}" />
+                                                <p:commandButton value="Filtrar" title="Filtrar" styleClass="margin-top-max" update=":form_logs_list:" action="#{pesquisaLogBean.loadListLogs}" />
                                             </h:panelGrid>
                                         </p:tab>
                                     </p:accordionPanel>
