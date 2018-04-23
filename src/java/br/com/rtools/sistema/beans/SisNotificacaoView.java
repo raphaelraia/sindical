@@ -82,68 +82,90 @@ public class SisNotificacaoView implements Serializable {
             Sessions.put("loadNotificacao", true);
             Registro r = Registro.get();
             if (r.isSisNotificacao()) {
+                DBExternal dbe = new DBExternal();
+                dbe.setApplicationName("notifications");
+                Connection conn = null;
+                ResultSet rs = null;
+                PreparedStatement ps = null;
                 try {
-                    DBExternal dbe = new DBExternal();
-                    dbe.setApplicationName("notifications");
-                    Connection conn = dbe.getConnection();
-                    if (conn != null) {
+                    conn = dbe.getConnection();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                String queryString = "-- SisNotificacaoView->loadNotificacao() \n\n             "
+                        + "     SELECT 1    AS id, \n"
+                        + "            NCAT.ds_descricao AS categoria_descricao,                \n"
+                        + "            C.ds_identifica AS cliente,                              \n"
+                        + "            to_char(N.dt_cadastro, 'dd/MM/yyyy') AS data_cadastro,   \n"
+                        + "            to_char(N.dt_cadastro, 'HH24:ii') AS hora_cadastro,      \n"
+                        + "            to_char(N.dt_inicial, 'dd/MM/yyyy') AS inicio,           \n"
+                        + "            to_char(N.dt_final, 'dd/MM/yyyy') AS fim,                \n"
+                        + "            to_char(N.dt_inicial, 'HH24:MI') AS hora_inicio,         \n"
+                        + "            to_char(N.dt_final, 'HH24:MI') AS hora_fim,              \n"
+                        + "            N.ds_titulo AS titulo,                                   \n"
+                        + "            N.ds_observacao AS observacao,                           \n"
+                        + "            N.is_destaque AS destaque                                \n"
+                        + "       FROM sis_notificacao_cliente AS NC                            \n"
+                        + " INNER JOIN sis_notificacao AS N ON N.id = NC.id_notificacao         \n"
+                        + " INNER JOIN sis_notificacao_categoria AS NCAT ON NCAT.id = N.id_notificacao_categoria\n"
+                        + " INNER JOIN sis_configuracao AS C ON C.id = NC.id_configuracao                       \n"
+                        + "      WHERE C.ds_identifica = '" + GenericaSessao.getString("sessaoCliente") + "'    \n"
+                        + "        AND N.is_ativo = true                                                        \n"
+                        + "        AND current_timestamp >= N.dt_inicial                                        \n"
+                        + "        AND current_timestamp <= N.dt_final  ";
+                try {
+                    ps = conn.prepareStatement(queryString);
+                    rs = ps.executeQuery();
+                    while (rs.next()) {
+                        SNotificacao sNotificacao = new SNotificacao();
+                        sNotificacao.setId(rs.getInt("id"));
+                        sNotificacao.setCategoria(rs.getString("categoria_descricao"));
+                        sNotificacao.setDataCadastro(rs.getString("data_cadastro"));
+                        sNotificacao.setHoraCadastro(rs.getString("hora_cadastro"));
+                        sNotificacao.setDataInicial(rs.getString("inicio"));
+                        sNotificacao.setDataFinal(rs.getString("fim"));
+                        sNotificacao.setHoraInicial(rs.getString("hora_inicio"));
+                        sNotificacao.setHoraFinal(rs.getString("hora_fim"));
+                        sNotificacao.setTitulo(rs.getString("titulo"));
+                        sNotificacao.setObservacao(rs.getString("observacao"));
                         try {
-                            String queryString = "-- SisNotificacaoView->loadNotificacao() \n\n             "
-                                    + "     SELECT 1    AS id, \n"
-                                    + "            NCAT.ds_descricao AS categoria_descricao,                \n"
-                                    + "            C.ds_identifica AS cliente,                              \n"
-                                    + "            to_char(N.dt_cadastro, 'dd/MM/yyyy') AS data_cadastro,   \n"
-                                    + "            to_char(N.dt_cadastro, 'HH24:ii') AS hora_cadastro,      \n"
-                                    + "            to_char(N.dt_inicial, 'dd/MM/yyyy') AS inicio,           \n"
-                                    + "            to_char(N.dt_final, 'dd/MM/yyyy') AS fim,                \n"
-                                    + "            to_char(N.dt_inicial, 'HH24:MI') AS hora_inicio,         \n"
-                                    + "            to_char(N.dt_final, 'HH24:MI') AS hora_fim,              \n"
-                                    + "            N.ds_titulo AS titulo,                                   \n"
-                                    + "            N.ds_observacao AS observacao,                           \n"
-                                    + "            N.is_destaque AS destaque                                \n"
-                                    + "       FROM sis_notificacao_cliente AS NC                            \n"
-                                    + " INNER JOIN sis_notificacao AS N ON N.id = NC.id_notificacao         \n"
-                                    + " INNER JOIN sis_notificacao_categoria AS NCAT ON NCAT.id = N.id_notificacao_categoria\n"
-                                    + " INNER JOIN sis_configuracao AS C ON C.id = NC.id_configuracao                       \n"
-                                    + "      WHERE C.ds_identifica = '" + GenericaSessao.getString("sessaoCliente") + "'    \n"
-                                    + "        AND N.is_ativo = true                                                        \n"
-                                    + "        AND current_timestamp >= N.dt_inicial                                        \n"
-                                    + "        AND current_timestamp <= N.dt_final  ";
-                            PreparedStatement ps = conn.prepareStatement(queryString);
-                            ResultSet rs = ps.executeQuery();
-                            while (rs.next()) {
-                                SNotificacao sNotificacao = new SNotificacao();
-                                sNotificacao.setId(rs.getInt("id"));
-                                sNotificacao.setCategoria(rs.getString("categoria_descricao"));
-                                sNotificacao.setDataCadastro(rs.getString("data_cadastro"));
-                                sNotificacao.setHoraCadastro(rs.getString("hora_cadastro"));
-                                sNotificacao.setDataInicial(rs.getString("inicio"));
-                                sNotificacao.setDataFinal(rs.getString("fim"));
-                                sNotificacao.setHoraInicial(rs.getString("hora_inicio"));
-                                sNotificacao.setHoraFinal(rs.getString("hora_fim"));
-                                sNotificacao.setTitulo(rs.getString("titulo"));
-                                sNotificacao.setObservacao(rs.getString("observacao"));
-                                try {
-                                    sNotificacao.setAtivo(rs.getBoolean("ativo"));
-                                } catch (Exception e) {
+                            sNotificacao.setAtivo(rs.getBoolean("ativo"));
+                        } catch (Exception e) {
 
-                                }
-                                try {
-                                    sNotificacao.setDestaque(rs.getBoolean("destaque"));
-                                } catch (Exception e) {
-
-                                }
-                                listNotificacao.add(sNotificacao);
-                            }
-                            rs.close();
-                            ps.close();
-                            conn.close();
-                        } catch (SQLException exception) {
-                            conn.close();
                         }
+                        try {
+                            sNotificacao.setDestaque(rs.getBoolean("destaque"));
+                        } catch (Exception e) {
+
+                        }
+                        listNotificacao.add(sNotificacao);
                     }
                 } catch (Exception e) {
-
+                    e.printStackTrace();
+                    System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                } finally {
+                    if (rs != null) {
+                        try {
+                            rs.close();
+                        } catch (SQLException e) {
+                            /* ignored */
+                        }
+                    }
+                    if (ps != null) {
+                        try {
+                            ps.close();
+                        } catch (SQLException e) {
+                            /* ignored */
+                        }
+                    }
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        } catch (SQLException e) {
+                            /* ignored */
+                        }
+                    }
                 }
             }
 //            if (!GenericaSessao.getString("sessaoCliente").equals("ComercioLimeira") && !GenericaSessao.getString("sessaoCliente").equals("Sindical") && !GenericaSessao.getString("sessaoCliente").equals("Rtools") && !GenericaSessao.getString("sessaoCliente").equals("Demonstracao")) {

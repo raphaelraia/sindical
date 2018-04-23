@@ -12,11 +12,11 @@ public class DBExternal {
 
     private Statement statment;
     //private String url = "192.168.1.102";
-    private String url = "192.168.15.100";
+    private String url = "192.168.15.35";
     private String port = "5432";
     private String database = "Rtools";
     private String user = "postgres";
-    private String password = "r#@tools";
+    private String password = "*4qu4r10-";
     private String ApplicationName = "";
 
     public Connection getConnection() {
@@ -41,8 +41,8 @@ public class DBExternal {
                 }
             }
             props.setProperty("ApplicationName", applicationName + " - Sindical");
-            props.setProperty("connectTimeout", "300");
-            props.setProperty("assumeMinServerVersion", "9.0");
+            // props.setProperty("connectTimeout", "300");
+            // props.setProperty("assumeMinServerVersion", "9.0");
             // props.setProperty("password", c.getSenha());
             //props.setProperty("ssl", "true");
             Connection conn = DriverManager.getConnection(uri, props);

@@ -1495,6 +1495,9 @@ public class VendaBaileBean implements Serializable {
             pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
             responsavel = new FunctionsDao().titularDaPessoa(pessoa.getId());
             loadListaServicos();
+            if (todos) {
+                updateTipoVenda();
+            }
         }
         return pessoa;
     }

@@ -45,7 +45,7 @@ public class PesquisaLogDao extends DB {
                 listWhere.add(" L.evento.id IN( " + idInEvento + ") ");                
             }
         }
-        if (!descricao.isEmpty()) {
+        if (!descricao.trim().isEmpty()) {
             listWhere.add(" UPPER(L.conteudoOriginal) LIKE '%" + descricao.toUpperCase() + "%' OR UPPER(L.conteudoAlterado) LIKE '%" + descricao.toUpperCase() + "%' ");
         }
         try {

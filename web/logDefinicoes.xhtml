@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Log Definições</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Log Definições" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_log_definicoes">
+                            <c:set scope="request" var="object" value="${logDefinicoesBean.logDefinicoes}"/> 
+                            <p:messages id="i_msg" showDetail="true" closable="true" />                            
+                            <p:panel styleClass="fundoCinza margin-top-max" header="PADRÃO: 365 dias">
+                                <h:panelGrid  columns="10" cellspacing="">
+                                    <h:outputLabel value="Rotinas" />
+                                    <p:selectOneMenu value="#{logDefinicoesBean.idRotina}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{logDefinicoesBean.listRotinas}"/>
+                                    </p:selectOneMenu>
+                                    <p:inputNumber value="#{logDefinicoesBean.diasManter}"  decimalPlaces="0" emptyValue="0">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:inputNumber>
+                                    <p:outputLabel value="dias" />
+                                    <p:commandButton value="Adicionar" action="#{logDefinicoesBean.store}" update=":form_log_definicoes:" styleClass="margin-left-max"/>
+                                </h:panelGrid>
+                            </p:panel>                            
+                            <p:dataTable value="#{logDefinicoesBean.listLogDefinicoes}" var="logDefinicoes" id="tbl" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="300" styleClass="margin-top-max">
+                                <f:facet name="header">Lista de Serviços / Rotinas</f:facet>
+                                <p:column styleClass="text-center" width="25">
+                                    <p:commandButton icon="ui-icon-trash" action="#{logDefinicoesBean.delete(logDefinicoes)}" update=":form_log_definicoes:tbl" rendered="#{logDefinicoes.id ne null}"/>
+                                </p:column>
+                                <p:column headerText="Rotinas">
+                                    <h:outputText value="#{logDefinicoes.rotina.rotina eq null ? 'SEM ROTINAS ESPECIFICAS' : logDefinicoes.rotina.rotina}" styleClass="#{logDefinicoes.id eq null ? 'bold' : ''}"/>
+                                </p:column>
+                                <p:column headerText="Manter por (X) dias" styleClass="text-center" width="150">
+                                    <p:inputNumber value="#{logDefinicoes.diasManter}" decimalPlaces="0" emptyValue="0" rendered="#{logDefinicoes.id ne null}" size="5" styleClass="text-center">
+                                        <p:ajax event="change" listener="#{logDefinicoesBean.update(logDefinicoes)}" update=":form_log_definicoes:" />
+                                    </p:inputNumber>
+                                    <p:outputLabel value="#{logDefinicoes.diasManter}" rendered="#{logDefinicoes.id eq null}" />
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

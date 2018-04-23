@@ -28,11 +28,15 @@
                 <h:outputLabel value="#{pessoaCardBean.fisica.sexo}" />                
             </h:column>
             <h:outputLabel value="Telefone 1:"  />
-            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.telefone1}"  />
+            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.telefone1}" rendered="#{not empty pessoaCardBean.fisica.pessoa.telefone1}"  />
             <h:outputLabel value="Telefone 2:"  />
-            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.telefone2}"  />
+            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.telefone2}" rendered="#{not empty pessoaCardBean.fisica.pessoa.telefone2}"  />
+            <h:outputLabel value="Celular 3:"  />
+            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.telefone3}" rendered="#{not empty pessoaCardBean.fisica.pessoa.telefone3}" />
+            <h:outputLabel value="Celular 4:"  />
+            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.telefone4}" rendered="#{not empty pessoaCardBean.fisica.pessoa.telefone4}" />
             <h:outputLabel value="Email:"  />
-            <h:commandLink value="#{pessoaCardBean.fisica.pessoa.email1}" action="#{pessoaCardBean.enviaEmail(pessoaCardBean.fisica.pessoa.id)}" />
+            <h:commandLink value="#{pessoaCardBean.fisica.pessoa.email1}" action="#{pessoaCardBean.enviaEmail(pessoaCardBean.fisica.pessoa.id)}" rendered="#{not empty pessoaCardBean.fisica.pessoa.email1}"/>
         </h:panelGrid>
         <p:panel header="Associado" style="background: #ccffcc;" styleClass="no-border margin-top-max" rendered="#{sociosCardBean.socios.id != -1}">
             <ui:include src="templateSociosCard.xhtml" />

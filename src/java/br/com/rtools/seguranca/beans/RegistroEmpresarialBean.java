@@ -67,7 +67,7 @@ public class RegistroEmpresarialBean implements Serializable {
         listaDataVencimento = new ArrayList<SelectItem>();
         if (registro.getId() == -1) {
             Dao dao = new Dao();
-            registro = (Registro) dao.find(new Registro(), 1);
+            registro = (Registro) dao.rebind(dao.find(new Registro(), 1));
             senha = registro.getSenha();
             if (registro.getServicos() != null) {
                 codigoServico = registro.getServicos().getId();

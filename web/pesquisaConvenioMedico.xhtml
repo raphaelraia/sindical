@@ -46,28 +46,37 @@
                             </p:commandButton>
                         </h:panelGrid>   
                     </p:panel>
-                </p:panel>
-                <p:panel id="i_tbl" styleClass="no-border">
-                    <p:dataTable value="#{matriculaConvenioMedicoBean.listaConvenio}" var="convenioMedico" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
-                        <p:column width="30" styleClass="text-center">
-                            <p:commandButton icon="ui-icon-link" action="#{matriculaConvenioMedicoBean.edit(convenioMedico)}" title="Editar registro nº#{convenioMedico.id}"  />
-                        </p:column>
-                        <p:column headerText="Documento" width="120" styleClass="text-center">
-                            <p:outputLabel value="#{convenioMedico.servicoPessoa.pessoa.documento}" />
-                        </p:column>
-                        <p:column headerText="Nome" styleClass="text-center">
-                            <p:outputLabel value="#{convenioMedico.servicoPessoa.pessoa.nome}" />
-                        </p:column>
-                        <p:column headerText="Convênio" styleClass="text-center">
-                            <p:outputLabel value="#{convenioMedico.servicoPessoa.servicos.descricao}" />
-                        </p:column>
-                        <p:column headerText="Desc. em Folha" styleClass="text-center" width="50">
-                            <p:selectBooleanCheckbox value="#{convenioMedico.servicoPessoa.descontoFolha}" disabled="true"/>
-                        </p:column>
-                        <p:column headerText="Desconto (%)" styleClass="text-center" width="80">
-                            <p:outputLabel value="#{convenioMedico.servicoPessoa.nrDescontoString}" />
-                        </p:column>
-                    </p:dataTable>
+
+                    <h:panelGroup id="i_tbl">
+                        <p:dataTable value="#{matriculaConvenioMedicoBean.listaConvenio}" var="convenioMedico" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="no-border margin-top-max" rows="10" paginator="true">
+                            <p:column width="15" styleClass="text-center">
+                                <p:rowToggler />  
+                            </p:column>
+                            <p:column width="30" styleClass="text-center">
+                                <p:commandButton icon="ui-icon-link" action="#{matriculaConvenioMedicoBean.edit(convenioMedico)}" title="Editar registro nº#{convenioMedico.id}"  />
+                            </p:column>
+                            <p:column headerText="Documento" width="120" styleClass="text-center">
+                                <p:outputLabel value="#{convenioMedico.servicoPessoa.pessoa.documento}" />
+                            </p:column>
+                            <p:column headerText="Nome" styleClass="text-center">
+                                <p:outputLabel value="#{convenioMedico.servicoPessoa.pessoa.nome}" />
+                            </p:column>
+                            <p:column headerText="Convênio" styleClass="text-center">
+                                <p:outputLabel value="#{convenioMedico.servicoPessoa.servicos.descricao}" />
+                            </p:column>
+                            <p:column headerText="Desc. em Folha" styleClass="text-center" width="50">
+                                <p:selectBooleanCheckbox value="#{convenioMedico.servicoPessoa.descontoFolha}" disabled="true"/>
+                            </p:column>
+                            <p:column headerText="Desconto (%)" styleClass="text-center" width="80">
+                                <p:outputLabel value="#{convenioMedico.servicoPessoa.nrDescontoString}" />
+                            </p:column>
+                            <p:rowExpansion>
+                                <h:panelGrid columns="5" style="height: 40px" styleClass="sbb">
+                                    <p:outputLabel value="Inativo desde: #{convenioMedico.inativo}" rendered="#{convenioMedico.dtInativo ne null}" />
+                                </h:panelGrid>
+                            </p:rowExpansion>
+                        </p:dataTable>
+                    </h:panelGroup>
                 </p:panel>
 
             </h:form>                     

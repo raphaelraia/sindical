@@ -64,20 +64,32 @@
                                 <p:column headerText="Equipe">
                                     #{campeonatoEquipe.equipe.descricao}
                                 </p:column> 
+                                <p:column width="30">
+                                    <p:commandButton icon="ui-icon-eraser" action="#{campeonatoEquipeBean.delete(campeonatoEquipe)}" title="Remover registro nº#{campeonatoEquipe.id}" onclick="PF('dlg_save').hide()" />
+                                </p:column>                                 
                             </p:dataTable>
 
 
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{campeonatoEquipeBean.save()}" update=":form_campeonato_equipe:" onclick="PF('dlg_save').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{campeonatoEquipeBean.save()}" update=":form_campeonato_equipe:" onclick="PF('dlg_save').hide()" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" icon="ui-icon-close"/>       
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_membros_equipe" header="MEMBROS DA EQUIPE" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editMembrosEquipe}">
-                                <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.setEditMembrosEquipe(false)}"/>
+                            <p:dialog widgetVar="dlg_delete" header="Deseja remover este registro?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{campeonatoEquipeBean.delete()}" update=":form_campeonato_equipe:" onclick="PF('dlg_delete').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_membros_equipe" header="MEMBROS DA EQUIPE" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editMembrosEquipe}" closeOnEscape="true">
+                                <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.listener('membros_equipe')}"/>
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                                 <h:panelGroup id="i_m_e">
                                     <h:column rendered="#{campeonatoEquipeBean.membroEquipe ne null and campeonatoEquipeBean.membroEquipe.id ne -1}">
@@ -104,7 +116,7 @@
                                         </f:facet>
                                     </p:panel>
 
-                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
+                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="7" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
                                         <p:column headerText="Membro">
                                             #{matriculaCampeonato.servicoPessoa.pessoa.nome}
                                         </p:column>                                     
@@ -138,8 +150,8 @@
 
                                 </h:panelGroup>
                             </p:dialog>
-                            <p:dialog widgetVar="dlg_dependentes" header="DEPENDENTES DE #{campeonatoEquipeBean.cadastrarDependente.servicoPessoa.pessoa.nome}" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editDependentes}">
-                                <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.setEditDependentes(false)}"/>
+                            <p:dialog widgetVar="dlg_dependentes" header="DEPENDENTES DE #{campeonatoEquipeBean.cadastrarDependente.servicoPessoa.pessoa.nome}" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editDependentes}"  closeOnEscape="true">
+                                <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.listener('dependentes')}"/>
                                 <p:messages showDetail="true" showSummary="true" id="i_d_msg"/>
                                 <h:panelGroup id="i_e_dep">
                                     <h:column rendered="#{campeonatoEquipeBean.fisicaDependente ne null and campeonatoEquipeBean.fisicaDependente.id ne -1}">

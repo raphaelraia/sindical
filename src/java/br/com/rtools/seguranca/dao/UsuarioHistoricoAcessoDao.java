@@ -70,4 +70,15 @@ public class UsuarioHistoricoAcessoDao extends DB {
         }
     }
 
+    public void clear() {
+        try {
+            Query qry = getEntityManager().createNativeQuery("DELETE FROM seg_usuario_historico_acesso WHERE dt_login < current_date - 180");
+            getEntityManager().getTransaction().begin();
+            qry.executeUpdate();
+            getEntityManager().getTransaction().commit();
+        } catch (Exception e) {
+            getEntityManager().getTransaction().rollback();
+        }
+    }
+
 }

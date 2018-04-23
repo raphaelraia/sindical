@@ -119,10 +119,10 @@ public class DB {
                 configuracao.setPersistence(cliente);
                 //configuracao.setHost("192.168.1.102");
                 //configuracao.setHost("192.168.1.100");
-                configuracao.setHost("192.168.15.100");
-                configuracao.setSenha("r#@tools");
+                configuracao.setHost("192.168.15.35");
+                // configuracao.setSenha("r#@tools");
 //                configuracao.setHost("192.168.1.35");
-//                configuracao.setSenha("*4qu4r10-");                
+                configuracao.setSenha("*4qu4r10-");
                 break;
             case "ComercioLimeira":
                 configuracao.setCaminhoSistema(cliente);

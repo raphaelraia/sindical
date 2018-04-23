@@ -1112,6 +1112,12 @@
         </navigation-case>
     
         <navigation-case>
+            <from-outcome>logDefinicoes</from-outcome>
+            <to-view-id>/logDefinicoes.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
             <from-outcome>pesquisaLog</from-outcome>
             <to-view-id>/pesquisaLog.jsf</to-view-id>
             <redirect/>

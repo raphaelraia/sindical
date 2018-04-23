@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -35,6 +36,7 @@ import javax.faces.model.SelectItem;
 public class CampeonatoEquipeBean implements Serializable {
 
     private CampeonatoEquipe campeonatoEquipe;
+    private CampeonatoEquipe campeonatoEquipeDelete;
     private MatriculaCampeonato cadastrarDependente;
     private CampeonatoDependente campeonatoDependente;
     private List<CampeonatoDependente> listCampeonatoDependente;
@@ -54,6 +56,7 @@ public class CampeonatoEquipeBean implements Serializable {
     @PostConstruct
     public void init() {
         editMembrosEquipe = false;
+        campeonatoEquipeDelete = null;
         editDependentes = false;
         campeonatoEquipe = new CampeonatoEquipe();
         campeonatoDependente = new CampeonatoDependente();
@@ -86,15 +89,25 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public void loadListEquipes() {
+        idEquipe = null;
         listEquipes = new ArrayList();
         Campeonato c = (Campeonato) new Dao().find(new Campeonato(), idCampeonato);
         if (c != null && idCampeonato != null) {
             List<Equipe> list = new EquipeDao().findByModalidade(c.getModalidade().getId());
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idEquipe = list.get(i).getId();
+                Boolean disabled = false;
+                for (int x = 0; x < listCampeonatoEquipes.size(); x++) {
+                    if (Objects.equals(listCampeonatoEquipes.get(x).getEquipe().getId(), list.get(i).getId())) {
+                        disabled = true;
+                    }
                 }
-                listEquipes.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+                if (!disabled) {
+                    if (idEquipe == null) {
+                        idEquipe = list.get(i).getId();
+                    }
+                }
+
+                listEquipes.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "", disabled));
             }
         }
     }
@@ -133,10 +146,9 @@ public class CampeonatoEquipeBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
 
-        campeonatoEquipe.setCampeonato((Campeonato) dao.find(new Campeonato(), idCampeonato));
-        campeonatoEquipe.setEquipe((Equipe) dao.find(new Equipe(), idEquipe));
-
         if (campeonatoEquipe.getId() == null) {
+            campeonatoEquipe.setCampeonato((Campeonato) dao.find(new Campeonato(), idCampeonato));
+            campeonatoEquipe.setEquipe((Equipe) dao.find(new Equipe(), idEquipe));
             if (!dao.save(campeonatoEquipe)) {
                 GenericaMensagem.warn("Erro", "AO INSERIR REGISTRO!");
                 dao.rollback();
@@ -147,28 +159,36 @@ public class CampeonatoEquipeBean implements Serializable {
             editMembrosEquipe = true;
         } else {
             if (!dao.update(campeonatoEquipe)) {
-                GenericaMensagem.warn("Erro", "AO INSERIR REGISTRO!");
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR REGISTRO!");
                 dao.rollback();
                 return;
             }
-            GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
+            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
             dao.commit();
         }
         loadListCampeonatoEquipes();
     }
 
     public void delete() {
+        if (campeonatoEquipeDelete == null) {
+            return;
+        }
+        List<CampeonatoEquipe> list = new CampeonatoEquipeDao().findByCampeonato(campeonatoEquipeDelete.getId());
+        if (!list.isEmpty()) {
+            GenericaMensagem.warn("Validação", "REMOVER MEMBROS VÍNCULADOS!!!");
+            return;
+        }
         Dao dao = new Dao();
         dao.openTransaction();
-        if (campeonatoEquipe.getId() != null) {
-            campeonatoEquipe = (CampeonatoEquipe) dao.find(campeonatoEquipe);
-            if (!dao.delete(campeonatoEquipe)) {
+        if (campeonatoEquipeDelete.getId() != null) {
+            campeonatoEquipeDelete = (CampeonatoEquipe) dao.find(campeonatoEquipeDelete);
+            if (!dao.delete(campeonatoEquipeDelete)) {
                 GenericaMensagem.warn("Erro", "AO REMOVER CARAVANA");
                 dao.rollback();
                 return;
             }
             dao.commit();
-            campeonatoEquipe = new CampeonatoEquipe();
+            campeonatoEquipeDelete = null;
             GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
         } else {
             GenericaMensagem.warn("Erro", "PESQUISE UMA CARAVANA!");
@@ -189,6 +209,10 @@ public class CampeonatoEquipeBean implements Serializable {
         membroEquipe = null;
         loadListMatriculaCampeonato(ce.getId());
         return null;
+    }
+
+    public void delete(CampeonatoEquipe ce) {
+        campeonatoEquipeDelete = ce;
     }
 
     public void addMembroEquipe() {
@@ -530,6 +554,18 @@ public class CampeonatoEquipeBean implements Serializable {
         return false;
     }
 
+    public void listener(String tcase) {
+        if (tcase.equals("membros_equipe")) {
+            this.editMembrosEquipe = false;
+            this.campeonatoEquipe = new CampeonatoEquipe();
+            loadListEquipes();
+        }
+        if (tcase.equals("dependentes")) {
+            this.editDependentes = false;
+        }
+
+    }
+
     public Boolean getEditMembrosEquipe() {
         return editMembrosEquipe;
     }
@@ -657,6 +693,14 @@ public class CampeonatoEquipeBean implements Serializable {
         if (!dao.update(cd, true)) {
             GenericaMensagem.warn("Erro", "AO ATUALIZAR REGISTRO!");
         }
+    }
+
+    public CampeonatoEquipe getCampeonatoEquipeDelete() {
+        return campeonatoEquipeDelete;
+    }
+
+    public void setCampeonatoEquipeDelete(CampeonatoEquipe campeonatoEquipeDelete) {
+        this.campeonatoEquipeDelete = campeonatoEquipeDelete;
     }
 
 }

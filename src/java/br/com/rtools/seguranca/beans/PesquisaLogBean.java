@@ -83,6 +83,9 @@ public class PesquisaLogBean implements Serializable {
         if (GenericaSessao.exists("rotinaPesquisaLog")) {
             meusLogs((Integer.parseInt(GenericaSessao.getString("rotinaPesquisaLog", true))));
         }
+        filtro[0] = true;
+        clear();
+        loadListLogs();
     }
 
     @PreDestroy
@@ -97,6 +100,7 @@ public class PesquisaLogBean implements Serializable {
     public void loadListRotinas() {
         listSelectItem[0] = new ArrayList();
         List<Rotina> list = (List<Rotina>) new RotinaDao().findByTabela("seg_log");
+        listSelectItem[0].add(new SelectItem(null, "SEM ROTINA", null));
         for (int i = 0; i < list.size(); i++) {
             listSelectItem[0].add(new SelectItem(i, list.get(i).getRotina(), "" + list.get(i).getId()));
         }
@@ -304,42 +308,44 @@ public class PesquisaLogBean implements Serializable {
         this.filtroEvento = filtroEvento;
     }
 
-    public List<Log> getListLogs() {
-        if (listLogs.isEmpty()) {
-            String dtInicial = null;
-            String dtFinal = null;
-            String hrInicial = null;
-            String hrFinal = null;
-            int idR = 0;
-            int idU = 0;
-            String idInEventos = null;
-            if (filtro[0]) {
-                dtInicial = DataHoje.converteData(data[0]);
-                dtFinal = DataHoje.converteData(data[1]);
-                hrInicial = hora[0];
-                hrFinal = hora[1];
-            }
-            if (filtro[1]) {
-                if (usuario.getId() != -1) {
-                    idU = usuario.getId();
-                }
-            }
-            if (filtro[2]) {
-                if (!getListRotinas().isEmpty()) {
-                    idR = Integer.parseInt(getListRotinas().get(index[0]).getDescription());
-                }
-            }
-            if (filtro[3]) {
-                if (!inIdEventos().isEmpty()) {
-                    idInEventos = inIdEventos();
-                }
-            }
-            if (filtro[4]) {
-
-            }
-            PesquisaLogDao pld = new PesquisaLogDao();
-            listLogs = (List<Log>) pld.pesquisaLogs(dtInicial, dtFinal, hrInicial, hrFinal, idU, idR, idInEventos, descPesquisa);
+    public void loadListLogs() {
+        listLogs = new ArrayList();
+        String dtInicial = null;
+        String dtFinal = null;
+        String hrInicial = null;
+        String hrFinal = null;
+        int idR = 0;
+        int idU = 0;
+        String idInEventos = null;
+        if (filtro[0]) {
+            dtInicial = DataHoje.converteData(data[0]);
+            dtFinal = DataHoje.converteData(data[1]);
+            hrInicial = hora[0];
+            hrFinal = hora[1];
         }
+        if (filtro[1]) {
+            if (usuario.getId() != -1) {
+                idU = usuario.getId();
+            }
+        }
+        if (filtro[2]) {
+            if (!getListRotinas().isEmpty()) {
+                idR = Integer.parseInt(getListRotinas().get(index[0]).getDescription());
+            }
+        }
+        if (filtro[3]) {
+            if (!inIdEventos().isEmpty()) {
+                idInEventos = inIdEventos();
+            }
+        }
+        if (filtro[4]) {
+
+        }
+        PesquisaLogDao pld = new PesquisaLogDao();
+        listLogs = (List<Log>) pld.pesquisaLogs(dtInicial, dtFinal, hrInicial, hrFinal, idU, idR, idInEventos, descPesquisa);
+    }
+
+    public List<Log> getListLogs() {
         return listLogs;
     }
 

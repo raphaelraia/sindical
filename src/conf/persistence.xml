@@ -156,18 +156,6 @@
         <properties>
         </properties>
     </persistence-unit>
-    <persistence-unit name="SindiFarmaRP">
-        <provider>oracle.toplink.essentials.PersistenceProvider</provider>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-        </properties>
-    </persistence-unit>
-    <persistence-unit name="SindiPetShopSP">
-        <provider>oracle.toplink.essentials.PersistenceProvider</provider>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-        </properties>
-    </persistence-unit>
     <persistence-unit name="ComercioPiracicaba">
         <provider>oracle.toplink.essentials.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
@@ -181,12 +169,6 @@
         </properties>
     </persistence-unit>
     <persistence-unit name="comerciorp">
-        <provider>oracle.toplink.essentials.PersistenceProvider</provider>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-        </properties>
-    </persistence-unit>
-    <persistence-unit name="n_base_local">
         <provider>oracle.toplink.essentials.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
@@ -208,12 +190,6 @@
         <provider>oracle.toplink.essentials.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
-        </properties>
-    </persistence-unit>
-    <persistence-unit name="nova_base">
-        <provider>oracle.toplink.essentials.PersistenceProvider</provider>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>      
         </properties>
     </persistence-unit>
 </persistence> 

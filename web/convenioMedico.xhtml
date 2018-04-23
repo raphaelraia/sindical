@@ -48,6 +48,9 @@
                             <p:outputLabel value="Código: " />
                             <p:inputText value="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.codigo}"/>
                         </h:panelGrid>
+                        <h:panelGroup styleClass="margin-top-max margin-bottom-max">
+                            #{matriculaConvenioMedicoBean.matriculaConvenioMedico.servicoPessoa.motivoInativacao}
+                        </h:panelGroup>
                         <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO')}" escape="false" rendered="#{matriculaConvenioMedicoBean.pessoaOposicao}"/>
                     </p:panel>
                     <h:panelGrid columns="4" styleClass="margin-top-max">

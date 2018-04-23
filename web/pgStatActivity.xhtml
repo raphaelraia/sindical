@@ -29,9 +29,23 @@
                         <div class="clear"></div>
                         <h:form id="form_pg_stat_activity">
                             <p:growl autoUpdate="true" showDetail="true" showSummary="true" />
-                            <p:poll autoStart="true" delay="10" global="false" interval="120" update=":form_pg_stat_activity:id_pg_stat_activity"  listener="#{pgStatActivityBean.loadListPgStatActivity}"/>
+                            <c:if test="#{pgStatActivityBean.interval ne null}">
+                                <p:poll autoStart="true" delay="10" global="false" interval="#{pgStatActivityBean.interval}" update=":form_pg_stat_activity:id_pg_stat_activity"  listener="#{pgStatActivityBean.loadListPgStatActivity}" />
+                            </c:if>
                             <p:panel header="pg_stat_activity">
                                 <h:panelGrid columns="10" cellspacing="10">
+                                    <p:outputLabel value="Refresh (seconds): " />
+                                    <p:selectOneMenu value="#{pgStatActivityBean.interval}">
+                                        <p:ajax event="change" update="@this :form_pg_stat_activity:" global="false"/>
+                                        <f:selectItem itemValue=""      itemLabel="Pause"/>
+                                        <f:selectItem itemValue="5"     itemLabel="5 s"/>
+                                        <f:selectItem itemValue="10"    itemLabel="10 s"/>                                        
+                                        <f:selectItem itemValue="15"    itemLabel="15 s"/>                                        
+                                        <f:selectItem itemValue="30"    itemLabel="30 s"/>                                        
+                                        <f:selectItem itemValue="60"    itemLabel="1 min"/>                                        
+                                        <f:selectItem itemValue="120"   itemLabel="2 min"/>                                        
+                                        <f:selectItem itemValue="300"   itemLabel="5 min"/>                                        
+                                    </p:selectOneMenu>
                                     <p:outputLabel value="Datname: " rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
                                     <p:selectOneMenu value="#{pgStatActivityBean.dataBase}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
                                         <p:ajax event="change" update="@this" global="false"/>
@@ -44,6 +58,8 @@
                                         <f:selectItem itemLabel="All" itemValue=""/>
                                         <f:selectItem itemLabel="idle" itemValue="idle"/>
                                         <f:selectItem itemLabel="active" itemValue="active"/>
+                                        <f:selectItem itemLabel="idle in transaction" itemValue="idle in transaction"/>
+                                        <f:selectItem itemLabel="idle in transaction (aborted)" itemValue="idle in transaction  (aborted)"/>
                                     </p:selectOneMenu>
                                     <p:commandButton value="Atualizar" action="#{pgStatActivityBean.loadListPgStatActivity}" update=":form_pg_stat_activity:id_pg_stat_activity" />
                                 </h:panelGrid>
@@ -59,43 +75,40 @@
                                     <p:column headerText="datid" styleClass="text-center" rendered="false">
                                         #{pgStatActivity.datid}
                                     </p:column>                                        
-                                    <p:column headerText="datname" styleClass="text-center">
-                                        #{pgStatActivity.datname}
-                                    </p:column>                                        
-                                    <p:column headerText="pid" styleClass="text-center" width="60">
+                                    <p:column headerText="PID" styleClass="text-center" width="60">
                                         #{pgStatActivity.pid}
                                     </p:column>                                        
-                                    <p:column headerText="username" styleClass="text-center">
-                                        #{pgStatActivity.usename}
-                                    </p:column>
-                                    <p:column headerText="application_name" styleClass="text-center">
+                                    <p:column headerText="Application name" styleClass="text-center">
                                         #{pgStatActivity.application_name}
+                                    </p:column>
+                                    <p:column headerText="Database" styleClass="text-center">
+                                        #{pgStatActivity.datname}
+                                    </p:column>
+                                    <p:column headerText="User" styleClass="text-center">
+                                        #{pgStatActivity.usename}
                                     </p:column>
                                     <p:column headerText="addr" styleClass="text-center">
                                         #{pgStatActivity.client_addr}
                                     </p:column>
-                                    <p:column headerText="client_hostname" styleClass="text-center" rendered="false">
+                                    <p:column headerText="Client hostname" styleClass="text-center" rendered="false">
                                         #{pgStatActivity.client_hostname}
                                     </p:column>
                                     <p:column headerText="port" styleClass="text-center" width="50">
                                         #{pgStatActivity.client_port}
                                     </p:column>
-                                    <p:column headerText="xact_start" styleClass="text-center" rendered="false">
+                                    <p:column headerText="Client start" styleClass="text-center" rendered="false">
                                         #{pgStatActivity.xact_start}
                                     </p:column>
-                                    <p:column headerText="query_start" styleClass="text-center">
+                                    <p:column headerText="Query start" styleClass="text-center">
                                         #{pgStatActivity.query_start}
                                     </p:column>
-                                    <p:column headerText="state_change" styleClass="text-center">
+                                    <p:column headerText="State Change" styleClass="text-center">
                                         #{pgStatActivity.state_change}
                                     </p:column>
-                                    <p:column headerText="wait" styleClass="text-center" width="50">
-                                        #{pgStatActivity.waiting}
-                                    </p:column>
-                                    <p:column headerText="state" styleClass="text-center">
+                                    <p:column headerText="State" styleClass="text-center">
                                         #{pgStatActivity.state}
                                     </p:column>
-                                    <p:column headerText="query" styleClass="text-center">
+                                    <p:column headerText="Query" styleClass="text-center">
                                         #{pgStatActivity.queryResume}
                                     </p:column>
                                     <p:column styleClass="text-center" width="30">
@@ -106,6 +119,25 @@
                                         <br />
                                         <p:inputTextarea value="#{pgStatActivity.query}" style="width: 100%"/>
                                     </p:rowExpansion>
+                                    <f:facet name="footer">
+                                        <h:panelGrid styleClass="sbb" columns="10" cellspacing="5">
+                                            <h:column>
+                                                clients actives: #{pgStatActivityBean.count('clients')}
+                                            </h:column>
+                                            <h:column>
+                                                idle: #{pgStatActivityBean.count('idle')}
+                                            </h:column>
+                                            <h:column>
+                                                active:  #{pgStatActivityBean.count('active')}
+                                            </h:column>
+                                            <h:column>
+                                                idle in transaction: #{pgStatActivityBean.count('idle in transaction')}
+                                            </h:column>
+                                            <h:column>
+                                                idle in transaction (aborted): #{pgStatActivityBean.count('idle in transaction (aborted)')}
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </f:facet>
                                 </p:dataTable>
                             </h:panelGroup>
                         </h:form>
