@@ -61,7 +61,7 @@
                                                 <p:selectBooleanButton value="#{pesquisaLogBean.filtro[4]}" onLabel="Texto - Edição" offLabel="Texto - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;">
                                                     <p:ajax event="change" update="@this, :form_logs:id_panel_logs" listener="#{pesquisaLogBean.clear}" />
                                                 </p:selectBooleanButton>
-                                                <p:commandButton value="Filtrar" title="Filtrar" styleClass="margin-top-max" update=":form_logs_list:" action="#{pesquisaLogBean.listLogs.clear()}" />
+                                                <p:commandButton value="Filtrar" title="Filtrar" styleClass="margin-top-max" update=":form_logs_list:" action="#{pesquisaLogBean.loadListLogs}" />
                                             </h:panelGrid>
                                         </p:tab>
                                     </p:accordionPanel>
@@ -76,7 +76,7 @@
                                             </h:panelGrid>
                                             <h:panelGrid columns="2">
                                                 <h:column>
-                                                    <h:panelGrid columns="8">
+                                                    <h:panelGrid columns="8" cellspacing="10">
                                                         <p:outputLabel value="Data: " />
                                                         <p:calendar value="#{pesquisaLogBean.data[0]}" pattern="dd/MM/yyyy" size="10" navigator="true" onclick="$(this).mask('99/99/9999');">
                                                             <p:ajax event="dateSelect" listener="#{pesquisaLogBean.selectedDataInicial}" />
@@ -86,9 +86,13 @@
                                                             <p:ajax event="dateSelect" listener="#{pesquisaLogBean.selectedDataFinal}" />
                                                         </p:calendar>
                                                         <p:outputLabel value="Horário: " style="margin-left: 25px"/>
-                                                        <p:inputMask value="#{pesquisaLogBean.hora[0]}" mask="99:99" size="5"/>
+                                                        <p:inputMask value="#{pesquisaLogBean.hora[0]}" mask="99:99" size="5" converter="#{isValidTimeString}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
                                                         <p:outputLabel value=" ás " />
-                                                        <p:inputMask value="#{pesquisaLogBean.hora[1]}" mask="99:99" size="5"/>
+                                                        <p:inputMask value="#{pesquisaLogBean.hora[1]}" mask="99:99" size="5" converter="#{isValidTimeString}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
                                                     </h:panelGrid>                                            
                                                 </h:column>
                                             </h:panelGrid>
@@ -114,7 +118,6 @@
                                                 <p:outputLabel value="Rotinas:" styleClass="bold"/>
                                                 <p:selectOneMenu value="#{pesquisaLogBean.index[0]}" filter="true" filterMatchMode="startsWith" disabled="#{pesquisaLogBean.blockRotina}">
                                                     <p:ajax event="change" update="@this" />
-                                                    <f:selectItem itemValue="" itemLabel="Selecionar" />
                                                     <f:selectItems value="#{pesquisaLogBean.listRotinas}" />
                                                 </p:selectOneMenu>
                                                 <p:commandButton icon="ui-icon-close" action="#{pesquisaLogBean.close('rotina')}" title="Remover filtro" disabled="#{pesquisaLogBean.blockRotina}"/>

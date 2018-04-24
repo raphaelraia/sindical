@@ -7,10 +7,15 @@ import br.com.rtools.associativo.beans.ConfiguracaoSocialBean;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.principal.DBExternal;
+import br.com.rtools.seguranca.LogDefinicoes;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.UsuarioHistoricoAcesso;
+import br.com.rtools.seguranca.dao.LogDao;
+import br.com.rtools.seguranca.dao.LogDefinicoesDao;
+import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.seguranca.dao.UsuarioHistoricoAcessoDao;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
@@ -25,8 +30,10 @@ import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,22 +104,29 @@ public class ControleUsuarioBean implements Serializable {
         if (nomeCliente == null) {
             return true;
         }
-        if (nomeCliente.equals("Rtools") || nomeCliente.equals("Sindical") || nomeCliente.equals("ComercioLimeira") || nomeCliente.equals("ComercioRP") ) {
-            return true;
-        }
-        ResultSet rs;
-        PreparedStatement ps;
-        DBExternal dBExternal = new DBExternal();
+//        if (nomeCliente.equals("Rtools") || nomeCliente.equals("Sindical") || nomeCliente.equals("ComercioLimeira") || nomeCliente.equals("ComercioRP")) {
+//            return true;
+//        }
+        DBExternal dbe = new DBExternal();
+        dbe.setApplicationName(" client auth " + nomeCliente.toLowerCase());
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement ps = null;
         try {
-            ps = dBExternal.getConnection().prepareStatement(
-                    "   SELECT *                    "
-                    + "   FROM sis_configuracao     "
-                    + "  WHERE ds_identifica =     '" + nomeCliente + "'"
-                    + "  LIMIT 1                    "
-            );
+            conn = dbe.getConnection();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        String queryString = "   "
+                + " -- auth client \n\n         "
+                + " SELECT *                    "
+                + "   FROM sis_configuracao     "
+                + "  WHERE ds_identifica =     '" + nomeCliente + "'"
+                + "  LIMIT 1                    ";
 
+        try {
+            ps = conn.prepareStatement(queryString);
             rs = ps.executeQuery();
-
             if (!rs.next()) {
                 return true;
             }
@@ -122,19 +136,98 @@ public class ControleUsuarioBean implements Serializable {
             if (ativo) {
                 return true;
             }
-
-        } catch (Exception e) {
-            e.getMessage();
+        } catch (SQLException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             return true;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
         }
+
+//        try {
+//            ps = connection.prepareStatement(
+//                    "   SELECT *                    "
+//                    + "   FROM sis_configuracao     "
+//                    + "  WHERE ds_identifica =     '" + nomeCliente + "'"
+//                    + "  LIMIT 1                    "
+//            );
+//
+//            rs = ps.executeQuery();
+//
+//            if (!rs.next()) {
+//                return true;
+//            }
+//
+//            Boolean ativo = rs.getBoolean("is_ativo");
+//
+//            if (ativo) {
+//                return true;
+//            }
+//
+//        } catch (SQLException e) {
+//            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+//        } finally {
+//            if (rs != null) {
+//                try {
+//                    rs.close();
+//                } catch (SQLException e) {
+//                    /* ignored */
+//                }
+//            }
+//            if (ps != null) {
+//                try {
+//                    ps.close();
+//                } catch (SQLException e) {
+//                    /* ignored */
+//                }
+//            }
+//            if (conn != null) {
+//                conn.close();
+//            }
+//        }
         return false;
     }
 
     public String validacao() throws Exception {
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        if (!block()) {
-            GenericaMensagem.warn("Sistema. Entre em contato com nosso suporte técnico. (16) 3964-6117", "Entre em contato com nosso suporte técnico.");
+        Registro r = Registro.get();
+
+        if (r == null) {
+            GenericaMensagem.warn("Sistema. Entre em contato com nosso suporte técnico. (16) 3964-6117", "Entre em contato com nosso suporte técnico. (Registro Empresarial)");
             return null;
+        }
+
+        if (r.isSisHabilitaBloqueioCliente()) {
+            if (!block()) {
+                GenericaMensagem.warn("Sistema. Entre em contato com nosso suporte técnico. (16) 3964-6117", "Entre em contato com nosso suporte técnico.");
+                return null;
+            }
+        }
+
+        if (r.getDataApagaLogs() == null || DataHoje.maiorData(DataHoje.dataHoje(), r.getDataApagaLogs())) {
+            DataHoje dh = new DataHoje();
+            r.setDataApagaLogs(DataHoje.converte(dh.incrementarDias(30, DataHoje.data())));
+            new Dao().update(r, true);
+            processClearHistoryLogs();
         }
 
         String pagina = null;
@@ -254,12 +347,10 @@ public class ControleUsuarioBean implements Serializable {
             }
             if (dao.save(usuarioHistoricoAcesso, true)) {
                 GenericaSessao.put("usuario_historico_acesso", usuarioHistoricoAcesso);
-
             }
             usuario = new Usuario();
             msgErro = "";
             atualizaDemissionaSocios();
-            Registro.get();
         } else {
             //log.live("Login de acesso tentativa de acesso usr:" + user + "/sen: " + senh);
             usuario = new Usuario();
@@ -700,6 +791,28 @@ public class ControleUsuarioBean implements Serializable {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    public void processClearHistoryLogs() {
+        new UsuarioHistoricoAcessoDao().clear();
+        List<LogDefinicoes> list = new LogDefinicoesDao().list();
+        LogDao logDao = new LogDao();
+        if (list.isEmpty()) {
+            logDao.clearLogs(null, null, true);
+        } else {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getRotina() == null) {
+                    if (list.size() == 1) {
+                        logDao.clearLogs(null, list.get(i).getDiasManter(), true);
+                    } else {
+                        logDao.clearLogs(null, list.get(i).getDiasManter(), false);
+                    }
+                } else {
+                    logDao.clearLogs(list.get(i).getRotina().getId(), list.get(i).getDiasManter(), false);
+                }
+            }
+        }
+        logDao.clearLogs(-1, LogDefinicoes.KEEP_DAYS_LOGS, true);
     }
 
 }

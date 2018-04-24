@@ -38,7 +38,7 @@ import org.primefaces.event.UnselectEvent;
 @ManagedBean
 @SessionScoped
 public class AtualizarBaseBean implements Serializable {
-    
+
     private AtualizarBase atualizarBase;
     private List<AtualizarBase> listAtualizarBase;
     private AtualizarBaseCliente atualizarBaseCliente;
@@ -51,7 +51,7 @@ public class AtualizarBaseBean implements Serializable {
     private Integer idSqlEvent;
     private List<AtualizarBaseScript> listAtualizarBaseScripts;
     private AtualizarBaseScript atualizarBaseScript;
-    
+
     @PostConstruct
     public void init() {
         listAtualizarBase = new ArrayList<>();
@@ -65,19 +65,19 @@ public class AtualizarBaseBean implements Serializable {
         loadListSqlEvent();
         loadListAtualizarBase();
     }
-    
+
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("atualizarBaseBean");
     }
-    
+
     public void listener(Integer tcase) {
         if (tcase == 1) {
             GenericaSessao.remove("atualizarBaseBean");
         }
-        
+
     }
-    
+
     public void save() {
         selected = new ArrayList();
         Dao dao = new Dao();
@@ -100,7 +100,7 @@ public class AtualizarBaseBean implements Serializable {
         updateScript = false;
         loadListAtualizarBase();
     }
-    
+
     public void delete() {
         if (new Dao().delete(atualizarBase, true)) {
             GenericaMensagem.info("Sucesso", "Registro removido");
@@ -114,12 +114,12 @@ public class AtualizarBaseBean implements Serializable {
             GenericaMensagem.warn("Erro", "Ao remover registro!");
         }
     }
-    
+
     public void editScript() {
         atualizarBase.setScript(atualizarBase.getScript().replace("'''", "'"));
         updateScript = true;
     }
-    
+
     public String edit(AtualizarBase ab) {
         atualizarBaseScript = new AtualizarBaseScript();
         updateScript = true;
@@ -133,9 +133,9 @@ public class AtualizarBaseBean implements Serializable {
         loadListConfiguracao();
         loadListAtualizarBaseScript();
         return "atualizarBase";
-        
+
     }
-    
+
     public void add() {
         if (selectedConfiguracao != null && !selectedConfiguracao.isEmpty()) {
             Dao dao = new Dao();
@@ -166,7 +166,7 @@ public class AtualizarBaseBean implements Serializable {
             loadListAtualizarBaseCliente();
         }
     }
-    
+
     public void run() {
         if (atualizarBase.getId() == null) {
             GenericaMensagem.warn("Erro", "Salvar o registro!!!");
@@ -214,53 +214,67 @@ public class AtualizarBaseBean implements Serializable {
                     if (!dataBase.getPassword().isEmpty()) {
                         password = dataBase.getPassword();
                     }
-                    
+
                     String user = dataBase.getUser();
                     if (user.isEmpty()) {
                         user = "postgres";
                     }
-                    
+
                     dbe.setDatabase(c.getPersistence());
                     dbe.setPort(port + "");
                     dbe.setUrl(c.getHost());
                     dbe.setUser(user);
                     dbe.setPassword(password);
-                    dbe.setApplicationName("Run scripts in database");
-                    
+                    dbe.setApplicationName("run scripts in database " + selected.get(i).getCliente().getIdentifica());
                     GenericaMensagem.info((i + 1) + " " + selected.get(i).getCliente().getIdentifica(), "Sucesso!!!");
                     for (int z = 0; z < listAtualizarBaseScripts.size(); z++) {
+                        Connection conn = null;
+                        PreparedStatement ps = null;
                         String history = "";
-                        Connection conn = dbe.getConnection(true);
                         try {
-                            if (conn != null) {
-                                conn.setAutoCommit(true);
-                                String script = listAtualizarBaseScripts.get(z).getScript().replace("'''", "'");
-                                // Statement statement = conn.createStatement();
-                                PreparedStatement ps = conn.prepareStatement(script);
-                                // ps = dbe.getConnection().prepareStatement(script);
-                                if (listAtualizarBaseScripts.get(z).getSqlEvents().getNrCase() == 2) {
-                                    ps.executeQuery();
-                                } else {
-                                    ps.executeUpdate();
-                                }
-                                if (script.length() > 100) {
-                                    history = (z + 1) + " " + script.substring(0, 100) + "...; ";
-                                } else {
-                                    history = (z + 1) + " " + script + "...; ";
-                                }
-                                ps.close();
-                                GenericaMensagem.info((i + 1) + "." + (z + 1) + " - " + listAtualizarBaseScripts.get(z).getSqlEvents().getDescricao(), history);
-                                selected.get(i).setDtAtualizacao(new Date());
-                                selected.get(i).setUsuario(Usuario.getUsuario());
-                                dao.update(selected.get(i), true);
-                                conn.close();                                
-                                
+                            conn = dbe.getConnection(true);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        try {
+                            conn.setAutoCommit(true);
+                            String script = listAtualizarBaseScripts.get(z).getScript().replace("'''", "'");
+                            // Statement statement = conn.createStatement();
+                            ps = conn.prepareStatement(script);
+                            // ps = dbe.getConnection().prepareStatement(script);
+                            if (listAtualizarBaseScripts.get(z).getSqlEvents().getNrCase() == 2) {
+                                ps.executeQuery();
+                            } else {
+                                ps.executeUpdate();
                             }
+                            if (script.length() > 100) {
+                                history = (z + 1) + " " + script.substring(0, 100) + "...; ";
+                            } else {
+                                history = (z + 1) + " " + script + "...; ";
+                            }
+                            GenericaMensagem.info((i + 1) + "." + (z + 1) + " - " + listAtualizarBaseScripts.get(z).getSqlEvents().getDescricao(), history);
+                            selected.get(i).setDtAtualizacao(new Date());
+                            selected.get(i).setUsuario(Usuario.getUsuario());
+                            dao.update(selected.get(i), true);
                         } catch (SQLException e) {
-                            conn.close();
                             success = false;
                             Messages.warn((z + 1) + " - " + listAtualizarBaseScripts.get(z).getSqlEvents().getDescricao(), "Exceção: " + e.getMessage() + history);
                             break;
+                        } finally {
+                            if (ps != null) {
+                                try {
+                                    ps.close();
+                                } catch (SQLException e) {
+                                    /* ignored */
+                                }
+                            }
+                            if (conn != null) {
+                                try {
+                                    conn.close();
+                                } catch (SQLException e) {
+                                    /* ignored */
+                                }
+                            }
                         }
                         Thread.sleep(500);
                     }
@@ -273,16 +287,16 @@ public class AtualizarBaseBean implements Serializable {
             } else {
                 GenericaMensagem.info((i + 1) + " - " + selected.get(i).getCliente().getIdentifica(), "Já foi executado!!!");
             }
-            
+
         }
         if (success) {
             atualizarBase.setDtProcessamento(new Date());
             dao.update(atualizarBase, true);
         }
         loadListAtualizarBaseCliente();
-        
+
     }
-    
+
     public void remove(AtualizarBaseCliente abc) {
         if (new Dao().delete(abc, true)) {
             GenericaMensagem.info("Sucesso", "Registro removido");
@@ -291,54 +305,54 @@ public class AtualizarBaseBean implements Serializable {
             GenericaMensagem.warn("Erro", "Ao remover registro!");
         }
     }
-    
+
     public void loadListAtualizarBase() {
         listAtualizarBase = new ArrayList();
         listAtualizarBase = new AtualizarBaseDao().find();
     }
-    
+
     public void loadListAtualizarBaseCliente() {
         selected = new ArrayList();
         listAtualizarBaseCliente = new ArrayList();
         if (atualizarBase.getId() != null) {
             listAtualizarBaseCliente = new AtualizarBaseClienteDao().find(atualizarBase.getId());
-            
+
         }
-        
+
     }
-    
+
     public AtualizarBase getAtualizarBase() {
         return atualizarBase;
     }
-    
+
     public void setAtualizarBase(AtualizarBase atualizarBase) {
         this.atualizarBase = atualizarBase;
     }
-    
+
     public List<AtualizarBase> getListAtualizarBase() {
         return listAtualizarBase;
     }
-    
+
     public void setListAtualizarBase(List<AtualizarBase> listAtualizarBase) {
         this.listAtualizarBase = listAtualizarBase;
     }
-    
+
     public AtualizarBaseCliente getAtualizarBaseCliente() {
         return atualizarBaseCliente;
     }
-    
+
     public void setAtualizarBaseCliente(AtualizarBaseCliente atualizarBaseCliente) {
         this.atualizarBaseCliente = atualizarBaseCliente;
     }
-    
+
     public List<AtualizarBaseCliente> getListAtualizarBaseCliente() {
         return listAtualizarBaseCliente;
     }
-    
+
     public void setListAtualizarBaseCliente(List<AtualizarBaseCliente> listAtualizarBaseCliente) {
         this.listAtualizarBaseCliente = listAtualizarBaseCliente;
     }
-    
+
     public void loadListConfiguracao() {
         listConfiguracao = new LinkedHashMap();
         selectedConfiguracao = null;
@@ -349,23 +363,23 @@ public class AtualizarBaseBean implements Serializable {
             }
         }
     }
-    
+
     public Map<String, Integer> getListConfiguracao() {
         return listConfiguracao;
     }
-    
+
     public void setListConfiguracao(Map<String, Integer> listConfiguracao) {
         this.listConfiguracao = listConfiguracao;
     }
-    
+
     public List getSelectedConfiguracao() {
         return selectedConfiguracao;
     }
-    
+
     public void setSelectedConfiguracao(List selectedConfiguracao) {
         this.selectedConfiguracao = selectedConfiguracao;
     }
-    
+
     public void onRowSelect(SelectEvent event) {
         // List list = ((List) event.getObject());
 //         if (new Registro().isCobrancaCarteirinha()) {
@@ -379,7 +393,7 @@ public class AtualizarBaseBean implements Serializable {
 //         }
         //selected.add(((AtualizarBaseCliente) event.getObject()));
     }
-    
+
     public void onRowUnselect(UnselectEvent event) {
         // selected.remove((List) event.getObject());
 //        for (int i = 0; i < listaSelecionado.size(); i++) {
@@ -389,61 +403,61 @@ public class AtualizarBaseBean implements Serializable {
 //            }
 //        }
     }
-    
+
     public List<AtualizarBaseCliente> getSelected() {
         return selected;
     }
-    
+
     public void setSelected(List<AtualizarBaseCliente> selected) {
         this.selected = selected;
     }
-    
+
     public Boolean getUpdateScript() {
         return updateScript;
     }
-    
+
     public void setUpdateScript(Boolean updateScript) {
         this.updateScript = updateScript;
     }
-    
+
     private void loadListSqlEvent() {
         List<SqlEvents> list = new Dao().list(new SqlEvents());
         for (int i = 0; i < list.size(); i++) {
             listSqlEvent.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
     }
-    
+
     public List<SelectItem> getListSqlEvent() {
         return listSqlEvent;
     }
-    
+
     public void setListSqlEvent(List<SelectItem> listSqlEvent) {
         this.listSqlEvent = listSqlEvent;
     }
-    
+
     public Integer getIdSqlEvent() {
         return idSqlEvent;
     }
-    
+
     public void setIdSqlEvent(Integer idSqlEvent) {
         this.idSqlEvent = idSqlEvent;
     }
-    
+
     public List<AtualizarBaseScript> getListAtualizarBaseScripts() {
         return listAtualizarBaseScripts;
     }
-    
+
     public void setListAtualizarBaseScripts(List<AtualizarBaseScript> listAtualizarBaseScripts) {
         this.listAtualizarBaseScripts = listAtualizarBaseScripts;
     }
-    
+
     public void loadListAtualizarBaseScript() {
         listAtualizarBaseScripts = new ArrayList();
         if (atualizarBase.getId() != null) {
             listAtualizarBaseScripts = new AtualizarBaseScriptDao().find(atualizarBase.getId());
         }
     }
-    
+
     public void storeScript() {
         Dao dao = new Dao();
         if (atualizarBaseScript.getScript().isEmpty()) {
@@ -468,31 +482,31 @@ public class AtualizarBaseBean implements Serializable {
         atualizarBaseScript = new AtualizarBaseScript();
         loadListAtualizarBaseScript();
     }
-    
+
     public void removeScript(AtualizarBaseScript abs) {
         new Dao().delete(abs, true);
         atualizarBaseScript = new AtualizarBaseScript();
         loadListAtualizarBaseScript();
     }
-    
+
     public void editScript(AtualizarBaseScript abs) {
         abs.getScript().replace("'''", "'");
         atualizarBaseScript = abs;
         updateScript = true;
     }
-    
+
     public AtualizarBaseScript getAtualizarBaseScript() {
         return atualizarBaseScript;
     }
-    
+
     public void setAtualizarBaseScript(AtualizarBaseScript atualizarBaseScript) {
         this.atualizarBaseScript = atualizarBaseScript;
     }
-    
+
     public void rollback(AtualizarBaseCliente abc) {
         abc.setDtAtualizacao(null);
         new Dao().update(abc, true);
         loadListAtualizarBaseCliente();
     }
-    
+
 }

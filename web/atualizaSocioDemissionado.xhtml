@@ -47,15 +47,13 @@
                                         <p:selectOneMenu value="#{atualizaSocioDemissionadoBean.aposentadoria}">
                                             <p:ajax event="change" listener="#{atualizaSocioDemissionadoBean.loadListaSocioDemissionado()}" update="@form" />
                                             <f:selectItem itemValue="ignorar" itemLabel="Selecionar"/>
-                                            <f:selectItem itemValue="aposentado" itemLabel="Aposentado"/>
-                                            <f:selectItem itemValue="nao_aposentado" itemLabel="Não Aposentado"/>
+                                            <f:selectItem itemValue="nao_aposentado" itemLabel="Não aposentados"/>
                                         </p:selectOneMenu>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
                             <p:messages closable="true" showDetail="true" />
                             <p:dataTable value="#{atualizaSocioDemissionadoBean.listaSocioDemissionado}" var="linha_socio" paginator="true" rows="20" emptyMessage="Nenhum Registro Encontrado" selection="#{atualizaSocioDemissionadoBean.listaSocioDemissionadoSelecionado}" rowKey="#{linha_socio.pessoaEmpresa.id}">
-
                                 <p:column selectionMode="multiple" style="width:16px; text-align:center"/>
 
                                 <p:column headerText="Nome">

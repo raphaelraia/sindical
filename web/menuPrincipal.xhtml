@@ -92,6 +92,7 @@
                                         </p:submenu>
                                         <p:submenu label="Avançado" >
                                             <p:menuitem value="Logs"                    action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
+                                            <p:menuitem value="Logs (Definições)"       action="#{chamadaPaginaBean.pagina('logDefinicoes')}" title="Configura o tempo que o log ficará mantido"  />
                                             <p:menuitem value="Controle de Scripts"     action="#{chamadaPaginaBean.pagina('controleScripts')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools' and segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                             <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                             <p:menuitem value="Histórico de Acessos"    action="#{chamadaPaginaBean.pagina('usuarioHistoricoAcesso')}" />

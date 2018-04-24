@@ -19,10 +19,14 @@ public class PgStatActivityBean implements Serializable {
 
     private List<PgStatActivity> listPgStatActivity;
     private List<SelectItem> listDataBase;
-    private String dataBase = "";
-    private String state = "";
+    private String dataBase;
+    private String state;
+    private Integer interval;
 
     public PgStatActivityBean() {
+        interval = 120;
+        dataBase = "";
+        state = "";
         loadListDataBase();
         loadListPgStatActivity();
     }
@@ -101,6 +105,14 @@ public class PgStatActivityBean implements Serializable {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Integer getInterval() {
+        return interval;
+    }
+
+    public void setInterval(Integer interval) {
+        this.interval = interval;
     }
 
     public class PgStatActivity {
@@ -352,7 +364,36 @@ public class PgStatActivityBean implements Serializable {
         } catch (Exception e) {
 
         }
-
     }
+
+    public Integer count(String tcase) {
+        Integer count = 0;
+        String aux = "";
+        for (int i = 0; i < listPgStatActivity.size(); i++) {
+            if(tcase.equals("clients")) {
+                if (listPgStatActivity.get(i).getDatname() != null && !listPgStatActivity.get(i).getDatname().equals(aux)) {
+                    aux = listPgStatActivity.get(i).getDatname().toString();
+                    count++;
+                }
+            } else {
+                if (listPgStatActivity.get(i).getState() != null && listPgStatActivity.get(i).getState().equals(tcase)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    
+    public Boolean getAlert(String tcase) {
+        Integer count = 0;
+        for (int i = 0; i < listPgStatActivity.size(); i++) {
+            if (listPgStatActivity.get(i).getState().equals(tcase)) {
+                count++;
+            }
+        }
+        return false;
+    }
+    
+    
 
 }
