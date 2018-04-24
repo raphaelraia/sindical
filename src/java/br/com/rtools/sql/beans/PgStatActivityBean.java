@@ -1,11 +1,18 @@
 package br.com.rtools.sql.beans;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.principal.DBExternal;
 import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.sistema.conf.DataBase;
 import br.com.rtools.sistema.dao.ConfiguracaoDao;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Sessions;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -32,33 +39,33 @@ public class PgStatActivityBean implements Serializable {
     }
 
     public final void loadListPgStatActivity() {
-        this.listPgStatActivity = new ArrayList();
-        List list = pgStatActivity();
-        for (int i = 0; i < list.size(); i++) {
-            List o = (List) list.get(i);
-            int pos = 0;
-            listPgStatActivity.add(
-                    new PgStatActivity(
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++),
-                            o.get(pos++)
-                    ));
-
-            System.err.println(pos);
-        }
+        listPgStatActivity = new ArrayList();
+        listPgStatActivity = pgStatActivity();
+//        for (int i = 0; i < list.size(); i++) {
+//            List o = (List) list.get(i);
+//            int pos = 0;
+//            listPgStatActivity.add(
+//                    new PgStatActivity(
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++),
+//                            o.get(pos++)
+//                    ));
+//
+//            System.err.println(pos);
+//        }
         System.err.println(listPgStatActivity);
     }
 
@@ -84,10 +91,11 @@ public class PgStatActivityBean implements Serializable {
             List<Configuracao> list = new ConfiguracaoDao().listAllActives();
             Configuracao configuracao = new ConfiguracaoDao().find("Rtools");
             for (int i = 0; i < list.size(); i++) {
-                if (configuracao.getDatabaseServerAlias().equals(list.get(i).getDatabaseServerAlias())) {
-                    listDataBase.add(new SelectItem(list.get(i).getIdentifica(), list.get(i).getIdentifica()));
-                }
+                listDataBase.add(new SelectItem(list.get(i).getIdentifica(), list.get(i).getIdentifica()));
             }
+            listDataBase.add(new SelectItem("Externo", "Externos", "", true));
+            listDataBase.add(new SelectItem("ComercioLimeira", "ComercioLimeira"));
+            listDataBase.add(new SelectItem("ComercioRP", "ComercioRP"));
         }
     }
 
@@ -296,58 +304,157 @@ public class PgStatActivityBean implements Serializable {
 
     }
 
-    public List pgStatActivity() {
-
-        DB db = new DB();
-        try {
-            String queryString = "    "
-                    + "SELECT PSA.datid,            \n" // 0
-                    + "       PSA.datname,          \n" // 1
-                    + "       PSA.pid,              \n" // 2
-                    + "       PSA.usesysid,         \n" // 3
-                    + "       PSA.usename,          \n" // 4
-                    + "       PSA.application_name, \n" // 5
-                    + "       PSA.client_addr,      \n" // 6
-                    + "       PSA.client_hostname,  \n" // 7
-                    + "       PSA.client_port,      \n" // 8
-                    + "       PSA.backend_start,    \n" // 9
-                    + "       PSA.xact_start,       \n" // 10
-                    + "       PSA.query_start,      \n" // 11
-                    + "       PSA.state_change,     \n" // 12
-                    + "       PSA.waiting,          \n" // 13
-                    + "       PSA.state,            \n" // 14
-                    + "       PSA.query             \n" // 15
-                    + "  FROM pg_stat_activity PSA  \n"
-                    + " WHERE pid <> 0              ";
-            String datname = null;
-            if (Sessions.exists("sessaoCliente")) {
-                datname = Sessions.getString("sessaoCliente");
-                if (datname.equals("ComercioRP")) {
-                    datname = "Sindical";
-                }
-                if (listDataBase.isEmpty()) {
-                    if (!Sessions.getString("sessaoCliente").equals("Rtools")) {
-                        queryString += " AND PSA.datname = '" + datname + "'";
-                    }
-                } else {
-                    if (dataBase != null && !dataBase.isEmpty()) {
-                        queryString += " AND PSA.datname = '" + dataBase + "'";
-                    }
-                }
-                if (state != null && !state.isEmpty()) {
-                    queryString += " AND PSA.state = '" + state + "'";
-                }
-            }
-            queryString += "   ORDER BY PSA.datname ASC, PSA.application_name \n";
-            Query qry = db.getEntityManager().createNativeQuery(queryString);
-            List list = qry.getResultList();
-            if (!list.isEmpty()) {
-                return list;
-            }
-        } catch (Exception e) {
+    protected List pgStatActivity() {
+        if (!GenericaSessao.exists("sessaoCliente")) {
             return new ArrayList();
         }
-        return new ArrayList();
+        List<PgStatActivity> list = new ArrayList();
+        String nomeCliente = null;
+        DBExternal dbe = new DBExternal();
+        String db = dataBase;
+        if (db.isEmpty()) {
+            db = Sessions.getString("sessaoCliente");
+        }
+        dbe.configure(db);
+        dbe.setApplicationName("pg_stat_activity " + db);
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+        try {
+            conn = dbe.getConnection();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if(conn == null) {
+            throw new RuntimeException("empty connection");
+        }
+        String queryString = "    "
+                + "SELECT PSA.datid,            \n" // 0
+                + "       PSA.datname,          \n" // 1
+                + "       PSA.pid,              \n" // 2
+                + "       PSA.usesysid,         \n" // 3
+                + "       PSA.usename,          \n" // 4
+                + "       PSA.application_name, \n" // 5
+                + "       PSA.client_addr,      \n" // 6
+                + "       PSA.client_hostname,  \n" // 7
+                + "       PSA.client_port,      \n" // 8
+                + "       PSA.backend_start,    \n" // 9
+                + "       PSA.xact_start,       \n" // 10
+                + "       PSA.query_start,      \n" // 11
+                + "       PSA.state_change,     \n" // 12
+                + "       PSA.waiting,          \n" // 13
+                + "       PSA.state,            \n" // 14
+                + "       PSA.query             \n" // 15
+                + "  FROM pg_stat_activity PSA  \n"
+                + " WHERE pid <> 0              ";
+
+        String datname = null;
+        if (Sessions.exists("sessaoCliente")) {
+            datname = Sessions.getString("sessaoCliente");
+            if (datname.equals("ComercioRP")) {
+                datname = "Sindical";
+            }
+            if (listDataBase.isEmpty()) {
+                if (!Sessions.getString("sessaoCliente").equals("Rtools")) {
+                    queryString += " AND PSA.datname = '" + datname + "'";
+                }
+            } else {
+                if (dataBase != null && !dataBase.isEmpty()) {
+                    if(dataBase.equals("ComercioRP")) {
+                        queryString += " AND PSA.datname = 'Sindical'";
+                    } else {
+                        queryString += " AND PSA.datname = '" + dataBase + "'";                        
+                    }
+                }
+            }
+            if (state != null && !state.isEmpty()) {
+                queryString += " AND PSA.state = '" + state + "'";
+            }
+        }
+        queryString += "   ORDER BY PSA.datname ASC, PSA.application_name \n";
+
+        try {
+            ps = conn.prepareStatement(queryString);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                list.add(new PgStatActivity(
+                        rs.getObject("datid"),
+                        rs.getObject("datname"),
+                        rs.getObject("pid"),
+                        rs.getObject("usesysid"),
+                        rs.getObject("usename"),
+                        rs.getObject("application_name"),
+                        rs.getObject("client_addr"),
+                        rs.getObject("client_hostname"),
+                        rs.getObject("client_port"),
+                        rs.getObject("backend_start"),
+                        rs.getObject("xact_start"),
+                        rs.getObject("query_start"),
+                        rs.getObject("state_change"),
+                        rs.getObject("waiting"),
+                        rs.getObject("state"),
+                        rs.getObject("query")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            return list;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+        }
+//        try {
+//
+//            String datname = null;
+//            if (Sessions.exists("sessaoCliente")) {
+//                datname = Sessions.getString("sessaoCliente");
+//                if (datname.equals("ComercioRP")) {
+//                    datname = "Sindical";
+//                }
+//                if (listDataBase.isEmpty()) {
+//                    if (!Sessions.getString("sessaoCliente").equals("Rtools")) {
+//                        queryString += " AND PSA.datname = '" + datname + "'";
+//                    }
+//                } else {
+//                    if (dataBase != null && !dataBase.isEmpty()) {
+//                        queryString += " AND PSA.datname = '" + dataBase + "'";
+//                    }
+//                }
+//                if (state != null && !state.isEmpty()) {
+//                    queryString += " AND PSA.state = '" + state + "'";
+//                }
+//            }
+//            queryString += "   ORDER BY PSA.datname ASC, PSA.application_name \n";
+//            Query qry = db.getEntityManager().createNativeQuery(queryString);
+//            List list = qry.getResultList();
+//            if (!list.isEmpty()) {
+//                return list;
+//            }
+//        } catch (Exception e) {
+//            return new ArrayList();
+//        }
+        return list;
     }
 
     public void pgTerminateBackend(Object pid) {
@@ -370,7 +477,7 @@ public class PgStatActivityBean implements Serializable {
         Integer count = 0;
         String aux = "";
         for (int i = 0; i < listPgStatActivity.size(); i++) {
-            if(tcase.equals("clients")) {
+            if (tcase.equals("clients")) {
                 if (listPgStatActivity.get(i).getDatname() != null && !listPgStatActivity.get(i).getDatname().equals(aux)) {
                     aux = listPgStatActivity.get(i).getDatname().toString();
                     count++;
@@ -383,7 +490,7 @@ public class PgStatActivityBean implements Serializable {
         }
         return count;
     }
-    
+
     public Boolean getAlert(String tcase) {
         Integer count = 0;
         for (int i = 0; i < listPgStatActivity.size(); i++) {
@@ -393,7 +500,5 @@ public class PgStatActivityBean implements Serializable {
         }
         return false;
     }
-    
-    
 
 }

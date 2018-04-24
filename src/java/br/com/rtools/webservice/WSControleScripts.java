@@ -1,11 +1,7 @@
 package br.com.rtools.webservice;
 
-import br.com.rtools.sistema.BackupPostgres;
-import br.com.rtools.sistema.Configuracao;
-import br.com.rtools.sistema.ControleScripts;
-import br.com.rtools.sistema.TipoControleScripts;
 import br.com.rtools.sistema.dao.ConfiguracaoDao;
-import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.sistema.dao.ControleScriptsDao;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -19,54 +15,47 @@ import javax.servlet.http.HttpServletRequest;
 @RequestScoped
 @ViewScoped
 public class WSControleScripts implements Serializable {
-    
+
     public WSControleScripts() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        GenericaSessao.put("sessaoCliente", "Rtools");
+        // HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        // GenericaSessao.put("sessaoCliente", "Rtools");
     }
-    
+
     public void storeDataBaseServer() {
         try {
             String database_server = GenericaRequisicao.getParametro("database_server");
-            if(database_server == null || database_server.isEmpty()) {
+            if (database_server == null || database_server.isEmpty()) {
                 return;
             }
-            // String device = GenericaRequisicao.getParametro("device");
-            // String type = GenericaRequisicao.getParametro("type");
-            // String mac = GenericaRequisicao.getParametro("mac");
             String mac = GenericaRequisicao.getParametro("mac");
+            if (mac == null) {
+                mac = "";
+            }
             String erro = GenericaRequisicao.getParametro("erro");
             String tamanho = GenericaRequisicao.getParametro("tamanho");
             String server = GenericaRequisicao.getParametro("server");
-            String backup_postgres_id = GenericaRequisicao.getParametro("backup_postgres_id");
-            ControleScripts controleScripts = new ControleScripts();            
-            controleScripts.setDescricao(database_server);
-            Configuracao c = new ConfiguracaoDao().find(database_server);
-            if (c != null) {
-                controleScripts.setConfiguracao(c);
-            }
-            if (mac != null && !mac.isEmpty()) {
-                controleScripts.setMac(mac);
-            }
-            if (erro != null && !erro.isEmpty()) {
-                controleScripts.setErro(true);
-            }
-            if (tamanho != null && !tamanho.isEmpty()) {
-                controleScripts.setTamanho(Integer.parseInt(tamanho) / 1024);
-            }
-            if (server != null && !server.isEmpty()) {
-                controleScripts.setServidor(server);
-            }
-            if (backup_postgres_id != null && !backup_postgres_id.isEmpty()) {
-                controleScripts.setBackupPostgres((BackupPostgres) new Dao().find(new BackupPostgres(), Integer.parseInt(backup_postgres_id)));
-                controleScripts.setControleScripts((TipoControleScripts) new Dao().find(new TipoControleScripts(), 2));
+            String bpid = GenericaRequisicao.getParametro("backup_postgres_id");
+            Integer c = null;
+            Integer tipo_controle_scripts_id = null;
+            Integer backup_postgres_id = null;
+            Integer configuracao_id = new ConfiguracaoDao().findConfiguracaoId(database_server);
+            if (backup_postgres_id != null && !bpid.isEmpty()) {
+                backup_postgres_id = Integer.parseInt(bpid);
+                tipo_controle_scripts_id = 2;
             } else {
-                controleScripts.setControleScripts((TipoControleScripts) new Dao().find(new TipoControleScripts(), 1));
+                tipo_controle_scripts_id = 1;
             }
-            new Dao().save(controleScripts, true);
+
+            if (tamanho == null || tamanho.isEmpty()) {
+                tamanho = "0";
+            }
+            if (backup_postgres_id == null || bpid.isEmpty()) {
+                backup_postgres_id = null;
+            }
+            new ControleScriptsDao().store(mac, Integer.parseInt(tamanho), (erro != null && !erro.isEmpty()), database_server, server, tipo_controle_scripts_id, backup_postgres_id, configuracao_id);
         } catch (Exception e) {
-            
+
         }
     }
-    
+
 }

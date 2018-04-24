@@ -52,9 +52,11 @@ public class CampeonatoEquipeBean implements Serializable {
     private Fisica fisicaDependente;
     private List<SelectItem> listPatentesco;
     private Integer idPatentesco;
+    private Boolean ativas;
 
     @PostConstruct
     public void init() {
+        ativas = true;
         editMembrosEquipe = false;
         campeonatoEquipeDelete = null;
         editDependentes = false;
@@ -67,8 +69,8 @@ public class CampeonatoEquipeBean implements Serializable {
         listEquipes = new ArrayList();
         fisicaDependente = new Fisica();
         loadListCampeonatos();
-        loadListEquipes();
         loadListCampeonatoEquipes();
+        loadListEquipes();
     }
 
     @PreDestroy
@@ -120,8 +122,11 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public void loadListMatriculaCampeonato(Integer campeonato_equipe_id) {
+        if(campeonato_equipe_id == null) {
+            campeonato_equipe_id = campeonatoEquipe.getId();
+        }
         listMatriculaCampeonato = new ArrayList();
-        listMatriculaCampeonato = new MatriculaCampeonatoDao().findByCampeonatoEquipe(campeonato_equipe_id);
+        listMatriculaCampeonato = new MatriculaCampeonatoDao().findByCampeonatoEquipe(campeonato_equipe_id, ativas);
     }
 
     public void loadListCampeonatoDependentens(Integer matricula_campeonato_id) {
@@ -156,15 +161,15 @@ public class CampeonatoEquipeBean implements Serializable {
             }
             GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
             dao.commit();
-            editMembrosEquipe = true;
+            edit(campeonatoEquipe);
         } else {
-            if (!dao.update(campeonatoEquipe)) {
-                GenericaMensagem.warn("Erro", "AO ATUALIZAR REGISTRO!");
-                dao.rollback();
-                return;
-            }
-            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
-            dao.commit();
+//            if (!dao.update(campeonatoEquipe)) {
+//                GenericaMensagem.warn("Erro", "AO ATUALIZAR REGISTRO!");
+//                dao.rollback();
+//                return;
+//            }
+//            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
+//            dao.commit();
         }
         loadListCampeonatoEquipes();
     }
@@ -183,7 +188,7 @@ public class CampeonatoEquipeBean implements Serializable {
         if (campeonatoEquipeDelete.getId() != null) {
             campeonatoEquipeDelete = (CampeonatoEquipe) dao.find(campeonatoEquipeDelete);
             if (!dao.delete(campeonatoEquipeDelete)) {
-                GenericaMensagem.warn("Erro", "AO REMOVER CARAVANA");
+                GenericaMensagem.warn("Validação", "EQUIPE DO CAMPEONATO TEM COM MATRICULAS INATIVADAS NÃO PODEM SER EXCLUÍDAS!!!");
                 dao.rollback();
                 return;
             }
@@ -191,10 +196,11 @@ public class CampeonatoEquipeBean implements Serializable {
             campeonatoEquipeDelete = null;
             GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
         } else {
-            GenericaMensagem.warn("Erro", "PESQUISE UMA CARAVANA!");
+            GenericaMensagem.warn("Erro", "PESQUISE UMA EQUIPE!");
             dao.rollback();
         }
         loadListCampeonatoEquipes();
+        loadListEquipes();
     }
 
     public void clear() {
@@ -202,6 +208,7 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public String edit(CampeonatoEquipe ce) {
+        ativas = true;
         campeonatoEquipe = (CampeonatoEquipe) new Dao().rebind(ce);
         idCampeonato = ce.getCampeonato().getId();
         idEquipe = ce.getEquipe().getId();
@@ -456,7 +463,7 @@ public class CampeonatoEquipeBean implements Serializable {
         }
         dao.commit();
         GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
-        loadListMatriculaCampeonato(campeonatoEquipe.getId());
+        loadListMatriculaCampeonato(cep.getCampeonatoEquipe().getId());
 
     }
 
@@ -701,6 +708,14 @@ public class CampeonatoEquipeBean implements Serializable {
 
     public void setCampeonatoEquipeDelete(CampeonatoEquipe campeonatoEquipeDelete) {
         this.campeonatoEquipeDelete = campeonatoEquipeDelete;
+    }
+
+    public Boolean getAtivas() {
+        return ativas;
+    }
+
+    public void setAtivas(Boolean ativas) {
+        this.ativas = ativas;
     }
 
 }

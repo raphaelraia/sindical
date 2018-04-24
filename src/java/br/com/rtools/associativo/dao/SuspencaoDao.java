@@ -51,4 +51,18 @@ public class SuspencaoDao extends DB {
             return new ArrayList();
         }
     }
+
+    public Suspencao exists(Integer pessoa_id) {
+        try {
+            String queryString = ""
+                    + "     SELECT S.*                                          \n"
+                    + "       FROM soc_suspencao S                              \n"
+                    + "      WHERE s.id_pessoa = " + pessoa_id + "              \n"
+                    + "        AND current_date BETWEEN S.dt_inicial AND S.dt_final ";
+            Query query = getEntityManager().createNativeQuery(queryString, Suspencao.class);
+            return (Suspencao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

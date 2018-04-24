@@ -65,7 +65,7 @@
                                     #{campeonatoEquipe.equipe.descricao}
                                 </p:column> 
                                 <p:column width="30">
-                                    <p:commandButton icon="ui-icon-eraser" action="#{campeonatoEquipeBean.delete(campeonatoEquipe)}" title="Remover registro nº#{campeonatoEquipe.id}" onclick="PF('dlg_save').hide()" />
+                                    <p:commandButton icon="ui-icon-trash" action="#{campeonatoEquipeBean.delete(campeonatoEquipe)}" title="Remover registro nº#{campeonatoEquipe.id}" onclick="PF('dlg_delete').show()" />
                                 </p:column>                                 
                             </p:dataTable>
 
@@ -88,7 +88,7 @@
                                 </f:facet>
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_membros_equipe" header="MEMBROS DA EQUIPE" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editMembrosEquipe}" closeOnEscape="true">
+                            <p:dialog widgetVar="dlg_membros_equipe" header="MEMBROS DA EQUIPE"  modal="true" visible="#{campeonatoEquipeBean.editMembrosEquipe}" closeOnEscape="true" maximizable="true" minWidth="800" responsive="true" >
                                 <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.listener('membros_equipe')}"/>
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                                 <h:panelGroup id="i_m_e">
@@ -116,7 +116,12 @@
                                         </f:facet>
                                     </p:panel>
 
-                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="7" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
+                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
+                                        <f:facet name="header">
+                                            <p:selectBooleanCheckbox value="#{campeonatoEquipeBean.ativas}" itemLabel="MATRÍCULA ATIVAS" styleClass="bold font-color-red">
+                                                <p:ajax event="change" update="@this :form_campeonato_equipe:i_m_e" listener="#{campeonatoEquipeBean.loadListMatriculaCampeonato(null)}"/>
+                                            </p:selectBooleanCheckbox>
+                                        </f:facet>
                                         <p:column headerText="Membro">
                                             #{matriculaCampeonato.servicoPessoa.pessoa.nome}
                                         </p:column>                                     
@@ -136,7 +141,7 @@
                                             <p:commandButton value="#{(matriculaCampeonato.listCampeonatoDependente eq null ? 0 : matriculaCampeonato.listCampeonatoDependente.size())}" action="#{campeonatoEquipeBean.defineDependente(matriculaCampeonato)}" update=":form_campeonato_equipe:" icon="ui-icon-pencil" rendered="#{matriculaCampeonato.servicoPessoa.pessoa.socios.id == -1}" />
                                         </p:column>
                                         <p:column width="30">
-                                            <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(matriculaCampeonato)}" title="Remover registro nº#{matriculaCampeonato.id}" update=":form_campeonato_equipe:"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(matriculaCampeonato)}" title="Remover registro nº#{matriculaCampeonato.id}" update=":form_campeonato_equipe:" rendered="#{campeonatoEquipeBean.ativas}"/>
                                         </p:column>
                                         <f:facet name="footer">
                                             <h:panelGrid style="margin-top: 25px;" columns="2" styleClass="sbb">

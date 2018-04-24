@@ -1,9 +1,14 @@
 package br.com.rtools.sistema.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.principal.DBExternal;
 import br.com.rtools.sistema.Configuracao;
 import br.com.rtools.sistema.Resolucao;
 import br.com.rtools.utilitarios.dao.FindDao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -130,13 +135,73 @@ public class ConfiguracaoDao extends DB {
         }
         return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, where);
     }
-    
-        public List<Configuracao> listAllActives() {
+
+    public List<Configuracao> listAllActives() {
         try {
             Query query = getEntityManager().createQuery(" SELECT C FROM Configuracao AS C WHERE C.ativo = true ORDER BY C.identifica ASC");
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
+        }
+    }
+
+    /**
+     * Base da Rtools
+     *
+     * @param identifica
+     * @return
+     */
+    public Integer findConfiguracaoId(String identifica) {
+        DBExternal dbe = new DBExternal();
+        dbe.setApplicationName(" find " + identifica);
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+        try {
+            conn = dbe.getConnection();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        String queryString = "   "
+                + " -- auth client \n\n         "
+                + " SELECT *                    "
+                + "   FROM sis_configuracao     "
+                + "  WHERE ds_identifica =     '" + identifica + "'"
+                + "  LIMIT 1                    ";
+
+        try {
+            ps = conn.prepareStatement(queryString);
+            rs = ps.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+
+            return rs.getInt("id");
+        } catch (SQLException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            return null;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 package br.com.rtools.principal;
 
+import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.sistema.conf.DataBase;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Sessions;
 import java.sql.Connection;
@@ -115,5 +117,45 @@ public class DBExternal {
 
     public void setApplicationName(String ApplicationName) {
         this.ApplicationName = ApplicationName;
+    }
+
+    public void configure(String database) {
+        DataBase base = new DataBase();
+        DB db = new DB();
+        Configuracao c = db.servidor(database);
+        base.loadJson(database);
+        Integer p = 5432;
+        String pass = c.getSenha();
+        String host = c.getHost();
+        String persistence = c.getPersistence();
+        if(database.equals("ComercioRP")) {
+            persistence = "Sindical";
+        }
+        if (pass.isEmpty()) {
+            pass = "";
+        }
+        if (!base.getHost().isEmpty()) {
+            host = base.getHost();
+        }
+        if (base.getPort() != null && base.getPort() != 0) {
+            p = base.getPort();
+        }
+        if (!base.getDatabase().isEmpty()) {
+            c.setPersistence(base.getDatabase());
+        }
+        if (!base.getPassword().isEmpty()) {
+            pass = base.getPassword();
+        }
+
+        String u = base.getUser();
+        if (u.isEmpty()) {
+            u = "postgres";
+        }
+
+        setDatabase(persistence);
+        setPort(p + "");
+        setUrl(host);
+        setUser(u);
+        setPassword(pass);
     }
 }
