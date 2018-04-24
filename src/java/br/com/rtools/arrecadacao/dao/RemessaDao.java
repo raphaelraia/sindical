@@ -152,6 +152,7 @@ public class RemessaDao extends DB {
                 + " WHERE b.dt_cobranca_registrada IS NOT NULL \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
                 + "   AND b.id_status_retorno = 2 \n "
+                + "   AND b.nr_ctr_boleto <> '' AND b.nr_ctr_boleto IS NOT NULL AND b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE nr_ctr_boleto <> '' AND nr_ctr_boleto IS NOT NULL) \n "
                 + "   AND (CURRENT_DATE >= b.dt_vencimento + cc.nr_registros_dias_vencidos) \n"
                 + AND;
         try {
