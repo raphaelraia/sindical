@@ -363,9 +363,8 @@ public class ConviteMovimentoBean implements Serializable {
             }
         }
 
-        SuspencaoDao s_dao = new SuspencaoDao();
-        Suspencao susp = s_dao.pesquisaSuspensao(conviteMovimento.getPessoa());
         if (conviteMovimento.isCortesia()) {
+            Suspencao susp = new SuspencaoDao().exists(conviteMovimento.getPessoa().getId());
             if (susp != null) {
                 GenericaMensagem.fatal("ATENÇÃO", "SÓCIO COM SUSPENSÃO CADASTRADA!");
                 GenericaMensagem.warn("MOTIVO", susp.getMotivo());
@@ -1279,7 +1278,7 @@ public class ConviteMovimentoBean implements Serializable {
                         fTipoDocumento,
                         0, new MatriculaSocios()
                 );
-                
+
                 // ATUALIZAR VARIÁVEL MATRICULA SÓCIO ( SENÃO TENTA GRAVAR NO BANCO -1 CANSANDO ERRO )
                 movimento.getMatriculaSocios();
                 if (dao.save(movimento)) {

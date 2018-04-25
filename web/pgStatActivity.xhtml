@@ -36,7 +36,7 @@
                                 <h:panelGrid columns="10" cellspacing="10">
                                     <p:outputLabel value="Refresh (seconds): " />
                                     <p:selectOneMenu value="#{pgStatActivityBean.interval}">
-                                        <p:ajax event="change" update="@this :form_pg_stat_activity:" global="false"/>
+                                        <p:ajax event="change"  global="false" update="@this form_pg_stat_activity:"  listener="#{pgStatActivityBean.loadListPgStatActivity}"/>/>
                                         <f:selectItem itemValue=""      itemLabel="Pause"/>
                                         <f:selectItem itemValue="5"     itemLabel="5 s"/>
                                         <f:selectItem itemValue="10"    itemLabel="10 s"/>                                        
@@ -48,18 +48,18 @@
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Datname: " rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
                                     <p:selectOneMenu value="#{pgStatActivityBean.dataBase}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
-                                        <p:ajax event="change" update="@this" global="false"/>
-                                        <f:selectItem itemLabel="All" itemValue=""/>
+                                        <p:ajax event="change" global="false" update="@this form_pg_stat_activity:id_pg_stat_activity"  listener="#{pgStatActivityBean.loadListPgStatActivity}"/>/>
+                                        <f:selectItem itemLabel="All (My Connection)" itemValue=""/>
                                         <f:selectItems value="#{pgStatActivityBean.listDataBase}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="State: " />
-                                    <p:selectOneMenu value="#{pgStatActivityBean.state}">
-                                        <p:ajax event="change" update="@this" global="false"/>
+                                    <p:selectOneMenu value="#{pgStatActivityBean.state}" >
+                                        <p:ajax event="change" update="@this form_pg_stat_activity:id_pg_stat_activity" global="false" listener="#{pgStatActivityBean.loadListPgStatActivity}"/>
                                         <f:selectItem itemLabel="All" itemValue=""/>
                                         <f:selectItem itemLabel="idle" itemValue="idle"/>
                                         <f:selectItem itemLabel="active" itemValue="active"/>
                                         <f:selectItem itemLabel="idle in transaction" itemValue="idle in transaction"/>
-                                        <f:selectItem itemLabel="idle in transaction (aborted)" itemValue="idle in transaction  (aborted)"/>
+                                        <f:selectItem itemLabel="idle in transaction (aborted)" itemValue="idle in transaction (aborted)"/>
                                     </p:selectOneMenu>
                                     <p:commandButton value="Atualizar" action="#{pgStatActivityBean.loadListPgStatActivity}" update=":form_pg_stat_activity:id_pg_stat_activity" />
                                 </h:panelGrid>
