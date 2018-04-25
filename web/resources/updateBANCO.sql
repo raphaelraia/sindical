@@ -1,89 +1,52 @@
+update fin_boleto set dt_vencimento=x.dt_vencimento 
+from 
+( 
+select mb.id_boleto as id_boleto,max(m.dt_vencimento) as dt_vencimento from fin_movimento_boleto as mb 
+inner join fin_boleto as b on b.id=mb.id_boleto 
+inner join fin_movimento as m on m.id=mb.id_movimento 
+where b.dt_vencimento is null 
+group by mb.id_boleto 
+) as x 
+where fin_boleto.id=x.id_boleto and fin_boleto.dt_vencimento is null; 
 
 
--- RODAR EM COMERCIO LIMEIRA ------------------------------------------
---------------------------------------------------------------------------------
-
-CREATE OR REPLACE VIEW arr_contribuintes_vw AS 
- SELECT p.id AS id_pessoa, j.id AS id_juridica, j.id_contabilidade, p.ds_nome, 
-    p.ds_documento, ccid.id_convencao, ccid.id_grupo_cidade, co.ds_descricao, 
-    gc.ds_descricao AS ds_grupo_cidade, i.dt_inativacao, 
-    mt.ds_descricao AS motivo, mt.id AS id_motivo, j.id_cnae, c.ds_cnae AS cnae, 
-    c.ds_numero 
-   FROM pes_pessoa p 
-   JOIN pes_juridica j ON j.id_pessoa = p.id 
-   JOIN pes_cnae c ON c.id = j.id_cnae 
-   JOIN pes_pessoa_endereco pe ON j.id_pessoa = pe.id_pessoa AND pe.id_tipo_endereco = 5 
-   JOIN end_endereco e ON pe.id_endereco = e.id 
-   JOIN arr_cnae_convencao cc ON cc.id_cnae = j.id_cnae 
-   JOIN arr_grupo_cidades gcs ON gcs.id_cidade = e.id_cidade 
-   JOIN arr_convencao_cidade ccid ON ccid.id_grupo_cidade = gcs.id_grupo_cidade AND ccid.id_convencao = cc.id_convencao 
-   JOIN arr_convencao co ON co.id = ccid.id_convencao 
-   JOIN arr_grupo_cidade gc ON gc.id = ccid.id_grupo_cidade 
-   LEFT JOIN arr_contribuintes_inativos i ON i.id_juridica = j.id AND i.dt_ativacao IS NULL 
-   LEFT JOIN arr_motivo_inativacao mt ON mt.id = i.id_motivo_inativacao 
-
-group by 
- p.id, j.id, j.id_contabilidade, p.ds_nome, 
-    p.ds_documento, ccid.id_convencao, ccid.id_grupo_cidade, co.ds_descricao, 
-    gc.ds_descricao, i.dt_inativacao, 
-    mt.ds_descricao, mt.id, j.id_cnae, c.ds_cnae, 
-    c.ds_numero; 
-
-ALTER TABLE arr_contribuintes_vw 
-  OWNER TO postgres; 
-
--- ATENÇÃO ------------------------------------------------
--- JOGAR REPIS.jasper, REPIS_AUXILIAR.jasper EM SINCOVAGASP
+update fin_boleto set dt_vencimento=x.dt_vencimento 
+from 
+( 
+select b.id as id_boleto,max(m.dt_vencimento) as dt_vencimento from fin_boleto as b 
+inner join fin_movimento as m on m.nr_ctr_boleto<>'' and m.nr_ctr_boleto=b.nr_ctr_boleto 
+left join fin_movimento_boleto as mb on mb.id_movimento = m.id and mb.id_boleto=b.id 
+where mb.id is null and b.dt_vencimento is null 
+group by b.id 
+) as x 
+where fin_boleto.id=x.id_boleto and fin_boleto.dt_vencimento is null; 
 
 
-CREATE TABLE public.arr_certidao_disponivel_mensagem
-(
-    id serial NOT NULL,
-    ds_observacao character varying(8000) COLLATE pg_catalog."default",
-    id_convencao_periodo integer NOT NULL,
-    id_certidao_disponivel integer NOT NULL,
-    CONSTRAINT arr_certidao_disponivel_mensagem_pkey PRIMARY KEY (id),
-    CONSTRAINT fk_arr_certidao_disponivel_mensagem_id_certidao_disponivel FOREIGN KEY (id_certidao_disponivel)
-        REFERENCES public.arr_certidao_disponivel (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT fk_arr_certidao_disponivel_mensagem_id_convencao_periodo FOREIGN KEY (id_convencao_periodo)
-        REFERENCES public.arr_convencao_periodo (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
+------------------------------------------------------------------------------------------------------------ 
+------------------------------------------------------------------------------------------------------------ 
+------------------------------------------------------------------------------------------------------------ 
 
-ALTER TABLE public.arr_certidao_disponivel_mensagem
-    OWNER to postgres;
+--- executar este trecho até zerar, pq se executar sem o limit vai travar 
+
+update fin_boleto set dt_vencimento_original=dt_vencimento where id in 
+( 
+select id from fin_boleto 
+where dt_vencimento_original is null and dt_vencimento is not null 
+limit 50000 
+) 
+
+------------------------------------------------------------------------------------------------------------ 
+------------------------------------------------------------------------------------------------------------ 
+------------------------------------------------------------------------------------------------------------ 
 
 
--- RODAR EM COMERCIO LIMEIRA ---------------------------------------------------
---------------------------------------------------------------------------------
+update fin_boleto set dt_vencimento=dt_vencimento_original where dt_vencimento is null and dt_vencimento_original is not null 
 
-ALTER TABLE fin_conta_cobranca ADD COLUMN pe_multa double precision DEFAULT 0;
+update fin_boleto set dt_vencimento='01/01/1900',dt_vencimento_original='01/01/1900' where dt_vencimento is null; 
+  
 
+------------------------------------------------------------------------------------------------------------ 
 
-ALTER TABLE fin_conta_cobranca ADD COLUMN pe_juros_mensal double precision DEFAULT 0;
+alter table fin_boleto alter column dt_vencimento set not null; 
 
-ALTER TABLE conf_social ADD COLUMN id_status_cobranca integer default 1;
-ALTER TABLE conf_social
-    ADD CONSTRAINT fk_conf_social_id_status_cobranca FOREIGN KEY (id_status_cobranca)
-    REFERENCES pes_status_cobranca (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-UPDATE pes_pessoa_complemento SET id_status_cobranca = 1 
- WHERE id_status_cobranca IS NULL 
-   AND id_pessoa NOT IN (SELECT id_pessoa FROM pes_fisica);
-
-UPDATE pes_pessoa_complemento SET id_status_cobranca = 1 
- WHERE is_cobranca_email = false 
-   AND id_pessoa NOT IN (SELECT id_pessoa FROM pes_juridica);
-   
-UPDATE pes_pessoa_complemento SET id_status_cobranca = 2 
- WHERE is_cobranca_email = true
-   AND id_pessoa NOT IN (SELECT id_pessoa FROM pes_juridica);
+alter table fin_boleto alter column dt_vencimento_original set not null; 
