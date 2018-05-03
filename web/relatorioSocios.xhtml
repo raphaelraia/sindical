@@ -35,9 +35,10 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
-                    <ui:include src="templates/templateStatus.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>                    
                 </f:subview>
                 <f:view>
+                    <ui:include src="templates/tplRunningProcess.xhtml"/>
                     <h:form id="form_relatorio_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
                         <p:dialog widgetVar="dlg_upload" modal="true" width="500" height="400" header="Anexar arquivos" closable="true">
                             <p:fileUpload label="Procurar"
@@ -719,7 +720,7 @@
                     </p:panel>
 
                     <h:form id="form_relatorio_email">
-                        <p:dialog widgetVar="dlg_send_email" modal="true" width="1000" height="600" header="Enviar Email" closable="true" visible="#{relatorioSociosBean.modal}">
+                        <p:dialog widgetVar="dlg_send_email" modal="true" width="1000" height="600" header="Enviar Email" closable="false" visible="#{relatorioSociosBean.modal}">
                             <p:ajax event="close" listener="#{relatorioSociosBean.closeSendMail}" update=":form_relatorio: :form_relatorio_email:" />
                             <h:panelGroup  id="i_anexos" layout="block">
                                 <p:messages showDetail="true" showSummary="true" autoUpdate="true" />

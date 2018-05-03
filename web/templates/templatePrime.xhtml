@@ -76,7 +76,7 @@
                     <p:selectBooleanCheckbox value="#{controleUsuarioBean.habilitaDebugQuery}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" itemLabel="Debug Query" title="Se houver configuração no Bean" styleClass="margin-left-max">
                         <p:ajax update="@this :header:form_debug_query" />
                     </p:selectBooleanCheckbox>
-                    <h:panelGrid style="float: right" columns="2">
+                    <h:panelGrid style="float: right" columns="3">
                         <p:menuButton value="Opções" >
                             <p:menuitem value="Meu Perfil" action="#{chamadaPaginaBean.usuarioPerfil}" />
                             <p:menuitem value="Resolução" onclick="PF('dlg_resolucao').show()"/>
@@ -84,13 +84,15 @@
                             <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
                             <p:menuitem value="Rotinas Vínculadas" action="#{rotinaBean.loadShowRotinas}" onclick="PF('dlg_show_rotinas').show()" update=":header:form_show_rotinas:i_list_show_rotinas" />
                             <p:menuitem value="Relação de Erros" onclick="PF('dlg_show_erros').show()" update=":header:form_show_erros:i_list_show_erros" />
-                            <p:menuitem value="Emails" icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(-1)}"/>
+                            <p:menuitem value="Emails" icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(-1)}"/>                            
                             <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
                             <p:separator />
                             <p:menuitem value="Sair" action="#{usuarioBean.sairSistema}" icon="ui-icon-extlink"/>
                         </p:menuButton>
                         <p:commandButton actionListener="#{segurancaUtilitariosBean.enableWebCam}" action="#{chamadaPaginaBean.currentPage}" styleClass="margin-left-max" icon="photocam" style="#{segurancaUtilitariosBean.macFilial.webcam ? 'background: #00ff00' : 'background: #cccccc'};" title="#{segurancaUtilitariosBean.macFilial.webcam ? 'Webcam Ativa' : 'Webcam Desabilitada'}" />
-
+                        <p:commandLink title="Sobre esta rotina" action="#{rotinaBean.wiki}">
+                            <span class="ui-icon ui-icon-info"></span>
+                        </p:commandLink>
                     </h:panelGrid>
                 </h:column>
                 <h:column rendered="false">
@@ -186,6 +188,13 @@
                 </f:facet>
             </p:dialog>
         </h:form>
+        <p:dialog widgetVar="dlg_wiki_rotina" header="Sobre esta rotina" resizable="false" modal="true" responsive="true" width="800" position="top">
+            <h:form id="form_wiki_rotina">
+                <h:panelGroup layout="block" id="i_list_wiki_rotina">
+                    <h:outputText value="#{rotinaBean.funcionamento}" escape="false" />
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
         <h:form id="form_report_bug">
             <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
                 <p:messages id="i_message" showDetail="true" showSummary="true" closable="true" />

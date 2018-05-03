@@ -33,19 +33,17 @@ public class SisProcessoBean implements Serializable {
     private String indexAccordion;
     private String porPesquisa;
     private String descPesquisa;
+    private Boolean media;
 
     @PostConstruct
     public void init() {
+        media = false;
         filtro = new Boolean[5];
-        filtro[0] = false;
+        filtro[0] = true;
         filtro[1] = false;
         filtro[2] = false;
         filtro[3] = false;
         filtro[4] = false;
-        filtro[0] = false;
-        filtro[1] = false;
-        filtro[2] = false;
-        filtro[3] = false;
         listProcessos = new ArrayList<>();
         listSelectItem = new ArrayList[1];
         listSelectItem[0] = new ArrayList<>();
@@ -61,6 +59,7 @@ public class SisProcessoBean implements Serializable {
         indexAccordion = "Avançado";
         porPesquisa = "";
         descPesquisa = "";
+        loadProcessos();
     }
 
     @PreDestroy
@@ -218,10 +217,14 @@ public class SisProcessoBean implements Serializable {
         if (filtro[4]) {
 
         }
-        List list = new SisProcessoDao().find(dtInicial, dtFinal, hrInicial, hrFinal, idR, descPesquisa);
+        List list = new SisProcessoDao().find(dtInicial, dtFinal, hrInicial, hrFinal, idR, null, null, descPesquisa, media);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            listProcessos.add(new Processos(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8)));
+            if (media) {
+                listProcessos.add(new Processos(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8)));
+            } else {
+                listProcessos.add(new Processos(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9)));
+            }
         }
     }
 
@@ -275,17 +278,41 @@ public class SisProcessoBean implements Serializable {
         this.hora = hora;
     }
 
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public Boolean getMedia() {
+        return media;
+    }
+
+    public void setMedia(Boolean media) {
+        this.media = media;
+    }
+
     public class Processos {
 
         private Object rotina_id;
         private Object rotina_descricao;
         private Object detalhes;
         private Object tempo_min;
+        private Object tempo;
+        private Object tempo_query;
         private Object tempo_med;
         private Object tempo_max;
         private Object tempo_query_min;
         private Object tempo_query_med;
         private Object tempo_query_max;
+        private Object relatorio_descricao;
+        private Object usuario_nome;
+        private Object data;
+        private Object finalizado;
+        private Object abortado;
+        private Object pid;
 
         public Processos(Object rotina_id, Object rotina_descricao, Object detalhes, Object tempo_min, Object tempo_med, Object tempo_max, Object tempo_query_min, Object tempo_query_med, Object tempo_query_max) {
             this.rotina_id = rotina_id;
@@ -297,6 +324,19 @@ public class SisProcessoBean implements Serializable {
             this.tempo_query_min = tempo_query_min;
             this.tempo_query_med = tempo_query_med;
             this.tempo_query_max = tempo_query_max;
+        }
+
+        public Processos(Object rotina_descricao, Object detalhes, Object relatorio_descricao, Object usuario_nome, Object tempo, Object tempo_query, Object data, Object finalizado, Object abortado, Object pid) {
+            this.rotina_descricao = rotina_descricao;
+            this.detalhes = detalhes;
+            this.relatorio_descricao = relatorio_descricao;
+            this.usuario_nome = usuario_nome;
+            this.tempo = tempo;
+            this.tempo_query = tempo_query;
+            this.data = data;
+            this.finalizado = finalizado;
+            this.abortado = abortado;
+            this.pid = pid;
         }
 
         public Object getRotina_id() {
@@ -371,6 +411,70 @@ public class SisProcessoBean implements Serializable {
             this.tempo_query_max = tempo_query_max;
         }
 
+        public Object getTempo() {
+            return tempo;
+        }
+
+        public void setTempo(Object tempo) {
+            this.tempo = tempo;
+        }
+
+        public Object getTempo_query() {
+            return tempo_query;
+        }
+
+        public void setTempo_query(Object tempo_query) {
+            this.tempo_query = tempo_query;
+        }
+
+        public Object getRelatorio_descricao() {
+            return relatorio_descricao;
+        }
+
+        public void setRelatorio_descricao(Object relatorio_descricao) {
+            this.relatorio_descricao = relatorio_descricao;
+        }
+
+        public Object getUsuario_nome() {
+            return usuario_nome;
+        }
+
+        public void setUsuario_nome(Object usuario_nome) {
+            this.usuario_nome = usuario_nome;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+
+        public Object getFinalizado() {
+            return finalizado;
+        }
+
+        public void setFinalizado(Object finalizado) {
+            this.finalizado = finalizado;
+        }
+
+        public Object getAbortado() {
+            return abortado;
+        }
+
+        public void setAbortado(Object abortado) {
+            this.abortado = abortado;
+        }
+
+        public Object getPid() {
+            return pid;
+        }
+
+        public void setPid(Object pid) {
+            this.pid = pid;
+        }
+
     }
 
     public Object tempoMedio() {
@@ -380,4 +484,5 @@ public class SisProcessoBean implements Serializable {
             return 0;
         }
     }
+
 }

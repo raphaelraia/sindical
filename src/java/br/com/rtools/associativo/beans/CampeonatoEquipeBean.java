@@ -8,12 +8,17 @@ import br.com.rtools.associativo.dao.EquipeDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.dao.EventoServicoValorDao;
 import br.com.rtools.associativo.dao.ParentescoDao;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
+import br.com.rtools.associativo.utils.SocioCarteirinhaUtils;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.TipoDocumento;
+import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -53,6 +58,8 @@ public class CampeonatoEquipeBean implements Serializable {
     private List<SelectItem> listPatentesco;
     private Integer idPatentesco;
     private Boolean ativas;
+    private String motivoInativacao;
+    private String motivoInativacaoDependente;
 
     @PostConstruct
     public void init() {
@@ -71,6 +78,8 @@ public class CampeonatoEquipeBean implements Serializable {
         loadListCampeonatos();
         loadListCampeonatoEquipes();
         loadListEquipes();
+        motivoInativacao = "";
+        motivoInativacaoDependente = "";
     }
 
     @PreDestroy
@@ -122,7 +131,7 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public void loadListMatriculaCampeonato(Integer campeonato_equipe_id) {
-        if(campeonato_equipe_id == null) {
+        if (campeonato_equipe_id == null) {
             campeonato_equipe_id = campeonatoEquipe.getId();
         }
         listMatriculaCampeonato = new ArrayList();
@@ -188,7 +197,7 @@ public class CampeonatoEquipeBean implements Serializable {
         if (campeonatoEquipeDelete.getId() != null) {
             campeonatoEquipeDelete = (CampeonatoEquipe) dao.find(campeonatoEquipeDelete);
             if (!dao.delete(campeonatoEquipeDelete)) {
-                GenericaMensagem.warn("Validação", "EQUIPE DO CAMPEONATO TEM COM MATRICULAS INATIVADAS NÃO PODEM SER EXCLUÍDAS!!!");
+                GenericaMensagem.warn("Validação", "EQUIPE COM MATRICULAS INATIVAS NÃO PODEM SER EXCLUÍDAS!!!");
                 dao.rollback();
                 return;
             }
@@ -208,6 +217,8 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public String edit(CampeonatoEquipe ce) {
+        motivoInativacao = "";
+        motivoInativacaoDependente = "";
         ativas = true;
         campeonatoEquipe = (CampeonatoEquipe) new Dao().rebind(ce);
         idCampeonato = ce.getCampeonato().getId();
@@ -223,13 +234,15 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public void addMembroEquipe() {
+        motivoInativacao = "";
         if (membroEquipe == null) {
             GenericaMensagem.warn("Validação", "PESQUISAR PESSOA!");
             return;
         }
+        Socios socio = membroEquipe.getSocios();
         Categoria c = null;
-        if (membroEquipe.getSocios().getId() != -1) {
-            c = membroEquipe.getSocios().getMatriculaSocios().getCategoria();
+        if (socio.getId() != -1) {
+            c = socio.getMatriculaSocios().getCategoria();
         }
         EventoServico eventoServico;
         ServicoPessoa sp = new ServicoPessoa();
@@ -279,6 +292,16 @@ public class CampeonatoEquipeBean implements Serializable {
         }
         Dao dao = new Dao();
         dao.openTransaction();
+
+        if (socio.getId() == -1) {
+            SocioCarteirinhaUtils scu = new SocioCarteirinhaUtils();
+            scu.setPessoa(membroEquipe);
+            // 5 ANOS
+            scu.setValidadeMeses(5 * 12);
+            if (!scu.storeDefault(dao)) {
+                return;
+            }
+        }
         sp.setServicos(eventoServico.getServicos());
         sp.setNrDiaVencimento(membroEquipe.getPessoaComplemento().getNrDiaVencimento());
         sp.setCobranca(membroEquipe);
@@ -290,7 +313,7 @@ public class CampeonatoEquipeBean implements Serializable {
         sp.setReferenciaValidade(DataHoje.converteDataParaReferencia(campeonatoEquipe.getCampeonato().getFim()));
         sp.setTipoDocumento((FTipoDocumento) dao.find(new TipoDocumento(), 13));
         sp.setDescontoSocial((DescontoSocial) dao.find(new DescontoSocial(), 1));
-        sp.setPeriodoCobranca((Periodo) dao.find(new Periodo(), 13));
+        sp.setPeriodoCobranca((Periodo) dao.find(new Periodo(), 3));
         sp.setParceiro(null);
         if (!dao.save(sp)) {
             dao.rollback();
@@ -327,6 +350,19 @@ public class CampeonatoEquipeBean implements Serializable {
             return;
         }
         dao.commit();
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("matr_campeonato");
+        novoLog.setCodigo(cep.getId());
+        novoLog.save(
+                "Campeonato Novo Membro - ID: " + cep.getId()
+                + " - Titular: " + cep.getServicoPessoa().getPessoa().getNome()
+                + " - Campeonato ID: " + cep.getCampeonato().getId()
+                + " - " + cep.getCampeonato().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                + " - " + cep.getCampeonato().getEvento().getDescricaoEvento().getDescricao()
+                + " - " + cep.getCampeonato().getTituloComplemento()
+                + " - " + cep.getCampeonato().getModalidade().getDescricao()
+                + " - Campeonato Equipe ID: " + cep.getCampeonatoEquipe().getId() + " - " + cep.getCampeonatoEquipe().getEquipe().getDescricao()
+        );
         membroEquipe = null;
         fisicaDependente = new Fisica();
         GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
@@ -334,6 +370,7 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public void addDependente() {
+        motivoInativacaoDependente = "";
         if (fisicaDependente == null || fisicaDependente.getId() == -1) {
             GenericaMensagem.warn("Validação", "PESQUISAR PESSOA!");
             return;
@@ -391,8 +428,16 @@ public class CampeonatoEquipeBean implements Serializable {
                 sp.setNrValorFixo(0);
             }
         }
+
         Dao dao = new Dao();
         dao.openTransaction();
+        SocioCarteirinhaUtils scu = new SocioCarteirinhaUtils();
+        scu.setPessoa(fisicaDependente.getPessoa());
+        // 5 ANOS
+        scu.setValidadeMeses(5 * 12);
+        if (!scu.storeDefault(dao)) {
+            return;
+        }
         sp.setServicos(eventoServico.getServicos());
         sp.setNrDiaVencimento(pc.getNrDiaVencimento());
         sp.setCobranca(cadastrarDependente.getServicoPessoa().getPessoa());
@@ -404,7 +449,7 @@ public class CampeonatoEquipeBean implements Serializable {
         sp.setReferenciaValidade(DataHoje.converteDataParaReferencia(cadastrarDependente.getCampeonato().getFim()));
         sp.setTipoDocumento((FTipoDocumento) dao.find(new TipoDocumento(), 13));
         sp.setDescontoSocial((DescontoSocial) dao.find(new DescontoSocial(), 1));
-        sp.setPeriodoCobranca((Periodo) dao.find(new Periodo(), 13));
+        sp.setPeriodoCobranca((Periodo) dao.find(new Periodo(), 3));
         sp.setParceiro(null);
         if (!dao.save(sp)) {
             dao.rollback();
@@ -431,13 +476,28 @@ public class CampeonatoEquipeBean implements Serializable {
         fisicaDependente = new Fisica();
         loadListCampeonatoDependentens(cadastrarDependente.getId());
         GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("eve_campeonato_dependente");
+        novoLog.setCodigo(cd.getId());
+        novoLog.delete(
+                "Campeonato Novo Dependente - ID: " + cd.getId()
+                + " - Dependente: " + cd.getServicoPessoa().getPessoa().getNome()
+                + " - Parentesco: " + cd.getParentesco().getParentesco()
+                + " - Titular: " + cd.getMatriculaCampeonato().getServicoPessoa().getPessoa().getNome()
+                + " - Campeonato ID: " + cd.getMatriculaCampeonato().getCampeonato().getId()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getEvento().getDescricaoEvento().getDescricao()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getTituloComplemento()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getModalidade().getDescricao()
+                + " - Campeonato Equipe ID: " + cd.getMatriculaCampeonato().getCampeonatoEquipe().getId() + " - " + cd.getMatriculaCampeonato().getCampeonatoEquipe().getEquipe().getDescricao()
+        );
     }
 
     public void deleteMembroEquipe(MatriculaCampeonato cep) {
         Dao dao = new Dao();
         dao.openTransaction();
         cep.getServicoPessoa().setAtivo(false);
-        cep.getServicoPessoa().setInativacao("SISTEMA");
+        cep.getServicoPessoa().setMotivoInativacao("INATIVADO PELO OPERADOR: " + Usuario.getUsuario().getPessoa().getNome());
         cep.getServicoPessoa().setDtInativacao(new Date());
         if (!dao.update(cep.getServicoPessoa())) {
             dao.rollback();
@@ -462,6 +522,20 @@ public class CampeonatoEquipeBean implements Serializable {
             }
         }
         dao.commit();
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("matr_campeonato");
+        novoLog.setCodigo(cep.getId());
+        novoLog.delete(
+                "Campeonato Membro Inativação - ID: " + cep.getId()
+                + " - Titular: " + cep.getServicoPessoa().getPessoa().getNome()
+                + " - Campeonato ID: " + cep.getCampeonato().getId()
+                + " - " + cep.getCampeonato().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                + " - " + cep.getCampeonato().getEvento().getDescricaoEvento().getDescricao()
+                + " - " + cep.getCampeonato().getTituloComplemento()
+                + " - " + cep.getCampeonato().getModalidade().getDescricao()
+                + " - Campeonato Equipe ID: " + cep.getCampeonatoEquipe().getId() + " - " + cep.getCampeonatoEquipe().getEquipe().getDescricao()
+        );
+        motivoInativacao = "";
         GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
         loadListMatriculaCampeonato(cep.getCampeonatoEquipe().getId());
 
@@ -471,7 +545,10 @@ public class CampeonatoEquipeBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
         cd.getServicoPessoa().setAtivo(false);
-        cd.getServicoPessoa().setInativacao("SISTEMA");
+        if (motivoInativacaoDependente.isEmpty()) {
+            motivoInativacaoDependente = "INATIVADO PELO OPERADOR";
+        }
+        cd.getServicoPessoa().setMotivoInativacao("INATIVADO PELO OPERADOR: " + Usuario.getUsuario().getPessoa().getNome());
         cd.getServicoPessoa().setDtInativacao(new Date());
         if (!dao.update(cd.getServicoPessoa())) {
             dao.rollback();
@@ -486,6 +563,21 @@ public class CampeonatoEquipeBean implements Serializable {
         }
         dao.commit();
         GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("eve_campeonato_dependente");
+        novoLog.setCodigo(cd.getId());
+        novoLog.delete(
+                "Campeonato Dependente Inativação - ID: " + cd.getId()
+                + " - Dependente: " + cd.getServicoPessoa().getPessoa().getNome()
+                + " - Parentesco: " + cd.getParentesco().getParentesco()
+                + " - Titular: " + cd.getMatriculaCampeonato().getServicoPessoa().getPessoa().getNome()
+                + " - Campeonato ID: " + cd.getMatriculaCampeonato().getCampeonato().getId()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getEvento().getDescricaoEvento().getDescricao()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getTituloComplemento()
+                + " - " + cd.getMatriculaCampeonato().getCampeonato().getModalidade().getDescricao()
+                + " - Campeonato Equipe ID: " + cd.getMatriculaCampeonato().getCampeonatoEquipe().getId() + " - " + cd.getMatriculaCampeonato().getCampeonatoEquipe().getEquipe().getDescricao()
+        );
         cadastrarDependente.setListCampeonatoDependente(null);
         loadListCampeonatoDependentens(cadastrarDependente.getId());
     }
@@ -716,6 +808,22 @@ public class CampeonatoEquipeBean implements Serializable {
 
     public void setAtivas(Boolean ativas) {
         this.ativas = ativas;
+    }
+
+    public String getMotivoInativacao() {
+        return motivoInativacao;
+    }
+
+    public void setMotivoInativacao(String motivoInativacao) {
+        this.motivoInativacao = motivoInativacao;
+    }
+
+    public String getMotivoInativacaoDependente() {
+        return motivoInativacaoDependente;
+    }
+
+    public void setMotivoInativacaoDependente(String motivoInativacaoDependente) {
+        this.motivoInativacaoDependente = motivoInativacaoDependente;
     }
 
 }

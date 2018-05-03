@@ -6,10 +6,15 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DateFilters;
 import br.com.rtools.utilitarios.Debugs;
+import br.com.rtools.utilitarios.Queries;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import oracle.toplink.essentials.config.TopLinkQueryHints;
 import oracle.toplink.essentials.exceptions.EJBQLException;
+import oracle.toplink.essentials.internal.weaving.TopLinkWeaver;
+import oracle.toplink.essentials.sessions.Session;
 
 public class RelatorioSociosDao extends DB {
 
@@ -174,90 +179,90 @@ public class RelatorioSociosDao extends DB {
                 + "           '' AS sincidade,                                  \n" // 9
                 + "           '' AS sinuF,                                      \n" // 10
                 + "           '' AS sindocumento,                               \n" // 11
-                + "           p.codigo,                                         \n" // 12
-                + "           p.cadastro,                                       \n" // 13
-                + "           p.nome,                                           \n" // 14
-                + "           p.cpf,                                            \n" // 15
-                + "           p.telefone,                                       \n" // 16
-                + "           p.ds_uf_emissao_rg,                               \n" // 17
-                + "           p.estado_civil,                                   \n" // 18
-                + "           p.ctps,                                           \n" // 19
-                + "           p.pai,                                            \n" // 20
-                + "           p.sexo,                                           \n" // 21
-                + "           p.mae,                                            \n" // 22
-                + "           p.nacionalidade,                                  \n" // 23
-                + "           p.nit,                                            \n" // 24
-                + "           p.ds_orgao_emissao_rg,                            \n" // 25
-                + "           p.ds_pis,                                         \n" // 26
-                + "           p.ds_serie,                                       \n" // 27
-                + "           p.dt_aposentadoria,                               \n" // 28
-                + "           p.ds_naturalidade,                                \n" // 29
-                + "           p.recadastro,                                     \n" // 30
-                + "           p.dt_nascimento,                                  \n" // 31
-                + "           p.ds_foto,                                        \n" // 32
-                + "           p.ds_rg,                                          \n" // 33
-                + "           p.foto,                                           \n" // 34
-                + "           pt.logradouro,                                    \n" // 35
-                + "           pt.endereco,                                      \n" // 36
-                + "           pt.numero,                                        \n" // 37
-                + "           pt.complemento,                                   \n" // 38
-                + "           pt.bairro,                                        \n" // 39
-                + "           pt.cidade,                                        \n" // 40
-                + "           pt.uf,                                            \n" // 41
-                + "           pt.cep,                                           \n" // 42
-                + "           p.setor,                                          \n" // 43
-                + "           p.admissao,                                       \n" // 44
-                + "           p.profissao,                                      \n" // 45
-                + "           p.fantasia,                                       \n" // 46
-                + "           p.empresa,                                        \n" // 47
-                + "           p.cnpj,                                           \n" // 48
-                + "           p.e_telefone,                                     \n" // 49
-                + "           p.e_logradouro,                                   \n" // 50
-                + "           p.e_endereco,                                     \n" // 51
-                + "           p.e_numero,                                       \n" // 52
-                + "           p.e_complemento,                                  \n" // 53
-                + "           p.e_bairro,                                       \n" // 54
-                + "           p.e_cidade,                                       \n" // 55
-                + "           p.e_uf,                                           \n" // 56
-                + "           p.e_cep,                                          \n" // 57
-                + "           titular,                                          \n" // 58
-                + "           so.codsocio,                                      \n" // 59
-                + "           pt.nome as titular,                               \n" // 60
-                + "           so.parentesco,                                    \n" // 61
-                + "           so.matricula,                                     \n" // 62
-                + "           so.categoria,                                     \n" // 63
-                + "           so.grupo_categoria,                               \n" // 64
-                + "           so.filiacao,                                      \n" // 65
-                + "           so.inativacao,                                    \n" // 66
-                + "           so.votante,                                       \n" // 67
-                + "           so.grau,                                          \n" // 68
-                + "           so.nr_desconto,                                   \n" // 69
-                + "           so.desconto_folha,                                \n" // 70
-                + "           so.tipo_cobranca,                                 \n" // 71
-                + "           so.cod_tipo_cobranca,                             \n" // 72
-                + "           p.telefone2,                                      \n" // 73
-                + "           p.telefone3,                                      \n" // 74           
-                + "           p.email,                                          \n" // 75
-                + "           PC.ds_nome,                                       \n" // 76
-                + "           PJC.ds_contato,                                   \n" // 77
-                + "           PC.ds_telefone1                                   \n" // 78
-                + "           " + p_demissao + ",                                   \n "
-                + "           func_idade(p.dt_nascimento,CURRENT_DATE) AS idade,\n" // 83
-                + "           SS.ds_motivo      AS suspencao_motivo,            \n" // 84
-                + "           SS.dt_inicial     AS suspencao_inicial,           \n" // 85
-                + "           SS.dt_final       AS suspencao_final              \n" // 86
-                + "      FROM pes_pessoa_vw      AS p                           \n "
-                + " LEFT JOIN soc_socios_vw      AS so   ON so.codsocio     = p.codigo              \n "
-                + " LEFT JOIN pes_pessoa_vw      AS pt   ON pt.codigo       = so.titular            \n "
-                + " LEFT JOIN demitidos_vw       AS dm   ON dm.id_pessoa = p.codigo                 \n "
-                + " LEFT JOIN soc_suspencao      AS SS   ON SS.id_pessoa = p.codigo \n              \n ";
+                + "           P.codigo,                                         \n" // 12
+                + "           P.cadastro,                                       \n" // 13
+                + "           P.nome,                                           \n" // 14
+                + "           P.cpf,                                            \n" // 15
+                + "           P.telefone,                                       \n" // 16
+                + "           P.ds_uf_emissao_rg,                               \n" // 17
+                + "           P.estado_civil,                                   \n" // 18
+                + "           P.ctps,                                           \n" // 19
+                + "           P.pai,                                            \n" // 20
+                + "           P.sexo,                                           \n" // 21
+                + "           P.mae,                                            \n" // 22
+                + "           P.nacionalidade,                                  \n" // 23
+                + "           P.nit,                                            \n" // 24
+                + "           P.ds_orgao_emissao_rg,                            \n" // 25
+                + "           P.ds_pis,                                         \n" // 26
+                + "           P.ds_serie,                                       \n" // 27
+                + "           P.dt_aposentadoria,                               \n" // 28
+                + "           P.ds_naturalidade,                                \n" // 29
+                + "           P.recadastro,                                     \n" // 30
+                + "           P.dt_nascimento,                                  \n" // 31
+                + "           P.ds_foto,                                        \n" // 32
+                + "           P.ds_rg,                                          \n" // 33
+                + "           P.foto,                                           \n" // 34
+                + "           P.t_logradouro,                                   \n" // 35
+                + "           P.t_endereco,                                     \n" // 36
+                + "           P.t_numero,                                       \n" // 37
+                + "           P.t_complemento,                                  \n" // 38
+                + "           P.t_bairro,                                       \n" // 39
+                + "           P.t_cidade,                                       \n" // 40
+                + "           P.t_uf,                                           \n" // 41
+                + "           P.t_cep,                                          \n" // 42
+                + "           P.setor,                                          \n" // 43
+                + "           P.admissao,                                       \n" // 44
+                + "           P.profissao,                                      \n" // 45
+                + "           P.fantasia,                                       \n" // 46
+                + "           P.empresa,                                        \n" // 47
+                + "           P.cnpj,                                           \n" // 48
+                + "           P.e_telefone,                                     \n" // 49
+                + "           P.e_logradouro,                                   \n" // 50
+                + "           P.e_endereco,                                     \n" // 51
+                + "           P.e_numero,                                       \n" // 52
+                + "           P.e_complemento,                                  \n" // 53
+                + "           P.e_bairro,                                       \n" // 54
+                + "           P.e_cidade,                                       \n" // 55
+                + "           P.e_uf,                                           \n" // 56
+                + "           P.e_cep,                                          \n" // 57
+                + "           P.id_titular,                                     \n" // 58
+                + "           P.codigo AS codsocio,                             \n" // 59
+                + "           P.titular,                                        \n" // 60
+                + "           P.parentesco,                                     \n" // 61
+                + "           P.matricula,                                      \n" // 62
+                + "           P.categoria,                                      \n" // 63
+                + "           P.grupo_categoria,                                \n" // 64
+                + "           P.filiacao,                                       \n" // 65
+                + "           P.inativacao,                                     \n" // 66
+                + "           P.votante,                                        \n" // 67
+                + "           P.grau,                                           \n" // 68
+                + "           P.nr_desconto,                                    \n" // 69
+                + "           P.desconto_folha,                                 \n" // 70
+                + "           P.tipo_cobranca,                                  \n" // 71
+                + "           P.cod_tipo_cobranca,                              \n" // 72
+                + "           P.telefone2,                                      \n" // 73
+                + "           P.telefone3,                                      \n" // 74           
+                + "           P.email,                                          \n" // 75
+                + "           P.contabil_nome,                                  \n" // 76
+                + "           P.contabil_contato,                               \n" // 77
+                + "           P.contabil_telefone                               \n" // 78
+                + "           " + p_demissao + ",                               \n "
+                + "           func_idade(P.dt_nascimento,CURRENT_DATE) AS idade,\n" // 83
+                + "           P.suspencao_motivo,                               \n" // 84
+                + "           P.suspencao_inicial,                              \n" // 85
+                + "           P.suspencao_final                                 \n" // 86
+                + "      FROM pessoa_vw          AS p                           \n "
+                // + " LEFT JOIN soc_socios_vw      AS so   ON so.codsocio     = p.codigo              \n "
+                // + " LEFT JOIN pes_pessoa_vw      AS pt   ON pt.codigo       = so.titular            \n "
+                + " LEFT JOIN demitidos_vw       AS dm   ON dm.id_pessoa = p.codigo                 \n ";
+        // + " LEFT JOIN soc_suspencao      AS SS   ON SS.id_pessoa = p.codigo \n              \n ";
         if (status.equals("nao_socio")) {
-            queryString += " LEFT JOIN pes_juridica AS J ON J.id = P.e_id AND J.id IN(SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n ";
+            // queryString += " LEFT JOIN pes_juridica AS J ON J.id = P.e_id AND J.id IN(SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n ";
         } else {
-            queryString += " LEFT JOIN pes_juridica AS J ON J.id = P.e_id \n ";
+            // queryString += " LEFT JOIN pes_juridica AS J ON J.id = P.e_id \n ";
         }
-        queryString += " LEFT JOIN pes_juridica       AS PJC  ON PJC.id          = J.id_contabilidade    \n "
-                + " LEFT JOIN pes_pessoa         AS PC   ON PC.id           = PJC.id_pessoa         \n ";
+//        queryString += " LEFT JOIN pes_juridica       AS PJC  ON PJC.id          = J.id_contabilidade    \n "
+//                + " LEFT JOIN pes_pessoa         AS PC   ON PC.id           = PJC.id_pessoa         \n ";
 
         if (demissao != null) {
             queryString += " INNER JOIN (                                           \n"
@@ -305,33 +310,33 @@ public class RelatorioSociosDao extends DB {
 
         if (relatorios.getId() != 13) {
             if (status.equals("nao_socio")) {
-                listWhere.add("((so.inativacao IS NOT NULL AND so.matricula IS NULL) OR (so.matricula IS NULL))");
+                listWhere.add("((p.inativacao IS NOT NULL AND p.matricula IS NULL) OR (p.matricula IS NULL))");
             } else if (status.equals("socio")) {
-                listWhere.add("so.inativacao IS NULL AND so.matricula IS NOT NULL");
+                // listWhere.add("p.inativacao IS NULL AND p.matricula IS NOT NULL");
             }
         }
         // MATRICULA -----------------
 
         if (status.equals("socio")) {
             if ((matricula_inicial != null && !matricula_inicial.isEmpty() && Integer.parseInt(matricula_inicial) > 0) && (matricula_final != null && !matricula_final.isEmpty() && Integer.parseInt(matricula_final) > 0)) {
-                listWhere.add("so.matricula BETWEEN " + matricula_inicial + " AND " + matricula_final);
+                listWhere.add("p.matricula BETWEEN " + matricula_inicial + " AND " + matricula_final);
             } else {
-                listWhere.add("so.matricula BETWEEN 0 AND 9999999");
+                listWhere.add("p.matricula BETWEEN 0 AND 9999999");
             }
         } else if (status.equals("nao_socio")) {
-            listWhere.add("so.matricula IS NULL");
+            listWhere.add("P.matricula IS NULL");
         }
 
         if (suspencao != null && !suspencao.isEmpty()) {
             switch (suspencao) {
                 case "com":
-                    listWhere.add("CURRENT_DATE BETWEEN SS.dt_inicial AND SS.dt_final");
+                    listWhere.add("CURRENT_DATE BETWEEN P.suspencao_inicial AND P.suspencao_final");
                     break;
                 case "foram_suspensos":
-                    listWhere.add("NOT CURRENT_DATE BETWEEN SS.dt_inicial AND SS.dt_final");
+                    listWhere.add("NOT CURRENT_DATE BETWEEN P.suspencao_inicial AND P.suspencao_final");
                     break;
                 case "sem":
-                    listWhere.add("p.codigo NOT IN (SELECT id_pessoa FROM soc_suspencao WHERE CURRENT_DATE BETWEEN dt_inicial AND dt_final )");
+                    listWhere.add("P.codigo NOT IN (SELECT id_pessoa FROM soc_suspencao WHERE CURRENT_DATE BETWEEN dt_inicial AND dt_final )");
                     break;
                 default:
                     break;
@@ -361,65 +366,65 @@ public class RelatorioSociosDao extends DB {
         //filtro += relatorio.getQry(); 
         // IDADE ---------------------
         if ((idade_inicial != null && !idade_inicial.isEmpty() && Integer.parseInt(idade_inicial) > 0) && (idade_final != null && !idade_final.isEmpty() && Integer.parseInt(idade_final) > 0)) {
-            listWhere.add("extract(year FROM age(p.dt_nascimento)) >= " + idade_inicial + " AND extract(year FROM age(p.dt_nascimento)) <= " + idade_final + "");
+            listWhere.add("extract(year FROM age(P.dt_nascimento)) >= " + idade_inicial + " AND extract(year FROM age(P.dt_nascimento)) <= " + idade_final + "");
         }
 
         // GRUPO CATEGORIA -----------
         if (in_grupo_categoria != null && !in_grupo_categoria.isEmpty()) {
-            listWhere.add("so.id_grupo_categoria IN(" + in_grupo_categoria + ")");
+            listWhere.add("P.id_grupo_categoria IN(" + in_grupo_categoria + ")");
         }
 
         if (in_categoria != null && !in_categoria.isEmpty()) {
-            listWhere.add("so.id_categoria IN(" + in_categoria + ")");
+            listWhere.add("P.id_categoria IN(" + in_categoria + ")");
         }
         if (in_socios != null && !in_socios.isEmpty()) {
-            listWhere.add("p.codigo IN(" + in_socios + ")");
+            listWhere.add("P.codigo IN(" + in_socios + ")");
         }
 
         // SEXO ----------------------
         if (!sexo.isEmpty()) {
-            listWhere.add("p.sexo = '" + sexo + "'");
+            listWhere.add("P.sexo = '" + sexo + "'");
         }
 
         // PARENTESCO ----------------
         if (in_parentesco != null && !in_parentesco.isEmpty()) {
             if (relatorios.getId() != 13) {
                 if (status.equals("socio")) {
-                    listWhere.add("so.id_parentesco IN(" + in_parentesco + ")");
+                    listWhere.add("P.id_parentesco IN(" + in_parentesco + ")");
                 } else if (status.equals("nao_socio")) {
-                    listWhere.add("so.id_parentesco IS NULL");
+                    listWhere.add("P.id_parentesco IS NULL");
                 }
             }
         }
         // TIPO DE COBRANÇA  ---------
         if (in_tipo_cobranca != null && !in_tipo_cobranca.isEmpty()) {
-            listWhere.add("so.cod_tipo_cobranca IN(" + in_tipo_cobranca + ")");
+            listWhere.add("P.cod_tipo_cobranca IN(" + in_tipo_cobranca + ")");
         }
         // CIDADES SÓCIO  ------------------
         if (in_cidade_socio != null && !in_cidade_socio.isEmpty()) {
-            listWhere.add("pt.id_cidade IN(" + in_cidade_socio + ")");
+            listWhere.add("P.t_id_cidade IN(" + in_cidade_socio + ")");
         }
         // CIDADES EMPRESA -----------
         if (in_cidade_empresa != null && !in_cidade_empresa.isEmpty()) {
-            listWhere.add("p.e_id_cidade IN(" + in_cidade_empresa + ")");
+            listWhere.add("P.e_id_cidade IN(" + in_cidade_empresa + ")");
         }
         // DESCONTO SOCIAL  ----------
 
         if (in_desconto_social != null && !in_desconto_social.isEmpty()) {
-            listWhere.add("so.id_desconto IN ( " + in_desconto_social + " ) ");
+            listWhere.add("P.id_desconto IN ( " + in_desconto_social + " ) ");
         }
 
         // DESCONTO NENHUM
         if (descontoSocialNenhum && descontoSocialPadrao) {
-            listWhere.add("((so.nr_desconto = 0) OR (so.nr_desconto > 0 AND so.id_desconto = 1))");
+            listWhere.add("((P.nr_desconto = 0) OR (P.nr_desconto > 0 AND P.id_desconto = 1))");
         } else {
             if (descontoSocialNenhum) {
-                listWhere.add("so.nr_desconto = 0 ");
+                listWhere.add("P.nr_desconto = 0");
             }
 
             // DESCONTO PADRÃO
             if (descontoSocialPadrao) {
-                listWhere.add("so.nr_desconto > 0 AND so.id_desconto = 1");
+                listWhere.add("P.nr_desconto > 0 AND P.id_desconto = 1");
             }
         }
 
@@ -427,7 +432,7 @@ public class RelatorioSociosDao extends DB {
          * TIPOS
          */
         if (foto.equals("com")) {
-            listWhere.add(" p.ds_foto <> ''");
+            listWhere.add(" P.ds_foto <> ''");
 
             String subquery = "";
             if (in_alfabeto != null && !in_alfabeto.isEmpty()) {
@@ -445,12 +450,12 @@ public class RelatorioSociosDao extends DB {
             }
 
         } else if (foto.equals("sem")) {
-            listWhere.add(" p.ds_foto = ''");
+            listWhere.add(" P.ds_foto = ''");
         }
 
         if (carteirinha.equals("com")) {
             String subquery = " "
-                    + "so.codsocio IN (                              \n"
+                    + "P.codsocio IN (                              \n"
                     + "                 SELECT sc.id_pessoa          \n"
                     + "                   FROM soc_carteirinha AS SC \n";
             DateFilters validade_carteirinha = DateFilters.getDateFilters(listDateFilters, "validade_carteirinha");
@@ -480,28 +485,28 @@ public class RelatorioSociosDao extends DB {
 
             }
         } else if (carteirinha.equals("sem")) {
-            listWhere.add("so.codsocio NOT IN(SELECT sc.id_pessoa FROM soc_carteirinha AS sc GROUP BY sc.id_pessoa)");
+            listWhere.add("P.codsocio NOT IN(SELECT sc.id_pessoa FROM soc_carteirinha AS sc GROUP BY sc.id_pessoa)");
         }
 
         if (email.equals("com")) {
-            listWhere.add(" p.email <> ''");
+            listWhere.add("P.email <> ''");
         } else if (email.equals("sem")) {
-            listWhere.add(" p.email = ''");
+            listWhere.add("P.email = ''");
         }
 
         if (telefone.equals("com")) {
-            listWhere.add(" p.telefone <> ''");
+            listWhere.add("P.telefone <> ''");
         } else if (telefone.equals("sem")) {
-            listWhere.add(" p.telefone = ''");
+            listWhere.add("P.telefone = ''");
         }
 
         if (!votante.isEmpty()) {
             switch (votante) {
                 case "votante":
-                    listWhere.add("so.votante = true");
+                    listWhere.add("P.votante = true");
                     break;
                 default:
-                    listWhere.add("so.votante = false");
+                    listWhere.add("P.votante = false");
                     break;
             }
         }
@@ -534,7 +539,7 @@ public class RelatorioSociosDao extends DB {
                         default:
                             break;
                     }
-                    subQuery = " so.codsocio " + (frequencia.equals("nunca_utilizou") ? " NOT IN " : " IN ") + " (SELECT id_pessoa FROM soc_catraca_frequencia WHERE id_departamento = " + departamento_id + " ";
+                    subQuery = " P.codsocio " + (frequencia.equals("nunca_utilizou") ? " NOT IN " : " IN ") + " (SELECT id_pessoa FROM soc_catraca_frequencia WHERE id_departamento = " + departamento_id + " ";
                     switch (frequencia) {
                         case "ontem":
                             subQuery += " AND dt_acesso = (current_date - 1) ";
@@ -561,7 +566,7 @@ public class RelatorioSociosDao extends DB {
                     listWhere.add(subQuery);
                     break;
                 case "caravana":
-                    subQuery = " so.codsocio " + (frequencia.equals("nunca_utilizou") ? " NOT IN " : " IN ") + " ("
+                    subQuery = " P.codsocio " + (frequencia.equals("nunca_utilizou") ? " NOT IN " : " IN ") + " ("
                             + " SELECT CR.id_pessoa FROM car_reservas CR"
                             + " INNER JOIN car_venda CV ON CV.id = CR.id_caravana_venda"
                             + " INNER JOIN car_caravana CAR ON CAR.id = CV.id_caravana ";
@@ -606,23 +611,23 @@ public class RelatorioSociosDao extends DB {
                     ecString += ",'" + ec[i] + "'";
                 }
             }
-            listWhere.add("p.estado_civil IN (" + ecString + ")");
+            listWhere.add("P.estado_civil IN (" + ecString + ")");
         }
 
         if (biometria.equals("com")) {
-            listWhere.add(" p.codigo IN (SELECT id_pessoa FROM pes_biometria WHERE is_ativo = TRUE) ");
+            listWhere.add(" P.codigo IN (SELECT id_pessoa FROM pes_biometria WHERE is_ativo = TRUE) ");
         } else if (biometria.equals("sem")) {
-            listWhere.add(" p.codigo NOT IN (SELECT id_pessoa FROM pes_biometria WHERE is_ativo = TRUE) ");
+            listWhere.add(" P.codigo NOT IN (SELECT id_pessoa FROM pes_biometria WHERE is_ativo = TRUE) ");
         }
 
         if (desconto_folha.equals("com")) {
-            listWhere.add(" so.desconto_folha = true ");
+            listWhere.add(" P.desconto_folha = true ");
         } else if (desconto_folha.equals("sem")) {
-            listWhere.add(" so.desconto_folha = false ");
+            listWhere.add(" P.desconto_folha = false ");
         }
 
         if (!in_aniversario.isEmpty()) {
-            String subfiltro = " p.codigo IN (SELECT id_pessoa FROM pes_fisica WHERE ";
+            String subfiltro = " P.codigo IN (SELECT id_pessoa FROM pes_fisica WHERE ";
             subfiltro += "     extract(month from dt_nascimento) IN (" + in_aniversario + ")" + " \n ";
 
             subfiltro += " AND extract(day from dt_nascimento) >= " + Integer.valueOf(dia_aniversario_inicial) + " \n "
@@ -638,24 +643,24 @@ public class RelatorioSociosDao extends DB {
                 if ((cadastro.getDtStart() != null && !cadastro.getStart().isEmpty()) || cadastro.getType().equals("com") || cadastro.getType().equals("sem")) {
                     switch (cadastro.getType()) {
                         case "igual":
-                            listWhere.add(" p.cadastro = '" + cadastro.getStart() + "'");
+                            listWhere.add(" P.cadastro = '" + cadastro.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" p.cadastro >= '" + cadastro.getStart() + "'");
+                            listWhere.add(" P.cadastro >= '" + cadastro.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" p.cadastro <= '" + cadastro.getStart() + "'");
+                            listWhere.add(" P.cadastro <= '" + cadastro.getStart() + "'");
                             break;
                         case "faixa":
                             if (!cadastro.getStart().isEmpty()) {
-                                listWhere.add(" p.cadastro BETWEEN '" + cadastro.getStart() + "' AND '" + cadastro.getFinish() + "'");
+                                listWhere.add(" P.cadastro BETWEEN '" + cadastro.getStart() + "' AND '" + cadastro.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" p.cadastro IS NOT NULL ");
+                            listWhere.add(" P.cadastro IS NOT NULL ");
                             break;
                         case "null":
-                            listWhere.add(" p.cadastro IS NULL ");
+                            listWhere.add(" P.cadastro IS NULL ");
                             break;
                         default:
                             break;
@@ -667,24 +672,24 @@ public class RelatorioSociosDao extends DB {
                 if ((recadastro.getDtStart() != null && !recadastro.getStart().isEmpty()) || recadastro.getType().equals("com") || recadastro.getType().equals("sem")) {
                     switch (recadastro.getType()) {
                         case "igual":
-                            listWhere.add(" p.recadastro = '" + recadastro.getStart() + "'");
+                            listWhere.add(" P.recadastro = '" + recadastro.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" p.recadastro >= '" + recadastro.getStart() + "'");
+                            listWhere.add(" P.recadastro >= '" + recadastro.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" p.recadastro <= '" + recadastro.getStart() + "'");
+                            listWhere.add(" P.recadastro <= '" + recadastro.getStart() + "'");
                             break;
                         case "faixa":
                             if (!recadastro.getFinish().isEmpty()) {
-                                listWhere.add(" p.recadastro BETWEEN '" + recadastro.getStart() + "' AND '" + recadastro.getFinish() + "'");
+                                listWhere.add(" P.recadastro BETWEEN '" + recadastro.getStart() + "' AND '" + recadastro.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" p.recadastro IS NOT NULL");
+                            listWhere.add(" P.recadastro IS NOT NULL");
                             break;
                         case "sem":
-                            listWhere.add(" p.recadastro IS NULL");
+                            listWhere.add(" P.recadastro IS NULL");
                             break;
                         default:
                             break;
@@ -696,24 +701,24 @@ public class RelatorioSociosDao extends DB {
                 if ((atualizacao.getDtStart() != null && !atualizacao.getStart().isEmpty()) || atualizacao.getType().equals("com") || atualizacao.getType().equals("sem")) {
                     switch (atualizacao.getType()) {
                         case "igual":
-                            listWhere.add(" p.dt_atualizacao = '" + atualizacao.getStart() + "'");
+                            listWhere.add(" P.dt_atualizacao = '" + atualizacao.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" p.dt_atualizacao >= '" + atualizacao.getStart() + "'");
+                            listWhere.add(" P.dt_atualizacao >= '" + atualizacao.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" p.dt_atualizacao <= '" + atualizacao.getStart() + "'");
+                            listWhere.add(" P.dt_atualizacao <= '" + atualizacao.getStart() + "'");
                             break;
                         case "faixa":
                             if (!atualizacao.getFinish().isEmpty()) {
-                                listWhere.add(" p.dt_atualizacao BETWEEN '" + atualizacao.getStart() + "' AND '" + atualizacao.getFinish() + "'");
+                                listWhere.add(" P.dt_atualizacao BETWEEN '" + atualizacao.getStart() + "' AND '" + atualizacao.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" p.dt_atualizacao IS NOT NULL");
+                            listWhere.add(" P.dt_atualizacao IS NOT NULL");
                             break;
                         case "sem":
-                            listWhere.add(" p.dt_atualizacao IS NULL");
+                            listWhere.add(" P.dt_atualizacao IS NULL");
                             break;
                         default:
                             break;
@@ -725,24 +730,24 @@ public class RelatorioSociosDao extends DB {
                 if ((filiacao.getDtStart() != null && !filiacao.getStart().isEmpty()) || filiacao.getType().equals("com") || filiacao.getType().equals("sem")) {
                     switch (filiacao.getType()) {
                         case "igual":
-                            listWhere.add(" so.filiacao = '" + filiacao.getStart() + "'");
+                            listWhere.add(" P.filiacao = '" + filiacao.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" so.filiacao >= '" + filiacao.getStart() + "'");
+                            listWhere.add(" P.filiacao >= '" + filiacao.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" so.filiacao <= '" + filiacao.getStart() + "'");
+                            listWhere.add(" P.filiacao <= '" + filiacao.getStart() + "'");
                             break;
                         case "faixa":
                             if (!filiacao.getFinish().isEmpty()) {
-                                listWhere.add(" so.filiacao BETWEEN '" + filiacao.getStart() + "' AND '" + filiacao.getFinish() + "'");
+                                listWhere.add(" P.filiacao BETWEEN '" + filiacao.getStart() + "' AND '" + filiacao.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" so.filiacao IS NOT NULL");
+                            listWhere.add(" P.filiacao IS NOT NULL");
                             break;
                         case "sem":
-                            listWhere.add(" so.filiacao IS NULL");
+                            listWhere.add(" P.filiacao IS NULL");
                             break;
                         default:
                             break;
@@ -754,24 +759,24 @@ public class RelatorioSociosDao extends DB {
                 if ((aposentadoria.getDtStart() != null && !aposentadoria.getStart().isEmpty()) || aposentadoria.getType().equals("com") || aposentadoria.getType().equals("sem")) {
                     switch (aposentadoria.getType()) {
                         case "igual":
-                            listWhere.add(" p.dt_aposentadoria = '" + aposentadoria.getStart() + "'");
+                            listWhere.add(" P.dt_aposentadoria = '" + aposentadoria.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" p.dt_aposentadoria >= '" + aposentadoria.getStart() + "'");
+                            listWhere.add(" P.dt_aposentadoria >= '" + aposentadoria.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" p.dt_aposentadoria <= '" + aposentadoria.getStart() + "'");
+                            listWhere.add(" P.dt_aposentadoria <= '" + aposentadoria.getStart() + "'");
                             break;
                         case "faixa":
                             if (!aposentadoria.getFinish().isEmpty()) {
-                                listWhere.add(" p.dt_aposentadoria BETWEEN '" + aposentadoria.getStart() + "' AND '" + aposentadoria.getFinish() + "'");
+                                listWhere.add(" P.dt_aposentadoria BETWEEN '" + aposentadoria.getStart() + "' AND '" + aposentadoria.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" p.dt_aposentadoria IS NOT NULL");
+                            listWhere.add(" P.dt_aposentadoria IS NOT NULL");
                             break;
                         case "sem":
-                            listWhere.add(" p.dt_aposentadoria IS NULL");
+                            listWhere.add(" P.dt_aposentadoria IS NULL");
                             break;
                         default:
                             break;
@@ -783,24 +788,24 @@ public class RelatorioSociosDao extends DB {
                 if ((admissao.getDtStart() != null && !admissao.getStart().isEmpty() || admissao.getType().equals("com") || admissao.getType().equals("sem"))) {
                     switch (admissao.getType()) {
                         case "igual":
-                            listWhere.add(" p.admissao = '" + admissao.getStart() + "'");
+                            listWhere.add(" P.admissao = '" + admissao.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" p.admissao >= '" + admissao.getStart() + "'");
+                            listWhere.add(" P.admissao >= '" + admissao.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" p.admissao <= '" + admissao.getStart() + "'");
+                            listWhere.add(" P.admissao <= '" + admissao.getStart() + "'");
                             break;
                         case "faixa":
                             if (!admissao.getFinish().isEmpty()) {
-                                listWhere.add(" p.admissao BETWEEN '" + admissao.getStart() + "' AND '" + admissao.getFinish() + "'");
+                                listWhere.add(" P.admissao BETWEEN '" + admissao.getStart() + "' AND '" + admissao.getFinish() + "'");
                             }
                             break;
                         case "com":
-                            listWhere.add(" p.admissao IS NOT NULL ");
+                            listWhere.add(" P.admissao IS NOT NULL ");
                             break;
                         case "sem":
-                            listWhere.add(" p.admissao IS NULL ");
+                            listWhere.add(" P.admissao IS NULL ");
                             break;
                         default:
                             break;
@@ -817,13 +822,13 @@ public class RelatorioSociosDao extends DB {
                 if (relatorios.getId() == 46) {
                     listWhere.add("dm.id_juridica IN (" + in_empresas + ")");
                 } else {
-                    listWhere.add("p.e_id IN (" + in_empresas + ")");
+                    listWhere.add("P.e_id IN (" + in_empresas + ")");
                 }
             } else if (empresa.equals("com")) {
                 if (relatorios.getId() == 46) {
                     listWhere.add("dm.empresa <> '' ");
                 } else {
-                    listWhere.add("p.empresa <> '' ");
+                    listWhere.add("P.empresa <> '' ");
                 }
                 // CNAES
                 if (!in_cnaes.isEmpty()) {
@@ -834,7 +839,7 @@ public class RelatorioSociosDao extends DB {
             }
             if (empresa.equals("com")) {
                 if (minQtdeFuncionario != null && maxQtdeFuncionario != null && (Integer.parseInt(minQtdeFuncionario) > 0 || Integer.parseInt(maxQtdeFuncionario) > 0)) {
-                    String subfiltro = " p.e_id IN (SELECT pempre.e_id "
+                    String subfiltro = " P.e_id IN (SELECT pempre.e_id "
                             + "         FROM soc_socios_vw socp  "
                             + " INNER JOIN pes_pessoa_vw pempre ON pempre.codigo = socp.codsocio    "
                             + " WHERE pempre.e_id > 0  "
@@ -859,13 +864,13 @@ public class RelatorioSociosDao extends DB {
             }
             switch (carencia) {
                 case "eleicao":
-                    listWhere.add("func_inadimplente_eleicao(so.codsocio, " + carencia_dias + ") = " + s);
+                    listWhere.add("func_inadimplente_eleicao(P.codsocio, " + carencia_dias + ") = " + s);
                     break;
                 case "clube":
-                    listWhere.add("func_inadimplente_clube(so.codsocio, " + carencia_dias + ") = " + s);
+                    listWhere.add("func_inadimplente_clube(P.codsocio, " + carencia_dias + ") = " + s);
                     break;
                 default:
-                    listWhere.add("func_inadimplente(so.codsocio, " + carencia_dias + ") = " + s + "");
+                    listWhere.add("func_inadimplente(P.codsocio, " + carencia_dias + ") = " + s + "");
                     break;
             }
         }
@@ -898,21 +903,21 @@ public class RelatorioSociosDao extends DB {
             subquery += " ) \n";
             listWhere.add(subquery);
         }
-        
+
         if (chk_validade_dependente != null) {
             if (chk_validade_dependente) {
-                listWhere.add(" (so.validade IS NULL OR so.validade = '')");
+                listWhere.add(" (P.validade IS NULL OR P.validade = '')");
             } else if (ref_validade_dependente_inicial != null && ref_validade_dependente_final == null) {
                 String r_ini = ref_validade_dependente_inicial.substring(3, 7) + ref_validade_dependente_inicial.substring(0, 2);
-                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) >= '" + r_ini + "'");
+                listWhere.add(" SUBSTRING(P.validade, 4, 8) || SUBSTRING(P.validade, 0, 3) >= '" + r_ini + "'");
             } else if (ref_validade_dependente_inicial == null && ref_validade_dependente_final != null) {
                 String r_fim = ref_validade_dependente_final.substring(3, 7) + ref_validade_dependente_final.substring(0, 2);
-                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) <= '" + r_fim + "'");
+                listWhere.add(" SUBSTRING(P.validade, 4, 8) || SUBSTRING(P.validade, 0, 3) <= '" + r_fim + "'");
             } else {
                 String r_ini = ref_validade_dependente_inicial.substring(3, 7) + ref_validade_dependente_inicial.substring(0, 2);
                 String r_fim = ref_validade_dependente_final.substring(3, 7) + ref_validade_dependente_final.substring(0, 2);
-                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) >= '" + r_ini + "'");
-                listWhere.add(" SUBSTRING(so.validade, 4, 8) || SUBSTRING(so.validade, 0, 3) <= '" + r_fim + "'");
+                listWhere.add(" SUBSTRING(P.validade, 4, 8) || SUBSTRING(P.validade, 0, 3) >= '" + r_ini + "'");
+                listWhere.add(" SUBSTRING(P.validade, 4, 8) || SUBSTRING(P.validade, 0, 3) <= '" + r_fim + "'");
             }
         }
 
@@ -939,10 +944,17 @@ public class RelatorioSociosDao extends DB {
             ordem = " ORDER BY " + ordem;
         }
         try {
-            queryString = queryString + ordem;
+//            Queries queries = new Queries();
+//            queries.select("P.id");
+//            queries.selectGroup("P.id", "codigo");
+//            queries.from("P.id");
+//            queries.join("P.id");
+//            String q = queries.createQuery();
+
+            queryString = Queries.get(queryString);
             Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
-             // query.setMaxResults(206);
+            // query.setMaxResults(206);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
@@ -1088,7 +1100,7 @@ public class RelatorioSociosDao extends DB {
 
         try {
             Debugs.put("habilitaDebugQuery", textQry);
-            Query qry = getEntityManager().createNativeQuery(textQry);        
+            Query qry = getEntityManager().createNativeQuery(textQry);
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

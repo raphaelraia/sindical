@@ -135,6 +135,8 @@ public class Registro implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_apaga_logs")
     private Date dataApagaLogs;
+    @Column(name = "ds_url_sistema_externo", length = 50)
+    private String urlSistemaExterno;
 
     public Registro() {
         this.id = -1;
@@ -192,7 +194,8 @@ public class Registro implements Serializable {
         this.dataAtualizaAgendamentos = null;
         this.sisNotificacao = true;
         this.sisHabilitaBloqueioCliente = true;
-        dataApagaLogs = null;
+        this.dataApagaLogs = null;
+        this.urlSistemaExterno = "";
     }
 
     public Registro(int id,
@@ -252,7 +255,8 @@ public class Registro implements Serializable {
             Date dataAtualizaAgendamentos,
             boolean sisNotificacao,
             boolean sisHabilitaBloqueioCliente,
-            Date dataApagaLogs) {
+            Date dataApagaLogs,
+            String urlSistemaExterno) {
         this.id = id;
         this.filial = filial;
         this.tipoEmpresa = tipoEmpresa;
@@ -307,6 +311,7 @@ public class Registro implements Serializable {
         this.dataAtualizaAgendamentos = dataAtualizaAgendamentos;
         this.sisNotificacao = sisNotificacao;
         this.dataApagaLogs = dataApagaLogs;
+        this.urlSistemaExterno = urlSistemaExterno;
     }
 
     public int getId() {
@@ -794,6 +799,14 @@ public class Registro implements Serializable {
 
     public void setDataApagaLogs(Date dataApagaLogs) {
         this.dataApagaLogs = dataApagaLogs;
+    }
+
+    public String getUrlSistemaExterno() {
+        return urlSistemaExterno;
+    }
+
+    public void setUrlSistemaExterno(String urlSistemaExterno) {
+        this.urlSistemaExterno = urlSistemaExterno;
     }
 
 }

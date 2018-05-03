@@ -1397,7 +1397,7 @@ public class SociosBean implements Serializable {
                 validadeCarteirinha = vc.getValidadeFixaString();
             }
 
-            SocioCarteirinha sc = new SocioCarteirinha(-1, "", servicoPessoa.getPessoa(), modeloc, null, 1, validadeCarteirinha, true);
+            SocioCarteirinha sc = new SocioCarteirinha(-1, "", servicoPessoa.getPessoa(), modeloc, null, 1, validadeCarteirinha, true, new Date());
 
             if ((socios.getMatriculaSocios().getCategoria().isCartaoTitular() && socios.getParentesco().getId() == 1)
                     || (socios.getMatriculaSocios().getCategoria().isCartaoDependente() && socios.getParentesco().getId() != 1)) {
@@ -1739,7 +1739,7 @@ public class SociosBean implements Serializable {
                     }
                     // sc = socioCarteirinhaDao.pesquisaPorPessoaModelo(fisicaDependente.getPessoa().getId(), modeloc.getId());
                     if (sc == null) {
-                        sc = new SocioCarteirinha(-1, "", fisicaDependente.getPessoa(), modeloc, null, 1, validadeCarteirinha, true);
+                        sc = new SocioCarteirinha(-1, "", fisicaDependente.getPessoa(), modeloc, null, 1, validadeCarteirinha, true, new Date());
                         if (socioDependente.getMatriculaSocios().getCategoria().isCartaoDependente() && socioDependente.getParentesco().getId() != 1) {
                             sc.setAtivo(true);
                         } else {

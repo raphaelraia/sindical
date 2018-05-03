@@ -1,10 +1,14 @@
 package br.com.rtools.sql.beans;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.principal.DBClient;
 import br.com.rtools.principal.DBExternal;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.sistema.conf.DataBase;
 import br.com.rtools.sistema.dao.ConfiguracaoDao;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Sessions;
@@ -14,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -301,6 +306,20 @@ public class PgStatActivityBean implements Serializable {
             }
             return resume;
         }
+        
+        public String getFontColor() {
+            if(state.equals("active")) {
+                return "color: red;";
+            }
+            return "color: black;";
+        }
+        
+        public String getBgColor() {
+            if(state.equals("active")) {
+                return "background: yellowgreen;";
+            }
+            return "";
+        }
 
     }
 
@@ -325,7 +344,7 @@ public class PgStatActivityBean implements Serializable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        if(conn == null) {
+        if (conn == null) {
             throw new RuntimeException("empty connection");
         }
         String queryString = "    "
@@ -360,10 +379,10 @@ public class PgStatActivityBean implements Serializable {
                 }
             } else {
                 if (dataBase != null && !dataBase.isEmpty()) {
-                    if(dataBase.equals("ComercioRP")) {
+                    if (dataBase.equals("ComercioRP")) {
                         queryString += " AND PSA.datname = 'Sindical'";
                     } else {
-                        queryString += " AND PSA.datname = '" + dataBase + "'";                        
+                        queryString += " AND PSA.datname = '" + dataBase + "'";
                     }
                 }
             }
@@ -499,6 +518,76 @@ public class PgStatActivityBean implements Serializable {
             }
         }
         return false;
+    }
+
+    public void kill_session_process_uid(String processo_id) {
+        if (processo_id.isEmpty()) {
+            return;
+        }
+        SisProcesso sp = (SisProcesso) new Dao().find(new SisProcesso(), Integer.parseInt(processo_id));
+        if (sp != null) {
+            sp.setAbortado(new Date());
+            new Dao().update(sp, true);
+        }
+        List<PgStatActivity> list = new ArrayList();
+        String nomeCliente = null;
+        DBExternal dbe = new DBClient();
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+        try {
+            conn = dbe.getConnection();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (conn == null) {
+            throw new RuntimeException("empty connection");
+        }
+        String pid = null;
+        String queryString = "SELECT    "
+                + "       PSA.pid               \n"
+                + "  FROM pg_stat_activity PSA  \n"
+                + " WHERE pid <> 0              \n"
+                + "   AND query LIKE '%{session_process_uid:" + processo_id + "}%' "
+                + "   AND PSA.datname = '" + dbe.getDatabase() + "'"
+                + "   AND query NOT LIKE '%pg_stat_activity%' LIMIT 1";
+        try {
+            ps = conn.prepareStatement(queryString);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                pid = "" + rs.getInt("pid");
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    /* ignored */
+                }
+            }
+        }
+        if (pid != null && !pid.isEmpty()) {
+            pgTerminateBackend(pid);
+        }
     }
 
 }

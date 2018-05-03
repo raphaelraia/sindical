@@ -2,6 +2,7 @@ package br.com.rtools.utilitarios;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -29,6 +30,13 @@ public class GenericaSessao implements Serializable {
     }
 
     public static void put(String sessionName, List sessionValue) {
+        if (GenericaSessao.exists(sessionName)) {
+            GenericaSessao.remove(sessionName);
+        }
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, sessionValue);
+    }
+    
+    public static void put(String sessionName, Date sessionValue) {
         if (GenericaSessao.exists(sessionName)) {
             GenericaSessao.remove(sessionName);
         }
@@ -92,6 +100,21 @@ public class GenericaSessao implements Serializable {
         String string = "";
         if (exists(sessionName)) {
             string = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(sessionName);
+            if (remove) {
+                remove(sessionName);
+            }
+        }
+        return string;
+    }
+
+    public static Date getDate(String sessionName) {
+        return getDate(sessionName, false);
+    }
+
+    public static Date getDate(String sessionName, boolean remove) {
+        Date string = null;
+        if (exists(sessionName)) {
+            string = (Date) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(sessionName);
             if (remove) {
                 remove(sessionName);
             }
@@ -180,7 +203,7 @@ public class GenericaSessao implements Serializable {
     public static void remove(String sessionName) {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(sessionName);
     }
-    
+
     public void removeSession(String sessionName) {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(sessionName);
     }

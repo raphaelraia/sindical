@@ -1,13 +1,17 @@
 package br.com.rtools.seguranca.beans;
 
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.RotinaGrupo;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.seguranca.dao.RotinaGrupoDao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.Defaults;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.Https;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
+import org.primefaces.json.JSONObject;
 
 @ManagedBean
 @SessionScoped
@@ -30,6 +35,7 @@ public class RotinaBean implements Serializable {
     private Boolean acao;
     private List<SelectItem> listRotinas;
     private Integer rotina_id;
+    private String funcionamento;
 
     @PostConstruct
     public void init() {
@@ -41,6 +47,7 @@ public class RotinaBean implements Serializable {
         listRotinaGrupo = new ArrayList<>();
         listShowRotinas = new ArrayList<>();
         acao = false;
+        funcionamento = "";
         // find();        
     }
 
@@ -262,6 +269,40 @@ public class RotinaBean implements Serializable {
 
     public void setListShowRotinas(List<RotinaGrupo> listShowRotinas) {
         this.listShowRotinas = listShowRotinas;
+    }
+
+    public void wiki() {
+        funcionamento = "";
+        try {
+            Defaults defaults = new Defaults();
+            defaults.loadJson();
+            String host = defaults.getHost_local();
+            if (host.isEmpty()) {
+                host = defaults.getUrl_sistem_master();
+            }
+            Rotina r = new Rotina().get();
+            Registro registro = Registro.get();
+            // String result = Https.get(host + "ws/wiki_rotina.jsf?action=funcionamento&rotina_id=" + r.getId(), null);
+            String result = Https.get(registro.getUrlSistemaExterno() + "ws/wiki_rotina.jsf?action=funcionamento&rotina_id=" + r.getId(), null);
+            if (result != null && !result.isEmpty()) {
+                JSONObject jSONObject = new JSONObject(result);
+                if (jSONObject.getString("funcionamento") != null && !jSONObject.getString("funcionamento").isEmpty()) {
+                    funcionamento = jSONObject.getString("funcionamento");
+                    PF.openDialog("dlg_wiki_rotina");
+                    PF.update("header:form_wiki_rotina");
+                }
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    public String getFuncionamento() {
+        return funcionamento;
+    }
+
+    public void setFuncionamento(String funcionamento) {
+        this.funcionamento = funcionamento;
     }
 
 }

@@ -37,7 +37,9 @@ import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Mensagem;
 import br.com.rtools.sistema.Mes;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
+import br.com.rtools.sistema.utils.SisProcessoUtils;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -49,6 +51,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mail;
+import br.com.rtools.utilitarios.RunningProcess;
 import br.com.rtools.utilitarios.Upload;
 import br.com.rtools.utilitarios.Zip;
 import com.google.common.io.Files;
@@ -191,6 +194,7 @@ public class RelatorioSociosBean implements Serializable {
     private Boolean selectAll;
 
     public RelatorioSociosBean() {
+        RunningProcess.init();
         idRelatorio = null;
         idRelatorioOrdem = null;
         listRelatorio = new ArrayList();
@@ -645,7 +649,7 @@ public class RelatorioSociosBean implements Serializable {
         tipoEmail = "com";
         mensagem = new Mensagem();
         listParametroSocios = new ArrayList();
-        parametroSociosSelecionado  = new ArrayList();
+        parametroSociosSelecionado = new ArrayList();
         modal = true;
         listParametroSocios = loadListParametroSocios();
         listFiles = new ArrayList();
@@ -657,7 +661,7 @@ public class RelatorioSociosBean implements Serializable {
     }
 
     public void closeSendMail() {
-        parametroSociosSelecionado  = new ArrayList();
+        parametroSociosSelecionado = new ArrayList();
         tipoEmail = "";
         mensagem = new Mensagem();
         modal = false;
@@ -871,8 +875,13 @@ public class RelatorioSociosBean implements Serializable {
             return new ArrayList();
         }
 
+        RelatorioDao db = new RelatorioDao();
+        Relatorios relatorios = db.pesquisaRelatorios(idRelatorio);
         RelatorioSociosDao relatorioSociosDao = new RelatorioSociosDao();
-
+        relatorioSociosDao.setRelatorios(relatorios);
+        SisProcessoUtils sisProcesso = new SisProcessoUtils();
+        sisProcesso.setRelatorio(relatorios);
+        sisProcesso.start(true);
         if (!listRelatorioOrdem.isEmpty()) {
             Dao dao = new Dao();
             relatorioSociosDao.setRelatorioOrdem((RelatorioOrdem) dao.find(new RelatorioOrdem(), idRelatorioOrdem));
@@ -917,9 +926,8 @@ public class RelatorioSociosBean implements Serializable {
         if (getShow("empresas")) {
             inCnaes = inIdCnaes();
         }
-        RelatorioDao db = new RelatorioDao();
-        Relatorios relatorios = db.pesquisaRelatorios(idRelatorio);
-        relatorioSociosDao.setRelatorios(relatorios);
+        sisProcesso.startQuery();
+        sisProcesso.setRelatorio(relatorios);        
         List<List> list = relatorioSociosDao.find(
                 /**
                  * IN
@@ -992,6 +1000,7 @@ public class RelatorioSociosBean implements Serializable {
                 refVD_inicial,
                 refVD_final
         );
+        sisProcesso.finishQuery();        
         List<ParametroSocios> pses = new ArrayList();
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
         String s_site = sindicato.getPessoa().getSite(), // SITE
@@ -1124,6 +1133,7 @@ public class RelatorioSociosBean implements Serializable {
             );
             pses.add(parametroSocios);
         }
+        sisProcesso.finish();
         return pses;
 
     }
@@ -1683,7 +1693,7 @@ public class RelatorioSociosBean implements Serializable {
         listDates.add(new SelectItem("aposentadoria", "Aposentadoria"));
         listDates.add(new SelectItem("atualizacao", "Atualização"));
         listDates.add(new SelectItem("cadastro", "Cadastro"));
-        listDates.add(new SelectItem("demissao", "Demissão"));
+        listDates.add(new SelectItem("demissao", "Demissão", "", true));
         listDates.add(new SelectItem("filiacao", "Filiação"));
         listDates.add(new SelectItem("recadastro", "Recadastro"));
         if (getShow("carteirinha")) {
@@ -2690,7 +2700,7 @@ public class RelatorioSociosBean implements Serializable {
     }
 
     public void send() {
-        if(parametroSociosSelecionado == null || parametroSociosSelecionado.isEmpty()) {
+        if (parametroSociosSelecionado == null || parametroSociosSelecionado.isEmpty()) {
             GenericaMensagem.warn("Validação", "Selecionar um destinatário!");
             return;
         }

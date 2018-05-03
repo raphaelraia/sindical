@@ -49,6 +49,9 @@
                                         <p:selectBooleanButton value="#{sisProcessoBean.filtro[4]}" onLabel="Texto - Edição" offLabel="Texto - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;">
                                             <p:ajax event="change" update="@this, :form_processos:id_panel_logs" listener="#{sisProcessoBean.clear}" />
                                         </p:selectBooleanButton>
+                                        <p:selectBooleanButton value="#{sisProcessoBean.media}" onLabel="Média" offLabel="Média" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;">
+                                            <p:ajax event="change" update="@this :form_processos:id_panel_logs" />
+                                        </p:selectBooleanButton>
                                         <p:commandButton value="Filtrar" title="Filtrar" styleClass="margin-top-max" update=":form_processos_list:" action="#{sisProcessoBean.loadProcessos()}" />
                                     </h:panelGrid>
                                 </p:tab>
@@ -65,11 +68,11 @@
                                         <h:column>
                                             <h:panelGrid columns="8">
                                                 <p:outputLabel value="Data: " />
-                                                <p:calendar value="#{sisProcessoBean.data[0]}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
+                                                <p:calendar value="#{sisProcessoBean.data[0]}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999" mindate="#{primefacesVw.removeDaysDate(180)}" maxdate="today">
                                                     <p:ajax event="dateSelect" listener="#{sisProcessoBean.selectedDataInicial}" />
                                                 </p:calendar>
                                                 <p:outputLabel value=" até" />
-                                                <p:calendar value="#{sisProcessoBean.data[1]}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
+                                                <p:calendar value="#{sisProcessoBean.data[1]}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999" mindate="#{primefacesVw.removeDaysDate(180)}" maxdate="today">
                                                     <p:ajax event="dateSelect" listener="#{sisProcessoBean.selectedDataFinal}" />
                                                 </p:calendar>                                                
                                             </h:panelGrid>                                            
@@ -105,32 +108,68 @@
             </p:panel>
             <h:form id="form_processos_list">
                 <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                    <p:dataTable value="#{sisProcessoBean.listProcessos}" scrollable="true" scrollHeight="400" var="processo" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" id="i_logs">
-                        <p:column headerText="Rotina" styleClass="text-center">                            
-                            <h:outputText value="#{processo.rotina_descricao}"/>
-                        </p:column>
-                        <p:column headerText="Detalhes" styleClass="text-center">                            
-                            <h:outputText value="#{processo.detalhes}"/>
-                        </p:column>
-                        <p:column headerText="Tempo Min (ms)" styleClass="text-center">
-                            <h:outputText value="#{processo.tempo_min}"/>
-                        </p:column>
-                        <p:column headerText="Tempo Máx (ms)" styleClass="text-center">
-                            <h:outputText value="#{processo.tempo_max}"/>
-                        </p:column>
-                        <p:column headerText="Tempo Méd (ms)" styleClass="text-center">
-                            <h:outputText value="#{processo.tempo_med}"/>
-                        </p:column>
-                        <p:column headerText="Tempo Query Min (ms)" styleClass="text-center">
-                            <h:outputText value="#{processo.tempo_query_min}"/>
-                        </p:column>
-                        <p:column headerText="Tempo Query Máx (ms)" styleClass="text-center">
-                            <h:outputText value="#{processo.tempo_query_max}"/>
-                        </p:column>
-                        <p:column headerText="Tempo Query Méd (ms)" styleClass="text-center">
-                            <h:outputText value="#{processo.tempo_query_med}"/>
-                        </p:column>
-                    </p:dataTable>
+                    <c:if test="#{sisProcessoBean.media}">
+                        <p:dataTable value="#{sisProcessoBean.listProcessos}" scrollable="true" scrollHeight="400" var="processo" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" id="i_logs">
+                            <p:column headerText="Rotina" styleClass="text-center">                            
+                                <h:outputText value="#{processo.rotina_descricao}"/>
+                            </p:column>
+                            <p:column headerText="Detalhes" styleClass="text-center">                            
+                                <h:outputText value="#{processo.detalhes}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Min (ms)" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_min}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Máx (ms)" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_max}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Méd (ms)" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_med}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Query Min (ms)" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_query_min}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Query Máx (ms)" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_query_max}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Query Méd (ms)" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_query_med}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </c:if>
+                    <c:if test="#{!sisProcessoBean.media}">
+                        <p:dataTable value="#{sisProcessoBean.listProcessos}" scrollable="true" scrollHeight="400" var="processo" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" id="i_logs">
+                            <p:column headerText="Rotina" styleClass="text-center">                            
+                                <h:outputText value="#{processo.rotina_descricao}"/>
+                            </p:column>
+                            <p:column headerText="Relatório" styleClass="text-center">
+                                <h:outputText value="#{processo.relatorio_descricao}"/>
+                            </p:column>
+                            <p:column headerText="Detalhes" styleClass="text-center">                            
+                                <h:outputText value="#{processo.detalhes}"/>
+                            </p:column>
+                            <p:column headerText="Tempo" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo}"/>
+                            </p:column>
+                            <p:column headerText="Tempo Query" styleClass="text-center">
+                                <h:outputText value="#{processo.tempo_query}"/>
+                            </p:column>
+                            <p:column headerText="Usuário" styleClass="text-center">
+                                <h:outputText value="#{processo.usuario_nome}"/>
+                            </p:column>
+                            <p:column headerText="Data" styleClass="text-center">
+                                <h:outputText value="#{processo.data}"/>
+                            </p:column>
+                            <p:column headerText="Finalizado" styleClass="text-center">
+                                <h:outputText value="#{processo.finalizado}"/>
+                            </p:column>
+                            <p:column headerText="Abortado" styleClass="text-center">
+                                <h:outputText value="#{processo.abortado}"/>
+                            </p:column>
+                            <p:column width="30" styleClass="text-center">
+                                <p:commandButton icon="ui-icon-close" action="#{pgStatActivityBean.kill_session_process_uid(processo.pid)}" rendered="#{processo.finalizado eq null and processo.abortado eq null}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </c:if>
                 </p:panel>                
             </h:form>
         </f:view>

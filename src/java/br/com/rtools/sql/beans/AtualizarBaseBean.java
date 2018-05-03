@@ -237,7 +237,6 @@ public class AtualizarBaseBean implements Serializable {
                             throw new RuntimeException(e);
                         }
                         try {
-                            conn.setAutoCommit(true);
                             String script = listAtualizarBaseScripts.get(z).getScript().replace("'''", "'");
                             // Statement statement = conn.createStatement();
                             ps = conn.prepareStatement(script);

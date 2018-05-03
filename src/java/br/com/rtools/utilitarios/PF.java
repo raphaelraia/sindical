@@ -3,6 +3,8 @@ package br.com.rtools.utilitarios;
 import com.sun.faces.component.visit.FullVisitContext;
 import java.util.Collection;
 import java.util.logging.Logger;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.component.visit.VisitCallback;
@@ -11,6 +13,8 @@ import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import org.primefaces.context.RequestContext;
 
+@ManagedBean(name = "primefacesVw")
+@ViewScoped
 public class PF {
 
     private static final Logger LOG = Logger.getLogger(PF.class.getName());
@@ -108,5 +112,17 @@ public class PF {
 
         return found[0];
 
+    }
+
+    public String addDaysDate(Integer days) {
+        DataHoje dh = new DataHoje();
+        String pfdate = DataHoje.livre(DataHoje.converte(dh.incrementarDias(days, DataHoje.data())), "M/d/yy");
+        return pfdate;
+    }
+
+    public String removeDaysDate(Integer days) {
+        DataHoje dh = new DataHoje();
+        String pfdate = DataHoje.livre(DataHoje.converte(dh.decrementarDias(days, DataHoje.data())), "dd/MM/yyyy");
+        return pfdate;
     }
 }

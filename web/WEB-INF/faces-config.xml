@@ -2603,6 +2603,12 @@
         </navigation-case>  
         
         <navigation-case>
+            <from-outcome>wiki_rotina</from-outcome>
+            <to-view-id>/wiki_rotina.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        
+        <navigation-case>
             <from-outcome>monitor</from-outcome>
             <to-view-id>/monitor.jsf</to-view-id>
             <redirect/>

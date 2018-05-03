@@ -42,6 +42,9 @@ public class SocioCarteirinha implements java.io.Serializable {
     private Date dtValidadeCarteirinha;
     @Column(name = "is_ativo", columnDefinition = "boolean default true")
     private boolean ativo;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_criacao")
+    private Date dtCriacao;
 
     public SocioCarteirinha() {
         this.id = -1;
@@ -52,9 +55,10 @@ public class SocioCarteirinha implements java.io.Serializable {
         this.via = 0;
         this.dtValidadeCarteirinha = null;
         this.ativo = true;
+        this.dtCriacao = new Date();
     }
 
-    public SocioCarteirinha(int id, String emissao, Pessoa pessoa, ModeloCarteirinha modeloCarteirinha, Integer cartao, int via, String validadeCarteirinha, boolean ativo) {
+    public SocioCarteirinha(int id, String emissao, Pessoa pessoa, ModeloCarteirinha modeloCarteirinha, Integer cartao, int via, String validadeCarteirinha, boolean ativo, Date dtCriacao) {
         this.id = id;
         this.setEmissao(emissao);
         this.pessoa = pessoa;
@@ -63,6 +67,7 @@ public class SocioCarteirinha implements java.io.Serializable {
         this.via = via;
         this.setValidadeCarteirinha(validadeCarteirinha);
         this.ativo = ativo;
+        this.dtCriacao = dtCriacao;
     }
 
     public int getId() {
@@ -156,6 +161,14 @@ public class SocioCarteirinha implements java.io.Serializable {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Date getDtCriacao() {
+        return dtCriacao;
+    }
+
+    public void setDtCriacao(Date dtCriacao) {
+        this.dtCriacao = dtCriacao;
     }
 
 }
