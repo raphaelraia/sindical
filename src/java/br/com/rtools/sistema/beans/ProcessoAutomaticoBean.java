@@ -10,6 +10,7 @@ import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.ProcessoAutomaticoLog;
 import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,11 @@ public class ProcessoAutomaticoBean implements Serializable {
     // SEMPRE MANTER NO preRenderView DA TELA QUE TEM O PROCESSO
     public void find_progress(String nome_do_processo) {
         try {
+            
+            if (processoAutomatico.getId() != -1){
+                return;
+            }
+            
             // METODO EXECUTADO TODA VEZ QUE INICIA A TELA
             // VERIFICA SE A REQUISIÇÃO É AJAX OU POST, PARA O CASO DE RECARREGAR A PÁGINA
             // ex. fonte http://stackoverflow.com/questions/14153895/view-scoped-bean-prerenderview-method-being-called-multiple-times
@@ -54,7 +60,9 @@ public class ProcessoAutomaticoBean implements Serializable {
 
                     // INCREMENTA A PROGRESSÃO DA BARRA DE STATUS
                     //Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
-                    Integer progress = Math.round((processoAutomatico.getNrProgresso() / processoAutomatico.getNrProgressoFinal()) * 100);
+                    //Integer progress = Math.round((processoAutomatico.getNrProgresso() / processoAutomatico.getNrProgressoFinal()) * 100);
+                    Double xx = (((double) processoAutomatico.getNrProgresso()) / ((double)processoAutomatico.getNrProgressoFinal())) * 100;
+                    Integer progress = (int) Math.round(xx);
                     progressValue = progress;
                     progressLabel = progressValue;
                 } else {
@@ -71,6 +79,7 @@ public class ProcessoAutomaticoBean implements Serializable {
         
         if (processoAutomatico.getId() != -1){
             processoAutomatico.setCancelarProcesso(true);
+            processoAutomatico.setDataFinal(DataHoje.dataHoje());
             
             new Dao().update(processoAutomatico, true);
         }
