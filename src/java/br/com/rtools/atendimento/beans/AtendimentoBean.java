@@ -126,6 +126,7 @@ public class AtendimentoBean implements Serializable {
                 List<Fisica> listf = fisicaDB.pesquisaFisicaPorDoc(sisPessoa.getDocumento());
 
                 // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
+                // BUG
                 if (listf.isEmpty()) {
                     AtendimentoDao atendimentoDB = new AtendimentoDao();
                     SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getDocumento());

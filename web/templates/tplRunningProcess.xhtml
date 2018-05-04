@@ -1,0 +1,45 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <h:form id="form_running_process">
+        <p:poll interval="1" autoStart="true" id="id_running_process_wait" update="id_running_process_wait id_running_process" global="false" async="false" ignoreAutoUpdate="true" />
+        <h:panelGroup id="id_running_process">
+            <p:dialog widgetVar="dlg_running_process" modal="true" closable="#{runningProcess.renderedKill}" visible="#{runningProcess.runningProcess}" header="Processando..." >
+                <h:outputLabel value="Aguarde, isto pode demorar um pouco..." />
+                <br />
+                <br />
+                <h:outputLabel value="Caso apresente lentidão entrar em contato com o administrador do sistema." />
+                <br />
+                <br />
+                <h:outputLabel value="Tempo médio de espera em #{sisProcessoBean.tempoMedio()} ms" styleClass="bold"/>
+                <f:facet name="footer">
+                    <p:commandButton value="Abortar" action="#{runningProcess.kill()}" rendered="#{runningProcess.renderedKill}" update=":form_running_process:id_running_process_status"/>
+                </f:facet>
+            </p:dialog>
+        </h:panelGroup>
+        <p:ajaxStatus id="id_running_process_status" onstart="PF('dlg_running_process_status').show();" onsuccess="PF('dlg_running_process_status').hide();" />
+        <p:dialog modal="true" widgetVar="dlg_running_process_status" header="Status" draggable="false" closable="false" resizable="false">
+            <h:outputLabel value="Carregando ... Aguarde" />
+        </p:dialog>
+        <p:dialog modal="true" widgetVar="dlg_running_process_err" header="Erro ao executar operacao" draggable="false" closable="false" resizable="false">         
+            <ul>
+                <li>
+                    <h:outputLabel value="Diagnostico rapido" style="font-weight: bold; color: red;"/>                
+                    <br />
+                    <br />
+                </li>
+                <li>
+                    <h:outputLabel value="- Verifique sua conexao com a internet" />
+                </li>
+                <li>
+                    <h:outputLabel value="- Saia e entre novamente no sistema" />
+                </li>
+            </ul>
+            <f:facet name="footer">
+                <h:outputLabel value="Entrar em contato com o administrador do sistema." />            
+            </f:facet>
+        </p:dialog>
+    </h:form>
+</ui:composition>

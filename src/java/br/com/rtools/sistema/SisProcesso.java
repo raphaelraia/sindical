@@ -1,7 +1,11 @@
 package br.com.rtools.sistema;
 
+import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -24,8 +28,25 @@ public class SisProcesso implements Serializable {
     @JoinColumn(name = "id_rotina", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Rotina rotina;
+    @JoinColumn(name = "id_relatorio", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Relatorios relatorio;
     @Column(name = "ds_processo", length = 255)
     private String processo;
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Usuario usuario;
+    @JoinColumn(name = "id_pessoa", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Pessoa pessoa;
+    @Column(name = "is_web", columnDefinition = "boolean default false", nullable = false)
+    private Boolean web;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_abortado", nullable = true)
+    private Date abortado;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_finalizado", nullable = true)
+    private Date finalizado;
 
     public SisProcesso() {
         this.id = null;
@@ -33,16 +54,28 @@ public class SisProcesso implements Serializable {
         this.tempoQuery = new Long(0);
         this.data = null;
         this.rotina = null;
+        this.relatorio = null;
         this.processo = null;
+        this.usuario = null;
+        this.pessoa = null;
+        this.web = false;
+        this.abortado = null;
+        this.finalizado = null;
     }
 
-    public SisProcesso(Integer id, Long tempo, Long tempoQuery, Date data, Rotina rotina, String processo) {
+    public SisProcesso(Integer id, Long tempo, Long tempoQuery, Date data, Rotina rotina, Relatorios relatorio, String processo, Usuario usuario, Pessoa pessoa, Boolean web, Date abortado, Date finalizado) {
         this.id = id;
         this.tempo = tempo;
         this.tempoQuery = tempoQuery;
         this.data = data;
         this.rotina = rotina;
+        this.relatorio = relatorio;
         this.processo = processo;
+        this.usuario = usuario;
+        this.pessoa = pessoa;
+        this.web = web;
+        this.abortado = abortado;
+        this.finalizado = finalizado;
     }
 
     public Integer getId() {
@@ -99,10 +132,13 @@ public class SisProcesso implements Serializable {
 
     public void finish() {
         if (this.processo != null && !this.processo.isEmpty()) {
-            tempo = System.currentTimeMillis() - tempo;
-            this.setRotina(new Rotina().get());
-            this.setData(new Date());
-            new Dao().save(this, true);
+            Usuario u = Usuario.getUsuario();
+            if (u != null) {
+                tempo = System.currentTimeMillis() - tempo;
+                this.setRotina(new Rotina().get());
+                this.setData(new Date());
+                new Dao().save(this, true);
+            }
         }
     }
 
@@ -124,17 +160,65 @@ public class SisProcesso implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "SisProcesso{" + "id=" + id + ", tempo=" + tempo + ", data=" + data + ", rotina=" + rotina + ", processo=" + processo + '}';
-    }
-
     public Long getTempoQuery() {
         return tempoQuery;
     }
 
     public void setTempoQuery(Long tempoQuery) {
         this.tempoQuery = tempoQuery;
+    }
+
+    public Relatorios getRelatorio() {
+        return relatorio;
+    }
+
+    public void setRelatorio(Relatorios relatorio) {
+        this.relatorio = relatorio;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Pessoa getPessoa() {
+        return pessoa;
+    }
+
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
+    }
+
+    public Boolean getWeb() {
+        return web;
+    }
+
+    public void setWeb(Boolean web) {
+        this.web = web;
+    }
+
+    public Date getAbortado() {
+        return abortado;
+    }
+
+    public void setAbortado(Date abortado) {
+        this.abortado = abortado;
+    }
+
+    public Date getFinalizado() {
+        return finalizado;
+    }
+
+    public void setFinalizado(Date finalizado) {
+        this.finalizado = finalizado;
+    }
+
+    @Override
+    public String toString() {
+        return "SisProcesso{" + "id=" + id + ", tempo=" + tempo + ", tempoQuery=" + tempoQuery + ", data=" + data + ", rotina=" + rotina + ", relatorio=" + relatorio + ", processo=" + processo + ", usuario=" + usuario + ", pessoa=" + pessoa + ", web=" + web + ", abortado=" + abortado + ", finalizado=" + finalizado + '}';
     }
 
 }

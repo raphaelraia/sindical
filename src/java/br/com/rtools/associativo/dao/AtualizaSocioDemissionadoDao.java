@@ -6,8 +6,10 @@
 package br.com.rtools.associativo.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
@@ -57,7 +59,7 @@ public class AtualizaSocioDemissionadoDao extends DB {
 
             text += filtro;
             text += " ORDER BY pe.dt_demissao ";
-
+            Debugs.put("habilitaDebugQuery", text);
             Query qry = getEntityManager().createNativeQuery(text);
 
             return qry.getResultList();

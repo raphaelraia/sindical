@@ -115,7 +115,13 @@ public class SisNotificacaoView implements Serializable {
                         + "        AND current_timestamp >= N.dt_inicial                                        \n"
                         + "        AND current_timestamp <= N.dt_final  ";
                 try {
-                    ps = conn.prepareStatement(queryString);
+                    String[] s = new String[
+                            Statement.RETURN_GENERATED_KEYS
+                            ];
+                    ps = conn.prepareStatement(queryString, 
+                        s
+                    );
+                    
                     rs = ps.executeQuery();
                     while (rs.next()) {
                         SNotificacao sNotificacao = new SNotificacao();

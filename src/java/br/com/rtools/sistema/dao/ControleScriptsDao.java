@@ -63,7 +63,6 @@ public class ControleScriptsDao extends DB {
             throw new RuntimeException(e);
         }
         try {
-            conn.setAutoCommit(true);
             ps = conn.prepareStatement(queryString);
             ps.executeUpdate();
         } catch (SQLException e) {

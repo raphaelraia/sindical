@@ -411,6 +411,10 @@
                             </p:tab>                                
                             <p:tab title="Externas (Rtools)">
                                 <h:panelGrid columns="2">
+                                    <p:outputLabel value="Url sistema externo (Web Service): " />
+                                    <p:inputText size="30" value="#{registroEmpresarialBean.registro.urlSistemaExterno}"/>
+                                </h:panelGrid>
+                                <h:panelGrid columns="2">
                                     <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.sisHabilitaBloqueioCliente}" itemLabel="Habilita Bloqueio do Cliente" title="Casos diversos ">
                                         <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages"/>
                                     </p:selectBooleanCheckbox>                                        

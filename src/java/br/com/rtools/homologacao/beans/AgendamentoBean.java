@@ -1117,7 +1117,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 //                msgConfirma = "Para imprimir Protocolo clique aqui! ";
                 GenericaMensagem.info("Sucesso", "Agendamento Concluído!");
                 if (agendamento.isNoPrazo() == false) {
-                    GenericaMensagem.info("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
+                    // GenericaMensagem.info("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
                 }
                 novoLog.setTabela("hom_agendamento");
                 novoLog.setCodigo(agendamento.getId());

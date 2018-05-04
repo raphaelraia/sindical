@@ -13,6 +13,8 @@ import javax.persistence.Persistence;
 import oracle.toplink.essentials.config.CacheType;
 import oracle.toplink.essentials.config.TopLinkProperties;
 import oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider;
+import oracle.toplink.essentials.sessions.Session;
+import oracle.toplink.essentials.tools.sessionconfiguration.SessionCustomizer;
 
 public class DB {
 
@@ -196,4 +198,6 @@ public class DB {
 //        configuracao.setPersistence(cliente);
 //        return configuracao;
 //    }
+    
+  
 }

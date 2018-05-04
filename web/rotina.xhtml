@@ -28,52 +28,46 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Rotinas" styleClass="fonteHeader" />                    
-                        <div class="clear"></div>
-                        <p:panel>
-                            <h:form id="formRotinasNovo">
-                                <c:set scope="request" var="object" value="${rotinaBean.rotina}"/>
-                                <p:panel style="border: 0;"> 
-                                    <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop">
-                                        <h:column>
-                                            <h:panelGrid columns="2" style="border: 0; width: 400px">
-                                                <p:outputLabel value="Rotina: " for="idRotina"/>
-                                                <p:inputText id="idRotina" size="40" value="#{rotinaBean.rotina.rotina}" converter="#{toUpperCase}">
+                        <div class="clear"></div> 
+                        <h:form id="formRotinasNovo">
+                            <c:set scope="request" var="object" value="${rotinaBean.rotina}"/>
+                            <p:panel> 
+                                <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop" style="width: 100%">
+                                    <h:column>
+                                        <h:panelGrid columns="2" style="border: 0; width: 400px">
+                                            <p:outputLabel value="Rotina: " for="idRotina"/>
+                                            <p:inputText id="idRotina" size="40" value="#{rotinaBean.rotina.rotina}" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                            <p:outputLabel value="Página: " for="idPagina"/>
+                                            <p:inputText id="idPagina" size="40" value="#{rotinaBean.rotina.pagina}"/>
+                                            <p:outputLabel value="Ação: " for="idAcao"/>
+                                            <p:inputText id="idAcao" size="40" value="#{rotinaBean.rotina.acao}"/>
+                                            <p:outputLabel value="Classe: " for="idClasse"/>
+                                            <p:inputText id="idClasse" size="20" value="#{rotinaBean.rotina.classe}"/>
+                                            <p:outputLabel value="Ativo: " for="idAtivo"/>
+                                            <p:selectBooleanCheckbox id="idAtivo" value="#{rotinaBean.rotina.ativo}"></p:selectBooleanCheckbox>
+                                        </h:panelGrid>                                                                               
+                                    </h:column>
+                                    <h:column>
+                                        <p:panel header="Eventos permitidos" style="float: right">
+                                            <h:panelGrid columns="1" cellpadding="5">
+                                                <p:selectBooleanCheckbox value="#{rotinaBean.rotina.inclusao}" itemLabel="Inclusão">
                                                     <p:ajax event="change" update="@this" />
-                                                </p:inputText>
-                                                <p:outputLabel value="Página: " for="idPagina"/>
-                                                <p:inputText id="idPagina" size="40" value="#{rotinaBean.rotina.pagina}"/>
-                                                <p:outputLabel value="Ação: " for="idAcao"/>
-                                                <p:inputText id="idAcao" size="40" value="#{rotinaBean.rotina.acao}"/>
-                                                <p:outputLabel value="Classe: " for="idClasse"/>
-                                                <p:inputText id="idClasse" size="20" value="#{rotinaBean.rotina.classe}"/>
-                                                <p:outputLabel value="Ativo: " for="idAtivo"/>
-                                                <p:selectBooleanCheckbox id="idAtivo" value="#{rotinaBean.rotina.ativo}"></p:selectBooleanCheckbox>
-                                            </h:panelGrid>                                                                               
-                                            <p:panel header="Eventos permitidos" styleClass="margin-top-max">
-                                                <h:panelGrid columns="4" cellpadding="5">
-                                                    <p:selectBooleanCheckbox value="#{rotinaBean.rotina.inclusao}" itemLabel="Inclusão">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:selectBooleanCheckbox value="#{rotinaBean.rotina.exclusao}" itemLabel="Exclusão" >
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:selectBooleanCheckbox value="#{rotinaBean.rotina.alteracao}" itemLabel="Alteração">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:selectBooleanCheckbox value="#{rotinaBean.rotina.consulta}" itemLabel="Consulta">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:selectBooleanCheckbox>
-                                                </h:panelGrid>                                             
-                                            </p:panel>
-                                        </h:column>
-                                        <h:column>
-                                            <p:panel header="Funcionamento" style="width: 100%!important">
-                                                <p:inputTextarea value="#{rotinaBean.rotina.funcionamento}" cols="100" rows="15" placeholder="Digite como a rotina funciona">
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{rotinaBean.rotina.exclusao}" itemLabel="Exclusão" >
                                                     <p:ajax event="change" update="@this" />
-                                                </p:inputTextarea>
-                                            </p:panel>                                            
-                                        </h:column>
-                                    </h:panelGrid>                                       
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{rotinaBean.rotina.alteracao}" itemLabel="Alteração">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{rotinaBean.rotina.consulta}" itemLabel="Consulta">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
+                                            </h:panelGrid>                                             
+                                        </p:panel>                                          
+                                    </h:column>
+                                </h:panelGrid>
                                 <p:growl autoUpdate="true" id="i_msg" showDetail="true" />  
                                 <f:facet name="footer">
                                     <h:panelGrid columns="4">
@@ -83,103 +77,109 @@
                                         <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaRotina')}" rendered="false"/>                            
                                     </h:panelGrid>
                                 </f:facet>
-                        </p:panel>
-                        <p:panel header="Rotinas / Ações: Vínculadas à #{rotinaBean.rotina.rotina}"  rendered="#{rotinaBean.rotina.id != -1}">
-                            <h:panelGrid columns="1" columnClasses="verticalAlignTop verticalAlignTop" id="i_rotina_grupo">
-                                <h:column>
-                                    <h:panelGrid columns="3" >
-                                        <p:outputLabel value="Grupo: " />
-                                        <p:selectOneMenu value="#{rotinaBean.rotina_id}" filter="true" filterMatchMode="startsWith">
-                                            <f:selectItems value="#{rotinaBean.listRotinas}"/>
-                                        </p:selectOneMenu>
-                                        <p:commandButton value="Adicionar ao grupo" disabled="#{controleAcessoBean.botaoSalvar}" action="#{rotinaBean.add}" update="i_rotina_grupo" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGroup layout="block" id="tbl_grupo" styleClass="margin-top-max">
-                                        <p:dataTable value="#{rotinaBean.listRotinaGrupo}" var="rotinaGrupo" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
-                                            <p:column headerText="Vínculadas">
-                                                #{rotinaGrupo.rotina.rotina}
-                                            </p:column>
-                                            <p:column width="30">
-                                                <p:commandButton icon="ui-icon-close" action="#{rotinaBean.remove(rotinaGrupo)}" update=":formRotinasNovo:i_rotina_grupo" disabled="#{controleAcessoBean.botaoExcluir}"/>
-                                            </p:column>
-                                        </p:dataTable>
-                                    </h:panelGroup>
-                                </h:column>
-                            </h:panelGrid>
-                        </p:panel>
-
-                        <p:dialog widgetVar="i_dlg_s" header="Salvar esta Rotina?" resizable="false" width="400" modal="true">
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.save}" oncomplete="PF('i_dlg_s').hide(); PF('i_dlg_mensagem').show()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formRotinasNovo: :formRotinas: i_mensagem"/>  
-                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="P('i_dlg_s').hide()" style="float: left;" icon="ui-icon-close"/>                                        
-                            </h:panelGrid>
-                        </p:dialog>
-
-                        <p:dialog widgetVar="i_dlg_e" header="Excluir esta Rotina?" resizable="false" width="400" modal="true">
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.delete()}" oncomplete="PF('i_dlg_e').hide(); PF('i_dlg_mensagem').show()" update=":formRotinasNovo: :formRotinas:" style="clear: both; float: left" icon="ui-icon-check" />
-                                <p:commandButton value="Cancelar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left;" icon="ui-icon-close"/>
-                            </h:panelGrid>
-                        </p:dialog>
-
-                        <p:dialog widgetVar="i_dlg_mensagem" header="Mensagem" resizable="false" width="400" modal="true">
-                            <h:panelGroup id="i_mensagem">
-                                <p:messages showDetail="true" closable="false" showSummary="true" />
+                            </p:panel>
+                            <h:panelGroup  id="i_funcionamento" layout="block" style="margin-top: 10px" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}">
+                                <p:accordionPanel prependId="false" activeIndex="-1">
+                                    <p:tab title="FUNCIONAMENTO">
+                                        <h:panelGroup rendered="#{rotinaBean.rotina.id != -1}">
+                                            <p:textEditor value="#{rotinaBean.rotina.funcionamento}"  />
+                                        </h:panelGroup>                                                                                     
+                                    </p:tab>
+                                </p:accordionPanel>
                             </h:panelGroup>
-                            <f:facet name="footer">
-                                <p:commandButton value="Ok" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_mensagem').hide()"/>
-                            </f:facet>
-                        </p:dialog>
-
-                        </h:form>
-                    </p:panel>
-                    <h:form id="formRotinas">
-                        <p:panel style="border: 0;">
-                            <p:panel id="i_panel_pesquisa" styleClass="fundoCinza" style="height: 50px">
-                                <h:panelGrid columns="5" style="float: left">
-                                    <p:inputText id="idPesquisar" value="#{rotinaBean.descricaoPesquisa}" size="50" title="Pesquisar"/>
-                                    <p:commandButton value="Pesquisar" update="i_panel_grid" style="margin-left: 10px;" actionListener="#{rotinaBean.find}"/>
-                                    <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
-                                    <p:selectBooleanCheckbox value="#{rotinaBean.acao}" itemLabel="Mostrar: Ações / Liberações / Botões">
-                                        <p:ajax event="change" update="@this" listener="#{rotinaBean.find}"/>
-                                    </p:selectBooleanCheckbox>
+                            <p:panel header="Rotinas / Ações: Vínculadas à #{rotinaBean.rotina.rotina}"  rendered="#{rotinaBean.rotina.id != -1}" styleClass="margin-top-max">
+                                <h:panelGrid columns="1" columnClasses="verticalAlignTop verticalAlignTop" id="i_rotina_grupo">
+                                    <h:column>
+                                        <h:panelGrid columns="3" >
+                                            <p:outputLabel value="Grupo: " />
+                                            <p:selectOneMenu value="#{rotinaBean.rotina_id}" filter="true" filterMatchMode="startsWith">
+                                                <f:selectItems value="#{rotinaBean.listRotinas}"/>
+                                            </p:selectOneMenu>
+                                            <p:commandButton value="Adicionar ao grupo" disabled="#{controleAcessoBean.botaoSalvar}" action="#{rotinaBean.add}" update="i_rotina_grupo" />
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <h:column>
+                                        <h:panelGroup layout="block" id="tbl_grupo" styleClass="margin-top-max">
+                                            <p:dataTable value="#{rotinaBean.listRotinaGrupo}" var="rotinaGrupo" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
+                                                <p:column headerText="Vínculadas">
+                                                    #{rotinaGrupo.rotina.rotina}
+                                                </p:column>
+                                                <p:column width="30">
+                                                    <p:commandButton icon="ui-icon-close" action="#{rotinaBean.remove(rotinaGrupo)}" update=":formRotinasNovo:i_rotina_grupo" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                                </p:column>
+                                            </p:dataTable>
+                                        </h:panelGroup>
+                                    </h:column>
                                 </h:panelGrid>
-                                <p:focus for="i_panel_pesquisa" />
                             </p:panel>
-                            <p:panel id="i_panel_grid" style="clear: both; margin-top: 15px;"> 
-                                <p:dataTable value="#{rotinaBean.listRotina}" id="tbl" var="rotina" style="width: 100%;" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
-                                    <p:column width="25" styleClass="text-center">
-                                        <p:commandButton icon="ui-icon-link" title="Editar registro nº #{rotina.id}" action="#{rotinaBean.edit(rotina)}" update=":formRotinas: :formRotinasNovo:"/>
-                                    </p:column>
 
-                                    <p:column headerText="Rotina" filterBy="#{rotina.rotina}" filterMatchMode="global" >
-                                        #{rotina.rotina}
-                                    </p:column>
+                            <p:dialog widgetVar="i_dlg_s" header="Salvar esta Rotina?" resizable="false" width="400" modal="true">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.save}" oncomplete="PF('i_dlg_s').hide(); PF('i_dlg_mensagem').show()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formRotinasNovo: :formRotinas: i_mensagem"/>  
+                                    <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="P('i_dlg_s').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                </h:panelGrid>
+                            </p:dialog>
 
-                                    <p:column headerText="Página" rendered="#{!rotinaBean.acao}">
-                                        #{rotina.pagina}
-                                    </p:column>
+                            <p:dialog widgetVar="i_dlg_e" header="Excluir esta Rotina?" resizable="false" width="400" modal="true">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.delete()}" oncomplete="PF('i_dlg_e').hide(); PF('i_dlg_mensagem').show()" update=":formRotinasNovo: :formRotinas:" style="clear: both; float: left" icon="ui-icon-check" />
+                                    <p:commandButton value="Cancelar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left;" icon="ui-icon-close"/>
+                                </h:panelGrid>
+                            </p:dialog>
 
-                                    <p:column headerText="Ação" rendered="#{rotinaBean.acao}" filterBy="#{rotina.acao}" filterMatchMode="global">
-                                        #{rotina.acao}
-                                    </p:column>
+                            <p:dialog widgetVar="i_dlg_mensagem" header="Mensagem" resizable="false" width="400" modal="true">
+                                <h:panelGroup id="i_mensagem">
+                                    <p:messages showDetail="true" closable="false" showSummary="true" />
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <p:commandButton value="Ok" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_mensagem').hide()"/>
+                                </f:facet>
+                            </p:dialog>
 
-                                    <p:column headerText="Ativa" width="30" styleClass="text-center">
-                                        <p:commandButton icon="ui-icon-check" rendered="#{rotina.ativo}" global="false"/>
-                                    </p:column>
+                        </h:form> 
+                        <h:form id="formRotinas"> 
+                                <p:panel id="i_panel_pesquisa" styleClass="fundoCinza" style="height: 50px">
+                                    <h:panelGrid columns="5" style="float: left">
+                                        <p:inputText id="idPesquisar" value="#{rotinaBean.descricaoPesquisa}" size="50" title="Pesquisar"/>
+                                        <p:commandButton value="Pesquisar" update="i_panel_grid" style="margin-left: 10px;" actionListener="#{rotinaBean.find}"/>
+                                        <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
+                                        <p:selectBooleanCheckbox value="#{rotinaBean.acao}" itemLabel="Mostrar: Ações / Liberações / Botões">
+                                            <p:ajax event="change" update="@this" listener="#{rotinaBean.find}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                    <p:focus for="i_panel_pesquisa" />
+                                </p:panel>
+                                <p:panel id="i_panel_grid" style="clear: both; margin-top: 15px;"> 
+                                    <p:dataTable value="#{rotinaBean.listRotina}" id="tbl" var="rotina" style="width: 100%;" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
+                                        <p:column width="25" styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-link" title="Editar registro nº #{rotina.id}" action="#{rotinaBean.edit(rotina)}" update=":formRotinas: :formRotinasNovo:"/>
+                                        </p:column>
 
-                                    <p:column style="text-align: center; width: 40px;" headerText="Excluir">
-                                        <p:commandButton icon="ui-icon-trash" action="#{rotinaBean.delete()}" update=":formRotinasNovo:, :formRotinas:i_panel_grid" disabled="true"/>
-                                    </p:column>
-                                </p:dataTable>
-                            </p:panel>
-                        </p:panel>
-                        <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
-                            <h:outputLabel value="Pesquisando ... Aguarde" />
-                        </p:dialog> 
-                    </h:form>
+                                        <p:column headerText="Rotina" filterBy="#{rotina.rotina}" filterMatchMode="global" >
+                                            #{rotina.rotina}
+                                        </p:column>
+
+                                        <p:column headerText="Página" rendered="#{!rotinaBean.acao}">
+                                            #{rotina.pagina}
+                                        </p:column>
+
+                                        <p:column headerText="Ação" rendered="#{rotinaBean.acao}" filterBy="#{rotina.acao}" filterMatchMode="global">
+                                            #{rotina.acao}
+                                        </p:column>
+
+                                        <p:column headerText="Ativa" width="30" styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-check" rendered="#{rotina.ativo}" global="false"/>
+                                        </p:column>
+
+                                        <p:column style="text-align: center; width: 40px;" headerText="Excluir">
+                                            <p:commandButton icon="ui-icon-trash" action="#{rotinaBean.delete()}" update=":formRotinasNovo:, :formRotinas:i_panel_grid" disabled="true"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:panel> 
+                            <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
+                                <h:outputLabel value="Pesquisando ... Aguarde" />
+                            </p:dialog> 
+                        </h:form>
 
                     </p:panel>
                 </f:view>

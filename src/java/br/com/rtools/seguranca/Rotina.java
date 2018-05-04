@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 @Entity
 @Table(name = "seg_rotina")
 @NamedQueries({
-    @NamedQuery(name = "Rotina.pesquisaID", query = "SELECT ROT FROM Rotina AS ROT WHERE ROT.id = :pid"),
+    @NamedQuery(name = "Rotina.pesquisaID", query = "SELECT ROT FROM Rotina AS ROT WHERE ROT.id = :pid")
+    ,
     @NamedQuery(name = "Rotina.findAll", query = "SELECT ROT FROM Rotina AS ROT ORDER BY ROT.rotina ASC, ROT.pagina ASC ")
 })
 public class Rotina implements Serializable {

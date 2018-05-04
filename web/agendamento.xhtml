@@ -163,6 +163,7 @@
                     <h:form id="formConcluirAgendamento">
                         <p:dialog widgetVar="dlg_agendamento" header="#{agendamentoBean.validacao ? 'Validação de Agendamento' : 'Agendamento de Homologação'} " resizable="false" modal="true" visible="#{agendamentoBean.visibleModal}" height="550" width="900" closeOnEscape="true">
                             <p:ajax event="close" listener="#{agendamentoBean.setVisibleModal(false)}" update=":formConcluirAgendamento: :formAgendamento"/>
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'IMPORTANTE', 'DE ACORDO COM AS INFORMAÇÕES PRESTADAS ESTE AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA')}" escape="false" rendered="#{!agendamentoBean.agendamento.noPrazo}" />
                             <p:panel rendered="#{agendamentoBean.juridica.id ne -1}">
                                 <h:panelGrid columns="2">
                                     <p:outputLabel value="EMPRESA: " rendered="#{agendamentoBean.juridica.pessoa.nome != ''}" styleClass="bold"/>
@@ -170,7 +171,6 @@
                                 </h:panelGrid>
                             </p:panel>
                             <p:messages id="msg_dialog1" showDetail="true" closable="true"/>
-
                             <!-- SEM VALIDAÇÃO -->
                             <h:column rendered="#{!agendamentoBean.validacao}">
                                 <h:panelGrid id="i_panel_protocolo" columns="3" rendered="#{agendamentoBean.agendamento.id != -1}" styleClass="float-right margin-top-med">
@@ -181,9 +181,7 @@
                                     </h:column>
                                 </h:panelGrid>                                
                             </h:column >
-
                             <h:panelGroup id="i_panel_agendamento">
-
                                 <!-- COM VALIDAÇÃO -->
                                 <p:panel rendered="#{agendamentoBean.validacao}"  styleClass="margin-top-max">
                                     <h:panelGrid columns="5" style="width: 100%!important">

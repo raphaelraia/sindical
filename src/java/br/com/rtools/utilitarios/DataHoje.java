@@ -541,7 +541,7 @@ public class DataHoje {
         GregorianCalendar calendar = new GregorianCalendar();
         SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy");
         calendar.setTime(DataHoje.converte(data));
-        calendar.add(GregorianCalendar.DATE, -1);
+        calendar.add(GregorianCalendar.DATE, -qtd);
         return dt.format(calendar.getTime());
     }
 
@@ -1365,6 +1365,10 @@ public class DataHoje {
         } catch (ParseException e) {
             return 0;
         }
+    }
+
+    public static Integer diffMonths(Date startDate, Date endDate) {
+        return diffMonths(DataHoje.converteData(startDate), DataHoje.converteData(endDate));
     }
 
     public static Integer diffMonths(String startDate, String endDate) {

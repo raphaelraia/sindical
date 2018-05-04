@@ -327,6 +327,7 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public String metodoGenerico(int tipo, String pagina) {
+        cleanBufferedSessions();
         if (!forceCloseSession()) {
             return "sessaoExpirou";
         }
@@ -2732,4 +2733,11 @@ public class ChamadaPaginaBean implements Serializable {
         return r.getCurrentPage();
     }
 
+    public void cleanBufferedSessions() {
+        Sessions.remove("session_process_uid");
+        Rotina r = new Rotina().get();
+        if (r != null) {
+            Sessions.remove("session_process_uid" + r.getId());
+        }
+    }
 }
