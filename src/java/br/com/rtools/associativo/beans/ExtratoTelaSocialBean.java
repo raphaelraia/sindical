@@ -62,7 +62,7 @@ public class ExtratoTelaSocialBean implements Serializable {
 
     private String porPesquisa = "todos";
     private String ordenacao = "referencia";
-    private String tipoDataPesquisa = "vencimento";
+    private String tipoDataPesquisa = "ocorrencia";
     private String tipoPessoa = "nenhum";
     private List<DataObject> listaMovimento = new ArrayList();
     private Pessoa pessoa = new Pessoa();

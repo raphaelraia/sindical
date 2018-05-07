@@ -318,8 +318,8 @@
                                     <p:outputLabel value="#{movimentos.argumento11}" style="float: right"/>
                                 </p:column>
 
-                                <p:column headerText="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? 'Recebimento(Ocorrência)' : 'Baixa'}" style="text-align: center; width: 60px">
-                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? movimentos.argumento31 : movimentos.argumento15}">
+                                <p:column headerText="#{extratoTelaBean.tipoDataPesquisa eq 'baixa' ? 'Baixa' : 'Recebimento(Ocorrência)'}" style="text-align: center; width: 60px">
+                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'baixa' ? movimentos.argumento15 : movimentos.argumento31}">
                                         <f:convertDateTime />
                                     </p:outputLabel>
                                 </p:column>

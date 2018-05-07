@@ -9,6 +9,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.ProcessoAutomaticoLog;
 import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
+import br.com.rtools.sistema.utils.ProcessoAutomaticoUtils;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
@@ -65,6 +66,7 @@ public class ProcessoAutomaticoBean implements Serializable {
                     Integer progress = (int) Math.round(xx);
                     progressValue = progress;
                     progressLabel = progressValue;
+                    ProcessoAutomaticoUtils.execute(processoAutomatico);
                 } else {
                     processoAutomaticoConcluido = dao.pesquisarProcessoConcluidoNaoVisto(thread_name, Usuario.getUsuario().getId());
                 }

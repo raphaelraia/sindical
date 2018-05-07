@@ -98,8 +98,8 @@ public class JuridicaReceitaJSON {
                             return null;
                         }
                         // String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj2/?";
-                        // String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj/?";
-                        String query = "http://http://104.131.10.213/v2/cnpj/?";
+                        String query = "http://ws.hubdodesenvolvedor.com.br/v2/cnpj/?";
+                        // String query = "http://http://104.131.10.213/v2/cnpj/?";
                         query += "cnpj=" + URLEncoder.encode(documento, "UTF-8");
                         query += "&";
                         query += "token=" + URLEncoder.encode(cc.getToken(), "UTF-8");

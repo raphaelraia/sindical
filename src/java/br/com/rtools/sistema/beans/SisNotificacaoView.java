@@ -115,37 +115,35 @@ public class SisNotificacaoView implements Serializable {
                         + "        AND current_timestamp >= N.dt_inicial                                        \n"
                         + "        AND current_timestamp <= N.dt_final  ";
                 try {
-                    String[] s = new String[
-                            Statement.RETURN_GENERATED_KEYS
-                            ];
-                    ps = conn.prepareStatement(queryString, 
-                        s
-                    );
+                    ps = conn.prepareStatement(queryString);
                     
                     rs = ps.executeQuery();
-                    while (rs.next()) {
-                        SNotificacao sNotificacao = new SNotificacao();
-                        sNotificacao.setId(rs.getInt("id"));
-                        sNotificacao.setCategoria(rs.getString("categoria_descricao"));
-                        sNotificacao.setDataCadastro(rs.getString("data_cadastro"));
-                        sNotificacao.setHoraCadastro(rs.getString("hora_cadastro"));
-                        sNotificacao.setDataInicial(rs.getString("inicio"));
-                        sNotificacao.setDataFinal(rs.getString("fim"));
-                        sNotificacao.setHoraInicial(rs.getString("hora_inicio"));
-                        sNotificacao.setHoraFinal(rs.getString("hora_fim"));
-                        sNotificacao.setTitulo(rs.getString("titulo"));
-                        sNotificacao.setObservacao(rs.getString("observacao"));
-                        try {
-                            sNotificacao.setAtivo(rs.getBoolean("ativo"));
-                        } catch (Exception e) {
+                    
+                    if(rs != null) {
+                        while (rs.next()) {
+                            SNotificacao sNotificacao = new SNotificacao();
+                            sNotificacao.setId(rs.getInt("id"));
+                            sNotificacao.setCategoria(rs.getString("categoria_descricao"));
+                            sNotificacao.setDataCadastro(rs.getString("data_cadastro"));
+                            sNotificacao.setHoraCadastro(rs.getString("hora_cadastro"));
+                            sNotificacao.setDataInicial(rs.getString("inicio"));
+                            sNotificacao.setDataFinal(rs.getString("fim"));
+                            sNotificacao.setHoraInicial(rs.getString("hora_inicio"));
+                            sNotificacao.setHoraFinal(rs.getString("hora_fim"));
+                            sNotificacao.setTitulo(rs.getString("titulo"));
+                            sNotificacao.setObservacao(rs.getString("observacao"));
+                            try {
+                                sNotificacao.setAtivo(rs.getBoolean("ativo"));
+                            } catch (Exception e) {
 
-                        }
-                        try {
-                            sNotificacao.setDestaque(rs.getBoolean("destaque"));
-                        } catch (Exception e) {
+                            }
+                            try {
+                                sNotificacao.setDestaque(rs.getBoolean("destaque"));
+                            } catch (Exception e) {
 
-                        }
-                        listNotificacao.add(sNotificacao);
+                            }
+                            listNotificacao.add(sNotificacao);
+                        }                        
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

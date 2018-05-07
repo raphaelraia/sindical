@@ -44,14 +44,14 @@
                                     </p:column>                                        
                                 </h:panelGrid>
 
-                                <h:panelGrid>
-                                    <p:column>
-                                        <p:outputLabel value="Sistema de Pesquisa" /><br />
-                                        <p:selectOneMenu value="#{configuracaoCnpjBean.idTipoPesquisa}" style="width: 100px">
-                                            <p:ajax event="change" update="@this :form_cnpj:"/>
-                                            <f:selectItems value="#{configuracaoCnpjBean.listaTipoPesquisa}"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
+                                <h:panelGrid columns="2" cellspacing="5">
+                                    <p:outputLabel value="Sistema de Pesquisa: " />
+                                    <p:selectOneMenu value="#{configuracaoCnpjBean.idTipoPesquisa}" style="width: 100px">
+                                        <p:ajax event="change" update="@this :form_cnpj:"/>
+                                        <f:selectItems value="#{configuracaoCnpjBean.listaTipoPesquisa}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Saldo: " />
+                                    <p:inputText value="#{configuracaoCnpjBean.saldo}" readonly="true"/>
                                 </h:panelGrid>
 
                                 <h:panelGrid cellpadding="5" columns="2">

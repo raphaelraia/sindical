@@ -28,14 +28,17 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <f:metadata>  
-                        <f:event type="preRenderView" listener="${processoAutomaticoBean.find_progress('atualizar_juridica')}"/>  
+                    <f:metadata>
+                        <c:if test="#{!atualizacaoAutomaticaJuridicaBean.processoIniciado and processoAutomaticoBean.processoAutomatico.id eq -1}">
+                            <f:event type="preRenderView" listener="${processoAutomaticoBean.find_progress('atualizar_juridica')}"/>  
+                        </c:if>
                     </f:metadata>
 
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Atualização Automática" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="formAtualizacaoAutomatica">
+                            <p:poll global="false" autoStart="true" interval="60" id="ifaa" update=":formAtualizacaoAutomatica:ifaa :formAtualizacaoAutomatica:ifaaas"/>
                             <p:messages id="msg_atualizacao" closable="true" showDetail="true" />
                             <p:panel rendered="#{atualizacaoAutomaticaJuridicaBean.processoIniciado or processoAutomaticoBean.processoAutomatico.id ne -1}" style="background: #bfedff">
                                 <p:outputLabel value="Atualização iniciada, aguarde!" style="font-size: 14pt!important"/>
@@ -44,7 +47,7 @@
                             <ui:include id="template_processo_automatico" src="templates/templateProcessamentoAutomatico.xhtml" />
 
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="5" style="width: 100%">
+                                <h:panelGrid columns="5" style="width: 100%" id="ifaaas">
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{atualizacaoAutomaticaJuridicaBean.inadimplentes}" itemLabel="Inadimplentes" disabled="true"/>

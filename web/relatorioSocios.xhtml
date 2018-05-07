@@ -575,8 +575,8 @@
                                                             </h:panelGrid>
                                                             <p:selectOneRadio value="#{relatorioSociosBean.contemServicos}">
                                                                 <p:ajax event="change" update="@this" global="false"/>
-                                                                <f:selectItem itemValue="true" itemLabel="Contém" />
-                                                                <f:selectItem itemValue="false" itemLabel="Não Contém" />
+                                                                <f:selectItem itemValue="true" itemLabel="Contém no Histórico" />
+                                                                <f:selectItem itemValue="false" itemLabel="Não Contém no Histórico" />
                                                             </p:selectOneRadio>
                                                             <f:facet name="footer">
                                                                 <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('servicos')}" title="Remover filtro" update="form_relatorio" global="false"/>                                                                

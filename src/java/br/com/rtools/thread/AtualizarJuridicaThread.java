@@ -1,4 +1,3 @@
-
 package br.com.rtools.thread;
 
 import br.com.rtools.arrecadacao.ContribuintesInativos;
@@ -14,11 +13,15 @@ import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.ProcessoAutomaticoLog;
+import br.com.rtools.sistema.ProcessoAutomaticoRegistros;
+import br.com.rtools.sistema.dao.ProcessoAutomaticoRegistrosDao;
+import br.com.rtools.sistema.utils.ProcessoAutomaticoUtils;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.JuridicaReceitaJSON;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 
@@ -63,6 +66,10 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
 
     public Void metodo() {
 
+        if (listaJuridica.isEmpty()) {
+            return null;
+        }
+
         //List<Juridica> lista_juridica = new AtualizacaoAutomaticaJuridicaDao().listaJuridicaParaAtualizacao(this.query);
         Dao dao = new Dao();
         System.err.println("Começou a thread");
@@ -79,46 +86,65 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
         dao.save(pa, true);
 
         for (int i = 0; i < listaJuridica.size(); i++) {
-            try {
-                String retorno = atualizar(listaJuridica.get(i), pa.getUsuario());
+            ProcessoAutomaticoRegistros par = new ProcessoAutomaticoRegistros();
+            par.setProcessoAutomatico(pa);
+            par.setTabela("pes_juridica");
+            par.setColuna("id");
+            par.setCodigo(listaJuridica.get(i).getId());
+            dao.save(par, true);
 
-                ProcessoAutomaticoLog pal = new ProcessoAutomaticoLog(
-                        -1,
-                        pa,
-                        "[" + DataHoje.hora() + "] N° " + (i + 1) + "\n"
-                        + (!retorno.isEmpty() ? "[" + retorno + "]\n" : " ")
-                        + " Juridica ID: " + listaJuridica.get(i).getId() + "\n"
-                        + " Juridica Nome: " + listaJuridica.get(i).getPessoa().getNome()
-                );
-
-                dao.save(pal, true);
-                pa.setNrProgresso(i + 1);
-
-                dao.update(pa, true);
-
-                System.err.println("Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome() + " [" + retorno + "]");
-                // TEM QUE SER 2 SEG. SE NÃO TRAVA
-                Thread.sleep(2000);
-                dao.refresh(pa);
-                
-                if (pa.getCancelarProcesso()){
-                    break;
-                }
-            } catch (Exception e) {
-                System.err.println("[Erro] Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome());
-            }
         }
-        System.err.println("Terminou a thread");
 
-        pa.setDataFinal(DataHoje.dataHoje());
-        pa.setHoraFinal(DataHoje.hora());
-
-        dao.update(pa, true);
+        ProcessoAutomaticoUtils.execute(pa);
 
         return null;
     }
 
-    public String atualizar(Juridica juridica, Usuario usuario) {
+    public static void init(ProcessoAutomatico pa) {
+        List<ProcessoAutomaticoRegistros> list = new ProcessoAutomaticoRegistrosDao().find(pa.getId());
+        Dao dao = new Dao();
+        for (int i = 0; i < list.size(); i++) {
+            ProcessoAutomaticoRegistros pr = (ProcessoAutomaticoRegistros) dao.rebind(dao.find(list.get(i)));
+            if (pr.getDtConclusao() == null) {
+                Juridica j = (Juridica) dao.find(new Juridica(), list.get(i).getCodigo());
+                try {
+                    String retorno = atualizar(j, pa.getUsuario());
+
+                    ProcessoAutomaticoLog pal = new ProcessoAutomaticoLog(
+                            -1,
+                            pa,
+                            "[" + DataHoje.hora() + "] N° " + (i + 1) + "\n"
+                            + (!retorno.isEmpty() ? "[" + retorno + "]\n" : " ")
+                            + " Juridica ID: " + j.getId() + "\n"
+                            + " Juridica Nome: " + j.getPessoa().getNome()
+                    );
+
+                    list.get(i).setDtConclusao(new Date());
+                    dao.update(list.get(i), true);
+
+                    dao.save(pal, true);
+                    pa.setNrProgresso(i + 1);
+
+                    dao.update(pa, true);
+
+                    System.err.println("Empresa Atualizada N° " + i + ": " + j.getPessoa().getNome() + " [" + retorno + "]");
+                    // TEM QUE SER 2 SEG. SE NÃO TRAVA
+                    Thread.sleep(2000);
+                    dao.refresh(pa);
+
+                    if (pa.getCancelarProcesso()) {
+                        break;
+                    }
+                } catch (Exception e) {
+                    if (j != null) {
+                        System.err.println("[Erro] Empresa Atualizada N° " + i + ": " + j.getPessoa().getNome());
+                    }
+                }
+            }
+        }
+    }
+
+    public static String atualizar(Juridica juridica, Usuario usuario) {
         try {
             if (juridica.getPessoa().getDocumento().isEmpty()) {
                 return "Documento Vazio";
@@ -134,7 +160,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
             juridica = (Juridica) dao.find(juridica);
 
             // tipo = wokki = pago / '' = gratis
-            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "").pesquisar();
+            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "hubdodesenvolvedor").pesquisar();
 
             if (jro.getStatus() == 6) {
                 return "Limite de acessos excedido!";
@@ -223,52 +249,60 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
 
             dao.commit();
 
-            juridica.getPessoa().setDtRecadastro(DataHoje.dataHoje());
-            // NOME
-            if (juridica.getPessoa().getNome() == null || juridica.getPessoa().getNome().isEmpty())
-                juridica.getPessoa().setNome(juridicaRA_nova.getNome().toUpperCase());
-            
-            // FANTASIA
-            if (juridica.getFantasia() == null || juridica.getFantasia().isEmpty())
-                juridica.setFantasia(juridicaRA_nova.getFantasia().toUpperCase());
-
-            // EMAIL 1
-            if (juridica.getPessoa().getEmail1() == null || juridica.getPessoa().getEmail1().isEmpty())
-                juridica.getPessoa().setEmail1(jro.getEmail1());
-            
-            // EMAIL 2
-            if (juridica.getPessoa().getEmail2() == null || juridica.getPessoa().getEmail2().isEmpty())
-                juridica.getPessoa().setEmail2(jro.getEmail2());
-            
-            // EMAIL 3
-            if (juridica.getPessoa().getEmail3() == null || juridica.getPessoa().getEmail3().isEmpty())
-                juridica.getPessoa().setEmail3(jro.getEmail3());
-
-            // TELEFONE 1
-            if (juridica.getPessoa().getTelefone1() == null || juridica.getPessoa().getTelefone1().isEmpty())
-                juridica.getPessoa().setTelefone1(jro.getTelefone1());
-            
-            // TELEFONE 2
-            if (juridica.getPessoa().getTelefone2() == null || juridica.getPessoa().getTelefone2().isEmpty())
-                juridica.getPessoa().setTelefone2(jro.getTelefone2());
-            
-            // TELEFONE 3
-            if (juridica.getPessoa().getTelefone3() == null || juridica.getPessoa().getTelefone3().isEmpty())
-                juridica.getPessoa().setTelefone3(jro.getTelefone3());
-
-            if (!dao.update(juridica.getPessoa(), true)) {
-                return "Erro ao Salvar Pessoa Receita Antiga!";
-            }
-            
-            if (!dao.update(juridica, true)) {
-                return "Erro ao Salvar Juridica Receita Antiga!";
-            }
-
-            if (!jro.getSituacao_cadastral().toLowerCase().equals("ativo") && !jro.getSituacao_cadastral().toLowerCase().equals("ativa") && !jro.getSituacao_cadastral().isEmpty()) {
-                if (!inativarContribuintes(juridica, jro.getSituacao_cadastral(), usuario)) {
-                    return "Erro ao Inativar Empresa!";
-                }
-            }
+//            juridica.getPessoa().setDtRecadastro(DataHoje.dataHoje());
+//            // NOME
+//            if (juridica.getPessoa().getNome() == null || juridica.getPessoa().getNome().isEmpty()) {
+//                juridica.getPessoa().setNome(juridicaRA_nova.getNome().toUpperCase());
+//            }
+//
+//            // FANTASIA
+//            if (juridica.getFantasia() == null || juridica.getFantasia().isEmpty()) {
+//                juridica.setFantasia(juridicaRA_nova.getFantasia().toUpperCase());
+//            }
+//
+//            // EMAIL 1
+//            if (juridica.getPessoa().getEmail1() == null || juridica.getPessoa().getEmail1().isEmpty()) {
+//                juridica.getPessoa().setEmail1(jro.getEmail1());
+//            }
+//
+//            // EMAIL 2
+//            if (juridica.getPessoa().getEmail2() == null || juridica.getPessoa().getEmail2().isEmpty()) {
+//                juridica.getPessoa().setEmail2(jro.getEmail2());
+//            }
+//
+//            // EMAIL 3
+//            if (juridica.getPessoa().getEmail3() == null || juridica.getPessoa().getEmail3().isEmpty()) {
+//                juridica.getPessoa().setEmail3(jro.getEmail3());
+//            }
+//
+//            // TELEFONE 1
+//            if (juridica.getPessoa().getTelefone1() == null || juridica.getPessoa().getTelefone1().isEmpty()) {
+//                juridica.getPessoa().setTelefone1(jro.getTelefone1());
+//            }
+//
+//            // TELEFONE 2
+//            if (juridica.getPessoa().getTelefone2() == null || juridica.getPessoa().getTelefone2().isEmpty()) {
+//                juridica.getPessoa().setTelefone2(jro.getTelefone2());
+//            }
+//
+//            // TELEFONE 3
+//            if (juridica.getPessoa().getTelefone3() == null || juridica.getPessoa().getTelefone3().isEmpty()) {
+//                juridica.getPessoa().setTelefone3(jro.getTelefone3());
+//            }
+//
+//            if (!dao.update(juridica.getPessoa(), true)) {
+//                return "Erro ao Salvar Pessoa Receita Antiga!";
+//            }
+//
+//            if (!dao.update(juridica, true)) {
+//                return "Erro ao Salvar Juridica Receita Antiga!";
+//            }
+//
+//            if (!jro.getSituacao_cadastral().toLowerCase().equals("ativo") && !jro.getSituacao_cadastral().toLowerCase().equals("ativa") && !jro.getSituacao_cadastral().isEmpty()) {
+//                if (!inativarContribuintes(juridica, jro.getSituacao_cadastral(), usuario)) {
+//                    return "Erro ao Inativar Empresa!";
+//                }
+//            }
         } catch (Exception e) {
             //System.err.println(e.getMessage());
             return (e.getMessage() == null) ? "ERRO NA PESQUISA WEB SERVICE" : e.getMessage();
@@ -276,7 +310,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
         return "";
     }
 
-    public Boolean inativarContribuintes(Juridica juridica, String obs, Usuario usuario) {
+    public static Boolean inativarContribuintes(Juridica juridica, String obs, Usuario usuario) {
         try {
             Dao dao = new Dao();
 

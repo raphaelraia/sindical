@@ -296,8 +296,8 @@
                                     </p:outputLabel>
                                 </p:column>
 
-                                <p:column headerText="#{extratoTelaSocialBean.tipoDataPesquisa eq 'ocorrencia' ? 'Recebimento(Ocorrência)' : 'Baixa'}" style="text-align: center; width: 60px">
-                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? linha.argumento1[21] : linha.argumento1[11]}">
+                                <p:column headerText="#{extratoTelaSocialBean.tipoDataPesquisa eq 'baixa' ? 'Baixa' : 'Recebimento(Ocorrência)'}" style="text-align: center; width: 60px">
+                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'baixa' ? linha.argumento1[11] : linha.argumento1[21]}">
                                         <f:convertDateTime />
                                     </p:outputLabel>
                                 </p:column>

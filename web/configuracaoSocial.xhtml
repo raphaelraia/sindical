@@ -253,7 +253,14 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:panel styleClass="margin-top-max">
+                            <p:panel styleClass="margin-top-max" header="Boleto">
+                                <h:panelGrid columns="4" cellspacing="5">
+                                    <h:outputLabel value="Bloqueia Meses Boleto: " />
+                                    <p:inputNumber value="#{configuracaoSocialBean.configuracaoSocial.bloqueioMesesBoleto}"  decimalPlaces="0" emptyValue="0">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputNumber>
+                                </h:panelGrid>
+
                                 <p:outputLabel value="Verso do Boleto Associativo" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="1" style="width: 100%">
                                     <p:outputLabel value="Local de Pagamento" /><br />
