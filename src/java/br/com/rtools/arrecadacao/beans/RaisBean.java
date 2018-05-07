@@ -224,7 +224,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
             if (rais.getSisPessoa().getTipoDocumento().getId() == -1) {
                 rais.getSisPessoa().setTipoDocumento((TipoDocumento) di.find(new TipoDocumento(), 1));
             }
-            if (rais.getSisPessoa().getEndereco().getId() == -1) {
+            if (rais.getSisPessoa().getEndereco() == null || rais.getSisPessoa().getEndereco().getId() == -1) {
                 rais.getSisPessoa().setEndereco(null);
             }
             if (!di.save(rais.getSisPessoa())) {

@@ -309,14 +309,18 @@ public class PgStatActivityBean implements Serializable {
         
         public String getFontColor() {
             if(state.equals("active")) {
-                return "color: red;";
+                return "font-color-red bold";
+            } else if(state.equals("idle in transacion")) {
+                return "font-color-blue bold";
+            } else if(state.equals("idle in transacion (aborted)")) {
+                return "font-color-orange bold";
             }
             return "color: black;";
         }
         
         public String getBgColor() {
             if(state.equals("active")) {
-                return "background: yellowgreen;";
+                return "bg-green-ligth";
             }
             return "";
         }

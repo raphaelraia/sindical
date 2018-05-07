@@ -128,6 +128,7 @@ public class CampeonatoEquipeBean implements Serializable {
         if (idCampeonato != null) {
             listCampeonatoEquipes = new CampeonatoEquipeDao().findByCampeonato(idCampeonato);
         }
+        loadListEquipes();
     }
 
     public void loadListMatriculaCampeonato(Integer campeonato_equipe_id) {
