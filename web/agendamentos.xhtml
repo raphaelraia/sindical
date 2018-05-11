@@ -46,7 +46,6 @@
                     </p:panel>
                 </h:form>                    
                 <h:form id="form_agendamentos">
-                    <p:growl id="growl_ag" showDetail="true"/> 
                     <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{agendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentosBean.loadListHorarios}" interval="5"/>
                     <h:panelGroup rendered="#{agendamentosBean.pessoa.id ne -1 and agendamentosBean.newSched}">
                         <h:panelGroup rendered="#{agendamentosBean.trocar}" >
@@ -136,7 +135,7 @@
                             </f:facet>
                             <h:panelGrid columns="6" cellspacing="10">
                                 <h:outputLabel value="Serviço:" />
-                                <p:selectOneMenu value="#{agendamentosBean.idServico}" filter="true" filterMatchMode="contains" disabled="#{agendamentosBean.trocar}">
+                                <p:selectOneMenu value="#{agendamentosBean.idServico}" filter="true" filterMatchMode="contains" >
                                     <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('servicos')}" />
                                     <f:selectItems value="#{agendamentosBean.listServicos}" />
                                 </p:selectOneMenu>                                
@@ -198,6 +197,7 @@
                     <p:dialog widgetVar="dlg_sched" modal="true" resizable="false" height="400" width="1000" header="Deseja #{agendamentosBean.agendamento.agendaStatus.id == 2 ? 'agendar este serviço' : 'realizar este encaixe de serviço' } ?" visible="#{agendamentosBean.showModal}" closeOnEscape="true">
                         <p:ajax event="close" update=":form_agendamentos:" listener="#{agendamentosBean.listener('close_sched')}" />
                         <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
+                         <p:growl id="growl_ag" showDetail="true"/> 
                         <h:panelGrid columns="1" rendered="#{not empty agendamentosBean.pessoa.pessoa.documento}">
                             <h:column>
                                 <label class="bold font-size-10 font-color-red">#{empty agendamentosBean.pessoa.pessoa.documento ? '' : (('CPF: ').concat(agendamentosBean.pessoa.pessoa.documento))}</label>
@@ -264,7 +264,7 @@
                             <h:panelGrid cellspacing="5" columns="3" >
                                 <p:commandButton value="Confirmar" update=":form_agendamentos:" action="#{agendamentosBean.save}" rendered="#{!agendamentosBean.newRegister}"/>
                                 <p:commandButton value="Voltar" update=":form_agendamentos:" action="#{agendamentosBean.listener('close_sched')}" rendered="#{!agendamentosBean.trocar}" />
-                                <p:commandButton value="Voltar" styleClass="bold margin-top-max" rendered="#{agendamentosBean.trocar}" action="#{chamadaPaginaBean.back}" />
+                                <p:commandButton value="Voltar" styleClass="bold" rendered="#{agendamentosBean.trocar}" action="#{agendamentosBean.back}" />
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>

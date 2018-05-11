@@ -627,6 +627,10 @@ public class AtendimentosBean implements Serializable {
                 break;
             case "remove_pessoa":
                 pessoa = new Fisica();
+                if (idStatus == 1) {
+                    startDate = new Date();
+                    listener("load_schedules");
+                }
                 break;
 
             default:
@@ -681,6 +685,10 @@ public class AtendimentosBean implements Serializable {
 //            contato = "";
 //            listener("new");
             pessoa = f;
+            if (idStatus == 1) {
+                startDate = null;
+                listener("load_schedules");
+            }
         }
         return pessoa;
     }

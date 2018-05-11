@@ -41,7 +41,6 @@ public class MatriculaCampeonatoDao extends DB {
             return new ArrayList();
         }
 
-
     }
 
     public List<CampeonatoEquipe> findByEquipe(Integer equipe_id) {
@@ -51,6 +50,30 @@ public class MatriculaCampeonatoDao extends DB {
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
+        }
+    }
+
+    public CampeonatoEquipe existsInCampeonato(Integer campeonato_id, Integer pessoa_id) {
+        return existsInCampeonato(campeonato_id, pessoa_id, Boolean.TRUE);
+    }
+
+    public CampeonatoEquipe existsInCampeonato(Integer campeonato_id, Integer pessoa_id, Boolean ativo) {
+        try {
+            Query query;
+            if (ativo == null) {
+                query = getEntityManager().createQuery("SELECT MC FROM MatriculaCampeonato MC WHERE MC.campeonato.id = :campeonato_id AND MC.servicoPessoa.pessoa.id = :pessoa_id");
+            } else {
+                if (ativo) {
+                    query = getEntityManager().createQuery("SELECT MC FROM MatriculaCampeonato MC WHERE MC.campeonato.id = :campeonato_id AND MC.servicoPessoa.pessoa.id = :pessoa_id AND MC.servicoPessoa.ativo = true");
+                } else {
+                    query = getEntityManager().createQuery("SELECT MC FROM MatriculaCampeonato MC WHERE MC.campeonato.id = :campeonato_id AND MC.servicoPessoa.pessoa.id = :pessoa_id AND MC.servicoPessoa.ativo = false");
+                }
+            }
+            query.setParameter("campeonato_id", campeonato_id);
+            query.setParameter("pessoa_id", pessoa_id);
+            return (CampeonatoEquipe) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
         }
     }
 

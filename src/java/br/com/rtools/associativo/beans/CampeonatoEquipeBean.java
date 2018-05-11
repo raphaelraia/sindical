@@ -8,7 +8,6 @@ import br.com.rtools.associativo.dao.EquipeDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.dao.EventoServicoValorDao;
 import br.com.rtools.associativo.dao.ParentescoDao;
-import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.utils.SocioCarteirinhaUtils;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
@@ -17,7 +16,6 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.Dao;
@@ -262,14 +260,15 @@ public class CampeonatoEquipeBean implements Serializable {
                 sp.setNrValorFixo(esv.getValor());
             }
         } else {
-            eventoServico = new EventoServicoDao().findByEvento(campeonatoEquipe.getCampeonato().getEvento().getId(), c.getId(), true);
+
+            /* c.getId() */ eventoServico = new EventoServicoDao().findByEvento(campeonatoEquipe.getCampeonato().getEvento().getId(), null, true);
             if (eventoServico == null) {
                 eventoServico = new EventoServicoDao().findByEvento(campeonatoEquipe.getCampeonato().getEvento().getId(), null, true);
                 if (eventoServico == null) {
                     GenericaMensagem.warn("Validação", "CADASTRAR TABELA DE PREÇOS PARA RESPONSÁVEL!");
                     return;
                 }
-                esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), c.getId(), true);
+                /* c.getId() */ esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), null, true);
                 if (esv == null) {
                     esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), null, true);
                     if (esv == null) {
@@ -277,9 +276,9 @@ public class CampeonatoEquipeBean implements Serializable {
                         return;
                     }
                 }
-                sp.setNrValorFixo(0);
+                sp.setNrValorFixo(esv.getValor());
             } else {
-                esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), c.getId(), true);
+                /* c.getId() */ esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), null, true);
                 if (esv == null) {
                     esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), null, true);
                     if (esv == null) {
@@ -287,7 +286,7 @@ public class CampeonatoEquipeBean implements Serializable {
                         return;
                     }
                 } else {
-                    sp.setNrValorFixo(0);
+                    sp.setNrValorFixo(esv.getValor());
                 }
             }
         }
@@ -338,6 +337,11 @@ public class CampeonatoEquipeBean implements Serializable {
         if (new MatriculaCampeonatoDao().exists(campeonatoEquipe.getId(), campeonatoEquipe.getCampeonato().getId(), membroEquipe.getId()) != null) {
             dao.rollback();
             GenericaMensagem.warn("Validação", "PESSOA JÁ ESTA NESSA EQUIPE!");
+            return;
+        }
+        if (new MatriculaCampeonatoDao().existsInCampeonato(campeonatoEquipe.getCampeonato().getId(), membroEquipe.getId()) != null) {
+            dao.rollback();
+            GenericaMensagem.warn("Validação", "PESSOA JÁ ESTA CADASTRADA NESTE CAMPEONATO!");
             return;
         }
         if (!new CampeonatoEquipeDao().saveNativeCarterinha(dao, membroEquipe.getId())) {
@@ -412,14 +416,14 @@ public class CampeonatoEquipeBean implements Serializable {
                 sp.setNrValorFixo(esv.getValor());
             }
         } else {
-            eventoServico = new EventoServicoDao().findByEvento(cadastrarDependente.getCampeonato().getEvento().getId(), c.getId(), false);
+            eventoServico = new EventoServicoDao().findByEvento(cadastrarDependente.getCampeonato().getEvento().getId(), /* c.getId() */ null, false);
             if (eventoServico == null) {
                 eventoServico = new EventoServicoDao().findByEvento(cadastrarDependente.getCampeonato().getEvento().getId(), null, false);
                 if (eventoServico == null) {
                     GenericaMensagem.warn("Validação", "CADASTRAR TABELA DE PREÇOS PARA DEPENDENTE!");
                     return;
                 }
-                esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), c.getId(), false);
+                esv = new EventoServicoValorDao().findByEventoCategoria(eventoServico.getId(), /* c.getId() */ null, false);
                 if (esv == null) {
                     sp.setNrValorFixo(0);
                 } else {
