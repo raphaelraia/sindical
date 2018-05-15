@@ -833,15 +833,9 @@ public class AgendamentosBean implements Serializable {
                 loadListServicos();
                 break;
             case "convenio":
-                if (trocar) {
-                    data = new Date();
-                }
                 listener("servicos");
                 break;
             case "servicos":
-                if (!trocar) {
-                    data = new Date();
-                }
                 loadListHorarios();
                 agendaServico = new AgendaServicoDao().findByAgendaServico(idServico, false);
                 if (agendaServico == null) {
@@ -866,6 +860,7 @@ public class AgendamentosBean implements Serializable {
                 filial = (Filial) new Dao().find(new Filial(), idFilial);
                 break;
             case "close_sched":
+                startDate = new Date();
                 agendamento.setAgendaStatus(null);
                 agendamento.setData("");
                 agendamento.setEmissao("");

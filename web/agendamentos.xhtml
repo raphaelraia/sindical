@@ -47,7 +47,7 @@
                 </h:form>                    
                 <h:form id="form_agendamentos">
                     <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{agendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentosBean.loadListHorarios}" interval="5"/>
-                    <h:panelGroup rendered="#{agendamentosBean.pessoa.id ne -1 and agendamentosBean.newSched}">
+                    <h:panelGroup rendered="#{agendamentosBean.pessoa.id ne -1 and agendamentosBean.newSched}" id="i_sched_register">
                         <h:panelGroup rendered="#{agendamentosBean.trocar}" >
                             <h:panelGrid columns="2" style="width: 100%; border: 1px solid red; border-radius: 5px; padding: 10px" >
                                 <h:column>
@@ -196,70 +196,72 @@
                     </p:dialog> 
                     <p:dialog widgetVar="dlg_sched" modal="true" resizable="false" height="400" width="1000" header="Deseja #{agendamentosBean.agendamento.agendaStatus.id == 2 ? 'agendar este serviço' : 'realizar este encaixe de serviço' } ?" visible="#{agendamentosBean.showModal}" closeOnEscape="true">
                         <p:ajax event="close" update=":form_agendamentos:" listener="#{agendamentosBean.listener('close_sched')}" />
-                        <p:messages showDetail="true" showSummary="true" autoUpdate="true"/> 
-                         <p:growl id="growl_ag" showDetail="true"/> 
-                        <h:panelGrid columns="1" rendered="#{not empty agendamentosBean.pessoa.pessoa.documento}">
-                            <h:column>
-                                <label class="bold font-size-10 font-color-red">#{empty agendamentosBean.pessoa.pessoa.documento ? '' : (('CPF: ').concat(agendamentosBean.pessoa.pessoa.documento))}</label>
-                            </h:column>
-                        </h:panelGrid>
-                        <h:panelGrid columns="3" style="width: 100%">
-                            <h:column>
-                                <label class="bold font-size-12 font-color-blue"> #{agendamentosBean.pessoa.pessoa.nome}</label><label class="font-color-red">(#{agendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
-                            </h:column>
-                            <h:column rendered="#{agendamentosBean.pessoa.pessoa.socios.id ne -1}">
-                                <h:panelGrid columns="6">
-                                    <h:column>Matrícula: #{agendamentosBean.pessoa.pessoa.socios.matriculaSocios.nrMatricula}</h:column>
-                                    <h:column>Categoria: #{agendamentosBean.pessoa.pessoa.socios.matriculaSocios.categoria.categoria}</h:column>
-                                    <h:column>Filiação: #{agendamentosBean.pessoa.pessoa.socios.parentesco.parentesco}</h:column>
-                                </h:panelGrid>
-                            </h:column>
-                        </h:panelGrid>                            
-                        <h:panelGrid columns="6" cellspacing="5" styleClass="margin-top-max">
-                            <p:outputLabel value="Telefone: " rendered="#{not empty agendamentosBean.agendamento.telefone}"/>
-                            <p:outputLabel value="#{agendamentosBean.agendamento.telefone}" styleClass="bold font-color-blue"/>
-                            <p:outputLabel value="E-mail: " rendered="#{not empty agendamentosBean.agendamento.email}" />
-                            <p:outputLabel value="#{agendamentosBean.agendamento.email}" styleClass="text-center bold font-color-red" />
-                            <p:outputLabel value="Contato: " rendered="#{not empty agendamentosBean.agendamento.contato}"/>
-                            <p:outputLabel value="#{agendamentosBean.agendamento.contato}" styleClass="text-center bold"/>
-                        </h:panelGrid>
-                        <h:panelGrid columns="2" cellspacing="5" styleClass="margin-top-max">
-                            <p:outputLabel value="Filial: " />
-                            <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.filial.filial.pessoa.nome} - #{agendamentosBean.agendamentoHorario.agendaHorarios.filial.filial.pessoa.documento}" styleClass="bold"/>
-                            <p:outputLabel value="Emissão: " />
-                            <p:outputLabel value="#{agendamentosBean.agendamento.emissao}" styleClass="text-center bold"/>
-                            <p:outputLabel value="Data:" />
-                            <h:column>
-                                <h:panelGrid columns="8">
-                                    <p:outputLabel value="#{agendamentosBean.agendamento.data}" styleClass="bold"/>
-                                    <p:outputLabel value="Horário Inicial: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.hora}" styleClass="bold"/>                                    
-                                    <p:outputLabel value="Horário Final: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{agendamentosBean.endTime}" styleClass="bold"/>
-                                    <p:outputLabel value="Tempo: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{agendamentosBean.agendaServico.nrMinutos} (min)" styleClass="bold"/>                                    
-                                </h:panelGrid>
-                            </h:column>
-                            <p:outputLabel value="Colaborador: " />
-                            <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.convenio.nome} - #{agendamentosBean.agendamentoHorario.agendaHorarios.convenio.documento}" styleClass="bold" title="#{agendamentosBean.agendamentoHorario.agendaHorarios.convenio.id}"/>                            
-                            <p:outputLabel value="Grupo: " />
-                            <h:column>
-                                <h:panelGrid columns="8">
-                                    <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.subGrupoConvenio.grupoConvenio.descricao}" styleClass="bold"/>
-                                    <p:outputLabel value="Subgrupo: " styleClass="margin-left-max"/>
-                                    <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.subGrupoConvenio.descricao}" styleClass="bold"/>
-                                </h:panelGrid>
-                            </h:column>
-                            <p:outputLabel value="Serviço:" />
-                            <p:outputLabel value="(#{agendamentosBean.agendamentoServico.servico.id}) #{agendamentosBean.agendamentoServico.servico.descricao}" styleClass="text-center bold font-color-blue"/>
-                            <h:outputLabel value="Valor:" styleClass="bold font-size-12"/>
-                            <p:outputLabel value="#{agendamentosBean.valor}" styleClass="bold bold font-size-14 font-color-blue">
-                                <f:convertNumber type="currency" currencySymbol="R$" />
-                            </p:outputLabel>                            
-                        </h:panelGrid>
-                        <h:panelGrid columns="3">
+                        <h:panelGroup id="id_sched">
+                            <p:messages showDetail="true" showSummary="true" /> 
+                            <p:growl id="growl_ag" showDetail="true" showSummary="true" /> 
+                            <h:panelGrid columns="1" rendered="#{not empty agendamentosBean.pessoa.pessoa.documento}">
+                                <h:column>
+                                    <label class="bold font-size-10 font-color-red">#{empty agendamentosBean.pessoa.pessoa.documento ? '' : (('CPF: ').concat(agendamentosBean.pessoa.pessoa.documento))}</label>
+                                </h:column>
+                            </h:panelGrid>
+                            <h:panelGrid columns="3" style="width: 100%">
+                                <h:column>
+                                    <label class="bold font-size-12 font-color-blue"> #{agendamentosBean.pessoa.pessoa.nome}</label><label class="font-color-red">(#{agendamentosBean.pessoa.pessoa.socios.id eq -1 ? 'NÃO SÓCIO' : 'SÓCIO'})</label>
+                                </h:column>
+                                <h:column rendered="#{agendamentosBean.pessoa.pessoa.socios.id ne -1}">
+                                    <h:panelGrid columns="6">
+                                        <h:column>Matrícula: #{agendamentosBean.pessoa.pessoa.socios.matriculaSocios.nrMatricula}</h:column>
+                                        <h:column>Categoria: #{agendamentosBean.pessoa.pessoa.socios.matriculaSocios.categoria.categoria}</h:column>
+                                        <h:column>Filiação: #{agendamentosBean.pessoa.pessoa.socios.parentesco.parentesco}</h:column>
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:panelGrid>                            
+                            <h:panelGrid columns="6" cellspacing="5" styleClass="margin-top-max">
+                                <p:outputLabel value="Telefone: " rendered="#{not empty agendamentosBean.agendamento.telefone}"/>
+                                <p:outputLabel value="#{agendamentosBean.agendamento.telefone}" styleClass="bold font-color-blue"/>
+                                <p:outputLabel value="E-mail: " rendered="#{not empty agendamentosBean.agendamento.email}" />
+                                <p:outputLabel value="#{agendamentosBean.agendamento.email}" styleClass="text-center bold font-color-red" />
+                                <p:outputLabel value="Contato: " rendered="#{not empty agendamentosBean.agendamento.contato}"/>
+                                <p:outputLabel value="#{agendamentosBean.agendamento.contato}" styleClass="text-center bold"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2" cellspacing="5" styleClass="margin-top-max">
+                                <p:outputLabel value="Filial: " />
+                                <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.filial.filial.pessoa.nome} - #{agendamentosBean.agendamentoHorario.agendaHorarios.filial.filial.pessoa.documento}" styleClass="bold"/>
+                                <p:outputLabel value="Emissão: " />
+                                <p:outputLabel value="#{agendamentosBean.agendamento.emissao}" styleClass="text-center bold"/>
+                                <p:outputLabel value="Data:" />
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:outputLabel value="#{agendamentosBean.agendamento.data}" styleClass="bold"/>
+                                        <p:outputLabel value="Horário Inicial: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.hora}" styleClass="bold"/>                                    
+                                        <p:outputLabel value="Horário Final: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{agendamentosBean.endTime}" styleClass="bold"/>
+                                        <p:outputLabel value="Tempo: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{agendamentosBean.agendaServico.nrMinutos} (min)" styleClass="bold"/>                                    
+                                    </h:panelGrid>
+                                </h:column>
+                                <p:outputLabel value="Colaborador: " />
+                                <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.convenio.nome} - #{agendamentosBean.agendamentoHorario.agendaHorarios.convenio.documento}" styleClass="bold" title="#{agendamentosBean.agendamentoHorario.agendaHorarios.convenio.id}"/>                            
+                                <p:outputLabel value="Grupo: " />
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.subGrupoConvenio.grupoConvenio.descricao}" styleClass="bold"/>
+                                        <p:outputLabel value="Subgrupo: " styleClass="margin-left-max"/>
+                                        <p:outputLabel value="#{agendamentosBean.agendamentoHorario.agendaHorarios.subGrupoConvenio.descricao}" styleClass="bold"/>
+                                    </h:panelGrid>
+                                </h:column>
+                                <p:outputLabel value="Serviço:" />
+                                <p:outputLabel value="(#{agendamentosBean.agendamentoServico.servico.id}) #{agendamentosBean.agendamentoServico.servico.descricao}" styleClass="text-center bold font-color-blue"/>
+                                <h:outputLabel value="Valor:" styleClass="bold font-size-12"/>
+                                <p:outputLabel value="#{agendamentosBean.valor}" styleClass="bold bold font-size-14 font-color-blue">
+                                    <f:convertNumber type="currency" currencySymbol="R$" />
+                                </p:outputLabel>                            
+                            </h:panelGrid>
+                            <h:panelGrid columns="3">
 
-                        </h:panelGrid>
+                            </h:panelGrid>
+                        </h:panelGroup>
                         <f:facet name="footer">
                             <h:panelGrid cellspacing="5" columns="3" >
                                 <p:commandButton value="Confirmar" update=":form_agendamentos:" action="#{agendamentosBean.save}" rendered="#{!agendamentosBean.newRegister}"/>
