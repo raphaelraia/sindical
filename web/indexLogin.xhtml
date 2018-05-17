@@ -33,21 +33,23 @@
         <!-- INICIA DIV wrap e main -->
         <div id="wrapx">
             <div id="mainx">
-                <div style="width: 100%; height: 40px; background: #ECF3FE;"></div>
+                <!-- <div style="width: 100%; height: 40px; background: #ECF3FE;"></div> -->
                 <!-- INICIA DIV wrap e main -->
                 <h:form id="formLoginValidacao">
                     <h:inputHidden value="#{controleUsuarioBean.validacaoIndex}"/>
                 </h:form>
 
-                <h:panelGrid styleClass="wrapper sb" style="border: 0px; background: #dbeaeb" rendered="#{controleUsuarioBean.filialDep != null}">
-                    <h:outputLabel value="Filial Cadastrada: " style="font-weight: bold"/>
-                    <h:outputLabel value="#{controleUsuarioBean.filialDep}"/>
-                </h:panelGrid>
+
 
                 <f:view> 
                     <h:panelGroup styleClass="wrapper" layout="block">
                         <h:form id="formLogin">
-
+                            <h:panelGrid cellspacing="10">
+                                <p:panel styleClass="wrapper sb" style="background: #dbeaeb" rendered="#{controleUsuarioBean.filialDep != null}">
+                                    <h:outputLabel value="FILIAL CADASTRADA: " style="font-weight: bold"/>
+                                    <h:outputLabel value="#{controleUsuarioBean.filialDep}"/>
+                                </p:panel>
+                            </h:panelGrid>
                             <p:focus context="i_panel_login"/>
                             <h:panelGroup  layout="grid" id="i_panel_login">
                                 <h:panelGrid columns="2" cellspacing="10" columnClasses="verticalAlignTop, verticalAlignTop" >
@@ -62,11 +64,13 @@
                                             <h:graphicImage value="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/LogoCliente.png" width="250" style="margin-bottom: 20px; float: right"/>
                                             <p:messages id="m_panel" closable="true" />
                                             <h:outputLabel value="Login" for="i_sis_login" />
-                                            <p:inputText id="i_sis_login"  style="width: 100%" value="#{controleUsuarioBean.usuario.login}" required="true" requiredMessage="Digite um Login" autocomplete="off" maxlength="20" placeholder="Nome do Usuário"/>
+                                            <p:inputText id="i_sis_login"   style="font-size: 14pt!important" value="#{controleUsuarioBean.usuario.login}" required="true" requiredMessage="Digite um Login" autocomplete="off" maxlength="20" placeholder="Nome do Usuário"/>
 
                                             <h:outputLabel value="Senha " for="i_sis_senha"/>
-                                            <p:password id="i_sis_senha" style="width: 100%" value="#{controleUsuarioBean.usuario.senha}" required="true" requiredMessage="Digite uma Senha" autocomplete="off" maxlength="20" />
-                                            <p:commandButton value="Entrar" action="#{controleUsuarioBean.validacao}" update="i_panel_login" style="margin-bottom: 15px!important" />
+                                            <p:password id="i_sis_senha" style="font-size: 14pt!important" value="#{controleUsuarioBean.usuario.senha}" required="true" requiredMessage="Digite uma Senha" autocomplete="off" maxlength="20">
+                                                
+                                            </p:password>
+                                            <p:commandButton value="Entrar" action="#{controleUsuarioBean.validacao}" update="i_panel_login" style="margin-top: 10px!important;font-size: 14pt!important" />
                                         </h:panelGrid>
 
                                     </p:column>

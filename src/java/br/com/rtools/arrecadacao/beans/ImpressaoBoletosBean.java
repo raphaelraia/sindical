@@ -37,6 +37,8 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Linha;
 import br.com.rtools.utilitarios.Mail;
+import br.com.rtools.utilitarios.Messages;
+import br.com.rtools.utilitarios.PF;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -353,7 +355,7 @@ public class ImpressaoBoletosBean implements Serializable {
                 for (int i = 0; i < listaDataSelecionada.size(); i++) {
                     ids.add(listaDataSelecionada.get(i));
                 }
-                
+
                 int id_esc = 0;
 
                 if (contabilidade.getId() != -1) {
@@ -435,7 +437,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     }
                 }
             }
-            
+
             if (!(getListObjectImpressaoBoleto().isEmpty())) {
                 if (((quantidade <= getListObjectImpressaoBoleto().size()) && (inicio <= getListObjectImpressaoBoleto().size()) && (fim <= getListObjectImpressaoBoleto().size()))
                         && ((inicio != 0) && (fim != 0))) {
@@ -707,7 +709,7 @@ public class ImpressaoBoletosBean implements Serializable {
         imp.baixarArquivo();
         return null;
     }
-    
+
     public String etiquetaEmpresa() {
         String cnaes = "";
         RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
@@ -967,6 +969,8 @@ public class ImpressaoBoletosBean implements Serializable {
             } catch (Exception ex) {
             }
         }
+        Messages.info("Sistema", "Processo concluído");
+        PF.update("form_impressao_boletos:i_e_i_b_email");
     }
 
     public void enviar(List<Movimento> mov, List<Double> listaValores, List<String> listaVencimentos, Juridica jur) {
@@ -1032,6 +1036,11 @@ public class ImpressaoBoletosBean implements Serializable {
 
             String[] retorno = mail.send("personalizado");
             msgImpressao = "Envio Concluído!";
+
+            if (retorno[1] != null && !retorno[1].isEmpty()) {
+                Messages.warn("Erro", retorno[0] + " " + retorno[1]);
+                PF.update("form_impressao_boletos:i_e_i_b_email");
+            }
         } catch (Exception erro) {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
 

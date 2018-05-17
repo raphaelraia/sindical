@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
@@ -342,12 +343,14 @@ public class Mail extends MailTemplate implements Serializable {
                         strings[1] = "Email de destinatário inválido!";
                         strings[1] += " - " + returnExceptionText(e.getMessage());
                     } catch (MessagingException e) {
-                        if(e.getCause() != null && e.getCause().toString().contains("PKIX")) {
-                            strings[1] = "" + e.getCause().toString();                            
+                        if (e.getCause() != null && e.getCause().toString().contains("PKIX")) {
+                            strings[1] = "" + e.getCause().toString();
                         } else {
                             strings[1] = "" + returnExceptionText(e.getMessage());
-                            if(strings[1].contains("Invalid Addresses")) {
-                                strings[1] += ":" + emailPessoas.get(i).getDestinatario();
+                            if (strings[1].contains("Invalid Addresses")) {
+                                strings[1] += ": " + emailPessoas.get(i).getDestinatario();
+                            } else if (strings[1].contains("Dominio com caracteres errados")) {
+                                strings[1] += ": " + emailPessoas.get(i).getDestinatario();
                             }
                         }
                     } catch (UnsupportedEncodingException ex) {
@@ -466,12 +469,14 @@ public class Mail extends MailTemplate implements Serializable {
     public String returnExceptionText(String e) {
         try {
             if (e.contains("Could not convert socket to TLS")) {
-                
+
                 return "Não foi possível converter socket para TLS";
             } else if (e.contains("504 Invalid Username or Password")) {
                 return "Login (Email) ou senha inválida";
             } else if (e.contains("Could not connect to SMTP host")) {
                 return "Não foi possível converter socket para SMTP";
+            } else if (e.contains("Domain contains illegal character")) {
+                return "Dominio com caracteres errados";
             }
         } catch (Exception ex) {
 

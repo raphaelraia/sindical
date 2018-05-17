@@ -720,7 +720,7 @@
                     </p:panel>
 
                     <h:form id="form_relatorio_email">
-                        <p:dialog widgetVar="dlg_send_email" modal="true" width="1000" height="600" header="Enviar Email" closable="false" visible="#{relatorioSociosBean.modal}">
+                        <p:dialog widgetVar="dlg_send_email" modal="true" width="1000" height="600" header="Enviar Email" closable="true" visible="#{relatorioSociosBean.modal}">
                             <p:ajax event="close" listener="#{relatorioSociosBean.closeSendMail}" update=":form_relatorio: :form_relatorio_email:" />
                             <h:panelGroup  id="i_anexos" layout="block">
                                 <p:messages showDetail="true" showSummary="true" autoUpdate="true" />

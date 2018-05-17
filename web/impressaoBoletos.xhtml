@@ -338,8 +338,8 @@
                                 </h:column>
                             </h:panelGrid>
 
-                            <p:dialog modal="true" widgetVar="i_dlg_confirma" header="Confirmação!" draggable="false" closable="false" style="text-align: center">  
-                                <h:outputLabel value="E-mails enviados com Sucesso!" /><br /><br />
+                            <p:dialog modal="true" widgetVar="i_dlg_confirma" header="Confirmação!" draggable="false" closable="false" style="text-align: center">
+                                <p:messages showDetail="true" showSummary="true" id="i_e_i_b_email" />
                                 <p:commandButton value="OK" onclick="PF('i_dlg_confirma').hide()" />
                             </p:dialog>
                             

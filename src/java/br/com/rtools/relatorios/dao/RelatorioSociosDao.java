@@ -202,14 +202,14 @@ public class RelatorioSociosDao extends DB {
                 + "           P.ds_foto,                                        \n" // 32
                 + "           P.ds_rg,                                          \n" // 33
                 + "           P.foto,                                           \n" // 34
-                + "           P.t_logradouro,                                   \n" // 35
-                + "           P.t_endereco,                                     \n" // 36
-                + "           P.t_numero,                                       \n" // 37
-                + "           P.t_complemento,                                  \n" // 38
-                + "           P.t_bairro,                                       \n" // 39
-                + "           P.t_cidade,                                       \n" // 40
-                + "           P.t_uf,                                           \n" // 41
-                + "           P.t_cep,                                          \n" // 42
+                + "           P.logradouro,                                     \n" // 35
+                + "           P.endereco,                                       \n" // 36
+                + "           P.numero,                                         \n" // 37
+                + "           P.complemento,                                    \n" // 38
+                + "           P.bairro,                                         \n" // 39
+                + "           P.cidade,                                         \n" // 40
+                + "           P.uf,                                             \n" // 41
+                + "           P.cep,                                            \n" // 42
                 + "           P.setor,                                          \n" // 43
                 + "           P.admissao,                                       \n" // 44
                 + "           P.profissao,                                      \n" // 45
@@ -402,7 +402,7 @@ public class RelatorioSociosDao extends DB {
         }
         // CIDADES SÓCIO  ------------------
         if (in_cidade_socio != null && !in_cidade_socio.isEmpty()) {
-            listWhere.add("P.t_id_cidade IN(" + in_cidade_socio + ")");
+            listWhere.add("P.id_cidade IN(" + in_cidade_socio + ")");
         }
         // CIDADES EMPRESA -----------
         if (in_cidade_empresa != null && !in_cidade_empresa.isEmpty()) {
