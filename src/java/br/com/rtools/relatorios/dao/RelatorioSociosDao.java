@@ -936,12 +936,12 @@ public class RelatorioSociosDao extends DB {
         }
 //
         if (relatorioOrdem != null && ordem.isEmpty()) {
-            ordem = " ORDER BY " + relatorioOrdem.getQuery();
+            queryString += " ORDER BY " + relatorioOrdem.getQuery();
 //            tordem += tordem.isEmpty() ? " p.nome " : ", p.nome ";
 //            
 //            }
         } else {
-            ordem = " ORDER BY " + ordem;
+            queryString += " ORDER BY " + ordem;
         }
         try {
 //            Queries queries = new Queries();

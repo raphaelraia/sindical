@@ -672,6 +672,7 @@ public class MatriculaAcademiaBean implements Serializable {
             }
             // DESCONTO SOCIAL DEFAULT
             matriculaAcademia.getServicoPessoa().setDescontoSocial((DescontoSocial) dao.find(new DescontoSocial(), 1));
+            matriculaAcademia.getServicoPessoa().setPeriodoCobranca(matriculaAcademia.getAcademiaServicoValor().getPeriodo());
             if (!dao.save(matriculaAcademia.getServicoPessoa())) {
                 dao.rollback();
                 message = "Erro ao adicionar serviço pessoa!";
@@ -1234,9 +1235,8 @@ public class MatriculaAcademiaBean implements Serializable {
 
 //                    String text = listaAcademiaServicoValor.get(w).getPeriodo().getDescricao() + " - " + text;
 //                    listaPeriodosGrade.add(new SelectItem(w, text, Integer.toString(listaAcademiaServicoValor.get(w).getId())));
-
                     String text = "Período - " + listaAcademiaServicoValor.get(w).getDescricao();
-                    
+
                     listaPeriodosGrade.add(new SelectItem(w, text, Integer.toString(listaAcademiaServicoValor.get(w).getId())));
                 }
 
