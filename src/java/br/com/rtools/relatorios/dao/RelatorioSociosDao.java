@@ -229,11 +229,11 @@ public class RelatorioSociosDao extends DB {
                 + "           P.email,                                          \n" // 75
                 + "           P.contabil_nome,                                  \n" // 76
                 + "           P.contabil_contato,                               \n" // 77
-                + "           P.contabil_telefone                               \n" // 78
+                + "           P.contabil_telefone,                              \n" // 78
                 + "           P.admissao_empresa_demissionada,                  \n" // 79
                 + "           P.demissao_empresa_demissionada,                  \n" // 80
                 + "           P.cnpj_empresa_demissionada,                      \n" // 81
-                + "           P.empresa_demissionada                            \n" // 82
+                + "           P.empresa_demissionada,                           \n" // 82
                 + "           func_idade(P.dt_nascimento,CURRENT_DATE) AS idade,\n" // 83
                 + "           P.suspencao_motivo,                               \n" // 84
                 + "           P.suspencao_inicial,                              \n" // 85
