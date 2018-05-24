@@ -18,4 +18,16 @@ public class AgendamentoHorarioDao extends DB {
         }
     }
 
+    public String firstTime(Integer agendamento_id) {
+//        try {
+//            Query query = getEntityManager().createQuery("SELECT AH.agendaHorarios.hora FROM AgendamentoHorario AH WHERE AH.agendamento.id = :agendamento_id ORDER BY AH.agendaHorarios.hora ASC");
+//            query.setParameter("agendamento_id", agendamento_id);
+//            query.setMaxResults(1);
+//            return query.getResultList();
+//        } catch (Exception e) {
+//            return new ArrayList();
+//        }
+        return "";
+    }
+
 }

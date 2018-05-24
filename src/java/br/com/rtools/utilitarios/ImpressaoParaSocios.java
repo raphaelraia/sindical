@@ -232,7 +232,8 @@ public class ImpressaoParaSocios {
                                 ((List) (listCartao2[h].get(i))).get(44)
                         )
                 );
-                if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP") || ControleUsuarioBean.getCliente().equals("MetalRP")) {
+                // ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP") || ControleUsuarioBean.getCliente().equals("MetalRP") || ControleUsuarioBean.getCliente().equals("MetalBatatais")
+                if (carteirinha.getModeloCarteirinha().getDependenteLista()) {
                     if (getConverteNullString(((List) (listCartao2[h].get(i))).get(36)).equals("TITULAR")) {
                         for (int x = 0; x < listax[h].size(); x++) {
                             MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax[h].get(x).getMatricula()), listax[h].get(x).getTitular_id());

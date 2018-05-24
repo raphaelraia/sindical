@@ -34,19 +34,23 @@ public class AgendaServico implements Serializable {
     private Integer nrMinutos;
     @Column(name = "is_web", columnDefinition = "boolean default true", nullable = false)
     private Boolean web;
+    @Column(name = "is_encaixe", columnDefinition = "boolean default false", nullable = false)
+    private Boolean encaixe;
 
     public AgendaServico() {
         this.id = null;
         this.servico = null;
         this.nrMinutos = 0;
         this.web = true;
+        this.encaixe = false;
     }
 
-    public AgendaServico(Integer id, Servicos servico, Integer nrMinutos, Boolean web) {
+    public AgendaServico(Integer id, Servicos servico, Integer nrMinutos, Boolean web, Boolean encaixe) {
         this.id = id;
         this.servico = servico;
         this.nrMinutos = nrMinutos;
         this.web = web;
+        this.encaixe = encaixe;
     }
 
     public Integer getId() {
@@ -79,6 +83,14 @@ public class AgendaServico implements Serializable {
 
     public void setWeb(Boolean web) {
         this.web = web;
+    }
+
+    public Boolean getEncaixe() {
+        return encaixe;
+    }
+
+    public void setEncaixe(Boolean encaixe) {
+        this.encaixe = encaixe;
     }
 
 }

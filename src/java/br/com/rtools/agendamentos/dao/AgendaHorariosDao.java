@@ -1,7 +1,6 @@
 package br.com.rtools.agendamentos.dao;
 
 import br.com.rtools.agendamentos.AgendaHorarios;
-import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
@@ -141,6 +140,43 @@ public class AgendaHorariosDao extends DB {
             if (!isCancelados) {
                 query.setParameter("semana_id", semana_id);
             }
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    /**
+     *
+     * @param filial_id
+     * @param convenio_sub_grupo_id
+     * @param date
+     * @param web
+     * @param socio
+     * @return
+     */
+    public List listHora(Integer filial_id, Integer convenio_sub_grupo_id, Date date, Boolean web, Boolean socio) {
+        String queryString = ""
+                + "   SELECT AH.ds_hora         \n"
+                + "	FROM ag_horarios AH     \n"
+                + "    WHERE AH.ativo = true    \n";
+        if (web) {
+            queryString += " AND AH.is_web = true \n";
+        }
+        if (convenio_sub_grupo_id != null) {
+            queryString += "	 AND AH.id_convenio_sub_grupo = " + convenio_sub_grupo_id + "\n";
+        }
+        if (!socio) {
+            queryString += " AND AH.is_socio = false \n";
+        }
+        queryString += " "
+                + "      AND AH.id_semana = " + DataHoje.diaDaSemana(date) + " \n"
+                + "	 AND AH.id_filial = " + filial_id + "\n"
+                + "	 AND (func_horarios_disponiveis_agendamento(AH.id, date('" + DataHoje.converteData(date) + "'::date)) > 0 OR AH.is_encaixe = true) \n"
+                + " GROUP BY AH.ds_hora\n"
+                + " ORDER BY ds_hora";
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

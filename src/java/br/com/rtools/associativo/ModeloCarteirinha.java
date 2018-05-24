@@ -28,6 +28,8 @@ public class ModeloCarteirinha implements java.io.Serializable {
     private String foto;
     @Column(name = "is_foto", nullable = false, columnDefinition = "boolean default true")
     private Boolean fotoCartao;
+    @Column(name = "is_dependente_lista", nullable = false, columnDefinition = "boolean default false")
+    private Boolean dependenteLista;
 
     public ModeloCarteirinha() {
         this.id = -1;
@@ -35,14 +37,16 @@ public class ModeloCarteirinha implements java.io.Serializable {
         this.jasper = "";
         this.foto = null;
         this.fotoCartao = true;
+        this.dependenteLista = false;
     }
 
-    public ModeloCarteirinha(Integer id, String descricao, String jasper, String foto, Boolean fotoCartao) {
+    public ModeloCarteirinha(Integer id, String descricao, String jasper, String foto, Boolean fotoCartao, Boolean dependenteLista) {
         this.id = id;
         this.descricao = descricao;
         this.jasper = jasper;
         this.foto = foto;
         this.fotoCartao = fotoCartao;
+        this.dependenteLista = dependenteLista;
     }
 
     public Integer getId() {
@@ -83,6 +87,21 @@ public class ModeloCarteirinha implements java.io.Serializable {
 
     public void setFotoCartao(Boolean fotoCartao) {
         this.fotoCartao = fotoCartao;
+    }
+
+    /**
+     * Caso for gerar uma listagem para o dependente neste modelo de
+     * carteirinha, lista ou sublista usada no mesmo cartão ou no cartão com
+     * jasper que contenha verso
+     *
+     * @return
+     */
+    public Boolean getDependenteLista() {
+        return dependenteLista;
+    }
+
+    public void setDependenteLista(Boolean dependenteLista) {
+        this.dependenteLista = dependenteLista;
     }
 
 }

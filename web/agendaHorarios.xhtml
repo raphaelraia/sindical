@@ -98,6 +98,9 @@
                                                 <p:selectBooleanCheckbox value="#{agendaHorariosBean.socio}" itemLabel="Sócios">
                                                     <p:ajax event="change" update="@this" />
                                                 </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{agendaHorariosBean.encaixe}" itemLabel="Encaixe">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
                                             </h:panelGrid>
                                         </h:column>
                                         <h:column>
@@ -130,8 +133,13 @@
                                                 <p:ajax event="change" listener="#{agendaHorariosBean.update(horarios)}"  update="@this"/>
                                             </p:selectBooleanCheckbox>
                                         </p:column>
-                                        <p:column headerText="Sócio" styleClass="text-center" width="30">
+                                        <p:column headerText="Sócio" styleClass="text-center" width="40">
                                             <p:selectBooleanCheckbox value="#{horarios.socio}">
+                                                <p:ajax event="change" listener="#{agendaHorariosBean.update(horarios)}"  update="@this"/>
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>
+                                        <p:column headerText="Encaixe" styleClass="text-center" width="60">
+                                            <p:selectBooleanCheckbox value="#{horarios.encaixe}">
                                                 <p:ajax event="change" listener="#{agendaHorariosBean.update(horarios)}"  update="@this"/>
                                             </p:selectBooleanCheckbox>
                                         </p:column>

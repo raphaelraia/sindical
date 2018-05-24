@@ -101,6 +101,8 @@ div.wrapper { width: 1024px; margin: 0 auto;}
 .font-size-12 {font-size: 12pt!important;}
 .font-size-14 {font-size: 14pt!important;}
 .font-size-16 {font-size: 16pt!important;}
+.font-color-green {color: green!important;}
+.font-color-yellowgreen {color: yellowgreen!important;}
 .font-color-gray {color: gray!important;}
 .font-color-white {color: white!important;}
 .font-color-black {color: black!important;}
