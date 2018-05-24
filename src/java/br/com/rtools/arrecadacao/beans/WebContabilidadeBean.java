@@ -3,7 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.WebContabilidadeDao;
-import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ImpressaoWeb;
 import br.com.rtools.financeiro.Lote;
@@ -17,6 +17,8 @@ import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
+import br.com.rtools.movimento.TrataVencimento;
+import br.com.rtools.movimento.TrataVencimentoRetorno;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -27,11 +29,10 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -47,9 +48,6 @@ public class WebContabilidadeBean extends MovimentoValorBean {
     private TipoServico tipoServico = new TipoServico();
     private List<Juridica> listaEmpresa = new ArrayList();
     private List<Juridica> listaEmpresaSelecionada = new ArrayList();
-    private List<DataObject> listaMovimento = new ArrayList();
-    private List<DataObject> listaMovimentoSelecionado = new ArrayList();
-    private int idServicos = 0;
     private int idTipoServico = 0;
     private String strReferencia = "";
     private String strVencimento = "";
@@ -60,6 +58,13 @@ public class WebContabilidadeBean extends MovimentoValorBean {
     private Set<Integer> keys = null;
     private String lblLink = "";
     private Registro registro = new Registro();
+
+    private List<ObjectListaMovimento> listaMovimento = new ArrayList();
+    private List<ObjectListaMovimento> listaMovimentoSelecionado = new ArrayList();
+    private ObjectListaMovimento olmSelecionado = null;
+
+    private int idServicos = 0;
+    private final List<SelectItem> listaServicos = new ArrayList();
 
     public WebContabilidadeBean() {
         FilialDao filDB = new FilialDao();
@@ -72,244 +77,165 @@ public class WebContabilidadeBean extends MovimentoValorBean {
 
     }
 
+    public void limparNovoBoleto() {
+        strReferencia = "";
+        idServicos = 0;
+        idTipoServico = 0;
+    }
+
     public void loadList() {
-        try {
-            listaMovimento.clear();
-            if (listaEmpresaSelecionada.isEmpty()) {
-                return;
+        listaMovimento.clear();
+
+        if (listaEmpresaSelecionada.isEmpty()) {
+            return;
+        }
+
+        WebContabilidadeDao db = new WebContabilidadeDao();
+        Dao dao = new Dao();
+
+        for (Juridica jur : listaEmpresaSelecionada) {
+            List lista_result;
+            if (strFiltroRef.isEmpty()) {
+                lista_result = db.pesquisaMovParaWebContabilidade(jur.getPessoa().getId());
+            } else {
+                lista_result = db.pesquisaMovParaWebContabilidadeComRef(jur.getPessoa().getId(), strFiltroRef);
             }
 
-            WebContabilidadeDao db = new WebContabilidadeDao();
-            Dao dao = new Dao();
+            for (Object ob : lista_result) {
+                List linha = (List) ob;
 
-            for (int ix = 0; ix < listaEmpresaSelecionada.size(); ix++) {
-                List lista_result = new ArrayList();
-                if (strFiltroRef.isEmpty()) {
-                    lista_result = db.pesquisaMovParaWebContabilidade(listaEmpresaSelecionada.get(ix).getPessoa().getId());
-                } else {
-                    lista_result = db.pesquisaMovParaWebContabilidadeComRef(listaEmpresaSelecionada.get(ix).getPessoa().getId(), strFiltroRef);
-                }
+                Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) linha.get(15));
+                
+                List<SelectItem> listVencimento = new ArrayList();
 
-                for (Object linha : lista_result) {
-                    if (((Vector) linha).get(5) == null) {
-                        ((Vector) linha).set(5, 0.0);
-                    }
-                    if (((Vector) linha).get(6) == null) {
-                        ((Vector) linha).set(6, 0.0);
-                    }
-                    if (((Vector) linha).get(7) == null) {
-                        ((Vector) linha).set(7, 0.0);
-                    }
-                    if (((Vector) linha).get(8) == null) {
-                        ((Vector) linha).set(8, 0.0);
-                    }
-                    if (((Vector) linha).get(9) == null) {
-                        ((Vector) linha).set(9, 0.0);
-                    }
-                    if (((Vector) linha).get(10) == null) {
-                        ((Vector) linha).set(10, 0.0);
-                    }
-                    if (((Vector) linha).get(11) == null) {
-                        ((Vector) linha).set(11, 0.0);
-                    }
-                    if (((Integer) ((Vector) linha).get(13)) < 0) {
-                        ((Vector) linha).set(13, 0);
-                    }
-                    boolean hdata, hvalor;
-                    int data1 = DataHoje.converteDataParaInteger(DataHoje.converteData((Date) ((Vector) linha).get(4)));
-                    if (data1 < DataHoje.converteDataParaInteger(DataHoje.data())) {
-                        hdata = true;
+                TrataVencimentoRetorno tvr = TrataVencimento.movimentoExiste(movimento, jur, movimento.getReferencia(), movimento.getDtVencimento());
+
+                if (tvr.getVencido()) {
+                    if (tvr.getRegistrado()) {
+                        listVencimento.add(new SelectItem(0, tvr.getBoleto().getVencimento(), tvr.getBoleto().getVencimento()));
                     } else {
-                        hdata = false;
-                    }
-                    // valor ----
-                    if ((Integer) ((Vector) linha).get(2) == 4) {
-                        hvalor = false;
-                    } else {
-                        hvalor = true;
-                    }
-                    String data = DataHoje.data();
-                    String newData = "";
-                    int z = 0;
-                    List<SelectItem> listVencimento = new ArrayList();
-                    while (z < 6) {
-                        newData = (new DataHoje()).incrementarDias(z, data);
-                        listVencimento.add(new SelectItem(z, newData, newData));
-                        z++;
-                    }
-                    Servicos s = (Servicos) dao.find(new Servicos(), (Integer) ((Vector) linha).get(1));
-                    TipoServico ts = (TipoServico) dao.find(new TipoServico(), (Integer) ((Vector) linha).get(2));
-                    ContaCobranca cc = new ContaCobrancaDao().pesquisaServicoCobranca(s.getId(), ts.getId());
-                    // Boleto b = new BoletoDao().findByNrCtrBoleto(((List) lista.get(i)).get(0).toString());
-                    // if (b != null) { 
-                    if (cc != null) {
-                        if (cc.getCobrancaRegistrada() != null) {
-                            if (cc.getCobrancaRegistrada().getId() == 1) {
-                                listVencimento = new ArrayList();
-                                listVencimento.add(new SelectItem(0, DataHoje.converteData((Date) ((Vector) linha).get(4)), DataHoje.converteData((Date) ((Vector) linha).get(4))));
-                            }
+                        for (int i = 0; i < 6; i++) {
+                            String newData = (new DataHoje()).incrementarDias(i, DataHoje.data());
+                            listVencimento.add(new SelectItem(i, newData, newData));
                         }
                     }
-                    //}
-                    listaMovimento.add(new DataObject(
-                            false,
-                            ((Vector) linha).get(0), // boleto
-                            (Servicos) dao.find(new Servicos(), (Integer) ((Vector) linha).get(1)), // servico
-                            (TipoServico) dao.find(new TipoServico(), (Integer) ((Vector) linha).get(2)), // tipo
-                            ((Vector) linha).get(3), // referencia
-                            DataHoje.converteData((Date) ((Vector) linha).get(4)), // vencimento
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(5))), // valor_mov
-                            ((Vector) linha).get(6), // valor_folha
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(7))), // multa
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(8))), // juros
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(9))), // correcao
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(10))), // desconto
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(11))), // valor_calculado
-                            ((Vector) linha).get(12), // meses em atraso
-                            ((Vector) linha).get(13), // dias em atraso
-                            ((Vector) linha).get(14), // indice
-                            ((Vector) linha).get(15), // id movimento
-                            Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(11))), // valor_calculado original
-                            hdata, // null
-                            hvalor, // null
-                            "0", // null
-                            listaEmpresaSelecionada.get(ix).getPessoa().getNome(),
-                            listVencimento, // 22
-                            null,
-                            null
-                    ));
+                } else {
+                    listVencimento.add(new SelectItem(0, tvr.getMovimento().getVencimento(), tvr.getMovimento().getVencimento()));
                 }
-            }
 
-        } catch (Exception e) {
+                listaMovimento.add(new ObjectListaMovimento(
+                        tvr.getBoleto(), // BOLETO
+                        tvr.getMovimento(), // MOVIMENTO 
+                        tvr.getValor(), // VALOR
+                        tvr.getJuros(), // JUROS
+                        tvr.getMulta(), // MULTA
+                        tvr.getCorrecao(), // CORRECAO
+                        tvr.getValor_calculado(), // VALOR CALCULADO
+                        0, // INDEX VENCIMENTOS PARA O BOLETO
+                        listVencimento // LISTA DE VENCIMENTOS PARA O BOLETO
+                ));
+            }
         }
+
     }
 
     public List<SelectItem> getListaVencimento() {
         if (listaVencimento.isEmpty()) {
             String data = DataHoje.data();
             String newData = "";
-            int i = 0;
-            while (i < 6) {
+
+            for (int i = 0; i < 6; i++) {
                 newData = (new DataHoje()).incrementarDias(i, data);
-                listaVencimento.add(new SelectItem(new Integer(i), newData, newData));
-                i++;
+                listaVencimento.add(new SelectItem(i, newData, newData));
             }
         }
         return listaVencimento;
     }
 
     public void adicionarBoleto() {
-        try {
-            if (listaEmpresaSelecionada.isEmpty()) {
-                GenericaMensagem.warn("Atenção", "Selecione uma empresa para gerar Boletos!");
-                return;
-            }
-            Dao dao = new Dao();
-            MensagemConvencao mc = new MensagemConvencao();
-            MensagemConvencaoDao menDB = new MensagemConvencaoDao();
-            TipoServicoDao dbTipo = new TipoServicoDao();
-
-            ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
-            ContaCobranca contaCob = new ContaCobranca();
-
-            if (getListaServicos().isEmpty()) {
-                GenericaMensagem.warn("Atenção", "Lista de Serviços está vazia!");
-                return;
-            }
-
-            if (getListaTipoServico().isEmpty()) {
-                GenericaMensagem.warn("Atenção", "Lista de Tipo Serviço está vazia!");
-                return;
-            }
-
-            servico = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
-            tipoServico = dbTipo.pesquisaCodigo(Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
-            Juridica juri = new Juridica();
-
-            MovimentoDao dbm = new MovimentoDao();
-
-            contaCob = ctaCobraDB.pesquisaServicoCobranca(servico.getId(), tipoServico.getId());
-            if (contaCob == null) {
-                GenericaMensagem.warn("Atenção", "Não existe conta Cobrança para gerar!");
-                return;
-            }
-
-            if (dbm.pesquisaMovimentosAcordado(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId()) != null) {
-                GenericaMensagem.warn("Atenção", "Já foi gerado um Acordo para esta referência, serviço e tipo de serviço!");
-                return;
-            }
-
-            if ((new DataHoje()).integridadeReferencia(strReferencia)) {
-                for (int i = 0; i < listaEmpresaSelecionada.size(); i++) {
-                    juri = listaEmpresaSelecionada.get(i);
-
-                    List<Movimento> lm = dbm.pesquisaMovimentos(juri.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId());
-
-                    if (!lm.isEmpty() && lm.size() > 1) {
-                        GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
-                        continue;
-                    } else if (!lm.isEmpty()) {
-                        GenericaMensagem.warn("Atenção", "Este boleto já existe para " + juri.getPessoa().getNome());
-                        continue;
-                    }
-
-                    String dataValida = "";
-                    DataHoje dh = new DataHoje();
-                    mc = menDB.retornaDiaString(juri.getId(), strReferencia, tipoServico.getId(), servico.getId());
-
-                    if (mc != null) {
-                        if (registro.getDiasBloqueiaAtrasadosWeb() <= 0) {
-                            strVencimento = mc.getVencimento();
-                            dataValida = strVencimento;
-                        } else {
-                            strVencimento = mc.getVencimento();
-                            dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), strVencimento);
-                        }
-
-                        if (getValidaBloqueio(dataValida)) {
-                            GenericaMensagem.warn("Atenção", "Não é permitido gerar boleto vencido! " + registro.getMensagemBloqueioBoletoWeb());
-                            return;
-                        }
-
-                        Movimento movi = new Movimento(-1,
-                                null,
-                                servico.getPlano5(),
-                                juri.getPessoa(),
-                                servico,
-                                null,
-                                tipoServico,
-                                null,
-                                Moeda.converteDoubleR$Double(super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
-                                strReferencia,
-                                strVencimento,
-                                1,
-                                true,
-                                "E",
-                                false,
-                                juri.getPessoa(),
-                                juri.getPessoa(),
-                                "",
-                                "",
-                                strVencimento,
-                                0,
-                                0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
-
-                        GerarMovimento.salvarUmMovimento(new Lote(), movi);
-                    } else {
-                        GenericaMensagem.warn("Atenção", "Mensagem Convenção não existe. Entrar em contato com seu Sindicato para permitir a criação desta referencia !");
-                        return;
-                    }
-                }
-
-                GenericaMensagem.info("Sucesso", "Boletos adicionados!");
-                loadList();
-            } else {
-                GenericaMensagem.warn("Atenção", "Referência não é válida!");
-            }
-        } catch (Exception e) {
-            System.out.println(e);
+        if (listaEmpresaSelecionada.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "SELECIONE UMA EMPRESA PARA GERAR BOLETOS!");
+            return;
         }
+
+        Dao dao = new Dao();
+
+        if (getListaServicos().isEmpty()) {
+            GenericaMensagem.warn("Atenção", "LISTA DE SERVIÇOS VAZIA!");
+            return;
+        }
+
+        if (getListaTipoServico().isEmpty()) {
+            GenericaMensagem.warn("Atenção", "LISTA DE TIPO SERVIÇO VAZIA!");
+            return;
+        }
+
+        servico = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
+        tipoServico = (TipoServico) new Dao().find(new TipoServico(), Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
+
+        MovimentoDao dbm = new MovimentoDao();
+
+        if (new ContaCobrancaDao().pesquisaServicoCobranca(servico.getId(), tipoServico.getId()) == null) {
+            GenericaMensagem.warn("Atenção", "NÃO EXISTE CONTA COBRANÇA PARAR GERAR!");
+            return;
+        }
+
+        if (dbm.pesquisaMovimentosAcordado(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId()) != null) {
+            GenericaMensagem.warn("Atenção", "JÁ FOI GERADO UM ACORDO PARA ESTA REFERÊNCIA, SERVIÇO E TIPO SERVIÇO!");
+            return;
+        }
+
+        if (!(new DataHoje()).integridadeReferencia(strReferencia)) {
+            GenericaMensagem.warn("Atenção", "REFEÊNCIA NÃO É VÁLIDA!");
+            return;
+        }
+
+        for (Juridica jur : listaEmpresaSelecionada) {
+            List<Movimento> lm = dbm.pesquisaMovimentos(jur.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId());
+
+            if (!lm.isEmpty() && lm.size() > 1) {
+                GenericaMensagem.error("Atenção", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
+                continue;
+            } else if (!lm.isEmpty()) {
+                GenericaMensagem.warn("Atenção", "ESTE BOLETO JÁ EXISTE PARA " + jur.getPessoa().getNome());
+                continue;
+            }
+
+            String dataValida;
+            DataHoje dh = new DataHoje();
+            MensagemConvencao mc = new MensagemConvencaoDao().retornaDiaString(jur.getId(), strReferencia, tipoServico.getId(), servico.getId());
+
+            if (mc == null) {
+                GenericaMensagem.warn("Atenção", "MENSAGEM CONVENÇÃO NÃO EXISTE. ENTRAR EM CONTATO COM O SEU SINDICATO PARA PERMITIR A CRIAÇÃO DESTA REFERÊNCIA!");
+                return;
+            }
+
+            if (registro.getDiasBloqueiaAtrasadosWeb() <= 0) {
+                strVencimento = mc.getVencimento();
+                dataValida = strVencimento;
+            } else {
+                strVencimento = mc.getVencimento();
+                dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), strVencimento);
+            }
+
+            if (getValidaBloqueio(dataValida)) {
+                GenericaMensagem.warn("Atenção", "NÃO É PERMITIDO GERAR BOLETO VENCIDO! " + registro.getMensagemBloqueioBoletoWeb());
+                return;
+            }
+
+            TrataVencimentoRetorno tvr = TrataVencimento.movimentoNaoExiste(servico, tipoServico, jur, strReferencia, DataHoje.converte(strVencimento), super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, jur.getPessoa().getId()));
+
+            StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(new Lote(), tvr.getMovimento(), tvr.getVencimentoBoleto(), tvr.getValor());
+
+            if (!sr.getStatus()) {
+                GenericaMensagem.error("Atenção", sr.getMensagem());
+            }
+
+        }
+
+        GenericaMensagem.info("Sucesso", "BOLETOS ADICIONADOS!");
+        loadList();
+
     }
 
     public boolean getValidaBloqueio(String data) {
@@ -327,31 +253,12 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         }
     }
 
-    public String imprimirBoleto() {
-        List<Movimento> lista = new ArrayList<Movimento>();
-        List<Double> listaValores = new ArrayList<Double>();
-        List<String> listaVencimentos = new ArrayList<String>();
-        Movimento movimento;
-        for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
-            movimento = (Movimento) listaMovimentoSelecionado.get(i).getArgumento1();
-            lista.add(movimento);
-            listaValores.add(movimento.getValor());
-            listaVencimentos.add(movimento.getVencimento());
-        }
-
-        ImprimirBoleto imp = new ImprimirBoleto();
-        imp.imprimirBoleto(lista, listaValores, listaVencimentos, impVerso);
-        imp.visualizar(null);
-        return null;
-    }
-
     public void validaReferencia() {
         DataHoje dataHoje = new DataHoje();
         if (dataHoje.integridadeReferencia(strReferencia)) {
-            String dataS = "01/" + strReferencia;
             // A diferença é de no máximo 5 anos para geração de boletos
             String dataLimite = dataHoje.decrementarMeses(60, DataHoje.data());
-            Integer[] integer = dataHoje.diferencaEntreDatas(dataLimite, dataS);
+            Integer[] integer = dataHoje.diferencaEntreDatas(dataLimite, "01/" + strReferencia);
             if (integer == null) {
                 strReferencia = "";
                 GenericaMensagem.warn("Atenção", "Essa referência não é válida!");
@@ -372,31 +279,10 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         }
     }
 
-//    public void validaReferencia() {
-//        DataHoje data = new DataHoje();
-//        if (data.integridadeReferencia(strReferencia)) {
-//            String dataS = "01/" + strReferencia;
-//            if (!(data.faixaCincoAnosApos(dataS))) {
-//                strReferencia = "";
-//                GenericaMensagem.warn("Atenção", "Essa referência não é válida, faixa de 5 anos após!");
-//            }
-//        }else{
-//            strReferencia = "";
-//            GenericaMensagem.warn("Atenção", "Essa referência não é válida!");
-//        }
-//    }
     public String imprimirComValorCalculado() {
-        List<Movimento> lista = new ArrayList<Movimento>();
-        List<Double> listaValores = new ArrayList<Double>();
-        List<String> listaVencimentos = new ArrayList<String>();
+        List<Movimento> lista = new ArrayList();
 
-        ImpressaoWeb impressaoWeb;
-        Movimento movimento;
-        String data = "";
         Dao dao = new Dao();
-
-        dao.openTransaction();
-
         String dataValida = "";
         DataHoje dh = new DataHoje();
 
@@ -405,11 +291,11 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             return null;
         }
 
-        for (int x = 0; x < listaMovimentoSelecionado.size(); x++) {
+        for (ObjectListaMovimento olm : listaMovimentoSelecionado) {
             if (registro.getDiasBloqueiaAtrasadosWeb() <= 0) {
-                dataValida = (String) ((DataObject) listaMovimentoSelecionado.get(x)).getArgumento5();
+                dataValida = olm.getMovimento().getVencimento();
             } else {
-                dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), (String) ((DataObject) listaMovimentoSelecionado.get(x)).getArgumento5());
+                dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), olm.getMovimento().getVencimento());
             }
 
             if (getValidaBloqueio(dataValida)) {
@@ -418,37 +304,30 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             }
         }
 
-        for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
-            movimento = ((Movimento) dao.find(new Movimento(), (Integer) listaMovimentoSelecionado.get(i).getArgumento16()));
-            // COM VALOR ALTERADO ---------
-            if (Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento12()) != 0) {
-                listaValores.add(Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento12()));
-            } else {
-                if (Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento6()) <= 0) {
-                    GenericaMensagem.warn("Atenção", "Valor não pode ser zerado!");
-                    return null;
-                }
+        dao.openTransaction();
+        for (ObjectListaMovimento olm : listaMovimentoSelecionado) {
+            olm.getBoleto().setValor(olm.getValor_calculado());
+            olm.getBoleto().setVencimento(olm.getListaVencimentoBoleto().get(olm.getIndexVencimentoBoleto()).getDescription());
 
-                listaValores.add(Moeda.substituiVirgulaDouble((String) listaMovimentoSelecionado.get(i).getArgumento6()));
-            }
+            lista.add(olm.getMovimento());
 
-            //COM DATA ALTERADA ---------
-            if (movimento.getDtVencimento().before(DataHoje.dataHoje()) && !movimento.getVencimento().equals(DataHoje.data())) {
-                data = getListaVencimento().get(Integer.parseInt((String) listaMovimentoSelecionado.get(i).getArgumento20())).getDescription();
-                listaVencimentos.add(data);
-            } else {
-                listaVencimentos.add(movimento.getVencimento());
-            }
-
-            lista.add(movimento);
-            impressaoWeb = new ImpressaoWeb(-1,
-                    movimento,
+            ImpressaoWeb impressaoWeb = new ImpressaoWeb(
+                    -1,
+                    olm.getMovimento(),
                     pessoa,
-                    DataHoje.dataHoje(), DataHoje.hora(),
-                    movimento.getDtVencimento()
+                    DataHoje.dataHoje(),
+                    DataHoje.hora(),
+                    olm.getBoleto().getDtVencimento()
             );
+
             if (!dao.save(impressaoWeb)) {
                 GenericaMensagem.error("Erro", "Não foi possível salvar impressão web");
+                dao.rollback();
+                return null;
+            }
+
+            if (!dao.update(olm.getBoleto())) {
+                GenericaMensagem.error("Erro", "Não foi possível atualizar Boleto");
                 dao.rollback();
                 return null;
             }
@@ -458,7 +337,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         ImprimirBoleto imp = new ImprimirBoleto();
         lista = imp.atualizaContaCobrancaMovimento(lista);
 
-        imp.imprimirBoleto(lista, listaValores, listaVencimentos, impVerso);
+        imp.imprimirBoleto(lista, impVerso, false);
         imp.visualizar(null);
 
         loadList();
@@ -466,21 +345,22 @@ public class WebContabilidadeBean extends MovimentoValorBean {
     }
 
     public List<SelectItem> getListaServicos() {
-        ServicosDao db = new ServicosDao();
-        List<SelectItem> result = new Vector();
-        List servicos = db.pesquisaTodos(4);
-        int i = 0;
-        while (i < servicos.size()) {
-            result.add(
-                    new SelectItem(
-                            i,
-                            ((Servicos) servicos.get(i)).getDescricao(),
-                            Integer.toString(((Servicos) servicos.get(i)).getId())
-                    )
-            );
-            i++;
+        if (listaServicos.isEmpty()) {
+
+            List<Servicos> result = new ServicosDao().pesquisaTodos(4);
+
+            for (int i = 0; i < result.size(); i++) {
+                listaServicos.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getDescricao(),
+                                Integer.toString(result.get(i).getId())
+                        )
+                );
+            }
         }
-        return result;
+
+        return listaServicos;
     }
 
     public List<SelectItem> getListaTipoServico() {
@@ -489,17 +369,14 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         Servicos servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
         int i = 0;
         TipoServicoDao db = new TipoServicoDao();
-        if ((!data.integridadeReferencia(strReferencia))
-                || (registro == null)
-                || (servicos == null)) {
+        if ((!data.integridadeReferencia(strReferencia)) || (registro == null) || (servicos == null)) {
             listaTipoServico.add(new SelectItem(0, "Digite uma referência", "0"));
             return listaTipoServico;
         }
         List<Integer> listaIds = new ArrayList();
 
         if (registro.getTipoEmpresa().equals("E")) {
-            if ((Integer.parseInt(strReferencia.substring(0, 2)) == 3)
-                    && (servicos.getId() == 1)) {
+            if ((Integer.parseInt(strReferencia.substring(0, 2)) == 3) && (servicos.getId() == 1)) {
                 listaIds.add(1);
                 listaIds.add(3);
             } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 3)
@@ -512,12 +389,10 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                 listaIds.add(3);
             }
         } else if (registro.getTipoEmpresa().equals("P")) {
-            if ((Integer.parseInt(strReferencia.substring(0, 2)) == 1)
-                    && (servicos.getId() == 1)) {
+            if ((Integer.parseInt(strReferencia.substring(0, 2)) == 1) && (servicos.getId() == 1)) {
                 listaIds.add(1);
                 listaIds.add(3);
-            } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 1)
-                    && (servicos.getId() == 1)) {
+            } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 1) && (servicos.getId() == 1)) {
                 listaIds.add(2);
                 listaIds.add(3);
             } else {
@@ -528,6 +403,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         } else {
             return listaTipoServico;
         }
+
         List<TipoServico> select = db.pesquisaTodosComIds(listaIds);
         if (!select.isEmpty()) {
             while (i < select.size()) {
@@ -637,26 +513,23 @@ public class WebContabilidadeBean extends MovimentoValorBean {
 
     @Override
     public void carregarFolha(DataObject data) {
-        MovimentoDao db = new MovimentoDao();
-        Movimento movimento = db.pesquisaCodigo(Integer.parseInt(String.valueOf(data.getArgumento16())));
-        super.carregarFolha(movimento);
+
     }
 
     @Override
     public void carregarFolha() {
+
     }
 
     @Override
-    public void carregarFolha(Object valor) {
+    public void carregarFolha(Object linha) {
+        super.carregarFolha(((ObjectListaMovimento) linha).getMovimento());
+        olmSelecionado = (ObjectListaMovimento) linha;
     }
 
     @Override
     public void atualizaValorGrid(String tipo) {
-        // antes ---
-        //listMovimentos.get(idIndex).setArgumento6(super.atualizaValor(true));
-
-        //listaMovimentos.get(idIndex).setArgumento6(super.atualizaValor(true, tipo));
-        super.atualizaValor(true, tipo);
+        olmSelecionado.setValorString(super.atualizaValor(true, tipo));
         loadList();
     }
 
@@ -697,19 +570,157 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         this.listaEmpresaSelecionada = listaEmpresaSelecionada;
     }
 
-    public List<DataObject> getListaMovimento() {
+    public List<ObjectListaMovimento> getListaMovimento() {
         return listaMovimento;
     }
 
-    public void setListaMovimentos(List<DataObject> listaMovimento) {
+    public void setListaMovimentos(List<ObjectListaMovimento> listaMovimento) {
         this.listaMovimento = listaMovimento;
     }
 
-    public List<DataObject> getListaMovimentoSelecionado() {
+    public List<ObjectListaMovimento> getListaMovimentoSelecionado() {
         return listaMovimentoSelecionado;
     }
 
-    public void setListaMovimentoSelecionado(List<DataObject> listaMovimentoSelecionado) {
+    public void setListaMovimentoSelecionado(List<ObjectListaMovimento> listaMovimentoSelecionado) {
         this.listaMovimentoSelecionado = listaMovimentoSelecionado;
+    }
+
+    public class ObjectListaMovimento {
+
+        private Boleto boleto;
+        private Movimento movimento;
+        private Double valor;
+        private Double juros;
+        private Double multa;
+        private Double correcao;
+        private Double valor_calculado;
+        private Integer indexVencimentoBoleto;
+        private List<SelectItem> listaVencimentoBoleto;
+
+        public ObjectListaMovimento(Boleto boleto, Movimento movimento, Double valor, Double juros, Double multa, Double correcao, Double valor_calculado, Integer indexVencimentoBoleto, List<SelectItem> listaVencimentoBoleto) {
+            this.boleto = boleto;
+            this.movimento = movimento;
+            this.valor = valor;
+            this.juros = juros;
+            this.multa = multa;
+            this.correcao = correcao;
+            this.valor_calculado = valor_calculado;
+            this.indexVencimentoBoleto = indexVencimentoBoleto;
+            this.listaVencimentoBoleto = listaVencimentoBoleto;
+        }
+
+        public Boleto getBoleto() {
+            return boleto;
+        }
+
+        public void setBoleto(Boleto boleto) {
+            this.boleto = boleto;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public Double getValor() {
+            return valor;
+        }
+
+        public void setValor(Double valor) {
+            this.valor = valor;
+        }
+
+        public String getValorString() {
+            return Moeda.converteDoubleToString(valor);
+        }
+
+        public void setValorString(String valorString) {
+            this.valor = Moeda.converteStringToDouble(valorString);
+        }
+
+        public Double getJuros() {
+            return juros;
+        }
+
+        public void setJuros(Double juros) {
+            this.juros = juros;
+        }
+
+        public String getJurosString() {
+            return Moeda.converteDoubleToString(juros);
+        }
+
+        public void setJurosString(String jurosString) {
+            this.juros = Moeda.converteStringToDouble(jurosString);
+        }
+
+        public Double getMulta() {
+            return multa;
+        }
+
+        public void setMulta(Double multa) {
+            this.multa = multa;
+        }
+
+        public String getMultaString() {
+            return Moeda.converteDoubleToString(multa);
+        }
+
+        public void setMultaString(String multaString) {
+            this.multa = Moeda.converteStringToDouble(multaString);
+        }
+
+        public Double getCorrecao() {
+            return correcao;
+        }
+
+        public void setCorrecao(Double correcao) {
+            this.correcao = correcao;
+        }
+
+        public String getCorrecaoString() {
+            return Moeda.converteDoubleToString(correcao);
+        }
+
+        public void setCorrecaoString(String correcaoString) {
+            this.correcao = Moeda.converteStringToDouble(correcaoString);
+        }
+
+        public Double getValor_calculado() {
+            return valor_calculado;
+        }
+
+        public void setValor_calculado(Double valor_calculado) {
+            this.valor_calculado = valor_calculado;
+        }
+
+        public String getValor_calculadoString() {
+            return Moeda.converteDoubleToString(valor_calculado);
+        }
+
+        public void setValor_calculadoString(String valor_calculadoString) {
+            this.valor_calculado = Moeda.converteStringToDouble(valor_calculadoString);
+        }
+
+        public Integer getIndexVencimentoBoleto() {
+            return indexVencimentoBoleto;
+        }
+
+        public void setIndexVencimentoBoleto(Integer indexVencimentoBoleto) {
+            this.indexVencimentoBoleto = indexVencimentoBoleto;
+        }
+
+        public List<SelectItem> getListaVencimentoBoleto() {
+            return listaVencimentoBoleto;
+        }
+
+        public void setListaVencimentoBoleto(List<SelectItem> listaVencimentoBoleto) {
+            this.listaVencimentoBoleto = listaVencimentoBoleto;
+        }
+
     }
 }

@@ -56,6 +56,8 @@ import org.xml.sax.SAXException;
 
 public class Santander extends Cobranca {
 
+    private final Boolean TESTE = true;
+
     public Santander(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
@@ -389,7 +391,7 @@ public class Santander extends Cobranca {
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                
+
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "033"; // 01.3P Código do Banco na Compensação
@@ -438,7 +440,6 @@ public class Santander extends Cobranca {
                     // bol.getNrCtrBoleto().length() == 22 ASSOCIATIVO
                     valor_titulo_double = new FunctionsDao().func_correcao_valor_ass(bol.getNrCtrBoleto());
                 }
-
 
                 // FIXAR VALOR 1,00 CASO FOR MENOR QUE 1,00
                 //if (mov.getValor() < 1) {
@@ -648,7 +649,17 @@ public class Santander extends Cobranca {
 
     @Override
     public RespostaWebService registrarBoleto(String vencimentoRegistro) {
+        // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR TESTE = TRUE
+        if (TESTE) {
+            Dao dao = new Dao();
 
+            boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+            boleto.setDtStatusRetorno(DataHoje.dataHoje());
+            boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+            dao.update(boleto, true);
+            return new RespostaWebService(boleto, "");
+        }
         /*
         
         ATENÇÃO ----------------------------------------------------------------
@@ -665,8 +676,8 @@ public class Santander extends Cobranca {
         ATENÇÃO ----------------------------------------------------------------
         ATENÇÃO ----------------------------------------------------------------
         
-        */
-        
+         */
+
         try {
             //File flCert = new File("C:/PC201707105759.pfx");
             File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
@@ -722,7 +733,6 @@ public class Santander extends Cobranca {
             String uf = pessoa.getPessoaEndereco().getEndereco().getCidade().getUf();
             String cep = pessoa.getPessoaEndereco().getEndereco().getCep().replace(".", "").replace("-", "");
 
-//            String valor_titulo = boleto.getValorString().replace(".", "").replace(",", "");
             String valor_titulo = Moeda.converteDoubleToString(valor).replace(".", "").replace(",", "");
             valor_titulo = "000000000000000".substring(0, 15 - valor_titulo.length()) + valor_titulo;
 
@@ -753,7 +763,6 @@ public class Santander extends Cobranca {
             wr.write(xml);
             wr.flush();
 
-//            System.out.println("Requisição >>  " + conn.getOutputStream());
             // Leitura da Resposta do Serviço
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
@@ -777,18 +786,10 @@ public class Santander extends Cobranca {
 
             String requestQueueID = getString("retCode", rootElement);
 
-//            String requestQueueMessage = getString("message", rootElement);
-//            System.out.println("Get Element ID >>  " + requestQueueID);
-//            System.out.println("Get Element Message >>  " + requestQueueMessage);
             if (requestQueueID.equals("0")) {
 
                 String requestTicket = getString("ticket", rootElement);
-//
-//                sslContext = null;
-//                sslContext = SSLContext.getInstance("TLS");
-//                sslContext.init(kms, null, new SecureRandom());
-//                
-//                HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
                 url = new URL("https://ymbcash.santander.com.br/ymbsrv/CobrancaEndpointService?wsdl");
                 conn = (HttpsURLConnection) url.openConnection();
 
@@ -802,18 +803,13 @@ public class Santander extends Cobranca {
 
                 wr = new OutputStreamWriter(conn.getOutputStream());
 
-                //String xmlTicket = TICKET_CONSULTA(requestTicket, "TST");
-                
                 String nsu = "" + boleto.getId(); // AMBIENTE PRODUÇÃO
-                
-                //String nsu = "TST"; // AMBIENTE TESTE
 
                 String xmlTicket = TICKET_ENTRADA(requestTicket, nsu, boleto.getContaCobranca().getEstacao());
 
                 wr.write(xmlTicket);
                 wr.flush();
 
-                //System.out.println("Requisição >>  " + conn.getOutputStream());
                 // Leitura da Resposta do Serviço
                 rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
@@ -869,7 +865,6 @@ public class Santander extends Cobranca {
                 }
             }
 
-            //System.out.println("Resposta >>  " + linhas);
             return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | ParserConfigurationException | SAXException e) {
             e.getMessage();

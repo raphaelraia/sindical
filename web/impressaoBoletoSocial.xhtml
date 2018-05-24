@@ -242,7 +242,7 @@
                                 </p:column>
                             </p:dataTable>
 
-                            <h:panelGrid columns="6">
+                            <h:panelGrid columns="8">
                                 <p:commandButton ajax="false" value="Imprimirxx" action="#{impressaoBoletoSocialBean.imprimir()}" onclick="this.form.target = '_blank'" rendered="false"/>
                                 <p:commandButton ajax="false" value="Imprimir" action="#{impressaoBoletoSocialBean.imprimir2()}" onclick="this.form.target = '_blank'"/>
                                 <p:commandButton ajax="false" value="Download" action="#{impressaoBoletoSocialBean.imprimir2(true)}" onclick="this.form.target = '_blank'"/>
@@ -251,6 +251,10 @@
                                 <p:commandButton ajax="false" value="Etiquetas para Contabilidade" action="#{impressaoBoletoSocialBean.etiquetaParaContabilidade()}" style="margin-left: 30px" onclick="this.form.target = '_blank'" rendered="#{impressaoBoletoSocialBean.tipo eq 'juridica'}"/>
                                 <p:commandButton value="Alterar imagem do Boleto" onclick="PF('dlg_imagem').show()" style="float: right; margin-left: 20px" />
                                 <p:commandButton value="Registrar Boletos" onclick="PF('dlg_registrar_boletos').show()" style="float: right; margin-left: 20px" />
+                                
+                                <p:commandButton value="Enviar Email" action="#{impressaoBoletoSocialBean.enviarEmail()}" rendered="#{impressaoBoletoSocialBean.boletoRegistrado eq 'registrados' and (impressaoBoletoSocialBean.tipoEnvio eq '1' or impressaoBoletoSocialBean.tipoEnvio eq '4')}" update="@form">
+                                    <p:confirm header="Enviar email de Boletos" message="Deseja Realmente Enviar Emails?" icon="ui-icon-alert" />
+                                </p:commandButton>
                             </h:panelGrid>
 
                             <p:dialog id="dlg_registrar_boletos" widgetVar="dlg_registrar_boletos" header="Registrar Boletos Selecionados" resizable="false" modal="true">
@@ -258,9 +262,14 @@
                                     <p:outputLabel value="Deseja realmente Registrar estes Boletos?" style="font-size: 12pt!important"/>
                                 </h:panelGrid>
                                 <br />
-                                <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletoSocialBean.registrarBoletos()}" onclick="PF('dlg_registrar_boletos').hide()" style="font-weight: bold" update="i_datatable_boletos"/>
+                                <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletoSocialBean.registrarBoletos()}" onclick="PF('dlg_registrar_boletos').hide()" style="font-weight: bold" update="@form"/>
                                 <p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('dlg_registrar_boletos').hide()"/>
                             </p:dialog>
+                            
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
                         </h:form>
 
                         <h:form id="formUploadImagem" enctype="multipart/form-data" acceptcharset="UTF-8">

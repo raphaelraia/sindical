@@ -12,7 +12,6 @@ import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.dao.ImpressaoEscritorioDao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
-import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Impressao;
@@ -30,7 +29,6 @@ import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -133,8 +131,6 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
 
     public void imprimir(Boolean download) {
         List<Movimento> movs = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
 
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         Dao dao = new Dao();
@@ -143,10 +139,6 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
         for (ListaEmpresaEscritorio lee : listaEmpresaSelecionada) {
 
             movs.add(lee.getMovimento());
-            listaValores.add(Moeda.substituiVirgulaDouble(lee.getValorCalculadoString()));
-
-            //listaValores.add(movi.getValor());
-            listaVencimentos.add(vencimento);
 
             Impressao impressao = new Impressao();
 
@@ -167,7 +159,7 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
 
         movs = imp.atualizaContaCobrancaMovimento(movs);
 
-        imp.imprimirBoleto(movs, listaValores, listaVencimentos, false);
+        imp.imprimirBoleto(movs, false, true);
         if (download) {
             imp.baixarArquivo();
         } else {
@@ -185,8 +177,7 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
 //        }
 
         List<Movimento> m = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
+        
         List<File> fls = new ArrayList();
 
         if (escritorio.getPessoa().getEmail1() == null || escritorio.getPessoa().getEmail1().isEmpty()) {
@@ -203,8 +194,6 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
         for (ListaEmpresaEscritorio lee : listaEmpresaSelecionada) {
 
             m.add(lee.getMovimento());
-            listaValores.add(lee.getValorCalculado());
-            listaVencimentos.add(vencimento);
 
         }
 
@@ -212,7 +201,7 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
 
         m = imp.atualizaContaCobrancaMovimento(m);
 
-        imp.imprimirBoleto(m, listaValores, listaVencimentos, false);
+        imp.imprimirBoleto(m, false, true);
 
         String nome = imp.criarLink(escritorio.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
 
@@ -312,7 +301,6 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
 
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        MovimentoDao finDB = new MovimentoDao();
 
         for (ListaEmpresaEscritorio lee : listaEmpresaSelecionada) {
             Boolean success = true;
@@ -330,17 +318,17 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
                         + " - Valor: " + movimentoBefore.getValorString()
                         + " - Vencimento: " + movimentoBefore.getVencimento();
 
-                // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
-                if (!movimentoBefore.getVencimento().equals(lee.getMovimento().getVencimento())) {
-                    Boleto bol = finDB.pesquisaBoletos(lee.getMovimento().getNrCtrBoleto());
-                    if (bol != null) {
-                        if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
-                            bol.setDtCobrancaRegistrada(null);
-                            new Dao().update(bol, true);
-                        }
-                    }
-                }
-                if (GerarMovimento.alterarUmMovimento(lee.getMovimento())) {
+//                // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
+//                if (!movimentoBefore.getVencimento().equals(lee.getMovimento().getVencimento())) {
+//                    Boleto bol = finDB.pesquisaBoletos(lee.getMovimento().getNrCtrBoleto());
+//                    if (bol != null) {
+//                        if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
+//                            bol.setDtCobrancaRegistrada(null);
+//                            new Dao().update(bol, true);
+//                        }
+//                    }
+//                }
+                if (GerarMovimento.alterarUmMovimento(lee.getMovimento(), lee.getMovimento().getDtVencimento())) {
                     novoLog.update(beforeUpdate,
                             " Movimento: (" + lee.getMovimento().getId() + ") "
                             + " - Referência: (" + lee.getMovimento().getReferencia()
@@ -355,21 +343,11 @@ public class ImpressaoEscritorioBean extends MovimentoValorBean implements Seria
                     GenericaMensagem.warn("Erro", "Não foi possível alterar boletos!");
                     success = false;
                 }
-//                lee.getMovimento().setVencimento(vencimento);
-//                lee.getMovimento().setValor(lee.getValorCalculado());
-//                    movim.setVencimento(((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento());
-//                    ((DataObject) listMovimentos.get(i)).setArgumento1(movim);
             } else {
-//                    movim = (Movimento) listMovimentos.get(i).getArgumento1();
-//                    movim.setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
-                //String vencto = lee.getMovimento().getVencimento();
 
-                StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(new Lote(), lee.getMovimento());
+                StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(new Lote(), lee.getMovimento(), lee.getMovimento().getDtVencimento(), lee.getValorCalculado());
 
                 if (sr.getStatus()) {
-//                    lee.getMovimento().setVencimento(vencimento);
-//                    lee.getMovimento().setValor(lee.getValorCalculado());
-//                        movim.setVencimento(vencto);
                     novoLog.save(
                             " Movimento: (" + lee.getMovimento().getId() + ") "
                             + " - Referência: (" + lee.getMovimento().getReferencia()

@@ -285,21 +285,45 @@ public class ExtratoTelaSocialBean implements Serializable {
                 break;
         }
 
+        RemessaBancoDao daor = new RemessaBancoDao();
+        String ids_pesquisa = "";
+        // BOLETOS SELECIONADOS ------------------------------------------------
+        // ---------------------------------------------------------------------
         for (Boleto bol : lista_boleto_validado) {
             BoletoRemessa br = new BoletoRemessa(bol, statusRemessa, "tblExtratoTelaT2");
             listaBoletoRemessa.add(br);
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bol.getId();
+                ids_pesquisa = "" + bol.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bol.getId();
+                ids_pesquisa = ", " + bol.getId();
             }
         }
 
+        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+        
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar no Banco já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
+        
+        // REGISTRAR BOLETOS AUTOMÁTICO ----------------------------------------
+        // ---------------------------------------------------------------------
+        
         List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
         statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
 
+        ids_pesquisa = "";
         for (Boleto bo : lista_b) {
 
             BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
@@ -307,13 +331,27 @@ public class ExtratoTelaSocialBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
         }
+                
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
 
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
+
+        // REGISTRAR BOLETOS RECUSADOS -----------------------------------------
+        // ---------------------------------------------------------------------
         lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
+        ids_pesquisa = "";
         for (Boleto bo : lista_b) {
 
             BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
@@ -321,15 +359,29 @@ public class ExtratoTelaSocialBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
         }
 
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
+        
+        // BAIXAR BOLETOS RECUSADOS --------------------------------------------
+        // ---------------------------------------------------------------------
         lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
         statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
-
+        
+        ids_pesquisa = "";
         for (Boleto bo : lista_b) {
 
             BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
@@ -337,21 +389,21 @@ public class ExtratoTelaSocialBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
         }
-
-        // SE JÁ FOI GERADO UMA REMESSA PARA OS MOVIMENTOS
-        RemessaBancoDao daor = new RemessaBancoDao();
-
-        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(id_boleto_adicionado_remessa);
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
 
         if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
             return;
         }
-
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
+        
         visibleModalRemessa = true;
 
         loadLista();

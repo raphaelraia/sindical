@@ -3,6 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.arrecadacao.AcordoComissaoOperador;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.AcordoComissaoOperadorDao;
+import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoRecibo;
@@ -94,17 +95,17 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     public String imprimir(Boolean download) {
         MovimentoReceberDao db = new MovimentoReceberDao();
         List<Movimento> lista = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
 
         if (!listMovimentoReceber.isEmpty()) {
-            Movimento mov = new Movimento();
+            
             SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
             Dao dao = new Dao();
             dao.openTransaction();
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {
-                    mov = (Movimento) dao.find(new Movimento(), Integer.parseInt(String.valueOf(listMovimentoReceber.get(i).getIdMovimento())));
+                    Movimento mov = (Movimento) dao.find(new Movimento(), Integer.parseInt(String.valueOf(listMovimentoReceber.get(i).getIdMovimento())));
+                    Boleto bol = mov.getBoleto();
+                    
                     if (mov.getTipoServico().getId() == 4 && Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()) <= 0) {
                         GenericaMensagem.warn("Validação", "Acordo sem salvar!");
                         return null;
@@ -114,19 +115,22 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
                     mov.setJuros(Moeda.converteUS$((String) listMovimentoReceber.get(i).getJuros()));
                     mov.setCorrecao(Moeda.converteUS$((String) listMovimentoReceber.get(i).getCorrecao()));
                     mov.setDesconto(Moeda.converteUS$((String) listMovimentoReceber.get(i).getDesconto()));
-                    listaValores.add(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()));
+                    bol.setValor(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()));
+                    
                     if (DataHoje.converteDataParaInteger(mov.getVencimento()) < DataHoje.converteDataParaInteger(DataHoje.data())) {
                         DataHoje d = new DataHoje();
                         String novaData = d.incrementarMesesUltimoDia(1, d.decrementarMeses(1, DataHoje.data()));
-                        listaVencimentos.add(novaData);
+                        bol.setVencimento(novaData);
                     } else {
-                        listaVencimentos.add(mov.getVencimento());
+                        bol.setVencimento(mov.getVencimento());
                     }
+                    
                     lista.add(mov);
                     Impressao impressao = new Impressao();
                     impressao.setUsuario(su.getSessaoUsuario());
-                    impressao.setDtVencimento(DataHoje.converte(listaVencimentos.get(listaVencimentos.size() - 1)));
+                    impressao.setDtVencimento(bol.getDtVencimento());
                     impressao.setMovimento(mov);
+                    
                     if (!dao.save(impressao)) {
                         dao.rollback();
                         return null;
@@ -142,7 +146,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         }
         ImprimirBoleto imp = new ImprimirBoleto();
         lista = imp.atualizaContaCobrancaMovimento(lista);
-        imp.imprimirBoleto(lista, listaValores, listaVencimentos, false);
+        imp.imprimirBoleto(lista, false, false);
         if (download) {
             imp.baixarArquivo();
         } else {
@@ -208,29 +212,41 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
             dao.openTransaction();
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {
+                    
                     movimento = (Movimento) dao.find(new Movimento(), Integer.parseInt(String.valueOf(listMovimentoReceber.get(i).getIdMovimento())));
                     if (movimento.getTipoServico().getId() == 4) {
                         GenericaMensagem.warn("Notificação", "Não é possível criar este acordo novamente!");
                         return null;
                     }
+                    
                     if (Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()) <= 0) {
                         GenericaMensagem.warn("Validação", "Não é possível criar acordo com valores zerados!");
                         return null;
                     }
+                    
                     movimento.setValor(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorMovimento()));
                     if (!dao.update(movimento)) {
                         GenericaMensagem.warn("Erro", "Ao alterar valor do Movimento id: " + movimento.getId());
                         dao.rollback();
                     }
-                    movimento.setMulta(Moeda.converteUS$((String) listMovimentoReceber.get(i).getMulta()));
-                    movimento.setJuros(Moeda.converteUS$((String) listMovimentoReceber.get(i).getJuros()));
-                    movimento.setCorrecao(Moeda.converteUS$((String) listMovimentoReceber.get(i).getCorrecao()));
+                    
                     movimento.setDesconto(Moeda.converteUS$((String) listMovimentoReceber.get(i).getDesconto()));
                     movimento.setValorBaixa(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()));
-                    lista.add(movimento);
                 }
             }
             dao.commit();
+            
+            for (int i = 0; i < listMovimentoReceber.size(); i++) {
+                if (listMovimentoReceber.get(i).getSelected()) {
+                    
+                    movimento = (Movimento) dao.find(new Movimento(), Integer.parseInt(String.valueOf(listMovimentoReceber.get(i).getIdMovimento())));
+                    movimento.setMulta(Moeda.converteUS$((String) listMovimentoReceber.get(i).getMulta()));
+                    movimento.setJuros(Moeda.converteUS$((String) listMovimentoReceber.get(i).getJuros()));
+                    movimento.setCorrecao(Moeda.converteUS$((String) listMovimentoReceber.get(i).getCorrecao()));
+                    lista.add(movimento);
+                }
+            }
+            
             if (!lista.isEmpty()) {
                 GenericaSessao.put("listaMovimento", lista);
                 return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).acordo();

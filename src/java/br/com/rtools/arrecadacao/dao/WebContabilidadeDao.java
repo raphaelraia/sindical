@@ -35,11 +35,11 @@ public class WebContabilidadeDao extends DB {
                 + "            m.dt_vencimento          AS vencimento,          \n"
                 + "            func_valor_folha(m.id)   AS valor_mov,           \n"
                 + "            f.nr_valor               AS valor_folha,         \n"
-                + "            func_multa(m.id)         AS multa,               \n"
-                + "            func_juros(m.id)         AS juros,               \n"
-                + "            func_correcao(m.id)      AS correcao,            \n"
+                + "            0         AS multa,               \n" // versão nova não calcula por aqui!!!
+                + "            0         AS juros,               \n" // versão nova não calcula por aqui!!!
+                + "            0         AS correcao,            \n" // versão nova não calcula por aqui!!!
                 + "            null                     AS desconto,            \n"
-                + "            func_valor_folha(m.id) + func_multa(m.id) + func_juros(m.id) + func_correcao(m.id) AS valor_calculado,   \n"
+                + "            0 AS valor_calculado,   \n" // versão nova não calcula por aqui!!!
                 + "            func_intervalo_meses(CURRENT_DATE,dt_vencimento) AS meses_em_atraso,                                     \n"
                 + "            (CURRENT_DATE - dt_vencimento) AS dias_em_atraso,\n"
                 + "            i.ds_descricao           AS indice,              \n"
@@ -78,11 +78,11 @@ public class WebContabilidadeDao extends DB {
                 + "       m.dt_vencimento as Vencimento, "
                 + "       func_valor_folha(m.id) as Valor_Mov,"
                 + "       f.nr_valor as Valor_Folha,"
-                + "       func_multa(m.id) as Multa,"
-                + "       func_juros(m.id) as Juros,"
-                + "       func_correcao(m.id) as Correcao,"
+                + "       0 as Multa," // versão nova não calcula por aqui!!!
+                + "       0 as Juros," // versão nova não calcula por aqui!!!
+                + "       0 as Correcao," // versão nova não calcula por aqui!!!
                 + "       null as Desconto,"
-                + "       func_valor_folha(m.id) + func_multa(m.id) + func_juros(m.id) + func_correcao(m.id) as Valor_calculado,"
+                + "       0 as Valor_calculado," // versão nova não calcula por aqui!!!
                 + "       func_intervalo_meses(CURRENT_DATE,dt_vencimento) as Meses_em_Atraso,"
                 + "       CURRENT_DATE-dt_vencimento as Dias_em_atraso,"
                 + "       i.ds_descricao indice,"

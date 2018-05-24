@@ -69,10 +69,10 @@ public class RemessaDao extends DB {
 
     public List<Boleto> listaRegistrarAutomatico(Integer id_conta_cobranca, String id_boleto_selecionado) {
         String AND = "";
-        if (!id_boleto_selecionado.isEmpty()){
+        if (!id_boleto_selecionado.isEmpty()) {
             AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
         }
-        
+
         String queryString
                 = "SELECT b.* \n "
                 + "  FROM fin_boleto AS b \n "
@@ -96,10 +96,10 @@ public class RemessaDao extends DB {
 
     public List<Boleto> listaRegistrarAutomaticoCount(Integer id_conta_cobranca, String id_boleto_selecionado) {
         String AND = "";
-        if (!id_boleto_selecionado.isEmpty()){
+        if (!id_boleto_selecionado.isEmpty()) {
             AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
         }
-                
+
         String queryString
                 = "SELECT count(b.id) \n "
                 + "  FROM fin_boleto AS b \n "
@@ -121,10 +121,10 @@ public class RemessaDao extends DB {
 
     public List<Boleto> listaRegistrarRecusados(Integer id_conta_cobranca, String id_boleto_selecionado) {
         String AND = "";
-        if (!id_boleto_selecionado.isEmpty()){
+        if (!id_boleto_selecionado.isEmpty()) {
             AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
         }
-                
+
         String queryString
                 = "SELECT b.* \n "
                 + "  FROM fin_boleto AS b \n "
@@ -141,10 +141,10 @@ public class RemessaDao extends DB {
 
     public List<Boleto> listaBaixarRegistrados(Integer id_conta_cobranca, String id_boleto_selecionado) {
         String AND = "";
-        if (!id_boleto_selecionado.isEmpty()){
+        if (!id_boleto_selecionado.isEmpty()) {
             AND = "   AND b.id NOT IN (" + id_boleto_selecionado + ") \n ";
         }
-        
+
         String queryString
                 = "SELECT b.* \n"
                 + "  FROM fin_boleto AS b \n "
@@ -152,8 +152,17 @@ public class RemessaDao extends DB {
                 + " WHERE b.dt_cobranca_registrada IS NOT NULL \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca + " \n "
                 + "   AND b.id_status_retorno = 2 \n "
-                + "   AND b.nr_ctr_boleto <> '' AND b.nr_ctr_boleto IS NOT NULL AND b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE nr_ctr_boleto <> '' AND nr_ctr_boleto IS NOT NULL) \n "
-                + "   AND (CURRENT_DATE >= b.dt_vencimento + cc.nr_registros_dias_vencidos) \n"
+                + "   AND b.nr_ctr_boleto <> '' AND b.nr_ctr_boleto IS NOT NULL "
+                + "   AND ( \n "
+                + "	( \n "
+                + "		b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE nr_ctr_boleto <> '' AND nr_ctr_boleto IS NOT NULL) \n"
+                + "		AND (CURRENT_DATE >= b.dt_vencimento + cc.nr_registros_dias_vencidos) \n"
+                + "	) \n "
+                + "    OR \n "
+                + "	( \n "
+                + "		b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE nr_ctr_boleto <> '' AND nr_ctr_boleto IS NOT NULL AND is_ativo = false) \n"
+                + "	) \n"
+                + ") \n"
                 + AND;
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);

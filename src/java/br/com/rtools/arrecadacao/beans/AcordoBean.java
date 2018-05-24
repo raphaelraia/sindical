@@ -183,13 +183,9 @@ public class AcordoBean implements Serializable {
 
         // CARREGA A LISTAGEM DOS BOLETOS, VALORES E VENCIMENTOS
         List<Movimento> listaImp = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
         Registro registro = Registro.get();
         for (int i = 0; i < listaOperado.size(); i++) {
             listaImp.add(((Movimento) listaOperado.get(i).getArgumento2()));
-            listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
-            listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
         }
         if (listaImp.isEmpty() && pessoaEnvio.getId() == -1) {
             return;
@@ -204,7 +200,7 @@ public class AcordoBean implements Serializable {
         List<File> fls = new ArrayList<>();
         for (int i = 0; i < listaImp.size(); i++) {
             ImprimirBoleto imp = new ImprimirBoleto();
-            imp.imprimirBoleto(listaImp, listaValores, listaVencimentos, imprimeVerso);
+            imp.imprimirBoleto(listaImp, imprimeVerso, false);
             filename = imp.criarLink(listaImp.get(i).getPessoa(), registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
             if (listaImp.size() == 1) {
                 assunto = "Boleto " + listaImp.get(0).getServicos().getDescricao() + " N° " + listaImp.get(0).getDocumento();
@@ -279,19 +275,16 @@ public class AcordoBean implements Serializable {
 
     public String sends() {
         List<Movimento> listaImp = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
         Registro reg = new Registro();
 
         for (int i = 0; i < listaOperado.size(); i++) {
             listaImp.add(((Movimento) listaOperado.get(i).getArgumento2()));
-            listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
-            listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
         }
+        
         if (!listaImp.isEmpty() && pessoaEnvio.getId() != -1) {
             for (int i = 0; i < listaImp.size(); i++) {
                 ImprimirBoleto imp = new ImprimirBoleto();
-                imp.imprimirBoleto(listaImp, listaValores, listaVencimentos, imprimeVerso);
+                imp.imprimirBoleto(listaImp, imprimeVerso, false);
                 String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
                 if (!new File(patch + "/downloads").exists()) {
                     File file = new File(patch + "/downloads");
@@ -920,17 +913,12 @@ public class AcordoBean implements Serializable {
 
     public void imprimirBoletos() {
         ImprimirBoleto imp = new ImprimirBoleto();
-        List<Double> listaValores = new ArrayList<Double>();
-        List<String> listaVencimentos = new ArrayList<String>();
         List listaImp = new ArrayList();
         for (int i = 0; i < listaOperado.size(); i++) {
             listaImp.add(((Movimento) listaOperado.get(i).getArgumento2()));
-            listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
-            listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
-
         }
         if (!listaImp.isEmpty()) {
-            imp.imprimirBoleto(listaImp, listaValores, listaVencimentos, false);
+            imp.imprimirBoleto(listaImp, false, false);
             imp.visualizar(null);
         }
     }

@@ -82,11 +82,6 @@
                                                     <p:ajax event="change" listener="#{impressaoBoletosBean.alterarTodasDatas()}" update=":form_impressao_boletos:i_panel :form_impressao_boletos:tbl_vencimento" />
                                                     <f:selectItems value="#{impressaoBoletosBean.contaCobranca}" />
                                                 </p:selectCheckboxMenu>
-                                                <!-- 
-                                                <p:selectOneMenu id="cbContribuicao" value="# {impressaoBoletosBean.idCombo}" style="width: 340px" disabled="# {impressaoBoletosBean.desabilitarContas}" >
-                                                    <p:ajax event="change" listener="# {impressaoBoletosBean.alterarTodasDatas()}" update="i_panel tbl_vencimento" />
-                                                    <f:selectItems value="# {impressaoBoletosBean.listaServicoCobranca}" />
-                                                </p:selectOneMenu> -->
                                             </h:column>
                                         </h:panelGrid>
                                     </h:column>

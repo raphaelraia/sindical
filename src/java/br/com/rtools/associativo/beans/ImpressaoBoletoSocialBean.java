@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -14,10 +15,14 @@ import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
+import br.com.rtools.sistema.Email;
+import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.beans.UploadFilesBean;
 import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
@@ -29,10 +34,12 @@ import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,13 +86,115 @@ public class ImpressaoBoletoSocialBean {
     private String valorTotal = "0,00";
 
     private String boletoRegistrado = "todos";
-    
+
     private Integer tipoEnvio = -1;
 
     @PostConstruct
     public void init() {
         UploadFilesBean uploadFilesBean = new UploadFilesBean("Imagens/");
         GenericaSessao.put("uploadFilesBean", uploadFilesBean);
+    }
+
+    public void enviarEmail() {
+        MovimentoDao db = new MovimentoDao();
+
+        MovimentosReceberSocialDao dbs = new MovimentosReceberSocialDao();
+
+        List<Boleto> lista = new ArrayList();
+
+        for (int i = 0; i < listaGrid.size(); i++) {
+            if ((Boolean) listaGrid.get(i).getArgumento1()) {
+                Boleto bol = db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0));
+
+                if (DataHoje.menorData(bol.getVencimento(), DataHoje.data())) {
+                    GenericaMensagem.fatal("Atenção", "Boleto " + bol.getBoletoComposto() + " vencido!");
+                    continue;
+                }
+
+                Pessoa pessoa_envio = dbs.responsavelBoleto(bol.getNrCtrBoleto());
+
+                if (pessoa_envio.getEmail1() == null || pessoa_envio.getEmail1().isEmpty()) {
+                    continue;
+                }
+
+                lista.add(bol);
+            }
+        }
+
+        if (lista.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Nenhum Boleto selecionado!");
+            return;
+        }
+
+        for (Boleto bol : lista) {
+
+            try {
+                Registro reg = (Registro) new Dao().find(new Registro(), 1);
+
+                ImprimirBoleto ib = new ImprimirBoleto();
+                ib.imprimirBoletoSocial(bol, "soc_boletos_vw", false);
+                ib.setPathPasta(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos"));
+
+                Pessoa pessoa_envio = dbs.responsavelBoleto(bol.getNrCtrBoleto());
+                String nome = ib.criarLink(pessoa_envio, reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
+
+                List<Pessoa> pessoas = new ArrayList();
+                pessoas.add(pessoa_envio);
+
+                List<File> fls = new ArrayList();
+
+                String nome_envio = "Boleto Associativo";
+
+                String mensagem;
+                if (!reg.isEnviarEmailAnexo()) {
+                    mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Enviado para <b>" + pessoa_envio.getNome() + " </b></div><br />"
+                            + " <h5>Visualize seu boleto clicando no link abaixo</h5><br /><br />"
+                            + " <a href='" + reg.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nome + "'>Clique aqui para abrir boleto</a><br />";
+                } else {
+                    fls.add(new File(ib.getPathPasta() + "/" + nome));
+                    mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Enviado para <b>" + pessoa_envio.getNome() + " </b></div><br />"
+                            + " <h5>Segue boleto em anexo</h5><br /><br />";
+                }
+
+                Dao di = new Dao();
+                Mail mail = new Mail();
+                mail.setFiles(fls);
+                mail.setEmail(
+                        new Email(
+                                -1,
+                                DataHoje.dataHoje(),
+                                DataHoje.livre(new Date(), "HH:mm"),
+                                (Usuario) GenericaSessao.getObject("sessaoUsuario"),
+                                (Rotina) di.find(new Rotina(), 96),
+                                null,
+                                nome_envio,
+                                mensagem,
+                                false,
+                                false
+                        )
+                );
+
+                List<EmailPessoa> emailPessoas = new ArrayList();
+                EmailPessoa emailPessoa = new EmailPessoa();
+                for (Pessoa pe : pessoas) {
+                    emailPessoa.setDestinatario(pe.getEmail1());
+                    emailPessoa.setPessoa(pe);
+                    emailPessoa.setRecebimento(null);
+                    emailPessoas.add(emailPessoa);
+                    mail.setEmailPessoas(emailPessoas);
+                    emailPessoa = new EmailPessoa();
+                }
+
+                String[] retorno = mail.send("personalizado");
+                if (!retorno[1].isEmpty()) {
+                    GenericaMensagem.warn("Erro", retorno[1]);
+                } else {
+                    GenericaMensagem.info("Sucesso", retorno[0]);
+                }
+            } catch (Exception erro) {
+                System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
+            }
+        }
     }
 
     public void registrarBoletos() {
@@ -116,7 +225,6 @@ public class ImpressaoBoletoSocialBean {
 
         new RegistrarBoletoThread(lista, "soc_boletos_vw").runDebug();
 
-        // loadLista();
         GenericaMensagem.info("Sucesso", "Registro de Boletos concluído!");
     }
 
@@ -233,7 +341,6 @@ public class ImpressaoBoletoSocialBean {
 
     public int calculoDePaginas(int quantidade) {
         double soma = Moeda.divisao(quantidade, 25);
-        // return ((int) Math.ceil(soma) == 0) ? 1 : (int) Math.ceil(soma); // CALCULO
         return (int) Math.ceil(soma);
     }
 
@@ -280,14 +387,14 @@ public class ImpressaoBoletoSocialBean {
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
                 Boleto b = db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0));
-                if (DataHoje.menorData(b.getVencimento(), DataHoje.data())){
+                if (DataHoje.menorData(b.getVencimento(), DataHoje.data())) {
                     GenericaMensagem.fatal("Atenção", "Boleto " + b.getBoletoComposto() + " vencido!");
                     return;
                 }
                 lista.add(b);
             }
         }
-        
+
         if (lista.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum Boleto selecionado!");
             return;
@@ -315,11 +422,11 @@ public class ImpressaoBoletoSocialBean {
         String lista = "";
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
-//                if (DataHoje.menorData ((String) ((Vector) listaGrid.get(i).getArgumento2()).get(4), DataHoje.data()) ){
-//                    GenericaMensagem.fatal("Atenção", "Boleto " + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(3) + " vencido!");
-//                    return;
-//                }
-                
+                if (DataHoje.menorData((String) ((Vector) listaGrid.get(i).getArgumento2()).get(4), DataHoje.data())) {
+                    GenericaMensagem.fatal("Atenção", "Boleto " + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(3) + " vencido!");
+                    return;
+                }
+
                 if (lista.isEmpty()) {
                     lista = "'" + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(0) + "'";
                 } else {
@@ -351,13 +458,10 @@ public class ImpressaoBoletoSocialBean {
 
         List lista = new ArrayList();
 
-        FinanceiroDao dao = new FinanceiroDao();
-
         try {
             Map<Integer, PessoaEndereco> hash = new LinkedHashMap();
 
             PessoaEnderecoDao dbpe = new PessoaEnderecoDao();
-            PessoaEndereco pe;
 
             JuridicaDao dbj = new JuridicaDao();
 
@@ -557,7 +661,7 @@ public class ImpressaoBoletoSocialBean {
 
     public List<Pessoa> getListaPessoaSemEndereco() {
         if (atualizaListaPessoaSemEndereco) {
-            //loadLista();
+
         }
         return listaPessoaSemEndereco;
     }
@@ -621,7 +725,7 @@ public class ImpressaoBoletoSocialBean {
     public void setStrDataEnd(String strDataEnd) {
         this.strDataEnd = strDataEnd;
     }
-    
+
     public Integer getTipoEnvio() {
         return tipoEnvio;
     }

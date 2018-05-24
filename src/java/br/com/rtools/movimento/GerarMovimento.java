@@ -283,7 +283,7 @@ public class GerarMovimento extends DB {
                 }
             }
             ContaCobranca cc = dbc.pesquisaServicoCobranca(listaMovimento.get(i).getServicos().getId(), listaMovimento.get(i).getTipoServico().getId());
-            int id_boleto = db.inserirBoletoNativo(cc.getId());
+            int id_boleto = db.inserirBoletoNativo(cc.getId(), mc.getVencimento(), listaMovimento.get(i).getValor());
 
             if (id_boleto != -1) {
                 dao.openTransaction();
@@ -505,7 +505,7 @@ public class GerarMovimento extends DB {
             return new StatusRetornoMensagem(Boolean.FALSE, "CONTA COBRANÇA VAZIA!");
         }
 
-        int id_boleto = db.inserirBoletoNativo(cc.getId());
+        int id_boleto = db.inserirBoletoNativo(cc.getId(), movimento.getVencimento(), movimento.getValor());
 
         if (id_boleto != -1) {
             dao.openTransaction();
@@ -577,7 +577,7 @@ public class GerarMovimento extends DB {
         return new StatusRetornoMensagem(Boolean.TRUE, "MOVIMENTO SALVO!");
     }
 
-    public static StatusRetornoMensagem salvarUmMovimento(Lote lote, Movimento movimento) {
+    public static StatusRetornoMensagem salvarUmMovimento(Lote lote, Movimento movimento, Date vencimento, Double valor) {
         Dao dao = new Dao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
@@ -618,7 +618,11 @@ public class GerarMovimento extends DB {
             }
         }
 
-        int id_boleto = db.inserirBoletoNativo(cc.getId());
+        if (vencimento == null) {
+            vencimento = mc.getDtVencimento();
+        }
+
+        int id_boleto = db.inserirBoletoNativo(cc.getId(), DataHoje.converteData(vencimento), valor);
 
         if (id_boleto != -1) {
             dao.openTransaction();
@@ -665,6 +669,8 @@ public class GerarMovimento extends DB {
                         // SE AGRUPA FOR FALSE** NR_CTR_BOLETO = ID_MOVIMENTO
                         //boleto.setNrBoleto(boleto.getContaCobranca().getId());
                         boleto.setNrCtrBoleto(String.valueOf(movimento.getId()));
+//                        boleto.setVencimento(movimento.getVencimento());
+//                        boleto.setVencimentoOriginal(movimento.getVencimentoOriginal());
 
                         movimento.setDocumento(boleto.getBoletoComposto());
                         movimento.setNrCtrBoleto(boleto.getNrCtrBoleto());
@@ -705,35 +711,62 @@ public class GerarMovimento extends DB {
         return new StatusRetornoMensagem(Boolean.TRUE, "MOVIMENTO SALVO!");
     }
 
-    public static boolean alterarUmMovimento(Movimento movimento) {
-        Dao dao = new Dao();
-        NovoLog log = new NovoLog();
-        dao.openTransaction();
-        if (movimento.getId() != -1) {
-            // LOTE ---
-            Lote lote = (Lote) dao.find(new Lote(), movimento.getLote().getId());
-            lote.setValor(movimento.getValor());
-//            
-//            //ServicoContaCobranca scc = dbc.pesquisaServPorIdServIdTipoServ(movimento.getServicos().getId(), movimento.getTipoServico().getId());
-            if (dao.update(lote)) {
-                // log.update("", "Alterar Lote - ID: " + lote.getId() + " Pessoa: " + lote.getPessoa().getNome() + " Data: " + lote.getEmissao() + " Valor: " + lote.getValor());
-            } else {
-                dao.rollback();
-                return false;
-            }
-//
-//            // MOVIMENTO ----
-//            movimento.setLote(lote);
-            if (dao.update(movimento)) {
-                // log.update("", "Alterar Movimento - ID: " + movimento.getId() + " Pessoa: " + movimento.getPessoa().getNome() + " Valor: " + movimento.getValor());
-            } else {
-                dao.rollback();
-                return false;
-            }
-            dao.commit();
-        } else {
+    public static boolean alterarUmMovimento(Movimento movimento, Date vencimento) {
+        if (movimento.getId() == -1) {
             return false;
         }
+
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+
+        // LOTE ---
+        Lote lote = (Lote) dao.find(new Lote(), movimento.getLote().getId());
+        lote.setValor(movimento.getValor());
+
+        if (!dao.update(lote)) {
+            // log.update("", "Alterar Lote - ID: " + lote.getId() + " Pessoa: " + lote.getPessoa().getNome() + " Data: " + lote.getEmissao() + " Valor: " + lote.getValor());
+            dao.rollback();
+            return false;
+        }
+
+        // MOVIMENTO ----
+        if (!dao.update(movimento)) {
+            dao.rollback();
+            return false;
+        }
+
+        Boleto bol = movimento.getBoleto();
+
+        // SE O VENCIMENTO FOR DIFERENTE
+        if (!bol.getVencimento().equals(DataHoje.converteData(vencimento))) {
+
+            // SE O TIPO DE COBRANÇA FOR REGISTRADA ----------------------------
+            if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
+                if (bol.getDtCobrancaRegistrada() == null) {
+                    bol.setDtVencimento(vencimento);
+
+                    if (!dao.update(movimento)) {
+                        dao.rollback();
+                        return false;
+                    }
+                }
+                
+                
+            } else {
+                // SE NÃO FOR REGISTRADA -------------------------------------------    
+                bol.setDtVencimento(vencimento);
+
+                if (!dao.update(movimento)) {
+                    dao.rollback();
+                    return false;
+                }
+            }
+
+        }
+
+        dao.commit();
+
         return true;
     }
 
@@ -742,11 +775,12 @@ public class GerarMovimento extends DB {
         Dao dao = new Dao();
         Lote lote = null;
         MensagemCobranca mensagemCobranca = null;
-        List<ImpressaoWeb> listaLogWeb = new ArrayList();
+
         try {
             if (movimento.isAtivo() && movimento.getBaixa() == null) {
                 mensagemCobranca = movDB.pesquisaMensagemCobranca(movimento.getId());
-                listaLogWeb = movDB.pesquisaLogWeb(movimento.getId());
+                List<ImpressaoWeb> listaLogWeb = movDB.pesquisaLogWeb(movimento.getId());
+
                 dao.openTransaction();
 
                 // EXCLUI LISTA IMPRESSAO
@@ -1562,9 +1596,9 @@ public class GerarMovimento extends DB {
         );
 
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         if (!dao.save(baixa)) {
             dao.rollback();
             lista_log[0] = 0; // 0 - ERRO AO INSERIR BAIXA
@@ -1721,7 +1755,7 @@ public class GerarMovimento extends DB {
             //dao.rollback();
             return false;
         }
-        
+
         Dao dao = new Dao();
         dao.openTransaction();
 

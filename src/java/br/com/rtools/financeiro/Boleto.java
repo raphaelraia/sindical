@@ -53,7 +53,9 @@ public class Boleto implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_processamento", nullable = false)
     private Date dtProcessamento;
-    
+    @Column(name = "nr_valor", length = 10)
+    private Double valor;
+
     public Boleto() {
         this.id = -1;
         this.contaCobranca = new ContaCobranca();
@@ -69,9 +71,10 @@ public class Boleto implements java.io.Serializable {
         this.statusRetorno = null;
         this.dtStatusRetorno = null;
         this.dtProcessamento = DataHoje.dataHoje();
+        this.valor = new Double(0);
     }
 
-    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa, StatusRetorno statusRetorno, Date dtStatusRetorno, Date dtProcessamento) {
+    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada, Date dtRegistroBaixa, StatusRetorno statusRetorno, Date dtStatusRetorno, Date dtProcessamento, Double valor) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.nrBoleto = nrBoleto;
@@ -86,6 +89,7 @@ public class Boleto implements java.io.Serializable {
         this.statusRetorno = statusRetorno;
         this.dtStatusRetorno = dtStatusRetorno;
         this.dtProcessamento = dtProcessamento;
+        this.valor = valor;
     }
 
     public int getId() {
@@ -240,22 +244,18 @@ public class Boleto implements java.io.Serializable {
         }
     }
 
-    public Double getValor() {
-        if (id != -1) {
-            List<Movimento> list = getListaMovimento();
-            Double valor_somado = new Double(0);
-            for (Movimento m : list){
-                valor_somado = Moeda.soma(valor_somado, m.getValor());
-            }
-            return valor_somado;
-        } else {
-            return new Double(0);
-        }
-    }
-    
-    public String getValorString(){
-        return Moeda.converteR$Double(getValor());
-    }
+//    public Double getValor() {
+//        if (id != -1) {
+//            List<Movimento> list = getListaMovimento();
+//            Double valor_somado = new Double(0);
+//            for (Movimento m : list){
+//                valor_somado = Moeda.soma(valor_somado, m.getValor());
+//            }
+//            return valor_somado;
+//        } else {
+//            return new Double(0);
+//        }
+//    }
 
     public Date getDtProcessamento() {
         return dtProcessamento;
@@ -264,12 +264,28 @@ public class Boleto implements java.io.Serializable {
     public void setDtProcessamento(Date dtProcessamento) {
         this.dtProcessamento = dtProcessamento;
     }
-    
+
     public String getDtProcessamentoString() {
         return DataHoje.converteData(dtProcessamento);
     }
 
     public void setDtProcessamentoString(String dtProcessamentoString) {
         this.dtProcessamento = DataHoje.converte(dtProcessamentoString);
+    }
+
+    public Double getValor() {
+        return valor;
+    }
+
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
+
+    public String getValorString() {
+        return Moeda.converteDoubleToString(valor);
+    }
+
+    public void setValorString(String valorString) {
+        this.valor = Moeda.converteUS$(valorString);
     }
 }

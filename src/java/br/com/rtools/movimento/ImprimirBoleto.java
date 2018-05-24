@@ -21,7 +21,6 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
-import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.financeiro.dao.BoletoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
@@ -42,14 +41,12 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -136,12 +133,38 @@ public class ImprimirBoleto implements Serializable {
                         hash.put("boleto", null);
                         hash.put("mensagem", "Aguardando Boleto ser Registrado! Boleto: (" + boleto.getBoletoComposto() + ")");
                         return hash;
+                    case 6:
+                        Cobranca cobranca = Cobranca.retornaCobranca(null, valor, boleto.getDtVencimento(), boleto);
+
+                        if (cobranca == null) {
+                            hash.put("boleto", null);
+                            hash.put("mensagem", "Erro ao encontrar Cobrança");
+                            return hash;
+                        }
+
+                        cobranca.setBoleto(Cobranca.gerarNovoBoleto(boleto, boleto.getVencimento()));
+                        if (cobranca.getBoleto() == null) {
+                            hash.put("boleto", null);
+                            hash.put("mensagem", "Erro ao gerar novo boleto!");
+                            return hash;
+                        } else {
+                            hash.put("boleto", cobranca.getBoleto());
+                            hash.put("mensagem", "");
+                            return hash;
+                        }
+
                     default:
                         break;
                 }
 
             case 2:
                 // CONTINUA PARA O REGISTRO VIA WEB SERVICE
+                if (boleto.getStatusRetorno() != null && boleto.getStatusRetorno().getId() == 2) {
+                    hash.put("boleto", boleto);
+                    hash.put("mensagem", "");
+                    return hash;
+                }
+
                 break;
             case 3:
                 // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
@@ -159,6 +182,15 @@ public class ImprimirBoleto implements Serializable {
             return hash;
         }
 
+        if (boleto.getStatusRetorno() != null && boleto.getStatusRetorno().getId() == 6) {
+            cobranca.setBoleto(Cobranca.gerarNovoBoleto(boleto, boleto.getVencimento()));
+            if (cobranca.getBoleto() == null) {
+                hash.put("boleto", null);
+                hash.put("mensagem", "Erro ao gerar novo boleto!");
+                return hash;
+            }
+        }
+
         RespostaWebService resp = cobranca.registrarBoleto(vencimento);
 
         if (resp.getBoleto() == null) {
@@ -172,24 +204,41 @@ public class ImprimirBoleto implements Serializable {
         return hash;
     }
 
-    public HashMap registrarMovimentos(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos) {
-        
+    public HashMap registrarMovimentos(List<Movimento> lista, Boolean imprimeVencido) {
+
         Dao dao = new Dao();
 
         List<Movimento> listaAdd = new ArrayList();
 
         HashMap hash = new LinkedHashMap();
+
+        String logs = "";
         for (int i = 0; i < lista.size(); i++) {
             Boleto bol = lista.get(i).getBoleto();
             if (bol == null) {
-                hash.put("lista", new ArrayList());
-                hash.put("mensagem", "Boleto para o Movimento ID " + lista.get(i).getId() + " não encontrado, contate o Administrador.");
-                return hash;
+                if (logs.isEmpty()) {
+                    logs = " ** " + "Boleto para o Movimento ID " + lista.get(i).getId() + " não encontrado, contate o Administrador.";
+                } else {
+                    logs += " ** " + "Boleto para o Movimento ID " + lista.get(i).getId() + " não encontrado, contate o Administrador." + " \n ";
+                }
+                continue;
             }
 
             switch (bol.getContaCobranca().getCobrancaRegistrada().getId()) {
                 // NECESSÁRIO ARQUIVO REMESSA PARA IMPRIMIR
                 case 1:
+                    if (DataHoje.menorData(bol.getVencimento(), DataHoje.data()) && bol.getStatusRetorno().getId() != 2) {
+                        if (!imprimeVencido) {
+                            if (logs.isEmpty()) {
+                                logs = " ** " + "Boleto vencido não pode ser impresso: (" + bol.getBoletoComposto() + ")";
+                            } else {
+                                logs += " ** " + "Boleto vencido não pode ser impresso: (" + bol.getBoletoComposto() + ")" + " \n ";
+                            }
+
+                            continue;
+                        }
+                    }
+
                     if (bol.getStatusRetorno() == null) {
                         bol.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 4));
                         bol.setDtStatusRetorno(DataHoje.dataHoje());
@@ -199,9 +248,13 @@ public class ImprimirBoleto implements Serializable {
                     switch (bol.getStatusRetorno().getId()) {
                         case 1:
                             // BOLETO FOI REJEITADO
-                            hash.put("lista", new ArrayList());
-                            hash.put("mensagem", "Boletos Reijeitados pelo Cobrança Registrada não pode ser impresso! Boleto: (" + bol.getBoletoComposto() + ")");
-                            return hash;
+                            if (logs.isEmpty()) {
+                                logs = " ** " + "Boletos Reijeitados pelo Cobrança Registrada não pode ser impresso! Boleto: (" + bol.getBoletoComposto() + ")";
+                            } else {
+                                logs += " ** " + "Boletos Reijeitados pelo Cobrança Registrada não pode ser impresso! Boleto: (" + bol.getBoletoComposto() + ")" + " \n ";
+                            }
+                            continue;
+
                         case 2:
                             // BOLETO FOI REGISTRADO
                             listaAdd.add(lista.get(i));
@@ -212,24 +265,63 @@ public class ImprimirBoleto implements Serializable {
 
                             // MESMO COM COBRANÇA REGISTRADA O BOLETO PODERÁ SER IMPRESSO CASO O VENCIMENTO DO MESMO FOR MENOR QUE 01/09/2017
                             if (DataHoje.maiorData(bol.getVencimento(), "01/09/2017")) {
-                                hash.put("lista", new ArrayList());
-                                hash.put("mensagem", "Solicitação de Registro enviada! Boleto: (" + bol.getBoletoComposto() + ")");
+
+                                if (logs.isEmpty()) {
+                                    logs = " ** " + "Solicitação de Registro enviada! Boleto: (" + bol.getBoletoComposto() + ")";
+                                } else {
+                                    logs += " ** " + "Solicitação de Registro enviada! Boleto: (" + bol.getBoletoComposto() + ")" + " \n ";
+                                }
                             } else {
                                 listaAdd.add(lista.get(i));
-                                continue;
                             }
-                            return hash;
+                            continue;
                         case 5:
                             // BOLETO JÁ FOI ENVIADO PARA REGISTRO, APENAS AGUARDANDO RETORNO
-                            hash.put("lista", new ArrayList());
-                            hash.put("mensagem", "Aguardando Boleto ser Registrado! Boleto: (" + bol.getBoletoComposto() + ")");
-                            return hash;
+                            if (logs.isEmpty()) {
+                                logs = " ** " + "Aguardando Boleto ser Registrado! Boleto: (" + bol.getBoletoComposto() + ")";
+                            } else {
+                                logs += " ** " + "Aguardando Boleto ser Registrado! Boleto: (" + bol.getBoletoComposto() + ")" + " \n ";
+                            }
+
+                            continue;
+                        case 6:
+                            Cobranca cobranca = Cobranca.retornaCobranca(null, bol.getValor(), bol.getDtVencimento(), bol);
+
+                            if (cobranca == null) {
+                                if (logs.isEmpty()) {
+                                    logs = " ** " + "Erro ao encontrar Cobrança! Boleto: (" + bol.getBoletoComposto() + ")";
+                                } else {
+                                    logs += " ** " + "Erro ao encontrar Cobrança Boleto: (" + bol.getBoletoComposto() + ")" + " \n ";
+                                }
+                                continue;
+                            }
+
+                            cobranca.setBoleto(Cobranca.gerarNovoBoleto(bol, bol.getVencimento()));
+                            if (cobranca.getBoleto() == null) {
+                                if (logs.isEmpty()) {
+                                    logs = " ** " + "Erro ao gerar novo Boleto: (" + bol.getBoletoComposto() + ")";
+                                } else {
+                                    logs += " ** " + "Erro ao gerar novo Boleto: (" + bol.getBoletoComposto() + ")" + " \n ";
+                                }
+                            } else {
+                                listaAdd.add(lista.get(i));
+                            }
+
+                            continue;
                         default:
                             break;
                     }
 
                 case 2:
                     // CONTINUA PARA O REGISTRO VIA WEB SERVICE
+                    if (DataHoje.menorData(bol.getVencimento(), DataHoje.data()) && bol.getStatusRetorno().getId() != 2) {
+                        if (!imprimeVencido) {
+                            hash.put("lista", new ArrayList());
+                            hash.put("mensagem", "Boleto vencido não pode ser impresso: (" + bol.getBoletoComposto() + ")");
+                            return hash;
+                        }
+                    }
+
                     break;
                 case 3:
                     // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
@@ -237,10 +329,13 @@ public class ImprimirBoleto implements Serializable {
                     continue;
             }
 
-            if (listaValores.get(i) < 1) {
-                hash.put("lista", new ArrayList());
-                hash.put("mensagem", "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + bol.getNrBoleto() + ")");
-                return hash;
+            if (bol.getValor() < 1) {
+                if (logs.isEmpty()) {
+                    logs = " ** " + "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + bol.getNrBoleto() + ")";
+                } else {
+                    logs += " ** " + "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + bol.getNrBoleto() + ")" + " \n ";
+                }
+                continue;
             }
 
             //13/02/2017 
@@ -248,10 +343,9 @@ public class ImprimirBoleto implements Serializable {
             // PEGO O MOVIMENTO ANTIGO PARA QUE O VENCIMENTO fin_movimento.dt_vencimento NÃO SEJA ALTERADO NA IMPRESSÃO QUANDO EXECUTAR update
             // (inicialmente vindo do processamento individual) OBJETO EM QUESTÃO ( lista.get(i) )
             // dt_vencimento NÃO PODE SER ALTERADO QUANDO IMPRIMIR DO processamento individual
-            Movimento mov_antigo = (Movimento) dao.find(lista.get(i));
-            lista.get(i).setVencimento(mov_antigo.getVencimento());
-
-            Cobranca cobranca = Cobranca.retornaCobranca(null, listaValores.get(i), DataHoje.converte(listaVencimentos.get(i)), bol);
+//            Movimento mov_antigo = (Movimento) dao.find(lista.get(i));
+//            lista.get(i).setVencimento(mov_antigo.getVencimento());
+            Cobranca cobranca = Cobranca.retornaCobranca(null, bol.getValor(), bol.getDtVencimento(), bol);
 
             if (cobranca == null) {
                 hash.put("lista", new ArrayList());
@@ -259,7 +353,16 @@ public class ImprimirBoleto implements Serializable {
                 return hash;
             }
 
-            RespostaWebService resp = cobranca.registrarBoleto(listaVencimentos.get(i));
+            if (bol.getStatusRetorno() != null && bol.getStatusRetorno().getId() == 6) {
+                cobranca.setBoleto(Cobranca.gerarNovoBoleto(bol, bol.getVencimento()));
+                if (cobranca.getBoleto() == null) {
+                    hash.put("lista", new ArrayList());
+                    hash.put("mensagem", "Erro ao gerar novo boleto");
+                    return hash;
+                }
+            }
+
+            RespostaWebService resp = cobranca.registrarBoleto(bol.getVencimento());
 
             if (resp.getBoleto() == null) {
                 hash.put("lista", new ArrayList());
@@ -268,6 +371,13 @@ public class ImprimirBoleto implements Serializable {
             }
 
             listaAdd.add(resp.getBoleto().getListaMovimento().get(0));
+        }
+
+        if (!logs.isEmpty()) {
+
+            hash.put("lista", new ArrayList());
+            hash.put("mensagem", logs);
+            return hash;
         }
 
         hash.put("lista", listaAdd);
@@ -287,7 +397,7 @@ public class ImprimirBoleto implements Serializable {
             Boleto bol = dbm.pesquisaBoletos(lista.get(i).getNrCtrBoleto());
             if (bol == null) {
                 ContaCobranca cc = dbc.pesquisaServicoCobranca(lista.get(i).getServicos().getId(), lista.get(i).getTipoServico().getId());
-                int id_boleto = dbm.inserirBoletoNativo(cc.getId());
+                int id_boleto = dbm.inserirBoletoNativo(cc.getId(), lista.get(i).getVencimento(), lista.get(i).getValor());
                 bol = (Boleto) dao.find(new Boleto(), id_boleto);
                 lista.get(i).setDocumento(bol.getBoletoComposto());
                 bol.setNrCtrBoleto(lista.get(i).getNrCtrBoleto());
@@ -306,7 +416,8 @@ public class ImprimirBoleto implements Serializable {
             }
 
             if (scc.getTipoServico().getId() == 4) {
-                Movimento mov = new Movimento(-1,
+                Movimento mov = new Movimento(
+                        -1,
                         null,
                         scc.getServicos().getPlano5(),
                         lista.get(i).getPessoa(),
@@ -326,11 +437,11 @@ public class ImprimirBoleto implements Serializable {
                         "",
                         "",
                         null, // lista.get(i).getVencimento()
-                        0,
-                        0, 0, 0, 0, 0, 0, lista.get(i).getTipoDocumento(), 0, null);
+                        0, 0, 0, 0, 0, 0, 0, lista.get(i).getTipoDocumento(), 0, null
+                );
 
                 GerarMovimento.inativarUmMovimento(lista.get(i), "REIMPRESSÃO COM NOVO CEDENTE.");
-                GerarMovimento.salvarUmMovimento(new Lote(), mov);
+                GerarMovimento.salvarUmMovimento(new Lote(), mov, null, mov.getValor());
                 listaAdd.add(mov);
 
                 Historico his = new Historico();
@@ -376,7 +487,7 @@ public class ImprimirBoleto implements Serializable {
 
                 GerarMovimento.inativarUmMovimento(lista.get(i), "REIMPRESSÃO COM NOVO CEDENTE.");
 
-                GerarMovimento.salvarUmMovimento(new Lote(), mov);
+                GerarMovimento.salvarUmMovimento(new Lote(), mov, null, mov.getValor());
                 listaAdd.add(mov);
             }
         }
@@ -387,13 +498,18 @@ public class ImprimirBoleto implements Serializable {
         }
     }
 
-    public byte[] imprimirBoleto(List<Movimento> lista, List<Double> listaValores, List<String> listaVencimentos, boolean imprimeVerso) {
-        HashMap hash = registrarMovimentos(lista, listaValores, listaVencimentos);
+    public byte[] imprimirBoleto(List<Movimento> lista, boolean imprimeVerso, boolean imprimeVencido) {
+        HashMap hash = registrarMovimentos(lista, imprimeVencido);
 
-        if (((ArrayList) hash.get("lista")).isEmpty() || ((ArrayList) hash.get("lista")).size() != listaValores.size()) {
+        if (((ArrayList) hash.get("lista")).isEmpty()) {
             GenericaMensagem.error("Atenção", hash.get("mensagem").toString());
             return new byte[0];
         }
+
+        // ATUALIZA A LISTA COM OS BOLETOS REGISTRADOS OU MODIFICADOS
+        lista.clear();
+        lista.addAll((ArrayList) hash.get("lista"));
+
         MensagemConvencaoDao dbm = new MensagemConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
@@ -446,21 +562,13 @@ public class ImprimirBoleto implements Serializable {
 
                 swap[43] = "";
                 swap[42] = "";
-                double vlOriginal = lista.get(i).getValor();
-
-                // ALTERA VALOR PARA SAIR NA REPRESENTAÇÃO NUMÉRICA
-                lista.get(i).setValor(new BigDecimal(listaValores.get(i)).doubleValue());
-
-                // ALTERA O VENCIMENTO PARA SAIR NA REPRESENTAÇÃO NUMÉRICA
-                Movimento mov = lista.get(i);
-                mov.setVencimento(listaVencimentos.get(i));
 
                 // CHAMADO ROGÉRIO #2337 PEDIU PARA TIRAR O VALOR APENAS NO CODIGO DE BARRAS E REPRESENTAÇÃO
                 // CASO BOLETO FOR SEM REGISTRO
                 if (boletox.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
-                    cobranca = Cobranca.retornaCobranca(mov.getPessoa().getId(), new Double(0), mov.getDtVencimento(), boletox);
+                    cobranca = Cobranca.retornaCobranca(lista.get(i).getPessoa().getId(), new Double(0), boletox.getDtVencimento(), boletox);
                 } else {
-                    cobranca = Cobranca.retornaCobranca(mov.getPessoa().getId(), mov.getValor(), mov.getDtVencimento(), boletox);
+                    cobranca = Cobranca.retornaCobranca(lista.get(i).getPessoa().getId(), boletox.getValor(), boletox.getDtVencimento(), boletox);
                 }
 
                 if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
@@ -567,8 +675,6 @@ public class ImprimirBoleto implements Serializable {
                     swap[27] = "";
                 }
 
-                // VOLTA O VALOR ORIGINAL DEPOIS DE TER ALTERADO NA REPRESENTAÇÃO NUMERICA
-                lista.get(i).setValor(vlOriginal);
                 // VERIFICA SE O ENDEREÇO DE COBRANCA É IGUAL AO ENDERECO COMERCIAL --------------------------------------------------------
 //                if (swap[2].equals(swap[9]) &&
 //                    swap[3].equals(swap[10]) &&
@@ -582,7 +688,6 @@ public class ImprimirBoleto implements Serializable {
 //                        swap[7] = "";
 //                        swap[8] = "";
 //                }
-
                 try {
 //                    swap[44] = lista.get(i).getContaCobranca().getCodigoSindical().substring(0, 3) + "." + //codigosindical
 //                            lista.get(i).getContaCobranca().getCodigoSindical().substring(3, 6) + "."
@@ -602,7 +707,7 @@ public class ImprimirBoleto implements Serializable {
                     swap[44] = "";
                 }
 
-                valor = new BigDecimal(listaValores.get(i));
+                valor = new BigDecimal(boletox.getValor());
                 if (valor.toString().equals("0")) {
                     valor = null;
                 }
@@ -713,8 +818,8 @@ public class ImprimirBoleto implements Serializable {
                         swap[14],//sacado_estado
                         swap[15],//sacado_cep
                         cobranca.getNossoNumeroFormatado(),//nossonum (nosso numero)
-                        DataHoje.data(),// datadoc
-                        listaVencimentos.get(i),// VENCIMENTO
+                        boletox.getDtProcessamentoString(),// datadoc
+                        boletox.getVencimento(),// VENCIMENTO
                         cobranca.codigoBanco(),// codbanco
                         boletox.getContaCobranca().getMoeda(),//moeda
                         boletox.getContaCobranca().getEspecieMoeda(),// especie_doc
@@ -2306,7 +2411,6 @@ public class ImprimirBoleto implements Serializable {
 //                    GenericaMensagem.fatal("Atenção", "Boleto " + boleto.getBoletoComposto() + " vencido!");
 //                    return new byte[0];
 //                }
-
                 String contabilidade = "";
                 if (lista_socio.isEmpty()) {
                     if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {
@@ -2348,25 +2452,25 @@ public class ImprimirBoleto implements Serializable {
                 }
 
                 HashMap hash = new HashMap();
-                if (boleto.getDtCobrancaRegistrada() == null) {
-                    hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
-                    if (hash.get("boleto") != null) {
-                        boleto = (Boleto) hash.get("boleto");
-                    } else {
-                        if (hash.get("boleto") == null) {
-                            if (hash.get("mensagem") != null) {
-                                if (!hash.get("mensagem").toString().isEmpty()) {
-                                    if (hash.get("mensagem").toString().contains("Erro")) {
-                                        GenericaMensagem.warn(hash.get("mensagem").toString(), "");
-                                    } else {
-                                        GenericaMensagem.warn("Atenção", hash.get("mensagem").toString());
-                                    }
+
+                hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                if (hash.get("boleto") != null) {
+                    boleto = (Boleto) hash.get("boleto");
+                } else {
+                    if (hash.get("boleto") == null) {
+                        if (hash.get("mensagem") != null) {
+                            if (!hash.get("mensagem").toString().isEmpty()) {
+                                if (hash.get("mensagem").toString().contains("Erro")) {
+                                    GenericaMensagem.warn(hash.get("mensagem").toString(), "");
+                                } else {
+                                    GenericaMensagem.warn("Atenção", hash.get("mensagem").toString());
                                 }
                             }
                         }
-                        return new byte[0];
                     }
+                    return new byte[0];
                 }
+
                 for (int i = 0; i < lista_socio.size(); i++) {
                     lista_socio.get(i).set(20, boleto.getBoletoComposto());
                 }
@@ -2572,14 +2676,14 @@ public class ImprimirBoleto implements Serializable {
                         // HashMap hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
                         // 03/01/2017 - INICIO DA ALTERAÇÃO
                         HashMap hash = new HashMap();
-                        if (boleto.getDtCobrancaRegistrada() == null) {
-                            hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
-                            if (hash.get("boleto") != null) {
-                                boleto = (Boleto) hash.get("boleto");
-                            } else {
-                                return new byte[0];
-                            }
+
+                        hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                        if (hash.get("boleto") != null) {
+                            boleto = (Boleto) hash.get("boleto");
+                        } else {
+                            return new byte[0];
                         }
+
                         linha.set(20, boleto.getBoletoComposto());
                         // 03/01/2017 - FIM DA ALTERAÇÃO
                         Cobranca cobranca;
@@ -2612,14 +2716,14 @@ public class ImprimirBoleto implements Serializable {
                     // 03/01/2017 - INICIO DA ALTERAÇÃO
                     boleto = new BoletoDao().findByNrCtrBoleto(linha.get(2).toString());
                     HashMap hash = new HashMap();
-                    if (boleto.getDtCobrancaRegistrada() == null) {
-                        hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
-                        if (hash.get("boleto") != null) {
-                            boleto = (Boleto) hash.get("boleto");
-                        } else {
-                            return new byte[0];
-                        }
+
+                    hash = registrarMovimentosAss(boleto, valor_boleto, boleto.getVencimento());
+                    if (hash.get("boleto") != null) {
+                        boleto = (Boleto) hash.get("boleto");
+                    } else {
+                        return new byte[0];
                     }
+
                     linha.set(20, boleto.getBoletoComposto());
                     // 03/01/2017 - FIM DA ALTERAÇÃO
 

@@ -1875,9 +1875,9 @@ public class MovimentoDao extends DB {
             }
 
             if (type.equals("ate")) {
-                filtros += " AND x.qtde <= " + qtde + " \n";
+                filtros += " AND (x.qtde IS NULL OR x.qtde <= " + qtde + ") \n";
             } else if (type.equals("apartir")) {
-                filtros += " AND x.qtde >= " + qtde + "\n";
+                filtros += " AND x.qtde >= " + qtde + " \n";
             }
 
             if (registrado.equals("registrado")) {
@@ -1962,7 +1962,7 @@ public class MovimentoDao extends DB {
     }
 
     public Object[] pesquisaValorFolha(Movimento movimento) {
-        Object[] valor = new Object[2];
+        
         String referencia = movimento.getReferencia().substring(3, 7) + movimento.getReferencia().substring(0, 2);
         try {
             Query qry = getEntityManager().createQuery(
@@ -2023,7 +2023,7 @@ public class MovimentoDao extends DB {
                     + "       SUBSTRING(des.ds_ref_inicial,4,7) || SUBSTRING(des.ds_ref_inicial,1,2)                      "
                     + "       and                                                                                         "
                     + "       SUBSTRING(des.ds_ref_final,4,7)   || SUBSTRING  (des.ds_ref_final,1,2)  ");
-            //valor = (Object[]) qry.getSingleResult();
+            
             List resultado = (Vector) qry2.getSingleResult();
 
             return new Object[]{(new BigDecimal((Double) resultado.get(0))).doubleValue(), (new BigDecimal((Double) resultado.get(1))).doubleValue()};
@@ -2236,7 +2236,7 @@ public class MovimentoDao extends DB {
     public List<Movimento> pesquisaMovPorNumDocumentoListBaixadoArr(String numero, int idContaCobranca) {
         List vetor;
         List<Movimento> listMov = new ArrayList();
-        String textQuery = "";
+        String textQuery;
         try {
             textQuery = "select mov.id ids "
                     + "  from fin_movimento mov, fin_boleto bol "
@@ -2824,9 +2824,9 @@ public class MovimentoDao extends DB {
         }
     }
 
-    public int inserirBoletoNativo(int id_conta_cobranca) {
+    public int inserirBoletoNativo(int id_conta_cobranca, String vencimento, Double valor) {
         try {
-            String textQuery = "INSERT INTO fin_boleto (id_conta_cobranca, is_ativo) values (" + id_conta_cobranca + ", true)";
+            String textQuery = "INSERT INTO fin_boleto (id_conta_cobranca, is_ativo, dt_vencimento, dt_vencimento_original, nr_valor) values (" + id_conta_cobranca + ", true, '" + vencimento + "', '" + vencimento + "'," + valor + ")";
             Query qry = getEntityManager().createNativeQuery(textQuery);
 
             getEntityManager().getTransaction().begin();
@@ -2981,6 +2981,69 @@ public class MovimentoDao extends DB {
         String textQuery = "";
         try {
             textQuery = "select func_correcao_sm(" + id_pessoa + "," + id_servico + "," + id_tipo_servico + ",'" + referencia + "')";
+            Query qry = getEntityManager().createNativeQuery(textQuery);
+            vetor = qry.getResultList();
+            if (!vetor.isEmpty()) {
+                for (int i = 0; i < vetor.size(); i++) {
+                    if (((Vector) vetor.get(i)).get(0) != null) {
+                        result = (Double) ((Vector) vetor.get(i)).get(0);
+                    }
+                }
+            }
+            return result;
+        } catch (EJBQLException e) {
+            return result;
+        }
+    }
+
+    public Double funcaoMultaAss(Integer id_movimento) {
+        List vetor;
+        double result = 0;
+        String textQuery = "";
+        try {
+            textQuery = "select func_multa_ass(" + id_movimento + ", CURRENT_DATE)";
+            Query qry = getEntityManager().createNativeQuery(textQuery);
+            vetor = qry.getResultList();
+            if (!vetor.isEmpty()) {
+                for (int i = 0; i < vetor.size(); i++) {
+                    if (((Vector) vetor.get(i)).get(0) != null) {
+                        result = (Double) ((Vector) vetor.get(i)).get(0);
+                    }
+                }
+            }
+            return result;
+        } catch (EJBQLException e) {
+            return result;
+        }
+    }
+
+    public Double funcaoJurosAss(Integer id_movimento) {
+        List vetor;
+        double result = 0;
+        String textQuery = "";
+        try {
+            textQuery = "select func_juros_ass(" + id_movimento + ", CURRENT_DATE)";
+            Query qry = getEntityManager().createNativeQuery(textQuery);
+            vetor = qry.getResultList();
+            if (!vetor.isEmpty()) {
+                for (int i = 0; i < vetor.size(); i++) {
+                    if (((Vector) vetor.get(i)).get(0) != null) {
+                        result = (Double) ((Vector) vetor.get(i)).get(0);
+                    }
+                }
+            }
+            return result;
+        } catch (EJBQLException e) {
+            return result;
+        }
+    }
+
+    public Double funcaoCorrecaoAss(Integer id_movimento) {
+        List vetor;
+        double result = 0;
+        String textQuery = "";
+        try {
+            textQuery = "select func_correcao_ass(" + id_movimento + ", CURRENT_DATE)";
             Query qry = getEntityManager().createNativeQuery(textQuery);
             vetor = qry.getResultList();
             if (!vetor.isEmpty()) {

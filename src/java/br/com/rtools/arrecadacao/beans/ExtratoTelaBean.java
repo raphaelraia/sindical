@@ -335,7 +335,10 @@ public class ExtratoTelaBean implements Serializable {
                 break;
         }
 
-        // ADICIONA BOLETO QUE FOI SELECIONADO NA TELA
+        RemessaBancoDao daor = new RemessaBancoDao();
+        String ids_pesquisa = "";
+        // BOLETOS SELECIONADOS ------------------------------------------------
+        // ---------------------------------------------------------------------
         for (Movimento mov : lista_movimento_validado) {
 
             Boleto bo = mov.getBoleto();
@@ -344,17 +347,34 @@ public class ExtratoTelaBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
 
         }
+
+        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar no Banco já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
 
         // ADICIONA BOLETO PARA REGISTRO AUTOMÁTICO
         List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
         statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
 
+        ids_pesquisa = "";
         for (Boleto bo : lista_b) {
 
             BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
@@ -362,14 +382,26 @@ public class ExtratoTelaBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
         }
+
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
 
         // ADICIONA BOLETO PARA REGISTRO DE RECUSADOS
         lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
+        ids_pesquisa = "";
         for (Boleto bo : lista_b) {
 
             BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
@@ -377,16 +409,25 @@ public class ExtratoTelaBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
         }
 
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+            return;
+        }
         // ADICIONA BOLETO PARA BAIXAR REGISTRADOS
         lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
         statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
 
+        ids_pesquisa = "";
         for (Boleto bo : lista_b) {
 
             BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
@@ -394,18 +435,16 @@ public class ExtratoTelaBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
+                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+                ids_pesquisa = ", " + bo.getId();
             }
         }
-
-        // SE JÁ FOI GERADO UMA REMESSA PARA OS MOVIMENTOS
-        RemessaBancoDao daor = new RemessaBancoDao();
-
-        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(id_boleto_adicionado_remessa);
+        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
 
         if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getBoleto().getBoletoComposto());
+            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
             return;
         }
 
@@ -1306,8 +1345,6 @@ public class ExtratoTelaBean implements Serializable {
     public String imprimir(Boolean download) {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> listaC = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
 
         if (listaMovimentos.isEmpty()) {
             GenericaMensagem.error("Atenção", "NENHUM BOLETO PARA IMPRIMIR");
@@ -1320,9 +1357,14 @@ public class ExtratoTelaBean implements Serializable {
         for (DataObject listaMovimento : listaMovimentos) {
             if ((Boolean) listaMovimento.getArgumento0()) {
                 Movimento m = db.pesquisaCodigo((Integer) listaMovimento.getArgumento1());
+                Boleto b = m.getBoleto();
+                
+                if (DataHoje.menorData(b.getDtVencimento(), DataHoje.dataHoje()) && (b.getStatusRetorno() == null || b.getStatusRetorno().getId() != 2)){
+                    GenericaMensagem.error("Atenção", "Imprimir pela Rotina de Impressão Individual");
+                    return null;
+                }
+                
                 listaC.add(m);
-                listaValores.add(m.getValor());
-                listaVencimentos.add(m.getVencimento());
 
                 Impressao impressao = new Impressao();
 
@@ -1335,6 +1377,7 @@ public class ExtratoTelaBean implements Serializable {
                     GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                     return null;
                 }
+                
 
             }
         }
@@ -1344,7 +1387,7 @@ public class ExtratoTelaBean implements Serializable {
 
         listaC = imp.atualizaContaCobrancaMovimento(listaC);
 
-        imp.imprimirBoleto(listaC, listaValores, listaVencimentos, imprimirVerso);
+        imp.imprimirBoleto(listaC, imprimirVerso, false);
 
         if (download) {
             imp.baixarArquivo();
@@ -1372,8 +1415,6 @@ public class ExtratoTelaBean implements Serializable {
         MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
-        List<Double> listaValores = new ArrayList<Double>();
-        List<String> listaVencimentos = new ArrayList<String>();
 
         //List<Linha> select  = new ArrayList();
         List<Movimento> listaux = new ArrayList();
@@ -1418,8 +1459,6 @@ public class ExtratoTelaBean implements Serializable {
                     return null;
                 }
                 movadd.add(listaux.get(i));
-                listaValores.add(listaux.get(i).getValor());
-                listaVencimentos.add(listaux.get(i).getVencimento());
 
                 try {
                     id_compara = dbj.pesquisaJuridicaPorPessoa(listaux.get(i + 1).getPessoa().getId()).getContabilidade().getId();
@@ -1431,19 +1470,15 @@ public class ExtratoTelaBean implements Serializable {
                 }
 
                 if (enviar) {
-                    enviar(movadd, listaValores, listaVencimentos, juridica.getContabilidade());
+                    enviar(movadd, juridica.getContabilidade());
                     enviar = false;
                     movadd.clear();
-                    listaValores.clear();
-                    listaVencimentos.clear();
                 }
                 /* ENVIO PARA EMPRESA */
             } else {
                 id_empresa = juridica.getId();
 
                 movadd.add(listaux.get(i));
-                listaValores.add(listaux.get(i).getValor());
-                listaVencimentos.add(listaux.get(i).getVencimento());
 
                 try {
                     id_compara = dbj.pesquisaJuridicaPorPessoa(listaux.get(i + 1).getPessoa().getId()).getId();
@@ -1455,11 +1490,9 @@ public class ExtratoTelaBean implements Serializable {
                 }
 
                 if (enviar) {
-                    enviar(movadd, listaValores, listaVencimentos, juridica);
+                    enviar(movadd, juridica);
                     enviar = false;
                     movadd.clear();
-                    listaValores.clear();
-                    listaVencimentos.clear();
                 }
             }
 
@@ -1470,27 +1503,26 @@ public class ExtratoTelaBean implements Serializable {
         return null;
     }
 
-    public void enviar(List<Movimento> mov, List<Double> listaValores, List<String> listaVencimentos, Juridica jur) {
+    public void enviar(List<Movimento> mov, Juridica jur) {
         try {
 
-            Registro reg = new Registro();
-            reg = Registro.get();
+            Registro reg = Registro.get();
 
             ImprimirBoleto imp = new ImprimirBoleto();
-            imp.imprimirBoleto(mov, listaValores, listaVencimentos, false);
+            imp.imprimirBoleto(mov, false, false);
             String nome = imp.criarLink(jur.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
             List<Pessoa> pessoas = new ArrayList();
             pessoas.add(jur.getPessoa());
 
-            String mensagem = "";
-            List<File> fls = new ArrayList<File>();
-            String nome_envio = "";
+            List<File> fls = new ArrayList();
+            String nome_envio;
             if (mov.size() == 1) {
                 nome_envio = "Boleto " + mov.get(0).getServicos().getDescricao() + " N° " + mov.get(0).getDocumento();
             } else {
                 nome_envio = "Boleto";
             }
 
+            String mensagem;
             if (!reg.isEnviarEmailAnexo()) {
                 mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Enviado para <b>" + jur.getPessoa().getNome() + " </b></div><br />"
                         + " <h5>Visualize seu boleto clicando no link abaixo</h5><br /><br />"
@@ -1519,7 +1551,7 @@ public class ExtratoTelaBean implements Serializable {
                     )
             );
 
-            List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+            List<EmailPessoa> emailPessoas = new ArrayList();
             EmailPessoa emailPessoa = new EmailPessoa();
             for (Pessoa pe : pessoas) {
                 emailPessoa.setDestinatario(pe.getEmail1());
@@ -1546,7 +1578,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String imprimirPlanilha() {
-        List<Movimento> listaC = new ArrayList<Movimento>();
+        List<Movimento> listaC = new ArrayList();
         MovimentoDao db = new MovimentoDao();
         Movimento movimento = new Movimento();
         Acordo acordo = new Acordo();

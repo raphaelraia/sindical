@@ -57,81 +57,84 @@
                         </h:column>
 
                         <h:column>
-                            <p:commandButton value="Criar um novo Boleto" style="float: right" onclick="PF('dlg_novo_boleto').show()"/>
+                            <p:commandButton value="Criar um novo Boleto" style="float: right" onclick="PF('dlg_novo_boleto').show()" action="#{webContabilidadeBean.limparNovoBoleto()}" update="formImpressao:i_panel_novo_boleto"/>
                         </h:column>
                     </h:panelGrid>
                 </h:panelGrid>
 
                 <h:panelGrid id="i_panel_lista" style="margin: 0 auto; width: 1024px">
                     <p:messages id="i_msg" showDetail="true" closable="true" />
-                    <p:dataTable var="linha" value="#{webContabilidadeBean.listaMovimento}" emptyMessage="Nenhum Boleto Encontrado" selection="#{webContabilidadeBean.listaMovimentoSelecionado}" rowKey="#{linha.argumento16}">
+                    <p:dataTable var="linha" value="#{webContabilidadeBean.listaMovimento}" emptyMessage="Nenhum Boleto Encontrado" selection="#{webContabilidadeBean.listaMovimentoSelecionado}" rowKey="#{linha.movimento.id}">
                         <p:ajax event="rowSelect" update=":formImpressao:i_panel_lista" global="false"/>
                         <p:ajax event="rowSelectCheckbox" update=":formImpressao:i_panel_lista" global="false"/>
                         <p:ajax event="rowUnselect" update=":formImpressao:i_panel_lista" global="false"/>
                         <p:ajax event="rowUnselectCheckbox" update=":formImpressao:i_panel_lista" global="false"/>
                         <p:ajax event="toggleSelect" update=":formImpressao:i_panel_lista" global="false"/>
-                        
+
                         <p:column width="15">  
                             <p:rowToggler />  
                         </p:column> 
-                        
+
                         <p:column selectionMode="multiple" style="width: 20px"/>
 
                         <p:column headerText="Ref - Contribuição - Tipo">
-                            <h:outputText value="#{linha.argumento4} - #{linha.argumento2.descricao} - #{linha.argumento3.descricao}" style="font-size: 8pt!important"/>
+                            <h:outputText value="#{linha.movimento.referencia} - #{linha.movimento.servicos.descricao} - #{linha.movimento.tipoServico.descricao}" style="font-size: 8pt!important"/>
                         </p:column>
 
                         <p:column headerText="Vencimento" style="text-align: center" width="80">
-                            <h:outputText value="#{linha.argumento5}" style="font-size: 8pt!important"/>
+                            <h:outputText value="#{linha.movimento.vencimento}" style="font-size: 8pt!important"/>
                         </p:column>
 
                         <p:column headerText="Pagar na Data" style="text-align: center" width="115">
-                            <p:selectOneMenu value="#{linha.argumento20}" rendered="#{linha.argumento18}" style="width: 90px">
+                            <p:selectOneMenu value="#{linha.indexVencimentoBoleto}" style="width: 90px" autoWidth="false">
                                 <p:ajax event="change" update="@this :formImpressao:i_panel_lista" global="false"/>
-                                <f:selectItems value="#{linha.argumento22}"/>
+                                <f:selectItems value="#{linha.listaVencimentoBoleto}"/>
                             </p:selectOneMenu>
-                            <h:outputText value="#{linha.argumento5}" rendered="#{!linha.argumento18}"/>
                         </p:column>
 
                         <p:column headerText="Valor" width="70" style="text-align: right">
-                            <p:commandLink value="#{linha.argumento6}" action="#{webContabilidadeBean.carregarFolha(linha)}" rendered="#{linha.argumento19}" style="font-size: 10pt!important; font-weight: bold;"
-                                           oncomplete="PF('i_dlg_valor').show()" update=":formImpressao:i_dlg_valor_folha"/>                            
-                            <h:outputText value="#{linha.argumento6}" rendered="#{!linha.argumento19}"/>
+                            <p:commandLink value="#{linha.movimento.valorString}" action="#{webContabilidadeBean.carregarFolha(linha)}" rendered="#{linha.boleto.statusRetorno eq null or linha.boleto.statusRetorno.id ne 2}" style="font-size: 10pt!important; font-weight: bold;" oncomplete="PF('i_dlg_valor').show()" update=":formImpressao:i_dlg_valor_folha"/>                            
+                            <h:outputText value="#{linha.movimento.valorString}" rendered="#{linha.boleto.statusRetorno ne null or linha.boleto.statusRetorno.id eq 2}"/>
                         </p:column>
 
                         <p:column headerText="Calculado" width="70" style="text-align: right">
-                            <h:outputText value="#{linha.argumento12}" />
+                            <h:outputText value="#{linha.valor_calculadoString}" />
                         </p:column>
 
                         <p:column headerText="Boleto" style="text-align: right">
-                            <h:outputText value="#{linha.argumento1}" style="font-size: 8pt!important"/>
+                            <h:outputText value="#{linha.movimento.documento}" style="font-size: 8pt!important"/>
                         </p:column>
 
                         <p:column headerText="Empresa" width="200">
-                            <h:outputText value="#{linha.argumento21}" style="font-size: 8pt!important"/>
+                            <h:outputText value="#{linha.movimento.pessoa.nome}" style="font-size: 8pt!important"/>
                         </p:column>
-                        
+
                         <p:rowExpansion>
-                            <h:panelGrid columns="3" styleClass="sbb">
+                            <h:panelGrid columns="4" styleClass="sbb">
                                 <p:column>
                                     <h:outputLabel value="Multa" style="font-weight: bold"/><br />
-                                    <h:outputText value="#{linha.argumento8}" />
+                                    <h:outputText value="#{linha.multaString}" />
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Juros" style="font-weight: bold"/><br />
-                                    <h:outputText value="#{linha.argumento9}" />
+                                    <h:outputText value="#{linha.jurosString}" />
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Correção" style="font-weight: bold"/><br />
-                                    <h:outputText value="#{linha.argumento10}" />
-                                </p:column>                                
+                                    <h:outputText value="#{linha.correcaoString}" />
+                                </p:column>       
+
+                                <p:column>
+                                    <p:outputLabel value="REGISTRADO" style="font-weight: bold"/><br />
+                                    <p:outputLabel value="#{linha.boleto.statusRetorno ne null and linha.boleto.statusRetorno.id eq 2 ? 'SIM' : 'NÃO'}" style="color: red; font-size: 11pt!important; font-weight: bold"/>
+                                </p:column>
                             </h:panelGrid>
                         </p:rowExpansion>
                     </p:dataTable>
                 </h:panelGrid>
-                
+
                 <h:panelGrid style="margin: 0 auto; width: 1024px;">
                     <h:panelGrid columns="2">
                         <p:selectBooleanCheckbox value="#{webContabilidadeBean.impVerso}" itemLabel="Imprimir Verso">
@@ -142,17 +145,17 @@
                         </p:commandLink>
                     </h:panelGrid>
                 </h:panelGrid>
-                
+
                 <p:dialog widgetVar="dlg_novo_boleto" modal="true" header="Adicionar novo Boleto" resizable="false" style="width: 460px">
                     <p:messages autoUpdate="true" showDetail="true" closable="true"/>
                     <h:panelGrid id="i_panel_novo_boleto" columns="4">
                         <h:column>
                             <h:outputLabel value="Referência" /><br />
                             <p:inputMask size="5" value="#{webContabilidadeBean.strReferencia}" mask="99/9999" style="text-align: center">
-                                <p:ajax event="blur" update="@this i_panel_novo_boleto" listener="#{webContabilidadeBean.validaReferencia}" global="false"/>
+                                <p:ajax event="change" update="@this i_panel_novo_boleto" listener="#{webContabilidadeBean.validaReferencia}" global="false"/>
                             </p:inputMask>
                         </h:column>
-                        
+
                         <h:column>
                             <h:outputLabel value="Contribuição"/><br />
                             <p:selectOneMenu value="#{webContabilidadeBean.idServicos}" style="padding-right: 20px">
@@ -160,7 +163,7 @@
                                 <f:selectItems value="#{webContabilidadeBean.listaServicos}"/>
                             </p:selectOneMenu>
                         </h:column>
-                        
+
                         <h:column>
                             <h:outputLabel value="Tipo Serviço" /><br />
                             <p:selectOneMenu value="#{webContabilidadeBean.idTipoServico}" style="padding-right: 20px">
@@ -175,7 +178,7 @@
                         </h:column>
                     </h:panelGrid>
                 </p:dialog>              
-                
+
                 <p:dialog id="i_dlg_valor_folha" widgetVar="i_dlg_valor" header="Valor do Boleto" resizable="false" modal="true">
                     <p:tabView id="i_tab_view">
                         <p:tab title="Valor Simples">
@@ -203,10 +206,10 @@
                                 </h:panelGrid>
 
                                 <h:panelGrid>
-                                        <h:outputText id="lbEdit2"  value="#{webContabilidadeBean.labelFolha2}" />
-                                        <p:inputText disabled="#{webContabilidadeBean.mostrarPainel}" dir="RTL" id="qfun" size="10" value="#{webContabilidadeBean.qtdFuncionario}" >
-                                            <p:ajax event="change" update="qfun"/>
-                                        </p:inputText>
+                                    <h:outputText id="lbEdit2"  value="#{webContabilidadeBean.labelFolha2}" />
+                                    <p:inputText disabled="#{webContabilidadeBean.mostrarPainel}" dir="RTL" id="qfun" size="10" value="#{webContabilidadeBean.qtdFuncionario}" >
+                                        <p:ajax event="change" update="qfun"/>
+                                    </p:inputText>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2">

@@ -32,6 +32,7 @@ public class ContaCobrancaBean {
 
     private Integer indexListaCobrancaRegistrada = 0;
     private List<SelectItem> listaCobrancaRegistrada = new ArrayList();
+    private String tipoDeCobranca = "arrecadacao";
 
     public ContaCobrancaBean() {
         loadListaCobrancaRegistrada();
@@ -65,6 +66,14 @@ public class ContaCobrancaBean {
         contaCobranca.setCodigoSindical(codigoCedente);
         contaCobranca.setLayout(la);
         contaCobranca.setCobrancaRegistrada((CobrancaRegistrada) dao.find(new CobrancaRegistrada(), Integer.valueOf(listaCobrancaRegistrada.get(indexListaCobrancaRegistrada).getDescription())));
+
+        if (tipoDeCobranca.equals("arrecadacao")) {
+            contaCobranca.setArrecadacao(true);
+            contaCobranca.setAssociativo(false);
+        } else {
+            contaCobranca.setArrecadacao(false);
+            contaCobranca.setAssociativo(true);
+        }
 
         if (contaCobranca.getContaBanco().getBanco().getBanco().isEmpty()) {
             msgConfirma = "Atenção, é preciso pesquisar um Banco!";
@@ -128,7 +137,6 @@ public class ContaCobrancaBean {
                     GenericaMensagem.error("Atenção", "Código Sindical deve conter 14 digitos!");
                     return null;
                 }
-
 
                 if (contaCobranca.getCodCedente().length() != 6) {
                     GenericaMensagem.error("Atenção", "Código Cedente deve conter 6 digitos!");
@@ -275,6 +283,9 @@ public class ContaCobrancaBean {
 
         setSicas(contaCobranca.getSicasSindical());
         setCodigoCedente(contaCobranca.getCodigoSindical());
+        
+        tipoDeCobranca = contaCobranca.isArrecadacao() ? "arrecadacao" : "associativo";
+        
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("contaCobrancaPesquisa", contaCobranca);
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno") == null) {
@@ -372,5 +383,13 @@ public class ContaCobrancaBean {
 
     public void setIndexListaCobrancaRegistrada(Integer indexListaCobrancaRegistrada) {
         this.indexListaCobrancaRegistrada = indexListaCobrancaRegistrada;
+    }
+
+    public String getTipoDeCobranca() {
+        return tipoDeCobranca;
+    }
+
+    public void setTipoDeCobranca(String tipoDeCobranca) {
+        this.tipoDeCobranca = tipoDeCobranca;
     }
 }

@@ -318,8 +318,8 @@
                                     <p:outputLabel value="#{movimentos.argumento11}" style="float: right"/>
                                 </p:column>
 
-                                <p:column headerText="#{extratoTelaBean.tipoDataPesquisa eq 'baixa' ? 'Baixa' : 'Recebimento(Ocorrência)'}" style="text-align: center; width: 60px">
-                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'baixa' ? movimentos.argumento15 : movimentos.argumento31}">
+                                <p:column headerText="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? 'Recebimento(Ocorrência)' : 'Baixa'}" style="text-align: center; width: 60px">
+                                    <p:outputLabel value="#{extratoTelaBean.tipoDataPesquisa eq 'ocorrencia' ? movimentos.argumento31 : movimentos.argumento15}">
                                         <f:convertDateTime />
                                     </p:outputLabel>
                                 </p:column>
@@ -367,19 +367,15 @@
                                             <p:outputLabel value="#{movimentos.argumento24}"/>
                                         </p:column>
 
-                                        <p:column>
+                                        <p:column rendered="#{movimentos.argumento13 ne null}">
                                             <p:outputLabel value="Usuário" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento13}"/>
                                         </p:column>
 
-                                        <p:column>
+                                        <p:column rendered="#{movimentos.argumento10 ne ''}">
                                             <p:outputLabel value="Importação" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento10}"/>
                                         </p:column>
-
-                                        <p:column  styleClass="text-center">
-                                            <p:commandButton icon="ui-icon-comment" value="MENSAGEM BOLETO" action="#{extratoTelaBean.openHistorico(index)}" onclick="PF('dlg_message_historico').show()" update=":formExtratoTela:id_message_historico" title="MENSAGEM BOLETO" rendered="#{movimentos.argumento14 ne 'Acordo'}"/>
-                                        </p:column>                                        
 
                                         <p:column>
                                             <p:outputLabel value="Acordo" style="font-weight: bold" rendered="#{not empty movimentos.argumento27}" /><br />
@@ -395,11 +391,11 @@
                                         </p:column>
                                     </h:panelGrid>
 
-                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
-                                        <p:commandButton value="FORMAS DE PAGTO" update=":formExtratoTela:i_forma_pagto_baixa" onclick="PF('dlg_forma_pagto_baixa').show()" action="#{financeiroCardBean.cardFormaPagamentoBaixa(movimentos.argumento22)}" title="Ver detalhes" rendered="#{movimentos.argumento22 ne 0}"/>
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb"  rendered="#{movimentos.argumento22 ne 0}">
+                                        <p:commandButton value="FORMAS DE PAGTO" update=":formExtratoTela:i_forma_pagto_baixa" onclick="PF('dlg_forma_pagto_baixa').show()" action="#{financeiroCardBean.cardFormaPagamentoBaixa(movimentos.argumento22)}" title="Ver detalhes"/>
                                     </h:panelGrid>
 
-                                    <h:panelGrid columns="6"  cellspacing="10" styleClass="sbb">                                        
+                                    <h:panelGrid columns="6"  cellspacing="10" styleClass="sbb">
                                         <p:column>
                                             <p:outputLabel value="Vencto Original" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento29.vencimentoOriginal}"/>
@@ -427,18 +423,39 @@
                                                 </c:when>
                                             </c:choose>
                                         </p:column>
+                                        
+                                        <p:column  styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-comment" value="MENSAGEM BOLETO" action="#{extratoTelaBean.openHistorico(index)}" onclick="PF('dlg_message_historico').show()" update=":formExtratoTela:id_message_historico" title="MENSAGEM BOLETO" rendered="#{movimentos.argumento14 ne 'Acordo'}"/>
+                                        </p:column>                                        
 
-                                        <p:column rendered="#{movimentos.argumento29.boleto.statusRetorno ne null}">
-                                            <p:outputLabel value="Status do Boleto" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{movimentos.argumento29.boleto.statusRetorno.descricao}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
-                                        </p:column>
-
-                                        <p:column rendered="#{movimentos.argumento29.boleto.statusRetorno ne null}">
-                                            <p:outputLabel value="Data do Processo" style="font-weight: bold"/><br />
-                                            <p:outputLabel value="#{movimentos.argumento29.boleto.dtStatusRetornoString}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
-                                        </p:column>
                                     </h:panelGrid>
 
+                                    <h:panelGrid columns="1" styleClass="sbb">
+                                        <hr />
+                                        <h:outputLabel value="DADOS DO BOLETO" style="font-size: 11pt!important; font-weight: bold"/>
+                                        <hr />
+                                        <h:panelGrid columns="6"  cellspacing="10" styleClass="sbb">
+                                            <p:column rendered="#{movimentos.argumento29.boleto.statusRetorno ne null}">
+                                                <p:outputLabel value="Status" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentos.argumento29.boleto.statusRetorno.descricao}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
+                                            </p:column>
+
+                                            <p:column rendered="#{movimentos.argumento29.boleto.statusRetorno ne null}">
+                                                <p:outputLabel value="Data do Processo" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentos.argumento29.boleto.dtStatusRetornoString}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:outputLabel value="Vencimento" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentos.argumento29.boleto.vencimento}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:outputLabel value="Valor" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentos.argumento29.boleto.valorString}" style="font-weight: bold; font-size: 11pt!important; color: red"/>
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </h:panelGrid>
                                 </p:rowExpansion>                                
                             </p:dataTable>
 

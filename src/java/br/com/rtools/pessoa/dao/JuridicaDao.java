@@ -80,13 +80,13 @@ public class JuridicaDao extends DB {
         } else {
             textQuery = " SELECT j.* \n ";
         }
-        textQuery = textQuery 
+        textQuery = textQuery
                 + "       FROM pes_juridica j                                    \n "
                 + " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa                \n "
                 + " LEFT JOIN pes_juridica cont ON cont.id = j.id_contabilidade  \n "
                 + " LEFT JOIN pes_pessoa pc ON pc.id = cont.id_pessoa            \n ";
-        
-        switch (por){
+
+        switch (por) {
             case "codigo":
                 textQuery = textQuery + " WHERE " + field + " = " + desc + "  \n ";
                 break;
@@ -99,7 +99,7 @@ public class JuridicaDao extends DB {
                 textQuery = textQuery + " WHERE LOWER(TRANSLATE(" + field + ")) LIKE ('" + desc + "') \n ";
                 break;
         }
-        
+
         if (isAtivas) {
             textQuery += " AND j.id IN (SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL)  \n ";
             // textQuery += " AND j.id != id_contabilidade ";
@@ -117,7 +117,7 @@ public class JuridicaDao extends DB {
             } else {
                 textQuery = " SELECT jur.* \n ";
             }
-            textQuery = textQuery 
+            textQuery = textQuery
                     + "        FROM pes_pessoa_endereco pesend                                                                                                                                \n "
                     + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                             \n "
                     + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                       \n "
@@ -193,17 +193,16 @@ public class JuridicaDao extends DB {
     }
 
     public Juridica pesquisaJuridicaPorPessoa(int id) {
-        Juridica result = null;
         try {
-            Query qry = getEntityManager().createQuery("select jur from Juridica jur "
-                    + " where jur.pessoa.id = :id_jur"
-                    + " order by jur.pessoa.nome");
-            qry.setParameter("id_jur", id);
-            result = (Juridica) qry.getSingleResult();
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT j.* \n "
+                    + " FROM pes_juridica j \n "
+                    + "WHERE j.id_pessoa = " + id, Juridica.class
+            );
+            return (Juridica) qry.getSingleResult();
         } catch (Exception e) {
-            result = null;
+            return null;
         }
-        return result;
     }
 
     public MotivoInativacao pesquisaCodigoMotivoInativacao(int id) {
