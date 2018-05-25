@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
 
 public class Santander extends Cobranca {
 
-    private final Boolean TESTE = true;
+    private final Boolean TESTE = false;
 
     public Santander(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);

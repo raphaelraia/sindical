@@ -43,7 +43,7 @@ import org.primefaces.json.JSONObject;
 
 public class Sicoob extends Cobranca {
 
-    private final Boolean TESTE = true;
+    private final Boolean TESTE = false;
 
     public Sicoob(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);

@@ -173,10 +173,13 @@ public class GerarMovimento extends DB {
 //
 //         INSERÇÃO DO BOLETO       
             Integer count = 0;
-            textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
+            textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca, dt_vencimento, dt_vencimento_original, nr_valor) \n "
                     + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
                     + "            true AS is_ativo,                                                    \n"
-                    + "            scc.id_conta_cobranca                                                \n"
+                    + "            scc.id_conta_cobranca, \n "
+                    + "            m.dt_vencimento AS vencto, \n "
+                    + "            m.dt_vencimento_original AS vencimento_original, \n "
+                    + "            m.nr_valor AS valor                                                  \n"
                     + "       FROM fin_movimento AS m                                                   \n"
                     + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
                     + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
