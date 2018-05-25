@@ -509,9 +509,14 @@ public class ImpressaoBoletosBean implements Serializable {
             }
             while (i < quantidade) {
                 if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                    if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                    if (!habilitarComunicado) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
+
                 } else {
                     selected.add(listObjectImpressaoBoleto.get(i));
                 }
@@ -523,9 +528,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < listObjectImpressaoBoleto.size()) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -538,7 +548,16 @@ public class ImpressaoBoletosBean implements Serializable {
                 i = inicio - 1;
                 while ((o < quantidade) && (i < listObjectImpressaoBoleto.size())) {
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (!habilitarComunicado) {
+                                if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                    selected.add(listObjectImpressaoBoleto.get(i));
+                                }
+                            } else {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -554,9 +573,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -568,9 +592,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -588,9 +617,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -607,9 +641,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -878,10 +917,10 @@ public class ImpressaoBoletosBean implements Serializable {
     public void enviarEmail() {
 
         JuridicaDao dbj = new JuridicaDao();
-        
+
         List<Movimento> movadd = new ArrayList();
         List<Double> listaValores = new ArrayList();
-        
+
         boolean enviar = false;
         int id_contabil = 0, id_empresa = 0, id_compara = 0;
         Dao dao = new Dao();
@@ -941,7 +980,7 @@ public class ImpressaoBoletosBean implements Serializable {
         try {
 
             Registro reg = Registro.get();
-            
+
             ImprimirBoleto imp = new ImprimirBoleto();
             imp.imprimirBoleto(mov, false, false);
             String nome = imp.criarLink(jur.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
@@ -1164,7 +1203,7 @@ public class ImpressaoBoletosBean implements Serializable {
             comunicado = "teste";
             GenericaMensagem.warn("Validação", "NÃO HÁ COMUNICADO!");
         }
-        
+
         Dao dao = new Dao();
         List<Pessoa> listPessoas = new ArrayList();
         for (int i = 0; i < selected.size(); i++) {
@@ -1184,13 +1223,13 @@ public class ImpressaoBoletosBean implements Serializable {
             GenericaMensagem.warn("Validação", "NENHUM REGISTRO SELECIONADO!");
             return;
         }
-        
+
         String comunicado = ConfiguracaoArrecadacao.get().getComunicado();
         if (comunicado.isEmpty()) {
             comunicado = "teste";
             GenericaMensagem.warn("Validação", "NÃO HÁ COMUNICADO!");
         }
-        
+
         Dao dao = new Dao();
         int[] pid = new int[selected.size()];
         for (int i = 0; i < selected.size(); i++) {
@@ -1214,7 +1253,7 @@ public class ImpressaoBoletosBean implements Serializable {
         } catch (Exception e2) {
             e2.getMessage();
         }
-        
+
         Jasper.IS_HEADER = true;
         Jasper.PART_NAME = "";
         Jasper.IS_DOWNLOAD = false;

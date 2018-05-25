@@ -164,7 +164,7 @@ public class ImprimirBoleto implements Serializable {
                     hash.put("mensagem", "");
                     return hash;
                 }
-                
+
                 break;
             case 3:
                 // COBRANÇA SEM REGISTRO APENAS RETORNA O BOLETO
@@ -320,16 +320,16 @@ public class ImprimirBoleto implements Serializable {
                             if (logs.isEmpty()) {
                                 logs = " ** " + "Boleto vencido não pode ser impresso: (" + bol.getBoletoComposto() + ")";
                             } else {
-                                logs += " ** " + "Boleto vencido não pode ser impresso: (" + bol.getBoletoComposto() + ")" +" \n ";
+                                logs += " ** " + "Boleto vencido não pode ser impresso: (" + bol.getBoletoComposto() + ")" + " \n ";
                             }
-                            
+
                             continue;
                         }
                     }
 
                     if (bol.getStatusRetorno() != null && bol.getStatusRetorno().getId() == 2) {
                         listaAdd.add(lista.get(i));
-                        
+
                         continue;
                     }
 

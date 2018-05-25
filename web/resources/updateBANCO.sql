@@ -106,28 +106,28 @@ CREATE UNIQUE INDEX xnr_ctr_boleto_fin_boleto
 
 
 
+-- FUNCTION: public.func_geramensalidades(integer, character varying)
 
+-- DROP FUNCTION public.func_geramensalidades(integer, character varying);
 
-
-
- -- Function: func_geramensalidades(integer, character varying) 
-
--- DROP FUNCTION func_geramensalidades(integer, character varying); 
-
-CREATE OR REPLACE FUNCTION func_geramensalidades( 
-    pessoa integer, 
-    mesano character varying) 
-  RETURNS integer AS 
-$BODY$ 
+CREATE OR REPLACE FUNCTION public.func_geramensalidades(
+	pessoa integer,
+	mesano character varying)
+RETURNS integer
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE 
+AS $BODY$
+ 
 declare wlote int :=0; 
 declare wlote_geracao int :=0; 
 declare wref int :=(select nr_referencia from conf_social); 
 BEGIN 
 
 /* 
-***************************************************************************************************** 
-                                            OFICIAL 
-***************************************************************************************************** 
+*****************************************************************************************************
+                                            OFICIAL
+*****************************************************************************************************
 */ 
 --------- Inativa Convênios de sócios Inativos 
 
@@ -135,7 +135,7 @@ BEGIN
   
 update matr_convenio_medico set dt_inativo=current_date,ds_motivo_inativacao='SÓCIO INATIVO' where id_servico_pessoa in 
 ( 
-select sp.id from matr_convenio_medico as m 
+select sp.id  from matr_convenio_medico as m 
 inner join fin_servico_pessoa as sp on sp.id=m.id_servico_pessoa 
 where sp.is_ativo=true and sp.id_pessoa not in 
 ( 
@@ -161,9 +161,9 @@ update pes_pessoa_complemento set nr_dia_vencimento=28 where nr_dia_vencimento >
 
 delete from fin_lote where id in 
 ( 
-select l.id from fin_lote as l 
+select l.id from  fin_lote as l 
 left join fin_movimento as m on m.id_lote=l.id 
-where m.id_lote is null and l.dt_lancamento > (cast(now() as date)-20) 
+where m.id_lote is null  and l.dt_lancamento > (cast(now() as date)-20) 
 group by l.id 
 ); 
 
@@ -177,9 +177,9 @@ where l.id is null
 ); 
 
 
------ Período Cobranca, mensal se for null 
+----- Período Cobranca, mensal se for null
 
-update fin_servico_pessoa set id_periodo_cobranca=3 where id_periodo_cobranca is null; 
+update fin_servico_pessoa set id_periodo_cobranca=3 where id_periodo_cobranca is null;
 
 
 --------------- atualiza id_cobranca em fin_servico_pessoa 
@@ -209,7 +209,7 @@ where sp.is_ativo=true
 
   
 update fin_servico_pessoa set id_cobranca_movimento=pes_pessoa_vw.e_id_pessoa 
-from pes_pessoa_vw 
+from  pes_pessoa_vw 
 where id_cobranca=codigo 
 and (id_cobranca_movimento<>pes_pessoa_vw.e_id_pessoa or id_cobranca_movimento is null) 
 and fin_servico_pessoa.desconto_folha=true; 
@@ -245,39 +245,39 @@ sp.id,
 current_date, 
   
 -------------------------------------- valor 
-    
+   
 CASE 
 
 WHEN (sp.nr_desconto = 0 and sp.nr_valor_fixo = 0) then 
 
-func_periodo_valor(sp.id_periodo_cobranca, 
+func_periodo_valor(sp.id_periodo_cobranca,
 
 round( 
 cast 
 ( 
-(func_valor_servico(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano ,10) as date), 0, m.id_categoria)) 
+(func_valor_servico(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano  ,10) as date), 0, m.id_categoria)) 
 as numeric 
 ) 
 ,2) 
 
-) 
+)
 
 
 WHEN (sp.nr_desconto <> 0 and sp.nr_valor_fixo = 0) then 
 
-func_periodo_valor(sp.id_periodo_cobranca, 
+func_periodo_valor(sp.id_periodo_cobranca,
   
 round( 
 cast 
 ( 
-    func_valor_servico_cheio(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano ,10) as date)) *(1-(sp.nr_desconto/100)) 
+    func_valor_servico_cheio(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano  ,10) as date)) *(1-(sp.nr_desconto/100)) 
 as numeric 
 ) 
 ,2) 
 
-) 
+)
 
-else sp.nr_valor_fixo 
+else  sp.nr_valor_fixo 
   
 end as valor, 
 
@@ -288,38 +288,38 @@ CASE
 WHEN (sp.nr_desconto <> 0 and sp.nr_valor_fixo = 0) then 
 
 
-func_periodo_valor(sp.id_periodo_cobranca, 
+func_periodo_valor(sp.id_periodo_cobranca,
 
 
 round( 
 cast 
 ( 
-(func_valor_servico(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano ,10) as date), 1, m.id_categoria)) 
+(func_valor_servico(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano  ,10) as date), 1, m.id_categoria)) 
 as numeric 
 ) 
 ,2) 
 
-) 
+)
 
 WHEN (sp.nr_desconto <> 0 and sp.nr_valor_fixo = 0) then 
 
-func_periodo_valor(sp.id_periodo_cobranca, 
+func_periodo_valor(sp.id_periodo_cobranca,
 
 round( 
 cast 
 ( 
-    func_valor_servico_cheio_desconto_ate_vencimento(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano ,10) as date)) *(1-(sp.nr_desconto/100)) 
+    func_valor_servico_cheio_desconto_ate_vencimento(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano  ,10) as date)) *(1-(sp.nr_desconto/100)) 
 as numeric 
 ) 
 ,2) 
 
-) 
+)
 
 else 0 
 
   
 end as desconto_ate_vencimento 
-  
+ 
 -----func_valor_servico_cheio(pessoa integer, servico integer, vencimento date) 
 ------------------------------------------------------------------------------------------------------- 
 
@@ -329,30 +329,30 @@ from
 fin_servico_pessoa as sp 
 inner join pes_pessoa_complemento as pc on pc.id_pessoa=sp.id_pessoa 
 left join soc_socios_vw as m on m.codsocio=pc.id_pessoa 
-where 
+where sp.id not in
 
-------------- A REGRA DO CAMPEONATO, É NÃO COBRAR DE SÓCIO, PORTANTO SE FIN_SERVICO_PESSOA FOR CAMPEONATO E FOR SÓCIO, NÃO GERARÁ ------------------------------------------------- 
+------------- A REGRA DO CAMPEONATO, É NÃO COBRAR DE SÓCIO, PORTANTO SE FIN_SERVICO_PESSOA FOR CAMPEONATO E FOR SÓCIO, NÃO GERARÁ -------------------------------------------------
 
-( 
-select id from fin_servico_pessoa 
-where is_ativo=true and id_pessoa not in (select codsocio from soc_socios_vw) 
-and id in 
-( 
+(
+select id from fin_servico_pessoa
+where is_ativo=true and id_pessoa in (select codsocio from soc_socios_vw)
+and id in
+(
 select id_servico_pessoa from matr_campeonato 
-union 
-select id_servico_pessoa from eve_campeonato_dependente 
-) 
-) 
+union
+select id_servico_pessoa from eve_campeonato_dependente
+)
+)
 
-AND 
+AND
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
----- Verifica período de Geração 
+---- Verifica período de Geração
 
 func_gera_periodo(sp.id_periodo_cobranca,cast(left(mesano,2) as integer)) > 0 and 
 
-------------------------------------- 
+-------------------------------------
 sp.is_ativo=true 
 ---- se está dentro da vigoração >= mes/ano vecto (mesano = mes/ano parâmetro da tela de chamada) 
 and (substring(mesano,4,4)||substring(mesano,1,2))>=(substring(sp.ds_ref_vigoracao,4,4)||substring(sp.ds_ref_vigoracao,1,2)) 
@@ -375,7 +375,7 @@ and
 round( 
 cast 
 ( 
-(func_valor_servico(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano ,10) as date), 0, m.id_categoria)) *(1-(sp.nr_desconto/100)) 
+(func_valor_servico(sp.id_pessoa, sp.id_servico, cast(right('0'||pc.nr_dia_vencimento||'/'|| mesano  ,10) as date), 0, m.id_categoria)) *(1-(sp.nr_desconto/100)) 
 as numeric 
 ) 
 ,2) 
@@ -594,7 +594,7 @@ set nr_ctr_boleto=
 ----Pessoa 
 right('00000000'||id_pessoa,8)|| 
 ----Fator de Vencimento 
-right('0000'||(select CAST(right('00'||nr_dia_vencimento,2)||'/'||mesano as date)-CAST('07/10/1997' as date) from pes_pessoa_complemento where id_pessoa=fin_movimento.id_pessoa),4)||  
+right('0000'||(select CAST(right('00'||nr_dia_vencimento,2)||'/'||mesano as date)-CAST('07/10/1997' as date) from pes_pessoa_complemento where id_pessoa=fin_movimento.id_pessoa),4)|| 
 ----Conta Cobrança 
 right('000'||(select id_conta_cobranca from fin_servico_conta_cobranca where id_servicos=fin_movimento.id_servicos and id_tipo_servico=fin_movimento.id_tipo_servico),3)|| 
 ----Lote de Geração 
@@ -611,7 +611,7 @@ id_servicos not in (select id_servicos from fin_servico_rotina where id_rotina=4
 insert into fin_boleto (nr_ctr_boleto,id_conta_cobranca,is_ativo,dt_vencimento,dt_vencimento_original,ds_mensagem) 
 ( 
 select nr_ctr_boleto,cast(substring(nr_ctr_boleto,13,3) as int),true,cast(right(p.nr_dia_vencimento||'/'||mesano,10) as date),cast(right(p.nr_dia_vencimento||'/'||mesano,10) as date), 
-'SR.S(A) ASSOCIADOS(A), GENTILEZA TRAZER CPF, RG, COMPROVANTE DE ENDEREÇO E CARTEIRA DE TRABALHO (PÁGINAS: NÚMERO DA CARTEIRA PROF., QUALIFICAÇÃO CIVIL E CONTRATO DE TRABALHO VIGENTE), PARA FINS DE RECADASTRAMENTO.' 
+'SR.S(A)  ASSOCIADOS(A), GENTILEZA TRAZER CPF, RG, COMPROVANTE DE ENDEREÇO E CARTEIRA DE TRABALHO (PÁGINAS: NÚMERO DA CARTEIRA PROF., QUALIFICAÇÃO CIVIL E CONTRATO DE TRABALHO VIGENTE), PARA FINS DE RECADASTRAMENTO.'
 from fin_movimento as m 
 inner join pes_pessoa_complemento as p on p.id_pessoa=m.id_pessoa 
 where length(nr_ctr_boleto)=22 and nr_ctr_boleto not in (select nr_ctr_boleto from fin_boleto where length(nr_ctr_boleto) = 22) 
@@ -629,7 +629,7 @@ delete from soc_lote_boleto where id not in (select cast(substring(nr_ctr_boleto
 --------------------------------------------------------------------------------- 
 --------------------------------------------------------------------------------- 
 --------------------------------------------------------------------------------- 
--------------------------------- insere fin_movimento_boleto ------------------------------------------------- 
+--------------------------------  insere fin_movimento_boleto  ------------------------------------------------- 
 
 insert into fin_movimento_boleto (id_movimento,id_boleto) 
 ( 
@@ -655,9 +655,8 @@ end if;
   
 RETURN 1; 
 END; 
-$BODY$ 
-  LANGUAGE plpgsql VOLATILE 
-  COST 100; 
-ALTER FUNCTION func_geramensalidades(integer, character varying) 
-  OWNER TO postgres; 
 
+$BODY$;
+
+ALTER FUNCTION public.func_geramensalidades(integer, character varying)
+    OWNER TO postgres;

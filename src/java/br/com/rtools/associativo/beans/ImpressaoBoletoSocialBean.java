@@ -2,8 +2,10 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Fisica;
@@ -48,6 +50,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -89,10 +92,60 @@ public class ImpressaoBoletoSocialBean {
 
     private Integer tipoEnvio = -1;
 
+    private Integer indexConta = 0;
+    private List<SelectItem> listaConta = new ArrayList();
+    private ContaCobranca contaSelecionada = new ContaCobranca();
+
+    private Boolean desabilitaBoletoRegistrado = false;
+    
     @PostConstruct
     public void init() {
         UploadFilesBean uploadFilesBean = new UploadFilesBean("Imagens/");
         GenericaSessao.put("uploadFilesBean", uploadFilesBean);
+
+        loadListaContas();
+    }
+
+    public final void loadListaContas() {
+        listaConta.clear();
+
+        ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+        List<ContaCobranca> result = servDB.listaContaCobrancaAtivoAssociativo();
+
+        for (int i = 0; i < result.size(); i++) {
+            listaConta.add(
+                    new SelectItem(
+                            i,
+                            result.get(i).getApelido() + " - " + result.get(i).getCodCedente() + " - " + result.get(i).getContaBanco().getBanco().getBanco(),
+                            Integer.toString(result.get(i).getId())
+                    )
+            );
+        }
+
+        contaSelecionada = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.valueOf(listaConta.get(indexConta).getDescription()));
+    }
+
+    public void alterarContaRemessa() {
+        contaSelecionada = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.valueOf(listaConta.get(indexConta).getDescription()));
+        
+        atualizarTipoEnvio();
+    }
+
+    public void atualizarTipoEnvio() {
+        switch (tipoEnvio) {
+            case 1:
+            case 4:
+                if (contaSelecionada.getId() != -1 && contaSelecionada.getCobrancaRegistrada().getId() != 3){
+                    boletoRegistrado = "registrados";
+                    desabilitaBoletoRegistrado = true;
+                    return;
+                }
+                break;
+            default:
+                break;
+        }
+        
+        desabilitaBoletoRegistrado = false;
     }
 
     public void enviarEmail() {
@@ -732,5 +785,37 @@ public class ImpressaoBoletoSocialBean {
 
     public void setTipoEnvio(Integer tipoEnvio) {
         this.tipoEnvio = tipoEnvio;
+    }
+
+    public List<SelectItem> getListaConta() {
+        return listaConta;
+    }
+
+    public void setListaConta(List<SelectItem> listaConta) {
+        this.listaConta = listaConta;
+    }
+
+    public Integer getIndexConta() {
+        return indexConta;
+    }
+
+    public void setIndexConta(Integer indexConta) {
+        this.indexConta = indexConta;
+    }
+
+    public ContaCobranca getContaSelecionada() {
+        return contaSelecionada;
+    }
+
+    public void setContaSelecionada(ContaCobranca contaSelecionada) {
+        this.contaSelecionada = contaSelecionada;
+    }
+
+    public Boolean getDesabilitaBoletoRegistrado() {
+        return desabilitaBoletoRegistrado;
+    }
+
+    public void setDesabilitaBoletoRegistrado(Boolean desabilitaBoletoRegistrado) {
+        this.desabilitaBoletoRegistrado = desabilitaBoletoRegistrado;
     }
 }
