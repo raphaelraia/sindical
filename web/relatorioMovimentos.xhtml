@@ -115,9 +115,10 @@
                                                         <h:panelGrid columns="2">
                                                             <h:column>
                                                                 <p:selectOneRadio value="#{relatorioMovimentoBean.radioContabilidade}">  
-                                                                    <f:selectItem itemValue="selecionado" itemLabel="Apenas os selecionados" />  
-                                                                    <f:selectItem itemValue="com" itemLabel="Com Contabilidade" />  
-                                                                    <f:selectItem itemValue="sem" itemLabel="Sem Contabilidade" />  
+                                                                    <p:ajax event="change" update=":form_relatorio:tbl_contabil" />
+                                                                    <f:selectItem itemValue="selecionado" itemLabel="Especificar" />  
+                                                                    <f:selectItem itemValue="com" itemLabel="Com" />  
+                                                                    <f:selectItem itemValue="sem" itemLabel="Sem" />  
                                                                 </p:selectOneRadio>                                                                                                                            
                                                             </h:column>
                                                             <p:column>
@@ -126,28 +127,28 @@
                                                         </h:panelGrid>
                                                     </p:column>
                                                     <p:column>
-                                                        <h:panelGrid columns="2">
-                                                            <p:inputText value="#{relatorioMovimentoBean.descricaoPesquisaContabilidade}" size="85" onkeypress="return event.keyCode !== 13;" placeholder="Digite sua pesquisa por CONTABILIDADE aqui ...">
-                                                                <p:ajax event="change" listener="#{relatorioMovimentoBean.findContabilidade}" global="false" update="tbl_contabil"/>
-                                                            </p:inputText>                                                        
-                                                            <p:commandButton icon="ui-icon-search" />
-                                                        </h:panelGrid>
-                                                    </p:column>
-                                                    <p:column>
                                                         <h:panelGroup id="tbl_contabil" layout="block">
-                                                            <p:dataTable value="#{relatorioMovimentoBean.listContabilidade}" var="contabilidade" selection="#{relatorioMovimentoBean.selectedContabilidade}" rowKey="#{contabilidade.id}" emptyMessage="Nenhuma Contabilidade foi encontrada!" id="i_tbml_cont" rowSelectMode="checkbox" paginator="true" rows="10">
-                                                                <p:ajax event="rowSelectCheckbox" update="@this :form_relatorio:tbl_contabil" listener="#{relatorioMovimentoBean.onRowSelect}"/>
-                                                                <p:ajax event="rowUnselectCheckbox" update="@this :form_relatorio:tbl_contabil" listener="#{relatorioMovimentoBean.onRowUnselect}"/>
-                                                                <p:column selectionMode="multiple" style="width: 20px" />  
+                                                            <h:panelGroup rendered="#{relatorioMovimentoBean.radioContabilidade eq 'selecionado'}">
+                                                                <h:panelGrid columns="2">
+                                                                    <p:inputText value="#{relatorioMovimentoBean.descricaoPesquisaContabilidade}" size="85" onkeypress="return event.keyCode !== 13;" placeholder="Digite sua pesquisa por CONTABILIDADE aqui ...">
+                                                                        <p:ajax event="change" listener="#{relatorioMovimentoBean.findContabilidade}" global="false" update="tbl_contabil"/>
+                                                                    </p:inputText>                                                        
+                                                                    <p:commandButton icon="ui-icon-search" />
+                                                                </h:panelGrid>
+                                                                <p:dataTable value="#{relatorioMovimentoBean.listContabilidade}" var="contabilidade" selection="#{relatorioMovimentoBean.selectedContabilidade}" rowKey="#{contabilidade.id}" emptyMessage="Nenhuma Contabilidade foi encontrada!" id="i_tbml_cont" rowSelectMode="checkbox" paginator="true" rows="10">
+                                                                    <p:ajax event="rowSelectCheckbox" update="@this :form_relatorio:tbl_contabil" listener="#{relatorioMovimentoBean.onRowSelect}"/>
+                                                                    <p:ajax event="rowUnselectCheckbox" update="@this :form_relatorio:tbl_contabil" listener="#{relatorioMovimentoBean.onRowUnselect}"/>
+                                                                    <p:column selectionMode="multiple" style="width: 20px" />  
 
-                                                                <p:column headerText="CNPJ" width="100">
-                                                                    <h:outputText value="#{contabilidade.pessoa.documento}"/>
-                                                                </p:column>
+                                                                    <p:column headerText="CNPJ" width="150">
+                                                                        <h:outputText value="#{contabilidade.pessoa.documento}"/>
+                                                                    </p:column>
 
-                                                                <p:column headerText="Nome">
-                                                                    <h:outputText value="#{contabilidade.pessoa.nome}"/>
-                                                                </p:column>
-                                                            </p:dataTable> 
+                                                                    <p:column headerText="Nome">
+                                                                        <h:outputText value="#{contabilidade.pessoa.nome}"/>
+                                                                    </p:column>
+                                                                </p:dataTable> 
+                                                            </h:panelGroup>
                                                         </h:panelGroup>
                                                     </p:column>
                                                 </h:panelGrid>                                        

@@ -38,6 +38,10 @@
                                     <p:selectBooleanCheckbox value="#{agendaServicoBean.agendaServico.web}" itemLabel="WEB">
                                         <p:ajax event="change" update="@this"  />
                                     </p:selectBooleanCheckbox>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{agendaServicoBean.agendaServico.encaixe}" itemLabel="Encaixe">
+                                        <p:ajax event="change" update="@this"  />
+                                    </p:selectBooleanCheckbox>
                                 </h:panelGrid>
                                 <f:facet name="footer" >
                                     <h:panelGrid columns="5" cellspacing="5">

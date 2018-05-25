@@ -51,9 +51,11 @@ public class AgendaHorariosBean implements Serializable {
     private Integer idSemana;
     private Boolean web;
     private Boolean socio;
+    private Boolean encaixe;
 
     @PostConstruct
     public void init() {
+        encaixe = false;
         web = false;
         socio = false;
         horarios = new AgendaHorarios();
@@ -111,6 +113,7 @@ public class AgendaHorariosBean implements Serializable {
             horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
             horarios.setWeb(web);
             horarios.setSocio(socio);
+            horarios.setEncaixe(encaixe);
             quantidade = horarios.getQuantidade();
             if (!horariosDao.findByFilial(horarios.getFilial().getId(), horarios.getHora(), horarios.getSemana().getId(), idSubGrupoConvenio, idConvenio).isEmpty()) {
                 GenericaMensagem.warn("Validação", "Horário já cadastrado!");
@@ -148,6 +151,7 @@ public class AgendaHorariosBean implements Serializable {
                     horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
                     horarios.setWeb(web);
                     horarios.setSocio(socio);
+                    horarios.setEncaixe(encaixe);
                     if (!horariosDao.findByFilial(idFilial, horarios.getHora(), horarios.getSemana().getId(), idSubGrupoConvenio, idConvenio).isEmpty()) {
                         horarios = new AgendaHorarios();
                         continue;
@@ -188,6 +192,7 @@ public class AgendaHorariosBean implements Serializable {
                 horarios.setConvenio((Pessoa) dao.find(new Pessoa(), idConvenio));
                 horarios.setWeb(web);
                 horarios.setSocio(socio);
+                horarios.setEncaixe(encaixe);
                 if (dao.save(horarios, true)) {
                     GenericaMensagem.info("Sucesso", "Registro adicionado");
                     horarios = new AgendaHorarios();
@@ -524,6 +529,14 @@ public class AgendaHorariosBean implements Serializable {
 
     public void setSocio(Boolean socio) {
         this.socio = socio;
+    }
+
+    public Boolean getEncaixe() {
+        return encaixe;
+    }
+
+    public void setEncaixe(Boolean encaixe) {
+        this.encaixe = encaixe;
     }
 
 }

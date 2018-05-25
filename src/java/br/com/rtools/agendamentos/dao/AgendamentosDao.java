@@ -1,8 +1,12 @@
 package br.com.rtools.agendamentos.dao;
 
 import br.com.rtools.agendamentos.Agendamentos;
+import br.com.rtools.associativo.SubGrupoConvenio;
+import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -34,21 +38,23 @@ public class AgendamentosDao extends DB {
      * @return
      */
     public List findSchedules(String date, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Boolean is_socio, Boolean is_web) {
-        return findSchedules(date, filial_id, convenio_sub_grupo_id, convenio_id, is_socio, is_web, null, null);
+        return findSchedules(date, filial_id, convenio_sub_grupo_id, convenio_id, is_socio, is_web, null, null, "");
     }
 
-    public List findSchedules(String date, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Boolean is_socio, Boolean is_web, String start_time, String end_time) {
+    public List findSchedules(String date, Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Boolean is_socio, Boolean is_web, String start_time, String end_time, String hora) {
         try {
             String queryString = ""
                     + "     SELECT H.id,                                                                \n"
                     + "            H.ds_hora,                                                           \n"
-                    + "            func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) disponivel  \n"
+                    + "            func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) disponivel, \n"
+                    + "            H.is_encaixe                                                                        \n"
                     + "       FROM ag_horarios AS H                                                     \n"
                     + " INNER JOIN sis_semana AS S ON S.nr_postgres = extract(ISODOW FROM date('" + date + "'::date)) \n"
                     + "      WHERE H.id_semana = S.id                                                   \n"
                     + "        AND H.id_filial = " + filial_id + "                                      \n"
                     + "        AND H.id_convenio_sub_grupo = " + convenio_sub_grupo_id + "              \n"
-                    + "        AND H.id_convenio = " + convenio_id + "                                  \n";
+                    + "        AND H.id_convenio = " + convenio_id + "                                  \n"
+                    + "        AND H.ativo = true                                                       \n";
             if (is_web) {
                 queryString += " AND H.is_web = true \n";
             }
@@ -57,6 +63,9 @@ public class AgendamentosDao extends DB {
             }
             if (is_web) {
                 queryString += " AND func_horarios_disponiveis_agendamento(h.id, date('" + date + "'::date)) > 0 \n";
+            }
+            if (hora != null && !hora.isEmpty()) {
+                queryString += " AND H.ds_hora = '" + hora + "'\n";
             }
             if (start_time != null && end_time != null) {
                 queryString += " AND H.ds_hora::time BETWEEN '" + start_time + "'::time AND '" + end_time + "'::time \n";
@@ -87,6 +96,31 @@ public class AgendamentosDao extends DB {
             return (Agendamentos) query.getSingleResult();
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public List<Agendamentos> findBy(Integer filial_id, Integer convenio_sub_grupo_id, Integer convenio_id, Integer pessoa_id, String date, String hora) {
+        try {
+            String queryString = ""
+                    + "   SELECT A.*                                                \n"
+                    + "     FROM ag_agendamento A                                   \n"
+                    + "    WHERE A.id IN (                                          \n"
+                    + "         SELECT AH.id_agendamento                            \n"
+                    + "           FROM ag_agendamento_horario AH                    \n"
+                    + "     INNER JOIN ag_horarios AHOR ON AHOR.id = AH.id_horario AND AH.id_agendamento = A.id \n"
+                    + "          WHERE AHOR.id_filial = " + filial_id + "           \n"
+                    + "            AND AHOR.id_convenio_sub_grupo = " + convenio_sub_grupo_id + "   \n"
+                    + "            AND AHOR.id_convenio = " + convenio_id + "       \n"
+                    + "            AND AHOR.id_semana = " + DataHoje.diaDaSemana(DataHoje.converte(date)) + " \n"
+                    + "            AND AHOR.ds_hora = '" + hora + "'            \n"
+                    + "     )                                                   \n"
+                    + "      AND A.dt_data = '" + date + "'\n"
+                    + "      AND A.id_status IN (1,4)                           \n"
+                    + " ORDER BY A.id_status, A.id                              \n";
+            Query query = getEntityManager().createNativeQuery(queryString, Agendamentos.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
         }
     }
 
@@ -278,6 +312,134 @@ public class AgendamentosDao extends DB {
                 }
             }
             return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public SubGrupoConvenio maxSubGrupoConvenio(Integer filial_id) {
+        try {
+            String queryString = ""
+                    + "    SELECT SBC.* FROM soc_convenio_sub_grupo SBC WHERE SBC.id IN( \n"
+                    + "    SELECT AH.id_convenio_sub_grupo                         \n"
+                    + "      FROM ag_agendamento_horario AHOR                       \n"
+                    + "INNER JOIN ag_agendamento AG ON AG.id = AHOR.id_agendamento  \n"
+                    + "INNER JOIN ag_horarios AH ON AH.id = AHOR.id_horario         \n"
+                    + "     WHERE AG.dt_emissao > (CURRENT_DATE - 30)               \n"
+                    + "       AND AH.id_filial = " + filial_id + "                  \n"
+                    + "  GROUP BY AH.id_convenio_sub_grupo                          \n"
+                    + "  ORDER BY COUNT(*) DESC                                     \n"
+                    + "     LIMIT 1                         "
+                    + ") ";
+            Query query = getEntityManager().createNativeQuery(queryString, SubGrupoConvenio.class);
+            return (SubGrupoConvenio) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Servicos maxServico(Integer filial_id) {
+        try {
+            String queryString = ""
+                    + "    SELECT S.* FROM fin_servicos S WHERE S.id IN( \n"
+                    + "    SELECT ASE.id_servico                                    \n"
+                    + "      FROM ag_agendamento_horario AHOR                       \n"
+                    + "INNER JOIN ag_agendamento AG ON AG.id = AHOR.id_agendamento  \n"
+                    + "INNER JOIN ag_horarios AH ON AH.id = AHOR.id_horario         \n"
+                    + "INNER JOIN ag_agendamento_servico ASE ON ASE.id = AG.id      \n"
+                    + "     WHERE AG.dt_emissao > (CURRENT_DATE - 30)               \n"
+                    + "       AND AH.id_filial = " + filial_id + "                  \n"
+                    + "  GROUP BY ASE.id_servico                                    \n"
+                    + "  ORDER BY COUNT(*) DESC                                     \n"
+                    + "     LIMIT 1                         "
+                    + ") ";
+            Query query = getEntityManager().createNativeQuery(queryString, Servicos.class);
+            return (Servicos) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Agendamentos findMaxIdByPessoa(Integer pessoa_id) {
+        try {
+            String queryString = ""
+                    + "SELECT A.*                                               \n"
+                    + "  FROM ag_agendamento A                                  \n"
+                    + " WHERE A.id IN (                                         \n"
+                    + "                 SELECT (max(id))                        \n"
+                    + "                   FROM ag_agendamento                   \n"
+                    + "                  WHERE id_pessoa = " + pessoa_id + "    \n"
+                    + " )";
+            Query query = getEntityManager().createNativeQuery(queryString, Agendamentos.class);
+            return (Agendamentos) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<Servicos> suggestions(Integer pessoa_id, Integer convenio_sub_grupo_id) {
+        try {
+            String queryString = ""
+                    + "    SELECT                                               \n"
+                    + "  DISTINCT S.*                                           \n"
+                    + "      FROM fin_servicos S                                \n"
+                    + "INNER JOIN soc_convenio_servico AS C ON C.id_servico = S.id      \n"
+                    + "INNER JOIN ag_agendamento_servico ASE ON ASE.id_servico = S.id   \n"
+                    + "INNER JOIN ag_agendamento A ON A.id = ASE.id_agendamento \n"
+                    + "     WHERE A.id_pessoa = " + pessoa_id + "               \n"
+                    + "       AND A.id_status IN (6)                            \n"
+                    + "       AND S.ds_situacao = 'A'                           \n"
+                    + "       AND C.is_agendamento = true                       \n"
+                    + "       AND A.dt_data > (A.dt_data - 60)                  \n"
+                    + "       AND C.id_convenio_sub_grupo = " + convenio_sub_grupo_id;
+            Query query = getEntityManager().createNativeQuery(queryString, Servicos.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<Agendamentos> existsPessoaServicoPeriodoAtivo(Integer pessoa_id, Integer servico_id, Integer periodo_dias, Boolean socio) {
+        // LISTA TODOS MOVIMENTOS ATIVOS EM QUE O BENEFICIÁRIO pessoa_id E A DATA ESTEJA ENTRE OS ULTIMOS periodo_dias
+        String where;
+        String queryString
+                = "     SELECT A.*                                              \n"
+                + "       FROM ag_agendamento A                                 \n"
+                + " INNER JOIN ag_agendamento_servico ASE ON ASE.id_agendamento = A.id  \n"
+                + "      WHERE A.id_pessoa = " + pessoa_id + "                  \n"
+                + "        AND A.id_status IN (1,4,6)                           \n"
+                + "        AND ASE.id_servico = " + servico_id + "              \n"
+                + "        AND (A.dt_data >= current_date - " + periodo_dias + " AND A.dt_data <= current_date) "
+                + "   ORDER BY A.dt_data ";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Agendamentos.class);
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<Agendamentos> existsPessoaServicoMesVigente(Integer pessoa_id, Integer servico_id, Boolean socio) {
+        return existsPessoaServicoMesVigente(pessoa_id, servico_id, socio, DataHoje.data());
+    }
+
+    public List<Agendamentos> existsPessoaServicoMesVigente(Integer pessoa_id, Integer servico_id, Boolean socio, String data) {
+        // LISTA TODOS MOVIMENTOS ATIVOS EM QUE O BENEFICIÁRIO pessoa_id E A DATA ESTEJA ENTRE O MES ATUAL
+        DataHoje dh = new DataHoje();
+        String queryString
+                = "     SELECT A.*                                              \n"
+                + "       FROM ag_agendamento A                                 \n"
+                + " INNER JOIN ag_agendamento_servico ASE ON ASE.id_agendamento = A.id  \n"
+                + "      WHERE A.id_pessoa = " + pessoa_id + "                  \n"
+                + "        AND A.id_status IN (1,4,6)                           \n"
+                + "        AND ASE.id_servico = " + servico_id + "              \n"
+                + "        AND (A.dt_data >= '" + dh.primeiroDiaDoMes(data) + "' AND A.dt_data <= '" + dh.ultimoDiaDoMes(data) + "') \n"
+                + "   ORDER BY A.dt_data ";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Agendamentos.class);
+
+            return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();
         }

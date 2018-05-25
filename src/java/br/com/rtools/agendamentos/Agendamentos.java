@@ -1,6 +1,8 @@
 package br.com.rtools.agendamentos;
 
 import br.com.rtools.agendamentos.dao.AgendamentoCancelamentoDao;
+import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
+import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
@@ -62,6 +64,9 @@ public class Agendamentos implements Serializable {
     private List<AgendamentoCancelamento> listCancelamentos;
 
     @Transient
+    private AgendamentoServico agendamentoServico;
+
+    @Transient
     private String motivoTroca;
 
     public Agendamentos() {
@@ -76,6 +81,7 @@ public class Agendamentos implements Serializable {
         this.email = "";
         this.obs = "";
         this.listCancelamentos = null;
+        this.agendamentoServico = null;
         this.motivoTroca = null;
     }
 
@@ -207,6 +213,23 @@ public class Agendamentos implements Serializable {
 
     public void setMotivoTroca(String motivoTroca) {
         this.motivoTroca = motivoTroca;
+    }
+
+    public AgendamentoServico getAgendamentoServico() {
+        if (agendamentoServico == null && this.id != null) {
+            agendamentoServico = new AgendamentoServico();
+            agendamentoServico = new AgendamentoServicoDao().findBy(this.id);
+        }
+        return agendamentoServico;
+    }
+
+    public void setAgendamentoServico(AgendamentoServico agendamentoServico) {
+        this.agendamentoServico = agendamentoServico;
+    }
+    
+    public String getPrimeiraHora() {
+        // new AgendamentoHorarioDao().firstTime(id)
+        return "";
     }
 
 }

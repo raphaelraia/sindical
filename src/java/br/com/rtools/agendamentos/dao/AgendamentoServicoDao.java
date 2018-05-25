@@ -84,6 +84,7 @@ public class AgendamentoServicoDao extends DB {
         try {
             Query query = getEntityManager().createQuery("SELECT ASE FROM AgendamentoServico AS ASE WHERE ASE.agendamento.id = :agendamento_id");
             query.setParameter("agendamento_id", agendamento_id);
+            query.setMaxResults(1);
             return (AgendamentoServico) query.getSingleResult();
         } catch (Exception e) {
             return null;

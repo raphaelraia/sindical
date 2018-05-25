@@ -149,23 +149,7 @@ public class RelatorioSociosDao extends DB {
         if (listDateFilters == null) {
             listDateFilters = new ArrayList();
         }
-        String p_demissao;
-        DateFilters demissao = DateFilters.getDateFilters(listDateFilters, "demissao");
-        if (demissao != null && demissao.getDtStart() != null && demissao.getDtFinish() != null) {
-            p_demissao = " , "
-                    + " pempresa.admissao_empresa_demissionada,                 \n" // 79
-                    + " pempresa.demissao_empresa_demissionada,                 \n" // 80
-                    + " pempresa.cnpj_empresa_demissionada,                     \n" // 81
-                    + " pempresa.empresa_demissionada                           \n "; // 82
-        } else {
-            p_demissao = " , "
-                    + " dm.admissao  AS admissao_empresa_demissionada,          \n" // 79
-                    + " dm.demissao  AS demissao_empresa_demissionada,          \n" // 80
-                    + " dm.documento AS cnpj_empresa_demissionada,              \n" // 81
-                    + " dm.empresa   AS empresa_demissionada                    \n "; // 82            
-        }
-
-        String queryString = " -- RelatorioSociosDao->find()                    \n"
+        String queryString = " -- RelatorioSociosDao->find()                  \n\n"
                 + "SELECT                                                       \n"
                 + "           '' AS sindLogo,                                   \n" // 0
                 + "           '' AS sindSite,                                   \n" // 1
@@ -245,17 +229,16 @@ public class RelatorioSociosDao extends DB {
                 + "           P.email,                                          \n" // 75
                 + "           P.contabil_nome,                                  \n" // 76
                 + "           P.contabil_contato,                               \n" // 77
-                + "           P.contabil_telefone                               \n" // 78
-                + "           " + p_demissao + ",                               \n "
+                + "           P.contabil_telefone,                              \n" // 78
+                + "           P.admissao_empresa_demissionada,                  \n" // 79
+                + "           P.demissao_empresa_demissionada,                  \n" // 80
+                + "           P.cnpj_empresa_demissionada,                      \n" // 81
+                + "           P.empresa_demissionada,                           \n" // 82
                 + "           func_idade(P.dt_nascimento,CURRENT_DATE) AS idade,\n" // 83
                 + "           P.suspencao_motivo,                               \n" // 84
                 + "           P.suspencao_inicial,                              \n" // 85
                 + "           P.suspencao_final                                 \n" // 86
-                + "      FROM pessoa_vw          AS p                           \n "
-                // + " LEFT JOIN soc_socios_vw      AS so   ON so.codsocio     = p.codigo              \n "
-                // + " LEFT JOIN pes_pessoa_vw      AS pt   ON pt.codigo       = so.titular            \n "
-                + " LEFT JOIN demitidos_vw       AS dm   ON dm.id_pessoa = p.codigo                 \n ";
-        // + " LEFT JOIN soc_suspencao      AS SS   ON SS.id_pessoa = p.codigo \n              \n ";
+                + "      FROM pessoa_vw          AS P                           \n ";
         if (status.equals("nao_socio")) {
             // queryString += " LEFT JOIN pes_juridica AS J ON J.id = P.e_id AND J.id IN(SELECT id_juridica FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n ";
         } else {
@@ -264,43 +247,6 @@ public class RelatorioSociosDao extends DB {
 //        queryString += " LEFT JOIN pes_juridica       AS PJC  ON PJC.id          = J.id_contabilidade    \n "
 //                + " LEFT JOIN pes_pessoa         AS PC   ON PC.id           = PJC.id_pessoa         \n ";
 
-        if (demissao != null) {
-            queryString += " INNER JOIN (                                           \n"
-                    + "     SELECT id_fisica,                                       \n"
-                    + "            PE.dt_admissao AS admissao_empresa_demissionada, \n"
-                    + "            dt_demissao    AS demissao_empresa_demissionada, \n"
-                    + "            P.ds_documento AS cnpj_empresa_demissionada,     \n"
-                    + "            P.ds_nome      AS empresa_demissionada           \n"
-                    + "       FROM pes_pessoa_empresa pe                            \n"
-                    + " INNER JOIN pes_juridica J ON J.id = PE.id_juridica          \n"
-                    + " INNER JOIN pes_pessoa   P ON P.id = J.id_pessoa             \n";
-            queryString += "";
-            if ((demissao.getDtStart() != null && !demissao.getStart().isEmpty()) || demissao.getType().equals("com") || demissao.getType().equals("sem")) {
-                switch (demissao.getType()) {
-                    case "igual":
-                        queryString += " WHERE pe.dt_demissao = '" + demissao.getStart() + "' \n";
-                        break;
-                    case "apartir":
-                        queryString += " WHERE pe.dt_demissao >= '" + demissao.getStart() + "' \n";
-                        break;
-                    case "ate":
-                        queryString += " WHERE pe.dt_demissao <= '" + demissao.getStart() + "' \n";
-                        break;
-                    case "faixa":
-                        if (!demissao.getStart().isEmpty()) {
-                            queryString += " WHERE pe.dt_demissao BETWEEN  '" + demissao.getStart() + "' AND '" + demissao.getFinish() + "'\n";
-                        }
-                        break;
-                    case "com":
-                        queryString += " WHERE pe.dt_demissao IS NOT NULL \n";
-                        break;
-                    case "sem":
-                        queryString += " WHERE pe.dt_demissao IS NULL \n";
-                        break;
-                }
-                queryString += " ) AS pempresa ON pempresa.id_fisica = p.id_fisica \n ";
-            }
-        }
 
         List listWhere = new ArrayList();
 
@@ -812,6 +758,35 @@ public class RelatorioSociosDao extends DB {
                     }
                 }
             }
+            DateFilters demissao = DateFilters.getDateFilters(listDateFilters, "demisao");
+            if (admissao != null) {
+                if ((admissao.getDtStart() != null && !admissao.getStart().isEmpty() || admissao.getType().equals("com") || admissao.getType().equals("sem"))) {
+                    switch (admissao.getType()) {
+                        case "igual":
+                            listWhere.add(" P.admissao = '" + admissao.getStart() + "'");
+                            break;
+                        case "apartir":
+                            listWhere.add(" P.admissao >= '" + admissao.getStart() + "'");
+                            break;
+                        case "ate":
+                            listWhere.add(" P.admissao <= '" + admissao.getStart() + "'");
+                            break;
+                        case "faixa":
+                            if (!admissao.getFinish().isEmpty()) {
+                                listWhere.add(" P.admissao BETWEEN '" + admissao.getStart() + "' AND '" + admissao.getFinish() + "'");
+                            }
+                            break;
+                        case "com":
+                            listWhere.add(" P.admissao IS NOT NULL ");
+                            break;
+                        case "sem":
+                            listWhere.add(" P.admissao IS NULL ");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 
         } else {
             listWhere.add("(p.principal = true OR p.principal IS NULL)");
@@ -820,13 +795,13 @@ public class RelatorioSociosDao extends DB {
         if (empresa != null && !empresa.isEmpty()) {
             if (!in_empresas.equals("-1") && empresa.equals("especificas")) {
                 if (relatorios.getId() == 46) {
-                    listWhere.add("dm.id_juridica IN (" + in_empresas + ")");
+                    listWhere.add("P.id_juridica_demissionada IN (" + in_empresas + ")");
                 } else {
                     listWhere.add("P.e_id IN (" + in_empresas + ")");
                 }
             } else if (empresa.equals("com")) {
                 if (relatorios.getId() == 46) {
-                    listWhere.add("dm.empresa <> '' ");
+                    listWhere.add("P.empresa_demissionada <> '' ");
                 } else {
                     listWhere.add("P.empresa <> '' ");
                 }

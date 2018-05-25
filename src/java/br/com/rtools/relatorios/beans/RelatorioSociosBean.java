@@ -1693,7 +1693,7 @@ public class RelatorioSociosBean implements Serializable {
         listDates.add(new SelectItem("aposentadoria", "Aposentadoria"));
         listDates.add(new SelectItem("atualizacao", "Atualização"));
         listDates.add(new SelectItem("cadastro", "Cadastro"));
-        listDates.add(new SelectItem("demissao", "Demissão", "", true));
+        listDates.add(new SelectItem("demissao", "Demissão"));
         listDates.add(new SelectItem("filiacao", "Filiação"));
         listDates.add(new SelectItem("recadastro", "Recadastro"));
         if (getShow("carteirinha")) {

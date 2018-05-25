@@ -1,9 +1,9 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
                 xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
     <h:head>
         <title>Agendamentos</title>
     </h:head>
@@ -33,11 +33,20 @@
                                 </p:column>
                             </h:panelGrid>                            
                         </f:facet>
-                        <h:panelGrid columns="5" cellspacing="5">
-                            <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" value="Pesquisar Pessoa"/>
+                        <h:panelGrid columns="8" cellspacing="5">
+                            <p:outputLabel value="Data: " />
+                            <p:calendar size="8" value="#{agendamentosBean.data}" pattern="dd/MM/yyyy" navigator="true" mindate="java.util.Date" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
+                                <p:ajax event="dateSelect" listener="#{agendamentosBean.dataPreListener}" />
+                                <p:ajax event="change" listener="#{agendamentosBean.dataPreListener}" />
+                            </p:calendar>
+                            <p:outputLabel value="Horário: " styleClass="margin-left-max"/>
+                            <p:inputMask mask="99:99" converter="#{isValidTimeString}" value="#{agendamentosBean.horaPre}" size="4" styleClass="text-center">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputMask>
+                            <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" value="Pesquisar Pessoa" styleClass="margin-left-max"/>
                             <p:commandButton action="#{fisicaGenericaBean.openModal()}" icon="ui-icon-search" styleClass="margin-left-max"/>
                         </h:panelGrid>            
-                        <h:panelGrid columns="5" cellspacing="5">
+                        <h:panelGrid columns="5" cellspacing="5" styleClass="margin-top-max">
                             <p:outputLabel value="CPF:" styleClass="bold"/>
                             <p:inputMask mask="999.999.999-99" value="#{agendamentosBean.pessoa.pessoa.documento}" size="15" styleClass="font-size-12 text-center bg-green-ligth">
                                 <p:ajax event="change" update="@this :form_person: :form_agendamentos:" listener="#{agendamentosBean.findPessoaFisica}" />
@@ -46,7 +55,7 @@
                     </p:panel>
                 </h:form>                    
                 <h:form id="form_agendamentos">
-                    <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{agendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentosBean.loadListHorarios}" interval="5"/>
+                    <p:poll global="false" update=":form_agendamentos:i_scheds" delay="10" stop="#{agendamentosBean.schedulesStatus}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentosBean.loadListHorarios}" interval="15"/>
                     <h:panelGroup rendered="#{agendamentosBean.pessoa.id ne -1 and agendamentosBean.newSched}" id="i_sched_register">
                         <h:panelGroup rendered="#{agendamentosBean.trocar}" >
                             <h:panelGrid columns="2" style="width: 100%; border: 1px solid red; border-radius: 5px; padding: 10px" >
@@ -115,7 +124,7 @@
                         </p:panel>
                         <p:panel styleClass="margin-top">
                             <f:facet name="header">
-                                <h:panelGrid columns="6" cellspacing="10">
+                                <h:panelGrid columns="8" cellspacing="10">
                                     <h:outputLabel value="Grupo Convênio:" />
                                     <p:selectOneMenu value="#{agendamentosBean.idGrupoConvenio}" disabled="#{agendamentosBean.trocar}">
                                         <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('grupo_convenio')}" />
@@ -127,10 +136,11 @@
                                         <f:selectItems value="#{agendamentosBean.listSubGrupoConvenio}" />
                                     </p:selectOneMenu>
                                     <h:outputLabel value="Colaborador:" />
-                                    <p:selectOneMenu value="#{agendamentosBean.idConvenio}">
+                                    <p:selectOneMenu value="#{agendamentosBean.idConvenio}" filter="true" filterMatchMode="contains">
                                         <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('convenio')}"  />
                                         <f:selectItems value="#{agendamentosBean.listConvenio}" />
                                     </p:selectOneMenu>
+                                    <p:commandButton icon="ui-icon-plus" action="#{agendamentosBean.scheduler}" rendered="#{agendamentosBean.hora ne 'TODOS' and not empty agendamentosBean.hora}" title="AGENDAR"/>
                                 </h:panelGrid>                                     
                             </f:facet>
                             <h:panelGrid columns="6" cellspacing="10">
@@ -138,7 +148,8 @@
                                 <p:selectOneMenu value="#{agendamentosBean.idServico}" filter="true" filterMatchMode="contains" >
                                     <p:ajax event="change" update="@this :form_agendamentos:" listener="#{agendamentosBean.listener('servicos')}" />
                                     <f:selectItems value="#{agendamentosBean.listServicos}" />
-                                </p:selectOneMenu>                                
+                                </p:selectOneMenu>
+                                <p:commandButton value="Sugestões" actionListener="#{agendamentosBean.loadListServicosSuggestion()}" update=":form_agendamentos:i_servicos_suggestions" oncomplete="PF('dlg_servicos_suggestions').show()" styleClass="font-color-red"/>
                             </h:panelGrid>
                             <h:panelGroup layout="block" rendered="#{agendamentosBean.agendaServico.id ne null}">
                                 <p:panel>
@@ -159,29 +170,78 @@
                                     <br />
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('info', 'IMPORTANTE', 'REAGENDAMENTO!!!')}" escape="false" />
                                 </h:panelGroup>
-                                <h:panelGrid columns="2" rendered="#{agendamentosBean.idServico ne null}"  cellspacing="10">
-                                    Data: 
+                                <h:panelGrid columns="8" rendered="#{agendamentosBean.idServico ne null}"  cellspacing="10">
+                                    <p:outputLabel value="Data: " />
                                     <p:calendar size="8" value="#{agendamentosBean.data}" pattern="dd/MM/yyyy" navigator="true" mindate="java.util.Date" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
                                         <p:ajax event="dateSelect" listener="#{agendamentosBean.dataListener}" update=":form_agendamentos:"/>
                                         <p:ajax event="change" listener="#{agendamentosBean.dataListener}" update=":form_agendamentos:"/>
-                                    </p:calendar>                                            
+                                    </p:calendar>
+                                    <p:outputLabel value="Horário: " for="i_find_horarios" />
+                                    <h:column>
+                                        <h:column rendered="false">
+                                            <p:outputLabel value="Horário: " />
+                                            <p:selectOneMenu  value="#{agendamentosBean.hora}" title="Filtra por horário os convêniados" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" update="@this :form_agendamentos: " listener="#{agendamentosBean.listener('hora')}"/>
+                                                <f:selectItems value="#{agendamentosBean.listHora}" />
+                                            </p:selectOneMenu>                                            
+                                        </h:column>
+                                        <p:autoComplete placeholder="99:99" id="i_find_horarios" dropdown="true" value="#{agendamentosBean.queryHoras}"  completeMethod="#{agendamentosBean.findHorarios}" scrollHeight="150"  forceSelection="true" queryDelay="10" maxlength="5" minQueryLength="1" size="4" styleClass="hora_ag">
+                                            <p:ajax event="itemSelect" update="@this :form_agendamentos: " listener="#{agendamentosBean.selectedHora}"/>
+                                        </p:autoComplete>
+                                        <script>
+                                            (function ($) {
+                                                $(".hora_ag").mask("99:99");
+                                            });
+                                        </script>
+                                    </h:column>
+                                    <p:commandButton value="AGENDAR" action="#{agendamentosBean.scheduler}" rendered="#{agendamentosBean.hora ne 'TODOS' and not empty agendamentosBean.hora}" />
                                 </h:panelGrid>                                
                             </h:panelGroup>
                             <f:facet name="footer">
+                                <style>
+                                    .ui-grid {background: transparent!important; border: 0!important}
+                                </style>
                                 <h:panelGroup id="i_scheds" layout="block">
-                                    <p:dataTable value="#{agendamentosBean.agendamentos}" var="agendamentos" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!">
+                                    <p:dataTable value="#{agendamentosBean.agendamentos}" var="agendamentos" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!" rowStyleClass="#{(agendamentosBean.hora eq agendamentos.hora) ? 'bg-orange' : ''}">
                                         <p:column styleClass="text-center" width="80">
                                             <f:facet name="header">
                                                 <h:graphicImage value="/Imagens/horario_pisca.gif" alt="Horário" title="Horário" width="20" />
                                             </f:facet>
-                                            <p:commandLink action="#{agendamentosBean.scheduler(agendamentos)}" value="#{agendamentos.hora}" />                                        
+                                            <h:column rendered="true">
+                                                <p:commandLink action="#{agendamentosBean.scheduler(agendamentos)}" value="#{agendamentos.hora}" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and agendamentosBean.agendaServico.encaixe) and agendamentos.encaixe}" title="Quantidade: #{agendamentos.quantidade}"/>
+                                                <p:commandLink value="#{agendamentos.hora}" disabled="true" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and agendamentosBean.agendaServico.encaixe) and !agendamentos.encaixe}" title="Quantidade: #{agendamentos.quantidade}"/>
+                                                <p:commandLink value="#{agendamentos.hora}" disabled="true" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and !agendamentosBean.agendaServico.encaixe) and !agendamentos.encaixe}" title="Quantidade: #{agendamentos.quantidade}"/>
+                                                <p:commandLink value="#{agendamentos.hora}" disabled="true" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and !agendamentosBean.agendaServico.encaixe) and agendamentos.encaixe}" title="Quantidade: #{agendamentos.quantidade}"/>
+                                                <p:commandLink action="#{agendamentosBean.scheduler(agendamentos)}" value="#{agendamentos.hora}" rendered="#{agendamentos.nrQuantidade != 0}" title="Quantidade: #{agendamentos.quantidade}"/>
+                                            </h:column>
                                         </p:column>
-                                        <p:column headerText="Quantidade" styleClass="text-center">
+                                        <p:column headerText="Status" styleClass="text-center" width="120">
+                                            <p:outputLabel value="DISPONÍVEL" styleClass="font-color-green bold" rendered="#{(agendamentos.nrQuantidade != 0)}"/>
+                                            <p:outputLabel value="ENCAIXE" styleClass="font-color-red" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and agendamentosBean.agendaServico.encaixe) and agendamentos.encaixe}"/>
+                                            <p:outputLabel value="INDISPONÍVEL" styleClass="font-color-gray font-size-8" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and agendamentosBean.agendaServico.encaixe) and !agendamentos.encaixe}"/>
+                                            <p:outputLabel value="INDISPONÍVEL" styleClass="font-color-gray font-size-8" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and !agendamentosBean.agendaServico.encaixe) and !agendamentos.encaixe}"/>
+                                            <p:outputLabel value="INDISPONÍVEL" styleClass="font-color-gray font-size-8" rendered="#{agendamentos.nrQuantidade == 0 and (agendamentosBean.agendaServico != null and !agendamentosBean.agendaServico.encaixe) and agendamentos.encaixe}"/>
+                                        </p:column>
+                                        <p:column headerText="Agendado(s)" groupRow="true">
+                                            <h:column rendered="#{not empty agendamentos.listAgendamentos}">
+                                                <p:dataGrid value="#{agendamentos.listAgendamentos}" var="listAgm" columns="#{agendamentos.listAgendamentos.size() == 1 ? 1 : 2}" layout="grid" styleClass="no-border tra" >
+                                                    <h:panelGroup styleClass="border-radius #{listAgm.agendaStatus.id eq 1 ? 'bg-yellow-ligth' : 'bg-white'}" style="border: 1px solid gray" layout="block">
+                                                        <h:panelGrid styleClass="sbb">
+                                                            <h:outputLabel value="#{agendamentos.firstHora}" styleClass="font-size-8"/>
+                                                            <h:outputLabel value="#{listAgm.pessoa.nome}" styleClass="bold"/>
+                                                            <h:outputLabel value="SERVIÇO: #{listAgm.agendamentoServico.servico.descricao}" styleClass="font-size-8"/>
+                                                            <h:outputLabel value="(#{listAgm.agendaStatus.descricao})" styleClass="font-size-8"/>
+                                                        </h:panelGrid>                                                        
+                                                    </h:panelGroup>
+                                                </p:dataGrid>
+                                            </h:column>
+                                            <h:column rendered="#{empty agendamentos.listAgendamentos}">
+                                                <h:outputLabel value="#{agendamentos.hora}" style="color: transparent; display: none"  />
+                                            </h:column>
+                                        </p:column>
+                                        <p:column headerText="Qtde" styleClass="text-center" width="30" rendered="false">
                                             #{agendamentos.quantidade}
-                                        </p:column>
-                                        <p:column styleClass="text-center">
-                                            <p:outputLabel value="#{agendamentos.quantidade == 0  ? 'ENCAIXE' : 'DISPONIVEL'}" styleClass="#{agendamentos.quantidade == 0  ? 'font-color-red' : 'font-color-blue bold'}" />
-                                        </p:column>
+                                        </p:column>                                        
                                     </p:dataTable>                                    
                                 </h:panelGroup>
                             </f:facet>
@@ -376,6 +436,20 @@
                             <h:panelGrid cellspacing="5" columns="2">
                                 <p:commandButton action="#{agendamentosBean.cancel}" value="Confirmar" update=":form_agendamentos:" />
                                 <p:commandButton value="Cancelar" onclick="PF('dlg_sched_cancel').hide()"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_servicos_suggestions" modal="true" resizable="false" height="200" width="600" header="Serviços realizados para esta pessoa recentemente neste subgrupo" closeOnEscape="true">
+                        <h:panelGroup id="i_servicos_suggestions">
+                            <p:dataTable value="#{agendamentosBean.listServicosSuggestions}" var="serv" emptyMessage="Nenhum serviço para sugestão!">
+                                <p:column headerText="Serviço">
+                                    <p:commandLink value="#{serv.descricao}" action="#{agendamentosBean.selectedServico(serv)}" update=":form_agendamentos:" oncomplete="PF('dlg_servicos_suggestions').hide()" styleClass="font-size-14"/>                                    
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGroup>                        
+                        <f:facet name="footer">                            
+                            <h:panelGrid cellspacing="5" columns="2">
+                                <p:commandButton value="Sair" onclick="PF('dlg_servicos_suggestions').hide()"/>
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>
