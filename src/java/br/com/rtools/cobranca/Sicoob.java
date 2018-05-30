@@ -18,6 +18,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
@@ -43,7 +44,7 @@ import org.primefaces.json.JSONObject;
 
 public class Sicoob extends Cobranca {
 
-    private final Boolean TESTE = false;
+    private final Boolean TESTE = GenericaSessao.getBoolean("debug");
 
     public Sicoob(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);

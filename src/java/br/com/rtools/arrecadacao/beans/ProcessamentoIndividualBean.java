@@ -10,7 +10,6 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
-import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -48,7 +47,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -275,8 +273,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         return null;
     }
 
-
-
     public String chamarMensagem() {
         CnaeConvencaoDao cnaeConvencaoDB = new CnaeConvencaoDao();
         ConvencaoCidadeDao convencaoCidade = new ConvencaoCidadeDao();
@@ -408,7 +404,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                 Boolean success = true;
 
                 if (olm.getBoleto() != null) {
-                    //movimentoBefore = (Movimento) dao.find((Movimento) listMovimentos.get(i).getArgumento1());
                     Movimento movimentoBefore = (Movimento) dao.find(olm.getMovimento());
 
                     beforeUpdate
@@ -419,20 +414,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                             + " - Pessoa: (" + movimentoBefore.getPessoa().getId() + ") " + olm.getMovimento().getPessoa().getNome()
                             + " - Valor: " + movimentoBefore.getValorString()
                             + " - Vencimento: " + movimentoBefore.getVencimento();
-//
-//                    movim.setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
-//                    // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
-//                    //if (!movimentoBefore.getVencimento().equals(movim.getVencimento())) {
-//                    if (!bol.getVencimento().equals(((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento())) {
-//
-//                        if (bol.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
-//                            bol.setDtCobrancaRegistrada(null);
-//                            new Dao().update(bol, true);
-//                        }
-//
-//                        bol.setVencimento(((Movimento) listMovimentos.get(i).getArgumento1()).getVencimento());
-//                        new Dao().update(bol, true);
-//                    }
 
                     olm.getBoleto().setVencimento(olm.getVencimentoBoletoString());
                     olm.getBoleto().setValor(olm.getValor_calculado());
@@ -535,7 +516,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                     GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                     return null;
                 }
-                
+
             }
 
             dao.commit();
@@ -557,7 +538,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
 
     public String enviarEmail() {
 
-        if (!listaMovimento.isEmpty()) {
+        if (listaMovimento.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Lista Vazia!");
             return null;
         }
@@ -596,7 +577,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
 
             for (TrataVencimentoRetorno olm : listaMovimento) {
 
-//                ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
                 movs.add(olm.getMovimento());
 
                 ImprimirBoleto imp = new ImprimirBoleto();
@@ -648,7 +628,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                 List<EmailPessoa> emailPessoas = new ArrayList();
                 EmailPessoa emailPessoa = new EmailPessoa();
 
-               for (Pessoa pe : pessoas) {
+                for (Pessoa pe : pessoas) {
                     emailPessoa.setDestinatario(pe.getEmail1());
                     emailPessoa.setPessoa(pe);
                     emailPessoa.setRecebimento(null);
@@ -672,7 +652,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         } else {
 
             for (TrataVencimentoRetorno olm : listaMovimento) {
-                //((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento7()));
                 movs.add(olm.getMovimento());
             }
 
@@ -852,7 +831,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
     }
 
     public void enviarEmailPraUma(Juridica juridica) {
-        if (!listaMovimento.isEmpty()) {
+        if (listaMovimento.isEmpty()) {
             return;
         }
 
@@ -861,7 +840,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         Registro reg = Registro.get();
 
         for (TrataVencimentoRetorno olm : listaMovimento) {
-//            ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaDouble((String) listMovimentos.get(i).getArgumento3()));
             movs.add(olm.getMovimento());
         }
 
@@ -950,14 +928,7 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
                 if (data1 < data2) {
                     return "Arquivo expirado!";
                 } else {
-                    //String pathFile = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(link.getCaminho() + "/" + link.getNomeArquivo());
-                    String pathFile = link.getCaminho() + "/" + link.getNomeArquivo();
-                    //if (new File(pathFile).exists()) {
                     response.sendRedirect(link.getCaminho() + "/" + link.getNomeArquivo());
-                    //} else {
-                    //    NovoLog log = new NovoLog();
-                    //    log.novo("Arquivo não encontrado", "Arquivo não existe no caminho específicado: " + link.getCaminho() + "/" + link.getNomeArquivo());
-                    // }
                 }
             }
         }
@@ -971,7 +942,6 @@ public class ProcessamentoIndividualBean extends MovimentoValorBean implements S
         JuridicaBean juridicaBean = new JuridicaBean();
         juridicaBean.editar(jur, true);
         GenericaSessao.put("juridicaBean", juridicaBean);
-        // ((JuridicaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaBean")).editar(jur);
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).pesquisa("pessoaJuridica");
     }
 

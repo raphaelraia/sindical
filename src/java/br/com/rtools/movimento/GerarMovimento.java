@@ -285,8 +285,9 @@ public class GerarMovimento extends DB {
                     return "Mensagem de cobrança não encontrada";
                 }
             }
+            
             ContaCobranca cc = dbc.pesquisaServicoCobranca(listaMovimento.get(i).getServicos().getId(), listaMovimento.get(i).getTipoServico().getId());
-            int id_boleto = db.inserirBoletoNativo(cc.getId(), mc.getVencimento(), listaMovimento.get(i).getValor());
+            int id_boleto = db.inserirBoletoNativo(cc.getId(), listaMovimento.get(i).getVencimento(), listaMovimento.get(i).getValor());
 
             if (id_boleto != -1) {
                 dao.openTransaction();

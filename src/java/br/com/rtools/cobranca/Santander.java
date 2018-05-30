@@ -16,6 +16,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import org.w3c.dom.Document;
@@ -56,7 +57,7 @@ import org.xml.sax.SAXException;
 
 public class Santander extends Cobranca {
 
-    private final Boolean TESTE = false;
+    private final Boolean TESTE = GenericaSessao.getBoolean("debug");
 
     public Santander(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);

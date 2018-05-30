@@ -1358,12 +1358,14 @@ public class ExtratoTelaBean implements Serializable {
             if ((Boolean) listaMovimento.getArgumento0()) {
                 Movimento m = db.pesquisaCodigo((Integer) listaMovimento.getArgumento1());
                 Boleto b = m.getBoleto();
-                
-                if (DataHoje.menorData(b.getDtVencimento(), DataHoje.dataHoje()) && (b.getStatusRetorno() == null || b.getStatusRetorno().getId() != 2)){
-                    GenericaMensagem.error("Atenção", "Imprimir pela Rotina de Impressão Individual");
-                    return null;
+
+                if (b.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
+                    if (DataHoje.menorData(b.getDtVencimento(), DataHoje.dataHoje()) && (b.getStatusRetorno() == null || b.getStatusRetorno().getId() != 2)) {
+                        GenericaMensagem.error("Atenção", "Imprimir pela Rotina de Impressão Individual");
+                        return null;
+                    }
                 }
-                
+
                 listaC.add(m);
 
                 Impressao impressao = new Impressao();
@@ -1377,7 +1379,6 @@ public class ExtratoTelaBean implements Serializable {
                     GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                     return null;
                 }
-                
 
             }
         }
@@ -1720,27 +1721,43 @@ public class ExtratoTelaBean implements Serializable {
 
     public String carregaDataAntiga(int id_movimento) {
         movimentoVencimento = (Movimento) new Dao().find(new Movimento(), id_movimento);
-        //dataAntiga = ((String) dtObj.getArgumento9());
         dataAntiga = movimentoVencimento.getVencimento();
         dataNova = "";
         return null;
     }
 
     public String atualizarData() {
+        // APENAS ALTERA O VENCIMENTO DE TIPO SERVICO ACORDO
         if (!dataNova.isEmpty()) {
             if (DataHoje.converteDataParaInteger(dataNova) >= DataHoje.converteDataParaInteger(DataHoje.data())) {
-                movimentoVencimento.setVencimento(dataNova);
+
+                Boleto b = movimentoVencimento.getBoleto();
+
                 Dao di = new Dao();
 
                 di.openTransaction();
 
-                if (!di.update(movimentoVencimento)) {
+                // COBRANCA REGISTRADA
+                if (b.getContaCobranca().getCobrancaRegistrada().getId() != 3) {
+                    // registrado
+                    if (b.getStatusRetorno() != null && b.getStatusRetorno().getId() == 2) {
+                        b.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                        b.setDtStatusRetorno(DataHoje.dataHoje());
+                        b.setStatusRetorno((StatusRetorno) di.find(new StatusRetorno(), 6));
+                    }
+                }
+
+                movimentoVencimento.setVencimento(dataNova);
+                b.setVencimento(dataNova);
+
+                if (!di.update(movimentoVencimento) || !di.update(b)) {
                     di.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível alterar o movimento, tente novamente!");
                     return null;
                 }
 
                 di.commit();
+
                 movimentoVencimento = new Movimento();
                 loadListBeta();
                 GenericaMensagem.info("OK", "Data alterada com sucesso!");
@@ -1753,6 +1770,7 @@ public class ExtratoTelaBean implements Serializable {
                 GenericaMensagem.warn("Atenção", "A nova data deve ser MAIOR ou IGUAL a data de hoje!");
             }
         }
+
         return null;
     }
 
@@ -2430,6 +2448,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public void setListaImpressaoWeb(List<ImpressaoWeb> listaImpressaoWeb) {
         this.listaImpressaoWeb = listaImpressaoWeb;
+
     }
 
     public class ExtratoTelaObject {

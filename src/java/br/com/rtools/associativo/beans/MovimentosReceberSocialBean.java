@@ -209,25 +209,29 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void alterarVencimento() {
+        if (objectVencimento == null) {
+            GenericaMensagem.warn("Atençao", "ERRO AO CARREGAR VENCIMENTO!");
+            return;
+        }
+
         String vencimentox = objectVencimento.getArgumento1().toString();
-        
+
         if (DataHoje.menorData(vencimentox, DataHoje.data())) {
             GenericaMensagem.warn("Atençao", "Data de vencimento nao pode ser MENOR que data atual!");
             return;
         }
-        
 
         Boleto boletox = (Boleto) objectVencimento.getArgumento0();
         Dao dao = new Dao();
 
         dao.openTransaction();
 
-        if (boletox.getStatusRetorno() != null && boletox.getStatusRetorno().getId() == 2){
+        if (boletox.getStatusRetorno() != null && boletox.getStatusRetorno().getId() == 2) {
             boletox.setDtCobrancaRegistrada(DataHoje.dataHoje());
             boletox.setDtStatusRetorno(DataHoje.dataHoje());
             boletox.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 6));
         }
-        
+
         boletox.setVencimento(vencimentox);
         boletox.setDtProcessamento(DataHoje.dataHoje());
 
@@ -250,6 +254,8 @@ public class MovimentosReceberSocialBean implements Serializable {
         if (boletox != null) {
             // BOLETO COM VENCIMENTO ANTERIOR , NOVO VENCIMENTO
             objectVencimento = new DataObject(boletox, "");
+        } else {
+            objectVencimento = null;
         }
     }
 
@@ -335,7 +341,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
             //  erro aqui testar
             if (b.getStatusRetorno() != null && (b.getStatusRetorno().getId() == 2 || b.getStatusRetorno().getId() == 4 || b.getStatusRetorno().getId() == 5)) {
-                if (listaMovimentoDoBoleto.size() != 1){
+                if (listaMovimentoDoBoleto.size() != 1) {
                     GenericaMensagem.warn("Atenção", b.getStatusRetorno().getDescricao() + " apenas poderá ser removido se TODOS movimentos forem selecionados!");
                     movimentoRemover = null;
                     dao.rollback();
@@ -425,17 +431,17 @@ public class MovimentosReceberSocialBean implements Serializable {
 
             Movimento m = (Movimento) dao.find(new Movimento(), (Integer) linha.get(0));
 
-            Double juros = (Double) linha.get(1);
-            Double multa = (Double) linha.get(2);
-            Double correcao = (Double) linha.get(3);
+            Double jurosx = (Double) linha.get(1);
+            Double multax = (Double) linha.get(2);
+            Double correcaox = (Double) linha.get(3);
 
             listaMovimentosAnexo.add(
                     new ClassMovimentoAnexo(
                             m,
-                            juros, // JUROS
-                            multa, // MULTA
-                            correcao, // CORRECAO
-                            Moeda.soma(Moeda.soma(juros, Moeda.soma(multa, correcao)), m.getValor()) // VALOR CALCULADO
+                            jurosx, // JUROS
+                            multax, // MULTA
+                            correcaox, // CORRECAO
+                            Moeda.soma(Moeda.soma(jurosx, Moeda.soma(multax, correcaox)), m.getValor()) // VALOR CALCULADO
                     )
             );
 

@@ -98,6 +98,37 @@ public class TrataVencimento {
     public static TrataVencimentoRetorno movimentoExiste(Movimento movimento, Juridica juridica, String referencia, Date vencimento) {
         Boleto b = movimento.getBoleto();
 
+        // TIPO COBRANÇA NÃO REGISTRADA 
+        if (b.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
+            // VENCIDO
+            if (DataHoje.menorData(movimento.getDtVencimento(), DataHoje.dataHoje())) {
+                MovimentoDao db = new MovimentoDao();
+
+                Double juros;
+                Double multa;
+                Double correcao;
+
+                // SE NÃO FOR ACORDO
+                if (movimento.getTipoServico().getId() != 4) {
+                    juros = db.funcaoJuros(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                    multa = db.funcaoMulta(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                    correcao = db.funcaoCorrecao(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                } else {
+                    juros = db.funcaoJurosAcordo(movimento.getId());
+                    multa = db.funcaoMultaAcordo(movimento.getId());
+                    correcao = db.funcaoCorrecaoAcordo(movimento.getId());
+                }
+
+                Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), movimento.getValor());
+
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, true, true, false);
+            } else {
+                // NÃO VENCIDO
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, false, false);
+            }
+        }
+
+        // TIPO DE COBRANCA REGISTRADA
         // MOVIMENTO VENCIDO
         if (DataHoje.menorData(movimento.getDtVencimento(), DataHoje.dataHoje())) {
             // REGISTRADO
@@ -108,9 +139,20 @@ public class TrataVencimento {
 
                 MovimentoDao db = new MovimentoDao();
 
-                Double juros = db.funcaoJuros(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
-                Double multa = db.funcaoMulta(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
-                Double correcao = db.funcaoCorrecao(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                Double juros;
+                Double multa;
+                Double correcao;
+
+                // SE NÃO FOR ACORDO
+                if (movimento.getTipoServico().getId() != 4) {
+                    juros = db.funcaoJuros(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                    multa = db.funcaoMulta(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                    correcao = db.funcaoCorrecao(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                } else {
+                    juros = db.funcaoJurosAcordo(movimento.getId());
+                    multa = db.funcaoMultaAcordo(movimento.getId());
+                    correcao = db.funcaoCorrecaoAcordo(movimento.getId());
+                }
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), movimento.getValor());
 
@@ -126,9 +168,20 @@ public class TrataVencimento {
 
                 MovimentoDao db = new MovimentoDao();
 
-                Double juros = db.funcaoJuros(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
-                Double multa = db.funcaoMulta(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
-                Double correcao = db.funcaoCorrecao(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                Double juros;
+                Double multa;
+                Double correcao;
+
+                // SE NÃO FOR ACORDO
+                if (movimento.getTipoServico().getId() != 4) {
+                    juros = db.funcaoJuros(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                    multa = db.funcaoMulta(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                    correcao = db.funcaoCorrecao(juridica.getPessoa().getId(), movimento.getServicos().getId(), movimento.getTipoServico().getId(), referencia);
+                } else {
+                    juros = db.funcaoJurosAcordo(movimento.getId());
+                    multa = db.funcaoMultaAcordo(movimento.getId());
+                    correcao = db.funcaoCorrecaoAcordo(movimento.getId());
+                }
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), movimento.getValor());
 
@@ -139,6 +192,7 @@ public class TrataVencimento {
     }
 
     public static TrataVencimentoRetorno movimentoNaoExiste(Servicos servico, TipoServico tipoServico, Juridica juridica, String referencia, Date vencimento, Double valor) {
+
         // MOVIMENTO VENCIDO
         // NÃO REGISTRADO POIS NÃO EXISTE
         Date vencimentoMensagem = vencimentoMensagem(juridica.getPessoa().getId(), servico.getId(), tipoServico.getId(), referencia);

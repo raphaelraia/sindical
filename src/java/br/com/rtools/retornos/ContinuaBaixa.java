@@ -60,12 +60,13 @@ public class ContinuaBaixa {
                     if (m.getBaixa() != null) {
                         return "Boleto já quitado não pode ser excluído!";
                     }
-                    
 
-                    Movimento mov_antigo = (Movimento) dao.find(m);
-                    
-                    Cobranca.gerarNovoBoleto(bol, mov_antigo.getVencimento());
-                    
+                    if (bol.getContaCobranca().getCobrancaRegistrada().getId() == 1) {
+                        Movimento mov_antigo = (Movimento) dao.find(m);
+
+                        Cobranca.gerarNovoBoleto(bol, mov_antigo.getVencimento());
+                    }
+
 //
 //                    if (m.getAcordo() != null) {
 //                        return "Boleto do tipo acordo não pode ser excluído!";
@@ -117,6 +118,11 @@ public class ContinuaBaixa {
                 // BOLETO EXCLUIDO
                 case 6:
                     dao.update(b, true);
+
+                    if (b.getContaCobranca().getCobrancaRegistrada().getId() == 1) {
+                        Cobranca.gerarNovoBoleto(b, b.getVencimento());
+                    }
+
 //                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
 //                    List<Movimento> lm = b.getListaMovimento();
 //

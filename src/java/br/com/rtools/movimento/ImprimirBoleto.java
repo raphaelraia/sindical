@@ -227,6 +227,12 @@ public class ImprimirBoleto implements Serializable {
             switch (bol.getContaCobranca().getCobrancaRegistrada().getId()) {
                 // NECESSÁRIO ARQUIVO REMESSA PARA IMPRIMIR
                 case 1:
+                    if (bol.getStatusRetorno() == null) {
+                        bol.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 4));
+                        bol.setDtStatusRetorno(DataHoje.dataHoje());
+                        dao.update(bol, true);
+                    }
+
                     if (DataHoje.menorData(bol.getVencimento(), DataHoje.data()) && bol.getStatusRetorno().getId() != 2) {
                         if (!imprimeVencido) {
                             if (logs.isEmpty()) {
@@ -237,12 +243,6 @@ public class ImprimirBoleto implements Serializable {
 
                             continue;
                         }
-                    }
-
-                    if (bol.getStatusRetorno() == null) {
-                        bol.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 4));
-                        bol.setDtStatusRetorno(DataHoje.dataHoje());
-                        dao.update(bol, true);
                     }
 
                     switch (bol.getStatusRetorno().getId()) {
