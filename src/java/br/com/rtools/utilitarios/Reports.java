@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
@@ -54,166 +53,186 @@ import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 
-@ManagedBean(name = "jasperBean")
+@ManagedBean(name = "reportsBean")
 @ViewScoped
-public class Jasper implements Serializable {
+public class Reports implements Serializable {
 
     /**
      * Diretório do arquivo
      */
-    public static String PATH;
+    private String PATH;
     /**
      * Nome extra do arquivo
      */
-    public static String PART_NAME;
+    private String PART_NAME;
     /**
      * Baixar arquivo (Default true);
      */
-    public static Boolean IS_DOWNLOAD;
+    private Boolean DOWNLOAD;
     /**
      * Remover arquivo após gerar (Default true);
      */
-    public static Boolean IS_REMOVE_FILE;
+    private Boolean REMOVE_FILE;
     /**
      * Uso interno
      */
-    public static byte[] BYTES;
+    private byte[] BYTES;
     /**
      * Se o arquivo vai ter configuração com cabeçalho (SUBREPORT)
      */
-    public static Boolean IS_HEADER;
+    private Boolean HEADER;
     /**
      * Passar apenas os parametros do cabeçalho
      */
-    public static Boolean IS_HEADER_PARAMS;
+    private Boolean HEADER_PARAMS;
     /**
      * Impressão por folha (configurar grupo)
      */
-    public static Boolean IS_BY_LEAF;
+    private Boolean BY_LEAF;
     /**
      * Nome do grupo
      */
-    public static String GROUP_NAME;
+    private String GROUP_NAME;
     /**
      * Se o arquivo é comprimido
      */
-    public static Boolean COMPRESS_FILE;
+    private Boolean COMPRESS_FILE;
     /**
      * Limite da compressão do arquivo
      */
-    public static Integer COMPRESS_LIMIT;
+    private Integer COMPRESS_LIMIT;
     /**
      * Define a extensão do arquivo compactado
      */
-    public static String COMPRESS_EXTENSION;
+    private String COMPRESS_EXTENSION;
     /**
      * Uso interno (2GB)
      */
-    private static int MEGABYTE;
+    private int MEGABYTE;
     /**
      * Retorna o nome do arquivo gerado
      */
-    public static String FILE_NAME_GENERATED;
-    public static String FILE_GENERATED;
+    private String FILE_NAME_GENERATED;
+    private String CONTEXT_FILE;
     /**
      * Retorna o nome do arquivo gerado
      */
-    public static List LIST_FILE_GENERATED;
+    private List LIST_FILE_GENERATED;
     /**
      * set: retrato, paisagem, recibo_sem_logo
      */
-    public static String TYPE;
+    private String TYPE;
     /**
      * Nome do arquivo subreport
      */
-    public static String SUBREPORT_NAME;
+    private String SUBREPORT_NAME;
     /**
      * Impressão por folha (configurar grupo)
      */
-    public static Boolean IS_REPORT_CONNECTION;
+    private Boolean REPORT_CONNECTION;
     /**
      * Exportar
      */
-    public static Boolean EXPORT_TO;
+    private Boolean EXPORT_TO;
     /**
      * Exportar para tipo , default: IF (EXPORT_TO == false) default = pdf ELSE
      * IF (EXPORT_TO == true) EXPORT_TYPE = tipo definido
      */
-    public static String EXPORT_TYPE;
+    private String EXPORT_TYPE;
     /**
      * Campos Excel
      */
-    public static String EXCEL_FIELDS;
+    private String EXCEL_FIELDS;
     /**
      * Não permite finalizar a compressão, para se obter a lista de arquivos
      * gerados
      */
-    public static Boolean NO_COMPACT;
+    private Boolean NO_COMPACT;
     /**
      * Ignora uso de código único na String do nome do relaório
      */
-    public static Boolean IGNORE_UUID;
+    private Boolean IGNORE_UUID;
     /**
      * Database
      */
-    public static DBExternal dbe;
+    private DBExternal dbe;
     /**
      * Query
      */
-    public static String QUERY_STRING;
+    private String QUERY_STRING;
     /**
      * Query Srint
      */
-    public static Boolean IS_QUERY_STRING;
+    private Boolean IS_QUERY_STRING;
     /**
      * Relatório Título
      */
-    public static String TITLE;
+    private String TITLE;
     /**
      * Filial Header Relatório
      */
-    public static Filial FILIAL;
+    private Filial FILIAL;
+    /**
+     * Filial Header Relatório
+     */
+    private Boolean USER_PATH;
 
     private List jasperPrintList = new ArrayList();
 
-    static {
-        load();
+    public Reports() {
+        this.PATH = "downloads/relatorios";
+        this.PART_NAME = "relatorio";
+        this.DOWNLOAD = true;
+        this.REMOVE_FILE = true;
+        this.BYTES = null;
+        this.HEADER = true;
+        this.HEADER_PARAMS = false;
+        this.BY_LEAF = false;
+        this.GROUP_NAME = "";
+        this.COMPRESS_FILE = false;
+        this.COMPRESS_LIMIT = 0;
+        this.COMPRESS_EXTENSION = "zip";
+        this.MEGABYTE = (1024 * 20560);
+        this.FILE_NAME_GENERATED = "";
+        this.CONTEXT_FILE = "";
+        this.LIST_FILE_GENERATED = new ArrayList();
+        this.TYPE = "";
+        this.SUBREPORT_NAME = "";
+        this.REPORT_CONNECTION = false;
+        this.EXPORT_TO = false;
+        this.EXPORT_TYPE = "";
+        this.EXCEL_FIELDS = "";
+        this.NO_COMPACT = false;
+        this.USER_PATH = false;
+        this.IGNORE_UUID = false;
+        this.dbe = null;
+        this.QUERY_STRING = "";
+        this.IS_QUERY_STRING = false;
+        this.TITLE = "";
+        this.FILIAL = null;
     }
 
-    @PostConstruct
-    public void init() {
-        jasperPrintList = new ArrayList();
-        load();
-    }
-
-    public String getEXPORT_TYPE() {
-        return EXPORT_TYPE;
-    }
-
-    public void setEXPORT_TYPE(String aEXPORT_TYPE) {
-        EXPORT_TYPE = aEXPORT_TYPE;
-    }
-
-    public static void load() {
+    public void load() {
         PATH = "downloads/relatorios";
         PART_NAME = "relatorio";
-        IS_DOWNLOAD = true;
-        IS_REMOVE_FILE = true;
+        DOWNLOAD = true;
+        REMOVE_FILE = true;
         BYTES = null;
-        IS_HEADER = true;
-        IS_HEADER_PARAMS = false;
-        IS_BY_LEAF = false;
+        HEADER = true;
+        HEADER_PARAMS = false;
+        BY_LEAF = false;
+        USER_PATH = false;
         GROUP_NAME = "";
         COMPRESS_FILE = false;
         COMPRESS_LIMIT = 0;
         COMPRESS_EXTENSION = "zip";
         MEGABYTE = (1024 * 20560);
         FILE_NAME_GENERATED = "";
-        FILE_GENERATED = "";
+        CONTEXT_FILE = "";
         LIST_FILE_GENERATED = new ArrayList();
         TYPE = "";
         SUBREPORT_NAME = "";
-        IS_REPORT_CONNECTION = false;
+        REPORT_CONNECTION = false;
         EXPORT_TO = false;
         EXPORT_TYPE = "";
         EXCEL_FIELDS = "";
@@ -271,14 +290,14 @@ public class Jasper implements Serializable {
      */
     public void add(JasperReport jasperReport, Map map, Collection c) {
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource((Collection) c);
-        jasperPrintList.add(Jasper.fillObject(jasperReport, map, dtSource));
+        jasperPrintList.add(fillObject(jasperReport, map, dtSource));
     }
 
     /**
      * Imprime a lista gerada
      */
     public void finish() {
-        Jasper.printReports("download", jasperPrintList);
+        print("download", jasperPrintList);
     }
 
     /**
@@ -289,8 +308,8 @@ public class Jasper implements Serializable {
      * @param c Collection
      * @param media (pdf, xml, txt, html
      */
-    public static void printMedia(String jasperName, String fileName, Collection c, String media) {
-        printReports(jasperName, fileName, c, null, new ArrayList(), null, media);
+    public void printMedia(String jasperName, String fileName, Collection c, String media) {
+        print(jasperName, fileName, c, null, new ArrayList(), null, media);
     }
 
     /**
@@ -299,24 +318,24 @@ public class Jasper implements Serializable {
      * @param filename
      */
     public void finish(String filename) {
-        Jasper.printReports(filename, jasperPrintList);
+        print(filename, jasperPrintList);
         jasperPrintList = new ArrayList();
     }
 
-    public static void printReports(String jasperName, String fileName, Collection c) {
-        printReports(jasperName, fileName, c, null);
+    public void print(String jasperName, String fileName, Collection c) {
+        print(jasperName, fileName, c, null);
     }
 
-    public static void printReports(String jasperName, String fileName, JRDataSource dataSource) {
-        printReports(jasperName, fileName, new ArrayList(), null, new ArrayList(), dataSource, null);
+    public void print(String jasperName, String fileName, JRDataSource dataSource) {
+        print(jasperName, fileName, new ArrayList(), null, new ArrayList(), dataSource, null);
     }
 
-    public static void printReports(String jasperName, String fileName, List list, Map parameters) {
-        printReports(jasperName, fileName, (Collection) list, parameters);
+    public void print(String jasperName, String fileName, List list, Map parameters) {
+        print(jasperName, fileName, (Collection) list, parameters);
     }
 
-    public static void printReports(String jasperName, String fileName, Collection c, Map parameters) {
-        printReports(jasperName, fileName, c, parameters, new ArrayList());
+    public void print(String jasperName, String fileName, Collection c, Map parameters) {
+        print(jasperName, fileName, c, parameters, new ArrayList());
     }
 
     /**
@@ -325,16 +344,16 @@ public class Jasper implements Serializable {
      * @param fileName
      * @param jasperListExport
      */
-    public static void printReports(String fileName, List<FillObject> jasperListExport) {
-        printReports("", fileName, new ArrayList(), null, jasperListExport);
+    public void print(String fileName, List<FillObject> jasperListExport) {
+        print("", fileName, new ArrayList(), null, jasperListExport);
     }
 
-    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport) throws SecurityException, IllegalArgumentException {
-        printReports(jasperName, fileName, listCollections, parameters, jasperListExport, null, null);
+    public void print(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport) throws SecurityException, IllegalArgumentException {
+        print(jasperName, fileName, listCollections, parameters, jasperListExport, null, null);
     }
 
-    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport, JRDataSource jRDataSource, String media) throws SecurityException, IllegalArgumentException {
-        Jasper.LIST_FILE_GENERATED = new ArrayList();
+    public void print(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport, JRDataSource jRDataSource, String media) throws SecurityException, IllegalArgumentException {
+        LIST_FILE_GENERATED = new ArrayList();
         Dao dao = new Dao();
         // Integer idUsuario = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId();
         Usuario u = (Usuario) GenericaSessao.getObject("sessaoUsuario");
@@ -363,9 +382,16 @@ public class Jasper implements Serializable {
         fileName = fileName.replace("-", "_");
         fileName = fileName.toLowerCase();
         fileName = AnaliseString.removerAcentos(fileName);
-        if (!Diretorio.criar("Arquivos/" + PATH + "/" + fileName)) {
-            GenericaMensagem.info("Sistema", "Erro ao criar diretório!");
-            return;
+        if (USER_PATH) {
+            if (!Diretorio.criar("Arquivos" + File.separator + PATH + File.separator + "tmp" + File.separator + Usuario.getUsuario().getId() + File.separator + fileName)) {
+                GenericaMensagem.info("Sistema", "Erro ao criar diretório!");
+                return;
+            }
+        } else {
+            if (!Diretorio.criar("Arquivos" + File.separator + PATH + File.separator + fileName)) {
+                GenericaMensagem.info("Sistema", "Erro ao criar diretório!");
+                return;
+            }
         }
         // DEFINE O CABEÇALHO
         FacesContext faces = FacesContext.getCurrentInstance();
@@ -380,7 +406,7 @@ public class Jasper implements Serializable {
         }
 
         subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
-        if (IS_HEADER || IS_HEADER_PARAMS) {
+        if (HEADER || HEADER_PARAMS) {
             ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
             cab.init();
 
@@ -420,10 +446,10 @@ public class Jasper implements Serializable {
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_CONTABIL.jasper");
                     break;
                 default:
-                    IS_HEADER = false;
+                    HEADER = false;
                     break;
             }
-            parameters.put("is_header", IS_HEADER);
+            parameters.put("is_header", HEADER);
             if (parameters.get("sindicato_nome") == null || parameters.get("companhia_nome") == null) {
                 parameters.put("sindicato_nome", juridica.getPessoa().getNome());
                 parameters.put("companhia_nome", juridica.getPessoa().getNome());
@@ -502,7 +528,7 @@ public class Jasper implements Serializable {
             //
             parameters.put("template_dir", subreport);
         } else {
-            parameters.put("is_header", IS_HEADER);
+            parameters.put("is_header", HEADER);
         }
 
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
@@ -523,21 +549,40 @@ public class Jasper implements Serializable {
 
         // -----------------------------------------------------------------------------------------------------
         // -----------------------------------------------------------------------------------------------------
-        if (Jasper.PATH.isEmpty()) {
-            realPath = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/" + fileName + "/";
+        if (PATH.isEmpty()) {
+            realPath = "Cliente" + File.separator + ControleUsuarioBean.getCliente() + File.separator + "Arquivos" + File.separator;
         } else {
-            realPath = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/" + PATH + "/" + fileName + "/";
+            realPath = "Cliente" + File.separator + ControleUsuarioBean.getCliente() + File.separator + "Arquivos" + File.separator + PATH + File.separator;
         }
 
-        String dirPath = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(realPath);
-        if (!Jasper.PART_NAME.isEmpty()) {
-            Jasper.PART_NAME = Jasper.PART_NAME.trim();
-            Jasper.PART_NAME = Jasper.PART_NAME.toLowerCase();
-            Jasper.PART_NAME = Jasper.PART_NAME.replace("-", "_");
-            Jasper.PART_NAME = Jasper.PART_NAME.replace(" ", "_");
-            Jasper.PART_NAME = Jasper.PART_NAME.replace("/", "");
-            Jasper.PART_NAME = AnaliseString.removerAcentos(Jasper.PART_NAME);
-            Jasper.PART_NAME = "_" + Jasper.PART_NAME;
+        if (USER_PATH) {
+            realPath += "tmp" + File.separator + Usuario.getUsuario().getId() + "" + File.separator;
+        }
+
+        realPath += fileName + File.separator;
+
+        String dirPath = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + realPath;
+        File f = new File(dirPath);
+        if (!f.exists()) {
+            if (PATH.isEmpty()) {
+                realPath = File.separator + "Cliente" + File.separator + ControleUsuarioBean.getCliente() + File.separator + "Arquivos" + File.separator + fileName + File.separator;
+            } else {
+                realPath = File.separator + "Cliente" + File.separator + ControleUsuarioBean.getCliente() + File.separator + "Arquivos" + File.separator + PATH + File.separator + fileName + File.separator;
+            }
+            dirPath = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + realPath;
+            f = new File(dirPath);
+            if (!f.exists()) {
+
+            }
+        }
+        if (!PART_NAME.isEmpty()) {
+            PART_NAME = PART_NAME.trim();
+            PART_NAME = PART_NAME.toLowerCase();
+            PART_NAME = PART_NAME.replace("-", "_");
+            PART_NAME = PART_NAME.replace(" ", "_");
+            PART_NAME = PART_NAME.replace("/", "");
+            PART_NAME = AnaliseString.removerAcentos(PART_NAME);
+            PART_NAME = "_" + PART_NAME;
         }
         UUID uuidX = UUID.randomUUID();
         String uuid = "_" + uuidX.toString().replace("-", "_");
@@ -557,7 +602,7 @@ public class Jasper implements Serializable {
                         subJasper = (JasperReport) JRLoader.loadObject(new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + SUBREPORT_NAME)));
                     }
                 }
-                if (IS_REPORT_CONNECTION) {
+                if (REPORT_CONNECTION) {
                     if (dbe != null) {
                         con = dbe;
                     } else {
@@ -608,7 +653,7 @@ public class Jasper implements Serializable {
                         JRGroup[] jRGroups = jasper.getGroups();
                         for (int i = 0; i < jasper.getGroups().length; i++) {
                             if (jRGroups[i].getName().equals(GROUP_NAME)) {
-                                if (IS_BY_LEAF) {
+                                if (BY_LEAF) {
                                     ((JRGroup) jasper.getGroups()[i]).setStartNewPage(true);
                                 } else {
                                     ((JRGroup) jasper.getGroups()[i]).setStartNewPage(false);
@@ -688,7 +733,8 @@ public class Jasper implements Serializable {
 
                     if (export_to && !export_type.equals("pdf") && !export_type.isEmpty()) {
                         downloadName = fileName + PART_NAME + uuid + "." + export_type;
-                        String fileString = dirPath + "/" + downloadName;
+                        String fileString = dirPath + File.separator + downloadName;
+                        CONTEXT_FILE = realPath + downloadName;
                         File file = new File(fileString);
                         switch (export_type) {
                             case "xls": {
@@ -744,7 +790,8 @@ public class Jasper implements Serializable {
                         }
                     } else {
                         downloadName = fileName + PART_NAME + uuid + ".pdf";
-                        File file = new File(dirPath + "/" + downloadName);
+                        CONTEXT_FILE = realPath + downloadName;
+                        File file = new File(dirPath + File.separator + downloadName);
                         mimeType = "application/pdf";
 
                         JRPdfExporter exporter = new JRPdfExporter();
@@ -757,12 +804,12 @@ public class Jasper implements Serializable {
                     }
                 } catch (JRException e) {
                     System.out.println(e);
-                    IS_DOWNLOAD = false;
+                    DOWNLOAD = false;
                     COMPRESS_FILE = false;
                     GenericaMensagem.warn("Erro de sistema", e.getMessage());
                     return;
                 } catch (OutOfMemoryError e) {
-                    IS_DOWNLOAD = false;
+                    DOWNLOAD = false;
                     COMPRESS_FILE = false;
                     MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
                     long maxMemory = heapUsage.getMax() / MEGABYTE;
@@ -791,7 +838,7 @@ public class Jasper implements Serializable {
             } catch (JRException erro) {
                 GenericaMensagem.info("Sistema", "O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
                 System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
-                IS_DOWNLOAD = false;
+                DOWNLOAD = false;
             }
         } catch (OutOfMemoryError e) {
             MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
@@ -799,45 +846,45 @@ public class Jasper implements Serializable {
             long usedMemory = heapUsage.getUsed() / MEGABYTE;
             System.out.println("Memória > Tamanho do arquivo não suporta o formato PDF, tente novamente baixando o mesmo compactado. Memória usada: " + usedMemory + "M/" + maxMemory + "M");
             GenericaMensagem.info("Servidor > Memória", "Tamanho do arquivo não suporta o formato PDF, tente novamente baixando o mesmo compactado. Memória usada: " + usedMemory + "M/" + maxMemory + "M");
-            IS_DOWNLOAD = false;
+            DOWNLOAD = false;
         }
         //}
-        if (IS_DOWNLOAD) {
+        if (DOWNLOAD) {
             Download download = new Download(downloadName, dirPath, mimeType, FacesContext.getCurrentInstance());
             download.baixar();
-            FILE_NAME_GENERATED = dirPath + "/" + downloadName;
-            if (IS_REMOVE_FILE) {
+            FILE_NAME_GENERATED = dirPath + downloadName;
+            if (REMOVE_FILE) {
                 download.remover();
             }
             if (!listFilesZip.isEmpty()) {
                 for (int i = 0; i < listFilesZip.size(); i++) {
-                    File f = new File(listFilesZip.get(i).toString());
+                    f = new File(listFilesZip.get(i).toString());
                     f.delete();
                 }
             }
         } else {
-            FILE_NAME_GENERATED = dirPath + "/" + downloadName;
+            FILE_NAME_GENERATED = dirPath + downloadName;
         }
         dbe = null;
 
         clear();
     }
 
-    public static void clear() {
+    public void clear() {
         PATH = "downloads/relatorios";
         PART_NAME = "relatorio";
-        IS_DOWNLOAD = true;
-        IS_REMOVE_FILE = true;
+        DOWNLOAD = true;
+        REMOVE_FILE = true;
         BYTES = null;
-        IS_HEADER = true;
+        HEADER = true;
         // IMPRIME POR FOLHA
-        IS_BY_LEAF = false;
+        BY_LEAF = false;
         GROUP_NAME = "";
         COMPRESS_FILE = false;
         COMPRESS_LIMIT = 0;
         COMPRESS_EXTENSION = "zip";
         SUBREPORT_NAME = "";
-        IS_REPORT_CONNECTION = false;
+        REPORT_CONNECTION = false;
         NO_COMPACT = false;
         EXCEL_FIELDS = "";
         IGNORE_UUID = false;
@@ -845,7 +892,7 @@ public class Jasper implements Serializable {
         IS_QUERY_STRING = false;
     }
 
-    public static void deleteFile() {
+    public void deleteFile() {
         try {
             File f = new File(FILE_NAME_GENERATED);
             if (f.exists()) {
@@ -854,8 +901,8 @@ public class Jasper implements Serializable {
         } catch (Exception e) {
 
         }
-        Jasper.IS_REMOVE_FILE = true;
-        Jasper.IS_DOWNLOAD = true;
+        REMOVE_FILE = true;
+        DOWNLOAD = true;
         FILE_NAME_GENERATED = "";
     }
 
@@ -873,11 +920,11 @@ public class Jasper implements Serializable {
         return value;
     }
 
-    public static String getFILE_NAME_GENERATED() {
+    public String getFILE_NAME_GENERATED() {
         return FILE_NAME_GENERATED;
     }
 
-    public static void setFILE_NAME_GENERATED(String aFILE_NAME_GENERATED) {
+    public void setFILE_NAME_GENERATED(String aFILE_NAME_GENERATED) {
         FILE_NAME_GENERATED = aFILE_NAME_GENERATED;
     }
 
@@ -895,54 +942,6 @@ public class Jasper implements Serializable {
 
     public void setTYPE(String aTYPE) {
         TYPE = aTYPE;
-    }
-
-    public Boolean getIS_BY_LEAF() {
-        return IS_BY_LEAF;
-    }
-
-    public void setIS_BY_LEAF(Boolean aIS_BY_LEAF) {
-        IS_BY_LEAF = aIS_BY_LEAF;
-    }
-
-    public Boolean getIS_HEADER() {
-        return IS_HEADER;
-    }
-
-    public void setIS_HEADER(Boolean aIS_HEADER) {
-        IS_HEADER = aIS_HEADER;
-    }
-
-    public String getCOMPRESS_EXTENSION() {
-        return COMPRESS_EXTENSION;
-    }
-
-    public void setCOMPRESS_EXTENSION(String aCOMPRESS_EXTENSION) {
-        COMPRESS_EXTENSION = aCOMPRESS_EXTENSION;
-    }
-
-    public Boolean getCOMPRESS_FILE() {
-        return COMPRESS_FILE;
-    }
-
-    public void setCOMPRESS_FILE(Boolean aCOMPRESS_FILE) {
-        COMPRESS_FILE = aCOMPRESS_FILE;
-    }
-
-    public String getEXCEL_FIELDS() {
-        return EXCEL_FIELDS;
-    }
-
-    public void setEXCEL_FIELDS(String aEXCEL_FIELDS) {
-        EXCEL_FIELDS = aEXCEL_FIELDS;
-    }
-
-    public DBExternal getDbe() {
-        return dbe;
-    }
-
-    public void setDbe(DBExternal dbe) {
-        this.dbe = dbe;
     }
 
     /**
@@ -1020,7 +1019,7 @@ public class Jasper implements Serializable {
      * @param filename
      * @return
      */
-    public static JasperReport load(String filename) {
+    public JasperReport load(String filename) {
         try {
             return (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + filename)));
         } catch (Exception e1) {
@@ -1042,8 +1041,224 @@ public class Jasper implements Serializable {
      * @param dataSource
      * @return
      */
-    public static FillObject fillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
+    public FillObject fillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
         return new FillObject(jasperReport, parameters, dataSource);
+    }
+
+    public String getPATH() {
+        return PATH;
+    }
+
+    public void setPATH(String PATH) {
+        this.PATH = PATH;
+    }
+
+    public String getPART_NAME() {
+        return PART_NAME;
+    }
+
+    public void setPART_NAME(String PART_NAME) {
+        this.PART_NAME = PART_NAME;
+    }
+
+    public String getGROUP_NAME() {
+        return GROUP_NAME;
+    }
+
+    public void setGROUP_NAME(String GROUP_NAME) {
+        this.GROUP_NAME = GROUP_NAME;
+    }
+
+    public Integer getCOMPRESS_LIMIT() {
+        return COMPRESS_LIMIT;
+    }
+
+    public void setCOMPRESS_LIMIT(Integer COMPRESS_LIMIT) {
+        this.COMPRESS_LIMIT = COMPRESS_LIMIT;
+    }
+
+    public int getMEGABYTE() {
+        return MEGABYTE;
+    }
+
+    public void setMEGABYTE(int MEGABYTE) {
+        this.MEGABYTE = MEGABYTE;
+    }
+
+    public String getCONTEXT_FILE() {
+        return CONTEXT_FILE;
+    }
+
+    public void setCONTEXT_FILE(String CONTEXT_FILE) {
+        this.CONTEXT_FILE = CONTEXT_FILE;
+    }
+
+    public List getLIST_FILE_GENERATED() {
+        return LIST_FILE_GENERATED;
+    }
+
+    public void setLIST_FILE_GENERATED(List LIST_FILE_GENERATED) {
+        this.LIST_FILE_GENERATED = LIST_FILE_GENERATED;
+    }
+
+    public String getSUBREPORT_NAME() {
+        return SUBREPORT_NAME;
+    }
+
+    public void setSUBREPORT_NAME(String SUBREPORT_NAME) {
+        this.SUBREPORT_NAME = SUBREPORT_NAME;
+    }
+
+    public Boolean getNO_COMPACT() {
+        return NO_COMPACT;
+    }
+
+    public void setNO_COMPACT(Boolean NO_COMPACT) {
+        this.NO_COMPACT = NO_COMPACT;
+    }
+
+    public Boolean getIGNORE_UUID() {
+        return IGNORE_UUID;
+    }
+
+    public void setIGNORE_UUID(Boolean IGNORE_UUID) {
+        this.IGNORE_UUID = IGNORE_UUID;
+    }
+
+    public String getQUERY_STRING() {
+        return QUERY_STRING;
+    }
+
+    public void setQUERY_STRING(String QUERY_STRING) {
+        this.QUERY_STRING = QUERY_STRING;
+    }
+
+    public Boolean getIS_QUERY_STRING() {
+        return IS_QUERY_STRING;
+    }
+
+    public void setIS_QUERY_STRING(Boolean IS_QUERY_STRING) {
+        this.IS_QUERY_STRING = IS_QUERY_STRING;
+    }
+
+    public String getTITLE() {
+        return TITLE;
+    }
+
+    public void setTITLE(String TITLE) {
+        this.TITLE = TITLE;
+    }
+
+    public Filial getFILIAL() {
+        return FILIAL;
+    }
+
+    public void setFILIAL(Filial FILIAL) {
+        this.FILIAL = FILIAL;
+    }
+
+    public List getJasperPrintList() {
+        return jasperPrintList;
+    }
+
+    public void setJasperPrintList(List jasperPrintList) {
+        this.jasperPrintList = jasperPrintList;
+    }
+
+    public Boolean getDOWNLOAD() {
+        return DOWNLOAD;
+    }
+
+    public void setDOWNLOAD(Boolean DOWNLOAD) {
+        this.DOWNLOAD = DOWNLOAD;
+    }
+
+    public Boolean getREMOVE_FILE() {
+        return REMOVE_FILE;
+    }
+
+    public void setREMOVE_FILE(Boolean REMOVE_FILE) {
+        this.REMOVE_FILE = REMOVE_FILE;
+    }
+
+    public byte[] getBYTES() {
+        return BYTES;
+    }
+
+    public void setBYTES(byte[] BYTES) {
+        this.BYTES = BYTES;
+    }
+
+    public Boolean getHEADER() {
+        return HEADER;
+    }
+
+    public void setHEADER(Boolean HEADER) {
+        this.HEADER = HEADER;
+    }
+
+    public Boolean getHEADER_PARAMS() {
+        return HEADER_PARAMS;
+    }
+
+    public void setHEADER_PARAMS(Boolean HEADER_PARAMS) {
+        this.HEADER_PARAMS = HEADER_PARAMS;
+    }
+
+    public Boolean getBY_LEAF() {
+        return BY_LEAF;
+    }
+
+    public void setBY_LEAF(Boolean BY_LEAF) {
+        this.BY_LEAF = BY_LEAF;
+    }
+
+    public Boolean getCOMPRESS_FILE() {
+        return COMPRESS_FILE;
+    }
+
+    public void setCOMPRESS_FILE(Boolean COMPRESS_FILE) {
+        this.COMPRESS_FILE = COMPRESS_FILE;
+    }
+
+    public String getCOMPRESS_EXTENSION() {
+        return COMPRESS_EXTENSION;
+    }
+
+    public void setCOMPRESS_EXTENSION(String COMPRESS_EXTENSION) {
+        this.COMPRESS_EXTENSION = COMPRESS_EXTENSION;
+    }
+
+    public Boolean getREPORT_CONNECTION() {
+        return REPORT_CONNECTION;
+    }
+
+    public void setREPORT_CONNECTION(Boolean REPORT_CONNECTION) {
+        this.REPORT_CONNECTION = REPORT_CONNECTION;
+    }
+
+    public String getEXCEL_FIELDS() {
+        return EXCEL_FIELDS;
+    }
+
+    public void setEXCEL_FIELDS(String EXCEL_FIELDS) {
+        this.EXCEL_FIELDS = EXCEL_FIELDS;
+    }
+
+    public DBExternal getDbe() {
+        return dbe;
+    }
+
+    public void setDbe(DBExternal dbe) {
+        this.dbe = dbe;
+    }
+
+    public Boolean getUSER_PATH() {
+        return USER_PATH;
+    }
+
+    public void setUSER_PATH(Boolean USER_PATH) {
+        this.USER_PATH = USER_PATH;
     }
 
     public static class FillObject {
@@ -1082,6 +1297,14 @@ public class Jasper implements Serializable {
             this.dataSource = dataSource;
         }
 
+    }
+
+    public String getEXPORT_TYPE() {
+        return EXPORT_TYPE;
+    }
+
+    public void setEXPORT_TYPE(String aEXPORT_TYPE) {
+        EXPORT_TYPE = aEXPORT_TYPE;
     }
 
     // USAR - ADICIONAR AO JASPER NO XML
