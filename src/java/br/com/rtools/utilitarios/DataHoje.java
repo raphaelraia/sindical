@@ -107,6 +107,19 @@ public class DataHoje {
             return null;
         }
     }
+    
+    public static Date converteDataHora(String dataHora) {
+        if (dataHora != null) {
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                return dateFormat.parse(dataHora);
+            } catch (ParseException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 
     public static Date converteDataHora(String data, String hora) {
         if (data != null) {
@@ -166,6 +179,27 @@ public class DataHoje {
                 String ano = date.substring(4, 8);
 
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                Date parsed = format.parse(ano + mes + dia);
+                java.sql.Date sql = new java.sql.Date(parsed.getTime());
+                return sql;
+            } catch (Exception e) {
+                e.getMessage();
+            }
+        } else {
+            return null;
+        }
+        return null;
+    }
+
+    public static Date converteStringToSqlDate(String date, String time) {
+        if (date != null) {
+            date = date.replace("/", "");
+            try {
+                String dia = date.substring(0, 2);
+                String mes = date.substring(2, 4);
+                String ano = date.substring(4, 8);
+
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date parsed = format.parse(ano + mes + dia);
                 java.sql.Date sql = new java.sql.Date(parsed.getTime());
                 return sql;

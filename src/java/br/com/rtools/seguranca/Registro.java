@@ -137,6 +137,8 @@ public class Registro implements Serializable {
     private Date dataApagaLogs;
     @Column(name = "ds_url_sistema_externo", length = 50)
     private String urlSistemaExterno;
+    @Column(name = "is_envia_sms", columnDefinition = "boolean default false", nullable = false)
+    private Boolean enviaSms;
 
     public Registro() {
         this.id = -1;
@@ -196,6 +198,7 @@ public class Registro implements Serializable {
         this.sisHabilitaBloqueioCliente = true;
         this.dataApagaLogs = null;
         this.urlSistemaExterno = "";
+        this.enviaSms = false;
     }
 
     public Registro(int id,
@@ -256,7 +259,8 @@ public class Registro implements Serializable {
             boolean sisNotificacao,
             boolean sisHabilitaBloqueioCliente,
             Date dataApagaLogs,
-            String urlSistemaExterno) {
+            String urlSistemaExterno,
+            Boolean enviaSms) {
         this.id = id;
         this.filial = filial;
         this.tipoEmpresa = tipoEmpresa;
@@ -312,6 +316,7 @@ public class Registro implements Serializable {
         this.sisNotificacao = sisNotificacao;
         this.dataApagaLogs = dataApagaLogs;
         this.urlSistemaExterno = urlSistemaExterno;
+        this.enviaSms = enviaSms;
     }
 
     public int getId() {
@@ -807,6 +812,14 @@ public class Registro implements Serializable {
 
     public void setUrlSistemaExterno(String urlSistemaExterno) {
         this.urlSistemaExterno = urlSistemaExterno;
+    }
+
+    public Boolean getEnviaSms() {
+        return enviaSms;
+    }
+
+    public void setEnviaSms(Boolean enviaSms) {
+        this.enviaSms = enviaSms;
     }
 
 }

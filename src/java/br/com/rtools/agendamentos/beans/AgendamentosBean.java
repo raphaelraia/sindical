@@ -14,6 +14,7 @@ import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
 import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
+import br.com.rtools.associativo.Convenio;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.SubGrupoConvenio;
@@ -22,7 +23,6 @@ import br.com.rtools.associativo.dao.GrupoConvenioDao;
 import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
-import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -33,12 +33,15 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.beans.FisicaUtils;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
+import br.com.rtools.sistema.Sms;
+import br.com.rtools.sistema.dao.SmsDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -47,6 +50,7 @@ import br.com.rtools.utilitarios.GlobalSync;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.SMSWS;
 import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.WSSocket;
 import java.io.Serializable;
@@ -132,6 +136,7 @@ public class AgendamentosBean implements Serializable {
     private String horaPre;
 
     public AgendamentosBean() {
+        horaPre = "";
         trocar = false;
         motivoCancelamento = "";
         reservaDao = new AgendaHorarioReservaDao();
@@ -235,7 +240,6 @@ public class AgendamentosBean implements Serializable {
 //            if (agendamento.getId() != null) {
 //                agendamento.setId(null);
 //            }
-
             Servicos servicos = agendaServico.getServico();
             List<Agendamentos> resultList;
             MovimentoDao db = new MovimentoDao();
@@ -252,7 +256,9 @@ public class AgendamentosBean implements Serializable {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!resultList.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), resultList.get(0).getEmissao()) : ""));
                             PF.update("form_agendamentos:i_message_sched");
                             PF.update("form_agendamentos:growl_ag");
-                            return;
+                            if (!trocar) {
+                                return;
+                            }
                         }
                         resultList.clear();
                     } else {
@@ -261,7 +267,9 @@ public class AgendamentosBean implements Serializable {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
                             PF.update("form_agendamentos:i_message_sched");
                             PF.update("form_agendamentos:growl_ag");
-                            return;
+                            if (!trocar) {
+                                return;
+                            }
                         }
                         resultList.clear();
                     }
@@ -280,7 +288,9 @@ public class AgendamentosBean implements Serializable {
                                 GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!resultList.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), resultList.get(0).getEmissao()) : ""));
                                 PF.update("form_agendamentos:i_message_sched");
                                 PF.update("form_agendamentos:growl_ag");
-                                return;
+                                if (!trocar) {
+                                    return;
+                                }
                             }
                             resultList.clear();
                         } else {
@@ -289,7 +299,9 @@ public class AgendamentosBean implements Serializable {
                                 GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
                                 PF.update("form_agendamentos:i_message_sched");
                                 PF.update("form_agendamentos:growl_ag");
-                                return;
+                                if (!trocar) {
+                                    return;
+                                }
                             }
                             resultList.clear();
                         }
@@ -300,7 +312,9 @@ public class AgendamentosBean implements Serializable {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!resultList.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), resultList.get(0).getEmissao()) : ""));
                             PF.update("form_agendamentos:i_message_sched");
                             PF.update("form_agendamentos:growl_ag");
-                            return;
+                            if (!trocar) {
+                                return;
+                            }
                         }
                         resultList.clear();
                     } else {
@@ -309,7 +323,9 @@ public class AgendamentosBean implements Serializable {
                             GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
                             PF.update("form_agendamentos:i_message_sched");
                             PF.update("form_agendamentos:growl_ag");
-                            return;
+                            if (!trocar) {
+                                return;
+                            }
                         }
                         resultList.clear();
                     }
@@ -401,6 +417,9 @@ public class AgendamentosBean implements Serializable {
         if (oa.getAgendamento() == null) {
             // agendamento = new Agendamentos();
         }
+        if (trocar) {
+            Messages.info("IMPORTANTE", "TROCA DE HORÁRIO");
+        }
         PF.update("form_agendamentos");
 
     }
@@ -409,6 +428,7 @@ public class AgendamentosBean implements Serializable {
         Dao dao = new Dao();
         newRegister = false;
         dao.openTransaction();
+        Convenio c = null;
         if (agendamento.getId() == null) {
             newRegister = true;
             if (!dao.save(agendamento)) {
@@ -435,6 +455,7 @@ public class AgendamentosBean implements Serializable {
                 return;
             }
         }
+        String horario = "";
         for (int i = 0; i < listAgendamentoHorario.size(); i++) {
             listAgendamentoHorario.get(i).setAgendamento(agendamento);
             if (!dao.save(listAgendamentoHorario.get(i))) {
@@ -444,6 +465,13 @@ public class AgendamentosBean implements Serializable {
                 dao.rollback();
                 Messages.warn("Erro", "AO SALVAR HORÁRIO DA AGENDA!");
                 return;
+            }
+            if (horario.isEmpty()) {
+                horario = listAgendamentoHorario.get(i).getAgendaHorarios().getHora();
+            }
+            if (c == null) {
+                Pessoa colaborador = listAgendamentoHorario.get(i).getAgendaHorarios().getConvenio();
+                c = new ConvenioDao().find(idSubGrupoConvenio, colaborador.getJuridica().getId());
             }
         }
         if (trocar) {
@@ -491,6 +519,7 @@ public class AgendamentosBean implements Serializable {
         }
         Messages.info("Sucesso", "AGENDA CRIADA!");
         dao.commit();
+        send_sms(c, horario);
         agendamento.setId(null);
         reservaDao.commit();
         newRegister = true;
@@ -523,6 +552,7 @@ public class AgendamentosBean implements Serializable {
             return;
         }
         dao.commit();
+        delete_sms();
         Messages.info("Sucesso", "AGENDAMENTO CANCELADO!");
         loadListObjectAgenda();
         GlobalSync.load();
@@ -1716,6 +1746,75 @@ public class AgendamentosBean implements Serializable {
         } else {
             Messages.warn("Sistema", "Serviço não disponível atualmente!");
         }
+    }
+
+    public void send_sms(Convenio c, String horario) {
+        Dao dao = new Dao();
+        Registro r = Registro.get();
+        if (r.getEnviaSms() && configuracaoSocial.getEnviaSmsAgendamento()) {
+            try {
+                if (agendamento.getData() == null ? DataHoje.data() != null : !agendamento.getData().equals(DataHoje.data()) && !agendamento.getTelefone().isEmpty()) {
+                    SMSWS smsws = new SMSWS();
+                    if (smsws.getConfiguracaoSms() != null) {
+                        smsws.setMobile_phone(agendamento.getTelefone());
+                        smsws.setReferenceInteger(agendamento.getId());
+                        smsws.setFilial(filial);
+                        smsws.schedule_to(1, agendamento.getData(), horario);
+                        String resp = "";
+                        if (c != null) {
+                            if (c.getTipoTratamento() != null && !c.getAbreviacao().isEmpty()) {
+                                resp = c.getTipoTratamento().getDescricao() + " " + c.getAbreviacao();
+                            } else {
+                                String respSplit[] = c.getJuridica().getPessoa().getNome().split(" ");
+                                for (int i = 0; i < respSplit.length; i++) {
+                                    resp = respSplit[i];
+                                    break;
+                                }
+                            }
+                        }
+                        String message = "Agendamento p/ " + agendamento.getData() + " as " + horario + " com " + resp;
+                        smsws.setMessage(message);
+                        smsws.send();
+                        Sms sms = new Sms();
+                        sms.setRotina(new Rotina().get());
+                        sms.setConfiguracaoSms(smsws.getConfiguracaoSms());
+                        sms.setMensagem(smsws.getMessage());
+                        sms.setNumero(smsws.getMobile_phone());
+                        sms.setReferencia(smsws.getReference());
+                        sms.setDtEnvio(new Date());
+                        try {
+                            sms.setDtAgendamento(smsws.getDate());
+                        } catch (Exception e) {
+
+                        }
+                        sms.setUsuario(Usuario.getUsuario());
+                        sms.setDestinatario(agendamento.getPessoa());
+                        sms.setTabela("ag_agendamento");
+                        sms.setChave("id");
+                        sms.setCodigo(agendamento.getId());
+                        dao.save(sms, true);
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
+    public void delete_sms() {
+        Dao dao = new Dao();
+        Sms sms = new SmsDao().findBy("ag_agendamento", "id", agendamento.getId());
+        if (sms == null) {
+            return;
+        }
+        sms.setDtCancelamento(new Date());
+        if (!dao.update(sms, true)) {
+            return;
+        }
+        SMSWS smsws = new SMSWS();
+        smsws.setReferenceInteger(agendamento.getId());
+        smsws.schedule_to(1, agendamento.getData(), agendamento.getPrimeiraHora());
+        smsws.delete();
 
     }
 }

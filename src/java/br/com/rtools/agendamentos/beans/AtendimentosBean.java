@@ -35,6 +35,8 @@ import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
+import br.com.rtools.sistema.Sms;
+import br.com.rtools.sistema.dao.SmsDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -42,6 +44,7 @@ import br.com.rtools.utilitarios.GlobalSync;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.SMSWS;
 import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.WSSocket;
 import java.io.IOException;
@@ -298,6 +301,7 @@ public class AtendimentosBean implements Serializable {
         GlobalSync.load();
         motivoCancelamento = "";
         WSSocket.send("agendamentos_" + ControleUsuarioBean.getCliente().toLowerCase());
+        delete_sms();
     }
 
     public void remove() {
@@ -1023,4 +1027,20 @@ public class AtendimentosBean implements Serializable {
         return false;
     }
 
+    public void delete_sms() {
+        Dao dao = new Dao();
+        Sms sms = new SmsDao().findBy("ag_agendamento", "id", agendamentosEdit.getId());
+        if (sms == null) {
+            return;
+        }
+        sms.setDtCancelamento(new Date());
+        if (!dao.update(sms, true)) {
+            return;
+        }
+        SMSWS smsws = new SMSWS();
+        smsws.setReferenceInteger(agendamento.getId());
+        smsws.schedule_to(1, agendamentosEdit.getData(), agendamentosEdit.getPrimeiraHora());
+        smsws.delete();
+
+    }
 }

@@ -37,7 +37,6 @@ import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Mensagem;
 import br.com.rtools.sistema.Mes;
-import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.sistema.utils.SisProcessoUtils;
 import br.com.rtools.utilitarios.Dao;

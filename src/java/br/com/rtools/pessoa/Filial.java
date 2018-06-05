@@ -21,7 +21,8 @@ import javax.persistence.*;
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_matriz", "id_filial", "nr_centro_custo"})
 )
 @NamedQueries({
-    @NamedQuery(name = "Filial.pesquisaID", query = "SELECT FIL FROM Filial AS FIL WHERE FIL.id = :pid"),
+    @NamedQuery(name = "Filial.pesquisaID", query = "SELECT FIL FROM Filial AS FIL WHERE FIL.id = :pid")
+    ,
     @NamedQuery(name = "Filial.findAll", query = "SELECT FIL FROM Filial AS FIL ORDER BY FIL.filial.pessoa.nome ASC ")
 })
 public class Filial implements Serializable, BaseEntity {
@@ -40,6 +41,8 @@ public class Filial implements Serializable, BaseEntity {
     private Integer centroCusto;
     @Column(name = "nr_quantidade_agendamentos_por_empresa")
     private Integer quantidadeAgendamentosPorEmpresa;
+    @Column(name = "ds_apelido", length = 30)
+    private String apelido;
 
     public Filial() {
         this.id = -1;
@@ -47,14 +50,16 @@ public class Filial implements Serializable, BaseEntity {
         this.filial = new Juridica();
         this.centroCusto = 0;
         this.quantidadeAgendamentosPorEmpresa = 50;
+        this.apelido = "";
     }
 
-    public Filial(Integer id, Juridica matriz, Juridica filial, Integer centroCusto, Integer quantidadeAgendamentosPorEmpresa) {
+    public Filial(Integer id, Juridica matriz, Juridica filial, Integer centroCusto, Integer quantidadeAgendamentosPorEmpresa, String apelido) {
         this.id = id;
         this.matriz = matriz;
         this.filial = filial;
         this.centroCusto = centroCusto;
         this.quantidadeAgendamentosPorEmpresa = quantidadeAgendamentosPorEmpresa;
+        this.apelido = apelido;
     }
 
     @Override
@@ -142,6 +147,14 @@ public class Filial implements Serializable, BaseEntity {
     @Override
     public String toString() {
         return "Filial{" + "id=" + id + ", matriz=" + matriz + ", filial=" + filial + ", centroCusto=" + centroCusto + ", quantidadeAgendamentosPorEmpresa=" + quantidadeAgendamentosPorEmpresa + '}';
+    }
+
+    public String getApelido() {
+        return apelido;
+    }
+
+    public void setApelido(String apelido) {
+        this.apelido = apelido;
     }
 
 }

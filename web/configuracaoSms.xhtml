@@ -1,0 +1,93 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Configuração WebService - SMS</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />    
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <f:metadata>  
+                <f:event type="preRenderView" listener="${configuracaoSmsBean.load()}"/>  
+            </f:metadata>            
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:outputText value="Você não possui permissões para efetuar operações nesta rotina!" styleClass="fonteHeader" rendered="#{controleAcessoBean.botaoSalvar}" title="salvar / alterar / excluir"/>
+                <h:form id="form_sms" rendered="#{!controleAcessoBean.botaoSalvar}">
+                    <h:outputText value="Configuração Web Service - SMS" styleClass="fonteHeader" />
+                    <c:set scope="request" var="object" value="${configuracaoSmsBean.configuracaoSms}"/>
+                    <div style="clear: both;"></div>
+                    <p:messages id="id_messages" showDetail="true" closable="true" />
+                    <p:growl id="id_messages_growl" showDetail="true"  />
+                    <div style="clear: both;"></div>
+                    <p:panel styleClass="margin-top-max">
+                        <h:panelGrid cellpadding="5" columns="2">
+                            <p:selectBooleanCheckbox value="#{configuracaoSmsBean.registro.enviaSms}" itemLabel="Permite o envio de mensagens SMS">
+                                <p:ajax event="change" update="@form" listener="#{configuracaoSmsBean.enviaSms}" />
+                            </p:selectBooleanCheckbox>
+                        </h:panelGrid>
+                        <h:panelGrid cellpadding="5" columns="2">
+                            <p:outputLabel value="Sistema de Pesquisa: " />
+                            <p:selectOneMenu value="#{configuracaoSmsBean.idGrupo}" style="width: 100px">
+                                <p:ajax event="change" update="@this :form_sms:"/>
+                                <f:selectItems value="#{configuracaoSmsBean.listaGrupo}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Usuário" />
+                            <p:inputText value="#{configuracaoSmsBean.configuracaoSms.login}" maxlength="200" />
+                            <p:outputLabel value="Senha" />
+                            <p:inputText value="#{configuracaoSmsBean.configuracaoSms.senha}"  />
+                            <p:outputLabel value="URL" />
+                            <p:inputText value="#{configuracaoSmsBean.configuracaoSms.urlServico}" size="100"/>
+                            <h:column />
+                            <p:selectBooleanCheckbox value="#{configuracaoSmsBean.configuracaoSms.principal}" itemLabel="Principal" disabled="true">
+                                <p:ajax event="change" update="@form"  />
+                            </p:selectBooleanCheckbox>
+                            <p:outputLabel value="Saldo: " />
+                            <p:inputText value="#{configuracaoSmsBean.saldo}" readonly="true"/>
+                        </h:panelGrid>                    
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2" cellspacing="5">
+                                <p:commandButton value="Gravar" action="#{configuracaoSmsBean.save}" update=":form_sms:"/>                                
+                                <p:commandButton value="Novo" action="configuracaoSms" update=":form_sms:"/>                                
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:panel>
+                    <p:panel header="TESTE" rendered="#{configuracaoSmsBean.configuracaoSms.id ne null and configuracaoSmsBean.registro.enviaSms}" styleClass="margin-top-max">
+                        <h:panelGrid cellpadding="10" columns="10">
+                            <p:inputMask value="#{configuracaoSmsBean.mobile_phone}" maxlength="20" placeholder="Celular" mask="(99) 99999-9999">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputMask>
+                            <p:inputTextarea value="#{configuracaoSmsBean.message}" maxlength="160" rows="1" cols="100" autoResize="true" placeholder="Mensagem até 160 caracteres"/>
+                            <h:outputText value="Agendar para:" />
+                            <p:calendar id="datetime" value="#{configuracaoSmsBean.schedule}" pattern="dd/MM/yyyy HH:mm:ss">
+                                <p:ajax event="dateSelect" listener="#{configuracaoSmsBean.dataListener}" update=":form_sms:"/>
+                                <p:ajax event="change" listener="#{configuracaoSmsBean.dataListener}" update=":form_sms:"/>
+                            </p:calendar>
+                            <p:commandButton value="Enviar" action="#{configuracaoSmsBean.send}" update=":form_sms:"/>                                
+                        </h:panelGrid>                            
+                    </p:panel>                    
+                    <p:dataTable value="#{configuracaoSmsBean.listConfiguracaoSms}" var="configuracaoSms" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado">
+                        <p:column width="30" styleClass="text-center">
+                            <p:commandButton action="#{configuracaoSmsBean.edit}" icon="ui-icon-pencil" />
+                        </p:column>
+                        <p:column styleClass="text-center" headerText="Grupo">
+                            #{configuracaoSms.configuracaoSmsGrupo.descricao}
+                        </p:column>
+                        <p:column styleClass="text-center" headerText="Grupo">
+                            #{configuracaoSms.login}
+                        </p:column>
+                        <p:column width="80" headerText="Principal" styleClass="text-center">
+                            <p:commandButton action="#{configuracaoSmsBean.defaults(configuracaoSms)}" icon="#{configuracaoSms.principal ? 'ui-icon-check' : 'ui-icon-close'}" />
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

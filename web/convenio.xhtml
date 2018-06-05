@@ -32,6 +32,15 @@
                                 <p:outputLabel value="Pesquisar subgrupo" for="idPesquisarSubGrupo" rendered="#{convenioBean.convenio.subGrupoConvenio.grupoConvenio.id == -1}" styleClass="bo" style="border-bottom: 1px solid #ECF3FE"/>
                                 <p:outputLabel value=": Grupo: #{convenioBean.convenio.subGrupoConvenio.grupoConvenio.descricao} - Subgrupo: #{convenioBean.convenio.subGrupoConvenio.descricao}" for="idPesquisarSubGrupo" rendered="#{convenioBean.convenio.subGrupoConvenio.grupoConvenio.id != -1}"/>
                             </p:column>
+                            <p:outputLabel value="Tipo de Tratamento" rendered="#{convenioBean.convenio.id != -1}"/>
+                            <p:selectOneMenu value="#{convenioBean.idTipoTratamento}" rendered="#{convenioBean.convenio.id != -1}">
+                                <p:ajax event="change" update="@this" />
+                                <f:selectItems value="#{convenioBean.listTipoTratamento}" />
+                            </p:selectOneMenu>                            
+                            <p:outputLabel value="Abreviação" rendered="#{convenioBean.convenio.id != -1}"/>
+                            <p:inputText value="#{convenioBean.convenio.abreviacao}" maxlength="30" rendered="#{convenioBean.convenio.id != -1}">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputText>                            
                         </p:panelGrid>
                         <p:panelGrid columns="1" styleClass="sbb">
                             <p:column>
@@ -76,6 +85,14 @@
                                     </p:selectBooleanCheckbox>
                                 </f:facet>
                                 <p:commandLink value="#{convenio.juridica.pessoa.nome}" action="#{convenioBean.edit(convenio)}" update=":form_novo_convenio:id_panel_grid_novo"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+
+                                </f:facet>
+                                <h:column rendered="#{convenio.tipoTratamento ne null}">
+                                    <h:outputLabel value="#{convenio.tipoTratamento.descricao} #{convenio.abreviacao}" />
+                                </h:column>
                             </p:column>
                             <p:column>
                                 <f:facet name="header">

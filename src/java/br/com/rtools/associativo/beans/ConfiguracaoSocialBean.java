@@ -3,6 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.SCobranca;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -21,10 +22,11 @@ import javax.faces.model.SelectItem;
 public class ConfiguracaoSocialBean implements Serializable {
 
     private ConfiguracaoSocial configuracaoSocial;
+    private Registro registro;
 
     private int idGrupoCategoria;
     private List<SelectItem> listaGrupoCategoria;
-    
+
     private SCobranca cobranca = new SCobranca();
 
     @PostConstruct
@@ -41,6 +43,8 @@ public class ConfiguracaoSocialBean implements Serializable {
             dao.save(configuracaoSocial, true);
         }
 
+        registro = (Registro) dao.find(new Registro(), 1);
+
         if (configuracaoSocial.getGrupoCategoriaInativaDemissionado() == null || (listaGrupoCategoria.size() == 1)) {
             idGrupoCategoria = 0;
         } else {
@@ -50,7 +54,7 @@ public class ConfiguracaoSocialBean implements Serializable {
                 }
             }
         }
-        
+
         cobranca = (SCobranca) dao.find(new SCobranca(), 1);
     }
 
@@ -84,13 +88,13 @@ public class ConfiguracaoSocialBean implements Serializable {
                 GenericaMensagem.warn("Erro", "Ao atualizar este registro!");
             }
         }
-        
+
         if (cobranca.getId() != -1) {
-            
+
             if (dao.update(cobranca, true)) {
-                
+
             }
-            
+
         }
     }
 
@@ -151,6 +155,14 @@ public class ConfiguracaoSocialBean implements Serializable {
      */
     public void setCobranca(SCobranca cobranca) {
         this.cobranca = cobranca;
+    }
+
+    public Registro getRegistro() {
+        return registro;
+    }
+
+    public void setRegistro(Registro registro) {
+        this.registro = registro;
     }
 
 }

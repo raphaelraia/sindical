@@ -19,13 +19,6 @@ import javax.persistence.Query;
 public class RelatorioFinanceiroDao extends DB {
 
     public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataBaixa, String dataBaixaFinal, String dataOcorrencia, String dataOcorrenciaFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, String tipo_caixa, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String tipo_pessoa, String tipo_situacao, Integer id_filial, String order, Relatorios relatorio) {
-//        String select
-//                = "SELECT \n "
-//                + "       grupo, \n "
-//                + "       subgrupo, \n "
-//                + "       servico, \n "
-//                + "       sum(valor_baixa) \n "
-//                + "  FROM movimentos_vw \n ";
         String select = " -- RelatorioFinanceiroDao->listaRelatorioFinanceiro() \n"
                 + " SELECT ";
 

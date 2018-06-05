@@ -226,7 +226,7 @@ public class Agendamentos implements Serializable {
     public void setAgendamentoServico(AgendamentoServico agendamentoServico) {
         this.agendamentoServico = agendamentoServico;
     }
-    
+
     public String getPrimeiraHora() {
         // new AgendamentoHorarioDao().firstTime(id)
         return "";

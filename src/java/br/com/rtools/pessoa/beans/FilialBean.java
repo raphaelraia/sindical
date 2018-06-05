@@ -12,6 +12,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -68,8 +69,11 @@ public class FilialBean {
 
         Dao dao = new Dao();
         Filial fx = (Filial) dao.find(new Filial(), listaFilial.get(event.getRowIndex()).getId());
-        fx.setQuantidadeAgendamentosPorEmpresa((Integer) newValue);
-
+        if(Types.isInteger(newValue)) {
+            fx.setQuantidadeAgendamentosPorEmpresa((Integer) newValue);
+        } else {
+            fx.setApelido((String) newValue);
+        }
         dao.openTransaction();
         if (!dao.update(fx)) {
             dao.rollback();

@@ -14,7 +14,7 @@
         <f:view>
             <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h2 class="font-size-16">Agendamentos</h2>                
-                <h:form id="form_person">
+                <h:form id="form_person" onsubmit="return false;">
                     <h:outputScript name="tradutor_primefaces.js" library="js" />
                     <p:growl id="growl" showDetail="true"/> 
                     <p:messages showDetail="true" showSummary="true" autoUpdate="true" /> 
@@ -35,12 +35,12 @@
                         </f:facet>
                         <h:panelGrid columns="8" cellspacing="5">
                             <p:outputLabel value="Data: " />
-                            <p:calendar size="8" value="#{agendamentosBean.data}" pattern="dd/MM/yyyy" navigator="true" mindate="java.util.Date" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
+                            <p:calendar size="8" value="#{agendamentosBean.data}" pattern="dd/MM/yyyy" navigator="true" mindate="java.util.Date" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR" autocomplete="false">
                                 <p:ajax event="dateSelect" listener="#{agendamentosBean.dataPreListener}" />
                                 <p:ajax event="change" listener="#{agendamentosBean.dataPreListener}" />
                             </p:calendar>
                             <p:outputLabel value="Horário: " styleClass="margin-left-max"/>
-                            <p:inputMask mask="99:99" converter="#{isValidTimeString}" value="#{agendamentosBean.horaPre}" size="4" styleClass="text-center">
+                            <p:inputMask mask="99:99" converter="#{isValidTimeString}" value="#{agendamentosBean.horaPre}" size="4" styleClass="text-center" autocomplete="false">
                                 <p:ajax event="change" update="@this" />
                             </p:inputMask>
                             <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" value="Pesquisar Pessoa" styleClass="margin-left-max"/>
@@ -48,7 +48,7 @@
                         </h:panelGrid>            
                         <h:panelGrid columns="5" cellspacing="5" styleClass="margin-top-max">
                             <p:outputLabel value="CPF:" styleClass="bold"/>
-                            <p:inputMask mask="999.999.999-99" value="#{agendamentosBean.pessoa.pessoa.documento}" size="15" styleClass="font-size-12 text-center bg-green-ligth">
+                            <p:inputMask mask="999.999.999-99" value="#{agendamentosBean.pessoa.pessoa.documento}" size="15" styleClass="font-size-12 text-center bg-green-ligth" autocomplete="false">
                                 <p:ajax event="change" update="@this :form_person: :form_agendamentos:" listener="#{agendamentosBean.findPessoaFisica}" />
                             </p:inputMask>
                         </h:panelGrid>

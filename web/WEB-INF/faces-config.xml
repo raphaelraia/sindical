@@ -2620,6 +2620,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>montarRelatorio</from-outcome>
+            <to-view-id>/montarRelatorio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>configuracaoSms</from-outcome>
+            <to-view-id>/configuracaoSms.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

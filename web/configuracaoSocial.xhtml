@@ -271,6 +271,36 @@
                                     <p:inputTextarea value="#{configuracaoSocialBean.cobranca.informativo}" style="width: 100%" maxlength="8000"/>
                                 </h:panelGrid>
                             </p:panel>
+                            
+                            
+                            <p:panel styleClass="margin-top-max">
+                                <p:outputLabel value="Agendamentos" style="font-weight: bold; font-size: 11pt!important"/>
+                                <h:panelGrid columns="4">
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.enviaSmsAgendamento}" itemLabel="Enviar SMS Agendamentos #{configuracaoSocialBean.registro.enviaSms ? '(LIBERAR NO REGISTRO EMPRESARIAL)' : ''} " style="margin-right: 20px" disabled="#{configuracaoSocialBean.registro.enviaSms}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>                                      
+                                </h:panelGrid>
+                                <h:panelGrid columns="5" styleClass="margin-top-max">
+
+                                    <h:column>
+                                        <h:outputLabel value="Idade bloqueio CPF convite" /><br />
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.idadeBloqueioCpfConvite}" style="margin-right: 20px" >
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column>
+
+                                    <h:column>
+                                        <h:outputLabel value="Idade bloqueio RG convite" /><br />
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.idadeBloqueioRgConvite}" style="margin-right: 20px"  >
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column>
+
+                                </h:panelGrid>
+                            </p:panel>
 
                             <p:commandButton value="Atualizar" action="#{configuracaoSocialBean.update()}" update=":form_configuracao_social:" styleClass="margin-top-max"/>
                         </h:form>
