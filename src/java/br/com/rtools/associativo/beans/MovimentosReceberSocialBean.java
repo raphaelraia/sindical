@@ -3,6 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.utils.PlanilhasSocialUtils;
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Caixa;
@@ -146,7 +147,6 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     @PostConstruct
     public void init() {
-
         csb.init();
         cfb.init();
 
@@ -210,24 +210,23 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void alterarVencimento() {
         String vencimentox = objectVencimento.getArgumento1().toString();
-        
+
         if (DataHoje.menorData(vencimentox, DataHoje.data())) {
             GenericaMensagem.warn("Atençao", "Data de vencimento nao pode ser MENOR que data atual!");
             return;
         }
-        
 
         Boleto boletox = (Boleto) objectVencimento.getArgumento0();
         Dao dao = new Dao();
 
         dao.openTransaction();
 
-        if (boletox.getStatusRetorno() != null && boletox.getStatusRetorno().getId() == 2){
+        if (boletox.getStatusRetorno() != null && boletox.getStatusRetorno().getId() == 2) {
             boletox.setDtCobrancaRegistrada(DataHoje.dataHoje());
             boletox.setDtStatusRetorno(DataHoje.dataHoje());
             boletox.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 6));
         }
-        
+
         boletox.setVencimento(vencimentox);
         boletox.setDtProcessamento(DataHoje.dataHoje());
 
@@ -335,7 +334,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
             //  erro aqui testar
             if (b.getStatusRetorno() != null && (b.getStatusRetorno().getId() == 2 || b.getStatusRetorno().getId() == 4 || b.getStatusRetorno().getId() == 5)) {
-                if (listaMovimentoDoBoleto.size() != 1){
+                if (listaMovimentoDoBoleto.size() != 1) {
                     GenericaMensagem.warn("Atenção", b.getStatusRetorno().getDescricao() + " apenas poderá ser removido se TODOS movimentos forem selecionados!");
                     movimentoRemover = null;
                     dao.rollback();
@@ -1404,6 +1403,40 @@ public class MovimentosReceberSocialBean implements Serializable {
         return null;
     }
 
+    public String print() {
+        List list = new ArrayList();
+        MovimentoDao db = new MovimentoDao();
+        Movimento movimento = new Movimento();
+        if (!listaMovimento.isEmpty()) {
+            for (int i = 0; i < listaMovimento.size(); i++) {
+                if ((Boolean) listaMovimento.get(i).getArgumento0()) {
+                    movimento = (Movimento) listaMovimento.get(i).getArgumento1();
+
+                    movimento.setMulta(Moeda.converteUS$(listaMovimento.get(i).getArgumento19().toString()));
+                    movimento.setJuros(Moeda.converteUS$(listaMovimento.get(i).getArgumento20().toString()));
+                    movimento.setCorrecao(Moeda.converteUS$(listaMovimento.get(i).getArgumento21().toString()));
+
+                    movimento.setDesconto(Moeda.converteUS$(listaMovimento.get(i).getArgumento8().toString()));
+
+                    movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
+
+                    movimento.setValorBaixa(Moeda.converteUS$(listaMovimento.get(i).getArgumento9().toString()));
+                    list.add(movimento);
+                }
+            }
+            if (!list.isEmpty()) {
+                new PlanilhasSocialUtils().print(list);
+            } else {
+                msgConfirma = "Nenhum boleto foi selecionado";
+                GenericaMensagem.warn("Erro", msgConfirma);
+            }
+        } else {
+            msgConfirma = "Lista vazia!";
+            GenericaMensagem.warn("Erro", msgConfirma);
+        }
+        return null;
+    }
+
     public void calculoDesconto() {
         double descPorcento = 0;
         double desc = 0;
@@ -2414,5 +2447,14 @@ public class MovimentosReceberSocialBean implements Serializable {
             this.valorCalculado = valorCalculado;
         }
 
+    }
+
+    public Boolean getSelected() {
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            if ((Boolean) listaMovimento.get(i).getArgumento0()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

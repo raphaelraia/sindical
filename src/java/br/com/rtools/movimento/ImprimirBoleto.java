@@ -2009,7 +2009,7 @@ public class ImprimirBoleto implements Serializable {
 
             //* JASPER 2 *//
             jasper = (JasperReport) JRLoader.loadObject(
-                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/PLANILHA_DE_DEBITO_SOCIAL.jasper"))
+                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/PLANILHA_DE_ACORDO_SOCIAL.jasper"))
             );
             dtSource = new JRBeanCollectionDataSource(vetor2);
             ljasper.add(JasperFillManager.fillReport(jasper, parameters, dtSource));

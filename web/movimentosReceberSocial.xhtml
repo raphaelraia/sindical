@@ -258,7 +258,7 @@
                             </h:panelGrid>
 
                             <h:panelGrid style="clear: both; width: 100%">
-                                <p:messages id="i_msg" showDetail="true" closable="true" />  
+                                <p:messages id="i_msg" showDetail="true" closable="true" autoUpdate="true"/>  
                             </h:panelGrid>
 
 
@@ -269,6 +269,9 @@
                                     <p:selectBooleanCheckbox value="#{movimentosReceberSocialBean.chkSeleciona}" style="float: left" itemLabel="SELECIONAR TODOS">
                                         <p:ajax event="change" update="@this tbl :formMovimentosReceber:i_panel" listener="#{movimentosReceberSocialBean.marcarTodos()}"/>
                                     </p:selectBooleanCheckbox>
+                                    <h:column>
+                                        <p:commandButton disabled="#{!movimentosReceberSocialBean.selected}" value="Imprimir Planilha" action="#{movimentosReceberSocialBean.print}" ajax="false" rendered="#{!comparator.test(movimentosReceberSocialBean.porPesquisa, 'todos,quitados,excluidos')}"/>
+                                    </h:column>                                    
                                 </f:facet>
 
                                 <p:column style="width:15px">  

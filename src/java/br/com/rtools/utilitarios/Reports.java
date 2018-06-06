@@ -60,127 +60,139 @@ public class Reports implements Serializable {
     /**
      * Diretório do arquivo
      */
-    private String PATH;
+    public String PATH;
     /**
      * Nome extra do arquivo
      */
-    private String PART_NAME;
+    public String PART_NAME;
     /**
      * Baixar arquivo (Default true);
      */
-    private Boolean DOWNLOAD;
+    public Boolean DOWNLOAD;
     /**
      * Remover arquivo após gerar (Default true);
      */
-    private Boolean REMOVE_FILE;
+    public Boolean REMOVE_FILE;
     /**
      * Uso interno
      */
-    private byte[] BYTES;
+    public byte[] BYTES;
     /**
      * Se o arquivo vai ter configuração com cabeçalho (SUBREPORT)
      */
-    private Boolean HEADER;
+    public Boolean HEADER;
     /**
      * Passar apenas os parametros do cabeçalho
      */
-    private Boolean HEADER_PARAMS;
+    public Boolean HEADER_PARAMS;
     /**
      * Impressão por folha (configurar grupo)
      */
-    private Boolean BY_LEAF;
+    public Boolean BY_LEAF;
     /**
      * Nome do grupo
      */
-    private String GROUP_NAME;
+    public String GROUP_NAME;
     /**
      * Se o arquivo é comprimido
      */
-    private Boolean COMPRESS_FILE;
+    public Boolean COMPRESS_FILE;
     /**
      * Limite da compressão do arquivo
      */
-    private Integer COMPRESS_LIMIT;
+    public Integer COMPRESS_LIMIT;
     /**
      * Define a extensão do arquivo compactado
      */
-    private String COMPRESS_EXTENSION;
+    public String COMPRESS_EXTENSION;
     /**
      * Uso interno (2GB)
      */
-    private int MEGABYTE;
+    public int MEGABYTE;
     /**
      * Retorna o nome do arquivo gerado
      */
-    private String FILE_NAME_GENERATED;
-    private String CONTEXT_FILE;
+    public String FILE_NAME_GENERATED;
+    public String CONTEXT_FILE;
     /**
      * Retorna o nome do arquivo gerado
      */
-    private List LIST_FILE_GENERATED;
+    public List LIST_FILE_GENERATED;
     /**
      * set: retrato, paisagem, recibo_sem_logo
      */
-    private String TYPE;
+    public String TYPE;
     /**
      * Nome do arquivo subreport
      */
-    private String SUBREPORT_NAME;
+    public String SUBREPORT_NAME;
     /**
      * Impressão por folha (configurar grupo)
      */
-    private Boolean REPORT_CONNECTION;
+    public Boolean REPORT_CONNECTION;
     /**
      * Exportar
      */
-    private Boolean EXPORT_TO;
+    public Boolean EXPORT_TO;
     /**
      * Exportar para tipo , default: IF (EXPORT_TO == false) default = pdf ELSE
      * IF (EXPORT_TO == true) EXPORT_TYPE = tipo definido
      */
-    private String EXPORT_TYPE;
+    public String EXPORT_TYPE;
     /**
      * Campos Excel
      */
-    private String EXCEL_FIELDS;
+    public String EXCEL_FIELDS;
     /**
      * Não permite finalizar a compressão, para se obter a lista de arquivos
      * gerados
      */
-    private Boolean NO_COMPACT;
+    public Boolean NO_COMPACT;
     /**
      * Ignora uso de código único na String do nome do relaório
      */
-    private Boolean IGNORE_UUID;
+    public Boolean IGNORE_UUID;
     /**
      * Database
      */
-    private DBExternal dbe;
+    public DBExternal dbe;
     /**
      * Query
      */
-    private String QUERY_STRING;
+    public String QUERY_STRING;
     /**
      * Query Srint
      */
-    private Boolean IS_QUERY_STRING;
+    public Boolean IS_QUERY_STRING;
     /**
      * Relatório Título
      */
-    private String TITLE;
+    public String TITLE;
     /**
      * Filial Header Relatório
      */
-    private Filial FILIAL;
+    public Filial FILIAL;
     /**
      * Filial Header Relatório
      */
-    private Boolean USER_PATH;
+    public Boolean USER_PATH;
+    /**
+     * Nome do relatório
+     */
+    public String JASPER_NAME;
+    /**
+     * Local / Nome do Arquivo
+     */
+    public String JASPER_FILE;
+    /**
+     * Local / Nome do Arquivo
+     */
+    public Collection COLLECTION;
 
-    private List jasperPrintList = new ArrayList();
+    public List jasperPrintList = new ArrayList();
 
     public Reports() {
-        this.PATH = "downloads/relatorios";
+        this.PATH = "downloads" + File.separator + "relatorios";
         this.PART_NAME = "relatorio";
         this.DOWNLOAD = true;
         this.REMOVE_FILE = true;
@@ -210,10 +222,16 @@ public class Reports implements Serializable {
         this.IS_QUERY_STRING = false;
         this.TITLE = "";
         this.FILIAL = null;
+        JASPER_FILE = "";
+        JASPER_NAME = "";
+        COLLECTION = null;
     }
 
     public void load() {
-        PATH = "downloads/relatorios";
+        JASPER_FILE = "";
+        JASPER_NAME = "";
+        COLLECTION = null;
+        PATH = "downloads" + File.separator + "relatorios";
         PART_NAME = "relatorio";
         DOWNLOAD = true;
         REMOVE_FILE = true;
@@ -322,6 +340,10 @@ public class Reports implements Serializable {
         jasperPrintList = new ArrayList();
     }
 
+    public void print() {
+        print(JASPER_FILE, JASPER_NAME, COLLECTION);
+    }
+
     public void print(String jasperName, String fileName, Collection c) {
         print(jasperName, fileName, c, null);
     }
@@ -427,6 +449,10 @@ public class Reports implements Serializable {
             }
 
             FILIAL = null;
+            
+            if(HEADER) {
+              TYPE = "default"; 
+            }
 
             switch (TYPE) {
                 case "retrato":
@@ -614,6 +640,9 @@ public class Reports implements Serializable {
                 }
                 JasperReport jasper = null;
                 String jasper_path = "";
+                if(!jasperName.contains(".jasper") || !jasperName.contains(".jrxml")) {
+                    jasperName += ".jasper";
+                }
                 if (jasperListExport.isEmpty()) {
                     try {
                         if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName)).exists()) {
@@ -1261,6 +1290,30 @@ public class Reports implements Serializable {
         this.USER_PATH = USER_PATH;
     }
 
+    public String getJASPER_NAME() {
+        return JASPER_NAME;
+    }
+
+    public void setJASPER_NAME(String JASPER_NAME) {
+        this.JASPER_NAME = JASPER_NAME;
+    }
+
+    public String getJASPER_FILE() {
+        return JASPER_FILE;
+    }
+
+    public void setJASPER_FILE(String JASPER_FILE) {
+        this.JASPER_FILE = JASPER_FILE;
+    }
+
+    public Collection getCOLLECTION() {
+        return COLLECTION;
+    }
+
+    public void setCOLLECTION(Collection COLLECTION) {
+        this.COLLECTION = COLLECTION;
+    }
+
     public static class FillObject {
 
         private JasperReport jasperReport;
@@ -1371,4 +1424,6 @@ public class Reports implements Serializable {
      * </band>
      * </pageHeader>
      */
+    
+    
 }
