@@ -247,7 +247,6 @@ public class RelatorioSociosDao extends DB {
 //        queryString += " LEFT JOIN pes_juridica       AS PJC  ON PJC.id          = J.id_contabilidade    \n "
 //                + " LEFT JOIN pes_pessoa         AS PC   ON PC.id           = PJC.id_pessoa         \n ";
 
-
         List listWhere = new ArrayList();
 
         if (relatorios.getQry() != null && !relatorios.getQry().isEmpty()) {
@@ -573,13 +572,13 @@ public class RelatorioSociosDao extends DB {
         }
 
         if (!in_aniversario.isEmpty()) {
-            String subfiltro = " P.codigo IN (SELECT id_pessoa FROM pes_fisica WHERE ";
-            subfiltro += "     extract(month from dt_nascimento) IN (" + in_aniversario + ")" + " \n ";
+            String subfiltro = " ";
+            subfiltro += " "
+                    + "     extract(month from P.dt_nascimento) IN (" + in_aniversario + ")" + "                  \n "
+                    + " AND extract(day from P.dt_nascimento) >= " + Integer.valueOf(dia_aniversario_inicial) + "  \n "
+                    + " AND extract(day from P.dt_nascimento) <= " + Integer.valueOf(dia_aniversario_final) + "    \n ";
 
-            subfiltro += " AND extract(day from dt_nascimento) >= " + Integer.valueOf(dia_aniversario_inicial) + " \n "
-                    + " AND extract(day from dt_nascimento) <= " + Integer.valueOf(dia_aniversario_final) + " \n ";
-
-            subfiltro += " ) ";
+            subfiltro += " ";
             listWhere.add(subfiltro);
         }
 

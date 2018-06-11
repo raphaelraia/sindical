@@ -1,21 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.rtools.associativo.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.Debugs;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-/**
- *
- * @author Claudemir Rtools
- */
 public class AtualizaSocioDemissionadoDao extends DB {
 
     public List<Object> listaSocioDemissionado(String tipo, String aposentadoria) {
@@ -39,7 +29,8 @@ public class AtualizaSocioDemissionadoDao extends DB {
                     + "  LEFT JOIN (SELECT id_pessoa_empresa, max(dt_lancamento) AS lancamento FROM tlm_historico WHERE id_pessoa_empresa > 0 GROUP BY id_pessoa_empresa) AS tl ON tl.id_pessoa_empresa = pe.id \n"
                     + " WHERE f.id NOT IN (SELECT id_fisica FROM pes_pessoa_empresa WHERE dt_demissao IS NULL) \n"
                     + "   AND pe.dt_demissao <= CURRENT_DATE - 90 \n"
-                    + "   AND so.id_grupo_categoria = cf.id_grupo_categoria_inativa_demissionado \n";
+                    + "   AND so.id_grupo_categoria = cf.id_grupo_categoria_inativa_demissionado \n"
+                    + "   AND so.id_parentesco = 1 \n";
             if (aposentadoria.equals("aposentado")) {
                 text += "AND F.dt_aposentadoria IS NOT NULL ";
             } else if (aposentadoria.equals("nao_aposentado")) {

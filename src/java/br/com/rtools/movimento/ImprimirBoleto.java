@@ -2009,15 +2009,18 @@ public class ImprimirBoleto implements Serializable {
 
             //* JASPER 2 *//
             jasper = (JasperReport) JRLoader.loadObject(
-                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/PLANILHA_DE_DEBITO_SOCIAL.jasper"))
+                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/PLANILHA_DE_ACORDO_SOCIAL.jasper"))
             );
             dtSource = new JRBeanCollectionDataSource(vetor2);
             ljasper.add(JasperFillManager.fillReport(jasper, parameters, dtSource));
             //* ------------- *//
 
-            // NÃO DESCOBRI COMO SETAR Map parameters = new HashMap(); DEPOIS DE CRIAR fillReport() NESTE CASO PARA SETAR A FILIAL NO parameters
-//            Jasper.printReports("planilha_de_acordo_e_demostrativo", ljasper);
-//
+            /**
+             * NÃO DESCOBRI COMO SETAR Map parameters = new HashMap(); DEPOIS DE
+             * CRIAR fillReport() NESTE CASO PARA SETAR A FILIAL NO parameters
+             * Jasper.printReports("planilha_de_acordo_e_demostrativo",
+             * ljasper);
+             */
             UUID uuidX = UUID.randomUUID();
             String uuid = "_" + uuidX.toString().replace("-", "_");
             String downloadName = "planilha_de_acordo_e_demostrativo" + uuid + ".pdf";

@@ -5,6 +5,7 @@ import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.TipoTratamento;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
@@ -22,6 +24,7 @@ public class ConvenioBean implements Serializable {
     private Convenio convenio;
     private String message;
     private List<Convenio> listConvenio;
+    private List<SelectItem> listTipoTratamento;
     /**
      * <ul>
      * <li>[0] Jurídica</li>
@@ -30,9 +33,11 @@ public class ConvenioBean implements Serializable {
      * </ul>
      */
     private Boolean order[];
+    private Integer idTipoTratamento;
 
     @PostConstruct
     public void init() {
+        idTipoTratamento = null;
         convenio = new Convenio();
         message = "";
         listConvenio = new ArrayList<Convenio>();
@@ -40,6 +45,7 @@ public class ConvenioBean implements Serializable {
         order[0] = false;
         order[1] = false;
         order[2] = false;
+        loadListTipoTratamento();
     }
 
     @PreDestroy
@@ -64,6 +70,16 @@ public class ConvenioBean implements Serializable {
         }
         NovoLog novoLog = new NovoLog();
         Dao di = new Dao();
+        if (idTipoTratamento != null) {
+            if (convenio.getAbreviacao().isEmpty()) {
+                message = "Informar abreviação!";
+                return;
+            }
+            convenio.setTipoTratamento((TipoTratamento) di.find(new TipoTratamento(), idTipoTratamento));
+        } else {
+            convenio.setAbreviacao("");
+            convenio.setTipoTratamento(null);
+        }
         di.openTransaction();
         if (convenio.getId() == -1) {
             ConvenioDao db = new ConvenioDao();
@@ -110,6 +126,7 @@ public class ConvenioBean implements Serializable {
     public void novo() {
         listConvenio.clear();
         convenio = new Convenio();
+        idTipoTratamento = null;
         message = "";
     }
 
@@ -188,4 +205,32 @@ public class ConvenioBean implements Serializable {
     public void setOrder(Boolean[] order) {
         this.order = order;
     }
+
+    public void loadListTipoTratamento() {
+        listTipoTratamento = new ArrayList();
+        List<TipoTratamento> list = new Dao().list(new TipoTratamento(), true);
+        listTipoTratamento.add(new SelectItem(null, "NENHUM"));
+        idTipoTratamento = null;
+        for (int i = 0; i < list.size(); i++) {
+            listTipoTratamento.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
+    public List<SelectItem> getListTipoTratamento() {
+        return listTipoTratamento;
+    }
+
+    public void setListTipoTratamento(List<SelectItem> listTipoTratamento) {
+        this.listTipoTratamento = listTipoTratamento;
+    }
+
+    public Integer getIdTipoTratamento() {
+        return idTipoTratamento;
+    }
+
+    public void setIdTipoTratamento(Integer idTipoTratamento) {
+        this.idTipoTratamento = idTipoTratamento;
+    }
+    
+    
 }

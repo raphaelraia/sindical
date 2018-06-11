@@ -21,7 +21,6 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
-import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -30,6 +29,7 @@ import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.beans.SisCartaBean;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -90,6 +90,7 @@ public class ImpressaoBoletosBean implements Serializable {
     private List selectedContaCobranca = new ArrayList();
     private Boolean habilitarComunicado = false;
     private String novoVencto = "";
+    private String message = "";
 
     public ImpressaoBoletosBean() {
         GenericaSessao.remove("juridicaPesquisa");
@@ -991,25 +992,44 @@ public class ImpressaoBoletosBean implements Serializable {
             List<File> fls = new ArrayList();
 
             String nome_envio;
+            String empresa_nome = AnaliseString.converterCapitalize(jur.getPessoa().getNome());
             if (mov.size() == 1) {
-                nome_envio = "Boleto " + mov.get(0).getServicos().getDescricao() + " N° " + mov.get(0).getDocumento();
+                nome_envio = "Boleto " + mov.get(0).getServicos().getDescricao() + " de número " + mov.get(0).getDocumento();
             } else {
-                nome_envio = "Boleto";
+                nome_envio = "Boletos " + jur.getPessoa().getNome() + " - Qtde de boletos " + mov.size() + " - ref. aos meses " + mov.get(0).getReferencia();
             }
 
+            nome_envio = AnaliseString.converterCapitalize(nome_envio);
+
             if (!reg.isEnviarEmailAnexo()) {
-                mensagem = " <div style=\"background:#00ccff; padding: 15px; font-size:13pt\">Envio cadastrado para <b>" + jur.getPessoa().getNome() + " </b></div><br />"
-                        + " <h5>Visualize seu boleto clicando no link abaixo</h5><br /><br />"
+                mensagem = "";
+                // mensagem = " <div style=\"background:#00ccff; padding: 15px; font-size:13pt\">Envio de boletos</b></div><br />";
+            } else {
+                mensagem = "";
+                //  mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Envio de boletos</b></div><br />";
+            }
+
+            mensagem += message;
+            mensagem += "<ul>";
+            mensagem += "<li style=\"text-decoration:underline; list-style: none;\"><strong>Boletos</strong><br /></li>";
+            for (int i = 0; i < mov.size(); i++) {
+                mensagem += "<li style=\"list-style: none; padding: 5px\">- " + AnaliseString.converterCapitalize(mov.get(i).getPessoa().getNome()) + " - Contribuição " + AnaliseString.converterCapitalize(mov.get(i).getServicos().getDescricao()) + " - Boleto nº " + mov.get(i).getDocumento() + ";</li>";
+            }
+
+            mensagem += "</ul>";
+            mensagem += "<br /><br />";
+            if (!reg.isEnviarEmailAnexo()) {
+                mensagem += "<p>Visualize seu boleto clicando no link abaixo</p><br /><br />"
                         + " <a href=\"" + reg.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nome + "\">Clique aqui para abrir boleto</a><br />";
             } else {
                 fls.add(new File(imp.getPathPasta() + "/" + nome));
-                mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Envio cadastrado para <b>" + jur.getPessoa().getNome() + " </b></div><br />"
-                        + " <h5>Baixe seu boleto anexado neste email</5><br /><br />";
+                mensagem += "<p>Baixe seu boleto anexado neste email</p><br /><br />";
             }
 
             Dao di = new Dao();
             Mail mail = new Mail();
             mail.setFiles(fls);
+            mail.setUnique(true);
             mail.setEmail(
                     new Email(
                             -1,
@@ -1036,8 +1056,9 @@ public class ImpressaoBoletosBean implements Serializable {
                 emailPessoa = new EmailPessoa();
             }
 
-            String[] retorno = mail.send("personalizado");
+            String[] retorno = mail.send("cerberus");
             msgImpressao = "Envio Concluído!";
+            message = "";
 
             if (retorno[1] != null && !retorno[1].isEmpty()) {
                 Messages.warn("Erro", retorno[0] + " " + retorno[1]);
@@ -1420,6 +1441,14 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public void setNovoVencto(String novoVencto) {
         this.novoVencto = novoVencto;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public class ObjectImpressaoBoleto {

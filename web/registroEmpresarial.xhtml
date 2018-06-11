@@ -76,6 +76,9 @@
                                         <p:outputLabel value="Url path: " />
                                         <p:inputText size="30" value="#{registroEmpresarialBean.registro.urlPath}"/>
                                         <p:column />
+                                        <p:outputLabel value="Url Logo: " />
+                                        <p:inputText size="30" value="#{registroEmpresarialBean.registro.urlLogo}"/>
+                                        <p:column />
                                         <h:column>
                                             <h:outputLabel value="Email Sistema:" rendered="#{registroEmpresarialBean.registro.sisEmailMarketing}"/>                                            
                                             <h:outputLabel value="Email Resposta: " rendered="#{!registroEmpresarialBean.registro.sisEmailMarketing}"/>                                            
@@ -109,7 +112,7 @@
                                         </p:column>                                        
                                         <p:column></p:column>
                                     </p:panelGrid>
-                                    <p:commandButton value="Testar Email" onclick="PF('dlg_test_mail').show()" type="button" styleClass="margin-top-max"/>
+                                    <p:commandButton value="Testar Email" onclick="PF('dlg_test_mail').show()" type="button" styleClass="margin-top-max" update="form_registro_empresarial:i_test_mail"/>
                                     <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(111)}" styleClass="margin-left-max"/>
                                 </p:tab>
                             </c:if>
@@ -451,13 +454,20 @@
                             <p:commandButton value="Ok" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dgl_painel_mensagem').hide()" style="float: left;" icon="ui-icon-close"/>
                         </center>
                     </p:dialog>
-                    <p:dialog widgetVar="dlg_test_mail" modal="true" resizable="false" header="Enviar email teste">
+                    <p:dialog widgetVar="dlg_test_mail" modal="true" resizable="false" header="Enviar email teste" width="600" height="300">
                         <p:messages autoUpdate="true" showDetail="true" closable="true" id="i_panel_email_test" /> 
-                        <h:panelGrid columns="3" styleClass="margin-top-max">
-                            <p:outputLabel value="Email teste:" />
-                            <p:inputText value="#{registroEmpresarialBean.emailTeste}" />
-                            <p:commandButton action="#{registroEmpresarialBean.enviarEmailTeste}" value="Enviar" update="i_panel_email_test"/>
-                        </h:panelGrid>
+                        <h:panelGroup id="i_test_mail">
+                            <h:panelGrid columns="3" styleClass="margin-top-max">
+                                <p:outputLabel value="Email teste:" />
+                                <p:inputText value="#{registroEmpresarialBean.emailTeste}" />
+                            </h:panelGrid>
+                            <br />
+                            <p:editor value="#{registroEmpresarialBean.mensagem}" style="width: 100%!important">
+                            </p:editor>
+                        </h:panelGroup>
+                        <f:facet name="footer">
+                            <p:commandButton action="#{registroEmpresarialBean.enviarEmailTeste}" value="Enviar" update="i_panel_email_test"/>                            
+                        </f:facet>
                     </p:dialog>
                 </h:form>
             </p:panel>

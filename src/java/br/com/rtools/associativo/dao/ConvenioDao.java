@@ -1,8 +1,6 @@
 package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Convenio;
-import br.com.rtools.associativo.GrupoConvenio;
-import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.DataHoje;
@@ -207,6 +205,18 @@ public class ConvenioDao extends DB {
         } catch (Exception e) {
             return new ArrayList();
 
+        }
+    }
+
+    public Convenio find(Integer convenio_subgrupo_id, Integer juridica_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT C FROM Convenio C WHERE C.juridica.id = :juridica_id AND C.subGrupoConvenio.id = :convenio_subgrupo_id");
+            query.setParameter("juridica_id", juridica_id);
+            query.setParameter("convenio_subgrupo_id", convenio_subgrupo_id);
+            return (Convenio) (query.getSingleResult());
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
         }
     }
 

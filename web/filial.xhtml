@@ -39,7 +39,11 @@
                                     </h:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid columns="2" rendered="#{filialBean.filial.filial.pessoa.id != -1}">
+                                <h:panelGrid columns="3" rendered="#{filialBean.filial.filial.pessoa.id != -1}">
+                                    <h:column>
+                                        <p:outputLabel value="Apelido"/><br />
+                                        <p:inputText value="#{filialBean.filial.apelido}" maxlength="30"/>
+                                    </h:column>
                                     <h:column>
                                         <p:outputLabel value="Quantidade de Agendamentos por Empresa"/><br />
                                         <p:inputText value="#{filialBean.filial.quantidadeAgendamentosPorEmpresa}" style="width: 250px; text-align: right"/>
@@ -63,6 +67,13 @@
                                         <h:outputText value="#{filial.filial.pessoa.documento} - #{filial.filial.pessoa.nome}"/>
                                     </p:column>
 
+                                    <p:column headerText="Apelido" width="150" styleClass="text-center">
+                                        <p:cellEditor>
+                                            <f:facet name="output"><h:outputText value="#{filial.apelido}" /></f:facet>
+                                            <f:facet name="input"><p:inputText value="#{filial.apelido}" maxlength="30" style="width:96%" label="Qnt. Agendamentos"/></f:facet>
+                                        </p:cellEditor>
+                                    </p:column>
+
                                     <p:column headerText="Qtde Agendamentos por Empresa" width="100" styleClass="text-center">
                                         <p:cellEditor>
                                             <f:facet name="output"><h:outputText value="#{filial.quantidadeAgendamentosPorEmpresa}" /></f:facet>
@@ -74,11 +85,11 @@
 
                             <h:panelGrid style="float: left; margin-top: 15px; width: 100%" columns="1" id="i_panel">
                                 <p:dataTable value="#{filialBean.listCidadesAux}" var="filialCidade" id="tbl2">
-                                    
+
                                     <p:column style="width:15px">  
                                         <p:rowToggler />  
                                     </p:column>                                     
-                                    
+
                                     <p:column headerText="Cidade/UF" width="250">
                                         <h:outputText value="#{filialCidade.cidade.cidade}"/>
                                     </p:column>
@@ -93,7 +104,7 @@
                                     <p:column headerText="Subsede Cidade" width="50" styleClass="text-center">
                                         <p:commandButton onclick="PF('dlg_subsede').show()" update=":form_subsede:" icon="ui-icon-link" action="#{filialBean.openModal(filialCidade.cidade)}" title="Adicionar outras filiais a esta cidade"/>
                                     </p:column>
-                                    
+
                                     <p:rowExpansion>
                                         <p:panel header="Outras filiais desta cidade">
                                             <p:dataTable value="#{filialCidade.listFilialCidade}" var="fc" emptyMessage="Nenhum registro encontrado!">

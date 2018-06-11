@@ -186,9 +186,9 @@ public class AnaliseString {
     }
 
     public static String normalizeSpecial(String value) {
-        
+
         value = value.replaceAll("[^a-zA-Z]+", " ");
-        
+
         value = value.replace(",", " ");
 
         return value;
@@ -257,7 +257,14 @@ public class AnaliseString {
         String[] strings = descricao.toLowerCase().split(" ");
         String novaDescricao = "";
         for (int i = 0; i < strings.length; i++) {
-            if (strings[i].toUpperCase().equals("POR") || strings[i].toUpperCase().equals("DOS") || strings[i].toUpperCase().equals("DAS") || strings[i].toUpperCase().equals("DE")) {
+            if (strings[i].toUpperCase().equals("POR")
+                    || strings[i].toUpperCase().equals("DO")
+                    || strings[i].toUpperCase().equals("DOS")
+                    || strings[i].toUpperCase().equals("DAS")
+                    || strings[i].toUpperCase().equals("DE")
+                    || strings[i].toUpperCase().equals("EM")
+                    || strings[i].toUpperCase().equals("E")
+                    || strings[i].toUpperCase().equals("COM")) {
                 novaDescricao += strings[i] + " ";
             } else if (strings[i].length() > 0) {
                 novaDescricao += strings[i].substring(0, 1).toUpperCase() + strings[i].substring(1) + " ";
@@ -342,9 +349,9 @@ public class AnaliseString {
                 return str.replaceAll("[^0123456789]", "");
             } else {
                 return "";
-            }            
+            }
         } catch (Exception e) {
-            return "";            
+            return "";
         }
     }
 }
