@@ -14,7 +14,7 @@ public class Email implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_data", nullable = true)
     private Date data;
@@ -39,7 +39,7 @@ public class Email implements Serializable {
     private boolean rascunho;
 
     public Email() {
-        this.id = -1;
+        this.id = null;
         this.data = new Date();
         this.hora = "";
         this.usuario = new Usuario();
@@ -51,7 +51,7 @@ public class Email implements Serializable {
         this.rascunho = false;
     }
 
-    public Email(int id, Date data, String hora, Usuario usuario, Rotina rotina, EmailPrioridade emailPrioridade, String assunto, String mensagem, boolean confirmaRecebimento, boolean rascunho) {
+    public Email(Integer id, Date data, String hora, Usuario usuario, Rotina rotina, EmailPrioridade emailPrioridade, String assunto, String mensagem, boolean confirmaRecebimento, boolean rascunho) {
         this.id = id;
         this.data = data;
         this.hora = hora;
@@ -64,11 +64,11 @@ public class Email implements Serializable {
         this.rascunho = rascunho;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

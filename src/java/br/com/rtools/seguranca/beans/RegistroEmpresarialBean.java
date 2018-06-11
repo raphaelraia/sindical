@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -318,6 +319,7 @@ public class RegistroEmpresarialBean implements Serializable {
         }
         Dao di = new Dao();
         Mail mail = new Mail();
+        mail.setUnique(true);
         mail.setEmail(
                 new Email(
                         -1,
@@ -326,8 +328,8 @@ public class RegistroEmpresarialBean implements Serializable {
                         (Usuario) GenericaSessao.getObject("sessaoUsuario"),
                         (Rotina) di.find(new Rotina(), 111),
                         null,
-                        "Email teste.",
-                        "",
+                        "Email teste",
+                        mensagem,
                         false,
                         false
                 )
@@ -339,7 +341,7 @@ public class RegistroEmpresarialBean implements Serializable {
         emailPessoa.setRecebimento(null);
         emailPessoas.add(emailPessoa);
         mail.setEmailPessoas(emailPessoas);
-        String[] string = mail.send();
+        String[] string = mail.send("cerberus");
         if (string[0].isEmpty()) {
             GenericaMensagem.warn("Validação", "Erro ao enviar mensagem!" + string[0] + " " + string[1]);
         } else {

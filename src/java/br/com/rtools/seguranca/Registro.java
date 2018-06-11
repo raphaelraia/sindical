@@ -44,6 +44,8 @@ public class Registro implements Serializable {
     private String mensagemBloqueioBoletoWeb;
     @Column(name = "ds_url_path", length = 50)
     private String urlPath;
+    @Column(name = "ds_url_logo", length = 255)
+    private String urlLogo;
     @Column(name = "ds_obs_ficha_social", length = 8000)
     private String fichaSocial;
     @Column(name = "meses_inadimplentes_agenda")
@@ -147,6 +149,7 @@ public class Registro implements Serializable {
         this.email = "";
         this.senha = "";
         this.smtp = "";
+        this.urlLogo = "";
         this.bloquearHomologacao = false;
         this.carteirinhaDependente = false;
         this.mesesInadimplentes = 0;
@@ -820,6 +823,14 @@ public class Registro implements Serializable {
 
     public void setEnviaSms(Boolean enviaSms) {
         this.enviaSms = enviaSms;
+    }
+
+    public String getUrlLogo() {
+        return urlLogo;
+    }
+
+    public void setUrlLogo(String urlLogo) {
+        this.urlLogo = urlLogo;
     }
 
 }

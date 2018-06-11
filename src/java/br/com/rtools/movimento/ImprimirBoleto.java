@@ -2015,9 +2015,12 @@ public class ImprimirBoleto implements Serializable {
             ljasper.add(JasperFillManager.fillReport(jasper, parameters, dtSource));
             //* ------------- *//
 
-            // NÃO DESCOBRI COMO SETAR Map parameters = new HashMap(); DEPOIS DE CRIAR fillReport() NESTE CASO PARA SETAR A FILIAL NO parameters
-//            Jasper.printReports("planilha_de_acordo_e_demostrativo", ljasper);
-//
+            /**
+             * NÃO DESCOBRI COMO SETAR Map parameters = new HashMap(); DEPOIS DE
+             * CRIAR fillReport() NESTE CASO PARA SETAR A FILIAL NO parameters
+             * Jasper.printReports("planilha_de_acordo_e_demostrativo",
+             * ljasper);
+             */
             UUID uuidX = UUID.randomUUID();
             String uuid = "_" + uuidX.toString().replace("-", "_");
             String downloadName = "planilha_de_acordo_e_demostrativo" + uuid + ".pdf";

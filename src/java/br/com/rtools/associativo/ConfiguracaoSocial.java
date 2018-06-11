@@ -89,7 +89,7 @@ public class ConfiguracaoSocial implements Serializable {
     private StatusCobranca statusCobranca;
     @Column(name = "nr_bloqueio_meses_boleto", nullable = false, columnDefinition = "integer default 1000")
     private Integer bloqueioMesesBoleto;
-    @Column(name = "is_envia_sms_agendamemtno", columnDefinition = "boolean default false")
+    @Column(name = "is_envia_sms_agendamento", columnDefinition = "boolean default false")
     private Boolean enviaSmsAgendamento;
 
     public ConfiguracaoSocial() {
