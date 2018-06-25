@@ -173,7 +173,7 @@ public abstract class Cobranca {
 
     public abstract RespostaWebService registrarBoleto(String vencimentoRegistro);
 
-    public void voltarBoleto(Boleto boleto, String nr_ctr) {
+    public static void voltarBoleto(Boleto boleto, String nr_ctr) {
         boleto.setDtRegistroBaixa(null);
         boleto.setAtivo(true);
         boleto.setNrCtrBoleto(nr_ctr);
@@ -201,40 +201,36 @@ public abstract class Cobranca {
         return teste;
     }
 
-    public Boleto gerarNovoBoleto(Boleto b_antigo, String novo_vencimento) {
-        Boleto bol_novo = null;
-        
+    public static Boleto gerarNovoBoleto(Boleto b_antigo, String novo_vencimento) {
+        Boleto bol_novo;
+
         MovimentoDao dbm = new MovimentoDao();
-
-        int id_boleto = dbm.inserirBoletoNativo(b_antigo.getContaCobranca().getId());
-
-        dbm.insertMovimentoBoleto(b_antigo.getContaCobranca().getId(), b_antigo.getBoletoComposto());
+        Dao dao = new Dao();
 
         String nr_ctr = b_antigo.getNrCtrBoleto();
 
         b_antigo.setDtRegistroBaixa(DataHoje.dataHoje());
         b_antigo.setAtivo(false);
         b_antigo.setNrCtrBoleto("");
-        
-        Dao dao = new Dao();
-        
-        dao.update(b_antigo, true);
+
+        if (!dao.update(b_antigo, true)) {
+            return null;
+        }
+
+        int id_boleto = dbm.inserirBoletoNativo(b_antigo.getContaCobranca().getId(), novo_vencimento, b_antigo.getValor());
+
+        dbm.insertMovimentoBoleto(b_antigo.getContaCobranca().getId(), b_antigo.getBoletoComposto());
 
         dao.openTransaction();
-        
+
         if (id_boleto != -1) {
 
             bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
 
             bol_novo.setNrCtrBoleto(nr_ctr);
-            //bol_novo.setVencimento(b_antigo.getVencimento());
-            //bol_novo.setVencimentoOriginal(b_antigo.getVencimentoOriginal());
-            
-            bol_novo.setVencimento(novo_vencimento);
-            bol_novo.setVencimentoOriginal(novo_vencimento);
 
-            List<Movimento> lm = b_antigo.getListaMovimento();
-            
+            List<Movimento> lm = dbm.listaMovimentoPorNrCtrBoleto(nr_ctr);
+
             for (int i = 0; i < lm.size(); i++) {
                 lm.get(i).setDocumento(bol_novo.getBoletoComposto());
                 lm.get(i).setNrCtrBoleto(bol_novo.getNrCtrBoleto());
@@ -242,7 +238,7 @@ public abstract class Cobranca {
                 if (!dao.update(lm.get(i))) {
                     dao.rollback();
                     voltarBoleto(b_antigo, nr_ctr);
-                    //return new RespostaWebService(null, "Erro ao Atualizar Movimento ID " + lista_movimento.get(i).getId());
+
                     return null;
                 }
             }
@@ -250,15 +246,15 @@ public abstract class Cobranca {
             if (!dao.update(bol_novo)) {
                 dao.rollback();
                 voltarBoleto(b_antigo, nr_ctr);
-                //return new RespostaWebService(null, "Erro ao Atualizar Boleto ID " + bol_novo.getId());
+
                 return null;
             }
 
             dao.commit();
         } else {
             dao.rollback();
-            voltarBoleto(boleto, nr_ctr);
-            //return new RespostaWebService(null, "Erro ao Gerar Novo Boleto");
+            voltarBoleto(b_antigo, nr_ctr);
+
             return null;
         }
 

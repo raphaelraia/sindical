@@ -1,6 +1,5 @@
 package br.com.rtools.associativo.dao;
 
-import br.com.rtools.associativo.CampeonatoEquipe;
 import br.com.rtools.associativo.MatriculaCampeonato;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class MatriculaCampeonatoDao extends DB {
 
     }
 
-    public List<CampeonatoEquipe> findByEquipe(Integer equipe_id) {
+    public List<MatriculaCampeonato> findByEquipe(Integer equipe_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT MC FROM MatriculaCampeonato MC WHERE MC.campeonatoEquipe.equipe.id = :equipe_id ORDER BY MC.servicoPessoa.pessoa.nome ASC");
             query.setParameter("equipe_id", equipe_id);
@@ -53,11 +52,11 @@ public class MatriculaCampeonatoDao extends DB {
         }
     }
 
-    public CampeonatoEquipe existsInCampeonato(Integer campeonato_id, Integer pessoa_id) {
+    public MatriculaCampeonato existsInCampeonato(Integer campeonato_id, Integer pessoa_id) {
         return existsInCampeonato(campeonato_id, pessoa_id, Boolean.TRUE);
     }
 
-    public CampeonatoEquipe existsInCampeonato(Integer campeonato_id, Integer pessoa_id, Boolean ativo) {
+    public MatriculaCampeonato existsInCampeonato(Integer campeonato_id, Integer pessoa_id, Boolean ativo) {
         try {
             Query query;
             if (ativo == null) {
@@ -71,7 +70,18 @@ public class MatriculaCampeonatoDao extends DB {
             }
             query.setParameter("campeonato_id", campeonato_id);
             query.setParameter("pessoa_id", pessoa_id);
-            return (CampeonatoEquipe) query.getSingleResult();
+            return (MatriculaCampeonato) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    
+    public MatriculaCampeonato findByPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT MC FROM MatriculaCampeonato MC WHERE MC.campeonatoEquipe.id = :campeonato_equipe_id AND MC.campeonato.id = :campeonato_id AND MC.servicoPessoa.pessoa.id = :pessoa_id AND MC.dtInativacao IS NULL");
+            query.setParameter("pessoa_id", pessoa_id);
+            return (MatriculaCampeonato) query.getSingleResult();
         } catch (Exception e) {
             return null;
         }

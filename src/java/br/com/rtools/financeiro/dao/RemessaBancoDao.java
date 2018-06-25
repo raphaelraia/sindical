@@ -25,12 +25,13 @@ public class RemessaBancoDao extends DB {
         return ((Vector) result).get(0);
     }
 
-    public List<RemessaBanco> listaBoletoComRemessaBanco(String ids) {
+    public List<RemessaBanco> listaBoletoComRemessaBanco(String ids, Integer id_status_remessa) {
         try {
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT rb.*\n"
-                    + "  FROM fin_remessa_banco rb \n"
-                    + " WHERE rb.id_boleto IN (" + ids + ")", RemessaBanco.class
+                    "SELECT rb.* \n "
+                    + "  FROM fin_remessa_banco rb \n "
+                    + " WHERE rb.id_boleto IN (" + ids + ") \n "
+                    + "   AND rb.id_status_remessa = " + id_status_remessa, RemessaBanco.class
             );
             return qry.getResultList();
         } catch (Exception e) {

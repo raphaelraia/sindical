@@ -48,17 +48,10 @@
                             <div class="clear"></div>
                             <p:messages showDetail="true" closable="true" autoUpdate="true"/>
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="4" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop" cellspacing="5">
-                                    <h:column>
-                                        <h:outputLabel value="Nome" />                                            
-                                    </h:column>
-                                    <h:column>
-                                        <h:outputLabel value="Jasper" />                                        
-                                    </h:column>
-                                    <h:column>
-                                        <h:outputLabel value="Foto " />                                        
-                                    </h:column>
-                                    <h:column />
+                                <h:panelGrid columns="3" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop" cellspacing="5">
+                                    <h:outputLabel value="Nome" />                                            
+                                    <h:outputLabel value="Jasper" />
+                                    <p:column />
                                     <p:column>
                                         <p:inputText id="i_nome" value="#{modeloCarteirinhaBean.modeloCarteirinha.descricao}" size="85" converter="#{toUpperCase}">
                                             <p:ajax event="blur" update="i_nome" />
@@ -70,17 +63,20 @@
                                         <p:watermark for="i_jasper" value="Digite o Caminho para o jasper Ex. nome_do_jasper.jasper" /><br /><br />
                                         <h:outputLabel value=" Ex. nome_jasper.jasper" style="font-size: 7pt!important; color: red"/>
                                     </p:column>
-                                    <h:column>
-                                        <p:selectBooleanCheckbox value="#{modeloCarteirinhaBean.modeloCarteirinha.fotoCartao}" itemLabel="">
-                                            <p:ajax event="change" update="@this" />                                            
-                                        </p:selectBooleanCheckbox>
-                                    </h:column>
                                     <p:column>
                                         <h:panelGrid styleClass="margin-left-max" >
                                             <p:commandButton value="#{modeloCarteirinhaBean.modeloCarteirinha.id == -1 ? 'Salvar' : 'Atualizar'} modelo" action="#{modeloCarteirinhaBean.save()}" update=":form_modelo_carteirinha:" icon="ui-icon-plus" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                             <p:commandButton id="i_dlg_cartao" value="Enviar imagem" onclick="PF('dlg_cartao').show();" title="Alterar imagem" styleClass="margin-top-max"  alt="Pesquisar uma imagem" rendered="#{modeloCarteirinhaBean.modeloCarteirinha.id != -1}"/>
                                         </h:panelGrid>
                                     </p:column>
+                                </h:panelGrid>
+                                <h:panelGrid columns="4" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop" cellspacing="10">
+                                    <p:selectBooleanCheckbox value="#{modeloCarteirinhaBean.modeloCarteirinha.fotoCartao}" itemLabel="Foto">
+                                        <p:ajax event="change" update="@this" />                                            
+                                    </p:selectBooleanCheckbox>
+                                    <p:selectBooleanCheckbox value="#{modeloCarteirinhaBean.modeloCarteirinha.dependenteLista}" itemLabel="Lista de Dependentes (Verso)" title="Dúvidas Converse com a Área Técnica">
+                                        <p:ajax event="change" update="@this" />                                            
+                                    </p:selectBooleanCheckbox>
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="1">

@@ -556,6 +556,14 @@ public class ControleUsuarioBean implements Serializable {
             } catch (Exception e) {
 
             }
+            try {
+                String debugParam = request.getParameter("debug");
+                if (debugParam != null) {
+                    Sessions.put("debug", true);
+                }
+            } catch (Exception e) {
+
+            }
             if (filialDep != null) {
                 MacFilialDao macFilialDao = new MacFilialDao();
                 macFilial = macFilialDao.pesquisaMac(filialDep);
@@ -786,6 +794,16 @@ public class ControleUsuarioBean implements Serializable {
     public Boolean getDevelopment() {
         try {
             if (Sessions.exists("development")) {
+                return true;
+            }
+        } catch (Exception e) {
+        }
+        return false;
+    }
+    
+    public Boolean getDebug() {
+        try {
+            if (Sessions.exists("debug")) {
                 return true;
             }
         } catch (Exception e) {

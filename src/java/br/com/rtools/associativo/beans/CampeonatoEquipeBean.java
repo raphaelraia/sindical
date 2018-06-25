@@ -324,6 +324,11 @@ public class CampeonatoEquipeBean implements Serializable {
         cep.setCampeonato(campeonatoEquipe.getCampeonato());
         cep.setCampeonatoEquipe(campeonatoEquipe);
         cep.setServicoPessoa(sp);
+        MatriculaCampeonato mc = new MatriculaCampeonatoDao().existsInCampeonato(campeonatoEquipe.getCampeonato().getId(), membroEquipe.getId(), true);
+        if (mc != null) {
+            GenericaMensagem.warn("Validação", "PESSOA ESTÁ CADASTRADA PARA ESTE CAMPEONADO");
+            return;
+        }
         CampeonatoDependente cd = new CampeonatoDependenteDao().exists(campeonatoEquipe.getCampeonato().getId(), fisicaDependente.getPessoa().getId());
         if (cd != null) {
             GenericaMensagem.warn("Validação", "PESSOA ESTÁ CADASTRADA PARA ESSA MATRÍCULA");

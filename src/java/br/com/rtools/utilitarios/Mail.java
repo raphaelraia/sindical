@@ -1,7 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
-import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
@@ -51,9 +51,11 @@ public class Mail extends MailTemplate implements Serializable {
     private String html;
     private String personal;
     private Boolean message_hidden;
+    private Boolean unique;
     private ConfiguracaoDepartamento configuracaoDepartamento;
 
     public Mail() {
+        unique = false;
         email = new Email();
         registro = new Registro();
         emails = new ArrayList();
@@ -95,6 +97,9 @@ public class Mail extends MailTemplate implements Serializable {
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
         Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
+        String xEndereco = sindicato.getPessoa().getPessoaEndereco().getEnderecoCompletoString();
+        String xTelefone = sindicato.getPessoa().getTelefone1();
+        String xSite = sindicato.getPessoa().getSite();
         //Juridica sindicato = (Juridica) di.find(new Juridica(), 1);
         if (personal == null || personal.isEmpty()) {
             personal = sindicato.getPessoa().getNome();
@@ -114,11 +119,12 @@ public class Mail extends MailTemplate implements Serializable {
                 String xEmailSindicato = sindicato.getPessoa().getEmail1();
                 String xNome = sindicato.getPessoa().getNome();
                 String xAssinatura = "";
+                String xLogo = registro.getUrlLogo();
                 if (configuracaoDepartamento != null) {
                     if (!configuracaoDepartamento.getServidorSmtp()) {
                         xEmail = configuracaoDepartamento.getEmail();
                     }
-                    if (!registro.isSisEmailMarketing()) {
+                    if (!configuracaoDepartamento.getServidorSmtp()) {
                         xSenha = configuracaoDepartamento.getSenha();
                     }
                     if (!configuracaoDepartamento.getEmailResposta().isEmpty()) {
@@ -133,7 +139,12 @@ public class Mail extends MailTemplate implements Serializable {
                     xEmailSindicato = configuracaoDepartamento.getEmail();
                     xNome = configuracaoDepartamento.getFilial().getFilial().getPessoa().getNome() + " <br />Depto " + configuracaoDepartamento.getDepartamento().getDescricao();
                     xAssinatura = configuracaoDepartamento.getAssinatura();
+                    xEndereco = configuracaoDepartamento.getFilial().getFilial().getPessoa().getPessoaEndereco().getEnderecoCompletoString();
+                    xTelefone = configuracaoDepartamento.getFilial().getFilial().getPessoa().getTelefone1();
                 }
+                xNome = AnaliseString.converterCapitalize(xNome);
+                xAssinatura = AnaliseString.converterCapitalize(xAssinatura);
+                personal = AnaliseString.converterCapitalize(personal);
                 boolean saveArquivosEmail = false;
                 for (int i = 0; i < emailPessoas.size(); i++) {
                     try {
@@ -190,6 +201,15 @@ public class Mail extends MailTemplate implements Serializable {
                             }
                             to = emailPessoas.get(i).getDestinatario();
                         }
+                        String assuntox = email.getAssunto();
+                        String uuid = "";
+                        if (unique) {
+                            if (!assuntox.isEmpty() && !assuntox.contains("UUID: ")) {
+                                uuid += UUID.randomUUID().toString();
+                                assuntox += " - [ID:" + uuid.substring(0, 8).toUpperCase() + "]";
+                            }
+                        }
+                        xEndereco = AnaliseString.converterCapitalize(xEndereco);
                         String htmlString = "";
                         if (html.isEmpty()) {
                             if (templateHtml.isEmpty()) {
@@ -200,9 +220,15 @@ public class Mail extends MailTemplate implements Serializable {
                                         //+ "         <h2><b>" + registro.getFilial().getPessoa().getNome() + "</b></h2><br /><br />"
                                         + "         <p> " + email.getMensagem() + "</p>"
                                         + "         <br /><br />"
-                                        + "         " + xAssinatura
-                                        + "     </body>"
+                                        + "         " + xAssinatura;
+                                if (unique) {
+                                    htmlString += "<br /><br /><br /><br /><p><i>" + " - [ID:" + uuid.substring(0, 8).toUpperCase() + "]" + "<i></p>";
+                                }
+                                htmlString += "     </body>"
                                         + "</html>";
+                            } else if (templateHtml.equals("cerberus")) {
+                                String message = email.getMensagem();
+                                htmlString += getCerberus(xLogo, message, "", xSite, xNome, xEndereco, xTelefone, "");
                             } else if (templateHtml.equals("personalizado")) {
                                 Juridica jur = (new JuridicaDao()).pesquisaJuridicaPorPessoa(emailPessoas.get(i).getPessoa().getId());
                                 if (jur == null) {
@@ -226,6 +252,9 @@ public class Mail extends MailTemplate implements Serializable {
                                     //if (!registro.getFilial().getPessoa().getEmail1().equals(registro.getSisEmailResposta())) {
                                     htmlString += "<h3>Caso queira entrar em contato envie para: <strong>" + xEmailSindicato + "</strong></h3>";
                                     //htmlString += "<h3>Caso queira entrar em contato envie para: <strong>" + registro.getFilial().getPessoa().getEmail1() + "</strong></h3>";
+                                }
+                                if (unique) {
+                                    htmlString += "<br /><br /><br /><br /><p><i>" + " - [ID:" + uuid.substring(0, 8).toUpperCase() + "]" + "<i></p>";
                                 }
                                 htmlString
                                         += "         <br /><br />"
@@ -264,12 +293,15 @@ public class Mail extends MailTemplate implements Serializable {
                         if (!emailPessoas.get(i).getBcc().isEmpty()) {
                             msg.setRecipient(Message.RecipientType.BCC, new InternetAddress(emailPessoas.get(i).getBcc()));
                         }
-                        msg.setSubject(email.getAssunto());
+                        msg.setSubject(assuntox);
+                        email.setAssunto(assuntox);
                         msg.setContent(multipart);
                         msg.setSentDate(new Date());
-                        String id = UUID.randomUUID().toString();
                         //msg.setHeader("X-Mailer", "Tov Are's program");
-                        msg.setHeader("Content-ID", "<" + id + ">");
+                        // TESTES 07/06/2018
+                        msg.setHeader("Content-ID", "<" + uuid + ">");
+                        // NOVO HEADER PARA TESTE 07/06/2018
+                        msg.setHeader("Message-ID", "<" + getUniqueMessageIDValue(session) + ">");
                         if (xEmail.contains("gmail") || xEmail.contains("googlemail")) {
                             Transport transport = session.getTransport("smtps");
                             transport.connect(xSmtp, xPorta, xEmail, xSenha);
@@ -488,5 +520,388 @@ public class Mail extends MailTemplate implements Serializable {
 //        Oauth2 oauth2 = null;
 //        oauth2 = new Oauth2(null, null, null);
         return null;
+    }
+
+    // https://stackoverflow.com/questions/17818501/set-messageid-in-header-before-sending-mail
+    public static String getUniqueMessageIDValue(Session ssn) {
+
+        String suffix = null;
+
+        InternetAddress addr = InternetAddress.getLocalAddress(ssn);
+        if (addr != null) {
+            suffix = addr.getAddress();
+        } else {
+            suffix = "javamailuser@localhost"; // worst-case default
+        }
+
+        StringBuffer s = new StringBuffer();
+
+        // Unique string is <hashcode>.<id>.<currentTime>.JavaMail.<suffix>
+        s.append(s.hashCode()).append('.').append(getUniqueId()).append('.').
+                append(System.currentTimeMillis()).append('.').
+                append("JavaMail.").
+                append(suffix);
+        return s.toString();
+    }
+
+    private static synchronized String getUniqueId() {
+        return UUID.randomUUID().toString();
+    }
+
+    public Boolean getUnique() {
+        return unique;
+    }
+
+    public void setUnique(Boolean unique) {
+        this.unique = unique;
+    }
+
+    /**
+     *
+     * @param logo
+     * @param content
+     * @param extra
+     * @param site
+     * @param company_name
+     * @param address
+     * @param phone
+     * @param unsubscribe
+     * @return
+     */
+    public String getCerberus(String logo, String content, String extra, String site, String company_name, String address, String phone, String unsubscribe) {
+        address = AnaliseString.converterCapitalize(address);
+        String tpl = ""
+                + "<!DOCTYPE html>\n"
+                + "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n"
+                + "    <head>\n"
+                + "        <meta charset=\"utf-8\" /> <!-- utf-8 works for most cases -->\n"
+                + "        <meta name=\"viewport\" content=\"width=device-width\" /> <!-- Forcing initial-scale shouldn't be necessary -->\n"
+                + "        <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" /> <!-- Use the latest (edge) version of IE rendering engine -->\n"
+                + "        <meta name=\"x-apple-disable-message-reformatting\" />  <!-- Disable auto-scale in iOS 10 Mail entirely -->\n"
+                + "        <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->\n"
+                + "\n"
+                + "        <!-- Web Font / @font-face : BEGIN -->\n"
+                + "        <!-- NOTE: If web fonts are not required, lines 10 - 27 can be safely removed. -->\n"
+                + "\n"
+                + "        <!-- Desktop Outlook chokes on web font references and defaults to Times New Roman, so we force a safe fallback font. -->\n"
+                + "        <!--[if mso]>\n"
+                + "            <style>\n"
+                + "                * {\n"
+                + "                    font-family: sans-serif !important;\n"
+                + "                }\n"
+                + "            </style>\n"
+                + "        <![endif]-->\n"
+                + "\n"
+                + "        <!-- All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: http://stylecampaign.com/blog/2015/02/webfont-support-in-email/ -->\n"
+                + "        <!--[if !mso]><!-->\n"
+                + "        <!-- insert web font reference, eg: <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'> -->\n"
+                + "        <!--<![endif]-->\n"
+                + "\n"
+                + "        <!-- Web Font / @font-face : END -->\n"
+                + "\n"
+                + "        <!-- CSS Reset : BEGIN -->\n"
+                + "        <style>\n"
+                + "\n"
+                + "            /* What it does: Remove spaces around the email design added by some email clients. */\n"
+                + "            /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */\n"
+                + "            html,\n"
+                + "            body {\n"
+                + "                margin: 0 auto !important;\n"
+                + "                padding: 0 !important;\n"
+                + "                height: 100% !important;\n"
+                + "                width: 100% !important;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Stops email clients resizing small text. */\n"
+                + "            * {\n"
+                + "                -ms-text-size-adjust: 100%;\n"
+                + "                -webkit-text-size-adjust: 100%;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Centers email on Android 4.4 */\n"
+                + "            div[style*=\"margin: 16px 0\"] {\n"
+                + "                margin: 0 !important;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Stops Outlook from adding extra spacing to tables. */\n"
+                + "            table,\n"
+                + "            td {\n"
+                + "                mso-table-lspace: 0pt !important;\n"
+                + "                mso-table-rspace: 0pt !important;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */\n"
+                + "            table {\n"
+                + "                border-spacing: 0 !important;\n"
+                + "                border-collapse: collapse !important;\n"
+                + "                table-layout: fixed !important;\n"
+                + "                margin: 0 auto !important;\n"
+                + "            }\n"
+                + "            table table table {\n"
+                + "                table-layout: auto;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */\n"
+                + "            a {\n"
+                + "                text-decoration: none;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Uses a better rendering method when resizing images in IE. */\n"
+                + "            img {\n"
+                + "                -ms-interpolation-mode:bicubic;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: A work-around for email clients meddling in triggered links. */\n"
+                + "            *[x-apple-data-detectors],  /* iOS */\n"
+                + "            .unstyle-auto-detected-links *,\n"
+                + "            .aBn {\n"
+                + "                border-bottom: 0 !important;\n"
+                + "                cursor: default !important;\n"
+                + "                color: inherit !important;\n"
+                + "                text-decoration: none !important;\n"
+                + "                font-size: inherit !important;\n"
+                + "                font-family: inherit !important;\n"
+                + "                font-weight: inherit !important;\n"
+                + "                line-height: inherit !important;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */\n"
+                + "            .a6S {\n"
+                + "                display: none !important;\n"
+                + "                opacity: 0.01 !important;\n"
+                + "            }\n"
+                + "            /* If the above doesn't work, add a .g-img class to any image in question. */\n"
+                + "            img.g-img + div {\n"
+                + "                display: none !important;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* What it does: Removes right gutter in Gmail iOS app: https://github.com/TedGoas/Cerberus/issues/89  */\n"
+                + "            /* Create one of these media queries for each additional viewport size you'd like to fix */\n"
+                + "\n"
+                + "            /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */\n"
+                + "            @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {\n"
+                + "                .email-container {\n"
+                + "                    min-width: 320px !important;\n"
+                + "                }\n"
+                + "            }\n"
+                + "            /* iPhone 6, 6S, 7, 8, and X */\n"
+                + "            @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {\n"
+                + "                .email-container {\n"
+                + "                    min-width: 375px !important;\n"
+                + "                }\n"
+                + "            }\n"
+                + "            /* iPhone 6+, 7+, and 8+ */\n"
+                + "            @media only screen and (min-device-width: 414px) {\n"
+                + "                .email-container {\n"
+                + "                    min-width: 414px !important;\n"
+                + "                }\n"
+                + "            }\n"
+                + "\n"
+                + "        </style>\n"
+                + "        <!-- CSS Reset : END -->\n"
+                + "        <!-- Reset list spacing because Outlook ignores much of our inline CSS. -->\n"
+                + "        <!--[if mso]>\n"
+                + "        <style type=\"text/css\">\n"
+                + "                ul,\n"
+                + "                ol {\n"
+                + "                        margin: 0 !important;\n"
+                + "                }\n"
+                + "                li {\n"
+                + "                        margin-left: 30px !important;\n"
+                + "                }\n"
+                + "                li.list-item-first {\n"
+                + "                        margin-top: 0 !important;\n"
+                + "                }\n"
+                + "                li.list-item-last {\n"
+                + "                        margin-bottom: 10px !important;\n"
+                + "                }\n"
+                + "        </style>\n"
+                + "        <![endif]-->\n"
+                + "\n"
+                + "        <!-- Progressive Enhancements : BEGIN -->\n"
+                + "        <style>\n"
+                + "\n"
+                + "            /* What it does: Hover styles for buttons */\n"
+                + "            .button-td,\n"
+                + "            .button-a {\n"
+                + "                transition: all 100ms ease-in;\n"
+                + "            }\n"
+                + "            .button-td-primary:hover,\n"
+                + "            .button-a-primary:hover {\n"
+                + "                background: #555555 !important;\n"
+                + "                border-color: #555555 !important;\n"
+                + "            }\n"
+                + "\n"
+                + "            /* Media Queries */\n"
+                + "            @media screen and (max-width: 600px) {\n"
+                + "\n"
+                + "                .email-container {\n"
+                + "                    width: 100% !important;\n"
+                + "                    margin: auto !important;\n"
+                + "                }\n"
+                + "\n"
+                + "                /* What it does: Forces elements to resize to the full width of their container. Useful for resizing images beyond their max-width. */\n"
+                + "                .fluid {\n"
+                + "                    max-width: 100% !important;\n"
+                + "                    height: auto !important;\n"
+                + "                    margin-left: auto !important;\n"
+                + "                    margin-right: auto !important;\n"
+                + "                }\n"
+                + "\n"
+                + "                /* What it does: Forces table cells into full-width rows. */\n"
+                + "                .stack-column,\n"
+                + "                .stack-column-center {\n"
+                + "                    display: block !important;\n"
+                + "                    width: 100% !important;\n"
+                + "                    max-width: 100% !important;\n"
+                + "                    direction: ltr !important;\n"
+                + "                }\n"
+                + "                /* And center justify these ones. */\n"
+                + "                .stack-column-center {\n"
+                + "                    text-align: center !important;\n"
+                + "                }\n"
+                + "\n"
+                + "                /* What it does: Generic utility class for centering. Useful for images, buttons, and nested tables. */\n"
+                + "                .center-on-narrow {\n"
+                + "                    text-align: center !important;\n"
+                + "                    display: block !important;\n"
+                + "                    margin-left: auto !important;\n"
+                + "                    margin-right: auto !important;\n"
+                + "                    float: none !important;\n"
+                + "                }\n"
+                + "                table.center-on-narrow {\n"
+                + "                    display: inline-block !important;\n"
+                + "                }\n"
+                + "\n"
+                + "                /* What it does: Adjust typography on small screens to improve readability */\n"
+                + "                .email-container p {\n"
+                + "                    font-size: 17px !important;\n"
+                + "                }\n"
+                + "            }\n"
+                + "\n"
+                + "        </style>\n"
+                + "        <!-- Progressive Enhancements : END -->\n"
+                + "\n"
+                + "        <!-- What it does: Makes background images in 72ppi Outlook render at correct size. -->\n"
+                + "        <!--[if gte mso 9]>\n"
+                + "        <xml>\n"
+                + "            <o:OfficeDocumentSettings>\n"
+                + "                <o:AllowPNG/>\n"
+                + "                <o:PixelsPerInch>96</o:PixelsPerInch>\n"
+                + "            </o:OfficeDocumentSettings>\n"
+                + "        </xml>\n"
+                + "        <![endif]-->\n"
+                + "\n"
+                + "    </head>\n"
+                + "    <!--\n"
+                + "            The email background color (#222222) is defined in three places:\n"
+                + "            1. body tag: for most email clients\n"
+                + "            2. center tag: for Gmail and Inbox mobile apps and web versions of Gmail, GSuite, Inbox, Yahoo, AOL, Libero, Comcast, freenet, Mail.ru, Orange.fr\n"
+                + "            3. mso conditional: For Windows 10 Mail\n"
+                + "    -->\n"
+                + "    <body style=\"width: 100%; margin: 0; mso-line-height-rule: exactly; background-color: #f3f3f3;\">\n"
+                + "        <center style=\"width: 100%; background-color: #f3f3f3\">\n"
+                + "            <!--[if mso | IE]>\n"
+                + "            <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #222222;\">\n"
+                + "            <tr>\n"
+                + "            <td>\n"
+                + "            <![endif]-->\n"
+                + "\n"
+                + "            <!-- Visually Hidden Preheader Text : BEGIN -->\n"
+                + "            <div style=\"display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;\">\n"
+                + "                <!-- (Optional) This text will appear in the inbox preview, but not the email body. It can be used to supplement the email subject line or even summarize the email's contents. Extended text preheaders (~490 characters) seems like a better UX for anyone using a screenreader or voice-command apps like Siri to dictate the contents of an email. If this text is not included, email clients will automatically populate it using the text (including image alt text) at the start of the email's body. -->\n" 
+                + "            </div>\n"
+                + "            <!-- Visually Hidden Preheader Text : END -->\n"
+                + "\n"
+                + "            <!-- Create white space after the desired preview text so email clients don’t pull other distracting text into the inbox preview. Extend as necessary. -->\n"
+                + "            <!-- Preview Text Spacing Hack : BEGIN -->\n"
+                + "            <div>\n"
+                + "                <br />\n"
+                + "            </div>\n"
+                + "            <!-- Preview Text Spacing Hack : END -->\n"
+                + "\n"
+                + "            <!-- Email Body : BEGIN -->\n"
+                + "            <table align=\"center\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto;\" class=\"email-container\">\n"
+                + "                <!-- Email Header : BEGIN -->\n"
+                + "                <tr>\n"
+                + "                    <td style=\"padding: 20px 0; text-align: center\">\n";
+        if (!logo.isEmpty()) {
+            tpl += "                        <img src=\"" + logo + "\" width=\"200\" height=\"50\" alt=\"alt_text\" border=\"0\" style=\"height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555;\">\n";
+        }
+        tpl
+                += "                    </td>\n"
+                + "                </tr>\n"
+                + "                <!-- Email Header : END -->\n"
+                + "\n"
+                + "                <!-- Hero Image, Flush : END -->\n"
+                + "\n"
+                + "                <!-- 1 Column Text + Button : BEGIN -->\n"
+                + "                <tr>\n"
+                + "                    <td style=\"background-color: #ffffff;\">\n"
+                + "                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n"
+                + "                            <tr>\n"
+                + "                                <td style=\"padding: 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555;\">\n";
+        tpl += content;
+        tpl
+                += "                                </td>\n"
+                + "                            </tr>\n"
+                + "                        </table>\n"
+                + "                    </td>\n"
+                + "                </tr>\n"
+                + "\n"
+                + "\n"
+                + "                <!-- Clear Spacer : BEGIN -->\n"
+                + "                <tr>\n"
+                + "                    <td aria-hidden=\"true\" height=\"40\" style=\"font-size: 0px; line-height: 0px;\">\n"
+                + "                        &nbsp;\n"
+                + "                    </td>\n"
+                + "                </tr>\n"
+                + "                <!-- Clear Spacer : END -->\n"
+                + "\n"
+                + "                <!-- 1 Column Text : BEGIN -->\n"
+                + "                <tr>\n"
+                + "                    <td style=\"background-color: #ffffff;\">\n"
+                + "                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n"
+                + "                            <tr>\n"
+                + "                                <td style=\"" + (extra.isEmpty() ? "display: none;" : "") + "padding: 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555;\">\n";
+        tpl += extra;
+        tpl += "                                </td>\n"
+                + "                            </tr>\n"
+                + "                        </table>\n"
+                + "                    </td>\n"
+                + "                </tr>\n"
+                + "                <!-- 1 Column Text : END -->\n"
+                + "\n"
+                + "            </table>\n"
+                + "            <!-- Email Body : END -->\n"
+                + "\n"
+                + "            <!-- Email Footer : BEGIN -->\n"
+                + "            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"max-width: 600px;\">\n"
+                + "                <tr>\n"
+                + "                    <td style=\"padding: 20px; font-family: sans-serif; font-size: 12px; line-height: 15px; text-align: center; color: #888888;\">\n"
+                + "                        "
+                + "                         <webversion style=\"color: #cccccc; text-decoration: underline; font-weight: bold;\">"
+                + "                         " + site
+                + "                         </webversion> <br />\n"
+                + "                         <strong>" + company_name + "</strong>"
+                + "                       <br /><span class=\"unstyle-auto-detected-links\">" + address + "<br />" + phone + "</span>\n"
+                + "                            <br /><br />\n"
+                + "                            <unsubscribe style=\"color: #888888; text-decoration: underline;\">" + unsubscribe + "</unsubscribe>\n"
+                + "                    </td>\n"
+                + "                </tr>\n"
+                + "            </table>\n"
+                + "            <!-- Email Footer : END -->\n";
+        tpl += " <br /> <p><i>" + " - [ID:" + UUID.randomUUID().toString().substring(0, 8).toUpperCase() + "]" + "<i></p>";
+        tpl += "\n"
+                + "            <!--[if mso | IE]>\n"
+                + "            </td>\n"
+                + "            </tr>\n"
+                + "            </table>\n"
+                + "            <![endif]-->\n"
+                + "        </center>\n"
+                + "    </body>\n"
+                + "</html>\n"
+                + "";
+        return tpl;
     }
 }

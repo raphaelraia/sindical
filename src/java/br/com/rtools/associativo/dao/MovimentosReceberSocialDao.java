@@ -193,21 +193,22 @@ public class MovimentosReceberSocialDao extends DB {
     public List dadosSocio(int id_lote) {
         try {
 
-            String textqry = " select "
-                    + "     p.ds_nome as titular,"
-                    + "     m.nr_matricula as matricula,"
-                    + "     c.ds_categoria as categoria,"
-                    + "     g.ds_grupo_categoria as grupo,"
-                    + "  case "
-                    + "  when m.dt_inativo is null then 'Matricula ATIVA' "
-                    + "	 when m.dt_inativo is not null then 'Matricula INATIVA' "
-                    + "   end "
-                    + "  from fin_lote as l "
-                    + " inner join fin_movimento as mov on mov.id_lote=l.id "
-                    + " inner join matr_socios as m on m.id=mov.id_matricula_socios "
-                    + " inner join pes_pessoa as p on p.id=m.id_titular "
-                    + " inner join soc_categoria as c on c.id=m.id_categoria "
-                    + " inner join soc_grupo_categoria as g on g.id=c.id_grupo_categoria "
+            String textqry
+                    = " select \n "
+                    + "     p.ds_nome as titular, \n "
+                    + "     m.nr_matricula as matricula, \n "
+                    + "     c.ds_categoria as categoria, \n "
+                    + "     g.ds_grupo_categoria as grupo, \n "
+                    + "  case \n "
+                    + "  when m.dt_inativo is null then 'Matricula ATIVA' \n "
+                    + "	 when m.dt_inativo is not null then 'Matricula INATIVA' \n "
+                    + "   end \n "
+                    + "  from fin_lote as l \n "
+                    + " inner join fin_movimento as mov on mov.id_lote = l.id \n "
+                    + " inner join matr_socios as m on m.id = mov.id_matricula_socios \n "
+                    + " inner join pes_pessoa as p on p.id = m.id_titular \n "
+                    + " inner join soc_categoria as c on c.id = m.id_categoria \n "
+                    + " inner join soc_grupo_categoria as g on g.id = c.id_grupo_categoria \n "
                     + " where l.id = " + id_lote;
 
             Query qry = getEntityManager().createNativeQuery(textqry);
@@ -249,8 +250,8 @@ public class MovimentosReceberSocialDao extends DB {
     public double[] pesquisaValorAcrescimo(int id_movimento) {
         double[] valor = new double[2];
         String textqry
-                = " SELECT func_multa_ass(m.id)+func_juros_ass(m.id)+func_correcao_ass(m.id) as acrescimo, "
-                + "        func_valor(m.id)+func_multa_ass(m.id)+func_juros_ass(m.id)+func_correcao_ass(m.id) as valor "
+                = " SELECT func_multa_ass(m.id) + func_juros_ass(m.id) + func_correcao_ass(m.id) as acrescimo, "
+                + "        func_valor(m.id) + func_multa_ass(m.id) + func_juros_ass(m.id) + func_correcao_ass(m.id) as valor "
                 + "   FROM fin_movimento m "
                 + "  WHERE m.id = " + id_movimento;
         try {
@@ -265,15 +266,21 @@ public class MovimentosReceberSocialDao extends DB {
 
     public List<Vector> listaBoletosAbertosAgrupado(int id_pessoa, boolean atrasados) {
         String textqry
-                = " SELECT b.id, b.nr_ctr_boleto, b.ds_boleto, sum(m.nr_valor), b.dt_vencimento, b.dt_vencimento_original, b.ds_mensagem \n"
-                + "  FROM fin_boleto b \n"
-                + " INNER JOIN fin_movimento m ON m.nr_ctr_boleto = b.nr_ctr_boleto \n"
-                + " WHERE m.id_pessoa = " + id_pessoa + " \n"
-                + "   AND m.is_ativo = true \n"
-                + ((atrasados) ? "" : "   AND b.dt_vencimento >= CURRENT_DATE \n")
-                + "   AND (m.ds_documento IS NOT NULL AND m.ds_documento <> '') \n"
-                + "   AND (m.nr_ctr_boleto IS NOT NULL AND m.nr_ctr_boleto <> '') \n"
-                + "   AND b.dt_vencimento IS NOT NULL \n"
+                = " SELECT b.id, \n "
+                + "        b.nr_ctr_boleto, \n "
+                + "        b.ds_boleto, \n "
+                + "        sum(m.nr_valor), \n "
+                + "        b.dt_vencimento, \n "
+                + "        b.dt_vencimento_original, \n "
+                + "        b.ds_mensagem \n"
+                + "  FROM fin_boleto b \n "
+                + " INNER JOIN fin_movimento m ON m.nr_ctr_boleto = b.nr_ctr_boleto \n "
+                + " WHERE m.id_pessoa = " + id_pessoa + " \n "
+                + "   AND m.is_ativo = true \n "
+                + ((atrasados) ? "" : "   AND b.dt_vencimento >= CURRENT_DATE \n ")
+                + "   AND (m.ds_documento IS NOT NULL AND m.ds_documento <> '') \n "
+                + "   AND (m.nr_ctr_boleto IS NOT NULL AND m.nr_ctr_boleto <> '') \n "
+                + "   AND b.dt_vencimento IS NOT NULL \n "
                 + "   AND m.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4) \n"
                 + " GROUP BY b.id, b.nr_ctr_boleto, b.ds_boleto, b.dt_vencimento, b.dt_vencimento_original  \n"
                 + ((atrasados) ? " ORDER BY b.dt_vencimento DESC" : " ORDER BY b.dt_vencimento");
@@ -287,26 +294,25 @@ public class MovimentosReceberSocialDao extends DB {
         return new ArrayList();
     }
 
-    public List<Movimento> listaMovimentosAbertosAnexarAgrupado(int id_pessoa, int id_responsavel) {
+    public List<Object> listaMovimentosAbertosAnexarAgrupado(int id_pessoa, int id_responsavel) {
         String textqry
-                = " SELECT m.* \n"
-                + "  FROM fin_movimento m \n"
-                + "  LEFT JOIN fin_boleto b ON m.nr_ctr_boleto = b.nr_ctr_boleto AND b.is_ativo = true \n"
-                + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n"
-                + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n"
-                + "  LEFT JOIN pes_juridica j ON j.id_pessoa = m.id_pessoa \n"
-                //+ " WHERE m.id_pessoa = " + id_pessoa + " \n"
-                + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n"
-                + "   AND m.is_ativo = true \n"
-                + "   AND (m.ds_documento IS NULL OR m.ds_documento = '') \n"
-                + "   AND (m.nr_ctr_boleto IS NULL OR m.nr_ctr_boleto = '') \n"
-                + "   -- AND b.dt_vencimento >= CURRENT_DATE QUANDO ATUALIZAR OS CAMPOS NULOS \n"
+                = " SELECT m.id, func_juros_ass(m.id) AS juros, func_multa_ass(m.id) AS multa, func_correcao_ass(m.id) AS CORRECAO \n "
+                + "  FROM fin_movimento m \n "
+                + "  LEFT JOIN fin_boleto b ON m.nr_ctr_boleto = b.nr_ctr_boleto AND b.is_ativo = true \n "
+                + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n "
+                + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n "
+                + "  LEFT JOIN pes_juridica j ON j.id_pessoa = m.id_pessoa \n "
+                + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                + "   AND m.is_ativo = true \n "
+                + "   AND (m.ds_documento IS NULL OR m.ds_documento = '') \n "
+                + "   AND (m.nr_ctr_boleto IS NULL OR m.nr_ctr_boleto = '') \n "
+                + "   -- AND b.dt_vencimento >= CURRENT_DATE QUANDO ATUALIZAR OS CAMPOS NULOS \n "
                 + //"   AND m.dt_vencimento >= CURRENT_DATE -- ATÉ ATUALIZAR OS CAMPOS NULOS \n" +
-                "   AND m.id_baixa IS NULL \n"
-                + "   AND m.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4) \n"
+                "   AND m.id_baixa IS NULL \n "
+                + "   AND m.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4) \n "
                 + " ORDER BY m.dt_vencimento DESC, pt.ds_nome, pb.ds_nome";
 
-        Query qry = getEntityManager().createNativeQuery(textqry, Movimento.class);
+        Query qry = getEntityManager().createNativeQuery(textqry);
         try {
             return qry.getResultList();
         } catch (Exception e) {
@@ -319,19 +325,14 @@ public class MovimentosReceberSocialDao extends DB {
         if (nr_ctr_boleto.isEmpty()) {
             return new ArrayList();
         }
-//        String textqry
-//            = " SELECT m " +
-//                "  FROM Movimento m " +
-//                " WHERE m.nrCtrBoleto = '"+nr_ctr_boleto+"'" +
-//                " ORDER BY m.titular.nome, m.beneficiario.nome, m.dtVencimento";
         String textqry
-                = " SELECT m.* "
-                + "  FROM fin_movimento m "
-                + " INNER JOIN fin_boleto b ON b.nr_ctr_boleto = m.nr_ctr_boleto "
-                + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n"
-                + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n"
-                + " WHERE m.is_ativo = true "
-                + "   AND m.nr_ctr_boleto = '" + nr_ctr_boleto + "'"
+                = " SELECT m.* \n "
+                + "  FROM fin_movimento m \n "
+                + " INNER JOIN fin_boleto b ON b.nr_ctr_boleto = m.nr_ctr_boleto \n "
+                + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n "
+                + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n "
+                + " WHERE m.is_ativo = true \n "
+                + "   AND m.nr_ctr_boleto = '" + nr_ctr_boleto + "' \n "
                 + " ORDER BY pt.ds_nome, pb.ds_nome, m.dt_vencimento";
 
         Query qry = getEntityManager().createNativeQuery(textqry, Movimento.class);

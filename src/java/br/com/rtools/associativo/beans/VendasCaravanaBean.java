@@ -705,6 +705,8 @@ public class VendasCaravanaBean implements Serializable {
         for (Parcelas listaParcela : listaParcelas) {
             soma = Moeda.soma(soma, Moeda.converteUS$(String.valueOf(listaParcela.getValor())));
         }
+        
+        soma = Moeda.converteDoubleR$Double(soma);
 
         if (soma < Moeda.converteUS$(valorTotal)) {
             GenericaMensagem.warn("Validação", "Valor das parcelas é MENOR que o valor total!");

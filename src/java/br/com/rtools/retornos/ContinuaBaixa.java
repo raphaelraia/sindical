@@ -5,6 +5,7 @@
  */
 package br.com.rtools.retornos;
 
+import br.com.rtools.cobranca.Cobranca;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Retorno;
@@ -60,51 +61,10 @@ public class ContinuaBaixa {
                         return "Boleto já quitado não pode ser excluído!";
                     }
 
-                    Movimento mov_antigo = (Movimento) dao.find(m);
-                    MovimentoDao dbm = new MovimentoDao();
+                    if (bol.getContaCobranca().getCobrancaRegistrada().getId() == 1) {
+                        Movimento mov_antigo = (Movimento) dao.find(m);
 
-                    m.setVencimento(mov_antigo.getVencimento());
-                    int id_boleto = dbm.inserirBoletoNativo(bol.getContaCobranca().getId());
-
-                    dbm.insertMovimentoBoleto(bol.getContaCobranca().getId(), bol.getBoletoComposto());
-
-                    String nr_ctr = bol.getNrCtrBoleto();
-
-                    bol.setDtRegistroBaixa(DataHoje.dataHoje());
-                    bol.setAtivo(false);
-                    bol.setNrCtrBoleto("");
-                    dao.update(bol, true);
-
-                    dao.openTransaction();
-                    if (id_boleto != -1) {
-                        Boleto bol_novo = (Boleto) dao.find(new Boleto(), id_boleto);
-
-                        bol_novo.setNrCtrBoleto(String.valueOf(m.getId()));
-                        bol_novo.setVencimento(mov_antigo.getVencimento());
-                        bol_novo.setVencimentoOriginal(mov_antigo.getVencimentoOriginal());
-
-                        m.setDocumento(bol_novo.getBoletoComposto());
-                        m.setNrCtrBoleto(bol_novo.getNrCtrBoleto());
-
-                        if (!dao.update(m)) {
-                            dao.rollback();
-                            voltarBoleto(bol, nr_ctr);
-                            return "Erro ao Atualizar Movimento ID " + m.getId();
-
-                        }
-
-                        if (!dao.update(bol_novo)) {
-                            dao.rollback();
-                            voltarBoleto(bol, nr_ctr);
-                            return "Erro ao Atualizar Boleto ID " + bol_novo.getId();
-                        }
-
-                        dao.commit();
-                        bol = bol_novo;
-                    } else {
-                        dao.rollback();
-                        voltarBoleto(bol, nr_ctr);
-                        return "Erro ao Gerar Novo Boleto";
+                        Cobranca.gerarNovoBoleto(bol, mov_antigo.getVencimento());
                     }
 
 //
@@ -158,6 +118,11 @@ public class ContinuaBaixa {
                 // BOLETO EXCLUIDO
                 case 6:
                     dao.update(b, true);
+
+                    if (b.getContaCobranca().getCobrancaRegistrada().getId() == 1) {
+                        Cobranca.gerarNovoBoleto(b, b.getVencimento());
+                    }
+
 //                    QUANDO O BOLETO VIER BAIXADO NO BANCO TMB EXCLUIR DO SISTEMA - ( ROGÉRIO DISSE QUE NÃO PODE )
 //                    List<Movimento> lm = b.getListaMovimento();
 //

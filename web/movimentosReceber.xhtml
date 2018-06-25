@@ -48,11 +48,14 @@
                             </h:panelGrid>
                             <h:panelGrid id="tbl" styleClass="margin-top-max no-border">
                                 <p:dataTable value="#{movimentosReceberBean.listMovimentoReceber}" var="listMovimentoReceber" rowIndexVar="index" emptyMessage="Nenhum movimento encontrado!" scrollHeight="270" scrollable="true" >
-                                    <p:column styleClass="text-center" width="20" rendered="#{!movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
+
+                                    <p:column style="width:15px">  
+                                        <p:rowToggler />  
+                                    </p:column>  
+
+                                    <p:column styleClass="text-center" style="width: 30px" rendered="#{!movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
                                         <f:facet name="header">
-                                            <p:selectBooleanCheckbox  value="#{movimentosReceberBean.marcarTodos}" disabled="#{movimentosReceberBean.listMovimentoReceber.size() == 0 or movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
-                                                <p:ajax event="change" update=":form_movimento_receber:tbl :form_movimento_receber:i_grid_calculo" listener="#{movimentosReceberBean.selectedAll()}"/>
-                                            </p:selectBooleanCheckbox>
+                                            <p:commandButton icon="ui-icon-arrow-1-sw" action="#{movimentosReceberBean.selectedAll()}" update=":form_movimento_receber:tbl :form_movimento_receber:i_grid_calculo" disabled="#{movimentosReceberBean.listMovimentoReceber.size() == 0 or movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}" style="width: 25px"/>
                                         </f:facet>
                                         <p:selectBooleanCheckbox value="#{listMovimentoReceber.selected}" disabled="#{movimentosReceberBean.pessoa.pessoaComplemento.bloqueiaObsAviso}">
                                             <p:ajax event="change" update="@this :form_movimento_receber:" global="false" listener="#{movimentosReceberBean.blockAcordo()}"/>
@@ -95,6 +98,16 @@
                                     <p:column headerText="Dias em atraso" styleClass="text-center">
                                         <h:outputText value="#{listMovimentoReceber.diasAtraso}"/>
                                     </p:column>
+
+                                    <p:rowExpansion>
+                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                            <p:column>
+                                                <p:outputLabel value="STATUS" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentosReceberBean.boleto(listMovimentoReceber).statusRetorno.descricao}"/>
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </p:rowExpansion>
+                                    
                                     <f:facet name="footer">
                                         <p:outputLabel value="Obs: - Ref. = Referência; - Vencto = Vencimento; - Desc. = Desconto." style="color: gray" />
                                     </f:facet>

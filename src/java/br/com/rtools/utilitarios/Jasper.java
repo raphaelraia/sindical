@@ -114,6 +114,7 @@ public class Jasper implements Serializable {
      * Retorna o nome do arquivo gerado
      */
     public static String FILE_NAME_GENERATED;
+    public static String FILE_GENERATED;
     /**
      * Retorna o nome do arquivo gerado
      */
@@ -208,6 +209,7 @@ public class Jasper implements Serializable {
         COMPRESS_EXTENSION = "zip";
         MEGABYTE = (1024 * 20560);
         FILE_NAME_GENERATED = "";
+        FILE_GENERATED = "";
         LIST_FILE_GENERATED = new ArrayList();
         TYPE = "";
         SUBREPORT_NAME = "";
@@ -531,7 +533,7 @@ public class Jasper implements Serializable {
         if (!Jasper.PART_NAME.isEmpty()) {
             Jasper.PART_NAME = Jasper.PART_NAME.trim();
             Jasper.PART_NAME = Jasper.PART_NAME.toLowerCase();
-            Jasper.PART_NAME = Jasper.PART_NAME.replace("_", "-");
+            Jasper.PART_NAME = Jasper.PART_NAME.replace("-", "_");
             Jasper.PART_NAME = Jasper.PART_NAME.replace(" ", "_");
             Jasper.PART_NAME = Jasper.PART_NAME.replace("/", "");
             Jasper.PART_NAME = AnaliseString.removerAcentos(Jasper.PART_NAME);

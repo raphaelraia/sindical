@@ -14,6 +14,7 @@ import br.com.rtools.associativo.Midia;
 import br.com.rtools.atendimento.AteOperacao;
 import br.com.rtools.cobranca.TmktContato;
 import br.com.rtools.cobranca.TmktNatureza;
+import br.com.rtools.configuracao.ConfiguracaoSmsGrupo;
 import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.DescricaoEndereco;
 import br.com.rtools.endereco.Logradouro;
@@ -24,6 +25,7 @@ import br.com.rtools.financeiro.Indice;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.locadoraFilme.Genero;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.pessoa.TipoTratamento;
 import br.com.rtools.pessoa.MalaDiretaGrupo;
 import br.com.rtools.pessoa.Nacionalidade;
 import br.com.rtools.pessoa.TipoCentroComercial;
@@ -403,6 +405,12 @@ public class SimplesBean implements Serializable {
             case "CampeonatoModalidade":
                 o = (CampeonatoModalidade) new CampeonatoModalidade(id, descricao);
                 break;
+            case "ConfiguracaoSmsGrupo":
+                o = (ConfiguracaoSmsGrupo) new ConfiguracaoSmsGrupo(id, descricao);
+                break;
+            case "TipoTratamento":
+                o = (TipoTratamento) new TipoTratamento(id, descricao);
+                break;
         }
         return o;
     }
@@ -517,6 +525,12 @@ public class SimplesBean implements Serializable {
                 break;
             case "CampeonatoModalidade":
                 ((CampeonatoModalidade) objeto).setDescricao(descricao);
+                break;
+            case "ConfiguracaoSmsGrupo":
+                ((ConfiguracaoSmsGrupo) objeto).setDescricao(descricao);
+                break;
+            case "TipoTratamento":
+                ((TipoTratamento) objeto).setDescricao(descricao);
                 break;
         }
     }
@@ -670,6 +684,14 @@ public class SimplesBean implements Serializable {
             case "CampeonatoModalidade":
                 descricao = ((CampeonatoModalidade) obj).getDescricao();
                 id = ((CampeonatoModalidade) objeto).getId();
+                break;
+            case "ConfiguracaoSmsGrupo":
+                descricao = ((ConfiguracaoSmsGrupo) obj).getDescricao();
+                id = ((ConfiguracaoSmsGrupo) objeto).getId();
+                break;
+            case "TipoTratamento":
+                descricao = ((TipoTratamento) obj).getDescricao();
+                id = ((TipoTratamento) objeto).getId();
                 break;
         }
         Dao dao = new Dao();
@@ -857,6 +879,16 @@ public class SimplesBean implements Serializable {
                     return true;
                 }
                 break;
+            case "ConfiguracaoSmsGrupo":
+                if (((ConfiguracaoSmsGrupo) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "TipoTratamento":
+                if (((TipoTratamento) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
         }
         return false;
     }
@@ -955,6 +987,7 @@ public class SimplesBean implements Serializable {
         list_class.add("br.com.rtools.arrecadacao");
         list_class.add("br.com.rtools.associativo");
         list_class.add("br.com.rtools.atendimento");
+        list_class.add("br.com.rtools.configuracao");
         list_class.add("br.com.rtools.endereco");
         list_class.add("br.com.rtools.escola");
         list_class.add("br.com.rtools.estoque");

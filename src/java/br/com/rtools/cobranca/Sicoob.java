@@ -7,7 +7,6 @@ import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.StatusRemessa;
 import br.com.rtools.financeiro.StatusRetorno;
-import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -19,6 +18,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
@@ -43,6 +43,8 @@ import org.apache.http.util.EntityUtils;
 import org.primefaces.json.JSONObject;
 
 public class Sicoob extends Cobranca {
+
+    private final Boolean TESTE = GenericaSessao.getBoolean("debug");
 
     public Sicoob(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
@@ -744,20 +746,45 @@ public class Sicoob extends Cobranca {
         if (valor < 1) {
             return new RespostaWebService(null, "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + boleto.getNrBoleto() + ")");
         }
-
-        if (boleto.getDtCobrancaRegistrada() != null) {
-            
-            Boleto b = super.gerarNovoBoleto(boleto, vencimentoRegistro);
-
-            if (b == null) {
-                return new RespostaWebService(null, "Erro ao gerar novo Boleto");
-            } else {
-                boleto = b;
-            }
-            
-        }
+//
+//        if (boleto.getDtCobrancaRegistrada() != null) {
+//
+//            Boleto b = super.gerarNovoBoleto(boleto, vencimentoRegistro);
+//
+//            if (b == null) {
+//                return new RespostaWebService(null, "Erro ao gerar novo Boleto");
+//            } else {
+//                boleto = b;
+//            }
+//
+//        }
 
         try {
+            // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR TESTE = TRUE
+            if (TESTE) {
+                boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+                new Dao().update(boleto, true);
+
+                new Dao().executeQuery(
+                        " INSERT INTO fin_movimento_boleto (id_movimento, id_boleto) \n "
+                        + "( \n "
+                        + "SELECT m.id, b.id \n "
+                        + "  FROM fin_boleto AS b \n "
+                        + " INNER JOIN fin_movimento AS m ON m.nr_ctr_boleto = b.nr_ctr_boleto \n "
+                        + "  LEFT JOIN fin_movimento_boleto AS mb ON mb.id_boleto = b.id AND mb.id_movimento = m.id \n "
+                        + " WHERE b.id = " + boleto.getId() + " \n "
+                        + "   AND mb.id IS NULL \n "
+                        + "   AND m.id_baixa IS NULL \n "
+                        + " GROUP BY m.id, b.id \n "
+                        + ");"
+                );
+
+                return new RespostaWebService(boleto, "");
+            }
+            
             Boolean teste = testarWebService();
 
             CloseableHttpClient httpclient = HttpClients.createDefault();

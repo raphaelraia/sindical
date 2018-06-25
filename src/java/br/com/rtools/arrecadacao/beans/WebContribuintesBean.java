@@ -12,13 +12,14 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.dao.BoletoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
+import br.com.rtools.movimento.TrataVencimento;
+import br.com.rtools.movimento.TrataVencimentoRetorno;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -31,7 +32,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -46,21 +46,24 @@ public class WebContribuintesBean extends MovimentoValorBean {
     private Servicos servico = new Servicos();
     private TipoServico tipoServico = new TipoServico();
     private Pessoa pessoa = null;
-    private List<DataObject> listaMovimento = new ArrayList();
-    private List<DataObject> listaMovimentoSelecionado = new ArrayList();
     private String strReferencia = "";
     private String strVencimento = "";
     private String strFiltroRef = "";
-    private String strContrib = "";
     private String msgConfirma = "";
-    private int idServicos = 0;
     private int idTipoServico = 0;
     private int idIndex = 0;
     private boolean impVerso = false;
     private boolean renderNovo = false;
-    private List<SelectItem> listaVencimento = new ArrayList<SelectItem>();
+    private final List<SelectItem> listaVencimento = new ArrayList();
     private String lblLink = "";
     private Registro registro = new Registro();
+
+    private List<ObjectListaMovimento> listaMovimento = new ArrayList();
+    private List<ObjectListaMovimento> listaMovimentoSelecionado = new ArrayList();
+    private ObjectListaMovimento olmSelecionado = null;
+
+    private int idServicos = 0;
+    private final List<SelectItem> listaServicos = new ArrayList();
 
     public WebContribuintesBean() {
         FilialDao filDB = new FilialDao();
@@ -70,13 +73,18 @@ public class WebContribuintesBean extends MovimentoValorBean {
         loadList();
     }
 
-    public void loadList() {
-        listaMovimento.clear();
-        WebContribuintesDao db = new WebContribuintesDao();
-        Dao dao = new Dao();
-        JuridicaDao dbJur = new JuridicaDao();
-        juridica = dbJur.pesquisaJuridicaPorPessoa(pessoa.getId());
+    public void limparNovoBoleto() {
+        strReferencia = "";
+        idServicos = 0;
+        idTipoServico = 0;
+    }
 
+    public final void loadList() {
+        listaMovimento.clear();
+
+        juridica = new JuridicaDao().pesquisaJuridicaPorPessoa(pessoa.getId());
+
+        WebContribuintesDao db = new WebContribuintesDao();
         List lista;
         if (strFiltroRef.isEmpty()) {
             lista = db.pesquisaMovParaWebContribuinte(juridica.getPessoa().getId());
@@ -84,198 +92,139 @@ public class WebContribuintesBean extends MovimentoValorBean {
             lista = db.pesquisaMovParaWebContribuinteComRef(juridica.getPessoa().getId(), strFiltroRef);
         }
 
-        for (int i = 0; i < lista.size(); i++) {
-            if (((List) lista.get(i)).get(5) == null) {
-                ((List) lista.get(i)).set(5, 0.0);
-            }
-            if (((List) lista.get(i)).get(6) == null) {
-                ((List) lista.get(i)).set(6, 0.0);
-            }
-            if (((List) lista.get(i)).get(7) == null) {
-                ((List) lista.get(i)).set(7, 0.0);
-            }
-            if (((List) lista.get(i)).get(8) == null) {
-                ((List) lista.get(i)).set(8, 0.0);
-            }
-            if (((List) lista.get(i)).get(9) == null) {
-                ((List) lista.get(i)).set(9, 0.0);
-            }
-            if (((List) lista.get(i)).get(10) == null) {
-                ((List) lista.get(i)).set(10, 0.0);
-            }
-            if (((List) lista.get(i)).get(11) == null) {
-                ((List) lista.get(i)).set(11, 0.0);
-            }
+        Dao dao = new Dao();
 
-            if (((Integer) ((List) lista.get(i)).get(13)) < 0) {
-                ((List) lista.get(i)).set(13, 0);
-            }
+        for (Object ob : lista) {
+            List linha = (List) ob;
+            Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) linha.get(15));
+            Boleto boleto = movimento.getBoleto();
 
-            // data ----
-            boolean hdata, hvalor;
-            int data1 = DataHoje.converteDataParaInteger(DataHoje.converteData((Date) ((List) lista.get(i)).get(4)));
-
-            if (data1 < DataHoje.converteDataParaInteger(DataHoje.data())) {
-                hdata = true;
-            } else {
-                hdata = false;
-            }
-
-            // valor ----
-            if ((Integer) ((List) lista.get(i)).get(2) == 4) {
-                hvalor = false;
-            } else {
-                hvalor = true;
-            }
-
-            String data = DataHoje.data();
-            String newData = "";
-            int z = 0;
             List<SelectItem> listVencimento = new ArrayList();
-            while (z < 6) {
-                newData = (new DataHoje()).incrementarDias(z, data);
-                listVencimento.add(new SelectItem(z, newData, newData));
-                z++;
-            }
-            Servicos s = (Servicos) dao.find(new Servicos(), (Integer) ((List) lista.get(i)).get(1));
-            TipoServico ts = (TipoServico) dao.find(new TipoServico(), (Integer) ((List) lista.get(i)).get(2));
-            ContaCobranca cc = new ContaCobrancaDao().pesquisaServicoCobranca(s.getId(), ts.getId());
-            // Boleto b = new BoletoDao().findByNrCtrBoleto(((List) lista.get(i)).get(0).toString());
-            // if (b != null) { 
-            if (cc != null) {
-                if (cc.getCobrancaRegistrada() != null) {
-                    if (cc.getCobrancaRegistrada().getId() == 1) {
-                        listVencimento = new ArrayList();
-                        listVencimento.add(new SelectItem(0, DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), DataHoje.converteData((Date) ((List) lista.get(i)).get(4))));
+
+            TrataVencimentoRetorno tvr = TrataVencimento.movimentoExiste(movimento, juridica, movimento.getReferencia(), movimento.getDtVencimento());
+
+            if (tvr.getVencido()) {
+                if (tvr.getRegistrado()) {
+                    listVencimento.add(new SelectItem(0, tvr.getBoleto().getVencimento(), tvr.getBoleto().getVencimento()));
+                } else {
+                    for (int i = 0; i < 6; i++) {
+                        String newData = (new DataHoje()).incrementarDias(i, DataHoje.data());
+                        listVencimento.add(new SelectItem(i, newData, newData));
                     }
                 }
+            } else {
+                listVencimento.add(new SelectItem(0, tvr.getMovimento().getVencimento(), tvr.getMovimento().getVencimento()));
             }
-            //}
-
-            listaMovimento.add(new DataObject(
-                    false,
-                    ((List) lista.get(i)).get(0), // boleto
-                    s, // servico
-                    ts, // tipo
-                    ((List) lista.get(i)).get(3), // referencia
-                    DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), // vencimento
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(5))), // valor_mov
-                    ((List) lista.get(i)).get(6), // valor_folha
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(7))), // multa
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(8))), // juros
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(9))), // correcao
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(10))), // desconto
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))), // valor_calculado
-                    ((List) lista.get(i)).get(12), // meses em atraso
-                    ((List) lista.get(i)).get(13), // dias em atraso
-                    ((List) lista.get(i)).get(14), // indice
-                    ((List) lista.get(i)).get(15), // id movimento
-                    Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))), // valor_calculado original
-                    hdata, // null
-                    hvalor, // null
-                    "0", // null
-                    listVencimento, // null
-                    null, // null
-                    null, // null
-                    null // null
+            
+            listaMovimento.add(new ObjectListaMovimento(
+                    tvr.getBoleto(), // BOLETO
+                    tvr.getMovimento(), // MOVIMENTO 
+                    tvr.getValor(), // VALOR
+                    tvr.getJuros(), // JUROS
+                    tvr.getMulta(), // MULTA
+                    tvr.getCorrecao(), // CORRECAO
+                    tvr.getValor_calculado(), // VALOR CALCULADO
+                    0, // INDEX VENCIMENTOS PARA O BOLETO
+                    listVencimento // LISTA DE VENCIMENTOS PARA O BOLETO
             ));
+
         }
     }
 
     public List<SelectItem> getListaVencimento() {
         if (listaVencimento.isEmpty()) {
             String data = DataHoje.data();
-            String newData = "";
-            int i = 0;
-            while (i < 6) {
-                newData = (new DataHoje()).incrementarDias(i, data);
+            for (int i = 0; i < 6; i++) {
+                String newData = (new DataHoje()).incrementarDias(i, data);
                 listaVencimento.add(new SelectItem(i, newData, newData));
-                i++;
             }
         }
         return listaVencimento;
     }
 
     public List<SelectItem> getListaServicos() {
-        ServicosDao db = new ServicosDao();
-        List<SelectItem> result = new ArrayList();
-        List servicos = db.pesquisaTodos(4);
-        int i = 0;
-        while (i < servicos.size()) {
-            result.add(new SelectItem(i,
-                    ((Servicos) servicos.get(i)).getDescricao(),
-                    Integer.toString(((Servicos) servicos.get(i)).getId())));
-            i++;
+        if (listaServicos.isEmpty()) {
+
+            List<Servicos> result = new ServicosDao().pesquisaTodos(4);
+
+            for (int i = 0; i < result.size(); i++) {
+                listaServicos.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getDescricao(),
+                                Integer.toString(result.get(i).getId())
+                        )
+                );
+            }
         }
-        return result;
+
+        return listaServicos;
     }
 
     public List<SelectItem> getListaTipoServico() {
         List<SelectItem> listaTipoServico = new ArrayList<>();
         DataHoje data = new DataHoje();
-        ServicosDao dbSer = new ServicosDao();
         Servicos servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
-        int i = 0;
-        TipoServicoDao db = new TipoServicoDao();
-        if ((!data.integridadeReferencia(strReferencia))
-                || (registro == null)
-                || (servicos == null)) {
+
+        if (!data.integridadeReferencia(strReferencia) || (registro == null) || (servicos == null)) {
             listaTipoServico.add(new SelectItem(0, "Digite uma referência", "0"));
             return listaTipoServico;
         }
 
-        List<Integer> listaIds = new ArrayList<Integer>();
+        List<Integer> listaIds = new ArrayList();
 
-        if (registro.getTipoEmpresa().equals("E")) {
-            if ((Integer.parseInt(strReferencia.substring(0, 2)) == 3)
-                    && (servicos.getId() == 1)) {
-                listaIds.add(1);
-                listaIds.add(3);
-            } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 3)
-                    && (servicos.getId() == 1)) {
-                listaIds.add(2);
-                listaIds.add(3);
-            } else {
-                listaIds.add(1);
-                listaIds.add(2);
-                listaIds.add(3);
-            }
-        } else if (registro.getTipoEmpresa().equals("P")) {
-            if ((Integer.parseInt(strReferencia.substring(0, 2)) == 1)
-                    && (servicos.getId() == 1)) {
-                listaIds.add(1);
-                listaIds.add(3);
-            } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 1)
-                    && (servicos.getId() == 1)) {
-                listaIds.add(2);
-                listaIds.add(3);
-            } else {
-                listaIds.add(1);
-                listaIds.add(2);
-                listaIds.add(3);
-            }
-        } else {
-            return listaTipoServico;
+        switch (registro.getTipoEmpresa()) {
+            case "E":
+                if ((Integer.parseInt(strReferencia.substring(0, 2)) == 3) && (servicos.getId() == 1)) {
+                    listaIds.add(1);
+                    listaIds.add(3);
+                } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 3) && (servicos.getId() == 1)) {
+                    listaIds.add(2);
+                    listaIds.add(3);
+                } else {
+                    listaIds.add(1);
+                    listaIds.add(2);
+                    listaIds.add(3);
+                }
+                break;
+            case "P":
+                if ((Integer.parseInt(strReferencia.substring(0, 2)) == 1) && (servicos.getId() == 1)) {
+                    listaIds.add(1);
+                    listaIds.add(3);
+                } else if ((Integer.parseInt(strReferencia.substring(0, 2)) != 1) && (servicos.getId() == 1)) {
+                    listaIds.add(2);
+                    listaIds.add(3);
+                } else {
+                    listaIds.add(1);
+                    listaIds.add(2);
+                    listaIds.add(3);
+                }
+                break;
+            default:
+                return listaTipoServico;
         }
+
+        TipoServicoDao db = new TipoServicoDao();
         List<TipoServico> select = db.pesquisaTodosComIds(listaIds);
+
         if (!select.isEmpty()) {
             for (int x = 0; x < select.size(); x++) {
                 listaTipoServico.add(new SelectItem(
                         x,
                         select.get(x).getDescricao(),
-                        Integer.toString(select.get(x).getId())));
+                        Integer.toString(select.get(x).getId()))
+                );
             }
         } else {
             listaTipoServico.add(new SelectItem(0, "Selecionar um Tipo Serviço", "0"));
         }
+
         return listaTipoServico;
     }
 
     @Override
     public void carregarFolha(DataObject data) {
-        MovimentoDao db = new MovimentoDao();
-        Movimento movimento = db.pesquisaCodigo((Integer) data.getArgumento16());
-        super.carregarFolha(movimento);
+
     }
 
     @Override
@@ -284,28 +233,23 @@ public class WebContribuintesBean extends MovimentoValorBean {
     }
 
     @Override
-    public void carregarFolha(Object valor) {
-
+    public void carregarFolha(Object linha) {
+        super.carregarFolha(((ObjectListaMovimento) linha).getMovimento());
+        olmSelecionado = (ObjectListaMovimento) linha;
     }
 
     @Override
     public void atualizaValorGrid(String tipo) {
-        //listaMovimento.get(idIndex).setArgumento6(super.atualizaValor(true, tipo));
-        //listMovimentos.clear();
-        super.atualizaValor(true, tipo);
+        olmSelecionado.setValorString(super.atualizaValor(true, tipo));
+
         loadList();
     }
 
     public void imprimirComValorCalculado() {
         List<Movimento> lista = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
 
-        ImpressaoWeb impressaoWeb;
-        Movimento movimento;
         String data = "";
 
-        String dataValida = "";
         DataHoje dh = new DataHoje();
 
         if (listaMovimentoSelecionado.isEmpty()) {
@@ -313,12 +257,14 @@ public class WebContribuintesBean extends MovimentoValorBean {
             return;
         }
 
-        for (DataObject listMovimento : listaMovimentoSelecionado) {
+        for (ObjectListaMovimento olm : listaMovimentoSelecionado) {
+            String dataValida;
             if (registro.getDiasBloqueiaAtrasadosWeb() <= 0) {
-                dataValida = (String) ((DataObject) listMovimento).getArgumento5();
+                dataValida = olm.getMovimento().getVencimento();
             } else {
-                dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), (String) ((DataObject) listMovimento).getArgumento5());
+                dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), olm.getMovimento().getVencimento());
             }
+
             if (validaBloqueio(dataValida)) {
                 GenericaMensagem.warn("Atenção", "Não é possivel imprimir boletos vencidos! " + registro.getMensagemBloqueioBoletoWeb());
                 return;
@@ -329,32 +275,29 @@ public class WebContribuintesBean extends MovimentoValorBean {
 
         dao.openTransaction();
 
-        for (DataObject listMovimento : listaMovimentoSelecionado) {
-            movimento = ((Movimento) dao.find(new Movimento(), (Integer) listMovimento.getArgumento16()));
-            // COM VALOR ALTERADO ---------
-            if (Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento12()) != 0) {
-                listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento12()));
-            } else {
-                if (Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento6()) <= 0) {
-                    GenericaMensagem.warn("Atenção", "Valor não pode ser zerado!");
-                    return;
-                }
-                listaValores.add(Moeda.substituiVirgulaDouble((String) listMovimento.getArgumento6()));
-            }
-            //COM DATA ALTERADA ---------
-            if (movimento.getDtVencimento().before(DataHoje.dataHoje()) && !movimento.getVencimento().equals(DataHoje.data())) {
-                data = getListaVencimento().get(Integer.parseInt((String) listMovimento.getArgumento20())).getDescription();
-                listaVencimentos.add(data);
-            } else {
-                listaVencimentos.add(movimento.getVencimento());
-            }
-            lista.add(movimento);
-            impressaoWeb = new ImpressaoWeb(-1,
-                    movimento,
+        for (ObjectListaMovimento olm : listaMovimentoSelecionado) {
+            olm.getBoleto().setValor(olm.getValor_calculado());
+            olm.getBoleto().setVencimento(olm.getListaVencimentoBoleto().get(olm.getIndexVencimentoBoleto()).getDescription());
+
+            lista.add(olm.getMovimento());
+
+            ImpressaoWeb impressaoWeb = new ImpressaoWeb(
+                    -1,
+                    olm.getMovimento(),
                     pessoa,
-                    DataHoje.dataHoje(), DataHoje.hora(), movimento.getDtVencimento());
+                    DataHoje.dataHoje(),
+                    DataHoje.hora(),
+                    olm.getBoleto().getDtVencimento()
+            );
+
             if (!dao.save(impressaoWeb)) {
                 GenericaMensagem.error("Erro", "Erro ao salvar Impressão Web, tente novamente!");
+                dao.rollback();
+                return;
+            }
+
+            if (!dao.update(olm.getBoleto())) {
+                GenericaMensagem.error("Erro", "Não foi possível atualizar Boleto");
                 dao.rollback();
                 return;
             }
@@ -363,7 +306,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
 
         ImprimirBoleto imp = new ImprimirBoleto();
         lista = imp.atualizaContaCobrancaMovimento(lista);
-        imp.imprimirBoleto(lista, listaValores, listaVencimentos, impVerso);
+        imp.imprimirBoleto(lista, impVerso, false);
         imp.visualizar(null);
 
         loadList();
@@ -384,50 +327,29 @@ public class WebContribuintesBean extends MovimentoValorBean {
         }
     }
 
-    public String imprimirBoleto() {
-        Movimento movimento;
-        List<Movimento> lista = new ArrayList<Movimento>();
-        List<Double> listaValores = new ArrayList<Double>();
-        List<String> listaVencimentos = new ArrayList<String>();
-        for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
-            movimento = (Movimento) listaMovimentoSelecionado.get(i).getArgumento1();
-            lista.add(movimento);
-            listaValores.add(movimento.getValor());
-            listaVencimentos.add(movimento.getVencimento());
-
-        }
-        ImprimirBoleto imp = new ImprimirBoleto();
-        imp.imprimirBoleto(lista, listaValores, listaVencimentos, impVerso);
-        imp.visualizar(null);
-        return null;
-    }
-
     public void adicionarBoleto() {
         try {
-            MensagemConvencao mc = new MensagemConvencao();
             Dao dao = new Dao();
-            MensagemConvencaoDao dbCon = new MensagemConvencaoDao();
-            TipoServicoDao dbTipo = new TipoServicoDao();
+
             ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
-            ContaCobranca contaCob = new ContaCobranca();
-            String dataValida = "";
+
             DataHoje dh = new DataHoje();
 
             if (getListaServicos().isEmpty()) {
-                GenericaMensagem.error("Erro", "Lista de Serviços está vazia!");
+                GenericaMensagem.error("Atenção", "Lista de Serviços está vazia!");
                 return;
             }
 
             if (getListaTipoServico().size() == 1 && getListaTipoServico().get(0).getDescription().equals("0")) {
-                GenericaMensagem.error("Erro", "Não é possível adicionar Boleto sem Tipo Serviço!");
+                GenericaMensagem.error("Atenção", "Não é possível adicionar Boleto sem Tipo Serviço!");
                 return;
             }
 
             servico = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
-            tipoServico = dbTipo.pesquisaCodigo(Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
-            contaCob = ctaCobraDB.pesquisaServicoCobranca(servico.getId(), tipoServico.getId());
+            tipoServico = (TipoServico) new Dao().find(new TipoServico(), Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
+
+            ContaCobranca contaCob = ctaCobraDB.pesquisaServicoCobranca(servico.getId(), tipoServico.getId());
             if (contaCob == null) {
-                //msgConfirma = ;
                 GenericaMensagem.warn("Atenção", "Não existe conta Cobrança para gerar, contate seu Sindicato.");
                 return;
             }
@@ -437,7 +359,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
             List<Movimento> lm = dbm.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId());
 
             if (!lm.isEmpty() && lm.size() > 1) {
-                GenericaMensagem.error("Erro", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
+                GenericaMensagem.error("Atenção", "ATENÇÃO, MOVIMENTO DUPLICADO NO SISTEMA, CONTATE ADMINISTRADOR!");
                 return;
             } else if (!lm.isEmpty()) {
                 GenericaMensagem.error("Atenção", "Este boleto já existe!");
@@ -449,102 +371,98 @@ public class WebContribuintesBean extends MovimentoValorBean {
                 return;
             }
 
-            if ((new DataHoje()).integridadeReferencia(strReferencia)) {
-                mc = dbCon.retornaDiaString(juridica.getId(), strReferencia, tipoServico.getId(), servico.getId());
-                if (mc != null) {
-
-                    if (registro.getDiasBloqueiaAtrasadosWeb() <= 0) {
-                        strVencimento = mc.getVencimento();
-                        dataValida = strVencimento;
-                    } else {
-                        strVencimento = mc.getVencimento();
-                        dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), strVencimento);
-                    }
-
-                    if (validaBloqueio(dataValida)) {
-                        GenericaMensagem.warn("Atenção", "Não é permitido gerar boleto vencido! " + registro.getMensagemBloqueioBoletoWeb());
-                        return;
-                    }
-
-//                    strVencimento = mc.getVencimento();
-//                    if (strVencimento.equals("")) {
-//                        strVencimento = DataHoje.data();
-//                    }
-                    Movimento movi = new Movimento(-1,
-                            null,
-                            servico.getPlano5(),
-                            juridica.getPessoa(),
-                            servico,
-                            null,
-                            tipoServico,
-                            null,
-                            Moeda.converteDoubleR$Double(super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId())),
-                            strReferencia,
-                            strVencimento,
-                            1,
-                            true,
-                            "E",
-                            false,
-                            juridica.getPessoa(),
-                            juridica.getPessoa(),
-                            "",
-                            "",
-                            strVencimento,
-                            0,
-                            0, 0, 0, 0, 0, 0, (FTipoDocumento) new Dao().find(new FTipoDocumento(), 2),
-                            0,
-                            null
-                    );
-
-                    StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(new Lote(), movi);
-
-                    if (sr.getStatus()) {
-
-                        loadList();
-                        GenericaMensagem.info("Sucesso", "Boleto Adicionado!");
-                        renderNovo = false;
-
-                    } else {
-                        GenericaMensagem.error("Atenção", sr.getMensagem());
-                    }
-                } else {
-                    GenericaMensagem.warn("Atenção", "Mensagem Convenção não existe. Entrar em contato com seu Sindicato para permitir a criação desta referência!");
-                }
-            } else {
+            if (!(new DataHoje()).integridadeReferencia(strReferencia)) {
                 msgConfirma = " Referência não esta válida!";
                 GenericaMensagem.warn("Atenção", "Essa referência não é válida!");
             }
+
+            MensagemConvencao mc = new MensagemConvencaoDao().retornaDiaString(juridica.getId(), strReferencia, tipoServico.getId(), servico.getId());
+            if (mc == null) {
+                GenericaMensagem.warn("Atenção", "Mensagem Convenção não existe. Entrar em contato com seu Sindicato para permitir a criação desta referência!");
+                return;
+            }
+
+            String dataValida;
+            if (registro.getDiasBloqueiaAtrasadosWeb() <= 0) {
+                strVencimento = mc.getVencimento();
+                dataValida = strVencimento;
+            } else {
+                strVencimento = mc.getVencimento();
+                dataValida = dh.incrementarDias(registro.getDiasBloqueiaAtrasadosWeb(), strVencimento);
+            }
+
+            if (validaBloqueio(dataValida)) {
+                GenericaMensagem.warn("Atenção", "Não é permitido gerar boleto vencido! " + registro.getMensagemBloqueioBoletoWeb());
+                return;
+            }
+
+            TrataVencimentoRetorno tvr = TrataVencimento.movimentoNaoExiste(servico, tipoServico, juridica, strReferencia, DataHoje.converte(strVencimento), super.carregarValor(servico.getId(), tipoServico.getId(), strReferencia, juridica.getPessoa().getId()));
+
+            StatusRetornoMensagem sr = GerarMovimento.salvarUmMovimento(new Lote(), tvr.getMovimento(), tvr.getVencimentoBoleto(), tvr.getValor());
+
+            if (sr.getStatus()) {
+
+                loadList();
+                GenericaMensagem.info("Sucesso", "Boleto Adicionado!");
+                renderNovo = false;
+
+            } else {
+                GenericaMensagem.error("Atenção", sr.getMensagem());
+            }
+
         } catch (NumberFormatException e) {
             System.out.println(e);
         }
     }
 
-    public String carregaUsuarioPG() {
-        /*usuario = (Usuario)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb");
-         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);*/
-        return null;
-    }
-
-    public void refreshForm() {
+    public Movimento novoMovimento(Servicos servicos, TipoServico tipoServico, Pessoa pessoa, Double m_valor, String m_vencimento, String referencia) {
+        return new Movimento(
+                -1,
+                null,
+                servicos.getPlano5(),
+                pessoa,
+                servicos,
+                null,
+                tipoServico,
+                null,
+                m_valor,
+                referencia,
+                m_vencimento,
+                1,
+                true,
+                "E",
+                false,
+                pessoa,
+                pessoa,
+                "",
+                "",
+                m_vencimento,
+                0, 0, 0, 0, 0, 0, 0,
+                (FTipoDocumento) new Dao().find(new FTipoDocumento(), 2),
+                0,
+                null
+        );
     }
 
     public void validaReferencia() {
         DataHoje dataHoje = new DataHoje();
         if (dataHoje.integridadeReferencia(strReferencia)) {
-            String dataS = "01/" + strReferencia;
+
             // A diferença é de no máximo 5 anos para geração de boletos
             String dataLimite = dataHoje.decrementarMeses(60, DataHoje.data());
-            Integer[] integer = dataHoje.diferencaEntreDatas(dataLimite, dataS);
+            Integer[] integer = dataHoje.diferencaEntreDatas(dataLimite, "01/" + strReferencia);
             if (integer == null) {
                 strReferencia = "";
                 GenericaMensagem.warn("Atenção", "Essa referência não é válida!");
                 return;
             }
+
             if (integer[2] < 0) {
                 strReferencia = "";
                 GenericaMensagem.warn("Atenção", "Não é permitido emitir boletos com período superior a 5 anos atras!");
                 return;
             }
+
             if (integer[2] > 5) {
                 strReferencia = "";
                 GenericaMensagem.warn("Atenção", "Não é permitido emitir boletos com períodos futuros que excedem a faixa do ano atual! Ex. Não é possível emitir um boleto de referência superior ao ano corrente.");
@@ -627,10 +545,6 @@ public class WebContribuintesBean extends MovimentoValorBean {
         this.msgConfirma = msgConfirma;
     }
 
-    public void setListaVencimento(List<SelectItem> listaVencimento) {
-        this.setListaVencimento(listaVencimento);
-    }
-
     public String getStrFiltroRef() {
         return strFiltroRef;
     }
@@ -668,19 +582,157 @@ public class WebContribuintesBean extends MovimentoValorBean {
         this.renderNovo = renderNovo;
     }
 
-    public List<DataObject> getListaMovimento() {
+    public List<ObjectListaMovimento> getListaMovimento() {
         return listaMovimento;
     }
 
-    public void setListaMovimento(List<DataObject> listaMovimento) {
+    public void setListaMovimento(List<ObjectListaMovimento> listaMovimento) {
         this.listaMovimento = listaMovimento;
     }
 
-    public List<DataObject> getListaMovimentoSelecionado() {
+    public List<ObjectListaMovimento> getListaMovimentoSelecionado() {
         return listaMovimentoSelecionado;
     }
 
-    public void setListaMovimentoSelecionado(List<DataObject> listaMovimentoSelecionado) {
+    public void setListaMovimentoSelecionado(List<ObjectListaMovimento> listaMovimentoSelecionado) {
         this.listaMovimentoSelecionado = listaMovimentoSelecionado;
+    }
+
+    public class ObjectListaMovimento {
+
+        private Boleto boleto;
+        private Movimento movimento;
+        private Double valor;
+        private Double juros;
+        private Double multa;
+        private Double correcao;
+        private Double valor_calculado;
+        private Integer indexVencimentoBoleto;
+        private List<SelectItem> listaVencimentoBoleto;
+
+        public ObjectListaMovimento(Boleto boleto, Movimento movimento, Double valor, Double juros, Double multa, Double correcao, Double valor_calculado, Integer indexVencimentoBoleto, List<SelectItem> listaVencimentoBoleto) {
+            this.boleto = boleto;
+            this.movimento = movimento;
+            this.valor = valor;
+            this.juros = juros;
+            this.multa = multa;
+            this.correcao = correcao;
+            this.valor_calculado = valor_calculado;
+            this.indexVencimentoBoleto = indexVencimentoBoleto;
+            this.listaVencimentoBoleto = listaVencimentoBoleto;
+        }
+
+        public Boleto getBoleto() {
+            return boleto;
+        }
+
+        public void setBoleto(Boleto boleto) {
+            this.boleto = boleto;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public Double getValor() {
+            return valor;
+        }
+
+        public void setValor(Double valor) {
+            this.valor = valor;
+        }
+
+        public String getValorString() {
+            return Moeda.converteDoubleToString(valor);
+        }
+
+        public void setValorString(String valorString) {
+            this.valor = Moeda.converteStringToDouble(valorString);
+        }
+
+        public Double getJuros() {
+            return juros;
+        }
+
+        public void setJuros(Double juros) {
+            this.juros = juros;
+        }
+
+        public String getJurosString() {
+            return Moeda.converteDoubleToString(juros);
+        }
+
+        public void setJurosString(String jurosString) {
+            this.juros = Moeda.converteStringToDouble(jurosString);
+        }
+
+        public Double getMulta() {
+            return multa;
+        }
+
+        public void setMulta(Double multa) {
+            this.multa = multa;
+        }
+
+        public String getMultaString() {
+            return Moeda.converteDoubleToString(multa);
+        }
+
+        public void setMultaString(String multaString) {
+            this.multa = Moeda.converteStringToDouble(multaString);
+        }
+
+        public Double getCorrecao() {
+            return correcao;
+        }
+
+        public void setCorrecao(Double correcao) {
+            this.correcao = correcao;
+        }
+
+        public String getCorrecaoString() {
+            return Moeda.converteDoubleToString(correcao);
+        }
+
+        public void setCorrecaoString(String correcaoString) {
+            this.correcao = Moeda.converteStringToDouble(correcaoString);
+        }
+
+        public Double getValor_calculado() {
+            return valor_calculado;
+        }
+
+        public void setValor_calculado(Double valor_calculado) {
+            this.valor_calculado = valor_calculado;
+        }
+
+        public String getValor_calculadoString() {
+            return Moeda.converteDoubleToString(valor_calculado);
+        }
+
+        public void setValor_calculadoString(String valor_calculadoString) {
+            this.valor_calculado = Moeda.converteStringToDouble(valor_calculadoString);
+        }
+
+        public Integer getIndexVencimentoBoleto() {
+            return indexVencimentoBoleto;
+        }
+
+        public void setIndexVencimentoBoleto(Integer indexVencimentoBoleto) {
+            this.indexVencimentoBoleto = indexVencimentoBoleto;
+        }
+
+        public List<SelectItem> getListaVencimentoBoleto() {
+            return listaVencimentoBoleto;
+        }
+
+        public void setListaVencimentoBoleto(List<SelectItem> listaVencimentoBoleto) {
+            this.listaVencimentoBoleto = listaVencimentoBoleto;
+        }
+
     }
 }

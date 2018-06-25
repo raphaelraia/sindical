@@ -21,7 +21,6 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
-import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -30,6 +29,7 @@ import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.beans.SisCartaBean;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -86,13 +86,11 @@ public class ImpressaoBoletosBean implements Serializable {
     private boolean chkTodosVencimentos = false;
     private List<Impressao> listHistoricoImpressao = new ArrayList();
     private String registrado = "todos";
-    // private List<Linha> listaMovGrid = new ArrayList();
-    // private List<Linha> listaMovGridSelecionada = new ArrayList();
-    // private int boletosSel;
     private Map<String, Integer> contaCobranca = null;
     private List selectedContaCobranca = new ArrayList();
     private Boolean habilitarComunicado = false;
     private String novoVencto = "";
+    private String message = "";
 
     public ImpressaoBoletosBean() {
         GenericaSessao.remove("juridicaPesquisa");
@@ -151,20 +149,18 @@ public class ImpressaoBoletosBean implements Serializable {
     public void registrarBoletos() {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> lista = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
+
         Dao dao = new Dao();
         if (!selected.isEmpty()) {
             for (ObjectImpressaoBoleto oib : selected) {
                 Movimento m = (Movimento) dao.find(new Movimento(), (Integer) oib.getMovimento_id());
                 lista.add(m);
-                listaValores.add(m.getValor());
-                listaVencimentos.add(m.getVencimento());
+
             }
             ImprimirBoleto imp = new ImprimirBoleto();
-            HashMap hash = imp.registrarMovimentos(lista, listaValores, listaVencimentos);
+            HashMap hash = imp.registrarMovimentos(lista, false);
 
-            if (((ArrayList) hash.get("lista")).isEmpty() || ((ArrayList) hash.get("lista")).size() != listaValores.size()) {
+            if (((ArrayList) hash.get("lista")).isEmpty()) {
                 GenericaMensagem.error("Erro", hash.get("mensagem").toString());
             } else {
                 GenericaMensagem.info("Sucesso", "Boletos Registrados!");
@@ -256,21 +252,6 @@ public class ImpressaoBoletosBean implements Serializable {
         this.fim = Integer.parseInt(fimString);
     }
 
-//    public int getBoletosSel() {
-//        return boletosSel;
-//    }
-//
-//    public void setBoletosSel(int boletosSel) {
-//        this.boletosSel = boletosSel;
-//    }
-//    public List<Linha> getListaMovGrid() {
-//        return listaMovGrid;
-//    }
-//
-//    public void setListaMovGrid(List<Linha> listaMovGrid) {
-//        this.listaMovGrid = listaMovGrid;
-//    }
-//    
     public Linha addGrid(Vector vetorAux, int i) {
         List lista = new ArrayList();
         Linha linha = new Linha();
@@ -305,38 +286,27 @@ public class ImpressaoBoletosBean implements Serializable {
             GenericaMensagem.warn("Validação", "INFORMAR AO MENOS UMA DATA DE VENCIMENTO!");
             return;
         }
+
         try {
             selected = new ArrayList();
             listObjectImpressaoBoleto = new ArrayList();
-            //listaMovGrid.clear();
-            //listaMovGridSelecionada.clear();
+
             ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
             MovimentoDao movDB = new MovimentoDao();
-            //List<Linha> listaSwap = new ArrayList();
-            List<ObjectImpressaoBoleto> sublistOIB = new ArrayList();
-            ServicoContaCobranca contaCobranca;
-            // Linha linha = new Linha();
 
             List<Integer> listG = new ArrayList();
             List<Integer> listC = new ArrayList();
-            //Object[] result = new Object[]{new ArrayList(), new Integer(0)};
 
             totalBoletos = 0;
             totalEmpresas = 0;
             totalEscritorios = 0;
 
-            String contribuicoes = "";
             List<ServicoContaCobranca> servicoContaCobrancas = new ArrayList<>();
             if (selectedContaCobranca != null) {
                 for (int i = 0; i < selectedContaCobranca.size(); i++) {
                     servicoContaCobrancas.add(servDB.pesquisaCodigo(Integer.parseInt(selectedContaCobranca.get(i).toString())));
                 }
             }
-//            try {
-//                servicoContaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
-//            } catch (Exception e) {
-//                servicoContaCobranca = new ServicoContaCobranca();
-//            }
 
             if (!listaConvencaoSelecionada.isEmpty()) {
                 for (int i = 0; i < listaConvencaoSelecionada.size(); i++) {
@@ -398,6 +368,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             o.get(12),
                             (Boolean) o.get(13)
                     );
+
                     listObjectImpressaoBoleto.add(oib);
                     if (this.regraEscritorios.equals("ate")) {
                         if (((Long) oib.getQuantidade_empresas()) <= this.quantidadeEmpresas) {
@@ -413,7 +384,6 @@ public class ImpressaoBoletosBean implements Serializable {
                         }
                     } else if (this.regraEscritorios.equals("apartir")) {
                         if (((Long) o.get(11)) >= this.quantidadeEmpresas) {
-                            //listObjectImpressaoBoleto.add(oib);
                             if (!auxEsc.equals(((Integer) oib.getContabilidade_id()))) {
                                 totalEscritorios++;
                             }
@@ -474,7 +444,7 @@ public class ImpressaoBoletosBean implements Serializable {
                 ServicoContaCobranca contaCobranca;
                 try {
                     contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     contaCobranca = new ServicoContaCobranca();
                 }
                 MovimentoDao db = new MovimentoDao();
@@ -540,9 +510,14 @@ public class ImpressaoBoletosBean implements Serializable {
             }
             while (i < quantidade) {
                 if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                    if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                    if (!habilitarComunicado) {
+                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                            selected.add(listObjectImpressaoBoleto.get(i));
+                        }
+                    } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
+
                 } else {
                     selected.add(listObjectImpressaoBoleto.get(i));
                 }
@@ -554,9 +529,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < listObjectImpressaoBoleto.size()) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -569,7 +549,16 @@ public class ImpressaoBoletosBean implements Serializable {
                 i = inicio - 1;
                 while ((o < quantidade) && (i < listObjectImpressaoBoleto.size())) {
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (!habilitarComunicado) {
+                                if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                    selected.add(listObjectImpressaoBoleto.get(i));
+                                }
+                            } else {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
                     } else {
@@ -585,9 +574,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -599,9 +593,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -619,9 +618,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -638,9 +642,14 @@ public class ImpressaoBoletosBean implements Serializable {
                 while (i < fim) {
                     quantidade++;
                     if (listObjectImpressaoBoleto.get(i).getCobranca_registrada()) {
-                        if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                        if (!habilitarComunicado) {
+                            if (listObjectImpressaoBoleto.get(i).getData_registro() != null) {
+                                selected.add(listObjectImpressaoBoleto.get(i));
+                            }
+                        } else {
                             selected.add(listObjectImpressaoBoleto.get(i));
                         }
+
                     } else {
                         selected.add(listObjectImpressaoBoleto.get(i));
                     }
@@ -677,8 +686,6 @@ public class ImpressaoBoletosBean implements Serializable {
             return null;
         }
         List<Movimento> lista = new ArrayList();
-        List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
 
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
         Dao dao = new Dao();
@@ -687,8 +694,6 @@ public class ImpressaoBoletosBean implements Serializable {
         for (int i = 0; i < selected.size(); i++) {
             Movimento m = (Movimento) dao.find(new Movimento(), (Integer) selected.get(i).getMovimento_id());
             lista.add(m);
-            listaValores.add(m.getValor());
-            listaVencimentos.add(m.getVencimento());
 
             Impressao impressao = new Impressao();
 
@@ -705,7 +710,7 @@ public class ImpressaoBoletosBean implements Serializable {
         dao.commit();
 
         ImprimirBoleto imp = new ImprimirBoleto();
-        imp.imprimirBoleto(lista, listaValores, listaVencimentos, imprimeVerso);
+        imp.imprimirBoleto(lista, imprimeVerso, false);
         imp.baixarArquivo();
         return null;
     }
@@ -749,10 +754,12 @@ public class ImpressaoBoletosBean implements Serializable {
             }
             idsJuridica = idsJuridica + ((Integer) selected.get(i).getEmpresa_id());
         }
+
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
             result = dbContri.listaRelatorioContribuintesPorJuridica("ativos", "todos", "todas", "", "razao", cnaes, 2, idsJuridica);
         }
+
         List listEtiquetas = new ArrayList<>();
         for (int i = 0; i < result.size(); i++) {
             try {
@@ -779,29 +786,21 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public String etiquetaEscritorio() {
-        String condicao = "";
-        String escritorios = "";
-        String cidades = "";
-        String pCidade = "";
-        String ordem = "";
-        String cnaes = "";
-
-        RelatorioDao db = new RelatorioDao();
         RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         PessoaEndereco endEscritorio = new PessoaEndereco();
         List listaCnaes = new ArrayList();
         // CONDICAO DO RELATORIO -----------------------------------------------------------
-        condicao = "ativos";
+        String condicao = "ativos";
 
         // ESCRITORIO DO RELATORIO -----------------------------------------------------------
-        escritorios = "todos";
+        String escritorios = "todos";
 
         // CIDADE DO RELATORIO -----------------------------------------------------------
-        pCidade = "todas";
+        String pCidade = "todas";
 
         // ORDEM DO RELATORIO -----------------------------------------------------------
-        ordem = "escritorio";
+        String ordem = "escritorio";
 
         // CNAES DO RELATORIO -----------------------------------------------------------
         List<Convencao> resultConvencoes = new Dao().list(new Convencao(), true);
@@ -817,6 +816,7 @@ public class ImpressaoBoletosBean implements Serializable {
             resultCnaeConvencao = dbContri.pesquisarCnaeConvencaoPorConvencao(ids);
         }
 
+        String cnaes = "";
         if (!resultConvencoes.isEmpty()) {
             for (int i = 0; i < resultCnaeConvencao.size(); i++) {
                 listaCnaes.add(resultCnaeConvencao.get(i));
@@ -830,6 +830,7 @@ public class ImpressaoBoletosBean implements Serializable {
         } else {
             cnaes = "";
         }
+
         Integer idContabil1 = 0, idContabil2 = 0;
         boolean um = true;
         for (int i = 0; i < selected.size(); i++) {
@@ -850,6 +851,9 @@ public class ImpressaoBoletosBean implements Serializable {
                 }
             }
         }
+
+        String cidades = "";
+
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
             result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, 2, idsJuridica);
@@ -884,24 +888,29 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public boolean getDesabilitaVi() {
-        if (cbEmail.equals("todos")) {
-            return false;
-        } else if (cbEmail.equals("com")) {
-            return true;
-        } else if (cbEmail.equals("sem")) {
-            return false;
+        switch (cbEmail) {
+            case "todos":
+                return false;
+            case "com":
+                return true;
+            case "sem":
+                return false;
+            default:
+                break;
         }
         return false;
     }
 
     public boolean getDesabilitaEmail() {
-        if (cbEmail.equals("todos")) {
-            return true;
-        } else if (cbEmail.equals("com")) {
-            return false;
-        } else if (cbEmail.equals("sem")) {
-
-            return true;
+        switch (cbEmail) {
+            case "todos":
+                return true;
+            case "com":
+                return false;
+            case "sem":
+                return true;
+            default:
+                break;
         }
         return true;
     }
@@ -909,11 +918,9 @@ public class ImpressaoBoletosBean implements Serializable {
     public void enviarEmail() {
 
         JuridicaDao dbj = new JuridicaDao();
-        // MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
         List<Double> listaValores = new ArrayList();
-        List<String> listaVencimentos = new ArrayList();
 
         boolean enviar = false;
         int id_contabil = 0, id_empresa = 0, id_compara = 0;
@@ -931,7 +938,6 @@ public class ImpressaoBoletosBean implements Serializable {
                 if (id_contabil != 0 && juridica.isCobrancaEscritorio()) {
                     movadd.add(movimento);
                     listaValores.add(movimento.getValor());
-                    listaVencimentos.add(movimento.getVencimento());
 
                     juridica = dbj.pesquisaJuridicaPorPessoa(id_contabil);
 
@@ -947,7 +953,6 @@ public class ImpressaoBoletosBean implements Serializable {
                 } else {
                     movadd.add(movimento);
                     listaValores.add(movimento.getValor());
-                    listaVencimentos.add(movimento.getVencimento());
 
                     try {
                         id_compara = (Integer) selected.get(i + 1).getEmpresa_id();
@@ -960,11 +965,10 @@ public class ImpressaoBoletosBean implements Serializable {
                 }
 
                 if (enviar) {
-                    enviar(movadd, listaValores, listaVencimentos, juridica);
+                    enviar(movadd, juridica);
                     enviar = false;
                     movadd.clear();
                     listaValores.clear();
-                    listaVencimentos.clear();
                 }
             } catch (Exception ex) {
             }
@@ -973,14 +977,13 @@ public class ImpressaoBoletosBean implements Serializable {
         PF.update("form_impressao_boletos:i_e_i_b_email");
     }
 
-    public void enviar(List<Movimento> mov, List<Double> listaValores, List<String> listaVencimentos, Juridica jur) {
+    public void enviar(List<Movimento> mov, Juridica jur) {
         try {
 
-            Registro reg = new Registro();
-            reg = Registro.get();
+            Registro reg = Registro.get();
 
             ImprimirBoleto imp = new ImprimirBoleto();
-            imp.imprimirBoleto(mov, listaValores, listaVencimentos, false);
+            imp.imprimirBoleto(mov, false, false);
             String nome = imp.criarLink(jur.getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
             List<Pessoa> pessoas = new ArrayList();
             pessoas.add(jur.getPessoa());
@@ -989,25 +992,44 @@ public class ImpressaoBoletosBean implements Serializable {
             List<File> fls = new ArrayList();
 
             String nome_envio;
+            String empresa_nome = AnaliseString.converterCapitalize(jur.getPessoa().getNome());
             if (mov.size() == 1) {
-                nome_envio = "Boleto " + mov.get(0).getServicos().getDescricao() + " N° " + mov.get(0).getDocumento();
+                nome_envio = "Boleto " + mov.get(0).getServicos().getDescricao() + " de número " + mov.get(0).getDocumento();
             } else {
-                nome_envio = "Boleto";
+                nome_envio = "Boletos " + jur.getPessoa().getNome() + " - Qtde de boletos " + mov.size() + " - ref. aos meses " + mov.get(0).getReferencia();
             }
 
+            nome_envio = AnaliseString.converterCapitalize(nome_envio);
+
             if (!reg.isEnviarEmailAnexo()) {
-                mensagem = " <div style=\"background:#00ccff; padding: 15px; font-size:13pt\">Envio cadastrado para <b>" + jur.getPessoa().getNome() + " </b></div><br />"
-                        + " <h5>Visualize seu boleto clicando no link abaixo</h5><br /><br />"
+                mensagem = "";
+                // mensagem = " <div style=\"background:#00ccff; padding: 15px; font-size:13pt\">Envio de boletos</b></div><br />";
+            } else {
+                mensagem = "";
+                //  mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Envio de boletos</b></div><br />";
+            }
+
+            mensagem += message;
+            mensagem += "<ul>";
+            mensagem += "<li style=\"text-decoration:underline; list-style: none;\"><strong>Boletos</strong><br /></li>";
+            for (int i = 0; i < mov.size(); i++) {
+                mensagem += "<li style=\"list-style: none; padding: 5px\">- " + AnaliseString.converterCapitalize(mov.get(i).getPessoa().getNome()) + " - Contribuição " + AnaliseString.converterCapitalize(mov.get(i).getServicos().getDescricao()) + " - Boleto nº " + mov.get(i).getDocumento() + ";</li>";
+            }
+
+            mensagem += "</ul>";
+            mensagem += "<br /><br />";
+            if (!reg.isEnviarEmailAnexo()) {
+                mensagem += "<p>Visualize seu boleto clicando no link abaixo</p><br /><br />"
                         + " <a href=\"" + reg.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nome + "\">Clique aqui para abrir boleto</a><br />";
             } else {
                 fls.add(new File(imp.getPathPasta() + "/" + nome));
-                mensagem = " <div style='background:#00ccff; padding: 15px; font-size:13pt'>Envio cadastrado para <b>" + jur.getPessoa().getNome() + " </b></div><br />"
-                        + " <h5>Baixe seu boleto anexado neste email</5><br /><br />";
+                mensagem += "<p>Baixe seu boleto anexado neste email</p><br /><br />";
             }
 
             Dao di = new Dao();
             Mail mail = new Mail();
             mail.setFiles(fls);
+            mail.setUnique(true);
             mail.setEmail(
                     new Email(
                             -1,
@@ -1034,8 +1056,9 @@ public class ImpressaoBoletosBean implements Serializable {
                 emailPessoa = new EmailPessoa();
             }
 
-            String[] retorno = mail.send("personalizado");
+            String[] retorno = mail.send("cerberus");
             msgImpressao = "Envio Concluído!";
+            message = "";
 
             if (retorno[1] != null && !retorno[1].isEmpty()) {
                 Messages.warn("Erro", retorno[0] + " " + retorno[1]);
@@ -1200,8 +1223,8 @@ public class ImpressaoBoletosBean implements Serializable {
         if (comunicado.isEmpty()) {
             comunicado = "teste";
             GenericaMensagem.warn("Validação", "NÃO HÁ COMUNICADO!");
-            // return;
         }
+
         Dao dao = new Dao();
         List<Pessoa> listPessoas = new ArrayList();
         for (int i = 0; i < selected.size(); i++) {
@@ -1221,12 +1244,13 @@ public class ImpressaoBoletosBean implements Serializable {
             GenericaMensagem.warn("Validação", "NENHUM REGISTRO SELECIONADO!");
             return;
         }
+
         String comunicado = ConfiguracaoArrecadacao.get().getComunicado();
         if (comunicado.isEmpty()) {
             comunicado = "teste";
             GenericaMensagem.warn("Validação", "NÃO HÁ COMUNICADO!");
-            // return;
         }
+
         Dao dao = new Dao();
         int[] pid = new int[selected.size()];
         for (int i = 0; i < selected.size(); i++) {
@@ -1250,12 +1274,13 @@ public class ImpressaoBoletosBean implements Serializable {
         } catch (Exception e2) {
             e2.getMessage();
         }
+
         Jasper.IS_HEADER = true;
         Jasper.PART_NAME = "";
         Jasper.IS_DOWNLOAD = false;
         Jasper.printReports("/Relatorios/CARTA.jasper", "comunicado", c);
         File fileComunicado = new File(Jasper.FILE_NAME_GENERATED);
-        Dao di = new Dao();
+
         Mail mail = new Mail();
         mail.addFile(fileComunicado);
         mail.setEmail(
@@ -1320,13 +1345,6 @@ public class ImpressaoBoletosBean implements Serializable {
         this.listaDataSelecionada = listaDataSelecionada;
     }
 
-//    public List<Linha> getListaMovGridSelecionada() {
-//        return listaMovGridSelecionada;
-//    }
-//
-//    public void setListaMovGridSelecionada(List<Linha> listaMovGridSelecionada) {
-//        this.listaMovGridSelecionada = listaMovGridSelecionada;
-//    }
     public List<ObjectImpressaoBoleto> getListObjectImpressaoBoleto() {
         return listObjectImpressaoBoleto;
     }
@@ -1423,6 +1441,14 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public void setNovoVencto(String novoVencto) {
         this.novoVencto = novoVencto;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public class ObjectImpressaoBoleto {

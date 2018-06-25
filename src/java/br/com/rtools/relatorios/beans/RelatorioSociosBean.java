@@ -37,7 +37,6 @@ import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Mensagem;
 import br.com.rtools.sistema.Mes;
-import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.sistema.utils.SisProcessoUtils;
 import br.com.rtools.utilitarios.Dao;
@@ -1693,7 +1692,7 @@ public class RelatorioSociosBean implements Serializable {
         listDates.add(new SelectItem("aposentadoria", "Aposentadoria"));
         listDates.add(new SelectItem("atualizacao", "Atualização"));
         listDates.add(new SelectItem("cadastro", "Cadastro"));
-        listDates.add(new SelectItem("demissao", "Demissão", "", true));
+        listDates.add(new SelectItem("demissao", "Demissão"));
         listDates.add(new SelectItem("filiacao", "Filiação"));
         listDates.add(new SelectItem("recadastro", "Recadastro"));
         if (getShow("carteirinha")) {

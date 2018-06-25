@@ -22,9 +22,9 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
@@ -35,6 +35,11 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.ImpressaoParaSocios;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
+import br.com.rtools.utilitarios.Messages;
+import br.com.rtools.utilitarios.Reports;
+import br.com.rtools.utilitarios.Sessions;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,11 +49,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.apache.commons.io.FileUtils;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.event.data.FilterEvent;
@@ -92,14 +103,20 @@ public class CartaoSocialBean implements Serializable {
     private Boolean somenteAutorizados;
     private Boolean disabledImpressaoExterna;
     private Boolean liberaReimpressao;
+    private String pdfCartao;
+    private Boolean showModalSelecteds;
 
     public CartaoSocialBean() {
+        clearUserFolder();
+        showModalSelecteds = false;
+        pdfCartao = "";
+        Sessions.remove("FILE_NAME_GENERATED");
         configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         disabled = false;
         if (configuracaoSocial.getControlaCartaoFilial()) {
             disabled = true;
         }
-        status = "nao_impressos";
+        status = "pendentes";
         filter = "";
         query = "";
         somenteAutorizados = false;
@@ -108,7 +125,7 @@ public class CartaoSocialBean implements Serializable {
         getListFilial();
         Jasper.load();
         printed = false;
-        typeDate = "todos";
+        typeDate = "";
         startDate = "";
         finishDate = "";
         paginacao = true;
@@ -138,6 +155,9 @@ public class CartaoSocialBean implements Serializable {
     }
 
     public final void loadList() {
+        if (showModalSelecteds) {
+            return;
+        }
         if (!printed) {
             if (status.isEmpty()) {
                 status = "hoje";
@@ -166,154 +186,59 @@ public class CartaoSocialBean implements Serializable {
                     disabledImpressaoExterna = true;
                     inPessoasImprimir = "";
                 } else {
-                    listaCarteirinha = new SocioCarteirinhaDao().find("nao_impressos", filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, "");
+                    listaCarteirinha = new SocioCarteirinhaDao().find("pendentes", filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, "");
                 }
             }
             sisProcesso.finish();
         }
     }
 
-//    public void naoImpressoTodos() {
-//        por = "niEmpresaTodos";
-//        porLabel = "Lista de TODOS NÃO IMPRESSOS";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", "", indexOrdem, getFilialInteger());
-//    }
-//
-//    public void naoImpressoEmpresa() {
-//        por = "niEmpresa";
-//        porLabel = "Pesquisa por Não Impressos / EMPRESAS";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void naoImpressoCNPJ() {
-//        por = "niCNPJ";
-//        porLabel = "Pesquisa por Não Impressos / CNPJ";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void impressoTodos() {
-//        por = "iEmpresaTodos";
-//        porLabel = "Lista de TODOS IMPRESSOS";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", "", indexOrdem, getFilialInteger());
-//    }
-//
-//    public void impressoEmpresa() {
-//        por = "iEmpresa";
-//        porLabel = "Pesquisa por Impressos / EMPRESAS";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void impressoCNPJ() {
-//        por = "iCNPJ";
-//        porLabel = "Pesquisa por Impressos / CNPJ";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    /**
-//     * dias == 0 (Hoje) dias == 1 (Ontem) dias == 2 (Ultimos 30 dias)
-//     *
-//     * @param dias
-//     */
-//    public void impressoDias(Integer dias) {
-//        por = "iDias";
-//        porLabel = "Pesquisa por Impressos / ÚLTIMOS 30 DIAS";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        String tipo = "";
-//        if (dias == 0) {
-//            tipo = "iHoje";
-//        } else if (dias == 1) {
-//            tipo = "iOntem";
-//        } else if (dias == 2) {
-//            tipo = "iDias";
-//        }
-//        listaCarteirinha = db.pesquisaCarteirinha(tipo, descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void pessoaNome() {
-//        por = "iNome";
-//        porLabel = "Pesquisa por Pessoa / NOME";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void sociosMatricula() {
-//        por = "iMatricula";
-//        porLabel = "Pesquisa por Sócio / MATRÍCULA";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        if (descricao.isEmpty()) {
-//            listaCarteirinha = new ArrayList<>();
-//            return;
-//        }
-//        listaCarteirinha = db.pesquisaCarteirinha("iMatricula", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void pessoaID() {
-//        por = "iID";
-//        porLabel = "Pesquisa por Pessoa / Código";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        if (!descricao.isEmpty()) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
-//        } else {
-//            listaCarteirinha = new ArrayList<>();
-//        }
-//    }
-//
-//    public void pessoaCPF() {
-//        por = "iCPF";
-//        porLabel = "Pesquisa por Pessoa / CPF";
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
-//    }
-//
-//    public void pesquisar() {
-//        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-//        if (por.equals("niEmpresa")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("niCNPJ")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iEmpresa")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iCNPJ")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iDias")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iDias", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iNome")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iID")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iMatricula")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iMatricula", descricao, indexOrdem, getFilialInteger());
-//        }
-//
-//        if (por.equals("iCPF")) {
-//            listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
-//        }
-//    }
+    public void show() {
+        if (listaSelecionado.isEmpty() && (listaSelecionadoMemoria == null || listaSelecionadoMemoria.isEmpty())) {
+            Messages.warn("Validação", "Nenhum cartão selecionado!");
+            return;
+        }
+        pdfCartao = "";
+        clearUserFolder();
+        UUID uuidX = UUID.randomUUID();
+        String uuid = uuidX.toString().replace("-", "_");
+        print(null, true, uuid);
+        String originalFile = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/cartao_social/usuario/" + Usuario.getUsuario().getId() + "/cartao_social/cartao_social_" + uuid + ".pdf";
+        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(originalFile));
+        if (f.exists()) {
+            pdfCartao = originalFile;
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(CartaoSocialBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // listaCarteirinha = new ArrayList();
+        showModalSelecteds = true;
+        // listaSelecionado = new ArrayList();
+        // listaSelecionadoMemoria = new ArrayList();
+    }
+
     public void print() {
-        print(null);
+        pdfCartao = "";
+        clearUserFolder();
+        print(null, false);
+//        listaSelecionado = new ArrayList();
+//        listaCarteirinha = new ArrayList();
+//        listaSelecionadoMemoria = new ArrayList();
     }
 
     public void print(List vector) {
+        print(vector, false);
+    }
+
+    public void print(List vector, Boolean show) {
+        print(vector, show, null);
+    }
+
+    public void print(List vector, Boolean show, String filename) {
+        pdfCartao = "";
+        Sessions.remove("FILE_NAME_GENERATED");
         printed = false;
         Dao dao = new Dao();
         List<List> list = new ArrayList();
@@ -429,10 +354,25 @@ public class CartaoSocialBean implements Serializable {
                 novoLog.setTabela("soc_historico_carteirinha");
                 novoLog.setCodigo(hc.getId());
             }
-
-            if (ImpressaoParaSocios.imprimirCarteirinha(list)) {
+            Reports reports = new Reports();
+            reports.setPART_NAME("");
+            reports.setPATH("downloads");
+            if (show) {
+                reports.setUSER_PATH(true);
+                // reports.setPATH("downloads" + File.separator + Usuario.getUsuario().getId());
+                reports.setREMOVE_FILE(false);
+                reports.setDOWNLOAD(false);
+            }
+            if (ImpressaoParaSocios.imprimirCarteirinha(list, reports)) {
                 dao.commit();
-                if (status.equals("nao_impressos")) {
+                if (show) {
+                    String fileF = reports.getCONTEXT_FILE();
+                    File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + fileF);
+                    if (f.exists()) {
+                        pdfCartao = "/" + fileF.replace("\\", "/");
+                    }
+                }
+                if (status.equals("pendentes")) {
                     printed = false;
                 }
                 if (disabledImpressaoExterna) {
@@ -571,10 +511,10 @@ public class CartaoSocialBean implements Serializable {
         if (listax.isEmpty()) {
             return null;
         }
-
-        Jasper.PART_NAME = "";
-        Jasper.PATH = "etiquetas";
-        Jasper.printReports("/Relatorios/ETIQUETA_SOCIO.jasper", "etiqueta_coluna", listax);
+        Reports reports = new Reports();
+        reports.setPART_NAME("");
+        reports.setPATH("etiquetas");
+        reports.print("/Relatorios/ETIQUETA_SOCIO.jasper", "etiqueta_coluna", listax);
         return null;
     }
 
@@ -747,12 +687,36 @@ public class CartaoSocialBean implements Serializable {
         if (tcase.equals("reload")) {
             listaSelecionado = new ArrayList();
             listaSelecionadoMemoria = new ArrayList();
-            if (status.equals("nao_impressos")) {
-                typeDate = "todos";
-            } else {
+            startDate = "";
+            finishDate = "";
+            if (status.equals("impressos")) {
+                typeDate = "hoje";
                 loadOperador();
+            } else {
+                typeDate = "";
+            }
+        } else if (tcase.equals("close_modal_selecteds")) {
+            clearUserFolder();
+            try {
+                String originalFile = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/cartao_social/usuario/" + Usuario.getUsuario().getId() + "/cartao_social/cartao_social.pdf";
+                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(originalFile));
+                if (f.exists()) {
+                    f.delete();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(CartaoSocialBean.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            } catch (Exception e) {
 
             }
+//            listaSelecionado = new ArrayList();
+//            listaCarteirinha = new ArrayList();
+//            listaSelecionadoMemoria = new ArrayList();
+            showModalSelecteds = false;
+            printed = false;
+            loadList();
         }
     }
 
@@ -1216,6 +1180,28 @@ public class CartaoSocialBean implements Serializable {
         return false;
     }
 
+    public String getPdfCartao() {
+        return pdfCartao;
+    }
+
+    public Boolean getExistPdfCartao() {
+        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(pdfCartao));
+        if (f.exists()) {
+            if (f.isFile()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Boolean getShowModalSelecteds() {
+        return showModalSelecteds;
+    }
+
+    public void setShowModalSelecteds(Boolean showModalSelecteds) {
+        this.showModalSelecteds = showModalSelecteds;
+    }
+
     public class BeanWithList {
 
         private List<String> m_cities;
@@ -1267,4 +1253,18 @@ public class CartaoSocialBean implements Serializable {
         }
         return 50;
     }
+
+    public final void clearUserFolder() {
+        try {
+            String originalFile = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/tmp/" + Usuario.getUsuario().getId() + "/cartao_social/";
+            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(originalFile));
+            if (f.exists()) {
+                FileUtils.cleanDirectory(f);
+            }
+            pdfCartao = "";
+        } catch (IOException e) {
+
+        }
+    }
+
 }

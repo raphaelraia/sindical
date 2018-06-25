@@ -96,7 +96,7 @@
                         <h:panelGroup id="i_list_agendas">
                             <p:dataTable value="#{atendimentosBean.listObjectAgenda}" var="oa" scrollable="true" scrollHeight="300" emptyMessage="Nenhum registro encontrado!">
                                 <p:column styleClass="text-center" width="15">
-                                    <p:selectBooleanCheckbox value="#{oa.selected}" disabled="#{oa.disabled}" rendered="#{oa.rendered}" >
+                                    <p:selectBooleanCheckbox value="#{oa.selected}" disabled="#{oa.disabled}" rendered="#{oa.rendered}" title="#{oa.id_agendamento}">
                                         <p:ajax update="@this :form_atendimentos:i_list_agendas :form_atendimentos:i_btn_act" listener="#{atendimentosBean.blockList}" />
                                     </p:selectBooleanCheckbox>
                                 </p:column>

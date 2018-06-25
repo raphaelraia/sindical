@@ -4,9 +4,7 @@ import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.sistema.Semana;
-import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,8 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 @Entity
@@ -51,6 +47,8 @@ public class AgendaHorarios implements Serializable {
     private Boolean web;
     @Column(name = "is_socio", columnDefinition = "boolean default true", nullable = false)
     private Boolean socio;
+    @Column(name = "is_encaixe", columnDefinition = "boolean default false", nullable = false)
+    private Boolean encaixe;
 
     public AgendaHorarios() {
         this.id = null;
@@ -63,9 +61,10 @@ public class AgendaHorarios implements Serializable {
         this.semana = null;
         this.web = true;
         this.socio = false;
+        this.encaixe = false;
     }
 
-    public AgendaHorarios(Integer id, Pessoa convenio, SubGrupoConvenio subGrupoConvenio, Filial filial, Boolean ativo, Integer quantidade, String hora, Semana semana, Boolean web, Boolean socio) {
+    public AgendaHorarios(Integer id, Pessoa convenio, SubGrupoConvenio subGrupoConvenio, Filial filial, Boolean ativo, Integer quantidade, String hora, Semana semana, Boolean web, Boolean socio, Boolean encaixe) {
         this.id = id;
         this.convenio = convenio;
         this.subGrupoConvenio = subGrupoConvenio;
@@ -76,6 +75,7 @@ public class AgendaHorarios implements Serializable {
         this.semana = semana;
         this.web = web;
         this.socio = socio;
+        this.encaixe = encaixe;
     }
 
     public Integer getId() {
@@ -164,6 +164,14 @@ public class AgendaHorarios implements Serializable {
         } else {
             return "** INATIVO **";
         }
+    }
+
+    public Boolean getEncaixe() {
+        return encaixe;
+    }
+
+    public void setEncaixe(Boolean encaixe) {
+        this.encaixe = encaixe;
     }
 
 }
