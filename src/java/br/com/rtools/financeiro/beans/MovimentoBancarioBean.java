@@ -204,17 +204,19 @@ public class MovimentoBancarioBean implements Serializable {
         listaHistoricoBancario.clear();
         indexHistoricoBancario = 0;
 
-        ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()));
-        List<HistoricoBancario> result = new MovimentoBancarioDao().listaHistoricoBancario(co.getPlano5().getId(), 225);
+        if(!listaContaOperacao.isEmpty()) {
+            ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()));
+            List<HistoricoBancario> result = new MovimentoBancarioDao().listaHistoricoBancario(co.getPlano5().getId(), 225);
 
-        for (int i = 0; i < result.size(); i++) {
-            listaHistoricoBancario.add(
-                    new SelectItem(
-                            i,
-                            result.get(i).getDescricao(),
-                            "" + result.get(i).getId()
-                    )
-            );
+            for (int i = 0; i < result.size(); i++) {
+                listaHistoricoBancario.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getDescricao(),
+                                "" + result.get(i).getId()
+                        )
+                );
+            }
         }
 
         loadHistoricoDefault();
