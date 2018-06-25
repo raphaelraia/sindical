@@ -16,13 +16,13 @@ public class EmailDao extends DB {
         return findEmail(idRotina, null, dateStart, dateFinish, filterBy, descricaoPesquisa, orderBy);
     }
 
-    public List<EmailPessoa> findEmail(int idRotina, Integer usuario_id, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, String orderBy) {
+    public List<EmailPessoa> findEmail(Integer rotina_id, Integer usuario_id, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, String orderBy) {
         List listQuery = new ArrayList();
         boolean isDate = false;
         boolean isDateFinish = false;
         try {
-            if (idRotina > 0) {
-                listQuery.add("EP.email.rotina.id = " + idRotina);
+            if (rotina_id != null) {
+                listQuery.add("EP.email.rotina.id = " + rotina_id);
             }
             if (dateStart != null) {
                 isDate = true;

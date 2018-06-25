@@ -13,7 +13,7 @@ public class EmailPessoa implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_email", referencedColumnName = "id")
     @ManyToOne
     private Email email;
@@ -33,7 +33,7 @@ public class EmailPessoa implements Serializable {
     private String horaSaida;
 
     public EmailPessoa() {
-        this.id = -1;
+        this.id = null;
         this.email = new Email();
         this.pessoa = new Pessoa();
         this.destinatario = "";
@@ -43,7 +43,7 @@ public class EmailPessoa implements Serializable {
         this.horaSaida = "";
     }
 
-    public EmailPessoa(int id, Email email, Pessoa pessoa, String destinatario, String cc, String bcc, Date recebimento, String horaSaida) {
+    public EmailPessoa(Integer id, Email email, Pessoa pessoa, String destinatario, String cc, String bcc, Date recebimento, String horaSaida) {
         this.id = id;
         this.email = email;
         this.pessoa = pessoa;
@@ -54,11 +54,11 @@ public class EmailPessoa implements Serializable {
         this.horaSaida = horaSaida;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -207,11 +207,11 @@ public class EmailBean implements Serializable {
         email.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
         email.setRotina((Rotina) di.find(new Rotina(), 112));
         email.setEmailPrioridade((EmailPrioridade) di.find(new EmailPrioridade(), Integer.parseInt(getListEmailPrioridades().get(index[1]).getDescription())));
-        if (email.getId() == -1) {
+        if (email.getId() == null) {
             di.save(email, true);
             for (int i = 0; i < addEmailPessoas.size(); i++) {
                 addEmailPessoas.get(i).setEmail(email);
-                if (addEmailPessoas.get(i).getId() == -1) {
+                if (addEmailPessoas.get(i).getId() == null) {
                     addEmailPessoas.get(i).setPessoa(null);
                 }
                 di.save(addEmailPessoas.get(i), true);
@@ -289,7 +289,7 @@ public class EmailBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar email do destinatário");
             return;
         }
-        if (email.getId() == -1) {
+        if (email.getId() == null) {
             addEmailPessoas.add(emailPessoa);
         } else {
             if (emailPessoa.getPessoa() != null) {
@@ -312,7 +312,7 @@ public class EmailBean implements Serializable {
         Dao di = new Dao();
         for (int i = 0; i < addEmailPessoas.size(); i++) {
             if (i == rowKey) {
-                if (addEmailPessoas.get(i).getId() != -1) {
+                if (addEmailPessoas.get(i).getId() != null) {
                     di.delete(addEmailPessoas.get(i), true);
                     addEmailPessoas.clear();
                 } else {
@@ -500,7 +500,7 @@ public class EmailBean implements Serializable {
     }
 
     public List<EmailPessoa> getAddEmailPessoas() {
-        if (email.getId() != -1) {
+        if (email.getId() != null) {
             Dao di = new Dao();
             addEmailPessoas = (List<EmailPessoa>) di.listQuery(new EmailPessoa(), "findByEmail", new Object[]{email.getId()});
         }
@@ -513,12 +513,14 @@ public class EmailBean implements Serializable {
 
     public List<EmailPessoa> getListEmailPessoas() {
         if (listEmailPessoas.isEmpty()) {
-            int idRotina = 0;
+            Integer idRotina = null;
             Date di = null;
             Date df = null;
             if (filter) {
                 if (filterByRotina) {
-                    idRotina = Integer.parseInt((getListRotinas().get(index[0]).getDescription()));
+                    if(index[0] != null) {
+                        idRotina = Integer.parseInt((getListRotinas().get(index[0]).getDescription()));                        
+                    }
                 }
                 di = date[0];
                 df = date[1];

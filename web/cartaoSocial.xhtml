@@ -92,7 +92,7 @@
                                         <p:commandButton action="#{cartaoSocialBean.listener('query')}" icon="ui-icon-close" title="Limpar" update="i_query" rendered="#{!cartaoSocialBean.disabledImpressaoExterna}"/>                                        
                                     </h:column>
                                 </h:panelGrid>
-                                <h:panelGrid columns="5" cellspacing="5" id="i_panel_datas"  rendered="#{cartaoSocialBean.status eq 'impressos' or cartaoSocialBean.status eq 'pendentes'}">
+                                <h:panelGrid columns="5" cellspacing="5" id="i_panel_datas"  rendered="#{(cartaoSocialBean.status eq 'impressos' or cartaoSocialBean.status eq 'pendentes') and (empty cartaoSocialBean.filter or cartaoSocialBean.filter eq null)}">
                                     <p:outputLabel value="Período de #{cartaoSocialBean.status eq 'impressos' ? 'impressão' : 'emissão'}:" rendered="#{cartaoSocialBean.status ne 'pendentes'}"/>
                                     <p:selectOneMenu label="Data" value="#{cartaoSocialBean.typeDate}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}" rendered="#{cartaoSocialBean.status ne 'pendentes'}">
                                         <p:ajax event="change" update="@this i_panel_datas" global="false" />

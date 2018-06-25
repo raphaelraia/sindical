@@ -1291,7 +1291,7 @@ public class ImpressaoBoletosBean implements Serializable {
                         (Usuario) GenericaSessao.getObject("sessaoUsuario"),
                         new Rotina().get(),
                         null,
-                        "COMUNICADO",
+                        "Comunicado",
                         "Segue comunicado em anexo",
                         false,
                         false

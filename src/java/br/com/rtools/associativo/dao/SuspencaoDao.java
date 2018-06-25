@@ -65,4 +65,21 @@ public class SuspencaoDao extends DB {
             return null;
         }
     }
+
+    public Suspencao existsSisPessoa(String documento) {
+        try {
+            String queryString = ""
+                    + "    SELECT SU.*                                          \n"
+                    + "      FROM pes_pessoa    AS P                            \n"
+                    + "INNER JOIN sis_pessoa    AS S  ON S.ds_documento IS NOT NULL AND TRIM(S.ds_documento)<> '' AND S.ds_documento = P.ds_documento \n"
+                    + "INNER JOIN soc_suspencao AS SU ON SU.id_pessoa = P.id    \n"
+                    + "     WHERE SU.dt_inicial >= current_date                 \n"
+                    + "       AND SU.dt_final < current_date                    \n"
+                    + "       AND S.ds_documento = '" + documento + "'";
+            Query query = getEntityManager().createNativeQuery(queryString, Suspencao.class);
+            return (Suspencao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

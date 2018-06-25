@@ -201,7 +201,7 @@ public class Mail extends MailTemplate implements Serializable {
                             }
                             to = emailPessoas.get(i).getDestinatario();
                         }
-                        String assuntox = email.getAssunto();
+                        String assuntox = AnaliseString.converterCapitalize(email.getAssunto());
                         String uuid = "";
                         if (unique) {
                             if (!assuntox.isEmpty() && !assuntox.contains("UUID: ")) {
@@ -325,7 +325,7 @@ public class Mail extends MailTemplate implements Serializable {
                         if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {
                             emailPessoas.get(i).setPessoa(null);
                         }
-                        if (email.getId() == -1) {
+                        if (email.getId() == null) {
                             email.setData(new Date());
                             email.setHora(DataHoje.livre(new Date(), "HH:mm"));
                             if (email.getUsuario() != null && email.getUsuario().getId() == -1) {
@@ -364,7 +364,7 @@ public class Mail extends MailTemplate implements Serializable {
                             }
                             emailPessoas.get(i).setEmail(email);
                             emailPessoas.get(i).setHoraSaida(DataHoje.livre(new Date(), "HH:mm"));
-                            if (emailPessoas.get(i).getId() == -1) {
+                            if (emailPessoas.get(i).getId() == null) {
                                 di.save(emailPessoas.get(i), true);
                             } else {
                                 di.update(emailPessoas.get(i), true);
@@ -809,7 +809,7 @@ public class Mail extends MailTemplate implements Serializable {
                 + "\n"
                 + "            <!-- Visually Hidden Preheader Text : BEGIN -->\n"
                 + "            <div style=\"display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;\">\n"
-                + "                <!-- (Optional) This text will appear in the inbox preview, but not the email body. It can be used to supplement the email subject line or even summarize the email's contents. Extended text preheaders (~490 characters) seems like a better UX for anyone using a screenreader or voice-command apps like Siri to dictate the contents of an email. If this text is not included, email clients will automatically populate it using the text (including image alt text) at the start of the email's body. -->\n" 
+                + "                <!-- (Optional) This text will appear in the inbox preview, but not the email body. It can be used to supplement the email subject line or even summarize the email's contents. Extended text preheaders (~490 characters) seems like a better UX for anyone using a screenreader or voice-command apps like Siri to dictate the contents of an email. If this text is not included, email clients will automatically populate it using the text (including image alt text) at the start of the email's body. -->\n"
                 + "            </div>\n"
                 + "            <!-- Visually Hidden Preheader Text : END -->\n"
                 + "\n"

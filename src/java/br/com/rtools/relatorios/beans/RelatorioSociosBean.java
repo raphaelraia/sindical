@@ -926,7 +926,7 @@ public class RelatorioSociosBean implements Serializable {
             inCnaes = inIdCnaes();
         }
         sisProcesso.startQuery();
-        sisProcesso.setRelatorio(relatorios);        
+        sisProcesso.setRelatorio(relatorios);
         List<List> list = relatorioSociosDao.find(
                 /**
                  * IN
@@ -999,7 +999,7 @@ public class RelatorioSociosBean implements Serializable {
                 refVD_inicial,
                 refVD_final
         );
-        sisProcesso.finishQuery();        
+        sisProcesso.finishQuery();
         List<ParametroSocios> pses = new ArrayList();
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
         String s_site = sindicato.getPessoa().getSite(), // SITE
@@ -2725,6 +2725,7 @@ public class RelatorioSociosBean implements Serializable {
         Dao di = new Dao();
         Mail mail = new Mail();
         mail.setFiles(aux2);
+        mail.setUnique(true);
         mail.setEmail(
                 new Email(
                         -1,
@@ -2760,7 +2761,7 @@ public class RelatorioSociosBean implements Serializable {
         if (configuracaoDepartamento != null) {
             mail.setConfiguracaoDepartamento(configuracaoDepartamento);
         }
-        String[] retorno = mail.send("personalizado");
+        String[] retorno = mail.send("cerberus");
 
         if (retorno[1].isEmpty()) {
             if (!listFiles.isEmpty()) {

@@ -113,6 +113,11 @@ public class SocioCarteirinhaDao extends DB {
             return new ArrayList();
         }
 
+        Boolean ignoreData = false;
+        if ((filter.equals("nascimento") || filter.equals("nome") || filter.equals("codigo") || filter.equals("cpf") || filter.equals("empresa") || filter.equals("cnpj") && !query.isEmpty())) {
+            ignoreData = true;
+        }
+
         Registro registro = (Registro) new Dao().find(new Registro(), 1);
         try {
             String queryString
@@ -143,69 +148,77 @@ public class SocioCarteirinhaDao extends DB {
 
                 listWhere.add(subquery);
 
-                if ((start_date != null && !start_date.isEmpty()) || type_date.equals("hoje")) {
-                    switch (type_date) {
-                        case "hoje":
-                            listWhere.add("SC.dt_emissao = CURRENT_DATE");
-                            break;
-                        case "igual":
-                            listWhere.add("SC.dt_emissao = '" + start_date + "'");
-                            break;
-                        case "apartir":
-                            listWhere.add("SC.dt_emissao >= '" + start_date + "'");
-                            break;
-                        case "ate":
-                            listWhere.add("SC.dt_emissao <= '" + start_date + "'");
-                            break;
-                        case "faixa":
-                            if (!start_date.isEmpty()) {
-                                listWhere.add("SC.dt_demissao BETWEEN  '" + start_date + "' AND '" + finish_date + "'");
-                            }
-                            break;
+                if (!ignoreData) {
+                    if ((start_date != null && !start_date.isEmpty()) || type_date.equals("hoje")) {
+                        switch (type_date) {
+                            case "hoje":
+                                listWhere.add("SC.dt_emissao = CURRENT_DATE");
+                                break;
+                            case "igual":
+                                listWhere.add("SC.dt_emissao = '" + start_date + "'");
+                                break;
+                            case "apartir":
+                                listWhere.add("SC.dt_emissao >= '" + start_date + "'");
+                                break;
+                            case "ate":
+                                listWhere.add("SC.dt_emissao <= '" + start_date + "'");
+                                break;
+                            case "faixa":
+                                if (!start_date.isEmpty()) {
+                                    listWhere.add("SC.dt_emissao BETWEEN  '" + start_date + "' AND '" + finish_date + "'");
+                                }
+                                break;
+                        }
                     }
+                } else {
+                    listWhere.add("SC.dt_emissao IS NULL");
                 }
             } else {
 
-                switch (status) {
-                    case "hoje":
-                        listWhere.add("SC.dt_emissao IS NOT NULL AND SC.dt_emissao = current_date");
-                        break;
-                    case "ontem":
-                        listWhere.add("SC.dt_emissao IS NOT NULL AND SC.dt_emissao = current_date-1");
-                        break;
-                    case "ultimos_30_dias":
-                        listWhere.add("SC.dt_emissao IS NOT NULL AND SC.dt_emissao BETWEEN current_date-30 AND current_date");
-                        break;
-                    case "impressos":
-                        if ((start_date != null && !start_date.isEmpty()) || type_date.equals("hoje")) {
-                            switch (type_date) {
-                                case "igual":
-                                    listWhere.add("SC.dt_emissao = '" + start_date + "'");
-                                    break;
-                                case "hoje":
-                                    listWhere.add("SC.dt_emissao = current_date");
-                                    break;
-                                case "apartir":
-                                    listWhere.add("SC.dt_emissao >= '" + start_date + "'");
-                                    break;
-                                case "ate":
-                                    listWhere.add("SC.dt_emissao <= '" + start_date + "'");
-                                    break;
-                                case "faixa":
-                                    if (start_date != null && !start_date.isEmpty()) {
-                                        listWhere.add("SC.dt_demissao BETWEEN  '" + start_date + "' AND '" + finish_date + "'");
-                                    }
-                                    break;
+                if (!ignoreData) {
+                    switch (status) {
+                        case "hoje":
+                            listWhere.add("SC.dt_emissao IS NOT NULL AND SC.dt_emissao = current_date");
+                            break;
+                        case "ontem":
+                            listWhere.add("SC.dt_emissao IS NOT NULL AND SC.dt_emissao = current_date-1");
+                            break;
+                        case "ultimos_30_dias":
+                            listWhere.add("SC.dt_emissao IS NOT NULL AND SC.dt_emissao BETWEEN current_date-30 AND current_date");
+                            break;
+                        case "impressos":
+                            if ((start_date != null && !start_date.isEmpty()) || type_date.equals("hoje")) {
+                                switch (type_date) {
+                                    case "igual":
+                                        listWhere.add("SC.dt_emissao = '" + start_date + "'");
+                                        break;
+                                    case "hoje":
+                                        listWhere.add("SC.dt_emissao = current_date");
+                                        break;
+                                    case "apartir":
+                                        listWhere.add("SC.dt_emissao >= '" + start_date + "'");
+                                        break;
+                                    case "ate":
+                                        listWhere.add("SC.dt_emissao <= '" + start_date + "'");
+                                        break;
+                                    case "faixa":
+                                        if (start_date != null && !start_date.isEmpty()) {
+                                            listWhere.add("SC.dt_emissao BETWEEN  '" + start_date + "' AND '" + finish_date + "'");
+                                        }
+                                        break;
+                                }
+                            } else {
+                                if (!type_date.equals("nenhum")) {
+                                    Messages.warn("Sistema", "INFORMAR UMA DATA VÁLIDA");
+                                    return new ArrayList();
+                                }
                             }
-                        } else {
-                            if (!type_date.equals("nenhum")) {
-                                Messages.warn("Sistema", "INFORMAR UMA DATA VÁLIDA");
-                                return new ArrayList();
-                            }
-                        }
-                        break;
-                    default:
-                        break;
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    listWhere.add("SC.dt_emissao IS NOT NULL");
                 }
                 if (operador_id != null) {
                     listWhere.add("SH.id_usuario = " + operador_id);
