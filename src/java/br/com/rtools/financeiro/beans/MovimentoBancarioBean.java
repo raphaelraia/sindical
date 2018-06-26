@@ -92,8 +92,8 @@ public class MovimentoBancarioBean implements Serializable {
         loadListaStatus();
         loadListaMovimento();
     }
-    
-    public final void novaClass(){
+
+    public final void novaClass() {
 
         idServicos = 0;
         listaServicos = new ArrayList();
@@ -109,7 +109,6 @@ public class MovimentoBancarioBean implements Serializable {
         loteEditar = new Lote();
         movimentoEditar = new Movimento();
 
-        //ObjectMovimentoBancario statusEditar;
         listaStatus = new ArrayList();
         indexStatus = 0;
 
@@ -130,7 +129,7 @@ public class MovimentoBancarioBean implements Serializable {
         tipoPagamentoFiltro = "todos";
         statusFiltro = "todos";
         // ---
-        
+
         loadListaContaOperacao();
         loadListaStatus();
         loadListaMovimento();
@@ -204,7 +203,7 @@ public class MovimentoBancarioBean implements Serializable {
         listaHistoricoBancario.clear();
         indexHistoricoBancario = 0;
 
-        if(!listaContaOperacao.isEmpty()) {
+        if (!listaContaOperacao.isEmpty()) {
             ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()));
             List<HistoricoBancario> result = new MovimentoBancarioDao().listaHistoricoBancario(co.getPlano5().getId(), 225);
 
@@ -230,17 +229,6 @@ public class MovimentoBancarioBean implements Serializable {
                 historico = "";
             }
         }
-//        if (loteEditar.getId() == -1) {
-//            if (tipo.equals("saida")) {
-//                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
-//                    historico = "Taxa Bancária";
-//                }
-//            } else {
-//                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
-//                    historico = "";
-//                }
-//            }
-//        }
     }
 
     public void limparFiltro() {
@@ -440,7 +428,7 @@ public class MovimentoBancarioBean implements Serializable {
 
     public final void loadListaContaOperacao() {
         listaContaOperacao.clear();
-        
+
         List<ContaOperacao> result = new ContaOperacaoDao().findByOperacao(tipo.equals("entrada") ? 7 : 8);
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
@@ -459,7 +447,7 @@ public class MovimentoBancarioBean implements Serializable {
 
     public final void loadListaStatus() {
         listaStatus.clear();
-        
+
         List<FStatus> result = new FinanceiroDao().listaFStatusIn("8, 9, 10, 11");
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
@@ -657,11 +645,9 @@ public class MovimentoBancarioBean implements Serializable {
 
     public void novo() {
         //Integer id = idConta;
-        
+
         //GenericaSessao.put("movimentoBancarioBean", new MovimentoBancarioBean());
-        
         //((MovimentoBancarioBean) GenericaSessao.getObject("movimentoBancarioBean")).setIdConta(id);
-        
         novaClass();
     }
 

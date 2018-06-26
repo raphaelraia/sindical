@@ -134,10 +134,10 @@ public class BaixaGeralBean implements Serializable {
         dataEmissaoRecibo = "";
     }
 
-    public void atualizaDataOcorrencia(){
+    public void atualizaDataOcorrencia() {
         dataOcorrencia = DataHoje.dataHoje();
     }
-    
+
     public void validacao() {
         String data_fechamento_diario = DataHoje.converteData(new FechamentoDiarioDao().ultimaDataContaSaldo());
         String data_hoje = DataHoje.data();
@@ -160,14 +160,14 @@ public class BaixaGeralBean implements Serializable {
             listaTodosBancos.add(
                     new SelectItem(
                             i + 1,
-                            b.getNumero() + " - " + b.getBanco(), "" + b.getId()
+                            b.getNumero() + " - " + b.getBanco(),
+                            "" + b.getId()
                     )
             );
         }
     }
 
     public void verificaValorDigitado() {
-        double valor_troco = 0;
         boolean dinheiro = false;
         for (int i = 0; i < listaValores.size(); i++) {
             if (listaValores.get(i).getTipoPagamento().getId() == 3) {
@@ -181,7 +181,7 @@ public class BaixaGeralBean implements Serializable {
                     double valorx = Moeda.converteUS$(listaValores.get(i).getValor());
                     double valordigitado = Moeda.converteUS$(listaValores.get(i).getValorDigitado());
                     if (valorx < valordigitado) {
-                        valor_troco = Moeda.subtracao(valordigitado, valorx);
+                        double valor_troco = Moeda.subtracao(valordigitado, valorx);
                         valorTroco = Moeda.converteR$Double(valor_troco);
                     }
                 }
@@ -240,38 +240,51 @@ public class BaixaGeralBean implements Serializable {
 
             GenericaSessao.remove("tipo_recibo_imprimir");
 
-            if (url.equals("baixaBoleto")) {
-                ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
-                return "baixaBoleto";
-            } else if (url.equals("movimentosReceberSocial")) {
-                ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
-                return "movimentosReceberSocial";
-            } else if (url.equals("lancamentoFinanceiro")) {
-                return "lancamentoFinanceiro";
-            } else if (url.equals("emissaoGuias")) {
-                return "emissaoGuias";
-            } else if (url.equals("matriculaAcademia")) {
-                return "matriculaAcademia";
-            } else if (url.equals("menuPrincipal")) {
-                return "menuPrincipal";
-            } else if (url.equals("acessoNegado")) {
-                return "menuPrincipal";
-            } else if (url.equals("geracaoDebitosCartao")) {
-                GenericaSessao.put("lista_movimentos_baixados", listaMovimentos);
-                return "geracaoDebitosCartao";
-            } else if (url.equals("matriculaEscola")) {
-                return "matriculaEscola";
-            } else if (url.equals("vendasBaile")) {
-                // ((VendaBaileBean) GenericaSessao.getObject("vendaBaileBean")).novo();
-                return "vendasBaile";
-            } else if (url.equals("conviteMovimento")) {
-                return "conviteMovimento";
-            } else if (url.equals("devolucaoFilme")) {
-                return "devolucaoFilme";
-            } else if (url.equals("contasAPagar")) {
-                return "contasAPagar";
-            } else {
-                return "menuPrincipal";
+            switch (url) {
+                case "baixaBoleto":
+                    ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
+                    return "baixaBoleto";
+
+                case "movimentosReceberSocial":
+                    ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
+                    return "movimentosReceberSocial";
+
+                case "lancamentoFinanceiro":
+                    return "lancamentoFinanceiro";
+
+                case "emissaoGuias":
+                    return "emissaoGuias";
+
+                case "matriculaAcademia":
+                    return "matriculaAcademia";
+
+                case "menuPrincipal":
+                    return "menuPrincipal";
+
+                case "acessoNegado":
+                    return "menuPrincipal";
+
+                case "geracaoDebitosCartao":
+                    GenericaSessao.put("lista_movimentos_baixados", listaMovimentos);
+                    return "geracaoDebitosCartao";
+
+                case "matriculaEscola":
+                    return "matriculaEscola";
+
+                case "vendasBaile":
+                    return "vendasBaile";
+
+                case "conviteMovimento":
+                    return "conviteMovimento";
+
+                case "devolucaoFilme":
+                    return "devolucaoFilme";
+
+                case "contasAPagar":
+                    return "contasAPagar";
+
+                default:
+                    return "menuPrincipal";
             }
         } else {
             return null;
@@ -291,7 +304,7 @@ public class BaixaGeralBean implements Serializable {
             GenericaMensagem.error("Atenção", "Valor negativo não é permitido!");
             return;
         }
-        
+
         double valorGrid = 0;
         int tipo_dinheiro = 0;
         for (ListValoresBaixaGeral listaValore : listaValores) {
@@ -312,9 +325,9 @@ public class BaixaGeralBean implements Serializable {
             return;
         }
 
-        double valorDigitado = 0;
         valorEditavel = Moeda.converteR$Double(Moeda.subtracao(Moeda.converteUS$(total), valorGrid));
 
+        double valorDigitado;
         if (Moeda.converteUS$(valor) > Moeda.converteUS$(valorEditavel)) {
             valorDigitado = Moeda.converteUS$(valor);
             valor = valorEditavel;
@@ -474,6 +487,7 @@ public class BaixaGeralBean implements Serializable {
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje()));
                 break;
         }
+
         desHabilitaConta = true;
         desHabilitaQuitacao = true;
 
@@ -526,7 +540,7 @@ public class BaixaGeralBean implements Serializable {
             Dao dao = new Dao();
             ContaRecebimentoDao dao_cr = new ContaRecebimentoDao();
 
-            List<TipoPagamento> select = new ArrayList();
+            List<TipoPagamento> select;
             if (!verificaBaixaBoleto()) {
                 if (Moeda.converteUS$(total) != 0) {
                     if (!getEs().isEmpty() && getEs().equals("S")) {
@@ -661,9 +675,9 @@ public class BaixaGeralBean implements Serializable {
                     Cartao cartao = listaValores.get(i).getCartao();
                     DataHoje dh = new DataHoje();
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, ""));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, ""));
                     } else {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, cartao.getPlano5(), null, ""));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, DataHoje.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, cartao.getPlano5(), null, ""));
                     }
                     break;
                 case 8:
@@ -753,25 +767,41 @@ public class BaixaGeralBean implements Serializable {
                 }
                 return mensagem;
             }
+            
             listaValores.clear();
             total = "0.0";
             String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
             GenericaSessao.put("linkClicado", true);
-            if (url.equals("baixaBoleto")) {
-                ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
-            } else if (url.equals("movimentosReceberSocial")) {
-                ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
-            } else if (url.equals("emissaoGuias") || url.equals("menuPrincipal")) {
-
-            } else if (url.equals("lancamentoFinanceiro")) {
-                ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcela().clear();
-                ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcelaSelecionada().clear();
-            } else if (url.equals("matriculaAcademia")) {
-                ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).getListaMovimentos().clear();
-                ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaCamposMovimento(true);
-                ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
-            } else if (url.equals("contasAPagar")) {
-                ((ContasAPagarBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("contasAPagarBean")).loadListaContas();
+            switch (url) {
+                case "baixaBoleto":
+                    ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
+                    break;
+                    
+                case "movimentosReceberSocial":
+                    ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
+                    break;
+                    
+                case "emissaoGuias":
+                case "menuPrincipal":
+                    break;
+                    
+                case "lancamentoFinanceiro":
+                    ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcela().clear();
+                    ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcelaSelecionada().clear();
+                    break;
+                    
+                case "matriculaAcademia":
+                    ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).getListaMovimentos().clear();
+                    ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaCamposMovimento(true);
+                    ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
+                    break;
+                    
+                case "contasAPagar":
+                    ((ContasAPagarBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("contasAPagarBean")).loadListaContas();
+                    break;
+                    
+                default:
+                    break;
             }
 
             ((EmissaoGuiasBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("emissaoGuiasBean")).atualizarHistorico();
@@ -871,7 +901,7 @@ public class BaixaGeralBean implements Serializable {
 
             ImprimirRecibo ir = new ImprimirRecibo();
 
-            Boolean stat = false;
+            Boolean stat;
 
             if (!GenericaSessao.exists("tipo_recibo_imprimir")) {
                 stat = ir.gerar_recibo(listaMovimentos.get(0).getId(), map);
@@ -1270,10 +1300,10 @@ public class BaixaGeralBean implements Serializable {
         }
 
         if (!getEs().isEmpty() && getEs().equals("S")) {
-            if(listaBancoSaida.get(idBancoSaida).getDescription().isEmpty()){
+            if (listaBancoSaida.get(idBancoSaida).getDescription().isEmpty()) {
                 return listaBancoSaida;
             }
-            
+
             ContaBanco cb = (ContaBanco) new Dao().find(new ContaBanco(), Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
             cb = (ContaBanco) new Dao().rebind(cb);
             numeroChequePag = String.valueOf(cb.getUCheque() + 1);

@@ -22,7 +22,8 @@ SELECT setval('sis_relatorios_id_seq', max(id)) FROM sis_relatorios;
 
 
 
--- Function: func_geramensalidades(integer, character varying) 
+
+ -- Function: func_geramensalidades(integer, character varying) 
 
 -- DROP FUNCTION func_geramensalidades(integer, character varying); 
 
@@ -39,7 +40,7 @@ BEGIN
 
 /* 
 ***************************************************************************************************** 
-                                            OFICIAL 
+                                            OFICIAL 25/06/2018 
 ***************************************************************************************************** 
 */ 
 --------- Inativa Convênios de sócios Inativos 
@@ -207,7 +208,7 @@ end as valor,
 
 CASE 
 
-WHEN (sp.nr_desconto <> 0 and sp.nr_valor_fixo = 0) then 
+WHEN (sp.nr_desconto = 0 and sp.nr_valor_fixo = 0) then 
 
 
 func_periodo_valor(sp.id_periodo_cobranca, 
@@ -583,6 +584,8 @@ $BODY$
   COST 100; 
 ALTER FUNCTION func_geramensalidades(integer, character varying) 
   OWNER TO postgres; 
+
+
 
 
 DROP VIEW balancete_vw; 

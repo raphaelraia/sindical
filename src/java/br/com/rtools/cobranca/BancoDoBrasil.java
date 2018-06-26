@@ -998,7 +998,7 @@ public class BancoDoBrasil extends Cobranca {
                 if (cep.length() < 8) {
                     return new RespostaWebService(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
                 }
-                params.add(new BasicNameValuePair("cep", cep));                
+                params.add(new BasicNameValuePair("cep", cep));
             } else {
                 return new RespostaWebService(null, "Pessoa não possui endereço! : " + pessoa.getNome());
             }
@@ -1013,10 +1013,13 @@ public class BancoDoBrasil extends Cobranca {
             if (entity != null) {
                 String msg = EntityUtils.toString(entity);
 
+                if (msg.contains("Atenção!")){
+                    System.out.println("Atenção!");
+                }
                 System.out.println(msg);
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.getMessage();
         }
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
