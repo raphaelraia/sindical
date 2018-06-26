@@ -650,7 +650,7 @@ public class Santander extends Cobranca {
 
     @Override
     public RespostaWebService registrarBoleto(String vencimentoRegistro) {
-        // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR TESTE = TRUE
+        // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR http://localhost:8080/Sindical?debug=true
         if (TESTE) {
             Dao dao = new Dao();
 
@@ -740,9 +740,12 @@ public class Santander extends Cobranca {
             String pagador_nome = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(pessoa.getNome()));
             String pagador_endereco = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(endereco));
             String pagador_bairro = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(bairro));
+            String pagador_cidade = AnaliseString.normalizeUpper(cidade);
 
             pagador_nome = (pagador_nome + "                                        ").substring(0, 40).trim();
             pagador_endereco = (pagador_endereco + "                                        ").substring(0, 40).trim();
+            pagador_bairro = (pagador_bairro + "                                        ").substring(0, 30).trim();
+            pagador_cidade = (pagador_cidade + "                                        ").substring(0, 20).trim();
 
             String xml = TICKET_SEG_ENTRADA_TITULO(
                     boleto.getContaCobranca().getCodCedente(),
@@ -751,7 +754,7 @@ public class Santander extends Cobranca {
                     pagador_nome,
                     pagador_endereco,
                     pagador_bairro,
-                    AnaliseString.normalizeUpper(cidade),
+                    pagador_cidade,
                     uf,
                     cep,
                     getNossoNumeroFormatado().replace("-", ""),

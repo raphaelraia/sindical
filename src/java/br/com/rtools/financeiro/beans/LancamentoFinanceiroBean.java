@@ -48,6 +48,7 @@ import br.com.rtools.utilitarios.StatusRetornoMensagem;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
@@ -666,13 +667,16 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void reverse() {
         if (listaParcelaSelecionada.isEmpty()) {
-            GenericaMensagem.warn("Atenção", "Selecione ao menos uma parcela PAGA ser estornada!");
+            GenericaMensagem.error("Atenção", "Selecione AO MENOS uma parcela PAGA ser estornada!");
+            return;
+        }
+
+        if (listaParcelaSelecionada.size() > 1) {
+            GenericaMensagem.error("Atenção", "Selecione APENAS uma parcela para ser estornada!");
             return;
         }
 
         // PARCELAS PARA SEREM ESTORNADAS
-        Movimento movimento = new Movimento();
-
         if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5) {
             GenericaMensagem.error("Atenção", "Motivo de Estorno INVÁLIDO!");
             return;
@@ -683,7 +687,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 continue;
             }
 
-            movimento = p.getMovimento();
+            Movimento movimento = p.getMovimento();
 
             if (!new LancamentoFinanceiroDao().estornarTipoConta(movimento.getBaixa().getId())) {
                 GenericaMensagem.warn("Atenção", "ESTORNAR PELA ROTINA DE CONTAS A PAGAR!");
@@ -932,13 +936,13 @@ public class LancamentoFinanceiroBean implements Serializable {
 
             Operacao o = (Operacao) new Dao().find(new Operacao(), idOperacao);
 
-            if (lote.getEmissao().isEmpty()){
+            if (lote.getEmissao().isEmpty()) {
                 GenericaMensagem.warn("Atenção", "DATA DE EMISSÃO NÃO PODE ESTAR VAZIA!");
                 return;
             }
-            
+
             Integer ano_e = Integer.valueOf(DataHoje.DataToArray(lote.getEmissao())[2]);
-            
+
             if (!DataHoje.isDataValida(lote.getEmissao()) || ano_e > 2050 || ano_e < 2000) {
                 GenericaMensagem.warn("Atenção", "DATA DE EMISSÃO NÃO É VÁLIDA!");
                 return;
@@ -1652,7 +1656,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
         filtro.loadMask();
 
-        if (usuarioSelecionado.getId() == -1) {
+        if (usuarioSelecionado == null || usuarioSelecionado.getId() == -1) {
             listaLancamento = loteDao.find(-1, filtro);
         } else {
             listaLancamento = loteDao.find(usuarioSelecionado.getId(), filtro);
@@ -2538,35 +2542,35 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         public String getValor() {
-            return valor;
+            return Moeda.converteR$(valor);
         }
 
         public void setValor(String valor) {
-            this.valor = valor;
+            this.valor = Moeda.converteR$(valor);
         }
 
         public String getAcrescimo() {
-            return acrescimo;
+            return Moeda.converteR$(acrescimo);
         }
 
         public void setAcrescimo(String acrescimo) {
-            this.acrescimo = acrescimo;
+            this.acrescimo = Moeda.converteR$(acrescimo);
         }
 
         public String getDesconto() {
-            return desconto;
+            return Moeda.converteR$(desconto);
         }
 
         public void setDesconto(String desconto) {
-            this.desconto = desconto;
+            this.desconto = Moeda.converteR$(desconto);
         }
 
         public String getValorQuitado() {
-            return valorQuitado;
+            return Moeda.converteR$(valorQuitado);
         }
 
         public void setValorQuitado(String valorQuitado) {
-            this.valorQuitado = valorQuitado;
+            this.valorQuitado = Moeda.converteR$(valorQuitado);
         }
 
         public String getDataQuitacao() {

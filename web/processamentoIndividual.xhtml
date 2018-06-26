@@ -148,7 +148,7 @@
                                             <p:ajax event="change" listener="#{processamentoIndividualBean.marcarTodosLista}" update="tbEmpresas" />
                                         </p:selectBooleanCheckbox>
                                     </f:facet>
-                                    <p:selectBooleanCheckbox value="#{linha.calcular}" disabled="#{linha.movimento.servicos.id eq 1}">
+                                    <p:selectBooleanCheckbox value="#{linha.calcular}" disabled="#{linha.movimento.servicos.id eq 1 or linha.registrado eq true}">
                                         <p:ajax event="change" listener="#{processamentoIndividualBean.calcular(linha)}" update="@this tbEmpresas" />
                                     </p:selectBooleanCheckbox>
                                 </p:column>

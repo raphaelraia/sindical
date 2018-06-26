@@ -105,7 +105,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                 List linha = (List) ob;
 
                 Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) linha.get(15));
-                
+
                 List<SelectItem> listVencimento = new ArrayList();
 
                 TrataVencimentoRetorno tvr = TrataVencimento.movimentoExiste(movimento, jur, movimento.getReferencia(), movimento.getDtVencimento());
@@ -122,6 +122,11 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                 } else {
                     listVencimento.add(new SelectItem(0, tvr.getMovimento().getVencimento(), tvr.getMovimento().getVencimento()));
                 }
+
+                tvr.getBoleto().setVencimento(tvr.getVencimentoBoletoString());
+                tvr.getBoleto().setValor(tvr.getValor_calculado());
+
+                new Dao().update(tvr.getBoleto(), true);
 
                 listaMovimento.add(new ObjectListaMovimento(
                         tvr.getBoleto(), // BOLETO
@@ -530,6 +535,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
     @Override
     public void atualizaValorGrid(String tipo) {
         olmSelecionado.setValorString(super.atualizaValor(true, tipo));
+        olmSelecionado.setValor_calculado(Moeda.soma(Moeda.soma(Moeda.soma(olmSelecionado.getMulta(), olmSelecionado.getJuros()), olmSelecionado.getCorrecao()), olmSelecionado.getValor()));
         loadList();
     }
 

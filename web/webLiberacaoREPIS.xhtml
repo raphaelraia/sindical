@@ -43,11 +43,12 @@
                                 <h:panelGrid columns="4">
                                     <p:inputMask size="30" value="#{webREPISBean.descricao}" mask="#{webREPISBean.tipoPesquisa eq 'cnpj' ? '99?.999.999/9999-99' : ''}" rendered="#{webREPISBean.tipoPesquisa ne 'tipo' and webREPISBean.tipoPesquisa ne 'status' and webREPISBean.tipoPesquisa ne 'cidade'}" />
                                     <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
-                                        <p:ajax event="change" update="@this @form" listener="#{webREPISBean.loadListRepisMovimentoPatronal()}"/>
+                                        <p:ajax event="change" update="@form" listener="#{webREPISBean.setDescricao('')}"/>
                                         <f:selectItem itemLabel="Nome" itemValue="nome"/>
                                         <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>
                                         <f:selectItem itemLabel="Protocolo" itemValue="protocolo"/>
                                         <f:selectItem itemLabel="Solicitante" itemValue="solicitante"/>
+                                        <f:selectItem itemLabel="Email" itemValue="email"/>
                                     </p:selectOneMenu>
                                     <p:commandButton id="i_pesquisar" value="FILTRAR A LISTA" action="#{webREPISBean.loadListRepisMovimentoPatronal()}" style="margin-left: 15px; font-weight: bold" update="@form"/>
                                 </h:panelGrid>
@@ -171,7 +172,7 @@
                         <p:column styleClass="text-center" headerText="ID" width="30" rendered="false">
                             <p:commandLink action="#{webREPISBean.edit(repisMovimento)}" value="#{repisMovimento.id}" update=":formLiberacao:idShowPessoa"/>
                         </p:column>
-                        <p:column headerText="CNPJ/Nome" width="400">
+                        <p:column headerText="CNPJ/Nome" width="350">
                             <p:commandLink action="#{webREPISBean.edit(repisMovimento)}" value="#{repisMovimento.pessoa.documento} - #{repisMovimento.pessoa.nome}" style="font-size: 8pt!important" onclick="PF('dlg_repis').show()" update=":formLiberacao:idShowPessoa :formLiberacao:i_header"/>
                         </p:column>
                         <p:column headerText="STATUS" width="60" style="text-align: center">
@@ -193,7 +194,18 @@
                             <div style="#{(repisMovimento.dataImpressao != null) ? 'background: green; width: 35px; float: right; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;' : ''}">
                                 <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{webREPISBean.visualizaCertificadoRecusado(repisMovimento)}" ajax="false" title="#{repisMovimento.dataImpressaoString}" />
                             </div>
-                        </p:column>                        
+                        </p:column>
+
+                        <p:column headerText="Ex." width="25" styleClass="text-center">
+                            <p:commandButton icon="ui-icon-close" action="#{webREPISBean.inativarRepis(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id eq 1 or repisMovimento.repisStatus.id eq 5}" update="form_libera_repis">
+                                <p:confirm header="Excluir Certidão" message="Deseja Realmente excluir esta certidão?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
+
+                        <p:column headerText="Ret" width="25" styleClass="text-center">
+                            <p:commandButton icon="ui-icon-hand" action="#{webREPISBean.selecionaRepis(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id eq 4}" update="form_libera_repis:panel_retirar_repis" oncomplete="PF('dlg_retirar_repis').show()" />
+                        </p:column>
+
                         <p:rowExpansion>
                             <h:panelGrid columns="4" styleClass="sbb">
                                 <p:column>
@@ -211,6 +223,14 @@
                                 <p:column>
                                     <h:outputLabel value="Telefone" style="font-weight: bold"/><br />
                                     <h:outputText value="#{repisMovimento.pessoa.telefone1}" />
+                                </p:column>
+                                <p:column rendered="#{repisMovimento.dtRetirada ne null}">
+                                    <h:outputLabel value="Retirado Por" style="font-weight: bold"/><br />
+                                    <h:outputText value="#{repisMovimento.retiradoPor}" />
+                                </p:column>
+                                <p:column rendered="#{repisMovimento.dtRetirada ne null}">
+                                    <h:outputLabel value="Retirada" style="font-weight: bold"/><br />
+                                    <h:outputText value="#{repisMovimento.dtRetiradaString}" />
                                 </p:column>
                             </h:panelGrid>
                         </p:rowExpansion>
@@ -239,6 +259,29 @@
                     <p:dialog widgetVar="dlg_loading" width="400" modal="true">
                         <h:outputText value="Aguarde ..."  style="color: white"/>                                
                     </p:dialog>
+
+                    <p:dialog widgetVar="dlg_retirar_repis" header="Retirar Certidão" resizable="false" modal="true" width="500">
+                        <h:panelGrid style="" columns="2">
+                            <p:outputLabel value="Deseja marca como retirada esta certidão? " style="font-size: 11pt!important"/>
+                        </h:panelGrid>
+                        <h:panelGrid id="panel_retirar_repis" style="width: 100%" columns="2">
+                            <h:column>
+                                <p:outputLabel value="Retirado Por" style="color: red"/><br />
+                                <p:inputText value="#{webREPISBean.repisMovimentoSelecionado.retiradoPor}" style="width: 100%"/>
+                            </h:column>
+                        </h:panelGrid>
+
+                        <h:panelGrid style="" columns="2">
+                            <p:commandButton value="Sim" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" action="#{webREPISBean.retirarRepis()}" update="form_libera_repis" oncomplete="PF('dlg_retirar_repis').hide()"/>
+                            <p:commandButton value="Não" styleClass="ui-confirmdialog-no" icon="ui-icon-close" onclick="PF('dlg_retirar_repis').hide()"/>
+                        </h:panelGrid>
+
+                    </p:dialog>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
                 </h:form>
 
                 <h:form id="formLiberacao">

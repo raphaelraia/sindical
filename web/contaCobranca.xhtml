@@ -121,6 +121,11 @@
                                         <h:outputLabel value="Espécie Moeda"  for="idEspecieMoeda" /><br />
                                         <p:inputText id="idEspecieMoeda" value="#{contaCobrancaBean.contaCobranca.especieMoeda}" size="10" maxlength="2" title="Espécie Moeda" />
                                     </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="Variação" /><br />
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.variacao}" size="4" maxlength="3" title="Variação [ 000 ]" placeholder="000"/>
+                                    </p:column>
 
                                     <p:column>
                                         <h:outputLabel value="Caminho Arquivo" /><br />

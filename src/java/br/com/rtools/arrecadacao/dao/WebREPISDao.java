@@ -84,19 +84,22 @@ public class WebREPISDao extends DB {
 
     public List validaPessoaRepisAnoTipoPatronal(int idPessoa, int ano, int id_tipo_certidao, int id_patronal) {
         List result = new ArrayList();
+        
         try {
-            Query query = getEntityManager().createQuery(
-                    "   SELECT RM                                               "
-                    + "   FROM RepisMovimento AS RM                             "
-                    + "  WHERE RM.pessoa.id         = :pessoa                   "
-                    + "    AND RM.ano               = :ano                      "
-                    + "    AND RM.patronal.id       = :patronal                 "
-                    + "    AND RM.certidaoTipo.id   = :tipo                     "
+            Query query = getEntityManager().createNativeQuery(
+                    " SELECT rm.* \n "
+                    + "   FROM arr_repis_movimento rm \n "
+                    + "  INNER JOIN pes_pessoa p ON p.id = rm.id_pessoa \n "
+                    + "  INNER JOIN arr_patronal pa ON pa.id = rm.id_patronal \n "
+                    + "  INNER JOIN arr_certidao_tipo ct ON ct.id = rm.id_certidao_tipo \n "
+                    + "  WHERE p.id = " + idPessoa + " \n "
+                    + "    AND rm.nr_ano = " + ano + " \n "
+                    + "	   AND pa.id = " + id_patronal + " \n "
+                    + "	   AND ct.id = " + id_tipo_certidao + " \n "
+                    + "    AND rm.dt_inativacao IS NULL ",
+                    RepisMovimento.class
             );
-            query.setParameter("pessoa", idPessoa);
-            query.setParameter("ano", ano);
-            query.setParameter("tipo", id_tipo_certidao);
-            query.setParameter("patronal", id_patronal);
+
             result = query.getResultList();
             return result;
         } catch (Exception e) {
@@ -425,6 +428,9 @@ public class WebREPISDao extends DB {
                 case "solicitante":
                     and += "    AND TRANSLATE(LOWER(rm.ds_solicitante)) LIKE '%" + descricao + "%' \n";
                     break;
+                case "email":
+                    and += "    AND TRANSLATE(LOWER(p.ds_email1)) LIKE '%" + descricao + "%' \n";
+                    break;
             }
         }
 
@@ -462,6 +468,8 @@ public class WebREPISDao extends DB {
             and += "   AND c.id = " + Integer.valueOf(of.getListaCidade().get(of.getIndexCidade()).getDescription()) + " \n";
         }
         
+        and += "   AND rm.dt_inativacao IS NULL \n";
+
         if (!quantidade.equals("tudo")) {
             limit = " LIMIT " + quantidade + " \n";
         }
@@ -580,6 +588,8 @@ public class WebREPISDao extends DB {
                     break;
             }
         }
+
+        and += " AND rm.dt_inativacao IS NULL ";
 
         textQry += inner + and + " ORDER BY rm.dt_emissao DESC, rm.id DESC, p.ds_nome DESC";
 

@@ -41,7 +41,7 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:outputLabel value="Nome" /><br />
+                                        <p:outputLabel value="Responsável" /><br />
                                         <p:outputLabel value="#{alterarMovimentoBean.movimento.pessoa.nome}" style="font-weight: bold;"/>
                                         <p:commandLink value="Alterar" style="font-weight: bold; color: red; margin-left: 10px" action="#{chamadaPaginaBean.pesquisaPessoa()}" actionListener="#{alterarMovimentoBean.tipoPesquisa('responsavel_movimento')}" title="Alterar Responsável deste movimento"/>
                                     </h:column>
@@ -52,10 +52,33 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
+
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="1">
+
+                                    <h:column>
+                                        <p:outputLabel value="Beneficiário" /><br />
+                                        <p:outputLabel value="#{alterarMovimentoBean.movimento.beneficiario.nome}" style="font-weight: bold;"/>
+                                        <p:commandLink value="Alterar" style="font-weight: bold; color: red; margin-left: 10px" action="#{chamadaPaginaBean.pesquisaPessoa()}" actionListener="#{alterarMovimentoBean.tipoPesquisa('beneficiario_movimento')}" title="Alterar Beneficiário deste movimento"/>
+                                    </h:column>
+                                    
+                                </h:panelGrid>
+                            </p:panel>
                             
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="1">
+
+                                    <h:column>
+                                        <p:outputLabel value="Titular" /><br />
+                                        <p:outputLabel value="#{alterarMovimentoBean.movimento.titular.nome}" style="font-weight: bold;"/>
+                                        <p:commandLink value="Alterar" style="font-weight: bold; color: red; margin-left: 10px" action="#{chamadaPaginaBean.pesquisaPessoa()}" actionListener="#{alterarMovimentoBean.tipoPesquisa('titular_movimento')}" title="Alterar Beneficiário deste movimento"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
                             <p:messages showDetail="true" closable="true" />
                             <p:growl showDetail="true" />
-                            
+
                             <h:panelGrid columns="4" style="margin-top: 10px">
                                 <h:column>
                                     <h:outputLabel value="Serviço" /><br />
@@ -105,7 +128,7 @@
                                     <p:inputText value="#{alterarMovimentoBean.movimento.quantidade}" rendered="#{alterarMovimentoBean.baixa == null}" size="6" style="text-align: right"/>
                                     <p:inputText value="#{alterarMovimentoBean.movimento.quantidade}" rendered="#{alterarMovimentoBean.baixa != null}"  size="6" style="text-align: right" disabled="true"/>
                                 </h:column>
-                                
+
                                 <h:column rendered="#{alterarMovimentoBean.lote.condicaoPagamento != null}">
                                     <p:outputLabel value="Condição de Pagamento" /><br />
                                     <!-- SERA ALTERADO AUTOMATICAMENTE SEGUNDO O ROGERIO
@@ -116,7 +139,7 @@
 
                                     <p:inputText value="#{alterarMovimentoBean.lote.condicaoPagamento.descricao}" size="16" disabled="true"/>
                                 </h:column> 
-                                
+
                                 <h:column>                                
                                     <!-- <h:column>
                                         <h:selectBooleanCheckbox id="i_obrigacao" value="# {alterarMovimentoBean.movimento.obrigacao}"/>
@@ -129,24 +152,24 @@
                                     </h:column>
                                 </h:column>                                
                             </h:panelGrid> 
-                            
+
                             <h:panelGrid columns="1" style="width: 100%; margin-top: 10px">
                                 <h:column>
                                     <p:outputLabel value="Histórico" /><br />
                                     <p:inputTextarea value="#{alterarMovimentoBean.lote.historico}" rows="3" style="width: 100%"/>
                                 </h:column>
                             </h:panelGrid>
-                            
+
                             <h:panelGrid rendered="#{alterarMovimentoBean.baixa != null}">
                                 <p:outputLabel value="Baixado" style="font-size: 20pt!important"/>
                             </h:panelGrid>
-                            
+
                             <h:panelGrid rendered="#{alterarMovimentoBean.baixa != null}" columns="2">
                                 <h:column>
                                     <p:outputLabel value="Pagamento" style="margin-left: 15px"/><br />
                                     <p:inputMask value="#{alterarMovimentoBean.baixa.baixa}" size="8" mask="99/99/9999" style="margin-right: 20px"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <h:outputLabel value="Usuário que Baixou" /><br />
                                     <p:commandButton value="#{alterarMovimentoBean.baixa.usuario.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaUsuario()}" actionListener="#{alterarMovimentoBean.tipoPesquisa('usuario_baixa')}" ajax="false"/> 
@@ -154,14 +177,14 @@
                             </h:panelGrid>
 
                             <hr />
-                            
+
                             <h:panelGrid columns="1">
                                 <h:column>
                                     <p:commandButton value="Alterar" title="Confirma Alterar Dados" onclick="PF('dlg_salvar').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                     <p:commandButton value="Excluir" title="Excluir este Movimento" onclick="PF('dlg_excluir').show()" disabled="#{controleAcessoBean.botaoExcluir}"/>
                                 </h:column>
                             </h:panelGrid> 
-                            
+
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Alterações" width="400" resizable="false">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente salvar essas alterações?" style="font-size: 11pt!important"/>
@@ -171,17 +194,17 @@
                                     <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" oncomplete="PF('dlg_salvar').hide();"/>
                                 </h:panelGrid>
                             </p:dialog>  
-                            
+
                             <p:dialog widgetVar="dlg_excluir" modal="true" header="Exclusão de Movimento" width="400" resizable="false">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente EXCLUIR esse movimento?" style="font-size: 11pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid>
                                     <p:outputLabel value="Digite um motivo para exclusão" style="font-size: 10pt!important; font-weight: bold"/>
                                     <p:inputTextarea value="#{alterarMovimentoBean.historico}" style="width: 100%"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-check" value="Sim" title="Excluir" action="#{alterarMovimentoBean.inativarBoleto()}" update="formAlterarMovimento" />
                                     <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" oncomplete="PF('dlg_excluir').hide();"/>

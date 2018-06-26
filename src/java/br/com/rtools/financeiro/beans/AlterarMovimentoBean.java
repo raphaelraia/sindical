@@ -247,6 +247,15 @@ public final class AlterarMovimentoBean implements Serializable {
                 case "responsavel_movimento":
                     movimento.setPessoa((Pessoa) GenericaSessao.getObject("pessoaPesquisa", true));
                     break;
+
+                case "beneficiario_movimento":
+                    movimento.setBeneficiario((Pessoa) GenericaSessao.getObject("pessoaPesquisa", true));
+                    break;
+
+                case "titular_movimento":
+                    movimento.setTitular((Pessoa) GenericaSessao.getObject("pessoaPesquisa", true));
+                    break;
+
                 case "usuario_baixa":
                     if (baixa != null) {
                         baixa.setUsuario((Usuario) GenericaSessao.getObject("usuarioPesquisa", true));

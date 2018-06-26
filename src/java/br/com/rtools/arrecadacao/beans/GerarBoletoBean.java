@@ -66,6 +66,9 @@ public class GerarBoletoBean {
 
         //GenericaSessao.put("linkClicado", true);
         ImpressaoBoletoSocialBean ibs = new ImpressaoBoletoSocialBean();
+        
+        ibs.init();
+        
         ibs.setStrData(lb.getProcessamento());
         ibs.setStrLote("" + lb.getId());
         ibs.loadLista();

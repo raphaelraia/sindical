@@ -2502,6 +2502,9 @@ public class ImprimirBoleto implements Serializable {
 //                    if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))
 //                            || DataHoje.igualdadeData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
                     qntItens++;
+                    
+                    // NÃO ESTA PEGANDO O VALOR CALCULADO DE FIN_BOLETO
+                    //----                    
                     double valor = Moeda.converteUS$(lista_socio.get(w).get(14).toString());
                     lista.add(new ParametroBoletoSocial(
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"), // LOGO SINDICATO

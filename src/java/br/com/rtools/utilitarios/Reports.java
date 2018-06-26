@@ -640,7 +640,7 @@ public class Reports implements Serializable {
                 }
                 JasperReport jasper = null;
                 String jasper_path = "";
-                if(!jasperName.contains(".jasper") || !jasperName.contains(".jrxml")) {
+                if(!jasperName.contains(".jasper") && !jasperName.contains(".jrxml")) {
                     jasperName += ".jasper";
                 }
                 if (jasperListExport.isEmpty()) {

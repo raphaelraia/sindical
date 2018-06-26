@@ -5,6 +5,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Remessa;
 import br.com.rtools.financeiro.RemessaBanco;
 import br.com.rtools.financeiro.StatusRemessa;
+import br.com.rtools.financeiro.StatusRetorno;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -15,6 +16,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedWriter;
@@ -27,8 +29,20 @@ import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.primefaces.json.JSONObject;
 
 public class BancoDoBrasil extends Cobranca {
+
+    private final Boolean TESTE = GenericaSessao.getBoolean("debug");
 
     public BancoDoBrasil(Integer id_pessoa, Double valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
@@ -294,7 +308,13 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += convenio; // 07.0 BB1 Nùmero do convênio de cobrança BB
             CONTEUDO_REMESSA += "0014"; // 07.0 BB2 Cobrança Cedente BB '0014'
             CONTEUDO_REMESSA += "17"; // 07.0 BB3 Número da carteira de cobrança BB
-            CONTEUDO_REMESSA += "035"; //  ** PIRACICABA É OBRIGATÓRIO SER 035 ** 07.0 BB4 Número da variação da carteira de cobrança BB 
+
+            if (boleto_rem.getContaCobranca().getVariacao().length() != 3) {
+                dao.rollback();
+                return new RespostaArquivoRemessa(null, "Campo variação em Conta Cobrança é obrigatório!");
+            }
+
+            CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getVariacao(); //  ** PIRACICABA É OBRIGATÓRIO SER 035 ** 07.0 BB4 Número da variação da carteira de cobrança BB 
             CONTEUDO_REMESSA += "  "; // 07.0 BB5 Campo reservado BB
 
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 08.0 Agência Mantenedora da Conta 53575- Numérico  G008
@@ -377,7 +397,7 @@ public class BancoDoBrasil extends Cobranca {
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
                 StatusRemessa sr = listaBoletoRemessa.get(i).getStatusRemessa();
-                
+
                 // tipo 3 - segmento P -------------------------------------------------------
                 // ---------------------------------------------------------------------------
                 CONTEUDO_REMESSA += "001"; // 01.3P Código do Banco na Compensação 133- Numérico  G001 001 para Banco do Brasil S.A.
@@ -408,12 +428,12 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "0"; // 18.3P Identificação da Distribuição 62621-  Alfanumérico  C010
                 CONTEUDO_REMESSA += "               ".substring(0, 15 - ("" + bol.getId()).length()) + bol.getId(); // 19.3P Número do Documento de Cobrança 637715-  Alfanumérico  C011
                 CONTEUDO_REMESSA += bol.getVencimento().replace("/", ""); // 20.3P Data de Vencimento do Título 78858-  Numérico  C012
-                
+
                 if (bol.getVencimento().replace("/", "").isEmpty()) {
                     dao.rollback();
                     return new RespostaArquivoRemessa(null, "BOLETO: " + bol.getBoletoComposto() + " NÃO TEM VENCIMENTO!");
                 }
-                
+
                 Double valor_titulo_double = new Double(0);
 
                 // bol.getNrCtrBoleto().length() != 22 ARRECADAÇÃO
@@ -479,7 +499,7 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "00000".substring(0, 5 - ("" + sequencial_registro_lote).length()) + ("" + sequencial_registro_lote); // 04.3Q Nº Sequencial do Registro no Lote 9 135- Numérico  G038
                 CONTEUDO_REMESSA += "Q"; // 05.3Q Cód. Segmento do Registro Detalhe 14 141- Alfanumérico ‘Q’ G039
                 CONTEUDO_REMESSA += " "; // 06.3Q Uso Exclusivo FEBRABAN/CNAB 15 151- Alfanumérico Brancos G004
-                
+
                 if (sr.getId() == 1) {
                     CONTEUDO_REMESSA += "01"; // 07.3Q Código de Movimento Remessa 16 172- Numérico  C004 // REGISTRAR
                 } else {
@@ -912,9 +932,93 @@ public class BancoDoBrasil extends Cobranca {
             return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
-    
+
     @Override
     public RespostaWebService registrarBoleto(String vencimentoRegistro) {
+        // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR http://localhost:8080/Sindical?debug=true
+        if (TESTE) {
+            Dao dao = new Dao();
+
+            boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+            boleto.setDtStatusRetorno(DataHoje.dataHoje());
+            boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+            dao.update(boleto, true);
+            return new RespostaWebService(boleto, "");
+        }
+
+        try {
+            String convenio = boleto.getBoletoComposto().substring(0, 7);
+            Pessoa pessoa = boleto.getPessoa();
+
+            // ACESSA O LINK
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            HttpPost httppost = new HttpPost("https://mpag.bb.com.br/site/mpag/");
+
+            // PASSA OS PARAMETROS
+            List<NameValuePair> params = new ArrayList(2);
+            params.add(new BasicNameValuePair("idConv", convenio));
+            params.add(new BasicNameValuePair("refTran", boleto.getBoletoComposto()));
+            params.add(new BasicNameValuePair("valor", boleto.getValorString().replace(",", "").replace(".", "")));
+            //params.add(new BasicNameValuePair("qtdPontos", ""));
+            params.add(new BasicNameValuePair("dtVenc", boleto.getVencimento().replace("/", "")));
+            params.add(new BasicNameValuePair("tpPagamento", "2"));
+            params.add(new BasicNameValuePair("cpfCnpj", pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "")));
+            switch (pessoa.getTipoDocumento().getId()) {
+                case 1: // CPF
+                    params.add(new BasicNameValuePair("indicadorPessoa", "1"));
+                    break;
+                case 2: // CNPJ
+                    params.add(new BasicNameValuePair("indicadorPessoa", "2"));
+                    break;
+                default:
+                    return new RespostaWebService(null, "Tipo de Documento da pessoa inválido! : " + pessoa.getTipoDocumento().getId() + " : " + pessoa.getTipoDocumento().getDescricao());
+            }
+            //params.add(new BasicNameValuePair("valorDesconto", ""));
+            //params.add(new BasicNameValuePair("dataLimiteDesconto", ""));
+            params.add(new BasicNameValuePair("tpDuplicata", "DM"));
+            params.add(new BasicNameValuePair("urlRetorno", "http://localhost:8084/Sindical"));
+            params.add(new BasicNameValuePair("urlInforma", "http://localhost:8084/Sindical"));
+            params.add(new BasicNameValuePair("nome", AnaliseString.normalizeUpper((pessoa.getNome() + "                                                            ").substring(0, 60)).trim()));
+
+            PessoaEndereco pessoa_endereco = new PessoaEnderecoDao().pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
+            if (pessoa_endereco != null) {
+                String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
+                        end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
+                        end_numero = pessoa_endereco.getNumero(),
+                        end_bairro = pessoa_endereco.getEndereco().getBairro().getDescricao(),
+                        end_cep = pessoa_endereco.getEndereco().getCep(),
+                        end_cidade = pessoa_endereco.getEndereco().getCidade().getCidade(),
+                        end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
+
+                params.add(new BasicNameValuePair("endereco", AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + " " + end_bairro + "                                        ").substring(0, 60)).trim()));
+                params.add(new BasicNameValuePair("cidade", AnaliseString.normalizeUpper((end_cidade + "                  ").substring(0, 18)).trim()));
+                params.add(new BasicNameValuePair("uf", end_uf));
+                String cep = end_cep.replace("-", "").replace(".", "");
+                if (cep.length() < 8) {
+                    return new RespostaWebService(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
+                }
+                params.add(new BasicNameValuePair("cep", cep));                
+            } else {
+                return new RespostaWebService(null, "Pessoa não possui endereço! : " + pessoa.getNome());
+            }
+            params.add(new BasicNameValuePair("msgLoja", ""));                
+
+            // ENVIA O FORMULARIO
+            httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            HttpResponse response = httpclient.execute(httppost);
+            HttpEntity entity = response.getEntity();
+
+            // RETORNO DA PAGINA
+            if (entity != null) {
+                String msg = EntityUtils.toString(entity);
+
+                System.out.println(msg);
+            }
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
     }
 }

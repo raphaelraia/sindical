@@ -261,17 +261,22 @@
                                     </p:inputNumber>
                                 </h:panelGrid>
 
+                                <br />
+                                
                                 <p:outputLabel value="Verso do Boleto Associativo" style="font-weight: bold; font-size: 11pt!important"/>
                                 <h:panelGrid columns="1" style="width: 100%">
-                                    <p:outputLabel value="Local de Pagamento" /><br />
+                                    <p:outputLabel value="Local de Pagamento" />
                                     <p:inputTextarea value="#{configuracaoSocialBean.cobranca.localPagamento}" style="width: 100%" maxlength="8000"/>
                                 </h:panelGrid>
+                                
                                 <h:panelGrid columns="1" style="width: 100%">
-                                    <p:outputLabel value="informativo" /><br />
+                                    <p:outputLabel value="Informativo" />
                                     <p:inputTextarea value="#{configuracaoSocialBean.cobranca.informativo}" style="width: 100%" maxlength="8000"/>
                                 </h:panelGrid>
+                                <br /> 
+                                <p:outputLabel value="Mensagem Associativo Pagador" style="font-weight: bold; font-size: 11pt!important"/>
+                                <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.mensagemBoletoAssociativoPagador}" style="width: 100%" maxlength="8000"/>
                             </p:panel>
-                            
                             
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Agendamento Social" style="font-weight: bold; font-size: 11pt!important"/>

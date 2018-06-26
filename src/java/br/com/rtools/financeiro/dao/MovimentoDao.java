@@ -3653,8 +3653,9 @@ public class MovimentoDao extends DB {
                     + "LEFT JOIN pes_pessoa     AS P  ON P.id        = MM.id_pessoa \n"
                     + "LEFT JOIN fin_servicos   AS SE ON SE.id       = MM.id_servicos \n"
                     + "LEFT JOIN fin_movimento  AS M  ON M.id_baixa  = B.id \n"
-                    + "WHERE M.id IS NULL\n"
-                    + "AND B.dt_baixa >= '01/01/2017'";
+                    + "WHERE M.id IS NULL \n "
+                    + "AND B.dt_baixa >= '01/01/2017' \n "
+                    + "AND MM.is_ativo = true";
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
             if (!list.isEmpty()) {

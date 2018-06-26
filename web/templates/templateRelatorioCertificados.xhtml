@@ -190,21 +190,26 @@
                             </p:panel>
                         </h:column>
                     </h:panelGrid>
-                    <h:panelGrid columns="2" id="i_acoes">
-                        <p:commandButton value="Visualizar" icon="ui-icon-disk" title="Visualizar" action="#{relatorioCertificadosBean.visualizar()}" styleClass="margin-top-max" ajax="false"/>
-                        <p:commandButton value="Não solicitaram certidões" icon="ui-icon-disk" title="Endereços - Não solicitaram certidões" action="#{relatorioCertificadosBean.export()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
-                        <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="#{jasperBean.EXPORT_TO}">
-                            <p:ajax event="change" update="@this i_acoes" />
-                        </p:selectBooleanCheckbox>
+                    <br />
+
+                    <p:panel id="i_acoes">
                         <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
                             <p:ajax event="change" update="@this i_acoes" />
                         </p:selectBooleanCheckbox>
+
+                        <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="#{jasperBean.EXPORT_TO}">
+                            <p:ajax event="change" update="@this i_acoes" />
+                        </p:selectBooleanCheckbox>
+
                         <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this" />
                             <f:selectItems value="#{jasperBean.listTypes('pdf')}" />
                             <f:selectItems value="#{jasperBean.listTypes('xls')}" />
                         </p:selectOneMenu>
-                    </h:panelGrid>
+
+                        <p:commandButton value="Visualizar" icon="ui-icon-disk" title="Visualizar" action="#{relatorioCertificadosBean.visualizar()}" styleClass="margin-top-max" ajax="false"/>
+
+                    </p:panel>
                 </h:form>
             </p:panel>
         </f:view>

@@ -141,8 +141,10 @@ public class RelatorioCertificadosDao extends DB {
                     + "             B.ds_descricao,                                                                                 " // 5 - BAIRRO
                     + "             C.ds_cidade,                                                                                    " // 6 - CIDADE
                     + "             C.ds_uf,                                                                                        " // 7 - UF
-                    + "             ENDE.ds_cep                                                                                     " // 8 - CEP
+                    + "             ENDE.ds_cep,                                                                                    " // 8 - CEP
+                    + "             P.ds_email1                                                                                     " // 9 - EMAIL
                     + "        FROM arr_contribuintes_vw AS CVW                                                                     "
+                    + "  INNER JOIN pes_pessoa              AS P    ON P.id         = CVW.id_pessoa                                 "
                     + "  INNER JOIN pes_pessoa_endereco     AS PE   ON PE.id_pessoa = CVW.id_pessoa                                 "
                     + "  INNER JOIN end_endereco            AS ENDE ON ENDE.id      = PE.id_endereco AND PE.id_tipo_endereco = 2    "
                     + "  INNER JOIN end_logradouro          AS L    ON L.id         = ENDE.id_logradouro                            "
@@ -195,12 +197,15 @@ public class RelatorioCertificadosDao extends DB {
             if (!inCidadeBase.isEmpty()) {
                 subQueryString += " AND C.id IN ( " + inCidadeBase + ") ";
             }
+            
+            
             queryString += subQueryString + " "
                     + " ORDER BY C.ds_cidade ASC,   "
                     + "          L.ds_descricao,    "
                     + "          DE.ds_descricao,   "
                     + "          PE.ds_numero,      "
                     + "          CVW.ds_nome        ";
+                    
             Debugs.put("habilitaDebugQuery", queryString);
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();

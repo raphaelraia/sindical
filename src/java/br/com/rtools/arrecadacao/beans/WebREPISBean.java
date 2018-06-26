@@ -107,6 +107,7 @@ public class WebREPISBean implements Serializable {
     private List<CertidaoDisponivel> listCertidaoDisponivelSolicitar = new ArrayList();
     private boolean chkTodasCertidoes = false;
     private ObjectFiltro objectFiltro = new ObjectFiltro();
+    private RepisMovimento repisMovimentoSelecionado = new RepisMovimento();
 
     public WebREPISBean() {
         pessoa = new Pessoa();
@@ -151,6 +152,63 @@ public class WebREPISBean implements Serializable {
 
         loadListaCertidaoDisponivel();
         loadListRepisMovimentoPatronal();
+    }
+    
+    public void selecionaRepis(RepisMovimento rm){
+        repisMovimentoSelecionado = (RepisMovimento) new Dao().find(rm);
+    }
+    
+    public void retirarRepis(){
+        if (repisMovimentoSelecionado.getRetiradoPor().isEmpty() || repisMovimentoSelecionado.getRetiradoPor().length() < 5){
+            GenericaMensagem.error("Atenção", "Digite um responsável pela retirada válido!");
+            return;
+        }
+        
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        
+        repisMovimentoSelecionado.setDtRetirada(DataHoje.dataHoje());
+        repisMovimentoSelecionado.setRepisStatus((RepisStatus) dao.find(new RepisStatus(), 6));
+        
+        if (!dao.update(repisMovimentoSelecionado)){
+            dao.rollback();
+            GenericaMensagem.error("Atenção", "Erro ao atualizar certidão!");
+            return;
+        }
+        
+        dao.commit();
+        
+        GenericaMensagem.info("Sucesso", "Status atualizado!");
+        
+        loadListRepisMovimentoPatronal();
+        
+        repisMovimentoSelecionado = new RepisMovimento();
+        
+    }
+    
+    public void inativarRepis(RepisMovimento rm){
+        
+        Dao dao = new Dao();
+        
+        rm = (RepisMovimento) dao.rebind(rm);
+        
+        dao.openTransaction();
+        
+        rm.setDtInativacao(DataHoje.dataHoje());
+        rm.setOperadorInativacao(pessoa);
+        
+        if (!dao.update(rm)){
+            dao.rollback();
+            
+            GenericaMensagem.error("Atenção", "Erro ao excluir certidão!");
+            return;
+        }
+        dao.commit();
+        
+        loadListRepisMovimentoPatronal();
+        
+        GenericaMensagem.info("Sucesso", "REPIS excluído!");
     }
 
     public Boolean visualizaCertificadoRecusado(RepisMovimento rm) {
@@ -478,7 +536,11 @@ public class WebREPISBean implements Serializable {
                             patronal,
                             cd.getCertidaoTipo(),
                             repisMovimento.getDataImpressao(),
-                            repisMovimento.getFaturamentoBrutoAnual()
+                            repisMovimento.getFaturamentoBrutoAnual(),
+                            null,
+                            null,
+                            "",
+                            null
                     );
 
                     if (!showAndamentoProtocolo(pessoaSolicitante.getId(), repis_save.getPatronal().getId(), cd)) {
@@ -1593,6 +1655,14 @@ public class WebREPISBean implements Serializable {
             this.listaCidade = listaCidade;
         }
 
+    }
+
+    public RepisMovimento getRepisMovimentoSelecionado() {
+        return repisMovimentoSelecionado;
+    }
+
+    public void setRepisMovimentoSelecionado(RepisMovimento repisMovimentoSelecionado) {
+        this.repisMovimentoSelecionado = repisMovimentoSelecionado;
     }
 
 }

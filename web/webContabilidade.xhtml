@@ -94,7 +94,7 @@
 
                         <p:column headerText="Valor" width="70" style="text-align: right">
                             <p:commandLink value="#{linha.movimento.valorString}" action="#{webContabilidadeBean.carregarFolha(linha)}" rendered="#{linha.boleto.statusRetorno eq null or linha.boleto.statusRetorno.id ne 2}" style="font-size: 10pt!important; font-weight: bold;" oncomplete="PF('i_dlg_valor').show()" update=":formImpressao:i_dlg_valor_folha"/>                            
-                            <h:outputText value="#{linha.movimento.valorString}" rendered="#{linha.boleto.statusRetorno ne null or linha.boleto.statusRetorno.id eq 2}"/>
+                            <h:outputText value="#{linha.movimento.valorString}" rendered="#{linha.boleto.statusRetorno ne null and linha.boleto.statusRetorno.id eq 2}"/>
                         </p:column>
 
                         <p:column headerText="Calculado" width="70" style="text-align: right">

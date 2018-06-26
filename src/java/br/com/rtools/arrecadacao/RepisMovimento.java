@@ -43,7 +43,18 @@ public class RepisMovimento implements Serializable {
     private Date dataImpressao;
     @Column(name = "nr_faturamento_bruto_anual", columnDefinition = "double precision 0")
     private Double faturamentoBrutoAnual;
-
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_inativacao")
+    private Date dtInativacao;
+    @JoinColumn(name = "id_operador_inativacao", referencedColumnName = "id")
+    @ManyToOne
+    private Pessoa operadorInativacao;
+    @Column(name = "ds_retirado_por", length = 150)
+    private String retiradoPor;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_retirada")
+    private Date dtRetirada;
+        
     public RepisMovimento() {
         this.id = -1;
         this.dataEmissao = DataHoje.dataHoje();
@@ -56,9 +67,13 @@ public class RepisMovimento implements Serializable {
         this.certidaoTipo = new CertidaoTipo();
         this.dataImpressao = null;
         this.faturamentoBrutoAnual = new Double(0);
+        this.dtInativacao = null;
+        this.operadorInativacao = null;
+        this.retiradoPor = "";
+        this.dtRetirada = null;
     }
 
-    public RepisMovimento(Integer id, Date dataEmissao, String contato, Pessoa pessoa, Date dataResposta, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, Date dataImpressao, Double faturamentoBrutoAnual) {
+    public RepisMovimento(Integer id, Date dataEmissao, String contato, Pessoa pessoa, Date dataResposta, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, Date dataImpressao, Double faturamentoBrutoAnual, Date dtInativacao, Pessoa operadorInativacao, String retiradoPor, Date dtRetirada) {
         this.id = id;
         this.dataEmissao = dataEmissao;
         this.contato = contato;
@@ -70,6 +85,10 @@ public class RepisMovimento implements Serializable {
         this.certidaoTipo = certidaoTipo;
         this.dataImpressao = dataResposta;
         this.faturamentoBrutoAnual = faturamentoBrutoAnual;
+        this.dtInativacao = dtInativacao;
+        this.operadorInativacao = operadorInativacao;
+        this.retiradoPor = retiradoPor;
+        this.dtRetirada = dtRetirada;
     }
 
     public Integer getId() {
@@ -190,5 +209,53 @@ public class RepisMovimento implements Serializable {
 
     public void setFaturamentoBrutoAnualString(String faturamentoBrutoAnualString) {
         this.faturamentoBrutoAnual = Moeda.converteUS$(faturamentoBrutoAnualString);
+    }
+
+    public Date getDtInativacao() {
+        return dtInativacao;
+    }
+
+    public void setDtInativacao(Date dtInativacao) {
+        this.dtInativacao = dtInativacao;
+    }
+    
+    public String getDtInativacaoString() {
+        return DataHoje.converteData(dtInativacao);
+    }
+
+    public void setDtInativacaoString(String dtInativacaoString) {
+        this.dtInativacao = DataHoje.converte(dtInativacaoString);
+    }
+    
+    public Pessoa getOperadorInativacao() {
+        return operadorInativacao;
+    }
+
+    public void setOperadorInativacao(Pessoa operadorInativacao) {
+        this.operadorInativacao = operadorInativacao;
+    }
+
+    public String getRetiradoPor() {
+        return retiradoPor;
+    }
+
+    public void setRetiradoPor(String retiradoPor) {
+        this.retiradoPor = retiradoPor;
+    }
+
+    public Date getDtRetirada() {
+        return dtRetirada;
+    }
+
+    public void setDtRetirada(Date dtRetirada) {
+        this.dtRetirada = dtRetirada;
+    }
+    
+    public String getDtRetiradaString() {
+        return DataHoje.converteData(dtRetirada);
+    }
+
+    public void setDtRetiradaString(String dtRetiradaString) {
+        this.dtRetirada = DataHoje.converte(dtRetiradaString);
     }
 }

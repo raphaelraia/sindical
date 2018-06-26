@@ -760,7 +760,7 @@ public class Sicoob extends Cobranca {
 //        }
 
         try {
-            // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR TESTE = TRUE
+            // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR http://localhost:8080/Sindical?debug=true
             if (TESTE) {
                 boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
                 boleto.setDtStatusRetorno(DataHoje.dataHoje());

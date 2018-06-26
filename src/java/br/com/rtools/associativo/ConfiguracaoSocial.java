@@ -91,6 +91,8 @@ public class ConfiguracaoSocial implements Serializable {
     private Integer bloqueioMesesBoleto;
     @Column(name = "is_envia_sms_agendamento", columnDefinition = "boolean default false")
     private Boolean enviaSmsAgendamento;
+    @Column(name = "ds_mensagem_boleto_associativo_pagador")
+    private String mensagemBoletoAssociativoPagador;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -126,9 +128,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.statusCobranca = (StatusCobranca) new Dao().find(new StatusCobranca(), 1);
         this.bloqueioMesesBoleto = 1000;
         this.enviaSmsAgendamento = false;
+        this.mensagemBoletoAssociativoPagador = "";
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite, Boolean cobrancaCarteirinhaNaoSocio, Integer nrReferencia, Boolean cobrancaPeriodicaMesFixo, StatusCobranca statusCobranca, Integer bloqueioMesesBoleto, Boolean enviaSmsAgendamento) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto, String observacaoConvite, Boolean imprimeConviteTeste, Boolean obrigatorioEmail, Boolean bloqueiaCpf, String tituloExtrato, Integer validadeDiaConvite, Boolean conviteCartaoPvc, Integer idadeBloqueioCpfConvite, Integer idadeBloqueioRgConvite, Boolean cobrancaCarteirinhaNaoSocio, Integer nrReferencia, Boolean cobrancaPeriodicaMesFixo, StatusCobranca statusCobranca, Integer bloqueioMesesBoleto, Boolean enviaSmsAgendamento, String mensagemBoletoAssociativoPagador) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -162,6 +165,7 @@ public class ConfiguracaoSocial implements Serializable {
         this.statusCobranca = statusCobranca;
         this.bloqueioMesesBoleto = bloqueioMesesBoleto;
         this.enviaSmsAgendamento = enviaSmsAgendamento;
+        this.mensagemBoletoAssociativoPagador = mensagemBoletoAssociativoPagador;
     }
 
     public Integer getId() {
@@ -446,6 +450,14 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setEnviaSmsAgendamento(Boolean enviaSmsAgendamento) {
         this.enviaSmsAgendamento = enviaSmsAgendamento;
+    }
+
+    public String getMensagemBoletoAssociativoPagador() {
+        return mensagemBoletoAssociativoPagador;
+    }
+
+    public void setMensagemBoletoAssociativoPagador(String mensagemBoletoAssociativoPagador) {
+        this.mensagemBoletoAssociativoPagador = mensagemBoletoAssociativoPagador;
     }
 
 }

@@ -147,7 +147,7 @@
                                             <f:selectItems value="#{impressaoBoletoSocialBean.listaConta}" />
                                         </p:selectOneMenu>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Tipo Envio"/><br />
                                         <p:selectOneMenu value="#{impressaoBoletoSocialBean.tipoEnvio}">
@@ -258,7 +258,7 @@
                                 <p:commandButton ajax="false" value="Etiquetas" action="#{impressaoBoletoSocialBean.etiqueta()}" style="margin-left: 30px" onclick="this.form.target = '_blank'"/>
                                 <p:commandButton ajax="false" value="Etiquetas para Contabilidade" action="#{impressaoBoletoSocialBean.etiquetaParaContabilidade()}" style="margin-left: 30px" onclick="this.form.target = '_blank'" rendered="#{impressaoBoletoSocialBean.tipo eq 'juridica'}"/>
                                 <p:commandButton value="Alterar imagem do Boleto" onclick="PF('dlg_imagem').show()" style="float: right; margin-left: 20px" />
-                                <p:commandButton value="Registrar Boletos" onclick="PF('dlg_registrar_boletos').show()" style="float: right; margin-left: 20px" rendered="#{impressaoBoletoSocialBean.contaSelecionada.id != -1 and impressaoBoletoSocialBean.contaSelecionada.id != 3}"/>
+                                <p:commandButton value="Registrar Boletos" onclick="PF('dlg_registrar_boletos').show()" style="float: right; margin-left: 20px" rendered="#{impressaoBoletoSocialBean.contaSelecionada.id != -1 and impressaoBoletoSocialBean.contaSelecionada.cobrancaRegistrada.id != 3}"/>
 
                                 <p:commandButton value="Enviar Email" action="#{impressaoBoletoSocialBean.enviarEmail()}" rendered="#{impressaoBoletoSocialBean.tipoEnvio eq '1' or impressaoBoletoSocialBean.tipoEnvio eq '4'}" update="@form">
                                     <p:confirm header="Enviar email de Boletos" message="Deseja Realmente Enviar Emails?" icon="ui-icon-alert" />

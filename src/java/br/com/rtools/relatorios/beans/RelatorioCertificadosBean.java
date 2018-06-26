@@ -119,7 +119,7 @@ public class RelatorioCertificadosBean implements Serializable {
         GenericaSessao.remove("juridicaPesquisa");
     }
 
-    public void visualizar() {
+    public void visualizar() throws IOException {
         Relatorios relatoriosx = null;
         if (!getListaTipoRelatorios().isEmpty()) {
             RelatorioDao rgdb = new RelatorioDao();
@@ -128,6 +128,13 @@ public class RelatorioCertificadosBean implements Serializable {
         if (relatoriosx == null) {
             return;
         }
+
+        // NÃO SOLICITARAM
+        if (relatoriosx.getId() == 130) {
+            export(relatoriosx);
+            return;
+        }
+
         String detalheRelatorio = "";
         listParametroCertificados.clear();
         if (listParametroCertificados.isEmpty()) {
@@ -308,7 +315,7 @@ public class RelatorioCertificadosBean implements Serializable {
         Jasper.printReports(relatoriosx.getJasper(), "certificados", (Collection) listParametroCertificados);
     }
 
-    public void export() throws FileNotFoundException, IOException {
+    public void export(Relatorios re) throws FileNotFoundException, IOException {
         listParametroCertificados.clear();
         RelatorioCertificadosDao relatorioCertificadosDao = new RelatorioCertificadosDao();
         String inRepisStatus = inIdRepisStatus();
@@ -347,45 +354,50 @@ public class RelatorioCertificadosBean implements Serializable {
                             GenericaString.converterNullToString(((List) list1).get(5)), // Bairro
                             GenericaString.converterNullToString(((List) list1).get(6)), // Cidade
                             GenericaString.converterNullToString(((List) list1).get(7)), // UF
-                            GenericaString.converterNullToString(((List) list1).get(8)) // CEP
+                            GenericaString.converterNullToString(((List) list1).get(8)), // CEP
+                            GenericaString.converterNullToString(((List) list1).get(9))  // EMAIL
                     );
             listParametroCertificados.add(pc);
         }
 
-        Diretorio.criar("downloads/outros");
-        FacesContext context = FacesContext.getCurrentInstance();
-        String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/outros/");
-        String path = caminho;
-        File flDes = new File(caminho); // 0 DIA, 1 MES, 2 ANO
+        if (Jasper.EXPORT_TO) {
+            Jasper.printReports(re.getJasper(), "certificados", (Collection) listParametroCertificados);
+        } else {
+            Diretorio.criar("downloads/outros");
+            FacesContext context = FacesContext.getCurrentInstance();
+            String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/outros/");
+            String path = caminho;
+            File flDes = new File(caminho); // 0 DIA, 1 MES, 2 ANO
 
-        flDes.mkdir();
-        caminho += "/endereco" + DataHoje.hora().replace(":", "") + ".txt";
-        FileWriter writer;
-        try (FileOutputStream file = new FileOutputStream(caminho)) {
-            writer = new FileWriter(caminho);
-        }
-        try (BufferedWriter buffWriter = new BufferedWriter(writer)) {
-            String header = "Razão;Endereço;Nº;Bairro;Cep;Cidade;UF";
-            buffWriter.write(header);
-            buffWriter.newLine();
-            String content;
-            for (int i = 0; i < listParametroCertificados.size(); i++) {
-                content = listParametroCertificados.get(i).getNome() + ";"
-                        + listParametroCertificados.get(i).getLogradouro() + " " + listParametroCertificados.get(i).getEndereco() + ";"
-                        + listParametroCertificados.get(i).getNumero() + ";"
-                        + listParametroCertificados.get(i).getBairro() + ";"
-                        + listParametroCertificados.get(i).getCep() + ";"
-                        + listParametroCertificados.get(i).getCidade() + ";"
-                        + listParametroCertificados.get(i).getUf();
-                buffWriter.write(content);
-                buffWriter.newLine();
-                content = "";
+            flDes.mkdir();
+            caminho += "/endereco" + DataHoje.hora().replace(":", "") + ".txt";
+            FileWriter writer;
+            try (FileOutputStream file = new FileOutputStream(caminho)) {
+                writer = new FileWriter(caminho);
             }
-            buffWriter.flush();
+            try (BufferedWriter buffWriter = new BufferedWriter(writer)) {
+                String header = "Razão;Endereço;Nº;Bairro;Cep;Cidade;UF";
+                buffWriter.write(header);
+                buffWriter.newLine();
+                String content;
+                for (int i = 0; i < listParametroCertificados.size(); i++) {
+                    content = listParametroCertificados.get(i).getNome() + ";"
+                            + listParametroCertificados.get(i).getLogradouro() + " " + listParametroCertificados.get(i).getEndereco() + ";"
+                            + listParametroCertificados.get(i).getNumero() + ";"
+                            + listParametroCertificados.get(i).getBairro() + ";"
+                            + listParametroCertificados.get(i).getCep() + ";"
+                            + listParametroCertificados.get(i).getCidade() + ";"
+                            + listParametroCertificados.get(i).getUf();
+                    buffWriter.write(content);
+                    buffWriter.newLine();
+                    content = "";
+                }
+                buffWriter.flush();
+            }
+            Download download = new Download("/endereco" + DataHoje.hora().replace(":", "") + ".txt", path, "text/plain", context);
+            download.baixar();
+            download.remover();
         }
-        Download download = new Download("/endereco" + DataHoje.hora().replace(":", "") + ".txt", path, "text/plain", context);
-        download.baixar();
-        download.remover();
     }
 
     public List<SelectItem> getListaTipoRelatorios() {
@@ -844,7 +856,7 @@ public class RelatorioCertificadosBean implements Serializable {
     }
 
     public Relatorios getRelatorios() {
-        if(index[0] != null) {
+        if (index[0] != null) {
             try {
                 if (relatorios.getId() != Integer.parseInt(getListaTipoRelatorios().get(index[0]).getDescription())) {
                     Jasper.EXPORT_TO = false;
@@ -853,7 +865,7 @@ public class RelatorioCertificadosBean implements Serializable {
             } catch (Exception e) {
                 relatorios = new Relatorios();
                 Jasper.EXPORT_TO = false;
-            }            
+            }
         }
         return relatorios;
     }

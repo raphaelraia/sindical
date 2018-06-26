@@ -83,20 +83,20 @@ public class EmailBean implements Serializable {
         email = new Email();
         selectedEmail = null;
         listSelectItem = new ArrayList[]{
-            new ArrayList<>(),
-            new ArrayList<>()
+            new ArrayList(),
+            new ArrayList()
         };
         verTodosUsuarios = false;
-        listUsuarios = new ArrayList<>();
+        listUsuarios = new ArrayList();
         emailPessoa = new EmailPessoa();
         index = new Integer[]{0, 0};
-        emails = new ArrayList<Email>();
-        addEmailPessoas = new ArrayList<EmailPessoa>();
-        listEmailPessoas = new ArrayList<EmailPessoa>();
-        showEmailPessoas = new ArrayList<EmailPessoa>();
+        emails = new ArrayList();
+        addEmailPessoas = new ArrayList();
+        listEmailPessoas = new ArrayList();
+        showEmailPessoas = new ArrayList();
         emailArquivo = new EmailArquivo();
-        emailArquivos = new ArrayList<EmailArquivo>();
-        files = new ArrayList<File>();
+        emailArquivos = new ArrayList();
+        files = new ArrayList();
         openModal = false;
         html = "";
         assunto = "";
@@ -146,13 +146,13 @@ public class EmailBean implements Serializable {
         if (tcase == 0) {
             emailPessoa = new EmailPessoa();
             index = new Integer[]{0, 0};
-            emails = new ArrayList<Email>();
-            addEmailPessoas = new ArrayList<EmailPessoa>();
-            listEmailPessoas = new ArrayList<EmailPessoa>();
-            showEmailPessoas = new ArrayList<EmailPessoa>();
+            emails = new ArrayList();
+            addEmailPessoas = new ArrayList();
+            listEmailPessoas = new ArrayList();
+            showEmailPessoas = new ArrayList();
             emailArquivo = new EmailArquivo();
-            emailArquivos = new ArrayList<EmailArquivo>();
-            files = new ArrayList<File>();
+            emailArquivos = new ArrayList();
+            files = new ArrayList();
             openModal = false;
             html = "";
             assunto = "";
@@ -168,7 +168,7 @@ public class EmailBean implements Serializable {
         } else if (tcase == 1) {
             date[0] = null;
             date[1] = null;
-            listEmailPessoas = new ArrayList<EmailPessoa>();
+            listEmailPessoas = new ArrayList();
         }
     }
 
@@ -337,7 +337,7 @@ public class EmailBean implements Serializable {
                 listSelectItem[0].add(new SelectItem(i, list.get(i).getRotina(), "" + list.get(i).getId()));
             }
             if (listSelectItem[0].isEmpty()) {
-                listSelectItem[0] = new ArrayList<SelectItem>();
+                listSelectItem[0] = new ArrayList();
             }
         }
         return listSelectItem[0];
@@ -351,7 +351,7 @@ public class EmailBean implements Serializable {
                 listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
             }
             if (listSelectItem[1].isEmpty()) {
-                listSelectItem[1] = new ArrayList<SelectItem>();
+                listSelectItem[1] = new ArrayList();
             }
         }
         return listSelectItem[1];
@@ -513,14 +513,12 @@ public class EmailBean implements Serializable {
 
     public List<EmailPessoa> getListEmailPessoas() {
         if (listEmailPessoas.isEmpty()) {
-            Integer idRotina = null;
+            int idRotina = 0;
             Date di = null;
             Date df = null;
             if (filter) {
                 if (filterByRotina) {
-                    if(index[0] != null) {
-                        idRotina = Integer.parseInt((getListRotinas().get(index[0]).getDescription()));                        
-                    }
+                    idRotina = Integer.parseInt((getListRotinas().get(index[0]).getDescription()));
                 }
                 di = date[0];
                 df = date[1];
@@ -531,10 +529,10 @@ public class EmailBean implements Serializable {
             } else if (verTodosUsuarios) {
                 listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);
             } else {
-                if(idUsuario == null) {
-                listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, orderBy);                    
+                if (idUsuario == null) {
+                    listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, orderBy);
                 } else {
-                    listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);                    
+                    listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);
                 }
             }
         }

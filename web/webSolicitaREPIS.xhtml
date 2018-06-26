@@ -203,6 +203,11 @@
                             <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id == 3}" ajax="false"/>
                         </p:column>
 
+                        <p:column headerText="..." width="25" styleClass="text-center" rendered="false">
+                            <p:commandButton icon="ui-icon-close" action="#{webREPISBean.inativarRepis(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id eq 1 or repisMovimento.repisStatus.id eq 5}" update="form_sr_list">
+                                <p:confirm header="Excluir Certidão" message="Deseja Realmente excluir esta certidão?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
                         <p:rowExpansion>
                             <h:panelGrid columns="5" styleClass="sbb">
                                 <p:column rendered="false">
@@ -216,6 +221,12 @@
                             </h:panelGrid>
                         </p:rowExpansion>
                     </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
+
                 </h:form>
 
                 <h:form id="form_certificados_arquivos">

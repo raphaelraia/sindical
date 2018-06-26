@@ -176,7 +176,7 @@ public class CartaoSocialBean implements Serializable {
             sisProcesso.start();
             sisProcesso.setProcesso("Lista Cartão Social");
             listaCarteirinha = new ArrayList();
-            listaCarteirinha = new SocioCarteirinhaDao().find(status, filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, inPessoasImprimir);
+            listaCarteirinha = new SocioCarteirinhaDao().find(status, filter, query, indexOrdem, null, idOperador, typeDate, startDate, finishDate, inPessoasImprimir);
             if (!inPessoasImprimir.isEmpty()) {
                 if (!listaCarteirinha.isEmpty()) {
                     listaSelecionado = new ArrayList();
@@ -186,7 +186,7 @@ public class CartaoSocialBean implements Serializable {
                     disabledImpressaoExterna = true;
                     inPessoasImprimir = "";
                 } else {
-                    listaCarteirinha = new SocioCarteirinhaDao().find("pendentes", filter, query, indexOrdem, getFilialInteger(), idOperador, typeDate, startDate, finishDate, "");
+                    listaCarteirinha = new SocioCarteirinhaDao().find("pendentes", filter, query, indexOrdem, null, idOperador, typeDate, startDate, finishDate, "");
                 }
             }
             sisProcesso.finish();

@@ -78,7 +78,9 @@ public class ContaCobranca implements java.io.Serializable {
     private Double multa;
     @Column(name = "pe_juros_mensal", nullable = false, columnDefinition = "double precision default 0")
     private Double jurosMensal;
-        
+    @Column(name = "ds_variacao", length = 10)
+    private String variacao;
+
     public ContaCobranca() {
         this.id = -1;
         this.contaBanco = new ContaBanco();
@@ -113,9 +115,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.estacao = "";
         this.multa = new Double(0);
         this.jurosMensal = new Double(0);
+        this.variacao = "";
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo, Integer registrosDiasVencidos, String estacao, Double multa, Double jurosMensal) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo, Integer registrosDiasVencidos, String estacao, Double multa, Double jurosMensal, String variacao) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -149,6 +152,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.estacao = estacao;
         this.multa = multa;
         this.jurosMensal = jurosMensal;
+        this.variacao = variacao;
     }
 
     public int getId() {
@@ -391,16 +395,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.registrosDiasVencidos = registrosDiasVencidos;
     }
 
-    /**
-     * @return the estacao
-     */
     public String getEstacao() {
         return estacao;
     }
 
-    /**
-     * @param estacao the estacao to set
-     */
     public void setEstacao(String estacao) {
         this.estacao = estacao;
     }
@@ -419,6 +417,14 @@ public class ContaCobranca implements java.io.Serializable {
 
     public void setJurosMensal(Double jurosMensal) {
         this.jurosMensal = jurosMensal;
+    }
+
+    public String getVariacao() {
+        return variacao;
+    }
+
+    public void setVariacao(String variacao) {
+        this.variacao = variacao;
     }
 
 }

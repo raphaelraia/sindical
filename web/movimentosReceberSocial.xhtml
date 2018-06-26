@@ -895,16 +895,17 @@
                                 </h:panelGrid>
                             </p:dialog>  
 
-                            <p:dialog widgetVar="dlg_confirma_impressao" modal="true" header="Confirma Impressão do Boleto" width="500" closable="false">
+                            <p:dialog widgetVar="dlg_confirma_impressao" modal="true" header="Confirma Impressão do Boleto" width="600" closable="false">
                                 <h:panelGrid>
                                     <p:outputLabel value="Opções de Impressão" style="font-size: 11pt!important" />
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2" style="width: 100%">
                                     <p:column>
-                                        <h:panelGrid columns="2">
+                                        <h:panelGrid columns="3">
                                             <p:commandButton icon="ui-icon-print" value="IMPRIMIR" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos()}" style="font-weight: bold" title="IMPRIMIR BOLETO" onclick="this.form.target = '_blank'" />
                                             <p:commandButton icon="ui-icon-disk" value="DOWNLOAD" ajax="false" action="#{movimentosReceberSocialBean.imprimirBoletos(true)}" style="font-weight: bold" title="DOWNLOAD DO BOLETO" />
+                                            <p:selectBooleanCheckbox value="#{movimentosReceberSocialBean.imprimeVerso}" itemLabel="Imprimir Verso" />
                                         </h:panelGrid>
                                     </p:column>
 

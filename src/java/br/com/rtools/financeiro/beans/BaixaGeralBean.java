@@ -1270,6 +1270,10 @@ public class BaixaGeralBean implements Serializable {
         }
 
         if (!getEs().isEmpty() && getEs().equals("S")) {
+            if(listaBancoSaida.get(idBancoSaida).getDescription().isEmpty()){
+                return listaBancoSaida;
+            }
+            
             ContaBanco cb = (ContaBanco) new Dao().find(new ContaBanco(), Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
             cb = (ContaBanco) new Dao().rebind(cb);
             numeroChequePag = String.valueOf(cb.getUCheque() + 1);

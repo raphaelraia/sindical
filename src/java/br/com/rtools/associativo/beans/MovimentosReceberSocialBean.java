@@ -145,6 +145,8 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     private SelecionaBoleto selecionaBoleto = new SelecionaBoleto();
 
+    private Boolean imprimeVerso = false;
+
     @PostConstruct
     public void init() {
         csb.init();
@@ -591,7 +593,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
 
         ImprimirBoleto ib = new ImprimirBoleto();
-        ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", false);
+        ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", imprimeVerso);
 
         if (download) {
             String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
@@ -2463,5 +2465,13 @@ public class MovimentosReceberSocialBean implements Serializable {
             }
         }
         return false;
+    }
+
+    public Boolean getImprimeVerso() {
+        return imprimeVerso;
+    }
+
+    public void setImprimeVerso(Boolean imprimeVerso) {
+        this.imprimeVerso = imprimeVerso;
     }
 }

@@ -38,7 +38,7 @@ public class ParametroCertificados {
         this.cidade = cidade;
     }
 
-    public ParametroCertificados(String nome, String logradouro, String endereco, String numero, String complemento, String bairro, String cidade, String uf, String cep) {
+    public ParametroCertificados(String nome, String logradouro, String endereco, String numero, String complemento, String bairro, String cidade, String uf, String cep, String email) {
         this.nome = nome;
         this.logradouro = logradouro;
         this.endereco = endereco;
@@ -48,6 +48,7 @@ public class ParametroCertificados {
         this.cidade = cidade;
         this.uf = uf;
         this.cep = cep;
+        this.email = email;
     }
 
     public ParametroCertificados(String detalhes_relatorio, String cnpj, String nome, String repis_status, String certidao_tipo, String data_emissao, String data_resposta, String ano, String solicitante, String email, String telefone, String logradouro, String endereco, String numero, String complemento, String bairro, String cidade, String uf, String cep) {

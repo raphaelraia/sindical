@@ -124,6 +124,9 @@ public class TrataVencimento {
                 return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, true, true, false);
             } else {
                 // NÃO VENCIDO
+                if (movimento.getValor() > 0 && b.getValor() == 0){
+                    b.setValor(movimento.getValor());
+                }
                 return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, false, false);
             }
         }

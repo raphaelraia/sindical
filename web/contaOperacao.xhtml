@@ -21,6 +21,7 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 <f:view>
                     <h:form id="form_co">
@@ -34,7 +35,7 @@
                                     <h:panelGrid columns="2">
                                         <p:outputLabel value="FILIAL:" />
                                         <p:selectOneMenu value="#{contaOperacaoBean.index[2]}" style="width: 600px" filter="true" filterMatchMode="startsWith">
-                                            <p:ajax event="change" update=":form_co:" listener="#{contaOperacaoBean.clear(8)}"/>
+                                            <p:ajax event="change" update="form_co" listener="#{contaOperacaoBean.clear(8)}"/>
                                             <f:selectItems value="#{contaOperacaoBean.listFilial}" />
                                         </p:selectOneMenu>
                                     </h:panelGrid>
@@ -42,7 +43,7 @@
                                 <h:panelGrid columns="6" cellspacing="5">
                                     <p:outputLabel value="OPERAÇÃO:" />
                                     <p:selectOneMenu value="#{contaOperacaoBean.index[0]}">
-                                        <p:ajax event="change" update=":form_co:" listener="#{contaOperacaoBean.clear(1)}"/>
+                                        <p:ajax event="change" update="form_co" listener="#{contaOperacaoBean.clear(1)}"/>
                                         <f:selectItems value="#{contaOperacaoBean.listOperacoes}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="PLANO DE CONTA:" />
@@ -120,7 +121,7 @@
                                             </p:column>
                                             <p:column width="25" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-close" action="#{contaOperacaoBean.removeItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Remover item"/>
-                                            </p:column>                                    
+                                            </p:column>
                                             <p:rowExpansion>
                                                 Centro de Custo: #{contaOperacao.centroCusto.descricao}
                                             </p:rowExpansion>
