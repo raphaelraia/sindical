@@ -126,7 +126,11 @@ public class SocioCarteirinhaDao extends DB {
                     + "        FROM pessoa_vw               AS P                                                    \n"
                     + "  INNER JOIN soc_carteirinha         AS SC ON SC.id_pessoa = P.codigo                        \n"
                     + "  INNER JOIN soc_modelo_carteirinha  AS MC ON MC.id       = SC.id_modelo_carteirinha         \n"
-                    + "  INNER JOIN conf_social             AS CS ON CS.id = 1                                      \n"
+                    + "  INNER JOIN conf_social             AS CS ON CS.id = 1                                      \n";
+            if (filial_id != null) {
+                queryString += " LEFT JOIN matr_socios AS MS ON MS.id_titular = P.codigo                           \n";
+            }
+            queryString += ""
                     + "   LEFT JOIN soc_categoria           AS C  ON C.id = P.id_categoria AND P.id_categoria > 0   \n"
                     + "   LEFT JOIN fin_movimento           AS M  ON M.id_beneficiario = SC.id_pessoa AND M.id_servicos IN (SELECT id_servico_cartao FROM seg_registro) AND m.dt_vencimento >='06/04/2015' \n"
                     + "   LEFT JOIN soc_historico_carteirinha SH  ON SH.id_carteirinha =  SC.id                     \n";
@@ -286,7 +290,7 @@ public class SocioCarteirinhaDao extends DB {
             );
 
             if (filial_id != null) {
-                listWhere.add("S.id_filial = " + filial_id + "");
+                listWhere.add("MS.id_filial = " + filial_id + "");
             }
 
             // QUE POSSUEM FOTOS

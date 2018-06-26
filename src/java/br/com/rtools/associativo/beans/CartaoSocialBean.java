@@ -176,7 +176,7 @@ public class CartaoSocialBean implements Serializable {
             sisProcesso.start();
             sisProcesso.setProcesso("Lista Cartão Social");
             listaCarteirinha = new ArrayList();
-            listaCarteirinha = new SocioCarteirinhaDao().find(status, filter, query, indexOrdem, null, idOperador, typeDate, startDate, finishDate, inPessoasImprimir);
+            listaCarteirinha = new SocioCarteirinhaDao().find(status, filter, query, indexOrdem, idFilial, idOperador, typeDate, startDate, finishDate, inPessoasImprimir);
             if (!inPessoasImprimir.isEmpty()) {
                 if (!listaCarteirinha.isEmpty()) {
                     listaSelecionado = new ArrayList();
@@ -823,19 +823,21 @@ public class CartaoSocialBean implements Serializable {
     public List<SelectItem> getListFilial() {
         if (listFilial.isEmpty()) {
             MacFilial mf = MacFilial.getAcessoFilial();
-            idFilial = 0;
+            idFilial = null;
             List<Filial> list = new Dao().list(new Filial(), true);
             int j = 0;
-            listFilial.add(new SelectItem(j, "TODAS", null));
-            j = 1;
-            for (int i = 0; i < list.size(); i++) {
-                if (disabled) {
-                    if (Objects.equals(list.get(i).getId(), mf.getFilial().getId())) {
-                        idFilial = j;
+            listFilial.add(new SelectItem(null, "TODAS"));
+            if(disabled) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (disabled) {
+                        if(mf != null) {
+                            if (Objects.equals(list.get(i).getId(), mf.getFilial().getId())) {
+                                idFilial = list.get(i).getId();
+                            }                            
+                        }
                     }
-                }
-                listFilial.add(new SelectItem(j, list.get(i).getFilial().getPessoa().getNome(), "" + list.get(i).getId()));
-                j++;
+                    listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
+                }                
             }
         }
         return listFilial;
