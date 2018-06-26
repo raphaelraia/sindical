@@ -44,10 +44,9 @@
                             <p:messages autoUpdate="true" showDetail="true" closable="true" id="i_messages"/>
                             <p:panel styleClass="margin-top fundoCinza" header="Filtros" id="i_filtros">
                                 <f:facet name="header">
-                                    <!-- <p:selectOneMenu value="# {cartaoSocialBean.idFilial}" disabled="# {cartaoSocialBean.disabledImpressaoExterna}"> -->
                                     <h:panelGrid columns="4">
-                                        <h:outputLabel value="FILIAL: "/>
-                                        <p:selectOneMenu value="#{cartaoSocialBean.idFilial}" disabled="true">
+                                        <h:outputLabel value="FILIAL: " rendered="#{cartaoSocialBean.disabled}"/>
+                                        <p:selectOneMenu value="#{cartaoSocialBean.idFilial}" disabled="#{cartaoSocialBean.disabledImpressaoExterna}" rendered="#{cartaoSocialBean.disabled}">
                                             <p:ajax event="change" update="@this"  global="false" />
                                             <f:selectItems value="#{cartaoSocialBean.listFilial}"/> 
                                         </p:selectOneMenu>                                
