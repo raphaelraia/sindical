@@ -274,33 +274,39 @@ public class MovimentoBancarioBean implements Serializable {
 
                 FormaPagamento fp = (FormaPagamento) dao.find(new FormaPagamento(), (Integer) result_object.get(0));
                 Baixa b = (Baixa) dao.find(new Baixa(), (Integer) result_object.get(1));
-                Movimento m = (Movimento) dao.find(new Movimento(), (Integer) result_object.get(4));
 
                 ChequeRec cheque_rec = null;
-                if (result_object.get(7) != null) {
-                    cheque_rec = (ChequeRec) dao.find(new ChequeRec(), (Integer) result_object.get(7));
+                if (result_object.get(5) != null) {
+                    cheque_rec = (ChequeRec) dao.find(new ChequeRec(), (Integer) result_object.get(5));
                 }
 
                 ChequePag cheque_pag = null;
-                if (result_object.get(8) != null) {
-                    cheque_pag = (ChequePag) dao.find(new ChequePag(), (Integer) result_object.get(8));
+                if (result_object.get(6) != null) {
+                    cheque_pag = (ChequePag) dao.find(new ChequePag(), (Integer) result_object.get(6));
                 }
 
                 CartaoRec cartao_rec = null;
-                if (result_object.get(10) != null) {
-                    cartao_rec = (CartaoRec) dao.find(new CartaoRec(), (Integer) result_object.get(10));
+                if (result_object.get(8) != null) {
+                    cartao_rec = (CartaoRec) dao.find(new CartaoRec(), (Integer) result_object.get(8));
                 }
 
                 CartaoPag cartao_pag = null;
-                if (result_object.get(11) != null) {
-                    cartao_pag = (CartaoPag) dao.find(new CartaoPag(), (Integer) result_object.get(11));
+                if (result_object.get(9) != null) {
+                    cartao_pag = (CartaoPag) dao.find(new CartaoPag(), (Integer) result_object.get(9));
                 }
 
                 List<ObjectDetalheMovimentoBancario> list_detalhe = new ArrayList();
-                List<Object> result_detalhe = mdao.listaDetalheMovimentoBancario((Integer) result_object.get(1));
+                List<Object> result_detalhe = mdao.listaDetalheMovimentoBancario((Integer) result_object.get(1), fp.getValorP());
                 for (Object linha : result_detalhe) {
                     List list = (List) linha;
-                    list_detalhe.add(new ObjectDetalheMovimentoBancario((String) list.get(0), Moeda.converteUS$(Moeda.converteR$Double((Double) list.get(1)))));
+                    list_detalhe.add(
+                            new ObjectDetalheMovimentoBancario(
+                                    (String) list.get(0),
+                                    (Double) list.get(1),
+                                    (String) list.get(2),
+                                    (Double) list.get(3)
+                            )
+                    );
                 }
 
                 Double valor_saldo_anterior, valor_saldo;
@@ -320,26 +326,28 @@ public class MovimentoBancarioBean implements Serializable {
                     valor_saldo = fp.getValor();
                 }
 
+                Rotina rot = (Rotina) dao.find(new Rotina(), (Integer) result_object.get(11));
+
                 listaMovimento.add(
                         new ObjectMovimentoBancario(
                                 fp, // ID FORMA PAGAMENTO
                                 b, // ID BAIXA
                                 (String) result_object.get(2), // DOCUMENTO
-                                (String) result_object.get(3), // HISTORICO 
-                                m, // ID BAIXA
-                                (m.getEs().equals("E") ? Moeda.soma(valor_saldo_anterior, valor_saldo) : Moeda.subtracao(valor_saldo_anterior, valor_saldo)), // SALDO
+                                (((String) result_object.get(10)).equals("E") ? Moeda.soma(valor_saldo_anterior, valor_saldo) : Moeda.subtracao(valor_saldo_anterior, valor_saldo)), // SALDO
                                 (TipoPagamento) dao.find(new TipoPagamento(), (Integer) result_object.get(6)), // ID TIPO PAGAMENTO
                                 cheque_rec,
                                 cheque_pag,
                                 list_detalhe,
                                 cartao_rec,
-                                cartao_pag
+                                cartao_pag,
+                                (String) result_object.get(10),
+                                rot
                         )
                 );
 
                 comeca_conta_saldo = false;
 
-                calculaValoresDoTipo(cheque_rec, cheque_pag, cartao_rec, cartao_pag, m, fp);
+                calculaValoresDoTipo(cheque_rec, cheque_pag, cartao_rec, cartao_pag, (String) result_object.get(10), fp);
             }
         } else {
             contaSaldo = mdao.pesquisaContaSaldoData(null, plano.getId());
@@ -359,15 +367,15 @@ public class MovimentoBancarioBean implements Serializable {
         }
     }
 
-    public void calculaValoresDoTipo(ChequeRec cheque_rec, ChequePag cheque_pag, CartaoRec cartao_rec, CartaoPag cartao_pag, Movimento m, FormaPagamento fp) {
+    public void calculaValoresDoTipo(ChequeRec cheque_rec, ChequePag cheque_pag, CartaoRec cartao_rec, CartaoPag cartao_pag, String es, FormaPagamento fp) {
         if (cheque_rec != null || cheque_pag != null || cartao_rec != null || cartao_pag != null) {
             if (cheque_rec != null) {
-                if (fp.getStatus().getId() == 8 && m.getEs().equals("E")) {
+                if (fp.getStatus().getId() == 8 && es.equals("E")) {
                     saldoEntradaBloqueado = Moeda.soma(saldoEntradaBloqueado, fp.getValor());
                 } else {
                     saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
                 }
-                if (fp.getStatus().getId() == 8 && m.getEs().equals("S")) {
+                if (fp.getStatus().getId() == 8 && es.equals("S")) {
                     saldoSaidaBloqueado = Moeda.soma(saldoSaidaBloqueado, fp.getValor());
                 } else {
                     saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
@@ -375,21 +383,21 @@ public class MovimentoBancarioBean implements Serializable {
             }
 
             if (cheque_pag != null) {
-                if (fp.getStatus().getId() == 8 && m.getEs().equals("E")) {
+                if (fp.getStatus().getId() == 8 && es.equals("E")) {
                     saldoSaidaBloqueado = Moeda.soma(saldoEntradaBloqueado, fp.getValor());
                 }
-                if (fp.getStatus().getId() == 8 && m.getEs().equals("S")) {
+                if (fp.getStatus().getId() == 8 && es.equals("S")) {
                     saldoSaidaBloqueado = Moeda.soma(saldoSaidaBloqueado, fp.getValor());
                 }
             }
 
             if (cartao_rec != null) {
-                if (fp.getStatus().getId() == 8 && m.getEs().equals("E")) {
+                if (fp.getStatus().getId() == 8 && es.equals("E")) {
                     saldoEntradaBloqueado = Moeda.soma(saldoEntradaBloqueado, fp.getValor());
                 } else {
                     saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
                 }
-                if (fp.getStatus().getId() == 8 && m.getEs().equals("S")) {
+                if (fp.getStatus().getId() == 8 && es.equals("S")) {
                     saldoSaidaBloqueado = Moeda.soma(saldoSaidaBloqueado, fp.getValor());
                 } else {
                     saldoDisponivel = Moeda.soma(saldoDisponivel, fp.getValor());
@@ -579,8 +587,8 @@ public class MovimentoBancarioBean implements Serializable {
 
     public void editar(ObjectMovimentoBancario omb) {
         formaPagamentoEditar = omb.getFormaPagamento();
-        movimentoEditar = omb.getMovimento();
-        loteEditar = omb.getMovimento().getLote();
+        movimentoEditar = new MovimentoBancarioDao().pesquisaMovimentoPorBaixa(omb.getBaixa().getId());
+        loteEditar = movimentoEditar.getLote();
         historico = loteEditar.getHistoricoContabil();
 
         for (int i = 0; i < listaConta.size(); i++) {
@@ -591,7 +599,7 @@ public class MovimentoBancarioBean implements Serializable {
 
         valor = omb.getFormaPagamento().getValorString();
 
-        tipo = omb.getMovimento().getEs().equals("S") ? "saida" : "entrada";
+        tipo = omb.getEs().equals("S") ? "saida" : "entrada";
 
         dataEmissao = omb.getBaixa().getDtBaixa();
 
@@ -862,17 +870,17 @@ public class MovimentoBancarioBean implements Serializable {
         if (omb != null) {
             if (omb.getChequePag() != null) {
                 // SE FOR ENTRADA E O STATUS FOR SUSTADO OU DEVOLVIDO, ENTÃO MOSTRAR STATUS APENAS DO S (SAÍDA)
-                return !(omb.getMovimento().getEs().equals("E") && (omb.getFormaPagamento().getStatus().getId() == 10 || omb.getFormaPagamento().getStatus().getId() == 11));
+                return !(omb.getEs().equals("E") && (omb.getFormaPagamento().getStatus().getId() == 10 || omb.getFormaPagamento().getStatus().getId() == 11));
             }
 
             if (omb.getChequeRec() != null) {
                 // SE FOR ENTRADA E O STATUS FOR SUSTADO OU DEVOLVIDO, ENTÃO MOSTRAR STATUS APENAS DO S (SAÍDA)
-                return !(omb.getMovimento().getEs().equals("E") && (omb.getFormaPagamento().getStatus().getId() == 10 || omb.getFormaPagamento().getStatus().getId() == 11));
+                return !(omb.getEs().equals("E") && (omb.getFormaPagamento().getStatus().getId() == 10 || omb.getFormaPagamento().getStatus().getId() == 11));
             }
 
             if (omb.getCartaoRec() != null) {
                 // SE FOR ENTRADA E O STATUS FOR SUSTADO OU DEVOLVIDO, ENTÃO MOSTRAR STATUS APENAS DO S (SAÍDA)
-                return !(omb.getMovimento().getEs().equals("E") && (omb.getFormaPagamento().getStatus().getId() == 10 || omb.getFormaPagamento().getStatus().getId() == 11));
+                return !(omb.getEs().equals("E") && (omb.getFormaPagamento().getStatus().getId() == 10 || omb.getFormaPagamento().getStatus().getId() == 11));
             }
 
             if (omb.getCartaoPag() != null) {
@@ -1484,8 +1492,6 @@ public class MovimentoBancarioBean implements Serializable {
         private FormaPagamento formaPagamento;
         private Baixa baixa;
         private String documento;
-        private String historico;
-        private Movimento movimento;
         private Double saldo;
         private TipoPagamento tipoPagamento;
         private ChequeRec chequeRec;
@@ -1493,13 +1499,13 @@ public class MovimentoBancarioBean implements Serializable {
         private List<ObjectDetalheMovimentoBancario> listDetalheMovimento;
         private CartaoRec cartaoRec;
         private CartaoPag cartaoPag;
+        private String es;
+        private Rotina rotina;
 
-        public ObjectMovimentoBancario(FormaPagamento formaPagamento, Baixa baixa, String documento, String historico, Movimento movimento, Double saldo, TipoPagamento tipoPagamento, ChequeRec chequeRec, ChequePag chequePag, List<ObjectDetalheMovimentoBancario> listDetalheMovimento, CartaoRec cartaoRec, CartaoPag cartaoPag) {
+        public ObjectMovimentoBancario(FormaPagamento formaPagamento, Baixa baixa, String documento, Double saldo, TipoPagamento tipoPagamento, ChequeRec chequeRec, ChequePag chequePag, List<ObjectDetalheMovimentoBancario> listDetalheMovimento, CartaoRec cartaoRec, CartaoPag cartaoPag, String es, Rotina rotina) {
             this.formaPagamento = formaPagamento;
             this.baixa = baixa;
             this.documento = documento;
-            this.historico = historico;
-            this.movimento = movimento;
             this.saldo = saldo;
             this.tipoPagamento = tipoPagamento;
             this.chequeRec = chequeRec;
@@ -1507,6 +1513,8 @@ public class MovimentoBancarioBean implements Serializable {
             this.listDetalheMovimento = listDetalheMovimento;
             this.cartaoRec = cartaoRec;
             this.cartaoPag = cartaoPag;
+            this.es = es;
+            this.rotina = rotina;
         }
 
         public FormaPagamento getFormaPagamento() {
@@ -1531,22 +1539,6 @@ public class MovimentoBancarioBean implements Serializable {
 
         public void setDocumento(String documento) {
             this.documento = documento;
-        }
-
-        public String getHistorico() {
-            return historico;
-        }
-
-        public void setHistorico(String historico) {
-            this.historico = historico;
-        }
-
-        public Movimento getMovimento() {
-            return movimento;
-        }
-
-        public void setMovimento(Movimento movimento) {
-            this.movimento = movimento;
         }
 
         public Double getSaldo() {
@@ -1612,16 +1604,36 @@ public class MovimentoBancarioBean implements Serializable {
         public void setCartaoPag(CartaoPag cartaoPag) {
             this.cartaoPag = cartaoPag;
         }
+
+        public String getEs() {
+            return es;
+        }
+
+        public void setEs(String es) {
+            this.es = es;
+        }
+
+        public Rotina getRotina() {
+            return rotina;
+        }
+
+        public void setRotina(Rotina rotina) {
+            this.rotina = rotina;
+        }
     }
 
     public class ObjectDetalheMovimentoBancario {
 
         private String conta;
         private Double valor;
+        private String historico;
+        private Double valorParcial;
 
-        public ObjectDetalheMovimentoBancario(String conta, Double valor) {
+        public ObjectDetalheMovimentoBancario(String conta, Double valor, String historico, Double valorParcial) {
             this.conta = conta;
             this.valor = valor;
+            this.historico = historico;
+            this.valorParcial = valorParcial;
         }
 
         public String getConta() {
@@ -1645,7 +1657,31 @@ public class MovimentoBancarioBean implements Serializable {
         }
 
         public void setValorString(String valorString) {
-            this.valor = Moeda.converteUS$(valorString);
+            this.setValor((Double) Moeda.converteUS$(valorString));
+        }
+
+        public String getHistorico() {
+            return historico;
+        }
+
+        public void setHistorico(String historico) {
+            this.historico = historico;
+        }
+
+        public Double getValorParcial() {
+            return valorParcial;
+        }
+
+        public void setValorParcial(Double valorParcial) {
+            this.valorParcial = valorParcial;
+        }
+
+        public String getValorParcialString() {
+            return Moeda.converteR$Double(valorParcial);
+        }
+
+        public void setValorParcialString(String valorParcialString) {
+            this.valorParcial = Moeda.converteStringToDouble(valorParcialString);
         }
 
     }

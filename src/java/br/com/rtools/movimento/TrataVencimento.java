@@ -127,7 +127,7 @@ public class TrataVencimento {
                 if (movimento.getValor() > 0 && b.getValor() == 0){
                     b.setValor(movimento.getValor());
                 }
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, false, false);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, false, false);
             }
         }
 

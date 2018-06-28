@@ -7,6 +7,7 @@ package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.financeiro.HistoricoBancario;
+import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,21 +76,20 @@ public class MovimentoBancarioDao extends DB {
             }
 
             String text
-                    = "     SELECT DISTINCT                                             \n"
-                    + "            f.id AS f_id,                                        \n"
-                    + "            b.id AS b_id,                                        \n"
-                    + "            func_documento_baixa(f.id)    AS documento,          \n"
-                    + "            l.ds_historico_contabil       AS historico,          \n"
-                    + "            m.id                          AS id_movimento,       \n"
-                    + "            CAST(0.0 AS DOUBLE PRECISION) AS saldo,              \n"
-                    + "            f.id_tipo_pagamento           AS id_tipo_pagamento,  \n"
-                    + "            f.id_cheque_rec               AS id_cheque_rec,      \n"
-                    + "            f.id_cheque_pag               AS id_cheque_pag,      \n"
-                    + "            b.dt_baixa                    AS data_baixa,         \n"
-                    + "            f.id_cartao_rec               AS id_cartao_rec,      \n"
-                    + "            f.id_cartao_pag               AS id_cartao_pag       \n"
-                    + "       FROM fin_lote AS l                                        \n"
-                    + " INNER JOIN fin_movimento AS m ON m.id_lote = l.id               \n"
+                    = "SELECT f.id AS f_id, \n"
+                    + "       b.id AS b_id, \n"
+                    + "	      func_documento_baixa(f.id) AS documento, \n"
+                    + "	      CAST(0.0 AS DOUBLE PRECISION) AS saldo, \n"
+                    + "	      f.id_tipo_pagamento AS id_tipo_pagamento, \n"
+                    + "	      f.id_cheque_rec AS id_cheque_rec, \n"
+                    + "	      f.id_cheque_pag AS id_cheque_pag, \n"
+                    + "	      b.dt_baixa AS data_baixa, \n"
+                    + "	      f.id_cartao_rec AS id_cartao_rec, \n"
+                    + "	      f.id_cartao_pag AS id_cartao_pag, \n"
+                    + "	      m.ds_es AS es, \n"
+                    + "	      max(l.id_rotina) AS id_rotina \n"
+                    + "  FROM fin_lote AS l \n"
+                    + " INNER JOIN fin_movimento AS m ON m.id_lote = l.id \n"
                     + " INNER JOIN fin_baixa AS b ON b.id = m.id_baixa                  \n"
                     + " INNER JOIN fin_forma_pagamento AS f ON f.id_baixa = b.id        \n"
                     + "  LEFT JOIN fin_cheque_rec AS chr ON chr.id = f.id_cheque_rec    \n"
@@ -97,7 +97,16 @@ public class MovimentoBancarioDao extends DB {
                     + "  LEFT JOIN fin_cartao_rec AS car_rec ON car_rec.id = f.id_cartao_rec \n"
                     + "  LEFT JOIN fin_cartao_pag AS car_pag ON car_pag.id = f.id_cartao_pag \n"
                     + string_where
-                    + " ORDER BY 10 ASC ";
+                    + "  GROUP BY f.id, \n"
+                    + "	   	  b.id, \n"
+                    + "	   	  f.id_tipo_pagamento, \n"
+                    + "	   	  f.id_cheque_rec, \n"
+                    + "	   	  f.id_cheque_pag, \n"
+                    + "	   	  b.dt_baixa, \n"
+                    + "	   	  f.id_cartao_rec, \n"
+                    + "	   	  f.id_cartao_pag, \n"
+                    + "	   	  m.ds_es \n"
+                    + " ORDER BY b.dt_baixa ASC ";
 
             Query qry = getEntityManager().createNativeQuery(text);
             return qry.getResultList();
@@ -107,16 +116,19 @@ public class MovimentoBancarioDao extends DB {
         }
     }
 
-    public List<Object> listaDetalheMovimentoBancario(int id_baixa) {
+    public List<Object> listaDetalheMovimentoBancario(int id_baixa, Double valor_percentual) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT RTRIM(LTRIM(p.conta5||' '||func_nullstring(se.ds_descricao))) AS conta, \n"
-                    + "       SUM(nr_valor_baixa) AS valor \n"
+                    + "     SUM(nr_valor_baixa) AS valor, \n "
+                    + "     l.ds_historico_contabil AS historico, \n"
+                    + "	    SUM(m.nr_valor_baixa * " + valor_percentual + " / 100) AS valor_parcial \n"
                     + "  FROM fin_movimento AS m \n"
                     + "  LEFT JOIN fin_servicos AS se ON se.id = m.id_servicos \n"
                     + " INNER JOIN plano_vw AS p ON p.id_p5 = m.id_plano5 \n"
+                    + " INNER JOIN fin_lote AS l ON l.id = m.id_lote \n"
                     + " WHERE m.id_baixa = " + id_baixa + " \n"
-                    + " GROUP BY p.conta5, se.ds_descricao"
+                    + " GROUP BY p.conta5, se.ds_descricao, l.ds_historico_contabil"
             );
             return qry.getResultList();
 
@@ -185,5 +197,22 @@ public class MovimentoBancarioDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public Movimento pesquisaMovimentoPorBaixa(Integer id_baixa) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT m.* \n "
+                    + "  FROM fin_movimento m \n "
+                    + " WHERE m.is_ativo = true \n "
+                    + "   AND m.id_baixa = " + id_baixa + "\n"
+                    + " LIMIT 1",
+                    Movimento.class
+            );
+            return (Movimento) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
     }
 }

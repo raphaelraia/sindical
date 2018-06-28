@@ -1381,6 +1381,10 @@ public class JuridicaBean implements Serializable {
             }
         }
 
+        existeOposicaoEmpresa();
+        loadListSocios();
+        loadMalaDireta();
+
         if (url != null) {
             if (!getListaTipoDocumento().isEmpty()) {
                 for (int o = 0; o < listaTipoDocumento.size(); o++) {
@@ -1401,6 +1405,7 @@ public class JuridicaBean implements Serializable {
             enderecoCobranca = "NENHUM";
             listaContribuintesInativos.clear();
             getListaEnderecos();
+
             return "pessoaJuridica";
         }
         return "pessoaJuridica";
@@ -1435,9 +1440,12 @@ public class JuridicaBean implements Serializable {
 
         if (pessoaComplemento.getStatusCobranca() != null) {
             idStatusCobranca = pessoaComplemento.getStatusCobranca().getId();
-
         }
         diaVencimento = pessoaComplemento.getNrDiaVencimento();
+
+        existeOposicaoEmpresa();
+        loadListSocios();
+        loadMalaDireta();
 
         if (url != null) {
             if (!getListaTipoDocumento().isEmpty()) {
@@ -1452,6 +1460,7 @@ public class JuridicaBean implements Serializable {
             } else {
                 renChkEndereco = "true";
             }
+
             renNovoEndereco = false;
             renEndereco = false;
             alterarEnd = true;
@@ -1459,6 +1468,7 @@ public class JuridicaBean implements Serializable {
             enderecoCobranca = "NENHUM";
             listaContribuintesInativos.clear();
             getListaEnderecos();
+
             return "pessoaJuridica";
         }
         return "pessoaJuridica";

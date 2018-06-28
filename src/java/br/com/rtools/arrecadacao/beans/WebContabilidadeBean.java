@@ -106,6 +106,12 @@ public class WebContabilidadeBean extends MovimentoValorBean {
 
                 Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) linha.get(15));
 
+                if (movimento.getBoleto() == null){
+                    GenericaMensagem.error("Atenção", "Movimento [ " + movimento.getId() +" ] sem BOLETO");
+                    listaMovimento.clear();
+                    return;
+                }
+                
                 List<SelectItem> listVencimento = new ArrayList();
 
                 TrataVencimentoRetorno tvr = TrataVencimento.movimentoExiste(movimento, jur, movimento.getReferencia(), movimento.getDtVencimento());

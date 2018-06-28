@@ -98,9 +98,12 @@ public class WebContribuintesBean extends MovimentoValorBean {
             List linha = (List) ob;
             Movimento movimento = (Movimento) dao.find(new Movimento(), (Integer) linha.get(15));
             
-            if (movimento.getReferencia().equals("06/2018")){
-                System.err.println("98");
+            if (movimento.getBoleto() == null){
+                GenericaMensagem.error("Atenção", "Movimento [ " + movimento.getId() +" ] sem BOLETO");
+                listaMovimento.clear();
+                return;
             }
+            
             List<SelectItem> listVencimento = new ArrayList();
 
             TrataVencimentoRetorno tvr = TrataVencimento.movimentoExiste(movimento, juridica, movimento.getReferencia(), movimento.getDtVencimento());

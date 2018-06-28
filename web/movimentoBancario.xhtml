@@ -147,59 +147,63 @@
                                 </p:column>  
 
                                 <p:column headerText="Data" style="width:80px; text-align: center">
-                                    <p:commandLink value="#{linha.baixa.baixa}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                    <p:commandLink value="#{linha.baixa.baixa}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="Operação"  style="width:100px; text-align: center">
-                                    <p:commandLink value="#{linha.formaPagamento.tipoPagamento.descricao}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.formaPagamento.tipoPagamento.descricao}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                    <p:commandLink value="#{linha.formaPagamento.tipoPagamento.descricao}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.formaPagamento.tipoPagamento.descricao}" rendered="#{linha.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="Documento"  style="width:120px; text-align: center">
-                                    <p:commandLink value="#{linha.documento}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.documento}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
-                                </p:column>
-
-                                <p:column headerText="Histórico">
-                                    <p:commandLink value="#{linha.historico}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.historico}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                    <p:commandLink value="#{linha.documento}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.documento}" rendered="#{linha.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="E/S" style="width:30px; text-align: center">
-                                    <p:commandLink value="#{linha.movimento.es}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}" style="#{linha.movimento.es eq 'E' ? 'font-weight: bold; color: blue; background: #bdcfff' : 'font-weight: bold; color: red; background: #f5b2b2'}; padding: 20px;"/>
-                                    <p:commandLink value="#{linha.movimento.es}" rendered="#{linha.movimento.lote.rotina.id ne 225}" style="#{linha.movimento.es eq 'E' ? 'font-weight: bold; color: blue; background: #bdcfff' : 'font-weight: bold; color: red; background: #f5b2b2'}; padding: 20px;" global="false"/>
+                                    <p:commandLink value="#{linha.es}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}" style="#{linha.es eq 'E' ? 'font-weight: bold; color: blue; background: #bdcfff' : 'font-weight: bold; color: red; background: #f5b2b2'}; padding: 20px;"/>
+                                    <p:commandLink value="#{linha.es}" rendered="#{linha.rotina.id ne 225}" style="#{linha.es eq 'E' ? 'font-weight: bold; color: blue; background: #bdcfff' : 'font-weight: bold; color: red; background: #f5b2b2'}; padding: 20px;" global="false"/>
                                 </p:column>
 
                                 <p:column headerText="Valor" style="width:90px">
                                     <h:outputText value="R$ "/>
-                                    <p:commandLink value="#{linha.formaPagamento.valorString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.formaPagamento.valorString}" style="float: right" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                    <p:commandLink value="#{linha.formaPagamento.valorString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.formaPagamento.valorString}" style="float: right" rendered="#{linha.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="Saldo" style="width:90px">
                                     <h:outputText value="R$ "/>
-                                    <p:commandLink value="#{linha.saldoString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.saldoString}" style="float: right" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                    <p:commandLink value="#{linha.saldoString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.saldoString}" style="float: right" rendered="#{linha.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="Status" style="width:120px; text-align: center">
                                     <p:commandLink value="#{movimentoBancarioBean.statusCheque(linha).get('status')}" action="#{movimentoBancarioBean.selecionaStatus(linha)}" style="font-size: 11pt!important; font-weight: bold; #{movimentoBancarioBean.statusCheque(linha).get('cor')}" rendered="#{movimentoBancarioBean.mostraStatus(linha)}" onclick="PF('dlg_alterar_status_cheque').show()" update="formMovimentoBancario:panel_alterar_status_cheque" disabled="#{movimentoBancarioBean.desabilitaStatus(linha)}"/>
                                 </p:column>
 
-                                <p:column headerText="Dev." style="width:50px; text-align: center">
+                                <p:column headerText="Devolução" style="width:50px; text-align: center">
                                     <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
                                 </p:column>
 
                                 <p:rowExpansion>
                                     <p:dataTable var="linha_detalhe" value="#{linha.listDetalheMovimento}" emptyMessage="Sem Detalhes!">
-                                        <p:column headerText="Conta">
+                                        <p:column headerText="Conta" style="width:200px">
                                             <p:outputLabel value="#{linha_detalhe.conta}" />
                                         </p:column>
 
+                                        <p:column headerText="Histórico">
+                                            <p:commandLink value="#{linha_detalhe.historico}"/>
+                                        </p:column>
+                                        
                                         <p:column headerText="Valor" style="width:90px">
                                             <h:outputText value="R$ "/>
                                             <p:commandLink value="#{linha_detalhe.valorString}" style="float: right"/>
+                                        </p:column>
+                                        
+                                        <p:column headerText="Valor Parcial" style="width:90px">
+                                            <h:outputText value="R$ "/>
+                                            <p:commandLink value="#{linha_detalhe.valorParcialString}" style="float: right"/>
                                         </p:column>
                                     </p:dataTable>
                                 </p:rowExpansion>
