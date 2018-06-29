@@ -3631,10 +3631,6 @@ public class MovimentoDao extends DB {
 
     }
 
-    /**
-     *
-     * @return
-     */
     public List existsInconsistenciaBaixa() {
         try {
             String queryString = ""
@@ -3680,7 +3676,8 @@ public class MovimentoDao extends DB {
                     + "       l.id AS lote_id, \n "
                     + "       ptd.id AS tipo_documento_id, \n "
                     + "       ptd.ds_descricao AS tipo_documento_pessoa, \n "
-                    + "       p.ds_documento AS documento_pessoa \n "
+                    + "       p.ds_documento AS documento_pessoa, \n"
+                    + "       trim(l.ds_historico_contabil) AS historico \n "
                     + "  FROM fin_movimento m \n "
                     + " INNER JOIN pes_pessoa p ON p.id = m.id_pessoa\n "
                     + " INNER JOIN fin_baixa b ON b.id = m.id_baixa \n "

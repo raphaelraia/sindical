@@ -132,23 +132,26 @@ public class ServicoContaCobrancaBean implements Serializable {
     }
 
     public String excluir(ServicoContaCobranca scc) {
-        DaoInterface di = new Dao();
+        Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        servicoContaCobranca = scc;
-        if (servicoContaCobranca.getId() != -1) {
-            if (di.delete(servicoContaCobranca, true)) {
+        
+        if (scc.getId() != -1) {
+            dao.openTransaction();
+            if (dao.delete(scc)) {
                 novoLog.delete(
-                        "ID: " + servicoContaCobranca.getId()
-                        + " - Serviço: (" + servicoContaCobranca.getServicos().getId() + ") " + servicoContaCobranca.getServicos().getDescricao()
-                        + " - Tipo Serviço: (" + servicoContaCobranca.getTipoServico().getId() + ") " + servicoContaCobranca.getTipoServico().getDescricao()
-                        + " - Conta Cobrança: " + servicoContaCobranca.getContaCobranca().getId()
+                        "ID: " + scc.getId()
+                        + " - Serviço: (" + scc.getServicos().getId() + ") " + scc.getServicos().getDescricao()
+                        + " - Tipo Serviço: (" + scc.getTipoServico().getId() + ") " + scc.getTipoServico().getDescricao()
+                        + " - Conta Cobrança: " + scc.getContaCobranca().getId()
                 );
                 GenericaMensagem.info("Sucesso", "Serviço excluido!");
+                dao.commit();
             } else {
                 GenericaMensagem.warn("Erro", "Erro ao excluir serviço!");
+                dao.rollback();
             }
         }
-        servicoContaCobranca = new ServicoContaCobranca();
+        
         listaServicoCobranca.clear();
         return null;
     }

@@ -72,7 +72,7 @@
                                     <p:commandButton icon="ui-icon-trash" action="#{servicoContaCobrancaBean.excluir(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":formServicoContaCobranca"/>
                                 </p:column>
                                 
-                                <p:column headerText="Contribuição" style="width: 150px" filterBy="#{linha.servicos.descricao}" filterMatchMode="global">
+                                <p:column headerText="Contribuição" style="width: 150px">
                                     <h:outputText value="#{linha.servicos.descricao}"/>
                                 </p:column>
                                 
