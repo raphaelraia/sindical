@@ -264,13 +264,14 @@ public class AnaliseString {
                     || strings[i].toUpperCase().equals("DE")
                     || strings[i].toUpperCase().equals("EM")
                     || strings[i].toUpperCase().equals("E")
+                    || strings[i].toUpperCase().equals("NO")
                     || strings[i].toUpperCase().equals("COM")) {
                 novaDescricao += strings[i] + " ";
             } else if (strings[i].length() > 0) {
                 novaDescricao += strings[i].substring(0, 1).toUpperCase() + strings[i].substring(1) + " ";
             }
         }
-        return novaDescricao;
+        return novaDescricao.trim();
     }
 
     public static String converteNullString(Object object) {
