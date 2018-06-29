@@ -142,12 +142,12 @@ public class SocioCarteirinhaDao extends DB {
 
                 String subquery = ""
                         + " (                                                                                                                                                                                       \n"
-                        + "    (P.codigo IS NULL AND CS.is_cobranca_carteirinha_nao_socio = false AND SC.dt_emissao IS NULL)                                                                                       \n"
+                        + "    (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = false AND SC.dt_emissao IS NULL)                                                                                     \n"
                         + "    OR (C.is_cobranca_carteirinha = false AND SC.dt_emissao IS NULL)                                                                                                                     \n"
                         + "    OR (C.is_cobranca_carteirinha = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true)                                                                \n"
                         + "    OR (C.is_cobranca_carteirinha = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL))                                   \n"
-                        + "    OR (P.codigo IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true)                              \n"
-                        + "    OR (P.codigo IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL)) \n"
+                        + "    OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true)                             \n"
+                        + "    OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL))\n"
                         + ") ";
 
                 listWhere.add(subquery);
@@ -239,7 +239,8 @@ public class SocioCarteirinhaDao extends DB {
                         " ( "
                         + " (C.is_cobranca_carteirinha = false AND SC.dt_criacao >= current_date-30) \n"
                         + " OR (C.is_cobranca_carteirinha = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL AND dt_emissao >= current_date-30))            \n"
-                        + " OR (P.codigo IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30)  \n"
+                        + " OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30)  \n"
+                        + " OR (P.matricula IS NULL AND P.nome IS NOT NULL AND P.nome <> '' AND CS.is_cobranca_carteirinha_nao_socio = false) \n"
                         + ") "
                 );
             }
