@@ -159,6 +159,9 @@
                                         <h:column>
                                             <strong>#</strong>  #{oa.id_agendamento}
                                         </h:column>
+                                        <h:column>
+                                            <strong>Realizado por:</strong>  #{oa.realizado}
+                                        </h:column>
                                     </h:panelGrid>
                                     <hr />
                                     <h3>Cancelados</h3>
@@ -241,6 +244,13 @@
                                         <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador} - #{atendimentosBean.objectAgenda.colaborador_documento}" styleClass="bold font-size-12 font-color-red" style="text-decoration: underline " />
                                     </h:panelGrid>
                                 </h:column>
+                                <p:outputLabel value="Realizado por: "/>
+                                <h:column>
+                                    <h:panelGrid columns="8">
+                                        <p:commandLink value="#{atendimentosBean.objectAgenda.realizado} #{atendimentosBean.objectAgenda.realizado eq null ? 'TROCAR' : '-'} #{atendimentosBean.objectAgenda.realizado_documento}" action="#{atendimentosBean.changeColaborador}" styleClass="bold font-size-12 font-color-blue" onclick="PF('dlg_realizado').show()" update=":form_atendimentos:i_realizado"/>
+                                        <p:commandButton icon="ui-icon-transfer-e-w"  action="#{atendimentosBean.changeColaborador}"  onclick="PF('dlg_realizado').show()" update=":form_atendimentos:i_realizado" />
+                                    </h:panelGrid>
+                                </h:column>
                                 <p:outputLabel value="Grupo: " />
                                 <h:column>
                                     <h:panelGrid columns="8">
@@ -312,6 +322,29 @@
                                 <p:commandButton value="Cancelar" onclick="PF('dlg_sched_change').hide()"/>                               
                             </h:panelGrid>
                         </h:panelGrid>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_realizado" modal="true" resizable="false" height="250" width="600" header="Deseja reagendar?" closeOnEscape="true">
+                        <h:panelGroup id="i_realizado">
+                            <p:messages id="i_message_realizado" showDetail="true" showSummary="true" />
+                            <h:panelGrid cellspacing="5" columns="1">
+                                <p:outputLabel value="Motivo:" />
+                                <p:inputTextarea value="#{atendimentosBean.motivoTrocaColaborador}" placeholder="Informar motivo da troca de colaborador para poder gravar registro. Min. 5 Caracteres." style="width: 100%" maxlength="50" minQueryLength="5">
+                                    <p:ajax event="blur" update=":form_atendimentos:i_btn_troca_colaborador" />
+                                </p:inputTextarea>
+                                <p:outputLabel value="Colaborador atual:" />
+                                <p:outputLabel value="#{atendimentosBean.objectAgenda.colaborador}" styleClass="bold" />
+                                <h:column><br /></h:column>
+                                <p:outputLabel value="Serviço realizado por:" />
+                                <p:selectOneMenu  value="#{atendimentosBean.idRealizado}" >
+                                    <p:ajax event="change" update="@this" />
+                                    <f:selectItems value="#{atendimentosBean.listRealizado}" />
+                                </p:selectOneMenu>
+                                <h:panelGrid cellspacing="5" columns="3" id="i_btn_troca_colaborador">
+                                    <p:commandButton value="Gravar Colaborador Realizado" icon="ui-icon-transfer-e-w" action="#{atendimentosBean.updateColaborador}" update=":form_atendimentos:" rendered="#{atendimentosBean.objectAgenda.agendamentos.agendaStatus.id eq 1}" disabled="#{5 > atendimentosBean.motivoTrocaColaborador.length()}"/>
+                                    <p:commandButton value="Cancelar" onclick="PF('dlg_realizado').hide()"/>                               
+                                </h:panelGrid>
+                            </h:panelGrid>
+                        </h:panelGroup>
                     </p:dialog>
                     <p:commandLink style="width: 0; height: 0" id="update_grid">
                         <p:ajax event="click" update=":form_atendimentos:i_list_agendas" listener="#{atendimentosBean.loadListObjectAgenda()}" />

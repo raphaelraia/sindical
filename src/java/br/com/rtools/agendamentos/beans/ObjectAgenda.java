@@ -39,6 +39,9 @@ public class ObjectAgenda {
     private Boolean disabled;
     private Boolean rendered;
     private Movimento movimento;
+    private Object id_realizado;
+    private Object realizado;
+    private Object realizado_documento;
 
     public ObjectAgenda() {
         this.data = null;
@@ -73,6 +76,9 @@ public class ObjectAgenda {
         this.rendered = true;
         this.movimento = null;
         this.id_movimento = null;
+        this.id_realizado = null;
+        this.realizado = null;
+        this.realizado_documento = null;
     }
 
     /**
@@ -89,6 +95,7 @@ public class ObjectAgenda {
      * @param codigo
      * @param nome
      * @param documento
+     * @param telefone
      * @param agendador
      * @param id_filial
      * @param filial
@@ -103,8 +110,11 @@ public class ObjectAgenda {
      * @param valor
      * @param id_convenio_grupo
      * @param id_movimento
+     * @param id_realizado
+     * @param realizado
+     * @param realizado_documento
      */
-    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object telefone, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos, Object convenio_grupo, Object valor, Object id_convenio_grupo, Object id_movimento) {
+    public ObjectAgenda(Object data, Object horario_inicial, Object horario_final, Object tempo_servico, Object id_status, Object status, Object id_agendamento, Object id_servico, Object servico, Object codigo, Object nome, Object documento, Object telefone, Object agendador, Object id_filial, Object filial, Object filial_documento, Object id_colaborador, Object colaborador, Object colaborador_documento, Object id_convenio_sub_grupo, Object convenio_sub_grupo, Agendamentos agendamentos, Object convenio_grupo, Object valor, Object id_convenio_grupo, Object id_movimento, Object id_realizado, Object realizado, Object realizado_documento) {
         this.data = data;
         this.horario_inicial = horario_inicial;
         this.horario_final = horario_final;
@@ -137,6 +147,9 @@ public class ObjectAgenda {
         this.disabled = false;
         this.rendered = true;
         this.movimento = null;
+        this.id_realizado = id_realizado;
+        this.realizado = realizado;
+        this.realizado_documento = realizado_documento;
     }
 
     public Object getData() {
@@ -379,8 +392,8 @@ public class ObjectAgenda {
 
     public Movimento getMovimento() {
         if (movimento == null) {
-            if(id_movimento != null) {
-                movimento = (Movimento) new Dao().find(new Movimento(), Integer.parseInt(id_movimento.toString()));                
+            if (id_movimento != null) {
+                movimento = (Movimento) new Dao().find(new Movimento(), Integer.parseInt(id_movimento.toString()));
             }
         }
         return movimento;
@@ -405,5 +418,31 @@ public class ObjectAgenda {
     public void setId_movimento(Object id_movimento) {
         this.id_movimento = id_movimento;
     }
+
+    public Object getRealizado() {
+        return realizado;
+    }
+
+    public void setRealizado(Object realizado) {
+        this.realizado = realizado;
+    }
+
+    public Object getRealizado_documento() {
+        return realizado_documento;
+    }
+
+    public void setRealizado_documento(Object realizado_documento) {
+        this.realizado_documento = realizado_documento;
+    }
+
+    public Object getId_realizado() {
+        return id_realizado;
+    }
+
+    public void setId_realizado(Object id_realizado) {
+        this.id_realizado = id_realizado;
+    }
+    
+    
 
 }

@@ -520,7 +520,10 @@ public class WebAgendamentosBean implements Serializable {
                     o.get(22),
                     o.get(23),
                     o.get(24),
-                    o.get(26)
+                    o.get(26),
+                    o.get(27),
+                    o.get(28),
+                    o.get(29)
             );
             listObjectAgenda.add(oa);
         }

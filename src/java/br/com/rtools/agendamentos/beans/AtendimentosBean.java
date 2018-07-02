@@ -12,14 +12,17 @@ import br.com.rtools.agendamentos.dao.AgendaServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
 import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
 import br.com.rtools.agendamentos.dao.AgendamentosDao;
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoConvenio;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.SubGrupoConvenio;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.associativo.dao.GrupoConvenioDao;
 import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -77,13 +80,15 @@ public class AtendimentosBean implements Serializable {
     private List<SelectItem> listGrupoConvenio;
     private List<SelectItem> listSubGrupoConvenio;
     private List<SelectItem> listConvenio;
+    private List<SelectItem> listRealizado;
     private List<SelectItem> listStatus;
 
-    // INTEGER
+    // INTEGER    
     private Integer idFilial;
     private Integer idGrupoConvenio;
     private Integer idSubGrupoConvenio;
     private Integer idConvenio;
+    private Integer idRealizado;
     private Integer idStatus;
     private AgendaHorarioReservaDao reservaDao;
     private ObjectAgenda objectAgenda;
@@ -94,6 +99,7 @@ public class AtendimentosBean implements Serializable {
     private Date endDate;
     private String motivoCancelamento;
     private String motivoTroca;
+    private String motivoTrocaColaborador;
 
     // BOLEANOS
     private Boolean liberaAcessaFilial;
@@ -110,6 +116,7 @@ public class AtendimentosBean implements Serializable {
     private String contato;
 
     public AtendimentosBean() {
+        motivoTrocaColaborador = "";
         Sessions.remove("agendamentosChange");
         motivoCancelamento = "";
         motivoTroca = "";
@@ -124,6 +131,7 @@ public class AtendimentosBean implements Serializable {
         listSubGrupoConvenio = new ArrayList();
         listConvenio = new ArrayList();
         listObjectAgenda = new ArrayList();
+        listRealizado = new ArrayList();
         listStatus = new ArrayList();
 
         idFilial = null;
@@ -165,6 +173,7 @@ public class AtendimentosBean implements Serializable {
         emissaoGuiasBean.init();
         emissaoGuiasBean.setRotinaRetorno(new Rotina().get());
         Integer id_sub_grupo_convenio = null;
+        Integer id_pessoa = null;
         List<AgendamentoServico> listAS = new ArrayList();
         Sessions.remove("emissaoGuiasBean");
         for (int i = 0; i < listObjectAgenda.size(); i++) {
@@ -178,6 +187,27 @@ public class AtendimentosBean implements Serializable {
                         return null;
                     }
                 }
+                if (id_pessoa == null) {
+                    if (listObjectAgenda.get(i).getId_realizado() == null) {
+                        id_pessoa = Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString());
+                    } else {
+                        id_pessoa = Integer.parseInt(listObjectAgenda.get(i).getId_realizado().toString());
+                    }
+                } else {
+                    if (listObjectAgenda.get(i).getId_realizado() == null) {
+                        if (!id_pessoa.equals(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()))) {
+                            Messages.warn("Validação", "Não é possível concluir com colaboradores diferentes!");
+                            Sessions.remove("emissaoGuiasBean");
+                            return null;
+                        }
+                    } else {
+                        if (!id_pessoa.equals(Integer.parseInt(listObjectAgenda.get(i).getId_realizado().toString()))) {
+                            Messages.warn("Validação", "Não é possível concluir com colaboradores diferentes!");
+                            Sessions.remove("emissaoGuiasBean");
+                            return null;
+                        }
+                    }
+                }
                 if (p == null) {
                     Sessions.put("pessoaPesquisa", (Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(listObjectAgenda.get(i).getCodigo().toString())));
                     emissaoGuiasBean.getPessoa();
@@ -186,7 +216,15 @@ public class AtendimentosBean implements Serializable {
                     emissaoGuiasBean.loadListSubgrupos();
                     emissaoGuiasBean.setIdSubgrupo(Integer.parseInt(listObjectAgenda.get(i).getId_convenio_sub_grupo().toString()));
                     emissaoGuiasBean.loadListJuridicas();
-                    Juridica j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()));
+                    Juridica j;
+                    if (listObjectAgenda.get(i).getId_realizado() == null) {
+                        j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_colaborador().toString()));
+                    } else {
+                        j = new JuridicaDao().pesquisaJuridicaPorPessoa(Integer.parseInt(listObjectAgenda.get(i).getId_realizado().toString()));
+                    }
+                    if (j == null) {
+                        return null;
+                    }
                     emissaoGuiasBean.setIdConvenio(j.getId());
                 }
                 emissaoGuiasBean.loadListServicos();
@@ -465,7 +503,10 @@ public class AtendimentosBean implements Serializable {
                     o.get(22),
                     o.get(23),
                     o.get(24),
-                    o.get(26)
+                    o.get(26),
+                    o.get(27),
+                    o.get(28),
+                    o.get(29)
             );
             if (Integer.parseInt(oa.getId_status().toString()) == 3 || Integer.parseInt(oa.getId_status().toString()) == 5 || Integer.parseInt(oa.getId_status().toString()) == 6) {
                 oa.setRendered(false);
@@ -890,6 +931,30 @@ public class AtendimentosBean implements Serializable {
         Jasper.printReports("AG_ATENDIMENTOS.jasper", "Atendimentos", listObjectAgenda);
     }
 
+    public List<SelectItem> getListRealizado() {
+        return listRealizado;
+    }
+
+    public void setListRealizado(List<SelectItem> listRealizado) {
+        this.listRealizado = listRealizado;
+    }
+
+    public Integer getIdRealizado() {
+        return idRealizado;
+    }
+
+    public void setIdRealizado(Integer idRealizado) {
+        this.idRealizado = idRealizado;
+    }
+
+    public String getMotivoTrocaColaborador() {
+        return motivoTrocaColaborador;
+    }
+
+    public void setMotivoTrocaColaborador(String motivoTrocaColaborador) {
+        this.motivoTrocaColaborador = motivoTrocaColaborador;
+    }
+
     public class ObjectAgendamentos {
 
         private AgendaHorarios horario;
@@ -1043,4 +1108,76 @@ public class AtendimentosBean implements Serializable {
         smsws.delete();
 
     }
+
+    public void changeColaborador() {
+        motivoTrocaColaborador = "";
+        loadListRealizado();
+        if (objectAgenda.getId_realizado() == null) {
+            idRealizado = Integer.parseInt(objectAgenda.getId_colaborador().toString());
+        } else {
+            idRealizado = Integer.parseInt(objectAgenda.getId_realizado().toString());
+        }
+    }
+
+    public void updateColaborador() {
+        Dao dao = new Dao();
+        if (Integer.parseInt(objectAgenda.getId_colaborador().toString()) == idRealizado) {
+            Messages.info("Correção", "Colaborador foi o mesmo que realizaou");
+        }
+        Pessoa p = (Pessoa) dao.find(new Pessoa(), idRealizado);
+        if (objectAgenda.getMovimento() != null && objectAgenda.getMovimento().getBaixa() != null) {
+            Messages.warn("Validação", "Não é possível trocar colaborador com movimento baixado");
+            return;
+        }
+        if (Integer.parseInt(objectAgenda.getId_status().toString()) != 1 && Integer.parseInt(objectAgenda.getId_status().toString()) != 4) {
+            Messages.warn("Validação", "Não é possível trocar colaborador que o Status não seja Agedando ou Encaixe");
+            return;
+        }
+        String beforeUpdate = " "
+                + "Troca de Colaborador - "
+                + "Motivo: " + motivoTrocaColaborador + " - "
+                + "Agendamento ID: " + objectAgenda.getId_agendamento() + " - "
+                + "Data: " + objectAgenda.getData() + " - "
+                + "Horário: " + objectAgenda.getHorario_inicial() + " às " + objectAgenda.getHorario_final() + " - "
+                + "Cliente: " + objectAgenda.getNome() + " - "
+                + "Documento: " + objectAgenda.getDocumento() + " - "
+                + "Colaborador: " + objectAgenda.getColaborador() + " - "
+                + "Realizado por: " + (objectAgenda.getRealizado() == objectAgenda.getColaborador() ? "" : objectAgenda.getRealizado()) + " - ";
+        // Agendamentos a = (Agendamentos) dao.find(new Agendamentos(), Integer.parseInt(objectAgenda.getId_agendamento().toString()));
+        objectAgenda.getAgendamentos().setConvenioRealizado(p);
+        objectAgenda.setId_realizado(p.getId());
+        objectAgenda.setRealizado(p.getNome());
+        objectAgenda.setRealizado_documento(p.getDocumento());
+        if (!dao.update(objectAgenda.getAgendamentos(), true)) {
+            Messages.warn("Validação", "Erro ao trocar Convênio!");
+            return;
+        }
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("ag_agendamento");
+        novoLog.setCodigo(Integer.parseInt(objectAgenda.getId_agendamento().toString()));
+        novoLog.update(beforeUpdate,
+                "Agendamento ID: " + objectAgenda.getId_agendamento() + " - "
+                + "Data: " + objectAgenda.getData() + " - "
+                + "Horário: " + objectAgenda.getHorario_inicial() + " às " + objectAgenda.getHorario_final() + " - "
+                + "Cliente: " + objectAgenda.getNome() + " - "
+                + "Documento: " + objectAgenda.getDocumento() + " - "
+                + "Colaborador: " + objectAgenda.getColaborador() + " - "
+                + "Realizado por: " + (objectAgenda.getRealizado() == objectAgenda.getColaborador() ? "" : objectAgenda.getRealizado()) + " - ");
+        Messages.info("Sucesso", "Convênio realizado trocado com sucesso");
+        loadListObjectAgenda();
+        motivoTrocaColaborador = "";
+    }
+
+    public void loadListRealizado() {
+        listRealizado = new ArrayList();
+        Socios s = pessoa.getPessoa().getSocios();
+        List<Pessoa> list = (List<Pessoa>) new ConvenioDao().findAllBySubGrupoConvenio(Integer.parseInt(objectAgenda.getId_convenio_sub_grupo().toString()));
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idRealizado = list.get(i).getId();
+            }
+            listRealizado.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+        }
+    }
+
 }

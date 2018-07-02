@@ -129,6 +129,7 @@ public class AgendamentosDao extends DB {
      * @param date
      * @param date_end
      * @param filial_id
+     * @param convenio_grupo_id
      * @param convenio_sub_grupo_id
      * @param convenio_id
      * @param pessoa_id
@@ -165,7 +166,10 @@ public class AgendamentosDao extends DB {
                     + "             func_valor_servico(P.id, S.id, current_date, 0, 0) AS valor,\n" // 23
                     + "             CG.id AS id_grupo,                          \n" // 24
                     + "             ASE.id AS id_agendamento_servico,           \n" // 25
-                    + "             ASE.id_movimento AS id_movimento            \n" // 26
+                    + "             ASE.id_movimento AS id_movimento,           \n" // 26
+                    + "             R.id AS id_realizado,                       \n" // 27
+                    + "             R.ds_nome AS realizado_nome,                \n" // 28
+                    + "             R.ds_documento AS realizado_documento       \n" // 29                    
                     + "        FROM ag_agendamento_servico ASE                  \n"
                     + "  INNER JOIN ag_agendamento A ON A.id = ASE.id_agendamento\n"
                     + "  INNER JOIN ag_agendamento_horario AH ON AH.id_agendamento = ASE.id_agendamento     \n"
@@ -178,9 +182,10 @@ public class AgendamentosDao extends DB {
                     + "  INNER JOIN pes_juridica J ON J.id = F.id_filial\n"
                     + "  INNER JOIN pes_pessoa FIL ON FIL.id = J.id_pessoa\n"
                     + "  INNER JOIN pes_pessoa CONV ON CONV.id = H.id_convenio\n"
-                    + "  INNER JOIN soc_convenio_sub_grupo CSG ON CSG.id = H.id_convenio_sub_grupo\n"
-                    + "  INNER JOIN soc_convenio_grupo CG ON CG.id = CSG.id_grupo_convenio\n"
-                    + "   LEFT JOIN seg_usuario U ON U.id = A.id_agendador      \n"
+                    + "  INNER JOIN soc_convenio_sub_grupo CSG ON CSG.id = H.id_convenio_sub_grupo  \n"
+                    + "  INNER JOIN soc_convenio_grupo CG ON CG.id = CSG.id_grupo_convenio          \n"
+                    + "   LEFT JOIN pes_pessoa R ON R.id = A.id_convenio_realizado                  \n"
+                    + "   LEFT JOIN seg_usuario U ON U.id = A.id_agendador                          \n"
                     + "   LEFT JOIN pes_pessoa PU ON PU.id = U.id_pessoa\n";
             queryString += "WHERE ASE.id_agendamento = A.id \n";
             if (!date.isEmpty() && date_end.isEmpty()) {
@@ -239,7 +244,10 @@ public class AgendamentosDao extends DB {
                     + "            func_valor_servico(P.id, S.id, current_date, 0, 0), \n"
                     + "            CG.id,                       \n"
                     + "            ASE.id,                      \n"
-                    + "            ASE.id_movimento             \n";
+                    + "            ASE.id_movimento,            \n"
+                    + "            R.id,                        \n"
+                    + "            R.ds_nome,                   \n"
+                    + "            R.ds_documento               \n";
             queryString += " ORDER BY A.dt_data, min(H.ds_hora)";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
