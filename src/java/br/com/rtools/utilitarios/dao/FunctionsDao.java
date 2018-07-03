@@ -321,10 +321,10 @@ public class FunctionsDao extends DB {
         return false;
     }
 
-    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao, Integer convencao_id) {
+    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao, Integer convencao_id, String data_agendamento) {
         try {
             Query query = getEntityManager().createNativeQuery(
-                    "SELECT func_homologacao_prazo(" + trabalhado + ", " + id_cidade + ", '" + data_demissao + "', " + convencao_id + ");"
+                    "SELECT func_homologacao_prazo(" + trabalhado + ", " + id_cidade + ", '" + data_demissao + "', " + convencao_id + ", '" + data_agendamento + "');"
             );
             List list = query.getResultList();
 

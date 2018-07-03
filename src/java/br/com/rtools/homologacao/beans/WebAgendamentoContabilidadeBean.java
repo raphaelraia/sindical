@@ -927,7 +927,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     dao.rollback();
                     return;
                 }
-                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
+                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId(), agendamento.getData()));
 
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);

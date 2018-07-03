@@ -1098,7 +1098,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 return;
             }
 
-            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
+            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId(), agendamento.getData()));
             if (idStatusI == 2) {
                 if (!dba.existeHorarioDisponivel(agendamento.getDtData(), agendamento.getHorarios())) {
                     dao.rollback();
