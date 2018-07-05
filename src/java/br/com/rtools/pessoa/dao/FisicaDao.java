@@ -214,6 +214,21 @@ public class FisicaDao extends DB {
         return new ArrayList();
     }
 
+    public List<Fisica> recentes() {
+        try {
+            String queryString = ""
+                    + "     SELECT F.*                                          \n"
+                    + "       FROM pes_fisica F                                 \n"
+                    + " INNER JOIN pes_pessoa P ON P.id = F.id_pessoa           \n"
+                    + "      WHERE (P.dt_recadastro = CURRENT_DATE OR P.dt_atualizacao::date = CURRENT_DATE OR P.dt_criacao = CURRENT_DATE) \n"
+                    + "   ORDER BY P.dt_atualizacao DESC NULLS LAST, P.ds_nome ASC ";
+            Query query = getEntityManager().createNativeQuery(queryString, Fisica.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List pesquisaPessoaSocio(String desc, String por, String como, Integer limit, Integer offset) {
         return pesquisaPessoaSocio(desc, por, como, false, limit, offset);
     }
