@@ -172,6 +172,13 @@ public class SimplesBean implements Serializable {
         }
         return null;
     }
+    
+    public Boolean getBtnRetorno() {
+        if (GenericaSessao.exists("urlRetorno") && !((String) GenericaSessao.getObject("urlRetorno")).substring(0, 4).equals("menu")) {
+            return true;
+        }
+        return false;
+    }
 
     public String editar(Object o) {
         objeto = o;
@@ -894,9 +901,13 @@ public class SimplesBean implements Serializable {
     }
 
     public void limpaLista() {
-        lista.clear();
+        limpaLista(false);
+    }
+
+    public void limpaLista(Boolean all) {
+        lista = new ArrayList();
         if (sessoes != null) {
-            if (!pesquisaLista.isEmpty()) {
+            if (!pesquisaLista.isEmpty() || all) {
                 if (lista.isEmpty()) {
                     String desc = AnaliseString.removerAcentos(pesquisaLista.trim().toUpperCase());
                     Object o = (Object) convertToObject(sessoes[0]);
@@ -923,7 +934,7 @@ public class SimplesBean implements Serializable {
                     String queryString = "";
 
                     Query query;
-                    if (tableName.equals("end_bairro") || tableName.equals("end_descricao_endereco")) {
+                    if (tableName.equals("end_bairro") || tableName.equals("end_descricao_endereco") && !all) {
                         queryString = " SELECT t.* FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '%" + desc + "%' AND is_ativo = true ORDER BY t.ds_descricao ASC LIMIT " + maxResults;
                         query = dao.getEntityManager().createNativeQuery(queryString, o.getClass());
                         try {
@@ -965,7 +976,11 @@ public class SimplesBean implements Serializable {
                             }
                         }
                     } else {
-                        queryString = " SELECT t.* FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '%" + desc + "%'  ORDER BY t.ds_descricao ASC LIMIT " + maxResults;
+                        if (all) {
+                            queryString = " SELECT t.* FROM " + tableName + "  AS t ORDER BY t.ds_descricao ASC LIMIT " + maxResults;
+                        } else {
+                            queryString = " SELECT t.* FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '%" + desc + "%'  ORDER BY t.ds_descricao ASC LIMIT " + maxResults;
+                        }
                         query = dao.getEntityManager().createNativeQuery(queryString, o.getClass());
                         try {
                             lista = query.getResultList();
@@ -1088,6 +1103,57 @@ public class SimplesBean implements Serializable {
 
     public void setView(Boolean view) {
         this.view = view;
+    }
+
+    public Boolean getBtnFindAll() {
+        switch (sessoes[0]) {
+            case "GrupoCidade":
+            case "TipoEndereco":
+            case "TipoDocumento":
+            case "GrupoAgenda":
+            case "Evento":
+            case "Modulo":
+            case "Departamento":
+            case "Genero":
+            case "Indice":
+            case "TipoCentroComercial":
+            case "GrupoConvenio":
+            case "ComponenteCurricular":
+            case "GrupoEvento":
+            case "Banda":
+            case "Midia":
+            case "Nivel":
+            case "MotivoInativacao":
+            case "TipoServico":
+            case "AteOperacao":
+            case "ConviteMotivoSuspencao":
+            case "ProStatus":
+            case "ProdutoUnidade":
+            case "ProdutoGrupo":
+            case "Cor":
+            case "Nacionalidade":
+            case "MalaDiretaGrupo":
+            case "SisNotificacaoCategoria":
+            case "TmktContato":
+            case "TmktNatureza":
+            case "CompromissoCategoria":
+            case "SisCartaTipo":
+            case "Convencao":
+            case "CampeonatoModalidade":
+            case "ConfiguracaoSmsGrupo":
+            case "TipoTratamento":
+                return true;
+        }
+        return false;
+    }
+
+    public Boolean getBtnAtivo() {
+        switch (sessoes[0]) {
+            case "Convencao":
+            case "MalaDiretaGrupo":
+                return true;
+        }
+        return false;
     }
 
 }

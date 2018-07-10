@@ -2632,6 +2632,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>email_confirma_recebimento</from-outcome>
+            <to-view-id>/email_confirma_recebimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>email_confirma_recebimento_title</from-outcome>
+            <to-view-id>/email_confirma_recebimento_title.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

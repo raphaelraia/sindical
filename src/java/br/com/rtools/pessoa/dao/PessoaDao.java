@@ -102,6 +102,20 @@ public class PessoaDao extends DB {
         }
     }
 
+    public List<Pessoa> recentes() {
+        try {
+            String queryString = ""
+                    + "     SELECT P.*                                          \n"
+                    + "       FROM pes_pessoa P                                 \n"
+                    + "      WHERE (P.dt_recadastro = CURRENT_DATE OR P.dt_atualizacao::date = CURRENT_DATE OR P.dt_criacao = CURRENT_DATE) \n"
+                    + "   ORDER BY P.dt_atualizacao DESC NULLS LAST, P.ds_nome ASC ";
+            Query query = getEntityManager().createNativeQuery(queryString, Pessoa.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List pessoasPermitidas(
             int idGrupo,
             int idConvencao) {

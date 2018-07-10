@@ -1,9 +1,7 @@
 package br.com.rtools.agendamentos;
 
 import br.com.rtools.agendamentos.dao.AgendamentoCancelamentoDao;
-import br.com.rtools.agendamentos.dao.AgendamentoHorarioDao;
 import br.com.rtools.agendamentos.dao.AgendamentoServicoDao;
-import br.com.rtools.agendamentos.dao.AgendamentosDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
@@ -59,6 +57,9 @@ public class Agendamentos implements Serializable {
     @Lob
     @Column(name = "ds_obs")
     private String obs;
+    @JoinColumn(name = "id_convenio_realizado", referencedColumnName = "id")
+    @ManyToOne
+    private Pessoa convenioRealizado;
 
     @Transient
     private List<AgendamentoCancelamento> listCancelamentos;
@@ -83,9 +84,10 @@ public class Agendamentos implements Serializable {
         this.listCancelamentos = null;
         this.agendamentoServico = null;
         this.motivoTroca = null;
+        this.convenioRealizado = null;
     }
 
-    public Agendamentos(Integer id, Date dtEmissao, AgendaStatus agendaStatus, Usuario agendador, Pessoa pessoa, Date dtData, String contato, String telefone, String email, String obs) {
+    public Agendamentos(Integer id, Date dtEmissao, AgendaStatus agendaStatus, Usuario agendador, Pessoa pessoa, Date dtData, String contato, String telefone, String email, String obs, Pessoa convenioRealizado) {
         this.id = id;
         this.dtEmissao = dtEmissao;
         this.agendaStatus = agendaStatus;
@@ -97,6 +99,7 @@ public class Agendamentos implements Serializable {
         this.email = email;
         this.obs = obs;
         this.listCancelamentos = null;
+        this.convenioRealizado = convenioRealizado;
     }
 
     public Integer getId() {
@@ -230,6 +233,14 @@ public class Agendamentos implements Serializable {
     public String getPrimeiraHora() {
         // new AgendamentoHorarioDao().firstTime(id)
         return "";
+    }
+
+    public Pessoa getConvenioRealizado() {
+        return convenioRealizado;
+    }
+
+    public void setConvenioRealizado(Pessoa convenioRealizado) {
+        this.convenioRealizado = convenioRealizado;
     }
 
 }

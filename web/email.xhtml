@@ -36,7 +36,7 @@
                                             <h:column>
                                                 <p:commandButton value="Nova Mensagem" action="#{emailBean.newMessage}" rendered="#{!emailBean.filterNewMessage}" update=":form_email:" />
                                                 <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Voltar" action="#{emailBean.clear}" rendered="#{emailBean.filterNewMessage}" update=":form_email:" styleClass="margin-left-max"/>
-                                                <h:column rendered="#{emailBean.urlRetorno.equals('')}">
+                                                <h:column rendered="#{empty emailBean.urlRetorno}">
                                                     <p:commandButton icon="ui-icon-disk" title="Salvar em rascunho" rendered="#{emailBean.filterNewMessage}" action="#{emailBean.saveDraft()}" update=":form_email:" styleClass="margin-left-max"/>
                                                 </h:column>
                                                 <p:commandButton value="Enviar" rendered="#{emailBean.filterNewMessage}" styleClass="margin-left-max" action="#{emailBean.send()}" update=":form_email:" />
@@ -79,7 +79,7 @@
                                                                 <f:selectItem itemValue="assunto" itemLabel="Assunto" />
                                                                 <f:selectItem itemValue="pessoa" itemLabel="Nome" />
                                                             </p:selectOneMenu>                                      
-                                                            <p:inputText size="40" value="#{emailBean.descricaoPesquisa}" placeholder="Digite aqui o termo a ser pesquisado" disabled="#{emailBean.filterBy.equals('')}">
+                                                            <p:inputText size="40" value="#{emailBean.descricaoPesquisa}" placeholder="Digite aqui o termo a ser pesquisado" disabled="#{empty emailBean.filterBy}">
                                                                 <p:ajax event="blur" update="@this, :form_email:i_tbl" listener="#{emailBean.listEmailPessoas.clear()}"/>
                                                             </p:inputText>
                                                         </h:panelGrid>
@@ -128,7 +128,7 @@
                                                     <f:selectItem itemValue="" itemLabel="Selecionar" />
                                                     <f:selectItems value="#{emailBean.listEmailPrioridades}" />
                                                 </p:selectOneMenu>
-                                                <p:commandButton icon="ui-icon-plus" value="Adicionar destinatários" onclick="PF('dlg_address').show();" action="#{emailBean.openDialogModal}" rendered="#{emailBean.urlRetorno.equals('')}"/>
+                                                <p:commandButton icon="ui-icon-plus" value="Adicionar destinatários" onclick="PF('dlg_address').show();" action="#{emailBean.openDialogModal}" rendered="#{empty emailBean.urlRetorno}"/>
                                                 <h:column>
                                                     <h:panelGrid id="i_add_list_mail">
                                                         <p:dataTable value="#{emailBean.addEmailPessoas}" var="emailPessoa" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="300" paginator="true" styleClass="margin-top-max" rowIndexVar="index">
@@ -147,8 +147,8 @@
                                                             <p:rowExpansion styleClass="bg-yellow-ligth">
                                                                 <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
                                                                 <p:outputLabel value="Nome: #{emailPessoa.pessoa.nome}" />
-                                                                <p:outputLabel value="CC: #{emailPessoa.cc}" rendered="#{emailPessoa.cc.equals('')}" />
-                                                                <p:outputLabel value="BCC: #{emailPessoa.bcc}" rendered="#{emailPessoa.bcc.equals('')}" />                                                                
+                                                                <p:outputLabel value="CC: #{emailPessoa.cc}" rendered="#{empty emailPessoa.cc}" />
+                                                                <p:outputLabel value="BCC: #{emailPessoa.bcc}" rendered="#{empty emailPessoa.bcc}" />                                                                
                                                             </p:rowExpansion>
                                                         </p:dataTable>                                            
                                                     </h:panelGrid>
@@ -198,13 +198,18 @@
                                     <p:column headerText="Nome">
                                         #{emailPessoa.pessoa.nome}
                                     </p:column>
+                                    <p:column headerText="Confirmada" width="80" styleClass="text-center">
+                                        <h:outputLabel value="#{emailPessoa.recebimento}">
+                                            <f:convertDateTime />
+                                        </h:outputLabel>                                                   
+                                    </p:column>                                    
                                     <p:rowExpansion styleClass="bg-yellow-ligth" rendered="#{emailPessoa.pessoa.id != -1}">
                                         <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
                                         <p:outputLabel value="Nome: #{emailPessoa.pessoa.nome}" /><br />
                                         <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
-                                        <p:outputLabel value="CC: #{emailPessoa.cc}" rendered="#{emailPessoa.cc.equals('')}" /><br />
+                                        <p:outputLabel value="CC: #{emailPessoa.cc}" rendered="#{empty emailPessoa.cc}" /><br />
                                         <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
-                                        <p:outputLabel value="BCC: #{emailPessoa.bcc}" rendered="#{emailPessoa.bcc.equals('')}" /><br />
+                                        <p:outputLabel value="BCC: #{emailPessoa.bcc}" rendered="#{empty emailPessoa.bcc}" /><br />
                                         <div class="clear"></div>
                                         <p:commandLink value="Mensagem" action="#{emailBean.showMensagem(emailPessoa.email.mensagem)}" oncomplete="PF('dlg_show_message').show()" update=":form_email:i_detalhes_msg"/>
                                     </p:rowExpansion>

@@ -18,4 +18,14 @@ public class EmailPessoaDao extends DB {
         }
     }
 
+    public EmailPessoa findByUUID(String uuid) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT EP FROM EmailPessoa AS EP WHERE EP.uuid = :uuid AND EP.recebimento IS NULL");
+            query.setParameter("uuid", uuid);
+            return (EmailPessoa) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

@@ -52,6 +52,10 @@
                                                 <p:ajax event="click" listener="#{simplesBean.limpaLista}" update="i_panel_simples"/>
                                             </p:commandButton>
 
+                                            <p:commandButton icon="fa fa-list" rendered="#{simplesBean.btnFindAll}" title="Mostrar tudo">
+                                                <p:ajax event="click" listener="#{simplesBean.limpaLista(true)}" update="i_panel_simples"/>
+                                            </p:commandButton>
+
                                             <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
                                         </h:panelGrid>
                                         <p:focus for="i_panel_pesquisa" />
@@ -103,7 +107,7 @@
                                                 <p:ajax event="blur" update="@this" global="false"/>
                                             </p:inputText>
                                             <br />
-                                            <p:selectBooleanCheckbox value="#{simplesBean.ativo}" itemLabel="Ativo">
+                                            <p:selectBooleanCheckbox value="#{simplesBean.ativo}" itemLabel="Ativo" rendered="#{simplesBean.btnAtivo}">
                                                 <p:ajax event="change" update="@this" />
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>

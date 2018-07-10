@@ -1088,17 +1088,17 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
 
-        if (agendamento.getId() == -1) {
+        ConvencaoDao convencaoDao = new ConvencaoDao();
+        Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
+        if (convencao == null) {
+            GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
+            dao.rollback();
+            return;
+        }
 
-            ConvencaoDao convencaoDao = new ConvencaoDao();
-            Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
-            if (convencao == null) {
-                GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
-                dao.rollback();
-                return;
-            }
+        if (agendamento.getId() == -1) {    
 
-            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
+            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId(), agendamento.getData()));
             if (idStatusI == 2) {
                 if (!dba.existeHorarioDisponivel(agendamento.getDtData(), agendamento.getHorarios())) {
                     dao.rollback();
@@ -1146,7 +1146,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     + " - Demissão: " + a.getPessoaEmpresa().getDemissao()
                     + " - Data da homologação: " + a.getData()
                     + " - Horário: " + a.getHorarios().getHora();
-
+            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId(), agendamento.getData()));
             if (dao.update(agendamento)) {
                 dao.commit();
                 GenericaMensagem.info("Sucesso", "Agendamento atualizado!");

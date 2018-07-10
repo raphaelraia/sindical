@@ -26,11 +26,13 @@ public class EmailPessoa implements Serializable {
     private String cc;
     @Column(name = "ds_co", nullable = true)
     private String bcc;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_recebimento", nullable = true)
     private Date recebimento;
     @Column(name = "ds_hora_saida", length = 5)
     private String horaSaida;
+    @Column(name = "ds_uuid", length = 5)
+    private String uuid;
 
     public EmailPessoa() {
         this.id = null;
@@ -41,9 +43,10 @@ public class EmailPessoa implements Serializable {
         this.bcc = "";
         this.recebimento = null;
         this.horaSaida = "";
+        this.uuid = "";
     }
 
-    public EmailPessoa(Integer id, Email email, Pessoa pessoa, String destinatario, String cc, String bcc, Date recebimento, String horaSaida) {
+    public EmailPessoa(Integer id, Email email, Pessoa pessoa, String destinatario, String cc, String bcc, Date recebimento, String horaSaida, String uuid) {
         this.id = id;
         this.email = email;
         this.pessoa = pessoa;
@@ -52,6 +55,7 @@ public class EmailPessoa implements Serializable {
         this.bcc = bcc;
         this.recebimento = recebimento;
         this.horaSaida = horaSaida;
+        this.uuid = uuid;
     }
 
     public Integer getId() {
@@ -116,5 +120,13 @@ public class EmailPessoa implements Serializable {
 
     public void setHoraSaida(String horaSaida) {
         this.horaSaida = horaSaida;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

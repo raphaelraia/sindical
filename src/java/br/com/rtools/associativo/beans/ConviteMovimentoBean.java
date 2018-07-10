@@ -329,6 +329,11 @@ public class ConviteMovimentoBean implements Serializable {
                 GenericaMensagem.warn("SISTEMA", "CONVIDADO ENCONTRA-SE SUSPENSO!");
                 return false;
             }
+            sisPessoaSuspensa = new SuspencaoDao().existsSisPessoa(conviteMovimento.getSisPessoa().getNome(), conviteMovimento.getSisPessoa().getNascimento());
+            if (sisPessoaSuspensa != null) {
+                GenericaMensagem.warn("SISTEMA", "CONVIDADO ENCONTRA-SE SUSPENSO!");
+                return false;
+            }
         }
         return true;
     }

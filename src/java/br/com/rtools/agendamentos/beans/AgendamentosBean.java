@@ -472,6 +472,13 @@ public class AgendamentosBean implements Serializable {
             if (c == null) {
                 Pessoa colaborador = listAgendamentoHorario.get(i).getAgendaHorarios().getConvenio();
                 c = new ConvenioDao().find(idSubGrupoConvenio, colaborador.getJuridica().getId());
+                agendamento.setConvenioRealizado(c.getJuridica().getPessoa());
+                if (!dao.update(agendamento)) {
+                    agendamento.setId(null);
+                    dao.rollback();
+                    Messages.warn("Erro", "AO SALVAR AGENDAMENTO!");
+                    return;
+                }
             }
         }
         if (trocar) {
@@ -737,7 +744,10 @@ public class AgendamentosBean implements Serializable {
                     o.get(22),
                     o.get(23),
                     o.get(24),
-                    o.get(26)
+                    o.get(26),
+                    o.get(27),
+                    o.get(28),
+                    o.get(29)
             );
             listObjectAgenda.add(oa);
         }

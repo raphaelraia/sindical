@@ -297,7 +297,7 @@ public class PessoaCardBean implements Serializable {
         emailBean.getEmail().setAssunto("Contato");
         emailBean.getEmail().setRotina((Rotina) dao.find(new Rotina(), 112));
         emailBean.getEmail().setMensagem("Prezada Sr(a) " + p.getNome());
-        emailBean.setEmailPessoa(new EmailPessoa(-1, emailBean.getEmail(), p, p.getEmail1(), "", "", null, DataHoje.livre(new Date(), "H:m")));
+        emailBean.setEmailPessoa(new EmailPessoa(-1, emailBean.getEmail(), p, p.getEmail1(), "", "", null, DataHoje.livre(new Date(), "H:m"), ""));
         emailBean.addEmail();
         emailBean.setUrlRetorno(urlRetorno);
         GenericaSessao.put("emailBean", emailBean);

@@ -3,7 +3,6 @@ package br.com.rtools.pessoa.dao;
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.MotivoInativacao;
-import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -552,5 +551,20 @@ public class JuridicaDao extends DB {
 
     public void setContabilidade(Boolean contabilidade) {
         this.contabilidade = contabilidade;
+    }
+
+    public List<Juridica> recentes() {
+        try {
+            String queryString = ""
+                    + "     SELECT J.*                                          \n"
+                    + "       FROM pes_juridica J                               \n"
+                    + " INNER JOIN pes_pessoa P ON P.id = J.id_pessoa           \n"
+                    + "      WHERE (P.dt_recadastro = CURRENT_DATE OR P.dt_atualizacao::date = CURRENT_DATE OR P.dt_criacao = CURRENT_DATE) \n"
+                    + "   ORDER BY P.dt_atualizacao DESC NULLS LAST, P.ds_nome ASC ";
+            Query query = getEntityManager().createNativeQuery(queryString, Juridica.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }
