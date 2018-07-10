@@ -1,11 +1,11 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
-import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailArquivo;
 import br.com.rtools.sistema.ConfiguracaoDepartamento;
@@ -15,10 +15,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
@@ -203,12 +209,20 @@ public class Mail extends MailTemplate implements Serializable {
                         }
                         String assuntox = AnaliseString.converterCapitalize(email.getAssunto());
                         String uuid = "";
+                        String token_email = "";
                         if (unique) {
                             if (!assuntox.isEmpty() && !assuntox.contains("UUID: ")) {
                                 uuid += UUID.randomUUID().toString();
+                                token_email = uuid;
                                 assuntox += " - [ID:" + uuid.substring(0, 8).toUpperCase() + "]";
                             }
+                        } else {
+                            token_email = UUID.randomUUID().toString();
                         }
+                        token_email = token_email.replace("-", "");
+                        token_email = token_email.replace("_", "");
+                        token_email = token_email.toLowerCase();
+                        token_email = stringToMD5(token_email);
                         xEndereco = AnaliseString.converterCapitalize(xEndereco);
                         String htmlString = "";
                         if (html.isEmpty()) {
@@ -228,7 +242,7 @@ public class Mail extends MailTemplate implements Serializable {
                                         + "</html>";
                             } else if (templateHtml.equals("cerberus")) {
                                 String message = email.getMensagem();
-                                htmlString += getCerberus(xLogo, message, "", xSite, xNome, xEndereco, xTelefone, "");
+                                htmlString += getCerberus(xLogo, message, "", xSite, xNome, xEndereco, xTelefone, "", token_email);
                             } else if (templateHtml.equals("personalizado")) {
                                 Juridica jur = (new JuridicaDao()).pesquisaJuridicaPorPessoa(emailPessoas.get(i).getPessoa().getId());
                                 if (jur == null) {
@@ -302,6 +316,7 @@ public class Mail extends MailTemplate implements Serializable {
                         msg.setHeader("Content-ID", "<" + uuid + ">");
                         // NOVO HEADER PARA TESTE 07/06/2018
                         msg.setHeader("Message-ID", "<" + getUniqueMessageIDValue(session) + ">");
+                        msg.setHeader("Disposition-Notification-To", xEmailSindicato);
                         if (xEmail.contains("gmail") || xEmail.contains("googlemail")) {
                             Transport transport = session.getTransport("smtps");
                             transport.connect(xSmtp, xPorta, xEmail, xSenha);
@@ -325,6 +340,9 @@ public class Mail extends MailTemplate implements Serializable {
                         if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {
                             emailPessoas.get(i).setPessoa(null);
                         }
+                        if(email.getId() == -1) {
+                            email.setId(null);
+                        }
                         if (email.getId() == null) {
                             email.setData(new Date());
                             email.setHora(DataHoje.livre(new Date(), "HH:mm"));
@@ -340,6 +358,7 @@ public class Mail extends MailTemplate implements Serializable {
                                 email.setMensagem("");
                             }
                             if (di.save(email, true)) {
+                                emailPessoas.get(i).setUuid(token_email);
                                 emailPessoas.get(i).setEmail(email);
                                 emailPessoas.get(i).setHoraSaida(DataHoje.livre(new Date(), "HH:mm"));
                                 di.save(emailPessoas.get(i), true);
@@ -566,10 +585,13 @@ public class Mail extends MailTemplate implements Serializable {
      * @param address
      * @param phone
      * @param unsubscribe
+     * @param token
      * @return
      */
-    public String getCerberus(String logo, String content, String extra, String site, String company_name, String address, String phone, String unsubscribe) {
+    public String getCerberus(String logo, String content, String extra, String site, String company_name, String address, String phone, String unsubscribe, String token) {
         address = AnaliseString.converterCapitalize(address);
+        String linkRecebimento1 = registro.getUrlSistemaExterno() + "ws/email_confirma_recebimento_title.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;token=" + token;
+        String linkRecebimento2 = registro.getUrlSistemaExterno() + "ws/email_confirma_recebimento.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;token=" + token;
         String tpl = ""
                 + "<!DOCTYPE html>\n"
                 + "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n"
@@ -887,6 +909,8 @@ public class Mail extends MailTemplate implements Serializable {
                 + "                       <br /><span class=\"unstyle-auto-detected-links\">" + address + "<br />" + phone + "</span>\n"
                 + "                            <br /><br />\n"
                 + "                            <unsubscribe style=\"color: #888888; text-decoration: underline;\">" + unsubscribe + "</unsubscribe>\n"
+                + "                            <br /><br />\n"
+                + "                            <a href=\"" + linkRecebimento2 + "\" style=\"color: red; text-decoration: underline;\">Confirmar recebimento</a>\n"
                 + "                    </td>\n"
                 + "                </tr>\n"
                 + "            </table>\n"
@@ -903,5 +927,17 @@ public class Mail extends MailTemplate implements Serializable {
                 + "</html>\n"
                 + "";
         return tpl;
+    }
+
+    public static String stringToMD5(String string) {
+        MessageDigest messageDigest;
+        try {
+            messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.update(string.getBytes(Charset.forName("UTF-8")), 0, string.length());
+            return new BigInteger(1, messageDigest.digest()).toString(16);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Mail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
     }
 }
