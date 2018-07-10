@@ -109,12 +109,12 @@ public class SocioCarteirinhaDao extends DB {
     }
 
     public List find(String status, String filter, String query, String indexOrdem, Integer filial_id, Integer operador_id, String type_date, String start_date, String finish_date, String inPessoasImprimir) {
-        if ((filter.equals("nascimento") || filter.equals("nome") || filter.equals("codigo") || filter.equals("cpf") || filter.equals("empresa") || filter.equals("cnpj")) && query.isEmpty()) {
+        if ((filter.equals("nome_titular") || filter.equals("cpf_titular") || filter.equals("nascimento") || filter.equals("nome") || filter.equals("codigo") || filter.equals("cpf") || filter.equals("empresa") || filter.equals("cnpj") || filter.equals("matricula")) && query.isEmpty()) {
             return new ArrayList();
         }
 
         Boolean ignoreData = false;
-        if ((filter.equals("nascimento") || filter.equals("nome") || filter.equals("codigo") || filter.equals("cpf") || filter.equals("empresa") || filter.equals("cnpj") && !query.isEmpty())) {
+        if ((filter.equals("nome_titular") || filter.equals("cpf_titular") || filter.equals("nascimento") || filter.equals("nome") || filter.equals("codigo") || filter.equals("cpf") || filter.equals("empresa") || filter.equals("cnpj") || filter.equals("matricula") && !query.isEmpty())) {
             ignoreData = true;
         }
 
@@ -128,7 +128,7 @@ public class SocioCarteirinhaDao extends DB {
                     + "  INNER JOIN soc_modelo_carteirinha  AS MC ON MC.id       = SC.id_modelo_carteirinha         \n"
                     + "  INNER JOIN conf_social             AS CS ON CS.id = 1                                      \n";
             if (filial_id != null) {
-                queryString += " LEFT JOIN matr_socios AS MS ON MS.id_titular = P.codigo                           \n";
+                queryString += " LEFT JOIN matr_socios AS MS ON MS.id_titular = P.codigo                            \n";
             }
             queryString += ""
                     + "   LEFT JOIN soc_categoria           AS C  ON C.id = P.id_categoria AND P.id_categoria > 0   \n"
