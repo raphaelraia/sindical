@@ -335,8 +335,9 @@
                                     <h:outputText value="#{linha.argumento9}" style="font-size: 8pt!important; float: right"/>
                                 </p:column>
 
-                                <p:column style="text-align: center; width: 70px" headerText="#{movimentosReceberSocialBean.porPesquisa eq 'quitados' ? 'Baixa' : 'Recebimento'}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
-                                    <h:outputText value="#{linha.argumento10}" style="font-size: 8pt!important;"/>
+                                <p:column style="text-align: center; width: 70px" headerText="#{movimentosReceberSocialBean.porPesquisa eq 'quitados' ? 'Recebimento' : 'Baixa'}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
+                                    <h:outputText value="#{linha.argumento1.baixa.dtOcorrenciaString}" style="font-size: 8pt!important;" rendered="#{movimentosReceberSocialBean.porPesquisa eq 'quitados'}"/>
+                                    <h:outputText value="#{linha.argumento10}" style="font-size: 8pt!important;" rendered="#{movimentosReceberSocialBean.porPesquisa ne 'quitados'}"/>
                                 </p:column>
 
                                 <p:column headerText="Valor Pago" style="width: 80px" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">

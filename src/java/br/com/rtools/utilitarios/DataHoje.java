@@ -15,6 +15,41 @@ import javax.faces.bean.ViewScoped;
 @ViewScoped
 public class DataHoje {
 
+    /*
+                String dia = date.substring(8, 10);
+            String mes = date.substring(5, 7);
+            String ano = date.substring(0, 4);
+     */
+    public static Integer dia() {
+        Date dateTime = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return Integer.parseInt(dateFormat.format(dateTime).substring(8, 10));
+    }
+
+    public static Integer mes() {
+        Date dateTime = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return Integer.parseInt(dateFormat.format(dateTime).substring(5, 7));
+    }
+
+    public static Integer ano() {
+        Date dateTime = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return Integer.parseInt(dateFormat.format(dateTime).substring(0, 4));
+    }
+
+    public static Integer dia(String data) {
+        return Integer.parseInt(data.substring(8, 10));
+    }
+
+    public static Integer mes(String data) {
+        return Integer.parseInt(data.substring(5, 7));
+    }
+
+    public static Integer ano(String data) {
+        return Integer.parseInt(data.substring(0, 4));
+    }
+
     public static Date dataHoje() {
         Date dateTime = new Date();
         return dateTime;
@@ -107,7 +142,7 @@ public class DataHoje {
             return null;
         }
     }
-    
+
     public static Date converteDataHora(String dataHora) {
         if (dataHora != null) {
             try {

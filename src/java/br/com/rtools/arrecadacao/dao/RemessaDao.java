@@ -130,6 +130,7 @@ public class RemessaDao extends DB {
                 + "  FROM fin_boleto AS b \n "
                 + " WHERE b.id_status_retorno = 1 \n "
                 + "   AND b.id_conta_cobranca = " + id_conta_cobranca
+                + "   AND b.nr_ctr_boleto IN (SELECT nr_ctr_boleto FROM fin_movimento WHERE is_ativo = TRUE) "
                 + AND;
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Boleto.class);

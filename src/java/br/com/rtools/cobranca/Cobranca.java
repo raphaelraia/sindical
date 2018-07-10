@@ -171,7 +171,7 @@ public abstract class Cobranca {
 
     public abstract RespostaArquivoRemessa gerarRemessa400();
 
-    public abstract RespostaWebService registrarBoleto(String vencimentoRegistro);
+    public abstract RespostaWebService registrarBoleto();
 
     public static void voltarBoleto(Boleto boleto, String nr_ctr) {
         boleto.setDtRegistroBaixa(null);

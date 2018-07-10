@@ -38,7 +38,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.primefaces.json.JSONObject;
 
 public class BancoDoBrasil extends Cobranca {
 
@@ -364,7 +363,7 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += convenio; // 11.1 BB1 Nùmero do convênio de cobrança BB
             CONTEUDO_REMESSA += "0014"; // 11.1 BB2 Cobrança Cedente BB
             CONTEUDO_REMESSA += "17"; // 11.1 BB3 Número da carteira de cobrança BB
-            CONTEUDO_REMESSA += "035"; // ** PIRACICABA É OBRIGATÓRIO SER 035 ** 11.1 BB4 Número da variação da carteira de cobrança BB
+            CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getVariacao(); // ** PIRACICABA É OBRIGATÓRIO SER 035 ** 11.1 BB4 Número da variação da carteira de cobrança BB
             CONTEUDO_REMESSA += "  "; // 11.1 BB5 Campo que identifica remessa de testes
 //            CONTEUDO_REMESSA += "00000000000000000000".substring(0, 20 - codigo_cedente.length()) + codigo_cedente; // 11.1 Código do Convênio no Banco
             CONTEUDO_REMESSA += "00000".substring(0, 5 - agencia.length()) + agencia; // 12.1 Agência Mantenedora da Conta 54585- Numérico  G008
@@ -934,7 +933,7 @@ public class BancoDoBrasil extends Cobranca {
     }
 
     @Override
-    public RespostaWebService registrarBoleto(String vencimentoRegistro) {
+    public RespostaWebService registrarBoleto() {
         // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR http://localhost:8080/Sindical?debug=true
         if (TESTE) {
             Dao dao = new Dao();
@@ -948,7 +947,7 @@ public class BancoDoBrasil extends Cobranca {
         }
 
         try {
-            String convenio = boleto.getBoletoComposto().substring(0, 7);
+            String convenio = boleto.getBoletoComposto().substring(0, 6);
             Pessoa pessoa = boleto.getPessoa();
 
             // ACESSA O LINK
