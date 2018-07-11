@@ -316,7 +316,7 @@ public class Mail extends MailTemplate implements Serializable {
                         msg.setHeader("Content-ID", "<" + uuid + ">");
                         // NOVO HEADER PARA TESTE 07/06/2018
                         msg.setHeader("Message-ID", "<" + getUniqueMessageIDValue(session) + ">");
-                        msg.setHeader("Disposition-Notification-To", xEmailSindicato);
+                        // msg.setHeader("Disposition-Notification-To", xEmailSindicato);
                         if (xEmail.contains("gmail") || xEmail.contains("googlemail")) {
                             Transport transport = session.getTransport("smtps");
                             transport.connect(xSmtp, xPorta, xEmail, xSenha);
