@@ -355,16 +355,19 @@ public class ExtratoTelaBean implements Serializable {
 
         }
 
-        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
-        }
+        List<RemessaBanco> l_rb;
+        if (!ids_pesquisa.isEmpty()) {
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
 
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar no Banco já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar no Banco já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
@@ -389,12 +392,14 @@ public class ExtratoTelaBean implements Serializable {
             }
         }
 
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+        if (!ids_pesquisa.isEmpty()) {
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
+        
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
 
@@ -416,12 +421,14 @@ public class ExtratoTelaBean implements Serializable {
             }
         }
 
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+        if (!ids_pesquisa.isEmpty()) {
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
+        
         // ADICIONA BOLETO PARA BAIXAR REGISTRADOS
         lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
@@ -441,13 +448,14 @@ public class ExtratoTelaBean implements Serializable {
                 ids_pesquisa = ", " + bo.getId();
             }
         }
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
-
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+        
+        if (!ids_pesquisa.isEmpty()) {
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
-
         visibleModalRemessa = true;
 
         loadListBeta();

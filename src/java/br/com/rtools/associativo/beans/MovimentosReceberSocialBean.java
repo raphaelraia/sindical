@@ -389,10 +389,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
                 TrataVencimentoRetorno tvr = TrataVencimento.boletoExiste(bo);
 
-                if (tvr.getVencido()) {
-                    bo.setDtProcessamento(DataHoje.dataHoje());
-                }
-
+                bo.setDtProcessamento(tvr.getDataProcessamento());
                 bo.setVencimento(tvr.getVencimentoBoletoString());
                 bo.setValor(tvr.getValor_calculado());
 

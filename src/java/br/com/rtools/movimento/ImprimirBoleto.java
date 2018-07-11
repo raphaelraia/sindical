@@ -191,7 +191,7 @@ public class ImprimirBoleto implements Serializable {
             }
         }
 
-        RespostaWebService resp = cobranca.registrarBoleto(vencimento);
+        RespostaWebService resp = cobranca.registrarBoleto();
 
         if (resp.getBoleto() == null) {
             hash.put("boleto", null);
@@ -373,7 +373,7 @@ public class ImprimirBoleto implements Serializable {
                 }
             }
 
-            RespostaWebService resp = cobranca.registrarBoleto(bol.getVencimento());
+            RespostaWebService resp = cobranca.registrarBoleto();
 
             if (resp.getBoleto() == null) {
                 hash.put("lista", new ArrayList());

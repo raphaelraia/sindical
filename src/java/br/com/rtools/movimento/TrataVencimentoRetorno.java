@@ -17,192 +17,195 @@ import java.util.Date;
  * @author rtools2
  */
 public class TrataVencimentoRetorno {
-    
-        private Boleto boleto;
-        private Movimento movimento;
-        private Juridica contabilidade;
-        private Date vencimentoMovimento;
-        private Date vencimentoBoleto;
-        private Double valor;
-        private Double juros;
-        private Double multa;
-        private Double correcao;
-        private Double valor_calculado;
-        private Boolean calcular;
-        private Boolean vencido;
-        private Boolean registrado;
-        
-        public TrataVencimentoRetorno(Boleto boleto, Movimento movimento, Juridica contabilidade, Date vencimentoMovimento, Date vencimentoBoleto, Double valor, Double juros, Double multa, Double correcao, Double valor_calculado, Boolean calcular, Boolean vencido, Boolean registrado) {
-            this.boleto = boleto;
-            this.movimento = movimento;
-            this.contabilidade = contabilidade;
-            this.vencimentoMovimento = vencimentoMovimento;
-            this.vencimentoBoleto = vencimentoBoleto;
-            this.valor = valor;
-            this.juros = juros;
-            this.multa = multa;
-            this.correcao = correcao;
-            this.valor_calculado = valor_calculado;
-            this.calcular = calcular;
-            this.vencido = vencido;
-            this.registrado = registrado;
-        }
-        
-        public TrataVencimentoRetorno(Boleto boleto, Date vencimentoBoleto, Double juros, Double multa, Double correcao, Double valor_calculado, Boolean calcular, Boolean vencido, Boolean registrado) {
-            this.boleto = boleto;
-            this.vencimentoBoleto = vencimentoBoleto;
-            this.juros = juros;
-            this.multa = multa;
-            this.correcao = correcao;
-            this.valor_calculado = valor_calculado;
-            this.calcular = calcular;
-            this.vencido = vencido;
-            this.registrado = registrado;
-        }
 
-        public Boleto getBoleto() {
-            return boleto;
-        }
+    private Boleto boleto;
+    private Movimento movimento;
+    private Juridica contabilidade;
+    private Date vencimentoMovimento;
+    private Date vencimentoBoleto;
+    private Double valor;
+    private Double juros;
+    private Double multa;
+    private Double correcao;
+    private Double valor_calculado;
+    private Date dataProcessamento;
+    private Boolean calcular;
+    private Boolean vencido;
+    private Boolean registrado;
 
-        public void setBoleto(Boleto boleto) {
-            this.boleto = boleto;
-        }
+    public TrataVencimentoRetorno(Boleto boleto, Movimento movimento, Juridica contabilidade, Date vencimentoMovimento, Date vencimentoBoleto, Double valor, Double juros, Double multa, Double correcao, Double valor_calculado, Date dataProcessamento, Boolean calcular, Boolean vencido, Boolean registrado) {
+        this.boleto = boleto;
+        this.movimento = movimento;
+        this.contabilidade = contabilidade;
+        this.vencimentoMovimento = vencimentoMovimento;
+        this.vencimentoBoleto = vencimentoBoleto;
+        this.valor = valor;
+        this.juros = juros;
+        this.multa = multa;
+        this.correcao = correcao;
+        this.valor_calculado = valor_calculado;
+        this.dataProcessamento = dataProcessamento;
+        this.calcular = calcular;
+        this.vencido = vencido;
+        this.registrado = registrado;
+    }
 
-        public Movimento getMovimento() {
-            return movimento;
-        }
+    public TrataVencimentoRetorno(Boleto boleto, Date vencimentoBoleto, Double juros, Double multa, Double correcao, Double valor_calculado, Date dataProcessamento, Boolean calcular, Boolean vencido, Boolean registrado) {
+        this.boleto = boleto;
+        this.vencimentoBoleto = vencimentoBoleto;
+        this.juros = juros;
+        this.multa = multa;
+        this.correcao = correcao;
+        this.valor_calculado = valor_calculado;
+        this.dataProcessamento = dataProcessamento;
+        this.calcular = calcular;
+        this.vencido = vencido;
+        this.registrado = registrado;
+    }
 
-        public void setMovimento(Movimento movimento) {
-            this.movimento = movimento;
-        }
+    public Boleto getBoleto() {
+        return boleto;
+    }
 
-        public Juridica getContabilidade() {
-            return contabilidade;
-        }
+    public void setBoleto(Boleto boleto) {
+        this.boleto = boleto;
+    }
 
-        public void setContabilidade(Juridica contabilidade) {
-            this.contabilidade = contabilidade;
-        }
+    public Movimento getMovimento() {
+        return movimento;
+    }
 
-        public Date getVencimentoMovimento() {
-            return vencimentoMovimento;
-        }
+    public void setMovimento(Movimento movimento) {
+        this.movimento = movimento;
+    }
 
-        public void setVencimentoMovimento(Date vencimentoMovimento) {
-            this.vencimentoMovimento = vencimentoMovimento;
-        }
+    public Juridica getContabilidade() {
+        return contabilidade;
+    }
 
-        public String getVencimentoMovimentoString() {
-            return DataHoje.converteData(vencimentoMovimento);
-        }
+    public void setContabilidade(Juridica contabilidade) {
+        this.contabilidade = contabilidade;
+    }
 
-        public void setVencimentoMovimentoString(String vencimentoMovimentoString) {
-            this.vencimentoMovimento = DataHoje.converte(vencimentoMovimentoString);
-        }
+    public Date getVencimentoMovimento() {
+        return vencimentoMovimento;
+    }
 
-        public Date getVencimentoBoleto() {
-            return vencimentoBoleto;
-        }
+    public void setVencimentoMovimento(Date vencimentoMovimento) {
+        this.vencimentoMovimento = vencimentoMovimento;
+    }
 
-        public void setVencimentoBoleto(Date vencimentoBoleto) {
-            this.vencimentoBoleto = vencimentoBoleto;
-        }
+    public String getVencimentoMovimentoString() {
+        return DataHoje.converteData(vencimentoMovimento);
+    }
 
-        public String getVencimentoBoletoString() {
-            return DataHoje.converteData(vencimentoBoleto);
-        }
+    public void setVencimentoMovimentoString(String vencimentoMovimentoString) {
+        this.vencimentoMovimento = DataHoje.converte(vencimentoMovimentoString);
+    }
 
-        public void setVencimentoBoletooString(String vencimentoBoletoString) {
-            this.vencimentoBoleto = DataHoje.converte(vencimentoBoletoString);
-        }
+    public Date getVencimentoBoleto() {
+        return vencimentoBoleto;
+    }
 
-        public Double getValor() {
-            return valor;
-        }
+    public void setVencimentoBoleto(Date vencimentoBoleto) {
+        this.vencimentoBoleto = vencimentoBoleto;
+    }
 
-        public void setValor(Double valor) {
-            this.valor = valor;
-        }
+    public String getVencimentoBoletoString() {
+        return DataHoje.converteData(vencimentoBoleto);
+    }
 
-        public String getValorString() {
-            return Moeda.converteDoubleToString(valor);
-        }
+    public void setVencimentoBoletooString(String vencimentoBoletoString) {
+        this.vencimentoBoleto = DataHoje.converte(vencimentoBoletoString);
+    }
 
-        public void setValorString(String valorString) {
-            this.valor = Moeda.converteStringToDouble(valorString);
-        }
+    public Double getValor() {
+        return valor;
+    }
 
-        public Double getJuros() {
-            return juros;
-        }
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
 
-        public void setJuros(Double juros) {
-            this.juros = juros;
-        }
+    public String getValorString() {
+        return Moeda.converteDoubleToString(valor);
+    }
 
-        public String getJurosString() {
-            return Moeda.converteDoubleToString(juros);
-        }
+    public void setValorString(String valorString) {
+        this.valor = Moeda.converteStringToDouble(valorString);
+    }
 
-        public void setJurosString(String jurosString) {
-            this.juros = Moeda.converteStringToDouble(jurosString);
-        }
+    public Double getJuros() {
+        return juros;
+    }
 
-        public Double getMulta() {
-            return multa;
-        }
+    public void setJuros(Double juros) {
+        this.juros = juros;
+    }
 
-        public void setMulta(Double multa) {
-            this.multa = multa;
-        }
+    public String getJurosString() {
+        return Moeda.converteDoubleToString(juros);
+    }
 
-        public String getMultaString() {
-            return Moeda.converteDoubleToString(multa);
-        }
+    public void setJurosString(String jurosString) {
+        this.juros = Moeda.converteStringToDouble(jurosString);
+    }
 
-        public void setMultaString(String multaString) {
-            this.multa = Moeda.converteStringToDouble(multaString);
-        }
+    public Double getMulta() {
+        return multa;
+    }
 
-        public Double getCorrecao() {
-            return correcao;
-        }
+    public void setMulta(Double multa) {
+        this.multa = multa;
+    }
 
-        public void setCorrecao(Double correcao) {
-            this.correcao = correcao;
-        }
+    public String getMultaString() {
+        return Moeda.converteDoubleToString(multa);
+    }
 
-        public String getCorrecaoString() {
-            return Moeda.converteDoubleToString(correcao);
-        }
+    public void setMultaString(String multaString) {
+        this.multa = Moeda.converteStringToDouble(multaString);
+    }
 
-        public void setCorrecaoString(String correcaoString) {
-            this.correcao = Moeda.converteStringToDouble(correcaoString);
-        }
+    public Double getCorrecao() {
+        return correcao;
+    }
 
-        public Double getValor_calculado() {
-            return valor_calculado;
-        }
+    public void setCorrecao(Double correcao) {
+        this.correcao = correcao;
+    }
 
-        public void setValor_calculado(Double valor_calculado) {
-            this.valor_calculado = valor_calculado;
-        }
+    public String getCorrecaoString() {
+        return Moeda.converteDoubleToString(correcao);
+    }
 
-        public String getValor_calculadoString() {
-            return Moeda.converteDoubleToString(valor_calculado);
-        }
+    public void setCorrecaoString(String correcaoString) {
+        this.correcao = Moeda.converteStringToDouble(correcaoString);
+    }
 
-        public void setValor_calculadoString(String valor_calculadoString) {
-            this.valor_calculado = Moeda.converteStringToDouble(valor_calculadoString);
-        }
+    public Double getValor_calculado() {
+        return valor_calculado;
+    }
 
-        public Boolean getCalcular() {
-            return calcular;
-        }
+    public void setValor_calculado(Double valor_calculado) {
+        this.valor_calculado = valor_calculado;
+    }
 
-        public void setCalcular(Boolean calcular) {
-            this.calcular = calcular;
-        }
+    public String getValor_calculadoString() {
+        return Moeda.converteDoubleToString(valor_calculado);
+    }
+
+    public void setValor_calculadoString(String valor_calculadoString) {
+        this.valor_calculado = Moeda.converteStringToDouble(valor_calculadoString);
+    }
+
+    public Boolean getCalcular() {
+        return calcular;
+    }
+
+    public void setCalcular(Boolean calcular) {
+        this.calcular = calcular;
+    }
 
     public Boolean getVencido() {
         return vencido;
@@ -219,4 +222,13 @@ public class TrataVencimentoRetorno {
     public void setRegistrado(Boolean registrado) {
         this.registrado = registrado;
     }
+
+    public Date getDataProcessamento() {
+        return dataProcessamento;
+    }
+
+    public void setDataProcessamento(Date dataProcessamento) {
+        this.dataProcessamento = dataProcessamento;
+    }
+
 }

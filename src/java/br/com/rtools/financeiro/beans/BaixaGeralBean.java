@@ -116,6 +116,8 @@ public class BaixaGeralBean implements Serializable {
 
     private Boolean visibleImprimirRecibo = false;
     private Date dataOcorrencia = null;
+    
+    private Date dataCreditoCartao = null;
 
     @PostConstruct
     public void init() {
@@ -134,6 +136,12 @@ public class BaixaGeralBean implements Serializable {
         dataEmissaoRecibo = "";
     }
 
+    public void atualizaCartao(){
+        Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
+        
+        dataCreditoCartao = DataHoje.converte(new DataHoje().incrementarDias(cart.getDias(), quitacao));
+    }
+    
     public void atualizaDataOcorrencia() {
         dataOcorrencia = DataHoje.dataHoje();
     }
@@ -673,11 +681,10 @@ public class BaixaGeralBean implements Serializable {
                 case 7:
                     // CARTAO - CRÉDITO / DÉBITO
                     Cartao cartao = listaValores.get(i).getCartao();
-                    DataHoje dh = new DataHoje();
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, DataHoje.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, ""));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dataCreditoCartao, Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, ""));
                     } else {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, DataHoje.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, cartao.getPlano5(), null, ""));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dataCreditoCartao, Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, cartao.getPlano5(), null, ""));
                     }
                     break;
                 case 8:
@@ -1534,5 +1541,21 @@ public class BaixaGeralBean implements Serializable {
 
     public void setDataOcorrenciaString(String dataOcorrenciaString) {
         this.dataOcorrencia = DataHoje.converte(dataOcorrenciaString);
+    }
+
+    public Date getDataCreditoCartao() {
+        return dataCreditoCartao;
+    }
+
+    public void setDataCreditoCartao(Date dataCreditoCartao) {
+        this.dataCreditoCartao = dataCreditoCartao;
+    }
+    
+    public String getDataCreditoCartaoString() {
+        return DataHoje.converteData(dataCreditoCartao);
+    }
+
+    public void setDataCreditoCartaoString(String dataCreditoCartaoString) {
+        this.dataCreditoCartao = DataHoje.converte(dataCreditoCartaoString);
     }
 }

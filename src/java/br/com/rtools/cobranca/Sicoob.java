@@ -729,7 +729,7 @@ public class Sicoob extends Cobranca {
     }
 
     @Override
-    public RespostaWebService registrarBoleto(String vencimentoRegistro) {
+    public RespostaWebService registrarBoleto() {
 
         MovimentosReceberSocialDao db_social = new MovimentosReceberSocialDao();
         Dao dao = new Dao();

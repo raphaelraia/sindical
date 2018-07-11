@@ -301,17 +301,19 @@ public class ExtratoTelaSocialBean implements Serializable {
                 ids_pesquisa = ", " + bol.getId();
             }
         }
+        List<RemessaBanco> l_rb;
+        if (!ids_pesquisa.isEmpty()){
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
 
-        List<RemessaBanco> l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
-        }
-        
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar no Banco já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar no Banco já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
@@ -338,11 +340,13 @@ public class ExtratoTelaSocialBean implements Serializable {
             }
         }
                 
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+        if (!ids_pesquisa.isEmpty()){
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
 
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
@@ -366,11 +370,12 @@ public class ExtratoTelaSocialBean implements Serializable {
             }
         }
 
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+        if (!ids_pesquisa.isEmpty()){
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
@@ -395,11 +400,13 @@ public class ExtratoTelaSocialBean implements Serializable {
                 ids_pesquisa = ", " + bo.getId();
             }
         }
-        l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
 
-        if (!l_rb.isEmpty()) {
-            GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-            return;
+        if (!ids_pesquisa.isEmpty()){
+            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+            if (!l_rb.isEmpty()) {
+                GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                return;
+            }
         }
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------

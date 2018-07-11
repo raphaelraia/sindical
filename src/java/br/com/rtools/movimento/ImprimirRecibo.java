@@ -308,19 +308,18 @@ public class ImprimirRecibo {
 
         List<Object> m_ordenado = db.listaMovimentoAgrupadoOrdemBaixa(ids);
         String sindicato_nome = sindicato.getPessoa().getNome();
-        
-        if (ControleUsuarioBean.getCliente().equals("ComercioSorocaba")){
+
+        if (ControleUsuarioBean.getCliente().equals("ComercioSorocaba")) {
             sindicato_nome = AnaliseString.converterCapitalize(sindicato_nome);
         }
-        
+
         try {
             if (!m_ordenado.isEmpty()) {
 
-                Pessoa pessoa = (Pessoa) new Dao().find(new Pessoa(), ((List) ((Object) m_ordenado.get(0))).get(1));
-
                 for (Object obj : m_ordenado) {
-
                     List linha = (List) obj;
+
+                    Pessoa pessoa = (Pessoa) new Dao().find(new Pessoa(), (Integer) linha.get(1));
 
                     vetor.add(
                             new ParametroReciboFinanceiro(
@@ -354,38 +353,61 @@ public class ImprimirRecibo {
                             )
                     );
 
-                }
+                    File fl = tipoRecibo(pessoa.getTipoDocumento().getId(), linha.get(5).toString());
 
-                File fl;
-                // TIPO DE DOCUMENTO PESSOA FISICA (CPF)
-                if (pessoa.getTipoDocumento().getId() == 1) {
-                    fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/RECIBO_FINANCEIRO_FISICA.jasper"));
-                    if (!fl.exists()) {
-                        fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RECIBO_FINANCEIRO_FISICA.jasper"));
+                    JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
+
+                    JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
+                    if (parameter == null) {
+                        parameter = new HashedMap();
                     }
-                } else {
-                    // TIPO DE DOCUMENTO PESSOA JURIDICA E OUTRO
-                    fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/RECIBO_FINANCEIRO.jasper"));
-                    if (!fl.exists()) {
-                        fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RECIBO_FINANCEIRO.jasper"));
-                    }
+                    JasperPrint print = JasperFillManager.fillReport(jasper, parameter, dtSource);
+
+                    lista_jaspers.add(print);
                 }
 
-                JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
-
-                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
-                if (parameter == null) {
-                    parameter = new HashedMap();
-                }
-                JasperPrint print = JasperFillManager.fillReport(jasper, parameter, dtSource);
-
-                lista_jaspers.add(print);
             }
         } catch (JRException e) {
             e.getMessage();
             return false;
         }
         return true;
+    }
+
+    public File tipoRecibo(Integer id_tipo_documento, String es) {
+        // TIPO DE DOCUMENTO PESSOA FISICA (CPF)
+        if (id_tipo_documento == 1) {
+            // RECIBO PERSONALIZADO
+            File fl;
+
+            if (es.equals("E")) {
+                fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/RECIBO_FINANCEIRO_FISICA_(E).jasper"));
+            } else {
+                fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/RECIBO_FINANCEIRO_FISICA_(S).jasper"));
+            }
+
+            if (!fl.exists()) {
+                fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RECIBO_FINANCEIRO.jasper"));
+            }
+
+            return fl;
+        } else {
+            // TIPO DE DOCUMENTO PESSOA JURIDICA E OUTRO
+            // RECIBO PERSONALIZADO
+            File fl;
+
+            if (es.equals("E")) {
+                fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/RECIBO_FINANCEIRO_JURIDICA_(E).jasper"));
+            } else {
+                fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/RECIBO_FINANCEIRO_JURIDICA_(S).jasper"));
+            }
+
+            if (!fl.exists()) {
+                fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RECIBO_FINANCEIRO.jasper"));
+            }
+
+            return fl;
+        }
     }
 
     public Boolean gerar_recibo(Integer id_movimento) {

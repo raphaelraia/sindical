@@ -31,11 +31,45 @@ import java.util.List;
 public class TrataVencimento {
 
     public static TrataVencimentoRetorno boletoExiste(Boleto boleto) {
+        // TIPO COBRANÇA NÃO REGISTRADA 
+        if (boleto.getContaCobranca().getCobrancaRegistrada().getId() == 3) {
+            // VENCIDO
+            if (DataHoje.menorData(boleto.getDtVencimento(), DataHoje.dataHoje())) {
+
+                MovimentoDao db = new MovimentoDao();
+
+                List<Movimento> lm = boleto.getListaMovimento();
+
+                Double valor = new Double(0);
+                Double juros = new Double(0);
+                Double multa = new Double(0);
+                Double correcao = new Double(0);
+
+                for (Movimento m : lm) {
+
+                    valor = Moeda.soma(m.getValor(), valor);
+                    juros = Moeda.soma(db.funcaoJurosAss(m.getId()), juros);
+                    multa = Moeda.soma(db.funcaoMultaAss(m.getId()), multa);
+                    correcao = Moeda.soma(db.funcaoCorrecaoAss(m.getId()), correcao);
+
+                }
+
+                Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), valor);
+
+                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), juros, multa, correcao, valor_calculado, DataHoje.dataHoje(), true, true, false);
+
+            } else {
+                // NÃO VENCIDO
+                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), new Double(0), new Double(0), new Double(0), boleto.getValor(), boleto.getDtProcessamento(), false, false, false);
+            }
+        }
+
+        // TIPO COBRANÇA REGISTRADA 
         // MOVIMENTO VENCIDO
         if (DataHoje.menorData(boleto.getDtVencimento(), DataHoje.dataHoje())) {
             // REGISTRADO
             if (boleto.getStatusRetorno() != null && boleto.getStatusRetorno().getId() == 2) {
-                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), new Double(0), new Double(0), new Double(0), boleto.getValor(), false, true, true);
+                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), new Double(0), new Double(0), new Double(0), boleto.getValor(), boleto.getDtProcessamento(), false, true, true);
             } else {
                 // NÃO REGISTRADO
 
@@ -59,13 +93,13 @@ public class TrataVencimento {
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), valor);
 
-                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), juros, multa, correcao, valor_calculado, true, true, false);
+                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), juros, multa, correcao, valor_calculado, DataHoje.dataHoje(), true, true, false);
 
             }
         } else {
             // NÃO VENCIDO
             if (boleto.getStatusRetorno() != null && boleto.getStatusRetorno().getId() == 2) {
-                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), new Double(0), new Double(0), new Double(0), boleto.getValor(), false, false, true);
+                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), new Double(0), new Double(0), new Double(0), boleto.getValor(), boleto.getDtProcessamento(), false, false, true);
             } else {
                 // NÃO REGISTRADO
 
@@ -89,7 +123,7 @@ public class TrataVencimento {
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), valor);
 
-                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), juros, multa, correcao, valor_calculado, false, false, false);
+                return new TrataVencimentoRetorno(boleto, boleto.getDtVencimento(), juros, multa, correcao, valor_calculado, DataHoje.dataHoje(), false, false, false);
 
             }
         }
@@ -121,13 +155,13 @@ public class TrataVencimento {
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), movimento.getValor());
 
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, true, true, false);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, DataHoje.dataHoje(), true, true, false);
             } else {
                 // NÃO VENCIDO
-                if (movimento.getValor() > 0 && b.getValor() == 0){
+                if (movimento.getValor() > 0 && b.getValor() == 0) {
                     b.setValor(movimento.getValor());
                 }
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, false, false);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), b.getDtProcessamento(), false, false, false);
             }
         }
 
@@ -136,7 +170,7 @@ public class TrataVencimento {
         if (DataHoje.menorData(movimento.getDtVencimento(), DataHoje.dataHoje())) {
             // REGISTRADO
             if (b.getStatusRetorno() != null && b.getStatusRetorno().getId() == 2) {
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, true, true);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), b.getDtProcessamento(), false, true, true);
             } else {
                 // NÃO REGISTRADO
 
@@ -159,13 +193,13 @@ public class TrataVencimento {
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), movimento.getValor());
 
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, true, true, false);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, DataHoje.dataHoje(), true, true, false);
 
             }
         } else {
             // NÃO VENCIDO
             if (b.getStatusRetorno() != null && b.getStatusRetorno().getId() == 2) {
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), false, false, true);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), b.getDtVencimento(), movimento.getValor(), new Double(0), new Double(0), new Double(0), b.getValor(), b.getDtProcessamento(), false, false, true);
             } else {
                 // NÃO REGISTRADO
 
@@ -188,7 +222,7 @@ public class TrataVencimento {
 
                 Double valor_calculado = Moeda.soma(Moeda.soma(Moeda.soma(juros, multa), correcao), movimento.getValor());
 
-                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, false, false, false);
+                return new TrataVencimentoRetorno(b, movimento, juridica.getContabilidade(), movimento.getDtVencimento(), vencimento, movimento.getValor(), juros, multa, correcao, valor_calculado, DataHoje.dataHoje(), false, false, false);
 
             }
         }
@@ -225,7 +259,7 @@ public class TrataVencimento {
                     referencia
             );
 
-            return new TrataVencimentoRetorno(null, novo_movimento, juridica.getContabilidade(), vencimentoMensagem, vencimento, novo_movimento.getValor(), juros, multa, correcao, valor_calculado, true, true, false);
+            return new TrataVencimentoRetorno(null, novo_movimento, juridica.getContabilidade(), vencimentoMensagem, vencimento, novo_movimento.getValor(), juros, multa, correcao, valor_calculado, null, true, true, false);
 
         } else {
             // NÃO VENCIDO
@@ -238,7 +272,7 @@ public class TrataVencimento {
                     referencia
             );
 
-            return new TrataVencimentoRetorno(null, novo_movimento, juridica.getContabilidade(), vencimentoMensagem, vencimento, novo_movimento.getValor(), new Double(0), new Double(0), new Double(0), novo_movimento.getValor(), false, true, false);
+            return new TrataVencimentoRetorno(null, novo_movimento, juridica.getContabilidade(), vencimentoMensagem, vencimento, novo_movimento.getValor(), new Double(0), new Double(0), new Double(0), novo_movimento.getValor(), null, false, true, false);
 
         }
     }

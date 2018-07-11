@@ -649,7 +649,7 @@ public class Santander extends Cobranca {
     }
 
     @Override
-    public RespostaWebService registrarBoleto(String vencimentoRegistro) {
+    public RespostaWebService registrarBoleto() {
         // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR http://localhost:8080/Sindical?debug=true
         if (TESTE) {
             Dao dao = new Dao();

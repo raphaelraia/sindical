@@ -51,20 +51,36 @@ public class PessoaDao extends DB {
             field = "documento";
         }
 
-        String text_qry = "";
+        String text_qry;
         int maxResults = 300;
-        if (por.equals("codigo")) {
+        if (por.equals("codigo") || por.equals("matricula")) {
+
+            String WHERE;
+
+            if (por.equals("codigo")) {
+                WHERE = "  WHERE p.id = " + Integer.valueOf(desc);
+            } else {
+                WHERE = " INNER JOIN soc_socios_vw s ON p.id = s.codsocio AND s.matricula = " + Integer.valueOf(desc);
+            }
+
             text_qry = " SELECT p.* "
                     + "   FROM pes_pessoa p "
-                    + "  WHERE p.id = " + Integer.valueOf(desc)
+                    + WHERE
                     + "  ORDER BY p.ds_nome";
+
         } else {
-            if (desc.length() == 1) {
-                maxResults = 50;
-            } else if (desc.length() == 2) {
-                maxResults = 150;
-            } else if (desc.length() == 3) {
-                maxResults = 200;
+            switch (desc.length()) {
+                case 1:
+                    maxResults = 50;
+                    break;
+                case 2:
+                    maxResults = 150;
+                    break;
+                case 3:
+                    maxResults = 200;
+                    break;
+                default:
+                    break;
             }
 
             desc = AnaliseString.normalizeLower(desc);
