@@ -69,4 +69,21 @@ public class ContaCobrancaDao extends DB {
         }
         return result;
     }
+
+    public ContaCobranca pesquisaContaCobrancaMovimento(Integer id_movimento) {
+        ContaCobranca result = null;
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "  SELECT cc.* "
+                    + "  FROM fin_movimento AS m \n"
+                    + " INNER JOIN fin_servico_conta_cobranca scc ON scc.id_servicos = m.id_servicos AND m.id_tipo_servico = scc.id_tipo_servico \n"
+                    + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = scc.id_conta_cobranca \n"
+                    + " WHERE m.id = " + id_movimento, ContaCobranca.class
+            );
+            result = (ContaCobranca) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return result;
+    }
 }

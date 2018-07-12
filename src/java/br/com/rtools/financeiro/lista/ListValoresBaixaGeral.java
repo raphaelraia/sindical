@@ -8,9 +8,11 @@ import br.com.rtools.financeiro.ChequeRec;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
+import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 
 public class ListValoresBaixaGeral {
+
     private String vencimento;
     private String valor;
     private String numero;
@@ -26,8 +28,9 @@ public class ListValoresBaixaGeral {
     private Plano5 conciliacaoPlano5;
     private Date dataConciliacao;
     private Date dataOcorrencia;
+    private Date dataCreditoCartao;
 
-    public ListValoresBaixaGeral(String vencimento, String valor, String numero, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao, Date dataOcorrencia) {
+    public ListValoresBaixaGeral(String vencimento, String valor, String numero, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao, Date dataOcorrencia, Date dataCreditoCartao) {
         this.vencimento = vencimento;
         this.valor = valor;
         this.numero = numero;
@@ -43,8 +46,9 @@ public class ListValoresBaixaGeral {
         this.conciliacaoPlano5 = conciliacaoPlano5;
         this.dataConciliacao = dataConciliacao;
         this.dataOcorrencia = dataOcorrencia;
+        this.dataCreditoCartao = dataCreditoCartao;
     }
-    
+
     public String getVencimento() {
         return vencimento;
     }
@@ -108,7 +112,7 @@ public class ListValoresBaixaGeral {
     public void setCartao(Cartao cartao) {
         this.cartao = cartao;
     }
-    
+
     public String getValorDigitado() {
         return valorDigitado;
     }
@@ -163,5 +167,21 @@ public class ListValoresBaixaGeral {
 
     public void setDataOcorrencia(Date dataOcorrencia) {
         this.dataOcorrencia = dataOcorrencia;
+    }
+
+    public Date getDataCreditoCartao() {
+        return dataCreditoCartao;
+    }
+
+    public void setDataCreditoCartao(Date dataCreditoCartao) {
+        this.dataCreditoCartao = dataCreditoCartao;
+    }
+
+    public String getDataCreditoCartaoString() {
+        return DataHoje.converteData(dataCreditoCartao);
+    }
+
+    public void setDataCreditoCartaoString(String dataCreditoCartaoString) {
+        this.dataCreditoCartao = DataHoje.converte(dataCreditoCartaoString);
     }
 }

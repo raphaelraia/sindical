@@ -166,10 +166,10 @@
                                     <p:commandButton icon="ui-icon-trash" action="#{baixaGeralBean.remover(index)}" update=":formBaixaGeral:" />
                                 </p:column>
 
-                                <p:column headerText="Valor" style="text-align: right">
+                                <p:column headerText="Valor" style="text-align: right; width: 120px">
                                     <h:outputText value="#{linha.valor}"/>
                                 </p:column>
-                                <p:column headerText="Valor Digitado" style="text-align: right">
+                                <p:column headerText="Valor Digitado" style="text-align: right; width: 120px">
                                     <h:outputText value="#{linha.valorDigitado}"/>
                                 </p:column>
 
@@ -181,8 +181,12 @@
                                     <h:outputText value="#{linha.numero}"/>
                                 </p:column>
 
-                                <p:column headerText="Quitação" style="text-align: center">
+                                <p:column headerText="Quitação" style="text-align: center; width: 80px">
                                     <h:outputText value="#{linha.vencimento}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Crédito" style="text-align: center; width: 80px">
+                                    <h:outputText value="#{linha.dataCreditoCartaoString}"/>
                                 </p:column>
                             </p:dataTable>
 
@@ -190,7 +194,7 @@
                                 <p:commandButton value="Salvar Baixa" title="Baixar todos os valores da grid" onclick="PF('dlg_confirmar').show()" />
                             </h:panelGrid>
 
-                            <p:dialog widgetVar="dlg_confirmar" header="Confirmar Baixa!" resizable="false" width="600" modal="true">
+                            <p:dialog widgetVar="dlg_confirmar" header="Confirmar Baixa" resizable="false" width="600" modal="true">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente CONCLUIR essa baixa?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>

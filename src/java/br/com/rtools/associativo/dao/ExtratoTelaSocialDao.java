@@ -333,12 +333,12 @@ public class ExtratoTelaSocialDao extends DB {
                 boleto_final = "";
             }
             if (!boleto_inicial.isEmpty() && boleto_final.isEmpty()) {
-                listWhere.add("B.ds_boleto >= '" + boleto_inicial + "' ");
+                listWhere.add("BO.ds_boleto >= '" + boleto_inicial + "' ");
             } else if (!boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
-                listWhere.add("B.ds_boleto >= '" + boleto_inicial + "'");
-                listWhere.add("B.ds_boleto <= '" + boleto_final + "' ");
+                listWhere.add("BO.ds_boleto >= '" + boleto_inicial + "'");
+                listWhere.add("BO.ds_boleto <= '" + boleto_final + "' ");
             } else if (boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
-                listWhere.add("B.ds_boleto <= '" + boleto_final + "'");
+                listWhere.add("BO.ds_boleto <= '" + boleto_final + "'");
             }
         }
 

@@ -123,6 +123,7 @@ public class ExtratoTelaBean implements Serializable {
     private Boolean verListaRemessa = false;
     private StatusRemessa statusRemessa = new StatusRemessa();
     private String id_boleto_adicionado_remessa = "";
+    private Boolean apenasBoletoSelecionado = false;
 
     public ExtratoTelaBean() {
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
@@ -371,89 +372,95 @@ public class ExtratoTelaBean implements Serializable {
         }
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
-
-        // ADICIONA BOLETO PARA REGISTRO AUTOMÁTICO
-        List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId(), id_boleto_adicionado_remessa);
-
-        statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
-
-        ids_pesquisa = "";
-        for (Boleto bo : lista_b) {
-
-            BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
-            listaBoletoRemessa.add(br);
-
-            if (id_boleto_adicionado_remessa.isEmpty()) {
-                id_boleto_adicionado_remessa = "" + bo.getId();
-                ids_pesquisa = "" + bo.getId();
-            } else {
-                id_boleto_adicionado_remessa += ", " + bo.getId();
-                ids_pesquisa = ", " + bo.getId();
-            }
-        }
-
-        if (!ids_pesquisa.isEmpty()) {
-            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-            if (!l_rb.isEmpty()) {
-                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-                return;
-            }
+        
+        if (apenasBoletoSelecionado && ids_pesquisa.isEmpty()){
+            GenericaMensagem.error("Atenção", "Nenhum Boleto Selecionado!");
+            return;
         }
         
-        // ---------------------------------------------------------------------
-        // ---------------------------------------------------------------------
+        if (!apenasBoletoSelecionado) {
+            // ADICIONA BOLETO PARA REGISTRO AUTOMÁTICO
+            List<Boleto> lista_b = new RemessaDao().listaRegistrarAutomatico(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
-        // ADICIONA BOLETO PARA REGISTRO DE RECUSADOS
-        lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
+            statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 1);
 
-        ids_pesquisa = "";
-        for (Boleto bo : lista_b) {
+            ids_pesquisa = "";
+            for (Boleto bo : lista_b) {
 
-            BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
-            listaBoletoRemessa.add(br);
+                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+                listaBoletoRemessa.add(br);
 
-            if (id_boleto_adicionado_remessa.isEmpty()) {
-                id_boleto_adicionado_remessa = "" + bo.getId();
-                ids_pesquisa = "" + bo.getId();
-            } else {
-                id_boleto_adicionado_remessa += ", " + bo.getId();
-                ids_pesquisa = ", " + bo.getId();
+                if (id_boleto_adicionado_remessa.isEmpty()) {
+                    id_boleto_adicionado_remessa = "" + bo.getId();
+                    ids_pesquisa = "" + bo.getId();
+                } else {
+                    id_boleto_adicionado_remessa += ", " + bo.getId();
+                    ids_pesquisa = ", " + bo.getId();
+                }
             }
-        }
 
-        if (!ids_pesquisa.isEmpty()) {
-            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
-            if (!l_rb.isEmpty()) {
-                GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-                return;
+            if (!ids_pesquisa.isEmpty()) {
+                l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+                if (!l_rb.isEmpty()) {
+                    GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                    return;
+                }
             }
-        }
-        
-        // ADICIONA BOLETO PARA BAIXAR REGISTRADOS
-        lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
-        statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
+            // ---------------------------------------------------------------------
+            // ---------------------------------------------------------------------
+            // ADICIONA BOLETO PARA REGISTRO DE RECUSADOS
+            lista_b = new RemessaDao().listaRegistrarRecusados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
 
-        ids_pesquisa = "";
-        for (Boleto bo : lista_b) {
+            ids_pesquisa = "";
+            for (Boleto bo : lista_b) {
 
-            BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
-            listaBoletoRemessa.add(br);
+                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+                listaBoletoRemessa.add(br);
 
-            if (id_boleto_adicionado_remessa.isEmpty()) {
-                id_boleto_adicionado_remessa = "" + bo.getId();
-                ids_pesquisa = "" + bo.getId();
-            } else {
-                id_boleto_adicionado_remessa += ", " + bo.getId();
-                ids_pesquisa = ", " + bo.getId();
+                if (id_boleto_adicionado_remessa.isEmpty()) {
+                    id_boleto_adicionado_remessa = "" + bo.getId();
+                    ids_pesquisa = "" + bo.getId();
+                } else {
+                    id_boleto_adicionado_remessa += ", " + bo.getId();
+                    ids_pesquisa = ", " + bo.getId();
+                }
             }
-        }
-        
-        if (!ids_pesquisa.isEmpty()) {
-            l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
-            if (!l_rb.isEmpty()) {
-                GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
-                return;
+
+            if (!ids_pesquisa.isEmpty()) {
+                l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 1);
+                if (!l_rb.isEmpty()) {
+                    GenericaMensagem.error("Atenção", "Boleto STATUS: Registrar já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                    return;
+                }
+            }
+
+            // ADICIONA BOLETO PARA BAIXAR REGISTRADOS
+            lista_b = new RemessaDao().listaBaixarRegistrados(contaSelecionada.getId(), id_boleto_adicionado_remessa);
+
+            statusRemessa = (StatusRemessa) dao.find(new StatusRemessa(), 2);
+
+            ids_pesquisa = "";
+            for (Boleto bo : lista_b) {
+
+                BoletoRemessa br = new BoletoRemessa(bo, statusRemessa, "tblExtratoTelaT1");
+                listaBoletoRemessa.add(br);
+
+                if (id_boleto_adicionado_remessa.isEmpty()) {
+                    id_boleto_adicionado_remessa = "" + bo.getId();
+                    ids_pesquisa = "" + bo.getId();
+                } else {
+                    id_boleto_adicionado_remessa += ", " + bo.getId();
+                    ids_pesquisa = ", " + bo.getId();
+                }
+            }
+
+            if (!ids_pesquisa.isEmpty()) {
+                l_rb = daor.listaBoletoComRemessaBanco(ids_pesquisa, 2);
+                if (!l_rb.isEmpty()) {
+                    GenericaMensagem.error("Atenção", "Boleto STATUS: Baixar Boleto já foi enviado: " + l_rb.get(0).getBoleto().getBoletoComposto());
+                    return;
+                }
             }
         }
         visibleModalRemessa = true;
@@ -2828,6 +2835,14 @@ public class ExtratoTelaBean implements Serializable {
             this.movimento = movimento;
         }
 
+    }
+
+    public Boolean getApenasBoletoSelecionado() {
+        return apenasBoletoSelecionado;
+    }
+
+    public void setApenasBoletoSelecionado(Boolean apenasBoletoSelecionado) {
+        this.apenasBoletoSelecionado = apenasBoletoSelecionado;
     }
 
 }

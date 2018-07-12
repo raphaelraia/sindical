@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ChequeRec;
 import br.com.rtools.financeiro.ContaBanco;
+import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.ContaTipoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FormaPagamento;
@@ -21,6 +22,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoRecibo;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.financeiro.dao.ContaRecebimentoDao;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
 import br.com.rtools.financeiro.dao.FechamentoDiarioDao;
@@ -116,7 +118,7 @@ public class BaixaGeralBean implements Serializable {
 
     private Boolean visibleImprimirRecibo = false;
     private Date dataOcorrencia = null;
-    
+
     private Date dataCreditoCartao = null;
 
     @PostConstruct
@@ -136,12 +138,12 @@ public class BaixaGeralBean implements Serializable {
         dataEmissaoRecibo = "";
     }
 
-    public void atualizaCartao(){
+    public void atualizaCartao() {
         Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
-        
+
         dataCreditoCartao = DataHoje.converte(new DataHoje().incrementarDias(cart.getDias(), quitacao));
     }
-    
+
     public void atualizaDataOcorrencia() {
         dataOcorrencia = DataHoje.dataHoje();
     }
@@ -376,7 +378,7 @@ public class BaixaGeralBean implements Serializable {
                     ch_p.setPlano5(pl);
                     ch_p.setDtVencimentoString(vencimento);
 
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje()));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje(), null));
                 } else {
                     if (numero.isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
@@ -400,7 +402,7 @@ public class BaixaGeralBean implements Serializable {
                         GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
                         return;
                     }
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null, DataHoje.dataHoje()));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 7), null, null, DataHoje.dataHoje(), null));
                 }
                 numero = "";
                 numeroChequePag = "";
@@ -409,7 +411,6 @@ public class BaixaGeralBean implements Serializable {
             case 6:
             case 7:
                 // CARTAO
-                // if (listaCartao.size() == 1 && !listaCartao.get(0).getDescription().isEmpty()) {
                 if (listaCartao.isEmpty()) {
                     GenericaMensagem.error("SISTEMA", "NENHUM CARTÃO CADASTRADO!");
                     return;
@@ -417,13 +418,15 @@ public class BaixaGeralBean implements Serializable {
                 Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
                 if (!getEs().isEmpty() && getEs().equals("S")) {
                     CartaoPag cartao_pag = null;
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje()));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje(), dataCreditoCartao));
                 } else {
                     CartaoRec cartao_rec = new CartaoRec(-1, null, cart);
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje()));
+                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje(), dataCreditoCartao));
                 }
                 if (!listaCartao.get(0).getDescription().isEmpty()) {
                 }
+
+                dataCreditoCartao = null;
                 break;
             case 2:
             case 8:
@@ -474,7 +477,7 @@ public class BaixaGeralBean implements Serializable {
                     }
                 }
 
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), null, pl_conciliacao, dt_conciliacao, dt_ocorrencia));
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, null, null, Moeda.converteR$Double(valorDigitado), null, pl_conciliacao, dt_conciliacao, dt_ocorrencia, null));
                 numero = "";
                 dataConciliacao = null;
                 dataOcorrencia = null;
@@ -492,7 +495,7 @@ public class BaixaGeralBean implements Serializable {
                         return;
                     }
                 }
-                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje()));
+                listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, null, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje(), null));
                 break;
         }
 
@@ -650,8 +653,16 @@ public class BaixaGeralBean implements Serializable {
                         lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, ""));
                     } else {
                         // VALOR DE ACORDO COM O CHAMADO #2352
-                        Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
-                        Double valor_liquido = Moeda.multiplicar(valor_baixa, bol.getContaCobranca().getRepasse() / 100);
+                        
+                        ContaCobranca cc = new ContaCobrancaDao().pesquisaContaCobrancaMovimento(listaMovimentos.get(0).getId());
+                        // antes
+                        //Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
+                        if (cc == null){
+                            return mensagem = "Erro ao Pesquisar Conta Cobrança!";
+                        }
+                        
+                        Double valor_liquido = Moeda.multiplicar(valor_baixa, cc.getRepasse() / 100);
+                        
                         Date data_credito = DataHoje.converte(new DataHoje().incrementarDias(1, DataHoje.converteData(listaValores.get(i).getDataOcorrencia())));
 
                         lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, ctp.getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), valor_liquido, data_credito, 0, listaValores.get(i).getStatus(), 0, listaValores.get(i).getConciliacaoPlano5(), null, listaValores.get(i).getNumero()));
@@ -682,9 +693,9 @@ public class BaixaGeralBean implements Serializable {
                     // CARTAO - CRÉDITO / DÉBITO
                     Cartao cartao = listaValores.get(i).getCartao();
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dataCreditoCartao, Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, ""));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, listaValores.get(i).getDataCreditoCartao(), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, null, null, ""));
                     } else {
-                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, dataCreditoCartao, Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, cartao.getPlano5(), null, ""));
+                        lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5Baixa(), null, listaValores.get(i).getCartaoRec(), listaValores.get(i).getTipoPagamento(), 0, listaValores.get(i).getDataCreditoCartao(), Moeda.divisao(Moeda.multiplicar(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0, cartao.getPlano5(), null, ""));
                     }
                     break;
                 case 8:
@@ -774,7 +785,7 @@ public class BaixaGeralBean implements Serializable {
                 }
                 return mensagem;
             }
-            
+
             listaValores.clear();
             total = "0.0";
             String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
@@ -783,30 +794,30 @@ public class BaixaGeralBean implements Serializable {
                 case "baixaBoleto":
                     ((BaixaBoletoBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("baixaBoletoBean")).loadListaBoleto();
                     break;
-                    
+
                 case "movimentosReceberSocial":
                     ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
                     break;
-                    
+
                 case "emissaoGuias":
                 case "menuPrincipal":
                     break;
-                    
+
                 case "lancamentoFinanceiro":
                     ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcela().clear();
                     ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcelaSelecionada().clear();
                     break;
-                    
+
                 case "matriculaAcademia":
                     ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).getListaMovimentos().clear();
                     ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaCamposMovimento(true);
                     ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
                     break;
-                    
+
                 case "contasAPagar":
                     ((ContasAPagarBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("contasAPagarBean")).loadListaContas();
                     break;
-                    
+
                 default:
                     break;
             }
@@ -1550,7 +1561,7 @@ public class BaixaGeralBean implements Serializable {
     public void setDataCreditoCartao(Date dataCreditoCartao) {
         this.dataCreditoCartao = dataCreditoCartao;
     }
-    
+
     public String getDataCreditoCartaoString() {
         return DataHoje.converteData(dataCreditoCartao);
     }

@@ -47,7 +47,7 @@ public class MovimentoCartaoDao extends DB {
                 + "    sum(((valor_baixa * c.nr_taxa) / 100)) AS taxa, \n "
                 + "    sum(valor_baixa - ((valor_baixa * c.nr_taxa) / 100)) AS liquido, \n "
                 + "    extract(year from baixa) || right('0' || extract(month from baixa), 2) || right('0' || extract(day from baixa), 2) AS baixa_ordem, \n "
-                + "    m. dt_credito as credito \n "
+                + "    m.dt_credito as credito \n "
                 + "  FROM movimentos_vw AS m \n "
                 + " INNER JOIN fin_cartao_rec AS cr ON cr.id = m.id_cartao_rec \n "
                 + " INNER JOIN fin_cartao    AS c ON c.id = cr.id_cartao \n "
@@ -61,7 +61,8 @@ public class MovimentoCartaoDao extends DB {
                 + "   AND es = 'E' \n "
                 + "   AND c.id = " + id_cartao + " \n "
                 + "   AND c.id_plano5 = " + id_plano5 + " \n "
-                + " GROUP BY m.id_forma_pagamento, baixa, m.id_baixa, m. dt_credito"
+                + " GROUP BY m.id_forma_pagamento, baixa, m.id_baixa, m. dt_credito \n"
+                + " ORDER BY m.baixa, m.dt_credito"
         );
 
         try {

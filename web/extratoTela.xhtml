@@ -423,7 +423,7 @@
                                                 </c:when>
                                             </c:choose>
                                         </p:column>
-                                        
+
                                         <p:column  styleClass="text-center">
                                             <p:commandButton icon="ui-icon-comment" value="MENSAGEM BOLETO" action="#{extratoTelaBean.openHistorico(index)}" onclick="PF('dlg_message_historico').show()" update=":formExtratoTela:id_message_historico" title="MENSAGEM BOLETO" rendered="#{movimentos.argumento14 ne 'Acordo'}"/>
                                         </p:column>                                        
@@ -914,15 +914,20 @@
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_opcao_remessa" header="Opções da Remessa Selecionada" resizable="false" width="450" modal="true">
+                            <p:dialog widgetVar="dlg_opcao_remessa" header="Opções da Remessa" resizable="false" width="600" modal="true">
 
                                 <h:panelGrid columns="1">
                                     <p:outputLabel value="O que fazer com os boletos selecionados?" style="font-size: 12pt!important; font-weight: bold"/>
                                 </h:panelGrid>
                                 <br />
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="4">
                                     <p:commandButton icon="ui-icon-plus" value="REGISTRAR" title="Registrar" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaBean.adicionarRemessa('registrar')}"/>
                                     <p:commandButton icon="ui-icon-arrowthick-1-s" value="BAIXAR NO BANCO" title="Baixar no Banco" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaBean.adicionarRemessa('baixar_banco')}"/>
+
+                                    <p:selectBooleanCheckbox value="#{extratoTelaBean.apenasBoletoSelecionado}" itemLabel="Apenas Selecionados" rendered="false">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:selectBooleanCheckbox>
+
                                     <p:commandButton icon="ui-icon-circle-close" value="FECHAR" title="Cancelar Geração" onclick="PF('dlg_opcao_remessa').hide()"/>
                                 </h:panelGrid>
 

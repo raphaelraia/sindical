@@ -420,7 +420,7 @@
                             <p:panel styleClass="fundoCinza">
                                 <p:outputLabel value="Opções do Boleto" style="font-weight: bold; font-size: 8pt!important"/>
 
-                                <h:panelGrid columns="8" style="width: 955px">
+                                <h:panelGrid columns="8" style="width: 1100px">
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.imprimirVerso}" itemLabel="Imprimir Verso" style="margin-right: 20px"/>
                                     </h:column>
@@ -561,15 +561,20 @@
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_opcao_remessa" header="Opções da Remessa Selecionada" resizable="false" width="450" modal="true">
+                            <p:dialog widgetVar="dlg_opcao_remessa" header="Opções da Remessa" resizable="false" width="600" modal="true">
 
                                 <h:panelGrid columns="1">
                                     <p:outputLabel value="O que fazer com os boletos selecionados?" style="font-size: 12pt!important; font-weight: bold"/>
                                 </h:panelGrid>
                                 <br />
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="4">
                                     <p:commandButton icon="ui-icon-plus" value="REGISTRAR" title="Registrar" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaSocialBean.adicionarRemessa('registrar')}"/>
                                     <p:commandButton icon="ui-icon-arrowthick-1-s" value="BAIXAR NO BANCO" title="Baixar no Banco" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaSocialBean.adicionarRemessa('baixar_banco')}"/>
+
+                                    <p:selectBooleanCheckbox value="#{extratoTelaSocialBean.apenasBoletoSelecionado}" itemLabel="Apenas Selecionados" rendered="false">
+                                        <p:ajax event="change" update="@this"/>
+                                    </p:selectBooleanCheckbox>
+
                                     <p:commandButton icon="ui-icon-circle-close" value="FECHAR" title="Cancelar Geração" onclick="PF('dlg_opcao_remessa').hide()"/>
                                 </h:panelGrid>
 

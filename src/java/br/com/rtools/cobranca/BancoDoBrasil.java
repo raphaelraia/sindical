@@ -957,7 +957,7 @@ public class BancoDoBrasil extends Cobranca {
             // PASSA OS PARAMETROS
             List<NameValuePair> params = new ArrayList(2);
             params.add(new BasicNameValuePair("idConv", convenio));
-            params.add(new BasicNameValuePair("refTran", boleto.getBoletoComposto()));
+            params.add(new BasicNameValuePair("refTran", "4"));
             params.add(new BasicNameValuePair("valor", boleto.getValorString().replace(",", "").replace(".", "")));
             //params.add(new BasicNameValuePair("qtdPontos", ""));
             params.add(new BasicNameValuePair("dtVenc", boleto.getVencimento().replace("/", "")));
