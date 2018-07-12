@@ -133,7 +133,7 @@ public class SocioCarteirinhaDao extends DB {
             queryString += ""
                     + "   LEFT JOIN soc_categoria           AS C  ON C.id = P.id_categoria AND P.id_categoria > 0   \n"
                     + "   LEFT JOIN fin_movimento           AS M  ON M.id_beneficiario = SC.id_pessoa AND M.id_servicos IN (SELECT id_servico_cartao FROM seg_registro) AND m.dt_vencimento >='06/04/2015' \n"
-                    + "   LEFT JOIN soc_historico_carteirinha SH  ON SH.id_carteirinha =  SC.id                     \n";
+                    + "   LEFT JOIN soc_historico_carteirinha SH  ON SH.id_carteirinha =  SC.id AND SH.id_movimento = M.id  \n";
 
             // NÃO IMPRESSOS
             List listWhere = new ArrayList();
@@ -237,10 +237,11 @@ public class SocioCarteirinhaDao extends DB {
             if (filter.isEmpty() && type_date.isEmpty() && status.equals("pendentes")) {
                 listWhere.add(
                         " ( "
-                        + " (C.is_cobranca_carteirinha = false AND SC.dt_criacao >= current_date-30) \n"
-                        + " OR (C.is_cobranca_carteirinha = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL AND dt_emissao >= current_date-30))            \n"
+                        + " (C.is_cobranca_carteirinha = false AND SC.dt_criacao >= current_date - 30) \n"
+                        + " OR (C.is_cobranca_carteirinha = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL AND dt_emissao >= current_date-30))             \n"
                         + " OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30)  \n"
-                        + " OR (P.matricula IS NULL AND P.nome IS NOT NULL AND P.nome <> '' AND CS.is_cobranca_carteirinha_nao_socio = false) \n"
+                        + " OR (P.matricula IS NULL AND P.nome IS NOT NULL AND P.nome <> '' AND CS.is_cobranca_carteirinha_nao_socio = false)                                               \n"
+                        + " OR (C.is_cobranca_carteirinha = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30)    \n"
                         + ") "
                 );
             }
@@ -293,7 +294,6 @@ public class SocioCarteirinhaDao extends DB {
             if (filial_id != null) {
                 listWhere.add("MS.id_filial = " + filial_id + "");
             }
-
             // QUE POSSUEM FOTOS
             if (!registro.isCarteirinhaDependente()) {
                 listWhere.add("P.id_parentesco = 1");
