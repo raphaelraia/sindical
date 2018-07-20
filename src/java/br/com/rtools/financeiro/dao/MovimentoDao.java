@@ -764,10 +764,10 @@ public class MovimentoDao extends DB {
                 break;
             case -2:
                 // NÃO REGISTRADOS
-                listWhere.add("(B.id_status_retorno IS NULL OR BO.id_status_retorno = 4) AND B.dt_vencimento > CURRENT_DATE");
+                listWhere.add("(B.id_status_retorno IS NULL OR B.id_status_retorno = 4) AND B.dt_vencimento > CURRENT_DATE");
                 listWhere.add("M.id_pessoa NOT IN ( \n "
                         + " SELECT id_pessoa FROM fin_bloqueia_servico_pessoa \n "
-                        + "  WHERE id_servicos = M.id_servicos \n "
+                        + "  WHERE id_servicos = S.id \n "
                         + "    AND func_compara_intervalo_ref( \n "
                         + "     '" + DataHoje.referencia() + "','12/2050', \n"
                         + "     RIGHT('0'||EXTRACT(MONTH FROM dt_inicio),2)||'/'||EXTRACT(YEAR FROM dt_inicio), \n"

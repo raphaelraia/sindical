@@ -924,7 +924,7 @@
                                     <p:commandButton icon="ui-icon-plus" value="REGISTRAR" title="Registrar" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaBean.adicionarRemessa('registrar')}"/>
                                     <p:commandButton icon="ui-icon-arrowthick-1-s" value="BAIXAR NO BANCO" title="Baixar no Banco" onclick="PF('dlg_opcao_remessa').hide()" action="#{extratoTelaBean.adicionarRemessa('baixar_banco')}"/>
 
-                                    <p:selectBooleanCheckbox value="#{extratoTelaBean.apenasBoletoSelecionado}" itemLabel="Apenas Selecionados" rendered="false">
+                                    <p:selectBooleanCheckbox value="#{extratoTelaBean.apenasBoletoSelecionado}" itemLabel="Apenas Selecionados">
                                         <p:ajax event="change" update="@this"/>
                                     </p:selectBooleanCheckbox>
 

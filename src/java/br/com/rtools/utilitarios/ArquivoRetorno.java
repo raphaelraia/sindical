@@ -569,7 +569,7 @@ public abstract class ArquivoRetorno {
                                 if (!retorno_continua.isEmpty()) {
                                     Object[] log = new Object[3];
 
-                                    log[0] = 8;
+                                    log[0] = 10;
                                     log[1] = linha_segmento.getNossoNumero();
                                     log[2] = retorno_continua + " - " + linha_segmento.getNossoNumero()
                                             + " - Data de Vencimento: " + DataHoje.colocarBarras(linha_segmento.getDataVencimento())
@@ -590,6 +590,7 @@ public abstract class ArquivoRetorno {
                                 // 7 - VALOR DA BAIXA MAIOR - [1] obj Lista Movimento
                                 // 8 - BOLETO NÃO ENCONTRADO - [1] string Número do Boleto
                                 // 9 - ERRO AO ALTERAR MOVIMENTO COM VALOR BAIXA CORRETO - [1] obj Movimento
+                                // 10 - BOLETO JÁ ESTA REGISTRADO - [1] string Número do Boleto
                                 Double valor_credito = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorCredito())), 100);
                                 Double valor_pago = Moeda.divisao(Moeda.substituiVirgulaDouble(Moeda.converteR$(linha_segmento.getValorPago())), 100);
 

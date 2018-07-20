@@ -39,7 +39,7 @@ public class RelatorioProdutosDao extends DB {
                     + "                     ltrim(rtrim(P.ds_descricao))||' '||U.ds_descricao||' '||ltrim(rtrim(P.ds_marca))||ltrim(rtrim(P.ds_sabor))||' '||ltrim(rtrim(P.ds_medida))||' '||ltrim(rtrim(P.ds_fabricante))||' '||ltrim(rtrim(P.ds_modelo)) \n"
                     + "                 )                                       \n"
                     + "             ) AS produto,                               \n"
-                    + "             P.nr_valor AS valor,                        \n"
+                    + "             (P.nr_valor * I.nr_valor) * (1 + (P.nr_margem / 100)) AS valor, \n"
                     + "             PF.ds_nome AS filial_nome,                  \n"
                     + "             E.nr_estoque AS estoque,                    \n"
                     + "             E.nr_estoque_minimo AS estoque_minimo,      \n"
@@ -52,7 +52,8 @@ public class RelatorioProdutosDao extends DB {
                     + "   LEFT JOIN est_estoque  AS E  ON E.id_produto = P.id   \n"
                     + "   LEFT JOIN pes_filial   AS F  ON F.id = E.id_filial    \n"
                     + "   LEFT JOIN pes_juridica AS J  ON J.id = F.id_filial    \n"
-                    + "   LEFT JOIN pes_pessoa   AS PF ON PF.id = J.id_pessoa   \n";
+                    + "   LEFT JOIN pes_pessoa   AS PF ON PF.id = J.id_pessoa   \n"
+                    + "  INNER JOIN fin_indice_moeda AS I ON I.id = P.id_indice_moeda   \n";
             List listWhere = new ArrayList<>();
             // SITUAÇÃO
             switch (situacao_estoque) {

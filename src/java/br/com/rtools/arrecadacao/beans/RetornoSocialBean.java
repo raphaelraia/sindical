@@ -178,7 +178,8 @@ public class RetornoSocialBean {
                             break;
                     }
                 }
-
+                
+                GenericaSessao.remove("logsRetornoSocial");
                 GenericaMensagem.info("Sucesso", "Arquivos Baixados");
             } else {
                 GenericaMensagem.error("ERRO AO BAIXAR", result);

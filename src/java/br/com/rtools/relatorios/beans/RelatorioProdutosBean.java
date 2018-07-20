@@ -195,6 +195,8 @@ public class RelatorioProdutosBean implements Serializable {
 
     public void loadRelatorioOrdem() {
         listRelatorioOrdem = new ArrayList();
+        idRelatorioOrdem = null;
+        
         if (idRelatorio != null) {
             RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
             List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
@@ -208,7 +210,6 @@ public class RelatorioProdutosBean implements Serializable {
     }
 
     public void load() {
-        // loadListaFiltro();
         loadRelatorioOrdem();
     }
 
@@ -235,6 +236,8 @@ public class RelatorioProdutosBean implements Serializable {
             case 2:
                 break;
         }
+        
+        loadRelatorioOrdem();
     }
 
     // LOAD

@@ -947,7 +947,9 @@ public class BancoDoBrasil extends Cobranca {
         }
 
         try {
-            String convenio = boleto.getBoletoComposto().substring(0, 6);
+            //String convenio = boleto.getBoletoComposto().substring(0, 6);
+            // idConv É DIFERENTE DO CONVÊNIO QUE ESTA NO INICIO DO NOSSO NUMERO
+            String convenio = "318045";
             Pessoa pessoa = boleto.getPessoa();
 
             // ACESSA O LINK
@@ -957,7 +959,7 @@ public class BancoDoBrasil extends Cobranca {
             // PASSA OS PARAMETROS
             List<NameValuePair> params = new ArrayList(2);
             params.add(new BasicNameValuePair("idConv", convenio));
-            params.add(new BasicNameValuePair("refTran", "4"));
+            params.add(new BasicNameValuePair("refTran", boleto.getBoletoComposto()));
             params.add(new BasicNameValuePair("valor", boleto.getValorString().replace(",", "").replace(".", "")));
             //params.add(new BasicNameValuePair("qtdPontos", ""));
             params.add(new BasicNameValuePair("dtVenc", boleto.getVencimento().replace("/", "")));
@@ -1001,7 +1003,7 @@ public class BancoDoBrasil extends Cobranca {
             } else {
                 return new RespostaWebService(null, "Pessoa não possui endereço! : " + pessoa.getNome());
             }
-            params.add(new BasicNameValuePair("msgLoja", ""));                
+            params.add(new BasicNameValuePair("msgLoja", ""));
 
             // ENVIA O FORMULARIO
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
@@ -1012,10 +1014,36 @@ public class BancoDoBrasil extends Cobranca {
             if (entity != null) {
                 String msg = EntityUtils.toString(entity);
 
-                if (msg.contains("Atenção!")){
-                    System.out.println("Atenção!");
+                if (msg.contains("Titulo ja incluido anteriormente. (C008-000)")) {
+                    // System.out.println("Opa, já registrado??");
+                    if (boleto.getDtCobrancaRegistrada() == null) {
+                        Dao dao = new Dao();
+
+                        boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                        boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                        boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+                        dao.update(boleto, true);
+                    }
+                    return new RespostaWebService(boleto, "");
                 }
-                System.out.println(msg);
+
+                if (msg.contains("Atenção!")) {
+                    System.out.println("Atenção!");
+                    System.out.println(msg);
+                    return new RespostaWebService(null, "Erro no retorno do Banco do Brasil");
+                }
+
+                if (boleto.getDtCobrancaRegistrada() == null) {
+                    Dao dao = new Dao();
+
+                    boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                    boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                    boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+                    dao.update(boleto, true);
+                    return new RespostaWebService(boleto, "");
+                }
             }
 
         } catch (IOException e) {

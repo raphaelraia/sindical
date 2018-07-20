@@ -681,7 +681,10 @@ public class Santander extends Cobranca {
 
         try {
             //File flCert = new File("C:/PC201707105759.pfx");
-            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
+            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC20180719036361.pfx"));
+            if (!flCert.exists()){
+                return new RespostaWebService(null, "Certificado não encontrado!");
+            }
             KeyStore clientStore = KeyStore.getInstance("PKCS12");
             clientStore.load(new FileInputStream(flCert.getAbsolutePath()), "sisrtools989899".toCharArray());
 
@@ -871,7 +874,7 @@ public class Santander extends Cobranca {
 
             return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | ParserConfigurationException | SAXException e) {
-            e.getMessage();
+            System.out.println("SANTANDER - WEBSERVICE-ERROR: " + e.getMessage());
         } finally {
             System.out.println("Fim");
         }

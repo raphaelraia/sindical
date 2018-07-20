@@ -23,7 +23,7 @@
                         <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
                             <p:outputLabel value="Tipo de Relatório: " />
                             <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioProdutosBean.idRelatorio}">
-                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioProdutosBean.listener(1)}"/>
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado id_pg_relatorios" global="false" listener="#{relatorioProdutosBean.listener(1)}"/>
                                 <f:selectItems value="#{relatorioProdutosBean.listRelatorios}"/>
                             </p:selectOneMenu>
                             <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioProdutosBean.listRelatorioOrdem}"/>
