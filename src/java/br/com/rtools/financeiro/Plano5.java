@@ -30,6 +30,8 @@ public class Plano5 implements java.io.Serializable {
     private String classificador;
     @Column(name = "is_soma_debito", columnDefinition = "boolean default false", nullable = false)
     private Boolean somaDebito;
+    @Column(name = "nr_ordem")
+    private Integer ordem;
 
     @Transient
     private Boolean selected;
@@ -44,10 +46,12 @@ public class Plano5 implements java.io.Serializable {
         this.acesso = "";
         this.classificador = "";
         this.somaDebito = false;
+        this.ordem = null;
+        
         this.selected = false;
     }
 
-    public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador, Boolean somaDebito) {
+    public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador, Boolean somaDebito, Integer ordem) {
         this.id = id;
         this.plano4 = new Plano4();
         this.numero = numero;
@@ -57,6 +61,8 @@ public class Plano5 implements java.io.Serializable {
         this.acesso = acesso;
         this.classificador = classificador;
         this.somaDebito = somaDebito;
+        this.ordem = ordem;
+        
         this.selected = false;
     }
 
@@ -138,5 +144,13 @@ public class Plano5 implements java.io.Serializable {
 
     public void setSomaDebito(Boolean somaDebito) {
         this.somaDebito = somaDebito;
+    }
+
+    public Integer getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(Integer ordem) {
+        this.ordem = ordem;
     }
 }

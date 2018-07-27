@@ -299,7 +299,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                 ids_pesquisa = "" + bol.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bol.getId();
-                ids_pesquisa = ", " + bol.getId();
+                ids_pesquisa += ", " + bol.getId();
             }
         }
         List<RemessaBanco> l_rb;
@@ -342,7 +342,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                     ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
-                    ids_pesquisa = ", " + bo.getId();
+                    ids_pesquisa += ", " + bo.getId();
                 }
             }
 
@@ -372,7 +372,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                     ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
-                    ids_pesquisa = ", " + bo.getId();
+                    ids_pesquisa += ", " + bo.getId();
                 }
             }
 
@@ -403,7 +403,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                     ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
-                    ids_pesquisa = ", " + bo.getId();
+                    ids_pesquisa += ", " + bo.getId();
                 }
             }
 

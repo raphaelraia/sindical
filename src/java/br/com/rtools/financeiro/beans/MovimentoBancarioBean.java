@@ -86,6 +86,8 @@ public class MovimentoBancarioBean implements Serializable {
     private String statusFiltro = "todos";
     // ---
 
+    private Date dataChequeStatus = DataHoje.dataHoje();
+
     public MovimentoBancarioBean() {
         loadListaConta();
         loadListaContaOperacao();
@@ -980,13 +982,24 @@ public class MovimentoBancarioBean implements Serializable {
         Integer id_status = Integer.valueOf(listaStatus.get(indexStatus).getDescription());
         FStatus f_status = (FStatus) dao.find(new FStatus(), id_status);
 
-        // LIQUIDADO
+        // REALIZADO / LIQUIDADO
         if (f_status.getId() == 9) {
+            if (dataChequeStatus == null) {
+                GenericaMensagem.error("Atenção", "Digite uma data de liquidação!");
+                return false;
+            }
+
             dao.openTransaction();
             // SETA STATUS LIQUIDADO NA FORMA DE PAGAMENTO
             linha.getFormaPagamento().setStatus(f_status);
 
             if (!dao.update(linha.getFormaPagamento())) {
+                dao.rollback();
+                return false;
+            }
+
+            linha.getBaixa().setDtBaixa(dataChequeStatus);
+            if (!dao.update(linha.getBaixa())) {
                 dao.rollback();
                 return false;
             }
@@ -1487,6 +1500,22 @@ public class MovimentoBancarioBean implements Serializable {
         this.historicoBancario = historicoBancario;
     }
 
+    public Date getDataChequeStatus() {
+        return dataChequeStatus;
+    }
+
+    public void setDataChequeStatus(Date dataChequeStatus) {
+        this.dataChequeStatus = dataChequeStatus;
+    }
+
+    public String getDataChequeStatusString() {
+        return DataHoje.converteData(dataChequeStatus);
+    }
+
+    public void setDataChequeStatusString(String dataChequeStatusString) {
+        this.dataChequeStatus = DataHoje.converte(dataChequeStatusString);
+    }
+
     public class ObjectMovimentoBancario {
 
         private FormaPagamento formaPagamento;
@@ -1685,4 +1714,5 @@ public class MovimentoBancarioBean implements Serializable {
         }
 
     }
+
 }

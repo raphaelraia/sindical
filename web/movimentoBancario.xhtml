@@ -145,7 +145,7 @@
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
-
+                                
                                 <p:column headerText="Data" style="width:80px; text-align: center">
                                     <p:commandLink value="#{linha.baixa.baixa}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.rotina.id ne 225}"/>
@@ -254,9 +254,17 @@
                                     <p:outputLabel value="Deseja realmente alterar o status ?" style="font-size: 11pt!important; color: red"/>
                                     <br />
                                     <p:selectOneRadio value="#{movimentoBancarioBean.indexStatus}" layout="grid" columns="1">
-                                        <p:ajax event="change" update="@this" global="false"/>
+                                        <p:ajax event="change" update="panel_alterar_status_cheque" global="false"/>
                                         <f:selectItems value="#{movimentoBancarioBean.listaStatus}" />
                                     </p:selectOneRadio>
+                                    <br />
+                                    <h:panelGrid rendered="#{movimentoBancarioBean.indexStatus eq 3}">
+                                        <h:outputLabel value="Data de Liquidação" style="color: red"/>
+                                        <p:inputMask value="#{movimentoBancarioBean.dataChequeStatusString}" style="margin-right: 15px; text-align: center; width: 120px" mask="99/99/9999">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputMask>
+                                    </h:panelGrid>
+                                    
                                 </h:panelGrid>
 
                                 <br />

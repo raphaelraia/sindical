@@ -351,7 +351,7 @@ public class ExtratoTelaBean implements Serializable {
                 ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
-                ids_pesquisa = ", " + bo.getId();
+                ids_pesquisa += ", " + bo.getId();
             }
 
         }
@@ -395,7 +395,7 @@ public class ExtratoTelaBean implements Serializable {
                     ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
-                    ids_pesquisa = ", " + bo.getId();
+                    ids_pesquisa += ", " + bo.getId();
                 }
             }
 
@@ -423,7 +423,7 @@ public class ExtratoTelaBean implements Serializable {
                     ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
-                    ids_pesquisa = ", " + bo.getId();
+                    ids_pesquisa += ", " + bo.getId();
                 }
             }
 

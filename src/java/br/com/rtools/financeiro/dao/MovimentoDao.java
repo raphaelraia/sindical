@@ -2716,6 +2716,8 @@ public class MovimentoDao extends DB {
 //            }
             List lista = new ArrayList();
             lista.add("delete from Historico h where h.movimento.id in ( " + ids + " )");
+            lista.add("delete from MovimentoBoleto mb where mb.movimento.id in ( " + ids + " )");
+            
             if (!bole.isEmpty()) {
                 lista.add("delete from Boleto b where b.nrCtrBoleto in (" + ids_boleto + ")");
             }

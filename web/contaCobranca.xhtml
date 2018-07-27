@@ -146,6 +146,11 @@
                                         <p:outputLabel value="Estação" title="Estação"/><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.estacao}" style="width: 80px; text-align: center"/>
                                     </p:column>
+                                    
+                                    <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '001' and contaCobrancaBean.indexListaCobrancaRegistrada eq 2}">
+                                        <p:outputLabel value="Nr. Comércio Eletrônico" title="Em caso de Cobrança Registrada"/><br />
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.estacao}" style="width: 120px; text-align: center" title="Em caso de Cobrança Registrada"/>
+                                    </p:column>
                                 </h:panelGrid>
 
                                 <h:panelGrid style="margin-top: 10px; width: 100%" columns="10">
@@ -179,7 +184,7 @@
                                     <p:column>
                                         <p:outputLabel value="Tipo de Cobrança" /><br />
                                         <p:selectOneMenu value="#{contaCobrancaBean.indexListaCobrancaRegistrada}" style="width: 100px;">
-                                            <p:ajax event="change" update="@this" />
+                                            <p:ajax event="change" update="@form" />
                                             <f:selectItems value="#{contaCobrancaBean.listaCobrancaRegistrada}" />
                                         </p:selectOneMenu>
                                     </p:column>

@@ -50,7 +50,7 @@
                         <h:outputText value="Depósito Bancário" styleClass="fonteHeader" />
                         <h:form id="formDepositoBancario">
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="5">
+                                <h:panelGrid columns="6">
                                     <p:column>
                                         <h:outputLabel value="Depositar na Conta" /><br />
                                         <p:selectOneMenu id="i_select_conta" value="#{depositoBancarioBean.idConta}" style="margin-right: 15px;">
@@ -72,6 +72,13 @@
                                         <p:inputText value="#{depositoBancarioBean.valorDepositoString}" style="margin-right: 15px; text-align: right" onfocus="this.select()">
                                             <p:ajax event="change" update="@this" global="false"/>
                                         </p:inputText>
+                                    </p:column>
+
+                                    <p:column rendered="#{depositoBancarioBean.indexListaFTipoDocumento eq 1}">
+                                        <h:outputLabel value="Data" /><br />
+                                        <p:inputMask value="#{depositoBancarioBean.dataDepositoString}" style="margin-right: 15px; text-align: center; width: 100px" mask="99/99/9999">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputMask>
                                     </p:column>
 
                                     <p:column>
@@ -131,6 +138,11 @@
                                     <p:column headerText="Vencimento" style="text-align: center">
                                         <h:outputText value="#{linha.chequeRec.vencimento}"/>
                                     </p:column>
+
+                                    <p:column headerText="Usuário">
+                                        <h:outputText value="#{linha.baixa.usuario.pessoa.nome}"/>
+                                    </p:column>
+
                                     <p:column headerText="Dev." style="width:50px; text-align: center">
                                         <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
                                     </p:column>
@@ -167,7 +179,7 @@
                                 </h:panelGrid>
                             </h:panelGrid>
 
-                            <p:dialog widgetVar="i_dlg_deposito" header="Deseja realmente depositar estes cheques" resizable="false" width="400" modal="true">
+                            <p:dialog widgetVar="i_dlg_deposito" header="Deseja realmente depositar  #{depositoBancarioBean.indexListaFTipoDocumento eq 0 ? 'estes cheques' : 'em dinheiro'}" resizable="false" width="400" modal="true">
                                 <p:commandButton value="Concluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{depositoBancarioBean.depositar()}" update="formDepositoBancario" onclick="PF('i_dlg_deposito').hide()" style="clear: both; float: left" icon="ui-icon-check" />  
                                 <p:commandButton value="Voltar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_deposito').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>

@@ -24,6 +24,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -44,6 +45,7 @@ public class DepositoBancarioBean implements Serializable {
     private Integer indexListaFTipoDocumento = 0;
     private List<SelectItem> listaFTipoDocumento = new ArrayList();
     private Double valorDeposito = new Double(0);
+    private Date dataDeposito = DataHoje.dataHoje();
 
     public DepositoBancarioBean() {
         loadListaCheques();
@@ -167,7 +169,7 @@ public class DepositoBancarioBean implements Serializable {
         Movimento movimento_saida = null;
 
         if (baixa_saida == null) {
-            baixa_saida = novaBaixa();
+            baixa_saida = novaBaixa(dataDeposito);
             if (!dao.save(baixa_saida)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
                 dao.rollback();
@@ -206,7 +208,7 @@ public class DepositoBancarioBean implements Serializable {
         Movimento movimento_entrada = null;
 
         if (baixa_entrada == null) {
-            baixa_entrada = novaBaixa();
+            baixa_entrada = novaBaixa(dataDeposito);
             if (!dao.save(baixa_entrada)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
                 dao.rollback();
@@ -288,7 +290,7 @@ public class DepositoBancarioBean implements Serializable {
         Movimento movimento_saida = null;
         for (int i = 0; i < listaSelecionado.size(); i++) {
             if (baixa_saida == null) {
-                baixa_saida = novaBaixa();
+                baixa_saida = novaBaixa(DataHoje.dataHoje());
                 if (!dao.save(baixa_saida)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
                     dao.rollback();
@@ -332,7 +334,7 @@ public class DepositoBancarioBean implements Serializable {
         Movimento movimento_entrada = null;
         for (int i = 0; i < listaSelecionado.size(); i++) {
             if (baixa_entrada == null) {
-                baixa_entrada = novaBaixa();
+                baixa_entrada = novaBaixa(DataHoje.dataHoje());
                 if (!dao.save(baixa_entrada)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
                     dao.rollback();
@@ -448,11 +450,11 @@ public class DepositoBancarioBean implements Serializable {
         );
     }
 
-    public Baixa novaBaixa() {
+    public Baixa novaBaixa(Date data_baixa) {
         return new Baixa(
                 -1,
                 (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"),
-                DataHoje.dataHoje(),
+                data_baixa,
                 null,
                 0,
                 "",
@@ -657,6 +659,22 @@ public class DepositoBancarioBean implements Serializable {
         public void setBaixa(Baixa baixa) {
             this.baixa = baixa;
         }
+    }
+
+    public Date getDataDeposito() {
+        return dataDeposito;
+    }
+
+    public void setDataDeposito(Date dataDeposito) {
+        this.dataDeposito = dataDeposito;
+    }
+
+    public String getDataDepositoString() {
+        return DataHoje.converteData(dataDeposito);
+    }
+
+    public void setDataDepositoString(String dataDepositoString) {
+        this.dataDeposito = DataHoje.converte(dataDepositoString);
     }
 
 }

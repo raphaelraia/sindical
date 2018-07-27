@@ -681,7 +681,7 @@ public class Santander extends Cobranca {
 
         try {
             //File flCert = new File("C:/PC201707105759.pfx");
-            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC20180719036361.pfx"));
+            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
             if (!flCert.exists()){
                 return new RespostaWebService(null, "Certificado não encontrado!");
             }

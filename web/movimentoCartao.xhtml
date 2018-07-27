@@ -217,10 +217,18 @@
                                     </h:column>
                                 </h:panelGrid>
                             </h:panelGrid>
-
+                            
+                            <p:messages showDetail="true" closable="true" />  
+                            
                             <p:dialog widgetVar="dlg_transferir_cartoes" modal="true" header="Transferir Cartões" width="400" resizable="false">
                                 <h:panelGrid id="panel_transferir_cartoes">
                                     <p:outputLabel value="Deseja realmente transferir os cartões selecionados?" style="font-weight: bold; font-size: 12pt!important" />
+                                    <br />
+                                    
+                                    <h:outputLabel value="Data de Crédito" style="color: red"/>
+                                    <p:inputMask value="#{movimentoCartaoBean.dataTransferenciaString}" style="margin-right: 15px; text-align: center; width: 100px" mask="99/99/9999">
+                                        <p:ajax event="change" update="@this" global="false"/>
+                                    </p:inputMask>
                                 </h:panelGrid>
 
                                 <br />

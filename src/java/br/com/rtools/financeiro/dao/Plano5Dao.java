@@ -35,15 +35,21 @@ public class Plano5Dao extends DB {
         return result;
     }
 
-    public List pesquisaCaixaBanco() {
-        List result = null;
+    public List<Plano5> pesquisaCaixaBanco() {
         try {
-            Query qry = getEntityManager().createQuery("SELECT P5 FROM Plano5 P5 WHERE P5.plano4.id IN (SELECT CR.plano4.id FROM ContaRotina CR WHERE CR.rotina.id = 2 ) AND P5.contaBanco IS NOT NULL ORDER BY P5.plano4.id, P5.conta");
-            result = qry.getResultList();
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT pl5.* \n "
+                    + "  FROM fin_plano5 pl5 \n "
+                    + " WHERE pl5.id_plano4 IN ( \n "
+                    + "	   SELECT cr.id_plano4 FROM fin_conta_rotina cr WHERE cr.id_rotina = 2) \n "
+                    + "   AND pl5.id_conta_banco IS NOT NULL \n "
+                    + " ORDER BY pl5.nr_ordem, pl5.id_plano4, pl5.ds_conta", Plano5.class
+            );
+            return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();
         }
-        return result;
+        return new ArrayList();
     }
 
     public List<String> pesquisaPlano5(String des_plano4, String des_plano5) {
@@ -176,11 +182,11 @@ public class Plano5Dao extends DB {
                     = "SELECT p5.* \n "
                     + "  FROM fin_plano5 p5 \n "
                     + " WHERE p5.id IN (SELECT id_plano5 FROM fin_conta_tipo_plano5 WHERE id_conta_tipo = " + tipo_id + ")";
-            
+
             if (plano5_id != -1) {
                 queryString += " AND p5.id = " + plano5_id;
             }
-            
+
             Query query = getEntityManager().createNativeQuery(queryString, Plano5.class);
             return query.getResultList();
         } catch (Exception e) {

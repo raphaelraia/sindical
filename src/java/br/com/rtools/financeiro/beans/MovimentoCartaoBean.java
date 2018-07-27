@@ -49,6 +49,7 @@ public class MovimentoCartaoBean implements Serializable {
     private Double valorTotalLiquidoSelecionado = new Double(0);
 
     private Cartao cartaoSelecionado = new Cartao();
+    private Date dataTransferencia = DataHoje.dataHoje();
 
     public MovimentoCartaoBean() {
         loadListaCartaoCombo();
@@ -158,6 +159,11 @@ public class MovimentoCartaoBean implements Serializable {
             return;
         }
 
+        if (dataTransferencia == null) {
+            GenericaMensagem.fatal("Atenção", "Digite uma data para o crédito!");
+            return;
+        }
+
         Dao dao = new Dao();
         dao.openTransaction();
 
@@ -184,7 +190,7 @@ public class MovimentoCartaoBean implements Serializable {
             return;
         }
 
-        Baixa baixa_entrada = novaBaixa();
+        Baixa baixa_entrada = novaBaixa(dataTransferencia);
 
         if (!dao.save(baixa_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Baixa");
@@ -399,11 +405,11 @@ public class MovimentoCartaoBean implements Serializable {
         );
     }
 
-    public Baixa novaBaixa() {
+    public Baixa novaBaixa(Date data_transferencia) {
         return new Baixa(
                 -1,
                 Usuario.getUsuario(),
-                DataHoje.dataHoje(),
+                data_transferencia,
                 null,
                 0,
                 "",
@@ -742,6 +748,22 @@ public class MovimentoCartaoBean implements Serializable {
 
     public void setCartaoSelecionado(Cartao cartaoSelecionado) {
         this.cartaoSelecionado = cartaoSelecionado;
+    }
+
+    public Date getDataTransferencia() {
+        return dataTransferencia;
+    }
+
+    public void setDataTransferencia(Date dataTransferencia) {
+        this.dataTransferencia = dataTransferencia;
+    }
+
+    public String getDataTransferenciaString() {
+        return DataHoje.converteData(dataTransferencia);
+    }
+
+    public void setDataTransferenciaString(String dataTransferenciaString) {
+        this.dataTransferencia = DataHoje.converte(dataTransferenciaString);
     }
 
 }

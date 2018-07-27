@@ -67,6 +67,7 @@ public class ContaCobrancaBean {
         contaCobranca.setLayout(la);
         contaCobranca.setCobrancaRegistrada((CobrancaRegistrada) dao.find(new CobrancaRegistrada(), Integer.valueOf(listaCobrancaRegistrada.get(indexListaCobrancaRegistrada).getDescription())));
 
+        
         if (tipoDeCobranca.equals("arrecadacao")) {
             contaCobranca.setArrecadacao(true);
             contaCobranca.setAssociativo(false);
@@ -77,6 +78,13 @@ public class ContaCobrancaBean {
 
         if (contaCobranca.getContaBanco().getBanco().getBanco().isEmpty()) {
             msgConfirma = "Atenção, é preciso pesquisar um Banco!";
+            GenericaMensagem.warn("Erro", msgConfirma);
+            return null;
+        }
+        
+        // CASO FOR BANCO DO BRASIL E WEBSERVICE O CAMPO nr_comercio_eletronico É OBRIGATÓRIO
+        if (contaCobranca.getContaBanco().getBanco().getNumero().equals("001") && contaCobranca.getNrComercioEletronico() == null){
+            msgConfirma = "Atenção, o campo Comércio Eletrônico é obrigatório!";
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
