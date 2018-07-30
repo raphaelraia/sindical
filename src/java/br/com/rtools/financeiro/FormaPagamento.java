@@ -1,6 +1,8 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
@@ -63,6 +65,9 @@ public class FormaPagamento implements java.io.Serializable {
     @Column(name = "ds_documento")
     private String documento;
 
+    @Transient
+    private Pessoa responsavel;
+    
     public FormaPagamento() {
         this.id = -1;
         this.baixa = new Baixa();
@@ -295,5 +300,16 @@ public class FormaPagamento implements java.io.Serializable {
 
     public void setDocumento(String documento) {
         this.documento = documento;
+    }
+
+    public Pessoa getResponsavel() {
+        if (this.id != -1){
+            responsavel = new FinanceiroDao().responsavelFormaPagamento(this.id);
+        }
+        return responsavel;
+    }
+
+    public void setResponsavel(Pessoa responsavel) {
+        this.responsavel = responsavel;
     }
 }

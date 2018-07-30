@@ -118,37 +118,40 @@ public class SocioCarteirinhaDao extends DB {
             ignoreData = true;
         }
 
-        Registro registro = (Registro) new Dao().find(new Registro(), 1);
-        try {
-            String queryString
-                    = " -- SocioCarteirinhaDao->pesquisaCarteirinha() \n\n "
-                    + "     SELECT " + getCartaoAlias()
-                    + "        FROM pessoa_vw               AS P                                                    \n"
-                    + "  INNER JOIN soc_carteirinha         AS SC ON SC.id_pessoa = P.codigo                        \n"
-                    + "  INNER JOIN soc_modelo_carteirinha  AS MC ON MC.id       = SC.id_modelo_carteirinha         \n"
-                    + "  INNER JOIN conf_social             AS CS ON CS.id = 1                                      \n";
-            if (filial_id != null) {
-                queryString += " LEFT JOIN matr_socios AS MS ON MS.id_titular = P.codigo                            \n";
-            }
-            queryString += ""
-                    + "   LEFT JOIN soc_categoria           AS C  ON C.id = P.id_categoria AND P.id_categoria > 0   \n"
-                    + "   LEFT JOIN fin_movimento           AS M  ON M.id_beneficiario = SC.id_pessoa AND M.id_servicos IN (SELECT id_servico_cartao FROM seg_registro) AND m.dt_vencimento >='06/04/2015' \n"
-                    + "   LEFT JOIN soc_historico_carteirinha SH  ON SH.id_carteirinha =  SC.id AND SH.id_movimento = M.id  \n";
+        String queryString
+                = "SELECT P.id                                                                          \n "
+                + "  FROM pes_pessoa AS P                                                               \n "
+                + " INNER JOIN pes_fisica AS F ON F.id_pessoa = P.id                                    \n "
+                + " INNER JOIN soc_carteirinha AS SC ON SC.id_pessoa = P.id                             \n "
+                + " INNER JOIN soc_modelo_carteirinha AS MC ON MC.id = SC.id_modelo_carteirinha         \n "
+                + " INNER JOIN conf_social AS CS ON CS.id = 1                                           \n "
+                + "  LEFT JOIN fin_servico_pessoa AS SP on SP.id_pessoa = P.id                          \n "
+                + "  LEFT JOIN soc_socios AS SO on SO.id_servico_pessoa = SP.id                         \n "
+                + "  LEFT JOIN matr_socios AS MT ON MT.id = SO.id_matricula_socios                      \n "
+                + "  LEFT JOIN pes_pessoa AS TI ON TI.id = MT.id_titular                                \n ";
 
+        queryString
+                += "  LEFT JOIN soc_categoria AS C ON C.id = mt.id_categoria AND mt.id_categoria > 0    \n"
+                + "  LEFT JOIN fin_movimento AS M ON M.id_beneficiario = SC.id_pessoa AND M.id_servicos IN (SELECT id_servico_cartao FROM seg_registro) AND m.dt_vencimento >='06/04/2015' \n"
+                + "  LEFT JOIN soc_historico_carteirinha SH ON SH.id_carteirinha = SC.id AND SH.id_movimento = M.id \n";
+
+        Registro registro = (Registro) new Dao().find(new Registro(), 1);
+
+        try {
             // NÃO IMPRESSOS
             List listWhere = new ArrayList();
 
             if (status.equals("pendentes")) {
 
                 String subquery = ""
-                        + " (                                                                                                                                                                                       \n"
-                        + "    (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = false AND SC.dt_emissao IS NULL)                                                                                     \n"
-                        + "    OR (C.is_cobranca_carteirinha = false AND SC.dt_emissao IS NULL)                                                                                                                     \n"
-                        + "    OR (C.is_cobranca_carteirinha = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true)                                                                \n"
-                        + "    OR (C.is_cobranca_carteirinha = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL))                                   \n"
-                        + "    OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true)                             \n"
-                        + "    OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL))\n"
-                        + ") ";
+                        + " (                                                                                              \n "
+                        + "     (MT.id IS NULL AND CS.is_cobranca_carteirinha_nao_socio = false AND SC.dt_emissao IS NULL) \n "
+                        + "     OR (C.is_cobranca_carteirinha = false AND SC.dt_emissao IS NULL)                           \n "
+                        + "     OR (C.is_cobranca_carteirinha = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true) \n "
+                        + "     OR (C.is_cobranca_carteirinha = true AND P.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL)) \n "
+                        + "     OR (MT.id is null AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true) \n "
+                        + "     OR (MT.id is null AND CS.is_cobranca_carteirinha_nao_socio = true AND P.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL)) \n "
+                        + ") \n ";
 
                 listWhere.add(subquery);
 
@@ -236,42 +239,43 @@ public class SocioCarteirinhaDao extends DB {
             // (filtro = 'NENHUM' )
             if (filter.isEmpty() && type_date.isEmpty() && status.equals("pendentes")) {
                 listWhere.add(
-                        " ( "
-                        + " (C.is_cobranca_carteirinha = false AND SC.dt_criacao >= current_date - 30) \n"
-                        + " OR (C.is_cobranca_carteirinha = true AND P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL AND dt_emissao >= current_date-30))             \n"
-                        + " OR (P.matricula IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30)  \n"
-                        + " OR (P.matricula IS NULL AND P.nome IS NOT NULL AND P.nome <> '' AND CS.is_cobranca_carteirinha_nao_socio = false)                                               \n"
-                        + " OR (C.is_cobranca_carteirinha = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30)    \n"
-                        + ") "
+                        " ( \n "
+                        + " (C.is_cobranca_carteirinha = false AND SC.dt_criacao >= current_date - 30) \n "
+                        + " OR (C.is_cobranca_carteirinha = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30) \n "
+                        + " OR (C.is_cobranca_carteirinha = true AND P.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL AND dt_emissao >= current_date-30)) \n "
+                        + " OR (MT.id IS NULL AND CS.is_cobranca_carteirinha_nao_socio = true AND M.id_servicos IS NOT NULL AND SH.id_movimento IS NULL AND M.is_ativo = true AND M.dt_vencimento >= current_date-30) \n "
+                        + " OR (MT.id IS NULL AND P.ds_nome IS NOT NULL AND P.ds_nome <> '' AND CS.is_cobranca_carteirinha_nao_socio = false) \n"
+                        + ") \n "
                 );
             }
+
             switch (filter) {
                 case "nome":
-                    listWhere.add("TRIM(UPPER(func_translate(P.nome))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))");
+                    listWhere.add("TRIM(UPPER(func_translate(P.ds_nome))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))");
                     break;
                 case "nome_titular":
-                    listWhere.add("TRIM(UPPER(func_translate(P.titular))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))");
+                    listWhere.add("TRIM(UPPER(func_translate(TI.ds_nome))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))");
                     break;
                 case "matricula":
-                    listWhere.add("P.matricula = " + query + "");
+                    listWhere.add("MT.nr_matricula = " + query + "");
                     break;
                 case "codigo":
-                    listWhere.add("P.codigo = " + query + "");
+                    listWhere.add("P.id = " + query + "");
                     break;
                 case "in_pessoas":
-                    listWhere.add("P.codigo IN ( " + inPessoasImprimir + " )");
+                    listWhere.add("P.id IN ( " + inPessoasImprimir + " )");
                     break;
                 case "cpf":
-                    listWhere.add("P.cpf LIKE '%" + query + "%'");
+                    listWhere.add("P.ds_documento LIKE '%" + query + "%'");
                     break;
                 case "cpf_titular":
-                    listWhere.add("P.titular_cpf LIKE '%" + query + "%'");
+                    listWhere.add("TI.ds_documento LIKE '%" + query + "%'");
                     break;
                 case "empresa":
-                    listWhere.add("TRIM(UPPER(func_translate(P.empresa))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))");
+                    // listWhere.add("TRIM(UPPER(func_translate(P.empresa))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))"); *
                     break;
                 case "cnpj":
-                    listWhere.add("P.cnpj LIKE '%" + query + "%'");
+                    //listWhere.add("P.cnpj LIKE '%" + query + "%'");
                     break;
                 case "nascimento":
                     listWhere.add("P.dt_nascimento = '" + query + "'");
@@ -284,11 +288,8 @@ public class SocioCarteirinhaDao extends DB {
             // SE NÃO FOR SÓCIO (ACADEMIA)
             listWhere.add("SC.is_ativo = true");
             // QUE POSSUEM FOTOS
-            listWhere.add("(   P.foto <> '' "
-                    + "     OR ( P.codigo IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL) "
-                    + "           OR  MC.is_foto = false "
-                    + "     ) "
-                    + ")"
+            listWhere.add(
+                    " ( F.ds_foto <> '' OR ( P.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL) OR MC.is_foto = false ) ) \n"
             );
 
             if (filial_id != null) {
@@ -306,30 +307,66 @@ public class SocioCarteirinhaDao extends DB {
                 }
             }
             // GROUP DA QUERY
-            queryString += " GROUP BY " + getCartaoGroup();
+            queryString += " GROUP BY P.id ";
 
+            Query qry = getEntityManager().createNativeQuery(queryString);
+            List<Object> result = qry.getResultList();
+            String in = "";
+            if (!result.isEmpty()) {
+                for (Object line : result) {
+                    if (in.isEmpty()) {
+                        in = ((Integer) ((List) line).get(0)).toString();
+                    } else {
+                        in += ", " + ((Integer) ((List) line).get(0)).toString();
+                    }
+                }
+            } else {
+                return new ArrayList();
+            }
+
+            String queryString2
+                    = "SELECT " + getCartaoAlias() + " FROM pessoa_vw P \n ";
+
+            queryString2
+                    += " INNER JOIN soc_carteirinha         AS SC ON SC.id_pessoa = P.codigo                       \n"
+                    + " INNER JOIN soc_modelo_carteirinha  AS MC ON MC.id      = SC.id_modelo_carteirinha         \n"
+                    + " INNER JOIN conf_social             AS CS ON CS.id = 1                                     \n"
+                    + " LEFT JOIN soc_categoria            AS C ON C.id = P.id_categoria AND P.id_categoria > 0   \n"
+                    + " LEFT JOIN fin_movimento            AS M ON M.id_beneficiario = SC.id_pessoa AND M.id_servicos IN (SELECT id_servico_cartao FROM seg_registro) AND m.dt_vencimento >='06/04/2015' \n"
+                    + " LEFT JOIN soc_historico_carteirinha SH ON SH.id_carteirinha = SC.id AND SH.id_movimento = M.id ";
+
+            queryString2
+                    += " WHERE p.codigo > 0 and p.codigo in \n "
+                    + "( " 
+                    + in 
+                    + " ) \n";
+            
+            queryString2
+                    += "GROUP BY " + getCartaoGroup();
+            
             // ORDEM DA QUERY
             switch (indexOrdem) {
                 case "0":
-                    queryString += " ORDER BY P.nome ";
+                    queryString2 += " ORDER BY P.nome ";
                     break;
                 case "1":
-                    queryString += " ORDER BY P.empresa, P.cnpj, P.nome ";
+                    queryString2 += " ORDER BY P.empresa, P.cnpj, P.nome ";
                     break;
                 case "2":
-                    queryString += " ORDER BY P.cnpj, P.nome ";
+                    queryString2 += " ORDER BY P.cnpj, P.nome ";
                     break;
                 case "3":
-                    queryString += " ORDER BY SC.dt_emissao DESC, P.nome ";
+                    queryString2 += " ORDER BY SC.dt_emissao DESC, P.nome ";
                     break;
                 case "4":
-                    queryString += " ORDER BY SC.dt_emissao DESC, P.empresa, P.cnpj, P.nome ";
+                    queryString2 += " ORDER BY SC.dt_emissao DESC, P.empresa, P.cnpj, P.nome ";
                     break;
                 default:
                     break;
             }
-            Debugs.put("habilitaDebugQuery", queryString);
-            Query qry = getEntityManager().createNativeQuery(queryString);
+            
+            Debugs.put("habilitaDebugQuery", queryString2);
+            qry = getEntityManager().createNativeQuery(queryString2);
 
             return qry.getResultList();
         } catch (NumberFormatException e) {

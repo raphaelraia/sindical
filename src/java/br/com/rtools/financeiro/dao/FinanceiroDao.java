@@ -21,6 +21,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TransferenciaCaixa;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -776,7 +777,7 @@ public class FinanceiroDao extends DB {
             default:
                 break;
         }
-        
+
         // TIPO DE ENVIO
         switch (tipoEnvio) {
             // COM EMAIL
@@ -1676,9 +1677,9 @@ public class FinanceiroDao extends DB {
             default:
                 break;
         }
-        
+
         list_where.add("id_filial <> 1 OR id_departamento <> 2 OR id_filial IS NULL OR id_departamento IS NULL");
-        
+
         String WHERE = "";
 
         for (String w : list_where) {
@@ -1992,8 +1993,26 @@ public class FinanceiroDao extends DB {
 
             List vetor = qry.getResultList();
 
-            return (Integer)((List) vetor.get(0)).get(0);
+            return (Integer) ((List) vetor.get(0)).get(0);
         } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public Pessoa responsavelFormaPagamento(Integer id_forma_pagamento) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT p.* \n"
+                    + "  FROM fin_forma_pagamento fp \n"
+                    + " INNER JOIN fin_baixa b ON b.id = fp.id_baixa \n"
+                    + " INNER JOIN fin_movimento m ON m.id_baixa = b.id \n"
+                    + " INNER JOIN pes_pessoa p ON p.id = m.id_pessoa \n"
+                    + " WHERE fp.id = " + id_forma_pagamento
+                    + " LIMIT 1", Pessoa.class
+            );
+
+            return (Pessoa) qry.getSingleResult();
+        } catch (Exception e) {
             return null;
         }
     }

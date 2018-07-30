@@ -99,7 +99,7 @@
                             <p:panel header="Cupons emitidos" id="id_grid_cupons" styleClass="margin-top-max">
                                 <p:dataTable value="#{cupomMovimentoBean.listCupomMovimento}" var="cupomMovimento" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
                                     <p:column styleClass="text-center" width="30">
-                                        <p:commandButton icon="ui-icon-close" action="#{cupomMovimentoBean.delete(cupomMovimento)}" update="id_grid_cupons_this" disabled="#{controleAcessoBean.botaoSalvar}" />
+                                        <p:commandButton icon="ui-icon-close" action="#{cupomMovimentoBean.delete(cupomMovimento)}" update="id_grid_cupons_this" disabled="#{controleAcessoBean.botaoExcluir}" />
                                     </p:column>
                                     <p:column headerText="Emissão" styleClass="text-center" width="100" filterBy="#{cupomMovimento.emissao}" filterMatchMode="global">
                                         #{cupomMovimento.emissao}

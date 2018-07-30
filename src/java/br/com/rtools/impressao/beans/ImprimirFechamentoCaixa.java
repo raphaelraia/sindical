@@ -9,13 +9,13 @@ import br.com.rtools.financeiro.beans.ConfiguracaoFinanceiroBean;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroEstornoCaixa;
 import br.com.rtools.impressao.ParametroFechamentoCaixa;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.annotation.PostConstruct;
@@ -282,6 +282,69 @@ public class ImprimirFechamentoCaixa {
             jasper.add(j_estorno_caixa, li);
         }
 
+        if (!lista_fp_saida.isEmpty()) {
+            JasperReport j_fechamento_caixa_s = Jasper.load("FECHAMENTO_CAIXA_SAIDA.jasper");
+            List<ParamFechamentoCaixaSaida> li = new ArrayList();
+
+            for (FormaPagamento fps : lista_fp_saida) {
+                Pessoa p = fps.getResponsavel();
+                li.add(
+                        new ParamFechamentoCaixaSaida(p.getDocumento(), p.getNome(), fps.getDocumento(), fps.getValor())
+                );
+
+            }
+
+            jasper.add(j_fechamento_caixa_s, li);
+        }
+
         jasper.finish("Fechamento Caixa");
+    }
+
+    public class ParamFechamentoCaixaSaida {
+
+        private Object documento;
+        private Object nome;
+        private Object numero;
+        private Object valor;
+
+        public ParamFechamentoCaixaSaida(Object documento, Object nome, Object numero, Object valor) {
+            this.documento = documento;
+            this.nome = nome;
+            this.numero = numero;
+            this.valor = valor;
+        }
+
+        public Object getDocumento() {
+            return documento;
+        }
+
+        public void setDocumento(Object documento) {
+            this.documento = documento;
+        }
+
+        public Object getNome() {
+            return nome;
+        }
+
+        public void setNome(Object nome) {
+            this.nome = nome;
+        }
+
+        public Object getNumero() {
+            return numero;
+        }
+
+        public void setNumero(Object numero) {
+            this.numero = numero;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
     }
 }

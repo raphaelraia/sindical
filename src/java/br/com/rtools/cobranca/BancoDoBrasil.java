@@ -949,7 +949,7 @@ public class BancoDoBrasil extends Cobranca {
         try {
             //String convenio = boleto.getBoletoComposto().substring(0, 6);
             // idConv É DIFERENTE DO CONVÊNIO QUE ESTA NO INICIO DO NOSSO NUMERO
-            String convenio = "318045";
+            String convenio = Integer.toString(boleto.getContaCobranca().getNrComercioEletronico());
             Pessoa pessoa = boleto.getPessoa();
 
             // ACESSA O LINK
