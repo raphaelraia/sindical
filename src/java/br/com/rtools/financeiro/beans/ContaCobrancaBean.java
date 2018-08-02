@@ -67,7 +67,6 @@ public class ContaCobrancaBean {
         contaCobranca.setLayout(la);
         contaCobranca.setCobrancaRegistrada((CobrancaRegistrada) dao.find(new CobrancaRegistrada(), Integer.valueOf(listaCobrancaRegistrada.get(indexListaCobrancaRegistrada).getDescription())));
 
-        
         if (tipoDeCobranca.equals("arrecadacao")) {
             contaCobranca.setArrecadacao(true);
             contaCobranca.setAssociativo(false);
@@ -81,9 +80,9 @@ public class ContaCobrancaBean {
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
-        
+
         // CASO FOR BANCO DO BRASIL E WEBSERVICE O CAMPO nr_comercio_eletronico É OBRIGATÓRIO
-        if (contaCobranca.getContaBanco().getBanco().getNumero().equals("001") && contaCobranca.getNrComercioEletronico() == null){
+        if (contaCobranca.getContaBanco().getBanco().getNumero().equals("001") && contaCobranca.getCobrancaRegistrada().getId() == 2 && contaCobranca.getNrComercioEletronico() == null) {
             msgConfirma = "Atenção, o campo Comércio Eletrônico é obrigatório!";
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
@@ -291,9 +290,9 @@ public class ContaCobrancaBean {
 
         setSicas(contaCobranca.getSicasSindical());
         setCodigoCedente(contaCobranca.getCodigoSindical());
-        
+
         tipoDeCobranca = contaCobranca.isArrecadacao() ? "arrecadacao" : "associativo";
-        
+
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("contaCobrancaPesquisa", contaCobranca);
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno") == null) {

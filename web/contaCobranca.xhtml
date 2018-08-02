@@ -147,9 +147,9 @@
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.estacao}" style="width: 80px; text-align: center"/>
                                     </p:column>
                                     
-                                    <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '001' and contaCobrancaBean.indexListaCobrancaRegistrada eq 2}">
+                                    <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '001'}">
                                         <p:outputLabel value="Nr. Comércio Eletrônico" title="Em caso de Cobrança Registrada"/><br />
-                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.estacao}" style="width: 120px; text-align: center" title="Em caso de Cobrança Registrada"/>
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.nrComercioEletronico}" style="width: 120px; text-align: center" title="Em caso de Cobrança Registrada"/>
                                     </p:column>
                                 </h:panelGrid>
 

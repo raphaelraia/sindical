@@ -297,7 +297,7 @@ public class SocioCarteirinhaDao extends DB {
             }
             // QUE POSSUEM FOTOS
             if (!registro.isCarteirinhaDependente()) {
-                listWhere.add("P.id_parentesco = 1");
+                listWhere.add("SO.id_parentesco = 1");
             }
             for (int i = 0; i < listWhere.size(); i++) {
                 if (i == 0) {

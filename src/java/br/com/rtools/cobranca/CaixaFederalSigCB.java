@@ -22,6 +22,7 @@ import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,15 +30,30 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.URL;
+import java.security.KeyStore;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -718,6 +734,27 @@ public class CaixaFederalSigCB extends Cobranca {
         }
 
         try {
+            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
+            if (!flCert.exists()) {
+                return new RespostaWebService(null, "Certificado não encontrado!");
+            }
+            KeyStore clientStore = KeyStore.getInstance("PKCS12");
+            clientStore.load(new FileInputStream(flCert.getAbsolutePath()), "sisrtools989899".toCharArray());
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(clientStore, "sisrtools989899".toCharArray());
+            KeyManager[] kms = kmf.getKeyManagers();
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(clientStore);
+            TrustManager[] tms = tmf.getTrustManagers();
+
+            SSLContext sslContext = null;
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(kms, null, new SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
             // Definir a URL Do Serviço sem a ?WSDL no fim
             URL url = new URL("https://barramento.caixa.gov.br/sibar/ManutencaoCobrancaBancaria/Boleto/Externo?wsdl");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -758,7 +795,7 @@ public class CaixaFederalSigCB extends Cobranca {
             String NUMERO_DOCUMENTO = "" + boleto.getId();
             String VENCIMENTO = DataHoje.ano(DataHoje.converteData(vencimento)) + "-" + DataHoje.mes(DataHoje.converteData(vencimento)) + "-" + DataHoje.dia(DataHoje.converteData(vencimento));
             String VALOR = Moeda.converteDoubleToString(valor);
-            
+
             String JUROS;
             if (boleto.getContaCobranca().getJurosMensal() <= 0) {
                 JUROS
@@ -805,7 +842,7 @@ public class CaixaFederalSigCB extends Cobranca {
             ENDERECO = (ENDERECO + "                                        ").substring(0, 40).trim();
             BAIRRO = (BAIRRO + "                                        ").substring(0, 30).trim();
             CIDADE = (CIDADE + "                                        ").substring(0, 20).trim();
-            
+
             String xmlTicket = TICKET_ENTRADA(AUTENTICACAO, DATA_HORA, CODIGO_BENEFICIARIO, NOSSO_NUMERO, NUMERO_DOCUMENTO, VENCIMENTO, VALOR, JUROS, DOCUMENTO_E_NOME, ENDERECO, BAIRRO, CIDADE, UF, CEP);
 
 //            String xml = TICKET_ENTRADA(
@@ -926,11 +963,10 @@ public class CaixaFederalSigCB extends Cobranca {
 //                    return new RespostaWebService(null, resultMessage);
 //                }
 //            }
-
             return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
 
         } catch (Exception e) {
-            e.getMessage();
+            System.out.print(e.getMessage());
         }
 
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
