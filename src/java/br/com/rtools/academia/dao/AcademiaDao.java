@@ -48,23 +48,22 @@ public class AcademiaDao extends DB {
         return null;
     }
 
-    public List<AcademiaSemana> existeAcademiaSemana(int id_grade, int id_semana, int id_servico, int id_periodo) {
+    public List<AcademiaSemana> existeAcademiaSemana(int id_grade, String id_semana, int id_servico, int id_periodo) {
         try {
-            //Query query = getEntityManager().createQuery("SELECT s FROM AcademiaSemana s WHERE s.academiaGrade.id = :id_grade AND s.semana = :id_semana AND s.academiaServicoValor.id = :id_servico_valor");
-            Query query = getEntityManager().createQuery("SELECT s FROM AcademiaSemana s WHERE s.academiaGrade.id = :id_grade AND s.semana.id = :id_semana AND s.academiaServicoValor.periodo.id = :id_periodo AND s.academiaServicoValor.servicos.id = :id_servico");
-            query.setParameter("id_grade", id_grade);
-            query.setParameter("id_semana", id_semana);
-            query.setParameter("id_servico", id_servico);
-            query.setParameter("id_periodo", id_periodo);
+            Query query = getEntityManager().createNativeQuery(
+                    "SELECT s.* \n "
+                    + "  FROM aca_semana s \n"
+                    + " INNER JOIN aca_servico_valor sv ON sv.id = s.id_servico_valor \n"
+                    + " WHERE s.id_grade = " + id_grade + " \n"
+                    + "   AND sv.ds_dias = '" + id_semana + "' \n"
+                    + "   AND sv.id_periodo = " + id_periodo + " \n"
+                    + "   AND sv.id_servico = " + id_servico, AcademiaSemana.class
+            );
 
-            List list = query.getResultList();
-            if (!list.isEmpty()) {
-                return query.getResultList();
-            }
+            return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
         }
-        return new ArrayList();
     }
 
     public List<AcademiaServicoValor> listaAcademiaServicoValor(int idServico) {

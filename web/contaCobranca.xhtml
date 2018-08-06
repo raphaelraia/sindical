@@ -76,21 +76,21 @@
                                         <h:outputLabel value="Aceite" for="idAceite"/><br />
                                         <p:inputText id="idAceite" value="#{contaCobrancaBean.contaCobranca.aceite}" size="5" maxlength="5" title="Aceite" />
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="N° Dias Baixa" for="idNrDBR"/><br />
                                         <p:inputText id="idNrDBR" value="#{contaCobrancaBean.contaCobranca.registrosDiasVencidos}" maxlength="5" title="N° de Dias para Baixa do Registro" converter="#{thisNumber}" style="width: 90px">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="% Multa"/><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.multa}" size="6" maxlength="5" title="Multa">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="% Juros Mensal"/><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.jurosMensal}" size="10" maxlength="5" title="Juros Mensal">
@@ -121,7 +121,7 @@
                                         <h:outputLabel value="Espécie Moeda"  for="idEspecieMoeda" /><br />
                                         <p:inputText id="idEspecieMoeda" value="#{contaCobrancaBean.contaCobranca.especieMoeda}" size="10" maxlength="2" title="Espécie Moeda" />
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Variação" /><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.variacao}" size="4" maxlength="3" title="Variação [ 000 ]" placeholder="000"/>
@@ -141,15 +141,20 @@
                                         <br />
                                         <p:selectBooleanCheckbox id="ichk_ativa" value="#{contaCobrancaBean.contaCobranca.ativo}" itemLabel="Habilitado para baixar"/>
                                     </p:column>
-                                    
+
                                     <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '033'}">
                                         <p:outputLabel value="Estação" title="Estação"/><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.estacao}" style="width: 80px; text-align: center"/>
                                     </p:column>
-                                    
+
                                     <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '001'}">
                                         <p:outputLabel value="Nr. Comércio Eletrônico" title="Em caso de Cobrança Registrada"/><br />
                                         <p:inputText value="#{contaCobrancaBean.contaCobranca.nrComercioEletronico}" style="width: 120px; text-align: center" title="Em caso de Cobrança Registrada"/>
+                                    </p:column>
+
+                                    <p:column rendered="#{contaCobrancaBean.contaCobranca.contaBanco.id ne -1 and contaCobrancaBean.contaCobranca.contaBanco.banco.numero eq '756'}">
+                                        <p:outputLabel value="Chave de Acesso" title="Em caso de Cobrança Registrada ( WebService )"/><br />
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.chaveAcesso}" style="width: 280px; text-align: center" title="Em caso de Cobrança Registrada ( WebService )"/>
                                     </p:column>
                                 </h:panelGrid>
 
@@ -180,7 +185,7 @@
                                             <f:selectItem itemLabel="Baixa Associativa" itemValue="associativo" />
                                         </p:selectOneRadio>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <p:outputLabel value="Tipo de Cobrança" /><br />
                                         <p:selectOneMenu value="#{contaCobrancaBean.indexListaCobrancaRegistrada}" style="width: 100px;">
@@ -188,7 +193,7 @@
                                             <f:selectItems value="#{contaCobrancaBean.listaCobrancaRegistrada}" />
                                         </p:selectOneMenu>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.layoutBarrasNovo}" itemLabel="Layout Barras Novo" style="margin-left: 20px"/>
@@ -197,7 +202,7 @@
                             </p:panel>
 
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
-                            
+
                             <h:panelGrid style="margin-top: 10px; margin-bottom: 10px; clear: both">
                                 <h:outputLabel value="Cobrança Sindical" style="font-size: 13pt!important"/>
                             </h:panelGrid>
@@ -229,7 +234,7 @@
                                         <p:ajax event="keyup" listener="#{contaCobrancaBean.preencheSicasECodSindical}" update="idSicas"  />
                                     </p:inputText>
                                 </p:column>
-                                
+
                                 <p:column>
                                     <h:outputLabel value="Sicas" for="idSicas"/><br />
                                     <p:inputText id="idSicas" value="#{contaCobrancaBean.sicas}" maxlength="5" size="4" title="Sicas Sindical" readonly="true" style="text-align: center; margin-right: 10px" />

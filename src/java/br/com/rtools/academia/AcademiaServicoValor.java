@@ -12,7 +12,8 @@ import javax.persistence.*;
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_servico", "id_periodo"})
 )
 @NamedQueries({
-    @NamedQuery(name = "AcademiaServicoValor.pesquisaID", query = "SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.id = :pid"),
+    @NamedQuery(name = "AcademiaServicoValor.pesquisaID", query = "SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.id = :pid")
+    ,
     @NamedQuery(name = "AcademiaServicoValor.findAll", query = "SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.validade IS NULL OR ASV.validade >= CURRENT_TIMESTAMP ORDER BY ASV.periodo.descricao ASC, ASV.servicos.descricao ASC")
 })
 public class AcademiaServicoValor implements Serializable {
@@ -36,7 +37,9 @@ public class AcademiaServicoValor implements Serializable {
     private Date validade;
     @Column(name = "ds_descricao", length = 200, nullable = false, columnDefinition = "character varying default ''")
     private String descricao;
-    
+    @Column(name = "ds_dias", length = 10, columnDefinition = "character varying default ''")
+    private String dias;
+
     public AcademiaServicoValor() {
         this.id = -1;
         this.servicos = new Servicos();
@@ -45,9 +48,10 @@ public class AcademiaServicoValor implements Serializable {
         this.numeroParcelas = 0;
         this.validade = new Date();
         this.descricao = "";
+        this.dias = "";
     }
 
-    public AcademiaServicoValor(int id, Servicos servicos, Periodo periodo, String formula, int numeroParcelas, Date validade, String descricao) {
+    public AcademiaServicoValor(int id, Servicos servicos, Periodo periodo, String formula, int numeroParcelas, Date validade, String descricao, String dias) {
         this.id = id;
         this.servicos = servicos;
         this.periodo = periodo;
@@ -55,6 +59,7 @@ public class AcademiaServicoValor implements Serializable {
         this.numeroParcelas = numeroParcelas;
         this.validade = validade;
         this.descricao = descricao;
+        this.dias = dias;
     }
 
     public int getId() {
@@ -113,18 +118,20 @@ public class AcademiaServicoValor implements Serializable {
         this.validade = DataHoje.converte(validadeString);
     }
 
-    /**
-     * @return the descricao
-     */
     public String getDescricao() {
         return descricao;
     }
 
-    /**
-     * @param descricao the descricao to set
-     */
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public String getDias() {
+        return dias;
+    }
+
+    public void setDias(String dias) {
+        this.dias = dias;
     }
 
 }

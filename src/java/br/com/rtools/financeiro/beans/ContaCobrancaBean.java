@@ -87,6 +87,13 @@ public class ContaCobrancaBean {
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
+        
+        // CASO FOR SICOOB E WEBSERVICE O CAMPO ds_chave_cliente É OBRIGATÓRIO
+        if (contaCobranca.getContaBanco().getBanco().getNumero().equals("756") && contaCobranca.getCobrancaRegistrada().getId() == 2 && contaCobranca.getChaveAcesso().isEmpty()) {
+            msgConfirma = "Atenção, o campo Comércio Eletrônico é obrigatório!";
+            GenericaMensagem.warn("Erro", msgConfirma);
+            return null;
+        }
 
         if ((contaCobranca.getCodCedente().isEmpty()) || (contaCobranca.getCodCedente().equals("0"))) {
             msgConfirma = "Digite um Código Cedente!";
