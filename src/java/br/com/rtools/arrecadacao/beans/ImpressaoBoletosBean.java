@@ -27,6 +27,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Email;
+import br.com.rtools.sistema.EmailLote;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.beans.SisCartaBean;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -91,6 +92,7 @@ public class ImpressaoBoletosBean implements Serializable {
     private Boolean habilitarComunicado = false;
     private String novoVencto = "";
     private String message = "";
+    private EmailLote emailLote = null;
 
     public ImpressaoBoletosBean() {
         GenericaSessao.remove("juridicaPesquisa");
@@ -278,6 +280,7 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public void loadList() {
+        emailLote = null;
         if (selectedContaCobranca.isEmpty()) {
             GenericaMensagem.warn("Validação", "INFORMAR AO MENOS UMA CONTRIBUIÇÃO!");
             return;
@@ -973,7 +976,8 @@ public class ImpressaoBoletosBean implements Serializable {
             } catch (Exception ex) {
             }
         }
-        Messages.info("Sistema", "Processo concluído");
+        Messages.info("Sistema", "Processo concluído - Lote de emails nº" + emailLote.getId());
+        emailLote = null;
         PF.update("form_impressao_boletos:i_e_i_b_email");
     }
 
@@ -1044,7 +1048,11 @@ public class ImpressaoBoletosBean implements Serializable {
                             false
                     )
             );
-
+            if (emailLote == null) {
+                emailLote = new EmailLote();
+                di.save(emailLote, true);
+            }
+            mail.setEmailLote(emailLote);
             List<EmailPessoa> emailPessoas = new ArrayList();
             EmailPessoa emailPessoa = new EmailPessoa();
             for (Pessoa pe : pessoas) {

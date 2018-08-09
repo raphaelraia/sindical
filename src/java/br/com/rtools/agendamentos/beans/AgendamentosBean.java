@@ -245,6 +245,13 @@ public class AgendamentosBean implements Serializable {
             MovimentoDao db = new MovimentoDao();
             AgendamentosDao ad = new AgendamentosDao();
             Socios s = pessoa.getPessoa().getSocios();
+            // Serviço somente para Sócios
+            if (s.getId() == -1 && servicos.getGuiaSomenteSocio() && servicos.isValorZerado()) {
+                GenericaMensagem.error("Atenção", "Este serviço gratuíto está disponivel somente para sócios!");
+                PF.update("form_agendamentos:i_message_sched");
+                PF.update("form_agendamentos:growl_ag");
+                return;
+            }
             if (servicos.getPeriodo() != null) {
                 DataHoje dh = new DataHoje();
                 // SEM CONTROLE FAMILIAR ---

@@ -12,11 +12,11 @@ import javax.persistence.TemporalType;
 
 public class EmailDao extends DB {
 
-    public List<EmailPessoa> findEmail(int idRotina, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, String orderBy) {
-        return findEmail(idRotina, null, dateStart, dateFinish, filterBy, descricaoPesquisa, orderBy);
+    public List<EmailPessoa> findEmail(int idRotina, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, Boolean error, String emailLote, String orderBy) {
+        return findEmail(idRotina, null, dateStart, dateFinish, filterBy, descricaoPesquisa, error, emailLote, orderBy);
     }
 
-    public List<EmailPessoa> findEmail(Integer rotina_id, Integer usuario_id, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, String orderBy) {
+    public List<EmailPessoa> findEmail(Integer rotina_id, Integer usuario_id, Date dateStart, Date dateFinish, String filterBy, String descricaoPesquisa, Boolean error, String emailLote, String orderBy) {
         List listQuery = new ArrayList();
         boolean isDate = false;
         boolean isDateFinish = false;
@@ -60,6 +60,12 @@ public class EmailDao extends DB {
             String queryString = " SELECT EP FROM EmailPessoa AS EP WHERE EP.email.rascunho = false ";
             if (usuario_id != null) {
                 listQuery.add(" EP.email.usuario.id = " + usuario_id + " ");
+            }
+            if (error != null && error) {
+                listQuery.add(" EP.email.erro <> ''");
+            }
+            if (emailLote != null && !emailLote.isEmpty()) {
+                listQuery.add(" EP.email.emailLote.id IN (" + emailLote + ")");
             }
             if (!listQuery.isEmpty()) {
                 queryString += "  ";

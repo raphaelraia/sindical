@@ -705,7 +705,7 @@ public class VendasCaravanaBean implements Serializable {
         for (Parcelas listaParcela : listaParcelas) {
             soma = Moeda.soma(soma, Moeda.converteUS$(String.valueOf(listaParcela.getValor())));
         }
-        
+
         soma = Moeda.converteDoubleR$Double(soma);
 
         if (soma < Moeda.converteUS$(valorTotal)) {
@@ -2147,6 +2147,31 @@ public class VendasCaravanaBean implements Serializable {
         baixaEmOutroPC = false;
         loadListMovimento();
         loadListParcelas();
+    }
+
+    public boolean isLocked() {
+        if (bloqueioRotina != null) {
+            if (bloqueioRotina.getId() != -1) {
+                // GenericaMensagem.warn("Sistema", "Evento bloqueado para organizar poltronas: " + bloqueioRotina.getUsuario().getPessoa().getNome());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void unlock() {
+        if (bloqueioRotina != null) {
+            if (bloqueioRotina.getId() != -1) {
+                NovoLog novoLog = new NovoLog();
+                Caravana c = new CaravanaDao().findByCaravana(bloqueioRotina.getCodigo());
+                novoLog.delete("Desbloqueio de Caravana: " + c.getEvento().getDescricaoEvento().getDescricao() + " " + c.getTituloComplemento() + " - Data: " + c.getDataEmbarqueIda());
+                boolean s = new Dao().delete(bloqueioRotina, true);
+                if (s) {
+                    bloqueioRotina = null;
+                }
+                GenericaSessao.remove("organizarCaravanaBean");
+            }
+        }
     }
 
     public class Parcelas {

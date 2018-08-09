@@ -650,6 +650,17 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void salvar() {
+
+        if (fisica.getPessoa().getDocumento().isEmpty() || fisica.getPessoa().getDocumento().equals("0")) {
+            GenericaMensagem.warn("Validação", "Informar o CPF!");
+            return;
+        } else {
+            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
+                GenericaMensagem.warn("Atenção", "Documento Inválido!");
+                return;
+            }
+        }
+
         Dao dao = new Dao();
         if (agendamento.getId() != -1) {
             if (agendamento.getDtEmissao() != null && agendamento.getDtRecusa2() == null && agendamento.getDtSolicitacao2() == null) {
@@ -736,6 +747,14 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             GenericaMensagem.warn("Atenção", "Digite o nome do Funcionário!");
             return;
         }
+        if (fisica.getId() != -1) {
+            if (dao.update(fisica.getPessoa(), true)) {
+                dao.update(fisica, true);
+            } else {
+                GenericaMensagem.error("Erro", "Não foi possível salvar pessoa!");
+                return;
+            }
+        }
         if (!getStrContribuinte().isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não é permitido agendar para uma empresa não contribuinte!");
             return;
@@ -791,16 +810,13 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             return;
         }
         dao.openTransaction();
+
         if (fisica.getId() == -1) {
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
-            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
-                GenericaMensagem.warn("Atenção", "Documento Inválido!");
-                return;
-            }
             if (dao.save(fisica.getPessoa())) {
                 dao.save(fisica);
             } else {
-                GenericaMensagem.error("Erro", "Não foi possível salvar pessoa!");
+                GenericaMensagem.error("Atenção", "Erro ao inserir Pessoa, tente novamente!");
                 dao.rollback();
                 return;
             }
@@ -1071,7 +1087,13 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             if (!listFisica.isEmpty()) {
                 for (int i = 0; i < listFisica.size(); i++) {
                     if (listFisica.get(i).getId() != fisica.getId()) {
-                        fisica = listFisica.get(i);
+                        Fisica f = listFisica.get(i);
+                        if (f.getPessoa().getDocumento().equals("0") || f.getPessoa().getDocumento().isEmpty()) {
+                            if (!documento.isEmpty()) {
+                                f.getPessoa().setDocumento(documento);
+                            }
+                        }
+                        fisica = f;
                         break;
                     }
                 }

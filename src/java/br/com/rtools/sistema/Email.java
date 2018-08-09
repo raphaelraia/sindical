@@ -37,6 +37,12 @@ public class Email implements Serializable {
     private boolean confirmaRecebimento;
     @Column(name = "is_rascunho", columnDefinition = "boolean default false")
     private boolean rascunho;
+    @Lob
+    @Column(name = "ds_erro", nullable = true)
+    private String erro;
+    @JoinColumn(name = "id_email_lote", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private EmailLote emailLote;
 
     public Email() {
         this.id = null;
@@ -49,6 +55,8 @@ public class Email implements Serializable {
         this.mensagem = "";
         this.confirmaRecebimento = false;
         this.rascunho = false;
+        this.erro = "";
+        this.emailLote = null;
     }
 
     public Email(Integer id, Date data, String hora, Usuario usuario, Rotina rotina, EmailPrioridade emailPrioridade, String assunto, String mensagem, boolean confirmaRecebimento, boolean rascunho) {
@@ -62,6 +70,22 @@ public class Email implements Serializable {
         this.mensagem = mensagem;
         this.confirmaRecebimento = confirmaRecebimento;
         this.rascunho = rascunho;
+        this.erro = "";
+    }
+
+    public Email(Integer id, Date data, String hora, Usuario usuario, Rotina rotina, EmailPrioridade emailPrioridade, String assunto, String mensagem, boolean confirmaRecebimento, boolean rascunho, String erro, EmailLote emailLote) {
+        this.id = id;
+        this.data = data;
+        this.hora = hora;
+        this.usuario = usuario;
+        this.rotina = rotina;
+        this.emailPrioridade = emailPrioridade;
+        this.assunto = assunto;
+        this.mensagem = mensagem;
+        this.confirmaRecebimento = confirmaRecebimento;
+        this.rascunho = rascunho;
+        this.erro = erro;
+        this.emailLote = emailLote;
     }
 
     public Integer getId() {
@@ -150,6 +174,22 @@ public class Email implements Serializable {
 
     public void setEmailPrioridade(EmailPrioridade emailPrioridade) {
         this.emailPrioridade = emailPrioridade;
+    }
+
+    public String getErro() {
+        return erro;
+    }
+
+    public void setErro(String erro) {
+        this.erro = erro;
+    }
+
+    public EmailLote getEmailLote() {
+        return emailLote;
+    }
+
+    public void setEmailLote(EmailLote emailLote) {
+        this.emailLote = emailLote;
     }
 
 }

@@ -61,6 +61,18 @@ public class SisEtiquetasDao extends DB {
      * 0 codigo; 1 nome; 2 documento; 3 tipo_endereco; 4 logradouro; 5 endereco;
      * 6 numero; 7 complemento; 8 bairro; 9 cidade; 10 uf; 11 cep
      *
+     * @param pessoa_id
+     * @param tipo_endereco_id
+     * @return
+     */
+    public List findEnderecosByInPessoa(Integer pessoa_id, Integer tipo_endereco_id) {
+        return findEnderecosByInPessoa("" + pessoa_id, tipo_endereco_id);
+    }
+
+    /**
+     * 0 codigo; 1 nome; 2 documento; 3 tipo_endereco; 4 logradouro; 5 endereco;
+     * 6 numero; 7 complemento; 8 bairro; 9 cidade; 10 uf; 11 cep
+     *
      * @param in_pessoas
      * @param tipo_endereco_id
      * @return
