@@ -82,6 +82,8 @@ public class ContaCobranca implements java.io.Serializable {
     private String variacao;
     @Column(name = "nr_comercio_eletronico")
     private Integer nrComercioEletronico;
+    @Column(name = "ds_chave_acesso", length = 100)
+    private String chaveAcesso;
     
     public ContaCobranca() {
         this.id = -1;
@@ -119,9 +121,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.jurosMensal = new Double(0);
         this.variacao = "";
         this.nrComercioEletronico = null;
+        this.chaveAcesso = "";
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo, Integer registrosDiasVencidos, String estacao, Double multa, Double jurosMensal, String variacao, Integer nrComercioEletronico) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, double repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, Integer nrLayout, CobrancaRegistrada cobrancaRegistrada, Boolean layoutBarrasNovo, Integer registrosDiasVencidos, String estacao, Double multa, Double jurosMensal, String variacao, Integer nrComercioEletronico, String chaveAcesso) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -157,6 +160,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.jurosMensal = jurosMensal;
         this.variacao = variacao;
         this.nrComercioEletronico = nrComercioEletronico;
+        this.chaveAcesso = chaveAcesso;
     }
 
     public int getId() {
@@ -437,6 +441,14 @@ public class ContaCobranca implements java.io.Serializable {
 
     public void setNrComercioEletronico(Integer nrComercioEletronico) {
         this.nrComercioEletronico = nrComercioEletronico;
+    }
+
+    public String getChaveAcesso() {
+        return chaveAcesso;
+    }
+
+    public void setChaveAcesso(String chaveAcesso) {
+        this.chaveAcesso = chaveAcesso;
     }
 
 }

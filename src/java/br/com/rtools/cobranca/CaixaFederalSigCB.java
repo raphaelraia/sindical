@@ -755,8 +755,9 @@ public class CaixaFederalSigCB extends Cobranca {
 
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 
-            // Definir a URL Do Serviço sem a ?WSDL no fim
+            //// Definir a URL Do Serviço sem a ?WSDL no fim
             URL url = new URL("https://barramento.caixa.gov.br/sibar/ManutencaoCobrancaBancaria/Boleto/Externo?wsdl");
+            //URL url = new URL("https://barramento.caixa.gov.br/sibar/ConsultaCobrancaBancaria/Boleto?wsdl");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 
             conn.setDoInput(true);
@@ -766,7 +767,8 @@ public class CaixaFederalSigCB extends Cobranca {
             conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
             conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
             conn.setRequestProperty("User-Agent", "Jakarta Commons-HttpClient/3.1");
-
+            //conn.setRequestProperty("SOAPAction", "IncluiBoleto");
+            
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 
             Pessoa pessoa = boleto.getPessoa();
@@ -966,7 +968,7 @@ public class CaixaFederalSigCB extends Cobranca {
             return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
 
         } catch (Exception e) {
-            System.out.print(e.getMessage());
+            System.out.println(e.getMessage());
         }
 
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
