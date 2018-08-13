@@ -56,4 +56,20 @@ public class CaravanaDao extends DB {
             return new ArrayList();
         }
     }
+
+    public Caravana caravanaProxima() {
+        String queryString = ""
+                + "SELECT C.*\n"
+                + "FROM car_caravana C\n"
+                + "WHERE C.dt_embarque_ida BETWEEN current_date AND (current_date + INTERVAL '30 days')\n"
+                + "AND C.dt_inativacao IS NULL \n"
+                + "ORDER BY C.dt_embarque_ida ASC";
+        Query query = getEntityManager().createNativeQuery(queryString, Caravana.class);
+        query.setMaxResults(1);
+        List list = query.getResultList();
+        if (!list.isEmpty()) {
+            return (Caravana) list.get(0);
+        }
+        return null;
+    }
 }

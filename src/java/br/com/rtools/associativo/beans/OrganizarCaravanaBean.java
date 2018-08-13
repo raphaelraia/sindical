@@ -2,14 +2,13 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Caravana;
 import br.com.rtools.associativo.CaravanaReservas;
-import br.com.rtools.associativo.beans.VendasCaravanaBean.ListaReservas;
+import br.com.rtools.associativo.dao.CaravanaDao;
 import br.com.rtools.associativo.dao.CaravanaReservasDao;
 import br.com.rtools.associativo.dao.PoltronasDao;
-import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.associativo.dao.VendasCaravanaDao;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
-import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.BloqueioRotina;
@@ -42,14 +41,20 @@ public class OrganizarCaravanaBean implements Serializable {
     private List<Reservas> listReservas;
     private BloqueioRotina bloqueioRotina;
     private Usuario usuario;
+    private Caravana caravanaSugestao;
 
     @PostConstruct
     public void init() {
+        caravanaSugestao = null;
         caravana = new Caravana();
         listReservas = new ArrayList();
         bloqueioRotina = null;
         usuario = Usuario.getUsuario();
         new BloqueioRotinaDao().liberaRotinaBloqueada(142);
+        Caravana c = new CaravanaDao().caravanaProxima();
+        if (c != null) {
+            caravanaSugestao = c;
+        }
     }
 
     @PreDestroy
@@ -108,20 +113,32 @@ public class OrganizarCaravanaBean implements Serializable {
     public Caravana getCaravana() {
         if (GenericaSessao.exists("caravanaPesquisa")) {
             caravana = (Caravana) GenericaSessao.getObject("caravanaPesquisa", true);
-            bloqueioRotina = null;
-            bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(142, caravana.getId());
-            if (bloqueioRotina == null) {
-                lock();
-            } else {
-                GenericaMensagem.warn("Sistema", "Evento bloqueado para organizar poltronas: " + bloqueioRotina.getUsuario().getPessoa().getNome());
-            }
-            loadListaReservas();
+            loadCaravana();
         }
         return caravana;
     }
 
     public void setCaravana(Caravana caravana) {
         this.caravana = caravana;
+    }
+
+    public void loadCaravana() {
+        bloqueioRotina = null;
+        bloqueioRotina = new BloqueioRotinaDao().existRotinaCodigo(142, caravana.getId());
+        if (bloqueioRotina == null) {
+            lock();
+        } else {
+            GenericaMensagem.warn("Sistema", "Evento bloqueado para organizar poltronas: " + bloqueioRotina.getUsuario().getPessoa().getNome());
+        }
+        loadListaReservas();
+    }
+
+    public void maisProxima() {
+        Caravana c = new CaravanaDao().caravanaProxima();
+        if (c != null) {
+            caravana = c;
+            loadCaravana();
+        }
     }
 
     public void loadListaReservas() {
@@ -145,6 +162,22 @@ public class OrganizarCaravanaBean implements Serializable {
             new Dao().update(listReservas.get(i).getCaravanaReservas(), true);
         }
         loadListaReservas();
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Caravana getCaravanaSugestao() {
+        return caravanaSugestao;
+    }
+
+    public void setCaravanaSugestao(Caravana caravanaSugestao) {
+        this.caravanaSugestao = caravanaSugestao;
     }
 
     public class Reservas {

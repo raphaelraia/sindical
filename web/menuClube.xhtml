@@ -93,7 +93,31 @@
                                         <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonatoFinanceiro', 'relatorioCampeonato')}" ajax="false"/>
                                     </p:submenu>
                                 </p:submenu>
-                            </p:menubar> 
+                            </p:menubar>
+                            <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
+                                <p:panelGrid columns="5" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('geracaoDebitosCartao')}" title="Geração de Débitos Cartão" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-card.png" height="60" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.conviteMovimento}" title="Convite" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-ticket.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('campeonatoEquipe')}" title="Campeonato" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-soccer-team.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
+                                    </p:commandLink>                                    
+                                    <h:outputLabel value="Recebimentos" />
+                                    <h:outputLabel value="Cartão" />
+                                    <h:outputLabel value="Convite" />
+                                    <h:outputLabel value="Campeonato" />
+                                    <h:outputLabel value="Pessoa Física" />
+                                </p:panelGrid>
+                            </p:panel>                            
                         </p:panel>
                     </h:form>
                 </f:view>

@@ -22,6 +22,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.UnselectEvent;
 
 @ManagedBean
 @SessionScoped
@@ -49,6 +52,8 @@ public class CampeonatoEquipeBean implements Serializable {
     private Integer idEquipe;
     private List<CampeonatoEquipe> listCampeonatoEquipes;
     private List<MatriculaCampeonato> listMatriculaCampeonato;
+    private List<MatriculaCampeonato> listMatriculaCampeonatoSuspensos;
+    private List<MatriculaCampeonato> selectedMC;
     private Pessoa membroEquipe;
     private Boolean editMembrosEquipe;
     private Boolean editDependentes;
@@ -58,9 +63,16 @@ public class CampeonatoEquipeBean implements Serializable {
     private Boolean ativas;
     private String motivoInativacao;
     private String motivoInativacaoDependente;
+    private Date dataInicialSuspencao;
+    private Date dataFimSuspencao;
+    private String motivoSuspensao;
 
     @PostConstruct
     public void init() {
+        dataInicialSuspencao = new Date();
+        dataFimSuspencao = null;
+        motivoSuspensao = "";
+        selectedMC = new ArrayList();
         ativas = true;
         editMembrosEquipe = false;
         campeonatoEquipeDelete = null;
@@ -71,6 +83,7 @@ public class CampeonatoEquipeBean implements Serializable {
         listCampeonatos = new ArrayList();
         listPatentesco = new ArrayList();
         listCampeonatoDependente = new ArrayList();
+        listMatriculaCampeonatoSuspensos = new ArrayList();
         listEquipes = new ArrayList();
         fisicaDependente = new Fisica();
         loadListCampeonatos();
@@ -133,6 +146,7 @@ public class CampeonatoEquipeBean implements Serializable {
         if (campeonato_equipe_id == null) {
             campeonato_equipe_id = campeonatoEquipe.getId();
         }
+        selectedMC = new ArrayList();
         listMatriculaCampeonato = new ArrayList();
         listMatriculaCampeonato = new MatriculaCampeonatoDao().findByCampeonatoEquipe(campeonato_equipe_id, ativas);
     }
@@ -216,6 +230,10 @@ public class CampeonatoEquipeBean implements Serializable {
     }
 
     public String edit(CampeonatoEquipe ce) {
+        selectedMC = new ArrayList();
+        dataInicialSuspencao = new Date();
+        dataFimSuspencao = null;
+        motivoSuspensao = "";
         motivoInativacao = "";
         motivoInativacaoDependente = "";
         ativas = true;
@@ -290,6 +308,11 @@ public class CampeonatoEquipeBean implements Serializable {
                 }
             }
         }
+        MatriculaCampeonato mc = new MatriculaCampeonatoDao().findByPessoaSuspensa(membroEquipe.getId());
+        if (mc != null) {
+            GenericaMensagem.warn("Validação", "MEMBRO SUSPENSO! MOTIVO:" + mc.getMotivoSuspensao() + " - VIGÊNCIA DA SUSPENSÃO DE " + DataHoje.converteData(mc.getDtSuspensaoInicio()) + " ATÉ " + DataHoje.converteData(mc.getDtSuspensaoFim()));
+            return;
+        }
         Dao dao = new Dao();
         dao.openTransaction();
 
@@ -324,7 +347,7 @@ public class CampeonatoEquipeBean implements Serializable {
         cep.setCampeonato(campeonatoEquipe.getCampeonato());
         cep.setCampeonatoEquipe(campeonatoEquipe);
         cep.setServicoPessoa(sp);
-        MatriculaCampeonato mc = new MatriculaCampeonatoDao().existsInCampeonato(campeonatoEquipe.getCampeonato().getId(), membroEquipe.getId(), true);
+        mc = new MatriculaCampeonatoDao().existsInCampeonato(campeonatoEquipe.getCampeonato().getId(), membroEquipe.getId(), true);
         if (mc != null) {
             GenericaMensagem.warn("Validação", "PESSOA ESTÁ CADASTRADA PARA ESTE CAMPEONADO");
             return;
@@ -834,6 +857,200 @@ public class CampeonatoEquipeBean implements Serializable {
 
     public void setMotivoInativacaoDependente(String motivoInativacaoDependente) {
         this.motivoInativacaoDependente = motivoInativacaoDependente;
+    }
+
+    public void onRowSelect(SelectEvent event) {
+        selectedMC.add(((MatriculaCampeonato) event.getObject()));
+    }
+
+    public void onRowUnselect(UnselectEvent event) {
+        boolean remove = selectedMC.remove((MatriculaCampeonato) event.getObject());
+    }
+
+    public void toggleSelectedListener() {
+        System.out.println(selectedMC.size());
+    }
+
+    public List<MatriculaCampeonato> getSelectedMC() {
+        return selectedMC;
+    }
+
+    public void setSelectedMC(List<MatriculaCampeonato> selectedMC) {
+        this.selectedMC = selectedMC;
+    }
+
+    public Date getDataInicialSuspencao() {
+        return dataInicialSuspencao;
+    }
+
+    public void setDataInicialSuspencao(Date dataInicialSuspencao) {
+        this.dataInicialSuspencao = dataInicialSuspencao;
+    }
+
+    public Date getDataFimSuspencao() {
+        return dataFimSuspencao;
+    }
+
+    public void setDataFimSuspencao(Date dataFimSuspencao) {
+        this.dataFimSuspencao = dataFimSuspencao;
+    }
+
+    public String getMotivoSuspensao() {
+        return motivoSuspensao;
+    }
+
+    public void setMotivoSuspensao(String motivoSuspensao) {
+        this.motivoSuspensao = motivoSuspensao;
+    }
+
+    public void confirmaSuspensao() {
+        if (dataInicialSuspencao == null) {
+            GenericaMensagem.warn("Validação", "Informar data inicial!");
+            return;
+        }
+        if (dataFimSuspencao == null) {
+            GenericaMensagem.warn("Validação", "Informar data final!");
+            return;
+        }
+        if (motivoSuspensao.isEmpty() || motivoSuspensao.length() < 5) {
+            GenericaMensagem.warn("Validação", "Informar motivo válido!");
+            return;
+        }
+        Dao dao = new Dao();
+        for (int i = 0; i < selectedMC.size(); i++) {
+            selectedMC.get(i).setDtSuspensaoInicio(dataInicialSuspencao);
+            selectedMC.get(i).setDtSuspensaoFim(dataFimSuspencao);
+            selectedMC.get(i).setMotivoSuspensao(motivoSuspensao);
+            selectedMC.get(i).setDtInativacao(new Date());
+            selectedMC.get(i).getServicoPessoa().setMotivoInativacao("JOGADOR SUSPENSO: " + motivoSuspensao + " - OPERADOR: " + Usuario.getUsuario().getPessoa().getNome());
+            dao.update(selectedMC.get(i), true);
+            selectedMC.get(i).getServicoPessoa().setAtivo(false);
+            dao.update(selectedMC.get(i).getServicoPessoa(), true);
+        }
+        dataInicialSuspencao = new Date();
+        dataFimSuspencao = null;
+        motivoSuspensao = "";
+        selectedMC = new ArrayList();
+        loadListMatriculaCampeonato(null);
+        GenericaMensagem.info("Validação", "Membros suspensos com sucesso!");
+        PF.closeDialog("dlg_suspender_membros");
+        PF.closeDialog("dlg_confirma_suspensao");
+        PF.update("form_campeonato_equipe");
+    }
+
+    public void desfazerSuspensao(MatriculaCampeonato cep) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        NovoLog novoLog = new NovoLog();
+        novoLog.startList();
+        novoLog.setTabela("matr_campeonato");
+        novoLog.setCodigo(cep.getId());
+        novoLog.update("",
+                "Campeonato Membro Cancelamento de Suspensão - ID: " + cep.getId()
+                + " - Titular: " + cep.getServicoPessoa().getPessoa().getNome()
+                + " - Campeonato ID: " + cep.getCampeonato().getId()
+                + " - " + cep.getCampeonato().getEvento().getDescricaoEvento().getDescricao()
+                + " - " + cep.getCampeonato().getTituloComplemento()
+                + " - " + cep.getCampeonato().getModalidade().getDescricao()
+                + " - Campeonato Equipe ID: " + cep.getCampeonatoEquipe().getId() + " - " + cep.getCampeonatoEquipe().getEquipe().getDescricao()
+                + " - Período de " + DataHoje.converteData(cep.getDtSuspensaoInicio()) + " até " + DataHoje.converteData(cep.getDtSuspensaoInicio())
+                + " - Motivo " + cep.getMotivoSuspensao()
+        );
+        cep.setDtSuspensaoFim(null);
+        cep.setDtSuspensaoInicio(null);
+        cep.setMotivoSuspensao("");
+        cep.setDtInativacao(new Date());
+        if (!dao.update(cep)) {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "AO REMOVER MEMBRO!");
+            return;
+        }
+        dao.commit();
+        novoLog.saveList();
+        GenericaMensagem.info("Sucesso", "SUSPENSÃO CANCELADA");
+        if(editMembrosEquipe) {
+            loadListMatriculaCampeonato(null);
+        } else {
+            loadListMembrosSuspensos();            
+        }
+    }
+
+    public void inativarMembrosEquipe() {
+        if (motivoInativacao.isEmpty() || motivoInativacao.length() < 5) {
+            GenericaMensagem.warn("Validação", "Informar motivo válido!");
+            PF.update("form_campeonato_equipe:i_i_d");
+            return;
+        }
+        Dao dao = new Dao();
+        dao.openTransaction();
+        NovoLog novoLog = new NovoLog();
+        novoLog.startList();
+        for (int i = 0; i < selectedMC.size(); i++) {
+            selectedMC.get(i).getServicoPessoa().setDtInativacao(new Date());
+            selectedMC.get(i).getServicoPessoa().setMotivoInativacao(motivoInativacao + " - INATIVADO PELO OPERADOR: " + Usuario.getUsuario().getPessoa().getNome());
+            selectedMC.get(i).getServicoPessoa().setAtivo(false);
+            dao.update(selectedMC.get(i), true);
+            if (!dao.update(selectedMC.get(i).getServicoPessoa())) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER SERVIÇO PESSOA!");
+                PF.update("form_campeonato_equipe:i_i_d");
+                return;
+            }
+            selectedMC.get(i).setDtInativacao(new Date());
+            if (!dao.update(selectedMC.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO REMOVER MEMBRO!");
+                PF.update("form_campeonato_equipe:i_i_d");
+                return;
+            }
+
+            List<CampeonatoDependente> listCD = new CampeonatoDependenteDao().findByMatriculaCampeonato(selectedMC.get(i).getId());
+            for (int x = 0; x < listCD.size(); x++) {
+                listCD.get(x).getServicoPessoa().setAtivo(false);
+                listCD.get(x).getServicoPessoa().setInativacao("SISTEMA");
+                listCD.get(x).getServicoPessoa().setDtInativacao(new Date());
+                if (!dao.update(listCD.get(x).getServicoPessoa())) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "AO REMOVER SERVIÇO PESSOA!");
+                    PF.update("form_campeonato_equipe:i_i_d");
+                    return;
+                }
+                novoLog.setTabela("matr_campeonato");
+                novoLog.setCodigo(selectedMC.get(i).getId());
+                novoLog.delete(
+                        "Campeonato Membro Inativação - ID: " + selectedMC.get(i).getId()
+                        + " - Titular: " + selectedMC.get(i).getServicoPessoa().getPessoa().getNome()
+                        + " - Campeonato ID: " + selectedMC.get(i).getCampeonato().getId()
+                        + " - " + selectedMC.get(i).getCampeonato().getEvento().getDescricaoEvento().getGrupoEvento().getDescricao()
+                        + " - " + selectedMC.get(i).getCampeonato().getEvento().getDescricaoEvento().getDescricao()
+                        + " - " + selectedMC.get(i).getCampeonato().getTituloComplemento()
+                        + " - " + selectedMC.get(i).getCampeonato().getModalidade().getDescricao()
+                        + " - Campeonato Equipe ID: " + selectedMC.get(i).getCampeonatoEquipe().getId() + " - " + selectedMC.get(i).getCampeonatoEquipe().getEquipe().getDescricao()
+                );
+            }
+        }
+        dao.commit();
+        novoLog.saveList();
+        motivoInativacao = "";
+        selectedMC = new ArrayList();
+        loadListMatriculaCampeonato(null);
+        GenericaMensagem.info("Sucesso", "REGISTRO INATIVADO");
+        PF.closeDialog("dlg_inativar_membros");
+        PF.update("form_campeonato_equipe");
+
+    }
+
+    public List<MatriculaCampeonato> getListMatriculaCampeonatoSuspensos() {
+        return listMatriculaCampeonatoSuspensos;
+    }
+
+    public void setListMatriculaCampeonatoSuspensos(List<MatriculaCampeonato> listMatriculaCampeonatoSuspensos) {
+        this.listMatriculaCampeonatoSuspensos = listMatriculaCampeonatoSuspensos;
+    }
+
+    public void loadListMembrosSuspensos() {
+        listMatriculaCampeonatoSuspensos = new ArrayList();
+        listMatriculaCampeonatoSuspensos = new MatriculaCampeonatoDao().findAllSuspensos();
     }
 
 }

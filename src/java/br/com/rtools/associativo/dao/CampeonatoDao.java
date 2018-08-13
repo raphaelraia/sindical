@@ -1,6 +1,7 @@
 package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Campeonato;
+import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,28 @@ public class CampeonatoDao extends DB {
     public List<Campeonato> findAll() {
         try {
             Query query = getEntityManager().createNativeQuery("SELECT C.* FROM eve_campeonato C WHERE C.dt_inicio > current_date ORDER BY C.dt_inicio ASC, C.ds_titulo_complemento ASC", Campeonato.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<ServicoPessoa> findToUpdate(Integer campeonato_id) {
+        try {
+            String queryString = ""
+                    + "SELECT SP.* FROM fin_servico_pessoa  SP\n"
+                    + "WHERE SP.id IN (\n"
+                    + "SELECT id_servico_pessoa \n"
+                    + "FROM matr_campeonato AS MC\n"
+                    + "WHERE id_campeonato = 3\n"
+                    + "UNION ALL\n"
+                    + "SELECT ECD.id_servico_pessoa \n"
+                    + "FROM eve_campeonato_dependente AS ECD\n"
+                    + "INNER JOIN matr_campeonato AS MC ON MC.id = ECD.id_matricula_campeonato\n"
+                    + "WHERE id_campeonato = " + campeonato_id + " \n"
+                    + ")\n"
+                    + "AND SP.is_ativo = true";
+            Query query = getEntityManager().createNativeQuery(queryString, ServicoPessoa.class);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

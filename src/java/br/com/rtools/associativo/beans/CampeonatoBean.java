@@ -2,16 +2,16 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.*;
-import br.com.rtools.associativo.dao.BaileDao;
 import br.com.rtools.associativo.dao.CampeonatoDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.dao.EventoServicoValorDao;
 import br.com.rtools.financeiro.Evt;
-import br.com.rtools.financeiro.ServicoRotina;
+import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -178,6 +178,15 @@ public class CampeonatoBean implements Serializable {
                 return;
             }
             campeonato.setEvento(aEvento);
+            List<ServicoPessoa> listServicoPessoa = new CampeonatoDao().findToUpdate(campeonato.getId());
+            for (int i = 0; i < listServicoPessoa.size(); i++) {
+                listServicoPessoa.get(i).setReferenciaValidade(DataHoje.converteDataParaReferencia(campeonato.getFim()));
+                if (!dao.update(listServicoPessoa.get(i))) {
+                    GenericaMensagem.warn("Erro", "AO ATUALIZAR REGISTRO - SERVIÇO PESSOA!");
+                    dao.rollback();
+                    return;
+                }
+            }
             if (!dao.update(campeonato)) {
                 GenericaMensagem.warn("Erro", "AO ATUALIZAR REGISTRO!");
                 dao.rollback();

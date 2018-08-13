@@ -11,12 +11,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "soc_credenciadores")
+@NamedQueries({
+    @NamedQuery(name = "Credenciadores.findAll", query = "SELECT C FROM Credenciadores AS C ORDER BY C.pessoa.nome ASC ")
+})
 public class Credenciadores implements Serializable {
 
     @Id
@@ -61,7 +66,7 @@ public class Credenciadores implements Serializable {
     public String getDtInativacaoString() {
         return DataHoje.converteData(dtInativacao);
     }
-    
+
     public void setDtInativacaoString(String dtInativacaoString) {
         this.dtInativacao = DataHoje.converte(dtInativacaoString);
     }

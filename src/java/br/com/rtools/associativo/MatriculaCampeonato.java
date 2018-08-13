@@ -48,6 +48,14 @@ public class MatriculaCampeonato implements Serializable {
     @Column(name = "dt_inativacao")
     @Temporal(TemporalType.DATE)
     private Date dtInativacao;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_suspensao_inicio", nullable = true)
+    private Date dtSuspensaoInicio;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_suspensao_fim", nullable = true)
+    private Date dtSuspensaoFim;
+    @Column(name = "ds_motivo_suspensao", length = 200, nullable = true)
+    private String motivoSuspensao;
 
     @Transient
     private List listCampeonatoDependente;
@@ -58,15 +66,21 @@ public class MatriculaCampeonato implements Serializable {
         this.campeonatoEquipe = null;
         this.servicoPessoa = null;
         this.listCampeonatoDependente = null;
+        this.dtSuspensaoInicio = null;
+        this.dtSuspensaoFim = null;
+        this.motivoSuspensao = "";
     }
 
-    public MatriculaCampeonato(Integer id, Campeonato campeonato, CampeonatoEquipe campeonatoEquipe, Pessoa pessoa, ServicoPessoa servicoPessoa, Date dtInativacao) {
+    public MatriculaCampeonato(Integer id, Campeonato campeonato, CampeonatoEquipe campeonatoEquipe, Pessoa pessoa, ServicoPessoa servicoPessoa, Date dtInativacao, Date dtSuspensaoInicio, Date dtSuspensaoFim, String motivoSuspensao) {
         this.id = id;
         this.campeonato = campeonato;
         this.campeonatoEquipe = campeonatoEquipe;
         this.servicoPessoa = servicoPessoa;
         this.dtInativacao = dtInativacao;
         this.listCampeonatoDependente = null;
+        this.dtSuspensaoInicio = dtSuspensaoInicio;
+        this.dtSuspensaoFim = dtSuspensaoFim;
+        this.motivoSuspensao = motivoSuspensao;
     }
 
     public Integer getId() {
@@ -121,6 +135,30 @@ public class MatriculaCampeonato implements Serializable {
 
     public void setListCampeonatoDependente(List listCampeonatoDependente) {
         this.listCampeonatoDependente = listCampeonatoDependente;
+    }
+
+    public Date getDtSuspensaoInicio() {
+        return dtSuspensaoInicio;
+    }
+
+    public void setDtSuspensaoInicio(Date dtSuspensaoInicio) {
+        this.dtSuspensaoInicio = dtSuspensaoInicio;
+    }
+
+    public Date getDtSuspensaoFim() {
+        return dtSuspensaoFim;
+    }
+
+    public void setDtSuspensaoFim(Date dtSuspensaoFim) {
+        this.dtSuspensaoFim = dtSuspensaoFim;
+    }
+
+    public String getMotivoSuspensao() {
+        return motivoSuspensao;
+    }
+
+    public void setMotivoSuspensao(String motivoSuspensao) {
+        this.motivoSuspensao = motivoSuspensao;
     }
 
 }

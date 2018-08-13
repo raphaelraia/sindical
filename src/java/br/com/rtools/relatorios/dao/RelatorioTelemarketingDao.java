@@ -109,17 +109,17 @@ public class RelatorioTelemarketingDao extends DB {
                 if (dataLancamentoInicial != null && !dataLancamentoInicial.isEmpty()) {
                     switch (tipoDataLancamento) {
                         case "igual":
-                            listWhere.add(" H.dt_lancamento = '" + dataLancamentoInicial + "'");
+                            listWhere.add(" H.dt_lancamento::date = '" + dataLancamentoInicial + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" H.dt_lancamento >= '" + dataLancamentoInicial + "'");
+                            listWhere.add(" H.dt_lancamento::date >= '" + dataLancamentoInicial + "'");
                             break;
                         case "ate":
-                            listWhere.add(" H.dt_lancamento <= '" + dataLancamentoInicial + "'");
+                            listWhere.add(" H.dt_lancamento::date <= '" + dataLancamentoInicial + "'");
                             break;
                         case "faixa":
                             if (dataLancamentoFinal != null && !dataLancamentoFinal.isEmpty()) {
-                                listWhere.add(" H.dt_lancamento BETWEEN '" + dataLancamentoInicial + "' AND '" + dataLancamentoFinal + "'");
+                                listWhere.add(" H.dt_lancamento::date BETWEEN '" + dataLancamentoInicial + "' AND '" + dataLancamentoFinal + "'");
                             }
                             break;
                         default:

@@ -74,9 +74,9 @@
                                         <p:submenu label="Viagens">
                                             <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
                                         </p:submenu>
-                                        
+
                                         <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupom')}" />
-                                        
+
                                         <p:menuitem value="Banda"               action="#{chamadaPaginaBean.bandas}" />
                                     </p:submenu>
 
@@ -165,6 +165,7 @@
                                         <p:menuitem value="Mala Direta Grupo"   action="#{chamadaPaginaBean.paginaSimples('MalaDiretaGrupo', 'Mala Direta Grupo')}"/>
                                         <p:menuitem value="Campeonato"          action="#{chamadaPaginaBean.pagina('relatorioCampeonato')}" ajax="false"/>
                                         <p:menuitem value="Exame Médico"        action="#{chamadaPaginaBean.pagina('relatorioExameMedico')}" ajax="false"/>
+                                        <p:menuitem value="Credenciadores"      action="#{chamadaPaginaBean.pagina('relatorioCredenciadores')}" ajax="false"/>
                                     </p:submenu>
                                     <p:submenu label="Rotina">
                                         <p:menuitem value="Cartão Social"       action="#{chamadaPaginaBean.cartaoSocial}" />
@@ -185,6 +186,34 @@
                                     </p:submenu>
                                 </p:submenu>                            
                             </p:menubar> 
+                            <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
+                                <p:panelGrid columns="6" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('vendasCaravana')}" title="Vendas Caravana" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-bus.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('organizarCaravana')}" title="Organizar Caravana" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-bus-reorder.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.conviteMovimento}" title="Convite Clube" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-ticket.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.vendasBaile}" title="Vendas Baile" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-party.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
+                                    </p:commandLink>                                    
+                                    <h:outputLabel value="Recebimentos" />
+                                    <h:outputLabel value="Vendas Caravana" />
+                                    <h:outputLabel value="Organizar Caravana" />
+                                    <h:outputLabel value="Convite" />
+                                    <h:outputLabel value="Baile" />
+                                    <h:outputLabel value="Pessoa Física" />
+                                </p:panelGrid>
+                            </p:panel>                             
                             <p:panel styleClass="margin-top-max">
                                 <h:panelGrid>
                                     <p:commandButton type="button" onclick="PF('i_dlg_socios_1').show()" rendered="#{socialBean.existPessoasMesmaMatricula}" update="i_panel_grid_socios_1" value="Constam a mesma pessoa mais de uma vez na mesma matrícula!" styleClass="font-color-red" />

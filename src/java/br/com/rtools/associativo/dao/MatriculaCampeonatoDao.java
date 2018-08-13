@@ -75,8 +75,7 @@ public class MatriculaCampeonatoDao extends DB {
             return null;
         }
     }
-    
-    
+
     public MatriculaCampeonato findByPessoa(Integer pessoa_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT MC FROM MatriculaCampeonato MC WHERE MC.campeonatoEquipe.id = :campeonato_equipe_id AND MC.campeonato.id = :campeonato_id AND MC.servicoPessoa.pessoa.id = :pessoa_id AND MC.dtInativacao IS NULL");
@@ -85,6 +84,35 @@ public class MatriculaCampeonatoDao extends DB {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public MatriculaCampeonato findByPessoaSuspensa(Integer pessoa_id) {
+        try {
+            String queryString = ""
+                    + "    SELECT *                                             \n"
+                    + "      FROM matr_campeonato AS MC                         \n"
+                    + "INNER JOIN fin_servico_pessoa AS SP ON SP.id = MC.id_servico_pessoa \n"
+                    + "     WHERE MC.dt_suspensao_fim > current_date AND MC.dt_suspensao_fim IS NOT NULL \n"
+                    + "       AND SP.id_pessoa = " + pessoa_id;
+            Query query = getEntityManager().createNativeQuery(queryString, MatriculaCampeonato.class);
+            query.setParameter("pessoa_id", pessoa_id);
+            return (MatriculaCampeonato) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<MatriculaCampeonato> findAllSuspensos() {
+        String queryString = ""
+                + "     SELECT *                                                \n"
+                + "      FROM matr_campeonato AS MC                             \n"
+                + "INNER JOIN fin_servico_pessoa AS SP ON SP.id = MC.id_servico_pessoa \n"
+                + "INNER JOIN pes_pessoa AS P ON P.id = SP.id_pessoa            \n"
+                + "     WHERE MC.dt_suspensao_fim > current_date                \n"
+                + "       AND MC.dt_suspensao_fim IS NOT NULL                   \n"
+                + "  ORDER BY P.ds_nome                                         \n";
+        Query query = getEntityManager().createNativeQuery(queryString, MatriculaCampeonato.class);
+        return query.getResultList();
     }
 
 }

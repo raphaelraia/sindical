@@ -35,7 +35,7 @@
                             <p:messages  showDetail="true" closable="true" autoUpdate="true"/>
                             <p:panel>
                                 <f:facet name="header">
-                                    <h:panelGrid columns="5" cellspacing="5">
+                                    <h:panelGrid columns="10" cellspacing="5">
                                         <p:outputLabel value="CAMPEONATO" styleClass="font-size-10 bold"/>
                                         <p:selectOneMenu value="#{campeonatoEquipeBean.idCampeonato}">
                                             <p:ajax event="change" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.loadListCampeonatoEquipes()}" />
@@ -46,10 +46,11 @@
                                             <p:ajax event="change" update=":form_campeonato_equipe:" />
                                             <f:selectItems value="#{campeonatoEquipeBean.listEquipes}"/>
                                         </p:selectOneMenu>
-                                        <p:commandButton value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" styleClass="margin-left-max"/>
-                                    </h:panelGrid>
+                                        <p:commandButton value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" styleClass="margin-left-max"/>                                        
+                                    </h:panelGrid>                                    
                                 </f:facet>
                             </p:panel>
+                            <p:commandButton value="Membros Suspensos" update=":form_campeonato_equipe:i_membros_suspensos" onclick="PF('dlg_membros_suspensos').show()" action="#{campeonatoEquipeBean.loadListMembrosSuspensos}" style="float: right; margin-top: 5px; color: red"/>
 
                             <p:dataTable value="#{campeonatoEquipeBean.listCampeonatoEquipes}" var="campeonatoEquipe" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max">
                                 <p:column width="30">
@@ -112,64 +113,104 @@
                                             <p:outputLabel value="#{campeonatoEquipeBean.membroEquipe.nome}" rendered="#{campeonatoEquipeBean.membroEquipe != null}" />
                                         </h:panelGrid>
                                         <f:facet name="footer">
-                                            <p:commandButton value="ADICIONAR MEMBRO" action="#{campeonatoEquipeBean.addMembroEquipe}" update=":form_campeonato_equipe:" rendered="#{campeonatoEquipeBean.membroEquipe ne null and campeonatoEquipeBean.membroEquipe.id ne -1}" />                                        
+                                            <p:commandButton value="ADICIONAR MEMBRO" action="#{campeonatoEquipeBean.addMembroEquipe}" update=":form_campeonato_equipe:" rendered="#{campeonatoEquipeBean.membroEquipe ne null and campeonatoEquipeBean.membroEquipe.id ne -1}" />
                                         </f:facet>
                                     </p:panel>
-
-                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
-                                        <f:facet name="header">
-                                            <p:selectBooleanCheckbox value="#{campeonatoEquipeBean.ativas}" itemLabel="MATRÍCULA ATIVAS" styleClass="bold font-color-red">
-                                                <p:ajax event="change" update="@this :form_campeonato_equipe:i_m_e" listener="#{campeonatoEquipeBean.loadListMatriculaCampeonato(null)}"/>
-                                            </p:selectBooleanCheckbox>
-                                        </f:facet>
-                                        <p:column width="15">  
-                                            <p:rowToggler />  
-                                        </p:column>                                        
-                                        <p:column headerText="Membro">
-                                            #{matriculaCampeonato.servicoPessoa.pessoa.nome}
-                                        </p:column>                                     
-                                        <p:column headerText="CPF">
-                                            #{matriculaCampeonato.servicoPessoa.pessoa.documento}
-                                        </p:column>                                     
-                                        <p:column headerText="Nascimento">
-                                            #{matriculaCampeonato.servicoPessoa.pessoa.fisica.nascimento}
-                                        </p:column>
-                                        <p:column headerText="Categoria">
-                                            #{matriculaCampeonato.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
-                                        </p:column>
-                                        <p:column headerText="Valor Responsável" styleClass="text-center">
-                                            #{matriculaCampeonato.servicoPessoa.nrValorFixoString}
-                                        </p:column>  
-                                        <p:column headerText="Inativação" styleClass="text-center" rendered="#{!campeonatoEquipeBean.ativas}">
-                                            <h:outputLabel value="#{matriculaCampeonato.servicoPessoa.dtInativacao}">
-                                                <f:convertDateTime />
-                                            </h:outputLabel>
-                                        </p:column>
-                                        <p:column headerText="Dependentes" styleClass="text-center">
-                                            <p:commandButton value="#{(matriculaCampeonato.listCampeonatoDependente eq null ? 0 : matriculaCampeonato.listCampeonatoDependente.size())}" action="#{campeonatoEquipeBean.defineDependente(matriculaCampeonato)}" update=":form_campeonato_equipe:" icon="ui-icon-pencil" rendered="#{matriculaCampeonato.servicoPessoa.pessoa.socios.id == -1}" />
-                                        </p:column>
-                                        <p:column width="30">
-                                            <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(matriculaCampeonato)}" title="Remover registro nº#{matriculaCampeonato.id}" update=":form_campeonato_equipe:" rendered="#{campeonatoEquipeBean.ativas}">
-                                                <p:confirm header="Remover membro" message="Deseja realmente remover este membro?" icon="ui-icon-alert" />
-                                            </p:commandButton>
-                                        </p:column>
-                                        <p:rowExpansion>
-                                            <h:panelGrid columns="1" styleClass="sbb">
-                                                <h:outputLabel value="Motivo da Inativaçao: #{matriculaCampeonato.servicoPessoa.motivoInativacao}" rendered="#{campeonatoEquipeBean.ativas}" />
-                                            </h:panelGrid>
-                                        </p:rowExpansion>
-                                        <f:facet name="footer">
-                                            <h:panelGrid style="margin-top: 25px;" columns="2" styleClass="sbb">
-                                                <h:outputLabel value="Contém Oposição" />
-                                                <h:column>
-                                                    <div style="width: 15px; height: 15px; float: left; margin-right: 5px" class="bg-salmon"></div>
-                                                </h:column>
-                                            </h:panelGrid>
-                                        </f:facet>                                          
-                                    </p:dataTable>
-
+                                    <h:panelGroup id="i_panel_grid" style="width: 100%">
+                                        <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonato}" var="matriculaCampeonato" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}" rowSelectMode="checkbox"  rowKey="#{matriculaCampeonato.id}"  selection="#{campeonatoEquipeBean.selectedMC}" disabledSelection="#{!campeonatoEquipeBean.ativas}">
+                                            <p:ajax event="rowSelectCheckbox" update="@this :form_campeonato_equipe:i_panel_grid" listener="#{campeonatoEquipeBean.onRowSelect}"/>
+                                            <p:ajax event="rowUnselectCheckbox" update="@this :form_campeonato_equipe:i_panel_grid" listener="#{campeonatoEquipeBean.onRowUnselect}"/>
+                                            <p:ajax event="toggleSelect" update=":form_campeonato_equipe:i_panel_grid" listener="#{campeonatoEquipeBean.toggleSelectedListener}"/>
+                                            <p:ajax event="page" />                                            
+                                            <p:column selectionMode="multiple" width="25" styleClass="text-center" rendered="#{campeonatoEquipeBean.ativas}"/>
+                                            <f:facet name="header">
+                                                <p:selectBooleanCheckbox value="#{campeonatoEquipeBean.ativas}" itemLabel="MATRÍCULA ATIVAS" styleClass="bold font-color-red">
+                                                    <p:ajax event="change" update="@this :form_campeonato_equipe:i_m_e" listener="#{campeonatoEquipeBean.loadListMatriculaCampeonato(null)}"/>
+                                                </p:selectBooleanCheckbox>
+                                            </f:facet>
+                                            <p:column width="15">  
+                                                <p:rowToggler />  
+                                            </p:column>                                            
+                                            <p:column headerText="Membro">
+                                                #{matriculaCampeonato.servicoPessoa.pessoa.nome}
+                                            </p:column>                                     
+                                            <p:column headerText="CPF">
+                                                #{matriculaCampeonato.servicoPessoa.pessoa.documento}
+                                            </p:column>                                     
+                                            <p:column headerText="Nascimento">
+                                                #{matriculaCampeonato.servicoPessoa.pessoa.fisica.nascimento}
+                                            </p:column>
+                                            <p:column headerText="Categoria">
+                                                #{matriculaCampeonato.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
+                                            </p:column>
+                                            <p:column headerText="Valor Responsável" styleClass="text-center">
+                                                #{matriculaCampeonato.servicoPessoa.nrValorFixoString}
+                                            </p:column>  
+                                            <p:column headerText="Inativação" styleClass="text-center" rendered="#{!campeonatoEquipeBean.ativas}">
+                                                <h:outputLabel value="#{matriculaCampeonato.servicoPessoa.dtInativacao}">
+                                                    <f:convertDateTime />
+                                                </h:outputLabel>
+                                            </p:column>
+                                            <p:column headerText="Período de suspensão" styleClass="text-center" rendered="#{!campeonatoEquipeBean.ativas}">
+                                                <h:outputLabel value="#{matriculaCampeonato.dtSuspensaoInicio}">
+                                                    <f:convertDateTime />
+                                                </h:outputLabel>
+                                                <h:outputLabel value="até" rendered="#{matriculaCampeonato.dtSuspensaoFim ne null}" />
+                                                <h:outputLabel value="#{matriculaCampeonato.dtSuspensaoFim}">
+                                                    <f:convertDateTime />
+                                                </h:outputLabel>
+                                            </p:column>
+                                            <p:column headerText="Dependentes" styleClass="text-center">
+                                                <p:commandButton value="#{(matriculaCampeonato.listCampeonatoDependente eq null ? 0 : matriculaCampeonato.listCampeonatoDependente.size())}" action="#{campeonatoEquipeBean.defineDependente(matriculaCampeonato)}" update=":form_campeonato_equipe:" icon="ui-icon-pencil" rendered="#{matriculaCampeonato.servicoPessoa.pessoa.socios.id == -1}" />
+                                            </p:column>
+                                            <p:column width="30" rendered="#{campeonatoEquipeBean.ativas}">
+                                                <p:commandButton icon="ui-icon-close" action="#{campeonatoEquipeBean.deleteMembroEquipe(matriculaCampeonato)}" title="Remover registro nº#{matriculaCampeonato.id}" update=":form_campeonato_equipe:">
+                                                    <p:confirm header="Remover membro" message="Deseja realmente remover este membro?" icon="ui-icon-alert" />
+                                                </p:commandButton>
+                                            </p:column>
+                                            <p:column width="30" rendered="#{!campeonatoEquipeBean.ativas}">
+                                                <p:commandButton icon="ui-icon-arrowreturn-1-w" action="#{campeonatoEquipeBean.desfazerSuspensao(matriculaCampeonato)}" title="Cancelar suspenso registro nº#{matriculaCampeonatoSuspensos.id}" update=":form_campeonato_equipe:i_panel_grid" rendered="#{matriculaCampeonato.dtSuspensaoFim ne null}">
+                                                    <p:confirm header="Desfazer suspensão?" message="Deseja realmente desfazer esta suspensão?" icon="ui-icon-alert" />
+                                                </p:commandButton>
+                                            </p:column>
+                                            <p:rowExpansion>
+                                                <h:panelGrid columns="1" styleClass="sbb">
+                                                    <h:outputLabel value="Motivo da Inativaçao: #{matriculaCampeonato.servicoPessoa.motivoInativacao}" rendered="#{not empty matriculaCampeonato.servicoPessoa.motivoInativacao}" />
+                                                    <h:outputLabel value="Motivo da Suspensão: #{matriculaCampeonato.motivoSuspensao}" rendered="#{not empty matriculaCampeonato.motivoSuspensao}" />
+                                                </h:panelGrid>
+                                            </p:rowExpansion>
+                                            <f:facet name="footer">
+                                                <h:panelGrid style="margin-top: 25px; width: 500px!important" columns="4" styleClass="sbb">
+                                                    <h:column>
+                                                        <h:panelGrid columns="2">
+                                                            <h:outputLabel value="Contém Oposição" />
+                                                            <div style="width: 15px; height: 15px; " class="bg-salmon"></div>                                                            
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column rendered="#{not empty campeonatoEquipeBean.selectedMC}">
+                                                        <p:commandButton value="SUSPENDER" onclick="PF('dlg_suspender_membros').show()" update=":form_campeonato_equipe:i_suspender_membros"/>
+                                                    </h:column>
+                                                    <h:column rendered="#{not empty campeonatoEquipeBean.selectedMC}">
+                                                        <p:commandButton value="INATIVAR" onclick="PF('dlg_inativar_membros').show()" update=":form_campeonato_equipe:i_i_d"/>
+                                                    </h:column>
+                                                </h:panelGrid>
+                                            </f:facet>                                          
+                                        </p:dataTable>
+                                    </h:panelGroup>
                                 </h:panelGroup>
                             </p:dialog>
+                            <p:dialog widgetVar="dlg_inativar_membros" header="Deseja inativar este registro?" resizable="false" width="400" modal="true">
+                                <h:panelGroup id="i_i_d">
+                                    <p:messages showDetail="true" showSummary="false" showIcon="false" />
+                                    <p:inputTextarea cols="50" placeholder="Motivo da inativação" value="#{campeonatoEquipeBean.motivoInativacao}"/>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{campeonatoEquipeBean.inativarMembrosEquipe()}" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_inativar_membros').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>                            
                             <p:dialog widgetVar="dlg_dependentes" header="DEPENDENTES DE #{campeonatoEquipeBean.cadastrarDependente.servicoPessoa.pessoa.nome}" resizable="false" width="800" modal="true" visible="#{campeonatoEquipeBean.editDependentes}"  closeOnEscape="true">
                                 <p:ajax event="close" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.listener('dependentes')}"/>
                                 <p:messages showDetail="true" showSummary="true" id="i_d_msg"/>
@@ -193,7 +234,9 @@
                                             </h:column>
                                         </h:panelGrid>
                                         <f:facet name="footer">
-                                            <p:commandButton value="ADICIONAR" action="#{campeonatoEquipeBean.addDependente}" update=":form_campeonato_equipe: :form_campeonato_equipe:i_d_msg" rendered="#{campeonatoEquipeBean.fisicaDependente ne null and campeonatoEquipeBean.fisicaDependente.id ne -1}" />
+                                            <h:panelGrid columns="2">
+                                                <p:commandButton value="ADICIONAR" action="#{campeonatoEquipeBean.addDependente}" update=":form_campeonato_equipe: :form_campeonato_equipe:i_d_msg" rendered="#{campeonatoEquipeBean.fisicaDependente ne null and campeonatoEquipeBean.fisicaDependente.id ne -1}" />                                                
+                                            </h:panelGrid>
                                         </f:facet>
                                     </p:panel>
 
@@ -228,9 +271,116 @@
                                             </h:panelGrid>
                                         </f:facet>                                        
                                     </p:dataTable>
-
                                 </h:panelGroup>
                             </p:dialog>
+                            <p:dialog widgetVar="dlg_suspender_membros" header="Suspensão" resizable="false" width="800" modal="true" closeOnEscape="true">
+                                <h:panelGroup id="i_suspender_membros" layout="block">
+                                    <p:messages showSummary="false" showDetail="true"  showIcon="false"/>
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="Inicio" />
+                                        <p:calendar pattern="dd/MM/yyyy" mask="99/99/9999" locale="pt_BR" onfocus="false" value="#{campeonatoEquipeBean.dataInicialSuspencao}">
+
+                                        </p:calendar>
+                                        <p:outputLabel value="Fim" />
+                                        <p:calendar pattern="dd/MM/yyyy" mask="99/99/9999" locale="pt_BR" onfocus="false" value="#{campeonatoEquipeBean.dataFimSuspencao}">                                        
+                                        </p:calendar>
+                                        <p:outputLabel value="Motivo" />
+                                        <p:inputTextarea placeholder="Motivo" cols="50" value="#{campeonatoEquipeBean.motivoSuspensao}"/>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2" cellspacing="10">
+                                        <p:commandButton value="Confirmar" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" onclick="PF('dlg_confirma_suspensao').show()" />
+                                        <p:commandButton value="Desfazer" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" onclick="PF('dlg_suspender_membros').hide()" />
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_membros_suspensos" header="Membros Suspensos" resizable="false" modal="true" closeOnEscape="true" maximizable="true" minWidth="800" responsive="true" >
+                                <h:panelGroup id="i_membros_suspensos" style="width: 100%">
+                                    <p:messages showSummary="false" showDetail="true" showIcon="false" />
+                                    <p:dataTable value="#{campeonatoEquipeBean.listMatriculaCampeonatoSuspensos}" var="matriculaCampeonatoSuspensos" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max" rowStyleClass="#{matriculaCampeonato.servicoPessoa.pessoa.existOposicao ? 'bg-salmon' : ''}">
+                                        <p:column width="15">  
+                                            <p:rowToggler />  
+                                        </p:column>
+                                        <p:column headerText="Membro">
+                                            #{matriculaCampeonatoSuspensos.servicoPessoa.pessoa.nome}
+                                        </p:column>                                     
+                                        <p:column headerText="CPF">
+                                            #{matriculaCampeonatoSuspensos.servicoPessoa.pessoa.documento}
+                                        </p:column>                                     
+                                        <p:column headerText="Campeonato" styleClass="text-center">
+                                            #{matriculaCampeonatoSuspensos.campeonato.evento.descricaoEvento.descricao}
+                                        </p:column>
+                                        <p:column headerText="Equipe" styleClass="text-center">
+                                            #{matriculaCampeonatoSuspensos.campeonatoEquipe.equipe.descricao}
+                                        </p:column>
+                                        <p:column headerText="Período de suspensão" styleClass="text-center">
+                                            <h:outputLabel value="#{matriculaCampeonatoSuspensos.dtSuspensaoInicio}">
+                                                <f:convertDateTime />
+                                            </h:outputLabel>
+                                            <h:outputLabel value="até" rendered="#{matriculaCampeonatoSuspensos.dtSuspensaoFim ne null}" />
+                                            <h:outputLabel value="#{matriculaCampeonatoSuspensos.dtSuspensaoFim}">
+                                                <f:convertDateTime />
+                                            </h:outputLabel>
+                                        </p:column>
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-arrowreturn-1-w" action="#{campeonatoEquipeBean.desfazerSuspensao(matriculaCampeonatoSuspensos)}" title="Desfazer suspensão" update=":form_campeonato_equipe:i_membros_suspensos">
+                                                <p:confirm header="Desfazer suspensão?" message="Deseja realmente desfazer esta suspensão?" icon="ui-icon-alert" />
+                                            </p:commandButton>
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            <h:panelGrid columns="1" styleClass="sbb">
+                                                <h:outputLabel value="Motivo da Suspensão: #{matriculaCampeonatoSuspensos.motivoSuspensao}" rendered="#{not empty matriculaCampeonatoSuspensos.motivoSuspensao}" />
+                                                <p:column>
+                                                    Categoria: #{matriculaCampeonatoSuspensos.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
+                                                </p:column> 
+                                                <p:column>
+                                                    Nascimento: #{matriculaCampeonatoSuspensos.servicoPessoa.pessoa.fisica.nascimento}
+                                                </p:column>
+                                                <p:column>
+                                                    Inativação:
+                                                    <h:outputLabel value="#{matriculaCampeonatoSuspensos.servicoPessoa.dtInativacao}">
+                                                        <f:convertDateTime />
+                                                    </h:outputLabel>
+                                                </p:column>
+                                            </h:panelGrid>
+                                        </p:rowExpansion>
+                                        <f:facet name="footer">
+                                            <h:panelGrid style="margin-top: 25px; width: 500px!important" columns="4" styleClass="sbb">
+                                                <h:column>
+                                                    <h:panelGrid columns="2">
+                                                        <h:outputLabel value="Contém Oposição" />
+                                                        <div style="width: 15px; height: 15px; " class="bg-salmon"></div>                                                            
+                                                    </h:panelGrid>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </f:facet>                                          
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2" cellspacing="10">
+                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" onclick="PF('dlg_membros_suspensos').hide()" />
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_confirma_suspensao" header="Deseja Realmente Suspender esses membros?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{campeonatoEquipeBean.confirmaSuspensao()}" update=":form_campeonato_equipe:i_suspender_membros" onclick="PF('dlg_confirma_suspensao').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_desfazer_suspensao" header="Deseja Realmente Cancelar Suspender esta suspensão?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{campeonatoEquipeBean.confirmaSuspensao()}" update=":form_campeonato_equipe:i_suspender_membros" onclick="PF('dlg_confirma_suspensao').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_desfazer_suspensao').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+
                             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                                 <h:panelGrid columns="2" cellspacing="10">                                                    
                                     <p:commandButton value="Confirmar" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
