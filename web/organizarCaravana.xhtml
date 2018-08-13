@@ -32,7 +32,7 @@
                             <h:panelGrid rendered="#{organizarCaravanaBean.bloqueioRotina != null or organizarCaravanaBean.locked}">
                                 <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', ('CARAVANA BLOQUEADA PARA MANUTENÇÃO DAS POLTRONAS POR: ').concat(organizarCaravanaBean.bloqueioRotina.usuario.pessoa.nome))}" escape="false" />
                                 <p:commandButton value="Desbloquear" action="#{organizarCaravanaBean.unlock}" rendered="#{organizarCaravanaBean.locked}" update=":form_organizar_caravana:" style="color: red;"/>
-                            </h:panelGrid>                      
+                            </h:panelGrid>
                             <p:messages autoUpdate="true" closable="false" showDetail="true" showSummary="true" />
                             <p:panel styleClass="fundoCinza margin-top-max">
                                 <h:panelGrid cellspacing="5">
@@ -160,7 +160,7 @@
                                 </p:rowExpansion>
                             </p:dataTable>
                             <f:facet name="footer">
-                                <h:panelGrid columns="3">
+                                <h:panelGrid columns="4">
                                     <h:column rendered="#{organizarCaravanaBean.bloqueioRotina != null or organizarCaravanaBean.locked}">
                                         <p:commandButton value="Concluir" action="#{organizarCaravanaBean.unlock}" rendered="#{organizarCaravanaBean.locked}" update=":form_organizar_caravana:" />
                                     </h:column>
@@ -168,6 +168,7 @@
                                         <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaCaravana', 'caravanaBean')}" />
                                     </h:column>
                                     <p:commandButton ajax="false" value="Lista de Reserva" action="#{organizarCaravanaBean.print}" icon="ui-icon-print" rendered="#{not empty organizarCaravanaBean.listReservas}" />
+                                    <p:commandButton ajax="false" value="Etiquetas" action="#{organizarCaravanaBean.etiquetas}" icon="ui-icon-print" rendered="#{not empty organizarCaravanaBean.listReservas}" />
                                 </h:panelGrid>
                             </f:facet>
                         </p:panel>                                                                       

@@ -66,6 +66,7 @@ public class EmailBean implements Serializable {
      * </ul>
      */
     private boolean filter;
+    private boolean error;
     private boolean filterNewMessage;
     private boolean filterByRotina;
     private boolean filterRascunho;
@@ -76,11 +77,14 @@ public class EmailBean implements Serializable {
     private Boolean verTodosUsuarios;
     private List<SelectItem> listUsuarios;
     private Integer idUsuario;
+    private String emailLote;
 
     @PostConstruct
     public void init() {
+        emailLote = "";
         registro = new Registro();
         email = new Email();
+        error = false;
         selectedEmail = null;
         listSelectItem = new ArrayList[]{
             new ArrayList(),
@@ -144,6 +148,7 @@ public class EmailBean implements Serializable {
 
     public void clear(int tcase) {
         if (tcase == 0) {
+            emailLote = "";
             emailPessoa = new EmailPessoa();
             index = new Integer[]{0, 0};
             emails = new ArrayList();
@@ -165,6 +170,7 @@ public class EmailBean implements Serializable {
             filterByRotina = false;
             filterRascunho = false;
             descricaoPesquisa = "";
+            error = false;
         } else if (tcase == 1) {
             date[0] = null;
             date[1] = null;
@@ -458,6 +464,7 @@ public class EmailBean implements Serializable {
     }
 
     public void setFilter(boolean filter) {
+        error = false;
         if (!this.filter) {
             listSelectItem[0].clear();
             listSelectItem[1].clear();
@@ -513,12 +520,14 @@ public class EmailBean implements Serializable {
 
     public List<EmailPessoa> getListEmailPessoas() {
         if (listEmailPessoas.isEmpty()) {
-            int idRotina = 0;
+            Integer idRotina = null;
             Date di = null;
             Date df = null;
             if (filter) {
                 if (filterByRotina) {
-                    idRotina = Integer.parseInt((getListRotinas().get(index[0]).getDescription()));
+                    if (index[0] != null) {
+                        idRotina = Integer.parseInt((getListRotinas().get(index[0]).getDescription()));
+                    }
                 }
                 di = date[0];
                 df = date[1];
@@ -527,12 +536,12 @@ public class EmailBean implements Serializable {
             if (filterRascunho) {
                 listEmailPessoas = ed.findRascunho();
             } else if (verTodosUsuarios) {
-                listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);
+                listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, error, emailLote, orderBy);
             } else {
                 if (idUsuario == null) {
-                    listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, orderBy);
+                    listEmailPessoas = ed.findEmail(idRotina, di, df, filterBy, descricaoPesquisa, error, emailLote, orderBy);
                 } else {
-                    listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, orderBy);
+                    listEmailPessoas = ed.findEmail(idRotina, idUsuario, di, df, filterBy, descricaoPesquisa, error, emailLote, orderBy);
                 }
             }
         }
@@ -624,7 +633,7 @@ public class EmailBean implements Serializable {
      * @param crotina id da Rotina
      */
     public void showEmailRotina(int crotina) {
-        if(crotina == -1) {
+        if (crotina == -1) {
             crotina = new Rotina().get().getId();
         }
         GenericaSessao.remove("emailBean");
@@ -683,5 +692,29 @@ public class EmailBean implements Serializable {
 
     public void setListUsuarios(List<SelectItem> listUsuarios) {
         this.listUsuarios = listUsuarios;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+
+    public String getEmailLote() {
+        return emailLote;
+    }
+
+    public void setEmailLote(String emailLote) {
+        this.emailLote = emailLote;
+    }
+
+    public List[] getListSelectItem() {
+        return listSelectItem;
+    }
+
+    public void setListSelectItem(List[] listSelectItem) {
+        this.listSelectItem = listSelectItem;
     }
 }

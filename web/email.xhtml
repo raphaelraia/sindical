@@ -46,6 +46,9 @@
                                                 <p:selectBooleanCheckbox value="#{emailBean.filterRascunho}"  rendered="#{!emailBean.filterNewMessage}" styleClass="margin-left-max" itemLabel="Rascunhos">
                                                     <p:ajax event="change" update="@this, :form_email:" listener="#{emailBean.listEmailPessoas.clear()}"/>
                                                 </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{emailBean.error}"  rendered="#{emailBean.filter}" styleClass="margin-left-max" itemLabel="Com erro">
+                                                    <p:ajax event="change" update="@this, :form_email:" listener="#{emailBean.listEmailPessoas.clear()}" />
+                                                </p:selectBooleanCheckbox>
                                                 <p:commandButton icon="ui-icon-refresh" action="#{emailBean.listEmailPessoas.clear()}" rendered="#{!emailBean.filterNewMessage}" update=":form_email:" styleClass="margin-left-max" title="Atualizar enviados"/>
                                             </h:column>
                                             <h:column rendered="#{emailBean.filter}">
@@ -78,17 +81,19 @@
                                                                 <f:selectItem itemValue="email" itemLabel="Email" />
                                                                 <f:selectItem itemValue="assunto" itemLabel="Assunto" />
                                                                 <f:selectItem itemValue="pessoa" itemLabel="Nome" />
-                                                            </p:selectOneMenu>                                      
+                                                            </p:selectOneMenu>
                                                             <p:inputText size="40" value="#{emailBean.descricaoPesquisa}" placeholder="Digite aqui o termo a ser pesquisado" disabled="#{empty emailBean.filterBy}">
                                                                 <p:ajax event="blur" update="@this, :form_email:i_tbl" listener="#{emailBean.listEmailPessoas.clear()}"/>
                                                             </p:inputText>
                                                         </h:panelGrid>
                                                     </h:column>
+                                                </h:panelGrid>
+                                                <h:panelGrid rendered="#{!emailBean.filterNewMessage}" columns="2">
                                                     <h:column>
                                                         <p:outputLabel value="Data: " style="float: right;" />
                                                     </h:column>
                                                     <h:column>
-                                                        <h:panelGrid columns="5" cellpadding="5">
+                                                        <h:panelGrid columns="10" cellpadding="5">
                                                             <p:calendar value="#{emailBean.date[0]}" pattern="dd/MM/yyyy" size="10" navigator="true" onclick="$(this).mask('99/99/9999');">
                                                                 <p:ajax event="dateSelect" listener="#{emailBean.selectedDataInicial}" />
                                                             </p:calendar>
@@ -96,6 +101,11 @@
                                                             <p:calendar value="#{emailBean.date[1]}" pattern="dd/MM/yyyy"  size="10" navigator="true" onclick="$(this).mask('99/99/9999');">
                                                                 <p:ajax event="dateSelect" listener="#{emailBean.selectedDataFinal}" />
                                                             </p:calendar>
+                                                            <p:outputLabel value="Lote (s): " style="float: right;" />
+                                                            <p:inputText value="#{emailBean.emailLote}" placeholder="Ex: 1 ou 1,2,3,6 ou 4,6,9">
+                                                                <p:ajax event="change" update="@this"/>
+                                                            </p:inputText>                                                            
+                                                            <p:outputLabel value="Ex: 1 ou 1,2,3,6 ou 4,6,9" styleClass="bold"/>
                                                             <p:commandButton value="Filtrar" action="#{emailBean.listEmailPessoas.clear()}" update=":form_email:" />
                                                             <p:commandButton icon="ui-icon-circle-minus" action="#{emailBean.clear(1)}" update=":form_email:" title="Limpar data"/>
                                                         </h:panelGrid>
@@ -170,10 +180,7 @@
                                 </h:panelGrid>
                             </p:panel>
                             <h:panelGrid columns="1" rendered="#{!emailBean.filterNewMessage}" styleClass="margin-top-max" id="i_tbl">
-                                <p:dataTable value="#{emailBean.listEmailPessoas}" var="emailPessoa" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="500" paginator="true" rows="25" >
-                                    <p:column width="35" headerText="Lote" styleClass="text-center">
-                                        #{emailPessoa.email.id}
-                                    </p:column>                                    
+                                <p:dataTable value="#{emailBean.listEmailPessoas}" var="emailPessoa" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="500" paginator="true" rows="25" rowStyleClass="#{empty emailPessoa.email.erro ? '' : 'bg-orange bold'}">
                                     <p:column width="15">
                                         <p:rowToggler />
                                     </p:column>                                     
@@ -202,7 +209,10 @@
                                         <h:outputLabel value="#{emailPessoa.recebimento}">
                                             <f:convertDateTime />
                                         </h:outputLabel>                                                   
-                                    </p:column>                                    
+                                    </p:column>
+                                    <p:column width="35" headerText="Lote" styleClass="text-center ">
+                                        #{emailPessoa.email.emailLote ne null ? emailPessoa.email.emailLote.id : ''}
+                                    </p:column>
                                     <p:rowExpansion styleClass="bg-yellow-ligth" rendered="#{emailPessoa.pessoa.id != -1}">
                                         <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
                                         <p:outputLabel value="Nome: #{emailPessoa.pessoa.nome}" /><br />
@@ -211,7 +221,16 @@
                                         <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
                                         <p:outputLabel value="BCC: #{emailPessoa.bcc}" rendered="#{empty emailPessoa.bcc}" /><br />
                                         <div class="clear"></div>
+                                        <p:outputLabel value="Data do Lote" rendered="#{empty emailPessoa.email.emailLote ne null}" />
+                                        <p:outputLabel value="#{emailPessoa.email.emailLote.data}" rendered="#{empty emailPessoa.email.emailLote ne null}">
+                                            <f:convertDateTime />
+                                        </p:outputLabel>
+                                        <br />
+                                        <div class="clear"></div>
                                         <p:commandLink value="Mensagem" action="#{emailBean.showMensagem(emailPessoa.email.mensagem)}" oncomplete="PF('dlg_show_message').show()" update=":form_email:i_detalhes_msg"/>
+                                        <br />
+                                        <br />
+                                        <p:outputLabel value="Erro: #{emailPessoa.email.erro}" rendered="#{not empty emailPessoa.email.erro}" /><br />
                                     </p:rowExpansion>
                                     <f:facet name="footer">
                                         <h:outputText value="Quantidade exibida: #{emailBean.listEmailPessoas.size()} email(s)" /><br /><br />

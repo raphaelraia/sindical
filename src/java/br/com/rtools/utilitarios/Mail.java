@@ -9,6 +9,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailArquivo;
 import br.com.rtools.sistema.ConfiguracaoDepartamento;
+import br.com.rtools.sistema.EmailLote;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.EmailPrioridade;
 import java.io.File;
@@ -45,7 +46,7 @@ import javax.mail.internet.MimeMultipart;
 @ManagedBean
 @SessionScoped
 public class Mail extends MailTemplate implements Serializable {
-
+    
     private Email email;
     private Registro registro;
     private List<Email> emails;
@@ -59,8 +60,10 @@ public class Mail extends MailTemplate implements Serializable {
     private Boolean message_hidden;
     private Boolean unique;
     private ConfiguracaoDepartamento configuracaoDepartamento;
-
+    private EmailLote emailLote;
+    
     public Mail() {
+        emailLote = null;
         unique = false;
         email = new Email();
         registro = new Registro();
@@ -74,7 +77,7 @@ public class Mail extends MailTemplate implements Serializable {
         message_hidden = false;
         configuracaoDepartamento = null;
     }
-
+    
     public Mail(Email email, Registro registro, List<Email> emails, List<EmailPessoa> emailPessoas, List<File> files, boolean saveFiles, EmailArquivo emailArquivo, List<EmailArquivo> emailArquivos, String html, String personal, ConfiguracaoDepartamento configuracaoDepartamento) {
         this.email = email;
         this.registro = registro;
@@ -88,11 +91,11 @@ public class Mail extends MailTemplate implements Serializable {
         this.personal = personal;
         this.configuracaoDepartamento = configuracaoDepartamento;
     }
-
+    
     public String[] send() {
         return send("");
     }
-
+    
     public String[] send(String templateHtml) {
         String[] strings = new String[]{"", "", "", ""};
         if (getRegistro() == null || getRegistro().getId() == -1) {
@@ -153,6 +156,10 @@ public class Mail extends MailTemplate implements Serializable {
                 personal = AnaliseString.converterCapitalize(personal);
                 boolean saveArquivosEmail = false;
                 for (int i = 0; i < emailPessoas.size(); i++) {
+                    Boolean success = true;
+                    boolean updateEmail = false;
+                    String token_email = "";
+                    String message_excepcion = "";
                     try {
                         Session session;
                         if (registro.isSisEmailMarketing()) {
@@ -209,7 +216,6 @@ public class Mail extends MailTemplate implements Serializable {
                         }
                         String assuntox = AnaliseString.converterCapitalize(email.getAssunto());
                         String uuid = "";
-                        String token_email = "";
                         if (unique) {
                             if (!assuntox.isEmpty() && !assuntox.contains("UUID: ")) {
                                 uuid += UUID.randomUUID().toString();
@@ -336,64 +342,15 @@ public class Mail extends MailTemplate implements Serializable {
                             }
                             // Transport.send(msg);
                         }
-                        boolean updateEmail = false;
-                        if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {
-                            emailPessoas.get(i).setPessoa(null);
-                        }
-                        if(email.getId() == -1) {
-                            email.setId(null);
-                        }
-                        if (email.getId() == null) {
-                            email.setData(new Date());
-                            email.setHora(DataHoje.livre(new Date(), "HH:mm"));
-                            if (email.getUsuario() != null && email.getUsuario().getId() == -1) {
-                                email.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
-                            }
-                            if (email.getEmailPrioridade() == null) {
-                                email.setEmailPrioridade((EmailPrioridade) di.find(new EmailPrioridade(), 1));
-                            } else {
-                                email.setEmailPrioridade((EmailPrioridade) di.find(new EmailPrioridade(), email.getEmailPrioridade().getId()));
-                            }
-                            if (message_hidden) {
-                                email.setMensagem("");
-                            }
-                            if (di.save(email, true)) {
-                                emailPessoas.get(i).setUuid(token_email);
-                                emailPessoas.get(i).setEmail(email);
-                                emailPessoas.get(i).setHoraSaida(DataHoje.livre(new Date(), "HH:mm"));
-                                di.save(emailPessoas.get(i), true);
-                            }
-                            if (!saveArquivosEmail) {
-                                if (!emailArquivos.isEmpty()) {
-                                    for (EmailArquivo ea : emailArquivos) {
-                                        ea.setEmail(email);
-                                        if (di.save(ea.getArquivo(), true)) {
-                                            if (di.save(ea, true)) {
-                                            }
-                                        }
-                                    }
-                                    saveArquivosEmail = true;
-                                    emailArquivos.size();
-                                }
-                            }
-                        } else {
-                            if (!updateEmail) {
-                                di.update(email, true);
-                                updateEmail = true;
-                            }
-                            emailPessoas.get(i).setEmail(email);
-                            emailPessoas.get(i).setHoraSaida(DataHoje.livre(new Date(), "HH:mm"));
-                            if (emailPessoas.get(i).getId() == null) {
-                                di.save(emailPessoas.get(i), true);
-                            } else {
-                                di.update(emailPessoas.get(i), true);
-                            }
-                        }
+                        success = true;
                         strings[0] = "Enviado com Sucesso.";
                     } catch (AddressException e) {
+                        success = false;
                         strings[1] = "Email de destinatário inválido!";
                         strings[1] += " - " + returnExceptionText(e.getMessage());
+                        message_excepcion = strings[1];
                     } catch (MessagingException e) {
+                        success = false;
                         if (e.getCause() != null && e.getCause().toString().contains("PKIX")) {
                             strings[1] = "" + e.getCause().toString();
                         } else {
@@ -404,123 +361,184 @@ public class Mail extends MailTemplate implements Serializable {
                                 strings[1] += ": " + emailPessoas.get(i).getDestinatario();
                             }
                         }
+                        message_excepcion = strings[1];
                     } catch (UnsupportedEncodingException ex) {
+                        success = false;
                         strings[1] = "Erro ";
                         strings[1] += " - " + returnExceptionText(ex.getMessage());
+                        message_excepcion = strings[1];
+                    }
+                    if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {
+                        emailPessoas.get(i).setPessoa(null);
+                    }
+                    if (email.getId() == -1) {
+                        email.setId(null);
+                    }
+                    if (!success) {
+                        email.setErro(message_excepcion);
+                    }
+                    if (email.getId() == null) {
+                        if (emailLote != null) {
+                            email.setEmailLote(emailLote);
+                        }
+                        email.setData(new Date());
+                        email.setHora(DataHoje.livre(new Date(), "HH:mm"));
+                        if (email.getUsuario() != null && email.getUsuario().getId() == -1) {
+                            email.setUsuario((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+                        }
+                        if (email.getEmailPrioridade() == null) {
+                            email.setEmailPrioridade((EmailPrioridade) di.find(new EmailPrioridade(), 1));
+                        } else {
+                            email.setEmailPrioridade((EmailPrioridade) di.find(new EmailPrioridade(), email.getEmailPrioridade().getId()));
+                        }
+                        if (message_hidden) {
+                            email.setMensagem("");
+                        }
+                        if (di.save(email, true)) {
+                            emailPessoas.get(i).setUuid(token_email);
+                            emailPessoas.get(i).setEmail(email);
+                            emailPessoas.get(i).setHoraSaida(DataHoje.livre(new Date(), "HH:mm"));
+                            di.save(emailPessoas.get(i), true);
+                        }
+                        if (!saveArquivosEmail) {
+                            if (!emailArquivos.isEmpty()) {
+                                for (EmailArquivo ea : emailArquivos) {
+                                    ea.setEmail(email);
+                                    if (di.save(ea.getArquivo(), true)) {
+                                        if (di.save(ea, true)) {
+                                        }
+                                    }
+                                }
+                                saveArquivosEmail = true;
+                                emailArquivos.size();
+                            }
+                        }
+                    } else {
+                        if (!updateEmail) {
+                            di.update(email, true);
+                            updateEmail = true;
+                        }
+                        emailPessoas.get(i).setEmail(email);
+                        emailPessoas.get(i).setHoraSaida(DataHoje.livre(new Date(), "HH:mm"));
+                        if (emailPessoas.get(i).getId() == null) {
+                            di.save(emailPessoas.get(i), true);
+                        } else {
+                            di.update(emailPessoas.get(i), true);
+                        }
                     }
                 }
             }
         }
         return strings;
     }
-
+    
     public Email getEmail() {
         return email;
     }
-
+    
     public void setEmail(Email email) {
         this.email = email;
     }
-
+    
     public Registro getRegistro() {
         if (registro == null || registro.getId() == -1) {
             registro = (Registro) new Dao().find(new Registro(), 1);
         }
         return registro;
     }
-
+    
     public void setRegistro(Registro registro) {
         this.registro = registro;
     }
-
+    
     public List<Email> getEmails() {
         return emails;
     }
-
+    
     public void setEmails(List<Email> emails) {
         this.emails = emails;
     }
-
+    
     public List<EmailPessoa> getEmailPessoas() {
         return emailPessoas;
     }
-
+    
     public void setEmailPessoas(List<EmailPessoa> emailPessoas) {
         this.emailPessoas = emailPessoas;
     }
-
+    
     public EmailArquivo getEmailArquivo() {
         return emailArquivo;
     }
-
+    
     public void setEmailArquivo(EmailArquivo emailArquivo) {
         this.emailArquivo = emailArquivo;
     }
-
+    
     public List<EmailArquivo> getEmailArquivos() {
         return emailArquivos;
     }
-
+    
     public void setEmailArquivos(List<EmailArquivo> emailArquivos) {
         this.emailArquivos = emailArquivos;
     }
-
+    
     public List<File> getFiles() {
         return files;
     }
-
+    
     public void setFiles(List<File> files) {
         this.files = files;
     }
-
+    
     public void addFile(File f) {
         files.add(f);
     }
-
+    
     public String getHtml() {
         return html;
     }
-
+    
     public void setHtml(String html) {
         this.html = html;
     }
-
+    
     public String getPersonal() {
         return personal;
     }
-
+    
     public void setPersonal(String personal) {
         this.personal = personal;
     }
-
+    
     public boolean isSaveFiles() {
         return saveFiles;
     }
-
+    
     public void setSaveFiles(boolean saveFiles) {
         this.saveFiles = saveFiles;
     }
-
+    
     public Boolean getMessage_hidden() {
         return message_hidden;
     }
-
+    
     public void setMessage_hidden(Boolean message_hidden) {
         this.message_hidden = message_hidden;
     }
-
+    
     public ConfiguracaoDepartamento getConfiguracaoDepartamento() {
         return configuracaoDepartamento;
     }
-
+    
     public void setConfiguracaoDepartamento(ConfiguracaoDepartamento configuracaoDepartamento) {
         this.configuracaoDepartamento = configuracaoDepartamento;
     }
-
+    
     public String returnExceptionText(String e) {
         try {
             if (e.contains("Could not convert socket to TLS")) {
-
+                
                 return "Não foi possível converter socket para TLS";
             } else if (e.contains("504 Invalid Username or Password")) {
                 return "Login (Email) ou senha inválida";
@@ -530,11 +548,11 @@ public class Mail extends MailTemplate implements Serializable {
                 return "Dominio com caracteres errados";
             }
         } catch (Exception ex) {
-
+            
         }
         return e;
     }
-
+    
     public String oauth() throws IOException {
 //        Oauth2 oauth2 = null;
 //        oauth2 = new Oauth2(null, null, null);
@@ -543,16 +561,16 @@ public class Mail extends MailTemplate implements Serializable {
 
     // https://stackoverflow.com/questions/17818501/set-messageid-in-header-before-sending-mail
     public static String getUniqueMessageIDValue(Session ssn) {
-
+        
         String suffix = null;
-
+        
         InternetAddress addr = InternetAddress.getLocalAddress(ssn);
         if (addr != null) {
             suffix = addr.getAddress();
         } else {
             suffix = "javamailuser@localhost"; // worst-case default
         }
-
+        
         StringBuffer s = new StringBuffer();
 
         // Unique string is <hashcode>.<id>.<currentTime>.JavaMail.<suffix>
@@ -562,15 +580,15 @@ public class Mail extends MailTemplate implements Serializable {
                 append(suffix);
         return s.toString();
     }
-
+    
     private static synchronized String getUniqueId() {
         return UUID.randomUUID().toString();
     }
-
+    
     public Boolean getUnique() {
         return unique;
     }
-
+    
     public void setUnique(Boolean unique) {
         this.unique = unique;
     }
@@ -928,7 +946,7 @@ public class Mail extends MailTemplate implements Serializable {
                 + "";
         return tpl;
     }
-
+    
     public static String stringToMD5(String string) {
         MessageDigest messageDigest;
         try {
@@ -939,5 +957,13 @@ public class Mail extends MailTemplate implements Serializable {
             Logger.getLogger(Mail.class.getName()).log(Level.SEVERE, null, ex);
         }
         return "";
+    }
+    
+    public EmailLote getEmailLote() {
+        return emailLote;
+    }
+    
+    public void setEmailLote(EmailLote emailLote) {
+        this.emailLote = emailLote;
     }
 }

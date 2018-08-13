@@ -19,6 +19,17 @@ public class CaravanaDao extends DB {
         }
     }
 
+    public Caravana findByCaravana(Integer caravana_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT C FROM Caravana AS C WHERE C.id = :caravana_id");
+            query.setParameter("caravana_id", caravana_id);
+            return (Caravana) query.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
     public List<Caravana> findAll(String tcase) {
         try {
             Query query = null;

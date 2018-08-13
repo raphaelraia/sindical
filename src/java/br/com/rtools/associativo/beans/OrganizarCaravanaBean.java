@@ -6,6 +6,7 @@ import br.com.rtools.associativo.beans.VendasCaravanaBean.ListaReservas;
 import br.com.rtools.associativo.dao.CaravanaReservasDao;
 import br.com.rtools.associativo.dao.PoltronasDao;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
@@ -13,6 +14,7 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.BloqueioRotina;
 import br.com.rtools.sistema.dao.BloqueioRotinaDao;
+import br.com.rtools.sistema.dao.SisEtiquetasDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -21,6 +23,7 @@ import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +220,7 @@ public class OrganizarCaravanaBean implements Serializable {
             fichaReservas.setLocal(caravana.getEvento().getDescricaoEvento().getDescricao() + " " + caravana.getTituloComplemento());
             fichaReservas.setPeriodo("De " + caravana.getDataEstadiaInicio() + " à " + caravana.getDataEstadiaFim());
             fichaReservas.setEntrada(caravana.getDataEmbarqueIda() + " - " + caravana.getHoraEmbarqueIda() + " hrs");
-            fichaReservas.setSaida(caravana.getDataEmbarqueRetorno()+ " - " + caravana.getHoraEmbarqueRetorno() + " hrs");
+            fichaReservas.setSaida(caravana.getDataEmbarqueRetorno() + " - " + caravana.getHoraEmbarqueRetorno() + " hrs");
             fichaReservas.setResponsavel_nome(r.getCaravanaReservas().getVenda().getResponsavel().getNome());
             fichaReservas.setResponsavel_documento(r.getCaravanaReservas().getVenda().getResponsavel().getDocumento());
             fichaReservas.setDias(DataHoje.calculoDosDias(caravana.getDtEstadiaInicio(), caravana.getDtEstadiaFim()));
@@ -283,6 +286,49 @@ public class OrganizarCaravanaBean implements Serializable {
         Map map = new HashMap();
         map.put("poltronas_disponiveis", poltronas_disponiveis);
         Jasper.printReports("CARAVANA_RESERVAS.jasper", "Ficha de reservas", listFichaReservas, map);
+    }
+
+    /**
+     *
+     * Imprime endereços de uma lista de id pessoas
+     */
+    public void etiquetas() {
+        List<Etiquetas> c = new ArrayList<>();
+        for (Reservas r : listReservas) {
+            List list = new SisEtiquetasDao().findEnderecosByInPessoa(r.getCaravanaReservas().getVenda().getResponsavel().getId(), 1);
+            Etiquetas e = new Etiquetas();
+            for (Object list1 : list) {
+                List o = (List) list1;
+                try {
+                    e = new Etiquetas(
+                            r.getCaravanaReservas().getPessoa().getNome(), // Nome passageiro
+                            o.get(4), // Logradouro
+                            o.get(5), // Endereço
+                            o.get(6), // Número
+                            o.get(8), // Bairro
+                            o.get(9), // Cidade
+                            o.get(10), // UF
+                            o.get(11), // Cep
+                            o.get(7), // Complemento
+                            r.getCaravanaReservas().getVenda().getResponsavel().getTelefone1() + " " + r.getCaravanaReservas().getVenda().getResponsavel().getTelefone3() // Responsável
+                    );
+                } catch (Exception ex) {
+
+                }
+                c.add(e);
+            }
+        }
+
+        if (c.isEmpty()) {
+            GenericaMensagem.info("Sistema", "Nenhum registro encontrado!");
+            return;
+        }
+
+        Jasper.printReports(
+                "/Relatorios/ETIQUETAS.jasper",
+                "etiquetas_caravana_" + listReservas.get(0).getCaravanaReservas().getVenda().getCaravana().getId(),
+                (Collection) c
+        );
     }
 
     public class FichaReservas {

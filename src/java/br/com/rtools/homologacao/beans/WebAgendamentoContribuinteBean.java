@@ -395,6 +395,17 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
     public void salvar() {
         Dao dao = new Dao();
+
+        if (fisica.getPessoa().getDocumento().isEmpty() || fisica.getPessoa().getDocumento().equals("0")) {
+            GenericaMensagem.warn("Validação", "Informar o CPF!");
+            return;
+        } else {
+            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
+                GenericaMensagem.warn("Atenção", "Documento Inválido!");
+                return;
+            }
+        }
+
         if (agendamento.getId() != -1) {
             if (agendamento.getDtEmissao() != null && agendamento.getDtRecusa2() == null && agendamento.getDtSolicitacao2() == null) {
                 Agendamento a = (Agendamento) dao.find(new Agendamento(), agendamento.getId());
@@ -482,6 +493,15 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             GenericaMensagem.warn("Atenção", "Digite o nome do Funcionário!");
             return;
         }
+        
+        if (fisica.getId() != -1) {
+            if (dao.update(fisica.getPessoa(), true)) {
+                dao.update(fisica, true);
+            } else {
+                GenericaMensagem.error("Erro", "Não foi possível salvar pessoa!");
+                return;
+            }
+        }
 
         if (!getStrContribuinte().isEmpty()) {
             GenericaMensagem.error("Atenção", "Não é permitido agendar para uma empresa não contribuinte!");
@@ -490,17 +510,21 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
         DataHoje dataH = new DataHoje();
         Demissao demissao = (Demissao) dao.find(new Demissao(), Integer.parseInt(listaMotivoDemissao.get(idMotivoDemissao).getDescription()));
+
         if (!demissao.getMotivoWeb()) {
             GenericaMensagem.warn("Sistema", demissao.getMensagemMotivoWeb());
             return;
         }
+
         if (configuracaoHomologacao.getWebDocumentoObrigatorio()) {
             if (getListFiles().isEmpty()) {
                 GenericaMensagem.warn("Validação", "OBRIGATÓRIO ANEXAR DOCUMENTOS DIGITALIZADOS NECESSÁRIOS PARA HOMOLOGAÇÃO!");
                 return;
             }
         }
-        if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
+
+        if (!pessoaEmpresa.getDemissao()
+                .isEmpty() && pessoaEmpresa.getDemissao() != null) {
             if (null != demissao.getId()) {
                 switch (demissao.getId()) {
                     case 1:
@@ -531,17 +555,16 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         }
         // RELAÇÃO DE EMPREGADOS
         List listRelacao = new RelacaoEmpregadosDao().findNotSendingByPessoa(juridica.getPessoa().getId());
+
         if (!listRelacao.isEmpty()) {
             GenericaMensagem.warn("Erro", "Para efetuar esse agendamento CONTATE o Sindicato (2)!");
             return;
         }
+
         dao.openTransaction();
+
         if (fisica.getId() == -1) {
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
-            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
-                GenericaMensagem.error("Atenção", "Documento Inválido!");
-                return;
-            }
             if (dao.save(fisica.getPessoa())) {
                 dao.save(fisica);
             } else {
@@ -553,7 +576,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
         HomologacaoDao dba = new HomologacaoDao();
         Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId(), nrRegistro);
-        if (age != null) {
+        if (age
+                != null) {
             GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " com mesmo número de registro " + nrRegistro + " !");
             if (configuracaoHomologacao.getWebValidaAgendamento()) {
                 if (age.getDtRecusa1() != null && age.getDtRecusa2() == null && !age.getMotivoRecusa().isEmpty()) {
@@ -567,7 +591,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         PessoaEnderecoDao dbp = new PessoaEnderecoDao();
         int ids[] = {1, 3, 4};
 
-        if (enderecoFisica.getId() == -1) {
+        if (enderecoFisica.getId()
+                == -1) {
             if (enderecoFisica.getEndereco().getId() != -1) {
                 enderecoFisica.setPessoa(fisica.getPessoa());
                 PessoaEndereco pesEnd = enderecoFisica;
@@ -600,7 +625,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             }
         }
 
-        if (pessoaEmpresa.getId() == -1) {
+        if (pessoaEmpresa.getId()
+                == -1) {
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setJuridica(juridica);
             if (profissao.getId() == -1) {
@@ -628,7 +654,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             }
         }
 
-        if (!listaEmDebito.isEmpty() && !registro.isBloquearHomologacao()) {
+        if (!listaEmDebito.isEmpty()
+                && !registro.isBloquearHomologacao()) {
             if (!updatePessoaEmpresa(dao)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
                 dao.rollback();
@@ -639,7 +666,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return;
         }
 
-        if (!listaEmDebito.isEmpty() && registro.isBloquearHomologacao()) {
+        if (!listaEmDebito.isEmpty()
+                && registro.isBloquearHomologacao()) {
             if (registro.getMesesInadimplentesAgenda() > 0) {
                 Integer qtdeMeses = new FunctionsDao().quantidadeMesesDebitoArr(pessoaEmpresa.getJuridica().getPessoa().getId());
                 if (qtdeMeses > registro.getMesesInadimplentesAgenda()) {
@@ -1006,7 +1034,13 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 if (!listFisica.isEmpty()) {
                     for (int i = 0; i < listFisica.size(); i++) {
                         if (listFisica.get(i).getId() != fisica.getId()) {
-                            fisica = listFisica.get(i);
+                            Fisica f = listFisica.get(i);
+                            if (f.getPessoa().getDocumento().equals("0") || f.getPessoa().getDocumento().isEmpty()) {
+                                if (!documento.isEmpty()) {
+                                    f.getPessoa().setDocumento(documento);
+                                }
+                            }
+                            fisica = f;
                             readonlyFisica = true;
                             break;
                         }
