@@ -206,7 +206,7 @@ public class MovimentoCartaoBean implements Serializable {
             return;
         }
 
-        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), cartaoSelecionado.getPlano5());
+        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), cartaoSelecionado.getPlano5(), dataTransferencia);
 
         if (!dao.save(forma_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
@@ -318,7 +318,7 @@ public class MovimentoCartaoBean implements Serializable {
     public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historico_contabil) {
         return new Lote(
                 -1,
-                (Rotina) dao.find(new Rotina(), 225), // ROTINA
+                (Rotina) dao.find(new Rotina(), 415), // ROTINA
                 pag_rec, // PAG REC
                 DataHoje.data(), // LANCAMENTO
                 (Pessoa) dao.find(new Pessoa(), 0), // PESSOA
@@ -381,7 +381,7 @@ public class MovimentoCartaoBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, Date data_transferencia) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -395,7 +395,7 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 (TipoPagamento) dao.find(new TipoPagamento(), 10),
                 0,
-                DataHoje.dataHoje(),
+                data_transferencia,
                 0,
                 null,
                 0,
@@ -418,7 +418,7 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 0,
                 0,
-                DataHoje.dataHoje(),
+                data_transferencia,
                 null,
                 null
         );

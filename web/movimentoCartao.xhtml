@@ -87,7 +87,7 @@
                                 <p:ajax event="rowUnselect" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" global="false" />
                                 <p:ajax event="rowUnselectCheckbox" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" global="false" />
 
-                                <p:column headerText="#" style="text-align: center; width: 80px">
+                                <p:column headerText="# FP" style="text-align: center; width: 80px">
                                     <p:outputLabel value="#{linha.formaPagamento.id}" />
                                 </p:column>
 
@@ -139,7 +139,7 @@
                                             <p:outputLabel value="" />
                                         </h:column>
                                     </h:panelGrid>
-
+                                    
                                     <h:panelGrid columns="1" style="width: 100%;" styleClass="sbb">
                                         <h:column>
                                             <p:dataTable value="#{linha.listaObjectCartaoDetalhe}" var="linha_detalhe" emptyMessage="Nenhum Detalhe encontrado!">

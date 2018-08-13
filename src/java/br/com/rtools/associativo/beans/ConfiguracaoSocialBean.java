@@ -3,6 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.SCobranca;
+import br.com.rtools.pessoa.StatusCobranca;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -27,12 +28,18 @@ public class ConfiguracaoSocialBean implements Serializable {
     private int idGrupoCategoria;
     private List<SelectItem> listaGrupoCategoria;
 
+    private int indexStatusCobranca;
+    private List<SelectItem> listaStatusCobranca;
+
     private SCobranca cobranca = new SCobranca();
 
     @PostConstruct
     public void init() {
         idGrupoCategoria = 0;
         listaGrupoCategoria = new ArrayList();
+        
+        indexStatusCobranca = 0;
+        listaStatusCobranca = new ArrayList();
 
         loadGrupoCategoria();
 
@@ -56,11 +63,32 @@ public class ConfiguracaoSocialBean implements Serializable {
         }
 
         cobranca = (SCobranca) dao.find(new SCobranca(), 1);
+
+        loadListaStatusCobranca();
+
+        for (int i = 0; i < listaStatusCobranca.size(); i++) {
+            if (Objects.equals(configuracaoSocial.getStatusCobranca().getId(), Integer.valueOf(listaStatusCobranca.get(i).getDescription()))) {
+                indexStatusCobranca = i;
+            }
+        }
     }
 
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("configuracaoSocialBean");
+    }
+
+    public void loadListaStatusCobranca() {
+        
+        indexStatusCobranca = 0;
+        listaStatusCobranca.clear();
+
+        List<StatusCobranca> result = new Dao().find("StatusCobranca", new int[]{1, 2});
+
+        for (int i = 0; i < result.size(); i++) {
+            listaStatusCobranca.add(new SelectItem(i, result.get(i).getDescricao(), Integer.toString(result.get(i).getId())));
+        }
+
     }
 
     public void update() {
@@ -81,6 +109,8 @@ public class ConfiguracaoSocialBean implements Serializable {
             } else {
                 configuracaoSocial.setGrupoCategoriaInativaDemissionado((GrupoCategoria) new Dao().find(new GrupoCategoria(), Integer.valueOf(listaGrupoCategoria.get(idGrupoCategoria).getDescription())));
             }
+
+            configuracaoSocial.setStatusCobranca((StatusCobranca) new Dao().find(new StatusCobranca(), Integer.valueOf(listaStatusCobranca.get(indexStatusCobranca).getDescription())));
 
             if (dao.update(configuracaoSocial, true)) {
                 GenericaMensagem.info("Sucesso", "Configurações Aplicadas");
@@ -163,6 +193,22 @@ public class ConfiguracaoSocialBean implements Serializable {
 
     public void setRegistro(Registro registro) {
         this.registro = registro;
+    }
+
+    public int getIndexStatusCobranca() {
+        return indexStatusCobranca;
+    }
+
+    public void setIndexStatusCobranca(int indexStatusCobranca) {
+        this.indexStatusCobranca = indexStatusCobranca;
+    }
+
+    public List<SelectItem> getListaStatusCobranca() {
+        return listaStatusCobranca;
+    }
+
+    public void setListaStatusCobranca(List<SelectItem> listaStatusCobranca) {
+        this.listaStatusCobranca = listaStatusCobranca;
     }
 
 }

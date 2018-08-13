@@ -184,6 +184,47 @@ public final class FechamentoCaixaBean implements Serializable {
         }
     }
 
+    public void previaFechamentoCaixa() {
+        Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+
+        FinanceiroDao db = new FinanceiroDao();
+        
+        Caixa c = (Caixa) new Dao().find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
+
+        List<Object> result = db.listaPreviaFechamento(fechamento.getData(), c.getUsuario().getId());
+
+        if (result.isEmpty()){
+            GenericaMensagem.error("Atenção", "Lista de Fechamento vazia!");
+            return;
+        }
+        
+        Collection lista = new ArrayList();
+
+        for (Object r : result) {
+            List linha = (List) r;
+
+            lista.add(
+                    new ObjectPreviaFechamentoCaixa(
+                            linha.get(0),
+                            linha.get(1),
+                            linha.get(2),
+                            linha.get(3),
+                            linha.get(4),
+                            linha.get(5)
+                    )
+            );
+        }
+
+        try {
+            Jasper.PATH = "downloads";
+            Jasper.PART_NAME = "";
+            Jasper.printReports("/Relatorios/PREVIA_FECHAMENTO_CAIXA.jasper", "previa_fechamento_caixa", lista);
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
+    }
+
     public void resumoFechamentoCaixa() {
         if (dataResumoFechamento.isEmpty()) {
             return;
@@ -401,7 +442,7 @@ public final class FechamentoCaixaBean implements Serializable {
                 dao.commit();
 
                 GenericaMensagem.info("Atenção", "Apenas estornos foram fechados!");
-                
+
                 loadListaFechamento();
                 return;
             }
@@ -450,7 +491,7 @@ public final class FechamentoCaixaBean implements Serializable {
                     return;
                 }
             }
-            
+
             fechamento.setValorFechamento(Moeda.subtracao(fechamento.getValorFechamento(), valorx));
             dao.update(fechamento);
         }
@@ -534,7 +575,7 @@ public final class FechamentoCaixaBean implements Serializable {
                     PF.openDialog("i_dlg_transferir");
                     PF.update(":i_panel_transferencia");
                 } else {
-                    
+
                     // ROGÉRIO QUER QUE TRANSFERE ZERO CASO O VALOR SEJA NEGATIVO
                     if (fechamento.getValorInformado() < 0) {
                         valorTransferencia = Moeda.converteR$Double(0);
@@ -753,5 +794,73 @@ public final class FechamentoCaixaBean implements Serializable {
 
     public ConfiguracaoFinanceiroBean getCfb() {
         return cfb;
+    }
+
+    public class ObjectPreviaFechamentoCaixa {
+
+        private Object idBaixa;
+        private Object dataBaixa;
+        private Object es;
+        private Object nome;
+        private Object tipoPagamento;
+        private Object valor;
+
+        public ObjectPreviaFechamentoCaixa(Object idBaixa, Object dataBaixa, Object es, Object nome, Object tipoPagamento, Object valor) {
+            this.idBaixa = idBaixa;
+            this.dataBaixa = dataBaixa;
+            this.es = es;
+            this.nome = nome;
+            this.tipoPagamento = tipoPagamento;
+            this.valor = valor;
+        }
+
+        public Object getIdBaixa() {
+            return idBaixa;
+        }
+
+        public void setIdBaixa(Object idBaixa) {
+            this.idBaixa = idBaixa;
+        }
+
+        public Object getDataBaixa() {
+            return dataBaixa;
+        }
+
+        public void setDataBaixa(Object dataBaixa) {
+            this.dataBaixa = dataBaixa;
+        }
+
+        public Object getEs() {
+            return es;
+        }
+
+        public void setEs(Object es) {
+            this.es = es;
+        }
+
+        public Object getNome() {
+            return nome;
+        }
+
+        public void setNome(Object nome) {
+            this.nome = nome;
+        }
+
+        public Object getTipoPagamento() {
+            return tipoPagamento;
+        }
+
+        public void setTipoPagamento(Object tipoPagamento) {
+            this.tipoPagamento = tipoPagamento;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
     }
 }

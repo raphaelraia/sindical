@@ -21,11 +21,14 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
@@ -46,6 +49,11 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPMessage;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -733,45 +741,31 @@ public class CaixaFederalSigCB extends Cobranca {
             return new RespostaWebService(boleto, "");
         }
 
+        /*
+        
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        
+        NO SERVIDOR É OBRIGATÓRIO INSTALAR O CERTIFICADO DA CAIXA
+        EX.
+        
+        "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -importcert -alias CertificadoWebServiceCEF -file "C:\Users\Public\CertificadoWebServiceCEF.cer"
+
+        INFORMAR SENHA:
+        changeit
+        
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        ATENÇÃO ----------------------------------------------------------------
+        
+         */
         try {
-            File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
-            if (!flCert.exists()) {
-                return new RespostaWebService(null, "Certificado não encontrado!");
-            }
-            KeyStore clientStore = KeyStore.getInstance("PKCS12");
-            clientStore.load(new FileInputStream(flCert.getAbsolutePath()), "sisrtools989899".toCharArray());
 
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(clientStore, "sisrtools989899".toCharArray());
-            KeyManager[] kms = kmf.getKeyManagers();
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(clientStore);
-            TrustManager[] tms = tmf.getTrustManagers();
-
-            SSLContext sslContext = null;
-            sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(kms, null, new SecureRandom());
-
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-
-            //// Definir a URL Do Serviço sem a ?WSDL no fim
-            URL url = new URL("https://barramento.caixa.gov.br/sibar/ManutencaoCobrancaBancaria/Boleto/Externo?wsdl");
-            //URL url = new URL("https://barramento.caixa.gov.br/sibar/ConsultaCobrancaBancaria/Boleto?wsdl");
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-
-            conn.setRequestProperty("Type", "Request-Response");
-            conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
-            conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-            conn.setRequestProperty("User-Agent", "Jakarta Commons-HttpClient/3.1");
-            //conn.setRequestProperty("SOAPAction", "IncluiBoleto");
-            
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-
+            // MONTA SOAP --------
             Pessoa pessoa = boleto.getPessoa();
+            Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
+            String documento_sindicato = sindicato.getPessoa().getDocumento().replace("/", "").replace(".", "").replace("-", "");
 
             String endereco = pessoa.getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + pessoa.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao();
             String bairro = pessoa.getPessoaEndereco().getEndereco().getBairro().getDescricao();
@@ -787,8 +781,9 @@ public class CaixaFederalSigCB extends Cobranca {
             String cedente = "0000000".substring(0, 7 - codigo_cedente.length()) + codigo_cedente;
             String nosso_numero = "00000000000000000".substring(0, 17 - boleto.getBoletoComposto().length()) + boleto.getBoletoComposto();
             String vencimento_string = DataHoje.converteData(vencimento).replace("/", "");
-            String pessoa_documento = "00000000000000000".substring(0, 17 - pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", "").length()) + pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", "");
-            String AUTENTICACAO = cedente + nosso_numero + vencimento_string + valor_titulo + pessoa_documento;
+            String s_documento = "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato;
+            String AUTENTICACAO = cedente + nosso_numero + vencimento_string + valor_titulo + s_documento;
+            String HASH_AUTH = DO_HASHB64(AUTENTICACAO);
             /* FIM TICKET DE AUTENTICAÇÃO */
 
             String DATA_HORA = DataHoje.ano() + DataHoje.mes() + DataHoje.dia() + DataHoje.horaSemPonto().replace(":", ""); //ex. 20170221110643
@@ -796,19 +791,19 @@ public class CaixaFederalSigCB extends Cobranca {
             String NOSSO_NUMERO = nosso_numero; // ex. 14000000091946802
             String NUMERO_DOCUMENTO = "" + boleto.getId();
             String VENCIMENTO = DataHoje.ano(DataHoje.converteData(vencimento)) + "-" + DataHoje.mes(DataHoje.converteData(vencimento)) + "-" + DataHoje.dia(DataHoje.converteData(vencimento));
-            String VALOR = Moeda.converteDoubleToString(valor);
+            String VALOR = Double.toString(valor);
 
             String JUROS;
             if (boleto.getContaCobranca().getJurosMensal() <= 0) {
                 JUROS
                         = "					<TIPO>ISENTO</TIPO>\n"
-                        + "					<DATA>0000-00-00</DATA>\n"
+                        //+ "					<DATA>0000-00-00</DATA>\n"
                         + "					<VALOR>0</VALOR>\n";
             } else {
                 String vt = new DataHoje().incrementarDias(1, DataHoje.converteData(vencimento));
                 String vt2 = DataHoje.ano(vt) + "-" + DataHoje.mes(vt) + "-" + DataHoje.dia(vt);
 
-                String jr = Moeda.converteDoubleToString(boleto.getContaCobranca().getJurosMensal());
+                String jr = Double.toString(boleto.getContaCobranca().getJurosMensal());
 
                 JUROS
                         = "					<TIPO>TAXA_MENSAL</TIPO>\n"
@@ -823,12 +818,12 @@ public class CaixaFederalSigCB extends Cobranca {
 
             if (pessoa.getTipoDocumento().getId() == 1) { // CPF
                 DOCUMENTO_E_NOME
-                        = "					<CPF>" + "00000000000000000".substring(0, 11 - pessoa.getDocumento().replace(".", "").replace("-", "").length()) + pessoa.getDocumento().replace(".", "").replace("-", "") + "</CPF>\n"
+                        = "					<CPF>" + pessoa.getDocumento().replace(".", "").replace("-", "") + "</CPF>\n"
                         + "					<NOME>" + NOME + "</NOME>\n";
             } else if (pessoa.getTipoDocumento().getId() == 2) { // CNPJ
                 DOCUMENTO_E_NOME
-                        = "					<CNPJ>" + "00000000000000000".substring(0, 14 - pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", "").length()) + pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", "") + "</CNPJ>\n"
-                        + "					<NOME>" + NOME + "</NOME>\n";
+                        = "					<CNPJ>" + pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", "") + "</CNPJ>\n"
+                        + "					<RAZAO_SOCIAL>" + NOME + "</RAZAO_SOCIAL>\n";
             }
 
             if (DOCUMENTO_E_NOME.isEmpty()) {
@@ -842,130 +837,66 @@ public class CaixaFederalSigCB extends Cobranca {
             String CEP = cep;
 
             ENDERECO = (ENDERECO + "                                        ").substring(0, 40).trim();
-            BAIRRO = (BAIRRO + "                                        ").substring(0, 30).trim();
+            BAIRRO = (BAIRRO + "               ").substring(0, 15).trim();
             CIDADE = (CIDADE + "                                        ").substring(0, 20).trim();
 
-            String xmlTicket = TICKET_ENTRADA(AUTENTICACAO, DATA_HORA, CODIGO_BENEFICIARIO, NOSSO_NUMERO, NUMERO_DOCUMENTO, VENCIMENTO, VALOR, JUROS, DOCUMENTO_E_NOME, ENDERECO, BAIRRO, CIDADE, UF, CEP);
+            String xmlTicket = TICKET_ENTRADA(HASH_AUTH, DATA_HORA, CODIGO_BENEFICIARIO, NOSSO_NUMERO, NUMERO_DOCUMENTO, VENCIMENTO, VALOR, JUROS, DOCUMENTO_E_NOME, ENDERECO, BAIRRO, CIDADE, UF, CEP);
 
-//            String xml = TICKET_ENTRADA(
-//                    boleto.getContaCobranca().getCodCedente(),
-//                    td,
-//                    pessoa.getDocumento().replace(".", "").replace("-", "").replace("/", ""),
-//                    pagador_nome,
-//                    pagador_endereco,
-//                    pagador_bairro,
-//                    pagador_cidade,
-//                    uf,
-//                    cep,
-//                    getNossoNumeroFormatado().replace("-", ""),
-//                    DataHoje.converteData(vencimentoRegistro).replace("/", ""),
-//                    DataHoje.data().replace("/", ""),
-//                    "02", // CÓDIGO PARA 'DM'(duplicata mercantil)) NO MANUAL SANTANDER //boleto.getContaCobranca().getEspecieDoc().toUpperCase(),
-//                    valor_titulo
-//            );
-            wr.write(xmlTicket);
-            wr.flush();
+            // CONEXÃO --------
+            String soapEndpointUrl = "https://barramento.caixa.gov.br/sibar/ManutencaoCobrancaBancaria/Boleto/Externo?wsdl";
+            String soapAction = "IncluiBoleto";
 
-            // Leitura da Resposta do Serviço
-            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+            SOAPConnection soapConnection = soapConnectionFactory.createConnection();
 
-            // Leituras das Linhas da Resposta
-            String linhas = "";
-            while (rd.ready()) {
-                linhas += rd.readLine();
-            }
+            InputStream is = new ByteArrayInputStream(xmlTicket.getBytes());
 
-            wr.close();
-            rd.close();
-            conn.getInputStream().close();
+            SOAPMessage soapMessage = MessageFactory.newInstance().createMessage(null, is);
+
+            MimeHeaders headers = soapMessage.getMimeHeaders();
+            headers.addHeader("SOAPAction", soapAction);
+
+            soapMessage.saveChanges();
+
+            SOAPMessage soapResponse = soapConnection.call(soapMessage, soapEndpointUrl);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            soapResponse.writeTo(out);
+            String retorno = new String(out.toByteArray(), "UTF-8");
+
+            soapConnection.close();
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder;
 
             builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(linhas)));
+            Document document = builder.parse(new InputSource(new StringReader(retorno)));
 
             Element rootElement = document.getDocumentElement();
 
-            String requestQueueID = getString("retCode", rootElement);
+            String requestQueueID = getString("MSG_RETORNO", rootElement);
 
-//            if (requestQueueID.equals("0")) {
-//
-//                String requestTicket = getString("ticket", rootElement);
-//
-//                url = new URL("https://ymbcash.santander.com.br/ymbsrv/CobrancaEndpointService?wsdl");
-//                conn = (HttpsURLConnection) url.openConnection();
-//
-//                conn.setDoInput(true);
-//                conn.setDoOutput(true);
-//
-//                conn.setRequestProperty("Type", "Request-Response");
-//                conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
-//                conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-//                conn.setRequestProperty("User-Agent", "Jakarta Commons-HttpClient/3.1");
-//
-//                wr = new OutputStreamWriter(conn.getOutputStream());
-//
-//                xmlTicket = "ticket 2";
-//
-//                wr.write(xmlTicket);
-//                wr.flush();
-//
-//                // Leitura da Resposta do Serviço
-//                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//
-//                // Leituras das Linhas da Resposta
-//                linhas = "";
-//                while (rd.ready()) {
-//                    linhas += rd.readLine();
-//                }
-//
-//                wr.close();
-//                rd.close();
-//                conn.getInputStream().close();
-//
-//                factory = DocumentBuilderFactory.newInstance();
-//                DocumentBuilder builder_2;
-//
-//                builder_2 = factory.newDocumentBuilder();
-//                document = builder_2.parse(new InputSource(new StringReader(linhas)));
-//
-//                rootElement = document.getDocumentElement();
-//
-//                String resultSituacao = getString("situacao", rootElement);
-//
-//                if (resultSituacao.equals("00")) { // BOLETO REGISTRADO
-//                    if (boleto.getDtCobrancaRegistrada() == null) {
-//                        Dao dao = new Dao();
-//
-//                        boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
-//                        boleto.setDtStatusRetorno(DataHoje.dataHoje());
-//                        boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
-//
-//                        dao.update(boleto, true);
-//                    }
-//                    return new RespostaWebService(boleto, "");
-//                } else {
-//
-//                    String resultMessage = getString("descricaoErro", rootElement);
-//
-//                    if (resultMessage.contains("@ERYKE0001")) {
-//                        if (boleto.getDtCobrancaRegistrada() == null) {
-//                            Dao dao = new Dao();
-//
-//                            boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
-//                            boleto.setDtStatusRetorno(DataHoje.dataHoje());
-//                            boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
-//
-//                            dao.update(boleto, true);
-//                        }
-//                        return new RespostaWebService(boleto, "");
-//                    }
-//
-//                    return new RespostaWebService(null, resultMessage);
-//                }
-//            }
-            return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
+            if (requestQueueID != null) {
+                return new RespostaWebService(null, requestQueueID);
+            }
+
+            requestQueueID = getString("RETORNO", rootElement);
+
+            if (requestQueueID.equals("(38) NOSSO NUMERO JA CADASTRADO PARA O BENEFICIARIO") || requestQueueID.equals("(0) OPERACAO EFETUADA")) {
+                // BOLETO REGISTRADO
+                if (boleto.getDtCobrancaRegistrada() == null) {
+                    Dao dao = new Dao();
+
+                    boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                    boleto.setDtStatusRetorno(DataHoje.dataHoje());
+                    boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+
+                    dao.update(boleto, true);
+                }
+                return new RespostaWebService(boleto, "");
+            } else {
+                return new RespostaWebService(null, requestQueueID);
+            }
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -975,61 +906,60 @@ public class CaixaFederalSigCB extends Cobranca {
     }
 
     public String TICKET_ENTRADA(String AUTENTICACAO, String DATA_HORA, String CODIGO_BENEFICIARIO, String NOSSO_NUMERO, String NUMERO_DOCUMENTO, String VENCIMENTO, String VALOR, String JUROS, String DOCUMENTO_E_NOME, String LOGRADOURO, String BAIRRO, String CIDADE, String UF, String CEP) {
-        return "<ns3:SERVICO_ENTRADA\n"
-                + "	xmlns:ns2=\"http://caixa.gov.br/sibar\"\n"
-                + "	xmlns:ns4=\"http://caixa.gov.br/sibar/manutencao_cobranca_bancaria/boleto/externo\">\n"
-                + "	<ns2:HEADER>\n"
-                + "		<VERSAO>1.2</VERSAO>\n"
-                + "		<AUTENTICACAO>" + AUTENTICACAO + "</AUTENTICACAO>\n"
-                + "		<OPERACAO>INCLUI_BOLETO</OPERACAO>\n"
-                + "		<SISTEMA_ORIGEM>SIGCB</SISTEMA_ORIGEM>\n"
-                + "		<USUARIO_SERVICO></USUARIO_SERVICO>\n"
-                + "		<DATA_HORA>" + DATA_HORA + "</DATA_HORA>\n"
-                + "	</ns2:HEADER>\n"
-                + "	<DADOS>\n"
-                + "		<INCLUI_BOLETO>\n"
-                + "			<CODIGO_BENEFICIARIO>" + CODIGO_BENEFICIARIO + "</CODIGO_BENEFICIARIO>\n"
-                + "			<TITULO>\n"
-                + "				<NOSSO_NUMERO>" + NOSSO_NUMERO + "</NOSSO_NUMERO>\n"
-                + "				<NUMERO_DOCUMENTO>" + NUMERO_DOCUMENTO + "</NUMERO_DOCUMENTO>\n"
-                + "				<DATA_VENCIMENTO>" + VENCIMENTO + "</DATA_VENCIMENTO>\n"
-                + "				<VALOR>" + VALOR + "</VALOR>\n"
-                + "				<TIPO_ESPECIE>99</TIPO_ESPECIE>\n"
-                + "				<FLAG_ACEITE>S</FLAG_ACEITE>\n"
-                + "				<DATA_EMISSAO>" + DataHoje.ano() + "-" + DataHoje.mes() + "-" + DataHoje.dia() + "</DATA_EMISSAO>\n"
-                + "				<JUROS_MORA>\n"
+        return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ext=\"http://caixa.gov.br/sibar/manutencao_cobranca_bancaria/boleto/externo\" xmlns:sib=\"http://caixa.gov.br/sibar\"> \n"
+                + "   <soapenv:Header/> \n"
+                + "   <soapenv:Body> \n"
+                + "      <ext:SERVICO_ENTRADA> \n"
+                + "         <sib:HEADER> \n"
+                + "            <VERSAO>1.2</VERSAO> \n"
+                + "            <AUTENTICACAO>" + AUTENTICACAO + "</AUTENTICACAO> \n"
+                + "            <USUARIO_SERVICO>SGCBS02P</USUARIO_SERVICO> \n"
+                + "            <OPERACAO>INCLUI_BOLETO</OPERACAO> \n"
+                + "            <SISTEMA_ORIGEM>SIGCB</SISTEMA_ORIGEM> \n"
+                + "            <DATA_HORA>" + DATA_HORA + "</DATA_HORA> \n"
+                + "         </sib:HEADER> \n"
+                + "         <DADOS> \n"
+                + "            <INCLUI_BOLETO> \n"
+                + "               <CODIGO_BENEFICIARIO>" + CODIGO_BENEFICIARIO + "</CODIGO_BENEFICIARIO> \n"
+                + "               <TITULO> \n"
+                + "                  <NOSSO_NUMERO>" + NOSSO_NUMERO + "</NOSSO_NUMERO> \n"
+                + "                  <NUMERO_DOCUMENTO>" + NUMERO_DOCUMENTO + "</NUMERO_DOCUMENTO> \n"
+                + "                  <DATA_VENCIMENTO>" + VENCIMENTO + "</DATA_VENCIMENTO> \n"
+                + "                  <VALOR>" + VALOR + "</VALOR> \n"
+                + "                  <TIPO_ESPECIE>02</TIPO_ESPECIE> \n" // 32 - BOLETO PROPOSTA, 02 DUPLICATA MERCANTIL (DM)
+                + "                  <FLAG_ACEITE>S</FLAG_ACEITE> \n"
+                + "                  <DATA_EMISSAO>" + DataHoje.dataHojeSQL() + "</DATA_EMISSAO> \n"
+                + "                  <JUROS_MORA> \n"
                 + JUROS
-                + "				</JUROS_MORA>\n"
-                + "				<VALOR_ABATIMENTO>0</VALOR_ABATIMENTO>\n"
-                + "				<POS_VENCIMENTO>\n"
-                + "					<ACAO>DEVOLVER</ACAO>\n"
-                + "					<NUMERO_DIAS>0</NUMERO_DIAS>\n"
-                + "				</POS_VENCIMENTO>\n"
-                + "				<CODIGO_MOEDA>9</CODIGO_MOEDA>\n"
-                + "				<PAGADOR>\n"
+                + "                  </JUROS_MORA> \n"
+                + "                  <VALOR_ABATIMENTO>0</VALOR_ABATIMENTO> \n"
+                + "                  <POS_VENCIMENTO> \n"
+                + "                     <ACAO>DEVOLVER</ACAO> \n"
+                + "                     <NUMERO_DIAS>0</NUMERO_DIAS> \n"
+                + "                  </POS_VENCIMENTO> \n"
+                + "                  <CODIGO_MOEDA>9</CODIGO_MOEDA> \n"
+                + "                  <PAGADOR> \n"
                 + DOCUMENTO_E_NOME
-                + "					<ENDERECO>\n"
-                + "						<LOGRADOURO>" + LOGRADOURO + "</LOGRADOURO>\n"
-                + "						<BAIRRO>" + BAIRRO + "</BAIRRO>\n"
-                + "						<CIDADE>" + CIDADE + "</CIDADE>\n"
-                + "						<UF>" + UF + "</UF>\n"
-                + "						<CEP>" + CEP + "</CEP>\n"
-                + "					</ENDERECO>\n"
-                + "				</PAGADOR>\n"
-                //+ "				<SACADOR_AVALISTA>\n"
-                //+ "					<CNPJ></CNPJ>\n"
-                //+ "					<RAZAO_SOCIAL></RAZAO_SOCIAL>\n"
-                //+ "				</SACADOR_AVALISTA>\n"
-                + "				<PAGAMENTO>\n"
-                + "					<QUANTIDADE_PERMITIDA>1</QUANTIDADE_PERMITIDA>\n"
-                + "					<TIPO>ACEITA_QUALQUER_VALOR</TIPO>\n"
-                + "					<VALOR_MINIMO>0.00</VALOR_MINIMO>\n"
-                + "					<VALOR_MAXIMO>0.00</VALOR_MAXIMO>\n"
-                + "				</PAGAMENTO>\n"
-                + "			</TITULO>\n"
-                + "		</INCLUI_BOLETO>\n"
-                + "	</DADOS>\n"
-                + "</ns3:SERVICO_ENTRADA>";
+                + "                     <ENDERECO> \n"
+                + "                        <LOGRADOURO>" + LOGRADOURO + "</LOGRADOURO> \n"
+                + "                        <BAIRRO>" + BAIRRO + "</BAIRRO> \n"
+                + "                        <CIDADE>" + CIDADE + "</CIDADE> \n"
+                + "                        <UF>" + UF + "</UF> \n"
+                + "                        <CEP>" + CEP + "</CEP> \n"
+                + "                     </ENDERECO> \n"
+                + "                  </PAGADOR> \n"
+                + "                  <PAGAMENTO> \n"
+                + "                     <QUANTIDADE_PERMITIDA>1</QUANTIDADE_PERMITIDA> \n"
+                + "                     <TIPO>ACEITA_QUALQUER_VALOR</TIPO> \n"
+                + "                     <VALOR_MINIMO>0.00</VALOR_MINIMO> \n"
+                + "                     <VALOR_MAXIMO>0.00</VALOR_MAXIMO> \n"
+                + "                  </PAGAMENTO> \n"
+                + "               </TITULO> \n"
+                + "            </INCLUI_BOLETO> \n"
+                + "         </DADOS> \n"
+                + "      </ext:SERVICO_ENTRADA> \n"
+                + "   </soapenv:Body> \n"
+                + "</soapenv:Envelope>";
     }
 
     protected String getString(String tagName, Element element) {

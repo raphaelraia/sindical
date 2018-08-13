@@ -61,7 +61,7 @@ public class MovimentoCartaoDao extends DB {
                 + "   AND es = 'E' \n "
                 + "   AND c.id = " + id_cartao + " \n "
                 + "   AND c.id_plano5 = " + id_plano5 + " \n "
-                + " GROUP BY m.id_forma_pagamento, baixa, m.id_baixa, m. dt_credito \n"
+                + " GROUP BY m.id_forma_pagamento, baixa, m.id_baixa, m.dt_credito \n"
                 + " ORDER BY m.baixa, m.dt_credito"
         );
 

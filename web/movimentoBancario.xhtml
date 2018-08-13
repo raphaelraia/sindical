@@ -146,6 +146,11 @@
                                     <p:rowToggler />  
                                 </p:column>  
                                 
+                                <p:column headerText="# FP" style="width:70px; text-align: center">
+                                    <p:commandLink value="#{linha.formaPagamento.id}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.formaPagamento.id}" rendered="#{linha.rotina.id ne 225}"/>
+                                </p:column>
+                                
                                 <p:column headerText="Data" style="width:80px; text-align: center">
                                     <p:commandLink value="#{linha.baixa.baixa}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.rotina.id ne 225}"/>

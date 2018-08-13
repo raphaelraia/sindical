@@ -2017,4 +2017,27 @@ public class FinanceiroDao extends DB {
         }
     }
 
+    public List<Object> listaPreviaFechamento(String data, Integer id_usuario) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "  SELECT m.id_baixa, \n "
+                    + "       m.baixa, \n "
+                    + "       m.es, \n "
+                    + "       p.ds_nome, \n "
+                    + "       m.tipo_pagamento, \n "
+                    + "       sum(m.valor_baixa) \n "
+                    + "  FROM movimentos_vw AS m \n "
+                    + " INNER JOIN pes_pessoa AS p ON p.id = m.id_pessoa \n"
+                    + " WHERE m.baixa = '" + data + "' "
+                    + "   AND m.id_usuario_baixa = " + id_usuario + " \n"
+                    + " GROUP BY m.id_baixa, m.baixa, m.es, p.ds_nome, m.tipo_pagamento \n"
+                    + " ORDER BY m.baixa, m.es, m.tipo_pagamento, m.id_baixa "
+            );
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }

@@ -188,14 +188,14 @@ public class AcademiaServicoValorBean implements Serializable {
         String ids_dia_semana = "";
 
         if (!listaAcademiaSemana.isEmpty()) {
-            
+
             for (AcademiaSemana listaAcademias : listaAcademiaSemana) {
                 ids_dia_semana += "" + listaAcademias.getSemana().getId();
             }
 
             Integer id_grade = listaAcademiaSemana.get(0).getAcademiaGrade().getId();
 
-            if (!academiaDB.existeAcademiaSemana(id_grade, ids_dia_semana, academiaServicoValor.getServicos().getId(), academiaServicoValor.getPeriodo().getId()).isEmpty()) {
+            if (!academiaDB.existeAcademiaSemana(academiaServicoValor.getId(), id_grade, ids_dia_semana, academiaServicoValor.getServicos().getId(), academiaServicoValor.getPeriodo().getId()).isEmpty()) {
                 GenericaMensagem.warn("Erro", "Essa grade já existe!");
                 di.rollback();
                 academiaServicoValor = new AcademiaServicoValor();
