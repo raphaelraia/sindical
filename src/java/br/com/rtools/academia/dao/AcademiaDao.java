@@ -48,13 +48,14 @@ public class AcademiaDao extends DB {
         return null;
     }
 
-    public List<AcademiaSemana> existeAcademiaSemana(int id_grade, String id_semana, int id_servico, int id_periodo) {
+    public List<AcademiaSemana> existeAcademiaSemana(Integer id_asv, int id_grade, String id_semana, int id_servico, int id_periodo) {
         try {
             Query query = getEntityManager().createNativeQuery(
                     "SELECT s.* \n "
                     + "  FROM aca_semana s \n"
                     + " INNER JOIN aca_servico_valor sv ON sv.id = s.id_servico_valor \n"
-                    + " WHERE s.id_grade = " + id_grade + " \n"
+                    + " WHERE sv.id <> " + id_asv + " \n"
+                    + "   AND s.id_grade = " + id_grade + " \n"
                     + "   AND sv.ds_dias = '" + id_semana + "' \n"
                     + "   AND sv.id_periodo = " + id_periodo + " \n"
                     + "   AND sv.id_servico = " + id_servico, AcademiaSemana.class
@@ -68,8 +69,17 @@ public class AcademiaDao extends DB {
 
     public List<AcademiaServicoValor> listaAcademiaServicoValor(int idServico) {
         try {
-            Query query = getEntityManager().createQuery("SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.servicos.id = :servicos ORDER BY ASV.periodo.descricao ASC, ASV.servicos.descricao ASC");
-            query.setParameter("servicos", idServico);
+            Query query = getEntityManager().createNativeQuery(
+                    "  SELECT asv.* \n "
+                    + "  FROM aca_servico_valor AS asv \n "
+                    + " INNER JOIN fin_servicos s ON s.id = asv.id_servico \n "
+                    + " INNER JOIN sis_periodo p ON p.id = asv.id_periodo \n "
+                    + " INNER JOIN aca_semana sem ON sem.id_servico_valor = asv.id \n "
+                    + " INNER JOIN aca_grade g ON g.id = sem.id_grade \n "
+                    + "	WHERE asv.id_servico = " + idServico + " \n "
+                    + "	ORDER BY s.ds_descricao ASC, p.nr_dias ASC, asv.ds_dias ASC, g.ds_hora_inicio ASC ", AcademiaServicoValor.class
+            );
+
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -124,8 +134,18 @@ public class AcademiaDao extends DB {
 
     public List<AcademiaServicoValor> listaAcademiaServicoValorPorServico(int idServico) {
         try {
-            Query query = getEntityManager().createQuery(" SELECT ASV FROM AcademiaServicoValor AS ASV WHERE ASV.servicos.id = :servicos AND ASV.id IN (SELECT ASE.academiaServicoValor.id FROM AcademiaSemana ASE ) ORDER BY ASV.servicos.descricao ASC, ASV.periodo.dias ASC");
-            query.setParameter("servicos", idServico);
+            Query query = getEntityManager().createNativeQuery(
+                    "  SELECT asv.* \n "
+                    + "  FROM aca_servico_valor AS asv \n "
+                    + " INNER JOIN fin_servicos s ON s.id = asv.id_servico \n "
+                    + " INNER JOIN sis_periodo p ON p.id = asv.id_periodo \n "
+                    + " INNER JOIN aca_semana sem ON sem.id_servico_valor = asv.id \n "
+                    + " INNER JOIN aca_grade g ON g.id = sem.id_grade \n "
+                    + "	WHERE asv.id_servico = " + idServico + " \n "
+                    + "   AND asv.id IN (SELECT ase.id_servico_valor FROM aca_semana ase) \n "
+                    + " ORDER BY s.ds_descricao ASC, p.nr_dias ASC, asv.ds_dias ASC, g.ds_hora_inicio ASC  ", AcademiaServicoValor.class
+            );
+
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -253,7 +273,7 @@ public class AcademiaDao extends DB {
         String queryString = ""
                 + "    SELECT MATR.*                                            \n"
                 + "      FROM matr_academia AS MATR                             \n"
-                + "INNER JOIN fin_servico_pessoa SP ON SP.id = MATR.id_servico_pessoa\n"
+                + "INNER JOIN fin_servico_pessoa SP ON SP.id = MATR.id_servico_pessoa \n"
                 + "INNER JOIN fin_servicos S ON S.id = SP.id_servico            \n"
                 + "INNER JOIN pes_pessoa A ON A.id = SP.id_pessoa               \n";
 

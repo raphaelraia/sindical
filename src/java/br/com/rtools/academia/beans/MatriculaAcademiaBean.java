@@ -1239,23 +1239,25 @@ public class MatriculaAcademiaBean implements Serializable {
 
                     listaPeriodosGrade.add(new SelectItem(w, text, Integer.toString(listaAcademiaServicoValor.get(w).getId())));
                 }
-
-                Collections.sort(listaPeriodosGrade, new Comparator<SelectItem>() {
-                    @Override
-                    public int compare(SelectItem sItem1, SelectItem sItem2) {
-                        String sItem1Label = sItem1.getLabel();
-                        String sItem2Label = sItem2.getLabel();
-
-                        return (sItem1Label.compareToIgnoreCase(sItem2Label));
-                    }
-                });
-
-                List<SelectItem> list = new ArrayList<>();
-                for (int i = 0; i < listaPeriodosGrade.size(); i++) {
-                    list.add(new SelectItem(i, listaPeriodosGrade.get(i).getLabel(), listaPeriodosGrade.get(i).getDescription()));
-                }
-
-                listaPeriodosGrade = list;
+                
+// -- CLAUDEMIR                
+//                Collections.sort(listaPeriodosGrade, new Comparator<SelectItem>() {
+//                    @Override
+//                    public int compare(SelectItem sItem1, SelectItem sItem2) {
+//                        String sItem1Label = sItem1.getLabel();
+//                        String sItem2Label = sItem2.getLabel();
+//
+//                        return (sItem1Label.compareToIgnoreCase(sItem2Label));
+//                    }
+//                });
+//
+//                List<SelectItem> list = new ArrayList<>();
+//                for (int i = 0; i < listaPeriodosGrade.size(); i++) {
+//                    list.add(new SelectItem(i, listaPeriodosGrade.get(i).getLabel(), listaPeriodosGrade.get(i).getDescription()));
+//                }
+//
+//                listaPeriodosGrade = list;
+// -- FIM CLAUDEMIR 
 
 //                AcademiaDao academiaDao = new AcademiaDao();
 //                Dao di = new Dao();

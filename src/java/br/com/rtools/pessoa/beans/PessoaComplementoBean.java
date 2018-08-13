@@ -41,13 +41,12 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
             pessoaComplemento.setPessoa((Pessoa) dao.find(new Pessoa(), (int) pessoa_id));
             pessoaComplemento.setNrDiaVencimento(diaVencimento);
 
-
             if (pessoaComplemento.getPessoa().getEmail1().isEmpty()) {
                 pessoaComplemento.setStatusCobranca((StatusCobranca) new Dao().find(new StatusCobranca(), 1));
             } else {
                 pessoaComplemento.setStatusCobranca((StatusCobranca) new Dao().find(new StatusCobranca(), Integer.valueOf(listaStatusCobranca.get(indexStatusCobranca).getDescription())));
             }
-            
+
             if (responsavel != null && responsavel.getId() != -1) {
                 pessoaComplemento.setResponsavel(responsavel);
             } else {
@@ -131,7 +130,7 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
             } else {
                 diaVencimento = pessoaComplemento.getNrDiaVencimento();
             }
-            
+
             for (int i = 0; i < listaStatusCobranca.size(); i++) {
                 if (pessoaComplemento.getStatusCobranca().getId().equals(Integer.valueOf(listaStatusCobranca.get(i).getDescription()))) {
                     indexStatusCobranca = i;

@@ -24,15 +24,18 @@ public class PesquisaBoletosSocialDao extends DB {
                 + "  bai.dt_baixa AS quitacao, \n "
                 + "  m.id AS id_movimento, \n "
                 + "  ba.id AS id_boleto, \n "
-                + "  ba.id_conta_cobranca AS id_conta_cobranca \n "
+                + "  ba.id_conta_cobranca AS id_conta_cobranca, \n "
+                + "  p.id AS id_responsavel, \n"
+                + "  p.ds_nome AS responsavel \n "
                 + "  FROM fin_movimento m \n "
-                + " INNER JOIN pes_pessoa pt ON pt.id = m.id_pessoa \n "
+                + " INNER JOIN pes_pessoa p  ON p.id = m.id_pessoa \n "
+                + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n "
                 + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n "
                 + " INNER JOIN fin_servicos s ON s.id = m.id_servicos \n "
                 + "  LEFT JOIN fin_baixa bai ON bai.id = m.id_baixa \n "
                 + " INNER JOIN fin_movimento_boleto mb ON mb.id_movimento = m.id \n "
-                + " INNER JOIN fin_boleto b ON mb.id_boleto = b.id \n "
-                + "  LEFT JOIN fin_boleto ba ON ba.id = b.id \n ";
+                + "  LEFT JOIN fin_boleto b ON b.id = mb.id_boleto AND m.ds_documento = b.ds_boleto AND m.ds_documento <> '' \n "
+                + "  LEFT JOIN fin_boleto ba ON ba.id = mb.id_boleto AND m.ds_documento <> ba.ds_boleto AND m.ds_documento <> '' \n ";
 
         List<String> list_where = new ArrayList();
 

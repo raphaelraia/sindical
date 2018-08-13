@@ -16,38 +16,38 @@ import javax.faces.bean.ViewScoped;
 public class DataHoje {
 
     /*
-                String dia = date.substring(8, 10);
-            String mes = date.substring(5, 7);
-            String ano = date.substring(0, 4);
+                String dia = date.substring(0, 2);
+                String mes = date.substring(2, 4);
+                String ano = date.substring(4, 8);
      */
-    public static Integer dia() {
+    public static String dia() {
         Date dateTime = new Date();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return Integer.parseInt(dateFormat.format(dateTime).substring(8, 10));
+        return dateFormat.format(dateTime).substring(0, 2);
     }
 
-    public static Integer mes() {
+    public static String mes() {
         Date dateTime = new Date();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return Integer.parseInt(dateFormat.format(dateTime).substring(5, 7));
+        return dateFormat.format(dateTime).substring(3, 5);
     }
 
-    public static Integer ano() {
+    public static String ano() {
         Date dateTime = new Date();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return Integer.parseInt(dateFormat.format(dateTime).substring(0, 4));
+        return dateFormat.format(dateTime).substring(6, 10);
     }
 
-    public static Integer dia(String data) {
-        return Integer.parseInt(data.substring(8, 10));
+    public static String dia(String data) {
+        return data.substring(0, 2);
     }
 
-    public static Integer mes(String data) {
-        return Integer.parseInt(data.substring(5, 7));
+    public static String mes(String data) {
+        return data.substring(3, 5);
     }
 
-    public static Integer ano(String data) {
-        return Integer.parseInt(data.substring(0, 4));
+    public static String ano(String data) {
+        return data.substring(6, 10);
     }
 
     public static Date dataHoje() {

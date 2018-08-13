@@ -196,7 +196,7 @@ public class DepositoBancarioBean implements Serializable {
         }
 
         Plano5 plano_forma = plano_caixa;
-        if (!dao.save(novaFormaPagamento(dao, baixa_saida, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0))) {
+        if (!dao.save(novaFormaPagamento(dao, baixa_saida, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0, dataDeposito))) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             dao.rollback();
             return;
@@ -236,7 +236,7 @@ public class DepositoBancarioBean implements Serializable {
 
         plano_forma = plano_combo;
 
-        if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0))) {
+        if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0, dataDeposito))) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             dao.rollback();
             return;
@@ -321,7 +321,7 @@ public class DepositoBancarioBean implements Serializable {
             }
 
             Plano5 plano_forma = plano_caixa;
-            if (!dao.save(novaFormaPagamento(dao, baixa_saida, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 15), listaSelecionado.get(i).getFormaPagamento().getDevolucao()))) {
+            if (!dao.save(novaFormaPagamento(dao, baixa_saida, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 15), listaSelecionado.get(i).getFormaPagamento().getDevolucao(), DataHoje.dataHoje()))) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
                 dao.rollback();
                 return;
@@ -371,7 +371,7 @@ public class DepositoBancarioBean implements Serializable {
 //                return;
 //            }
             Plano5 plano_forma = plano_combo;
-            if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 8), listaSelecionado.get(i).getFormaPagamento().getDevolucao()))) {
+            if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 8), listaSelecionado.get(i).getFormaPagamento().getDevolucao(), DataHoje.dataHoje()))) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
                 dao.rollback();
                 return;
@@ -463,13 +463,13 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 0,
                 0,
-                DataHoje.dataHoje(),
+                data_baixa,
                 null,
                 null
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequeRec cheque, FStatus fstatus, Integer devolucao) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequeRec cheque, FStatus fstatus, Integer devolucao, Date data_baixa) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -483,7 +483,7 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 (TipoPagamento) dao.find(new TipoPagamento(), 8), // 4 - CHEQUE / 5 - CHEQUE PRE / 8 - Depósito Bancário
                 0,
-                DataHoje.dataHoje(),
+                data_baixa,
                 0,
                 fstatus,
                 devolucao,

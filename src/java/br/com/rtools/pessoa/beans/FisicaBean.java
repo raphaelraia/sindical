@@ -518,6 +518,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         salvarEndereco();
         salvarPessoaEmpresa();
         salvarPessoaProfissao();
+        salvarPessoaComplemento();
         //limparCamposData();
 //        if (sucesso) {
 //            salvarImagem();
