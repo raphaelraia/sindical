@@ -449,9 +449,11 @@ public class Reports implements Serializable {
             }
 
             FILIAL = null;
-            
-            if(HEADER) {
-              TYPE = "default"; 
+
+            if (HEADER) {
+                if (TYPE.isEmpty()) {
+                    TYPE = "default";
+                }
             }
 
             switch (TYPE) {
@@ -640,7 +642,7 @@ public class Reports implements Serializable {
                 }
                 JasperReport jasper = null;
                 String jasper_path = "";
-                if(!jasperName.contains(".jasper") && !jasperName.contains(".jrxml")) {
+                if (!jasperName.contains(".jasper") && !jasperName.contains(".jrxml")) {
                     jasperName += ".jasper";
                 }
                 if (jasperListExport.isEmpty()) {
@@ -1424,6 +1426,4 @@ public class Reports implements Serializable {
      * </band>
      * </pageHeader>
      */
-    
-    
 }

@@ -186,8 +186,11 @@
                                     </p:submenu>
                                 </p:submenu>                            
                             </p:menubar> 
-                            <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
+                            <p:panel style="margin: 0 auto!important; width: 99%">
                                 <p:panelGrid columns="6" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
+                                    </p:commandLink>                                                                        
                                     <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
                                     </p:commandLink>
@@ -203,17 +206,25 @@
                                     <p:commandLink action="#{chamadaPaginaBean.vendasBaile}" title="Vendas Baile" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-party.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
-                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
-                                    </p:commandLink>                                    
+                                    <h:outputLabel value="Pessoa Física" />
                                     <h:outputLabel value="Recebimentos" />
                                     <h:outputLabel value="Vendas Caravana" />
                                     <h:outputLabel value="Organizar Caravana" />
                                     <h:outputLabel value="Convite" />
                                     <h:outputLabel value="Baile" />
-                                    <h:outputLabel value="Pessoa Física" />
                                 </p:panelGrid>
-                            </p:panel>                             
+                                <h3 class="text-center">ATENDIMENTO SOCIAL</h3>
+                                <p:panelGrid columns="2" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
+                                    </p:commandLink>                                                                        
+                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                    </p:commandLink>
+                                    <h:outputLabel value="Convite" />
+                                    <h:outputLabel value="Baile" />
+                                </p:panelGrid>
+                            </p:panel>
                             <p:panel styleClass="margin-top-max">
                                 <h:panelGrid>
                                     <p:commandButton type="button" onclick="PF('i_dlg_socios_1').show()" rendered="#{socialBean.existPessoasMesmaMatricula}" update="i_panel_grid_socios_1" value="Constam a mesma pessoa mais de uma vez na mesma matrícula!" styleClass="font-color-red" />

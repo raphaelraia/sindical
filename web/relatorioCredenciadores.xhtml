@@ -122,18 +122,6 @@
                                         </h:panelGrid>                                        
                                     </p:panel>
                                 </p:column>
-                                <p:column>
-                                    <p:panel header="Parentesco" style="width: 100%!important" rendered="#{relatorioCredenciadoresBean.getShow('parentesco')}">
-                                        <h:panelGrid columns="4">
-                                            <p:selectCheckboxMenu label="Selecionar parentesco" value="#{relatorioCredenciadoresBean.selectedCredenciador}" filter="true" filterMatchMode="startsWith">
-                                                <p:ajax event="toggleSelect" global="false"/>
-                                                <p:ajax event="change" global="false"/>
-                                                <f:selectItems value="#{relatorioCredenciadoresBean.listParentesco}" />
-                                            </p:selectCheckboxMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCredenciadoresBean.close('parentesco')}" title="Remover filtro" update="form_relatorio"/>
-                                        </h:panelGrid>                                        
-                                    </p:panel>
-                                </p:column>
                             </h:panelGrid>
                         </h:column>
                     </h:panelGrid>

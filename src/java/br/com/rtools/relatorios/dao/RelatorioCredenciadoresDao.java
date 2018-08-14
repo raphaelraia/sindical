@@ -24,21 +24,20 @@ public class RelatorioCredenciadoresDao extends DB {
         this.relatorioOrdem = relatorioOrdem;
     }
 
-    public List find(String inParentesco, String inCredenciadores, List<DateFilters> listDateFilters) {
+    public List find(String inCredenciadores, List<DateFilters> listDateFilters) {
         if (relatorios == null || relatorios.getId() == null) {
             return new ArrayList();
         }
         List listWhere = new ArrayList();
         String queryString = "";
-        queryString += " -- RelatorioCredenciadoresDao->find()                \n";
+        queryString += " -- RelatorioCredenciadoresDao->find()                  \n";
         queryString += " SELECT S.filiacao,                                     \n"
                 + "             S.id_credenciador,                              \n"
                 + "             S.credenciador,                                 \n"
-                + "             T.ds_nome AS socio,                             \n"
+                + "             S.nome AS socio,                                \n"
                 + "             S.matricula,                                    \n"
                 + "             S.categoria                                     \n"
-                + "        FROM soc_socios_vw AS S                              \n"
-                + "  INNER JOIN pes_pessoa AS T ON T.id = S.titular             \n";
+                + "        FROM soc_socios_vw AS S                              \n";
 
         if (listDateFilters != null && !listDateFilters.isEmpty()) {
             DateFilters cadastro = DateFilters.getDateFilters(listDateFilters, "filiacao");
@@ -76,9 +75,7 @@ public class RelatorioCredenciadoresDao extends DB {
         if (inCredenciadores != null && !inCredenciadores.isEmpty()) {
             listWhere.add(" S.id_credenciador IN (" + inCredenciadores + ")");
         }
-        if (inParentesco != null && !inParentesco.isEmpty()) {
-            listWhere.add(" S.id_parentesco IN (" + inParentesco + ")");
-        }
+        listWhere.add(" S.id_parentesco = 1");
         for (int i = 0; i < listWhere.size(); i++) {
             if (i == 0) {
                 queryString += " WHERE " + listWhere.get(i).toString() + " \n";

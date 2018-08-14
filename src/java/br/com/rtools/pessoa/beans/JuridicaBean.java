@@ -532,13 +532,62 @@ public class JuridicaBean implements Serializable {
     }
 
     public void pesquisaDocumento() {
-        JuridicaDao db = new JuridicaDao();
+        switch (Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription())) {
+            case 1:
+                if (juridica.getPessoa().getDocumento().isEmpty()) {
+                    return;
+                }
+                if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()))) {
+                    Messages.warn("Validação", "Documento (CPF) inválido! " + juridica.getPessoa().getDocumento());
+                    PF.update("formPessoaJuridica");
+                    return;
+                }
+                break;
+            case 2:
+                if (juridica.getPessoa().getDocumento().isEmpty()) {
+                    return;
+                }
+                if (!ValidaDocumentos.isValidoCNPJ(AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()))) {
+                    Messages.warn("Validação", "Documento (CNPJ) inválido! " + juridica.getPessoa().getDocumento());
+                    PF.update("formPessoaJuridica");
+                    return;
+                }
+                break;
+            case 3:
+                if (juridica.getPessoa().getDocumento().isEmpty()) {
+                    return;
+                }
+                if (!ValidaDocumentos.isValidoCEI(AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()))) {
+                    Messages.warn("Validação", "Documento (CEI) inválido! " + juridica.getPessoa().getDocumento());
+                    PF.update("formPessoaJuridica");
+                    return;
+                }
+                break;
+            default:
+                break;
+        }
         if (!juridica.getPessoa().getDocumento().isEmpty()) {
-            List<Juridica> lista = db.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
-            if (!lista.isEmpty()) {
-                GenericaMensagem.warn("Erro", "Esse documento já existe para: " + lista.get(0).getPessoa().getNome());
+            if (juridica.getId() == -1) {
+                JuridicaDao juridicaDao = new JuridicaDao();
+                List<Juridica> lista = juridicaDao.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
+                Boolean success = false;
+                if (!lista.isEmpty()) {
+                    if (((Juridica) lista.get(0)).getDtFechamento() == null) {
+                        editar((Juridica) lista.get(0), true);
+                    } else {
+                        GenericaMensagem.warn("Erro", "Esse documento já existe para: " + lista.get(0).getPessoa().getNome());
+                    }
+                }
             }
         }
+        PF.update("formPessoaJuridica");
+//        JuridicaDao db = new JuridicaDao();
+//        if (!juridica.getPessoa().getDocumento().isEmpty()) {
+//            List<Juridica> lista = db.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
+//            if (!lista.isEmpty()) {
+//                GenericaMensagem.warn("Erro", "Esse documento já existe para: " + lista.get(0).getPessoa().getNome());
+//            }
+//        }
     }
 
     public String getInadimplente() {
@@ -854,7 +903,6 @@ public class JuridicaBean implements Serializable {
 //        } else {
 //            pessoaComplemento.setStatusCobranca((StatusCobranca) dao.find(new StatusCobranca(), idStatusCobranca));
 //        }
-
         loadListStatusCobranca();
 
         dao.openTransaction();
@@ -1347,7 +1395,7 @@ public class JuridicaBean implements Serializable {
         diaVencimento = pessoaComplemento.getNrDiaVencimento();
 
         loadListStatusCobranca();
-        
+
         existeOposicaoEmpresa();
         loadListSocios();
         loadMalaDireta();
@@ -3791,5 +3839,54 @@ public class JuridicaBean implements Serializable {
 
         }
 
+    }
+
+    public void exists() {
+        switch (Integer.parseInt(((SelectItem) getListaTipoDocumento().get(idTipoDocumento)).getDescription())) {
+            case 1:
+                if (juridica.getPessoa().getDocumento().isEmpty()) {
+                    return;
+                }
+                if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()))) {
+                    Messages.warn("Validação", "Documento (CPF) inválido! " + juridica.getPessoa().getDocumento());
+                    PF.update("formPessoaJuridica");
+                    return;
+                }
+                break;
+            case 2:
+                if (juridica.getPessoa().getDocumento().isEmpty()) {
+                    return;
+                }
+                if (!ValidaDocumentos.isValidoCNPJ(AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()))) {
+                    Messages.warn("Validação", "Documento (CNPJ) inválido! " + juridica.getPessoa().getDocumento());
+                    PF.update("formPessoaJuridica");
+                    return;
+                }
+                break;
+            case 3:
+                if (juridica.getPessoa().getDocumento().isEmpty()) {
+                    return;
+                }
+                if (!ValidaDocumentos.isValidoCEI(AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()))) {
+                    Messages.warn("Validação", "Documento (CEI) inválido! " + juridica.getPessoa().getDocumento());
+                    PF.update("formPessoaJuridica");
+                    return;
+                }
+                break;
+            default:
+                break;
+        }
+        PF.update("formPessoaJuridica");
+
+        if (!juridica.getPessoa().getDocumento().isEmpty()) {
+            if (juridica.getId() == -1) {
+                JuridicaDao juridicaDao = new JuridicaDao();
+                List lista = juridicaDao.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
+                Boolean success = false;
+                if (!lista.isEmpty()) {
+                    Sessions.put("juridicaPesquisa", (Juridica) lista.get(0));
+                }
+            }
+        }
     }
 }

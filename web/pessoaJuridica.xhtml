@@ -182,7 +182,11 @@
 
                                                 <p:column>
                                                     <br />
-                                                    <p:commandButton update=":formPessoaJuridica" value="Pesquisar na Receita Federal" action="#{juridicaBean.pesquisaCnpjXML()}" disabled="#{!juridicaBean.configuracaoCnpj.local or juridicaBean.newMei}" title="#{juridicaBean.configuracaoCnpj.local == true ? 'Pesquisar CNPJ na Receita Federal' : 'Solicitar a liberação dessa funcionalidade ao administrador do sistema!'}" />
+                                                    <h:panelGrid columns="3">
+                                                        <p:commandButton icon="ui-icon-search" rendered="#{juridicaBean.juridica.id eq -1}" title="CNPJ Cadastrado"/>
+                                                        <h:outputLabel value="|" rendered="#{juridicaBean.juridica.id eq -1}" styleClass="font-color-gray"/>
+                                                        <p:commandButton update=":formPessoaJuridica" value="Pesquisar na Receita Federal" action="#{juridicaBean.pesquisaCnpjXML()}" disabled="#{!juridicaBean.configuracaoCnpj.local or juridicaBean.newMei}" title="#{juridicaBean.configuracaoCnpj.local == true ? 'Pesquisar CNPJ na Receita Federal' : 'Solicitar a liberação dessa funcionalidade ao administrador do sistema!'}" />
+                                                    </h:panelGrid>
                                                 </p:column>
 
                                                 <p:column>

@@ -73,7 +73,23 @@
                                     <p:menuitem value="Frequência Catraca"   action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false"/>
                                     <p:menuitem value="Financeiro"   action="#{chamadaPaginaBean.pagina('relatorioFinanceiroEscola')}" ajax="false"/>
                                 </p:submenu>
-                            </p:menubar> 
+                            </p:menubar>
+                            <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
+                                <p:panelGrid columns="3" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('matriculaEscola')}" title="Matrícula Escola" ajax="false">
+                                        <p:graphicImage value="" height="70" />
+                                    </p:commandLink>
+                                    <h:outputLabel value="Pessoa Física" />
+                                    <h:outputLabel value="Recebimentos" />
+                                    <h:outputLabel value="Matrícula" />
+                                </p:panelGrid>
+                            </p:panel>
                         </p:panel>
                     </h:form>
                 </f:view>

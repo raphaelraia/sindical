@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Reports;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,8 +49,6 @@ public class RelatorioCredenciadoresBean implements Serializable {
     private Map<String, Integer> listCredenciador;
     private List selectedCredenciador;
 
-    private Map<String, Integer> listParentesco;
-    private List selectedParentesco;
 
     private List<DateFilters> listDateFilters;
     private List<SelectItem> listDates;
@@ -89,23 +88,6 @@ public class RelatorioCredenciadoresBean implements Serializable {
         }
         String order = "";
         Integer titular_id = null;
-        Map map = new HashMap();
-        FacesContext faces = FacesContext.getCurrentInstance();
-        Pessoa p = (Pessoa) new Dao().find(new Pessoa(), 1);
-        map.put("sindicato_nome", p.getNome());
-        map.put("sindicato_documento", p.getDocumento());
-        map.put("sindicato_site", p.getSite());
-        map.put("sindicato_logradouro", p.getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
-        map.put("sindicato_endereco", p.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
-        map.put("sindicato_numero", p.getPessoaEndereco().getNumero());
-        map.put("sindicato_complemento", p.getPessoaEndereco().getComplemento());
-        map.put("sindicato_bairro", p.getPessoaEndereco().getEndereco().getBairro().getDescricao());
-        map.put("sindicato_cidade", p.getPessoaEndereco().getEndereco().getCidade().getCidade());
-        map.put("sindicato_uf", p.getPessoaEndereco().getEndereco().getCidade().getUf());
-        map.put("sindicato_cep", p.getPessoaEndereco().getEndereco().getCep());
-        map.put("sindicato_telefone", p.getTelefone1());
-        map.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
-        map.put("sindicato_email", p.getEmail1());
         String detalheRelatorio = "";
         List<ObjectJasper> cs = new ArrayList<>();
         List<Etiquetas> e = new ArrayList<>();
@@ -117,7 +99,7 @@ public class RelatorioCredenciadoresBean implements Serializable {
             }
         }
         rcd.setRelatorios(r);
-        List list = rcd.find(inIdParentesco(), inIdCredenciador(), listDateFilters);
+        List list = rcd.find(inIdCredenciador(), listDateFilters);
         sisProcesso.finishQuery();
         ObjectJasper oj = new ObjectJasper();
         for (int i = 0; i < list.size(); i++) {
@@ -131,10 +113,9 @@ public class RelatorioCredenciadoresBean implements Serializable {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
         }
-        Jasper.EXPORT_TO = true;
-        Jasper.TITLE = r.getNome();
-        Jasper.TYPE = "default";
-        Jasper.printReports(r.getJasper(), r.getNome(), (Collection) cs, map);
+        Reports reports = new Reports();
+        reports.setTITLE(r.getNome());
+        reports.print(r.getJasper(), r.getNome(), (Collection) cs);
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();
     }
@@ -189,7 +170,6 @@ public class RelatorioCredenciadoresBean implements Serializable {
         listFilters = new ArrayList<>();
         listFilters.add(new Filters("datas", "Datas", false, false));
         listFilters.add(new Filters("credenciador", "Credenciador", false, false));
-        listFilters.add(new Filters("parentesco", "Parentesco", false, false));
     }
 
     // LISTENER
@@ -226,14 +206,6 @@ public class RelatorioCredenciadoresBean implements Serializable {
                     selectedCredenciador = new ArrayList<>();
                 }
                 break;
-            case "parentesco":
-                if (filter.getActive()) {
-                    loadListParentesco();
-                } else {
-                    listParentesco = new LinkedHashMap<>();
-                    selectedParentesco = new ArrayList<>();
-                }
-                break;
         }
     }
 
@@ -252,20 +224,6 @@ public class RelatorioCredenciadoresBean implements Serializable {
         return ids;
     }
 
-    public String inIdParentesco() {
-        String ids = null;
-        if (selectedParentesco != null) {
-            ids = "";
-            for (int i = 0; i < selectedParentesco.size(); i++) {
-                if (i == 0) {
-                    ids = "" + selectedParentesco.get(i).toString();
-                } else {
-                    ids += "," + selectedParentesco.get(i).toString();
-                }
-            }
-        }
-        return ids;
-    }
 
     public String getDateItemDescription(String title) {
         for (int x = 0; x < listDates.size(); x++) {
@@ -395,17 +353,6 @@ public class RelatorioCredenciadoresBean implements Serializable {
         }
     }
 
-    public void loadListParentesco() {
-        listParentesco = new LinkedHashMap<>();
-        selectedParentesco = new ArrayList();
-        List<Parentesco> list = new Dao().list(new Parentesco(), true);
-        for (Parentesco p : list) {
-            if (p.getParentesco().equals("TITULAR")) {
-                selectedParentesco.add(p.getId());
-            }
-            listParentesco.put(p.getParentesco(), p.getId());
-        }
-    }
 
     public void loadDates() {
         listDates = new ArrayList();
@@ -494,28 +441,14 @@ public class RelatorioCredenciadoresBean implements Serializable {
         return false;
     }
 
-    public Map<String, Integer> getListParentesco() {
-        return listParentesco;
-    }
+  
 
-    public void setListParentesco(Map<String, Integer> listParentesco) {
-        this.listParentesco = listParentesco;
-    }
-
-    public List getSelectedParentesco() {
-        return selectedParentesco;
-    }
-
-    public void setSelectedParentesco(List selectedParentesco) {
-        this.selectedParentesco = selectedParentesco;
-    }
-
-    protected class ObjectJasper {
+    public class ObjectJasper {
 
         private Object filiacao;
         private Object id_credenciador;
         private Object credenciador;
-        private Object nome;
+        private Object socio;
         private Object matricula;
         private Object categoria;
 
@@ -523,16 +456,16 @@ public class RelatorioCredenciadoresBean implements Serializable {
             this.filiacao = null;
             this.id_credenciador = null;
             this.credenciador = null;
-            this.nome = null;
+            this.socio = null;
             this.matricula = null;
             this.categoria = null;
         }
 
-        public ObjectJasper(Object filiacao, Object id_credenciador, Object credenciador, Object nome, Object matricula, Object categoria) {
+        public ObjectJasper(Object filiacao, Object id_credenciador, Object credenciador, Object socio, Object matricula, Object categoria) {
             this.filiacao = filiacao;
             this.id_credenciador = id_credenciador;
             this.credenciador = credenciador;
-            this.nome = nome;
+            this.socio = socio;
             this.matricula = matricula;
             this.categoria = categoria;
         }
@@ -561,12 +494,12 @@ public class RelatorioCredenciadoresBean implements Serializable {
             this.credenciador = credenciador;
         }
 
-        public Object getNome() {
-            return nome;
+        public Object getSocio() {
+            return socio;
         }
 
-        public void setNome(Object nome) {
-            this.nome = nome;
+        public void setSocio(Object socio) {
+            this.socio = socio;
         }
 
         public Object getMatricula() {
