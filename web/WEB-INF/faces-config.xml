@@ -2650,6 +2650,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>            
+            <from-outcome>relatorioCaravanas</from-outcome>
+            <to-view-id>/relatorioCaravanas.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

@@ -565,8 +565,8 @@ public class VendaBaileBean implements Serializable {
 
         calculoDesconto();
 
-        PF.update("formVendasBaile");
-        PF.update("formVendasBaileTbl");
+        PF.update("form_vendas_baile");
+        PF.update("form_vendas_baileTbl");
     }
 
     public void autorizarDesconto() {
@@ -799,13 +799,13 @@ public class VendaBaileBean implements Serializable {
             if (venda.getId() != -1 && tipoVenda.equals("vendido")) {
                 new Dao().update(venda, true);
                 GenericaMensagem.info("Sucesso", "OBSERVAÇÃO ATUALIZADA!");
-                PF.update("formVendasBaile");
+                PF.update("form_vendas_baile");
                 return;
             }
         }
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Atenção", "Pesquise uma pessoa para salvar esta venda!");
-            PF.update("formVendasBaile");
+            PF.update("form_vendas_baile");
             return;
         }
 
@@ -817,7 +817,7 @@ public class VendaBaileBean implements Serializable {
         if (mesaConvite.equals("mesa")) {
             if (listaMesasBaileSelecionada.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Selecione pelo menos uma MESA para reservar!");
-                PF.update("formVendasBaile");
+                PF.update("form_vendas_baile");
                 return;
             }
 
@@ -826,14 +826,14 @@ public class VendaBaileBean implements Serializable {
                 if (ebm.getbVenda() != null && ebm.getbVenda().getId() != venda.getId()) {
                     GenericaMensagem.warn("Atenção", "Mesa " + ebm.getMesa() + " acabou de ser vendida, selecione outra!");
                     loadListaMesa();
-                    PF.update("formVendasBaile");
+                    PF.update("form_vendas_baile");
                     return;
                 }
             }
         } else {
             if (listaConviteBaileSelecionado.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Selecione pelo menos um CONVITE para vender!");
-                PF.update("formVendasBaile");
+                PF.update("form_vendas_baile");
                 return;
             }
 
@@ -842,7 +842,7 @@ public class VendaBaileBean implements Serializable {
                 if (ebc.getbVenda() != null && ebc.getbVenda().getId() != venda.getId()) {
                     GenericaMensagem.warn("Atenção", "Convite " + ebc.getConvite() + " acabou de ser vendido, selecione outro!");
                     loadListaConvite();
-                    PF.update("formVendasBaile");
+                    PF.update("form_vendas_baile");
                     return;
                 }
             }
@@ -852,15 +852,15 @@ public class VendaBaileBean implements Serializable {
             if (pessoa.getSocios() == null || pessoa.getSocios().getId() == -1) {
                 if (venda.getObs().isEmpty()) {
                     GenericaMensagem.warn("Atenção", "O campo Observação para cortesia não sócio é obrigatório!");
-                    PF.update("formVendasBaile");
+                    PF.update("form_vendas_baile");
                     return;
                 } else if (venda.getObs().length() <= 4) {
                     GenericaMensagem.warn("Atenção", "Observação inválida!");
-                    PF.update("formVendasBaile");
+                    PF.update("form_vendas_baile");
                     return;
                 } else if (venda.getObs().equals("TESTE") || venda.getObs().equals("Teste") || venda.getObs().equals("teste")) {
                     GenericaMensagem.warn("Atenção", "Observação inválida!");
-                    PF.update("formVendasBaile");
+                    PF.update("form_vendas_baile");
                     return;
                 }
             }
@@ -869,13 +869,13 @@ public class VendaBaileBean implements Serializable {
         if (tipoPagamento.equals("debitar")) {
             if (pessoa.getSocios() == null || pessoa.getSocios().getId() == -1) {
                 GenericaMensagem.warn("Atenção", "Para fazer um débito a pessoa precisa ser sócia!");
-                PF.update("formVendasBaile");
+                PF.update("form_vendas_baile");
                 return;
             }
 
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
                 GenericaMensagem.warn("Atenção", "Pessoas com débitos pendentes!");
-                PF.update("formVendasBaile");
+                PF.update("form_vendas_baile");
                 return;
             }
         }
@@ -1771,5 +1771,21 @@ public class VendaBaileBean implements Serializable {
 
     public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    public void verificaDebitos() {
+        if (tipoPagamento.equals("debitar")) {
+            if (pessoa.getSocios() == null || pessoa.getSocios().getId() == -1) {
+                GenericaMensagem.warn("Atenção", "Para fazer um débito a pessoa precisa ser sócia!");
+                PF.update("form_vendas_baile");
+                return;
+            }
+
+            if (new FunctionsDao().inadimplente(pessoa.getId())) {
+                GenericaMensagem.warn("Atenção", "Pessoas com débitos pendentes!");
+                PF.update("form_vendas_baile");
+                return;
+            }
+        }
     }
 }

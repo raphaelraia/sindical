@@ -115,7 +115,7 @@
                                 <p:outputLabel value="Tipo Pagamento:" style="font-weight: bold; margin-left: 50px" rendered="#{vendaBaileBean.tipoVenda ne 'reserva' and !vendaBaileBean.chkCortesia and vendaBaileBean.tipoVenda ne 'vendido'}"/>
 
                                 <p:selectOneRadio value="#{vendaBaileBean.tipoPagamento}" rendered="#{vendaBaileBean.tipoVenda ne 'reserva' and !vendaBaileBean.chkCortesia and vendaBaileBean.tipoVenda ne 'vendido'}" label="Tipo Pagamento" style="opacity: #{vendaBaileBean.venda.id != -1 ? '1' : ''}" disabled="#{vendaBaileBean.venda.status.id eq 3}">
-                                    <p:ajax event="change" update="@this" />
+                                    <p:ajax event="change" update="@this" listener="#{vendaBaileBean.verificaDebitos}"/>
                                     <f:selectItem itemValue="debitar" itemLabel="Debitar"/>
                                     <f:selectItem itemValue="avista" itemLabel="A vista"/>
                                 </p:selectOneRadio>

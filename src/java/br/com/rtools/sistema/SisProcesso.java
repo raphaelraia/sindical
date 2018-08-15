@@ -5,7 +5,6 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
