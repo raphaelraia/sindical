@@ -293,7 +293,7 @@ public class SocioCarteirinhaDao extends DB {
             );
 
             if (filial_id != null) {
-                listWhere.add("MS.id_filial = " + filial_id + "");
+                listWhere.add("MT.id_filial = " + filial_id + "");
             }
             // QUE POSSUEM FOTOS
             if (!registro.isCarteirinhaDependente()) {

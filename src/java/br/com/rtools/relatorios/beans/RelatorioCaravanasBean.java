@@ -10,6 +10,7 @@ import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -17,6 +18,7 @@ import br.com.rtools.utilitarios.Reports;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -113,7 +115,7 @@ public class RelatorioCaravanasBean implements Serializable {
             return;
         }
         Reports reports = new Reports();
-        reports.setTITLE(r.getNome());
+        reports.setTITLE(r.getNome() + " " + cs.get(0).getDescricao_caravana() + " - " + DataHoje.converteData((Date) cs.get(0).getData()));
         reports.print(r.getJasper(), r.getNome(), (Collection) cs);
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();

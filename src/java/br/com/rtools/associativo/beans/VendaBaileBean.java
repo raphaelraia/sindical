@@ -874,7 +874,7 @@ public class VendaBaileBean implements Serializable {
             }
 
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
-                GenericaMensagem.warn("Atenção", "Pessoas com débitos pendentes!");
+                GenericaMensagem.warn("Atenção", "Existem débitos pendentes para essa pessoa!");
                 PF.update("form_vendas_baile");
                 return;
             }
@@ -1782,7 +1782,7 @@ public class VendaBaileBean implements Serializable {
             }
 
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
-                GenericaMensagem.warn("Atenção", "Pessoas com débitos pendentes!");
+                GenericaMensagem.warn("Atenção", "Existem débitos pendentes para essa pessoa!");
                 PF.update("form_vendas_baile");
                 return;
             }

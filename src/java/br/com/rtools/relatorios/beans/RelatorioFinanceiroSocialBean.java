@@ -507,7 +507,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
         // DESCONTO FOLHA SOCIAL
         if (listaFiltros.get(8).ativo) {
-            is_desc_folha_soc = descontoFolhaFinanceiro;
+            is_desc_folha_soc = descontoFolhaSocio;
         }
 
         // DESCONTO SOCIAL
