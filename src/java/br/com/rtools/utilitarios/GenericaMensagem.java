@@ -11,16 +11,32 @@ import javax.faces.context.FacesContext;
 @ViewScoped
 public class GenericaMensagem implements Serializable {
 
+    public static void error(String description) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", description));
+    }
+
     public static void error(String title, String description) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, title, description));
+    }
+
+    public static void fatal(String description) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fatal", description));
     }
 
     public static void fatal(String title, String description) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, title, description));
     }
 
+    public static void info(String description) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Informação", description));
+    }
+
     public static void info(String title, String description) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, title, description));
+    }
+
+    public static void warn(String description) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Alerta", description));
     }
 
     public static void warn(String title, String description) {
@@ -148,10 +164,11 @@ public class GenericaMensagem implements Serializable {
 
     /**
      * info, warn, fatal, error, success, alert, block, tag
+     *
      * @param severity
      * @param title
      * @param description
-     * @return 
+     * @return
      */
     public String getHtmlMessage(String severity, String title, String description) {
         return getHtmlMessage(severity, title, description, false);

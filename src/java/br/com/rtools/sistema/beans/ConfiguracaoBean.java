@@ -16,6 +16,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Messages;
 import br.com.rtools.utilitarios.Upload;
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,7 +39,6 @@ public class ConfiguracaoBean implements Serializable {
     private List<Configuracao> listaConfiguracao;
     private Configuracao configuracao;
     private SisConfiguracaoEmail sisConfiguracaoEmail;
-    private String mensagem;
     private String descricaoPesquisa;
     private Juridica juridica;
     private Usuario usuario;
@@ -57,7 +57,6 @@ public class ConfiguracaoBean implements Serializable {
         listaConfiguracao = new ArrayList();
         listSisConfiguracaoEmail = new ArrayList();
         configuracao = new Configuracao();
-        mensagem = "";
         descricaoPesquisa = "";
         juridica = new Juridica();
         usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
@@ -125,46 +124,41 @@ public class ConfiguracaoBean implements Serializable {
         configuracao.setJuridica(juridica);
 
         if (configuracao.getJuridica().getId() == -1) {
-            setMensagem("Pesquisar pessoa jurídica!");
+            Messages.warn("Pesquisar pessoa jurídica!");
             return;
         }
         if (configuracao.getIdentifica().equals("")) {
-            setMensagem("Informar o identificador do cliente, deve ser único!");
-            return;
-        }
-
-        if (configuracao.getIdentifica().equals("")) {
-            setMensagem("Informar o identificador do cliente, deve ser único!");
+            Messages.warn("Informar o identificador do cliente, deve ser único!");
             return;
         }
 
         if (getConfiguracao().getId() == null) {
             ConfiguracaoDao configuracaoDB = new ConfiguracaoDao();
             if (configuracaoDB.existeIdentificador(configuracao)) {
-                setMensagem("Identificador já existe!");
+                Messages.warn("Identificador já existe!");
                 return;
             }
 
             if (configuracaoDB.existeIdentificadorPessoa(configuracao)) {
-                setMensagem("Identificador já existe para essa pessoa!");
+                Messages.warn("Identificador já existe para essa pessoa!");
                 return;
             }
             dao.openTransaction();
             if (dao.save(configuracao)) {
                 dao.commit();
-                setMensagem("Configuração efetuada com sucesso");
+                Messages.info("Registro inserido com sucesso");
             } else {
                 dao.rollback();
-                setMensagem("Erro ao criar configuração.");
+                Messages.warn("Erro ao inserir registro!");
             }
         } else {
             dao.openTransaction();
             if (dao.update(configuracao)) {
                 dao.commit();
-                setMensagem("Configuração atualizada com sucesso");
+                Messages.info("Registro atualizado com sucesso");
             } else {
                 dao.rollback();
-                setMensagem("Erro ao atualizar configuração.");
+                Messages.warn("Erro ao atualizar registro!");
             }
         }
     }
@@ -230,10 +224,10 @@ public class ConfiguracaoBean implements Serializable {
             if (dao.delete((Configuracao) dao.find(configuracao))) {
                 dao.commit();
                 configuracao = new Configuracao();
-                setMensagem("Configuração excluída com sucesso");
+                Messages.info("Registro removido com sucesso");
             } else {
                 dao.commit();
-                setMensagem("Erro ao excluir configuração.");
+                Messages.warn("Registro remover com sucesso");
             }
         }
     }
@@ -273,14 +267,6 @@ public class ConfiguracaoBean implements Serializable {
 
     public void setConfiguracao(Configuracao configuracao) {
         this.configuracao = configuracao;
-    }
-
-    public String getMensagem() {
-        return mensagem;
-    }
-
-    public void setMensagem(String mensagem) {
-        this.mensagem = mensagem;
     }
 
     public String getDescricaoPesquisa() {
@@ -390,12 +376,12 @@ public class ConfiguracaoBean implements Serializable {
         this.sisConfiguracaoEmail = sisConfiguracaoEmail;
     }
 
-    public void loadListServidor() { 
+    public void loadListServidor() {
         Dao dao = new Dao();
         listServidor = new ArrayList();
         List<Servidor> list = dao.list(new Servidor(), true);
         for (int i = 0; i < list.size(); i++) {
-            if(i == 0) {
+            if (i == 0) {
                 configuracao.setDatabaseServerAlias(list.get(i).getAlias());
             }
             listServidor.add(new SelectItem(list.get(i).getAlias(), list.get(i).getApelido(), list.get(i).getApelido()));
