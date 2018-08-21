@@ -272,7 +272,8 @@ public class SuprimentoCaixaBean {
                 0,
                 null,
                 null,
-                ""
+                "",
+                false
         );
     }
 

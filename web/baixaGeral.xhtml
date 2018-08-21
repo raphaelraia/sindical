@@ -150,10 +150,19 @@
                                 </p:panel>
 
                                 <h:panelGrid>
-                                    <p:column id="i_panel_troco">
-                                        <p:panel style="width: 200px; height: 200px" rendered="#{baixaGeralBean.valorTroco != ''}">
-                                            <p:outputLabel value="TROCO" style="font-size: 16pt!important" /><br />
+                                    <p:column id="i_panel_detalhe_valor">
+                                        <p:panel style="width: 200px; height: 250px" rendered="#{baixaGeralBean.valorTroco ne ''}">
+                                            <p:outputLabel value="TROCO" style="font-size: 16pt!important; font-weight: bold" /><br />
                                             <p:outputLabel value="R$ #{baixaGeralBean.valorTroco}" style="color: #5361fe; font-size: 18pt!important; font-weight: bold;" />
+                                        </p:panel>
+                                        
+                                        <p:panel style="width: 200px; height: 250px" rendered="#{baixaGeralBean.valorAcrescimo ne ''}">
+                                            <p:outputLabel value="ACRÉSCIMO NOS CHEQUES" style="font-size: 18pt!important; font-weight: bold" /><br />
+                                            <p:outputLabel value="R$ #{baixaGeralBean.valorAcrescimo}" style="color: red; font-size: 18pt!important; font-weight: bold;" /><br /><br />
+                                            
+                                            <p:commandButton value="CONFIRMAR ACRÉSCIMO" icon="ui-icon-check" action="#{baixaGeralBean.confirmarAcrescimo()}" update="@form" rendered="#{!baixaGeralBean.confirmaAcrescimo}"/><br />
+                                            <p:outputLabel value="NÃO CONFIRMADO" rendered="#{!baixaGeralBean.confirmaAcrescimo}" style="color: red"/>
+                                            <p:outputLabel value="CONFIRMADO" rendered="#{baixaGeralBean.confirmaAcrescimo}" style="color: green"/>
                                         </p:panel>
                                     </p:column>
                                 </h:panelGrid>

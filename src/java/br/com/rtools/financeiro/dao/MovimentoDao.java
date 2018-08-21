@@ -2717,7 +2717,7 @@ public class MovimentoDao extends DB {
             List lista = new ArrayList();
             lista.add("delete from Historico h where h.movimento.id in ( " + ids + " )");
             lista.add("delete from MovimentoBoleto mb where mb.movimento.id in ( " + ids + " )");
-            
+
             if (!bole.isEmpty()) {
                 lista.add("delete from Boleto b where b.nrCtrBoleto in (" + ids_boleto + ")");
             }
@@ -3755,6 +3755,18 @@ public class MovimentoDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public Movimento pesquisaMovimentoPorBaixa(Integer id_baixa) {
+        String queryString = " SELECT m.* FROM fin_movimento m WHERE m.id_baixa = " + id_baixa;
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString, Movimento.class);
+
+            return (Movimento) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
     }
 
 }

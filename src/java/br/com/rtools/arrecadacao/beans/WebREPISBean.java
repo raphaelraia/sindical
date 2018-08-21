@@ -994,8 +994,7 @@ public class WebREPISBean implements Serializable {
 
     public List<SelectItem> getListComboRepisStatus() {
         if (listComboRepisStatus.isEmpty()) {
-            Dao di = new Dao();
-            List<RepisStatus> list = di.list(new RepisStatus());
+            List<RepisStatus> list = new WebREPISDao().listaRepisStatus();
             for (int i = 0; i < list.size(); i++) {
                 listComboRepisStatus.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
             }

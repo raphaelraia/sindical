@@ -1145,6 +1145,8 @@ public class Sicoob extends Cobranca {
                             msgErro = "Data de Vencimento deve ser maior que ou igual a Data de Hoje";
                         } else if (result.contains("O campo [CEP] deve ter um valor válido")) {
                             msgErro = "Digite um CEP";
+                        } else if (result.contains("O campo [Valor do Título] deve ter um valor válido e maior que 0")) {
+                            msgErro = "O campo valor deve ser maior que 0";
                         } else {
                             msgErro = noHTMLString;
                         }

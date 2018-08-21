@@ -145,12 +145,12 @@
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
-                                
+
                                 <p:column headerText="# FP" style="width:70px; text-align: center">
                                     <p:commandLink value="#{linha.formaPagamento.id}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.formaPagamento.id}" rendered="#{linha.rotina.id ne 225}"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Data" style="width:80px; text-align: center">
                                     <p:commandLink value="#{linha.baixa.baixa}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.rotina.id ne 225}"/>
@@ -187,8 +187,14 @@
                                     <p:commandLink value="#{movimentoBancarioBean.statusCheque(linha).get('status')}" action="#{movimentoBancarioBean.selecionaStatus(linha)}" style="font-size: 11pt!important; font-weight: bold; #{movimentoBancarioBean.statusCheque(linha).get('cor')}" rendered="#{movimentoBancarioBean.mostraStatus(linha)}" onclick="PF('dlg_alterar_status_cheque').show()" update="formMovimentoBancario:panel_alterar_status_cheque" disabled="#{movimentoBancarioBean.desabilitaStatus(linha)}"/>
                                 </p:column>
 
-                                <p:column headerText="Devolução" style="width:50px; text-align: center">
+                                <p:column headerText="Devolução" style="width:60px; text-align: center">
                                     <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="#" style="width:30px; text-align: center">
+                                    <p:commandButton icon="ui-icon-close" action="#{movimentoBancarioBean.estornaOmb(linha)}" rendered="#{linha.rotina.id ne 225}" title="ESTORNAR ESSE MOVIMENTO" update="@form" disabled="#{controleAcessoBean.verificarPermissao('estornar_movimento_bancario', 2)}">
+                                        <p:confirm header="Estornar Movimento" message="Deseja Realmente ESTORNAR este movimento?" icon="ui-icon-alert" />
+                                    </p:commandButton>
                                 </p:column>
 
                                 <p:rowExpansion>
@@ -269,7 +275,7 @@
                                             <p:ajax event="change" update="@this" global="false"/>
                                         </p:inputMask>
                                     </h:panelGrid>
-                                    
+
                                 </h:panelGrid>
 
                                 <br />
@@ -353,6 +359,10 @@
 
                             </p:dialog>
 
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
                         </h:form>
                     </p:panel>
                 </f:view>

@@ -2,6 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.Cartao;
+import br.com.rtools.financeiro.Conciliacao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -167,22 +168,20 @@ public class MovimentoCartaoBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
 
-        for (ObjectListaCartoes oc : listaCartoesSelecionado) {
-            oc.getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 9));
-
-            if (!dao.update(oc.getFormaPagamento())) {
-                GenericaMensagem.error("Atenção", "Não foi possível atualizar Status!");
-                dao.rollback();
-                return;
-            }
-        }
-
         cartaoSelecionado = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
 
         Plano5 plano_entrada = cartaoSelecionado.getPlano5Baixa();
 
         String historico_entrada = "Referente ao repasse de recebimento(s) (" + plano_entrada.getConta() + ") para a conta " + cartaoSelecionado.getPlano5().getConta() + ".";
         Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 9), historico_entrada);
+
+        // LOTE DE CONCILIAÇÃO
+        Conciliacao conciliacao = novaConciliacao();
+        if (!dao.save(conciliacao)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar LOTE DE CONCILIAÇÃO!");
+            dao.rollback();
+            return;
+        }
 
         if (!dao.save(lote_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Lote");
@@ -206,12 +205,24 @@ public class MovimentoCartaoBean implements Serializable {
             return;
         }
 
-        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), cartaoSelecionado.getPlano5(), dataTransferencia);
+        FormaPagamento forma_entrada = novaFormaPagamento(dao, baixa_entrada, lote_entrada.getValor(), cartaoSelecionado.getPlano5(), dataTransferencia, conciliacao, false);
 
         if (!dao.save(forma_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
             dao.rollback();
             return;
+        }
+
+        for (ObjectListaCartoes oc : listaCartoesSelecionado) {
+            oc.getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 9));
+            oc.getFormaPagamento().setConciliacao(conciliacao);
+            oc.getFormaPagamento().setConciliado(true);
+
+            if (!dao.update(oc.getFormaPagamento())) {
+                GenericaMensagem.error("Atenção", "Não foi possível atualizar Status!");
+                dao.rollback();
+                return;
+            }
         }
 
         dao.commit();
@@ -315,6 +326,10 @@ public class MovimentoCartaoBean implements Serializable {
 
     }
 
+    public Conciliacao novaConciliacao() {
+        return new Conciliacao(-1, Usuario.getUsuario(), DataHoje.dataHoje(), DataHoje.dataHoje());
+    }
+
     public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, double valor, FStatus fstatus, String historico_contabil) {
         return new Lote(
                 -1,
@@ -381,7 +396,7 @@ public class MovimentoCartaoBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, Date data_transferencia) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, Date data_transferencia, Conciliacao conciliacao, Boolean conciliado) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -400,8 +415,9 @@ public class MovimentoCartaoBean implements Serializable {
                 null,
                 0,
                 null,
-                null,
-                ""
+                conciliacao,
+                "",
+                conciliado
         );
     }
 

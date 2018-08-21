@@ -8,6 +8,7 @@ import br.com.rtools.arrecadacao.Patronal;
 import br.com.rtools.arrecadacao.PisoSalarial;
 import br.com.rtools.arrecadacao.PisoSalarialLote;
 import br.com.rtools.arrecadacao.RepisMovimento;
+import br.com.rtools.arrecadacao.RepisStatus;
 import br.com.rtools.arrecadacao.beans.WebREPISBean.ObjectFiltro;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.pessoa.Juridica;
@@ -84,7 +85,7 @@ public class WebREPISDao extends DB {
 
     public List validaPessoaRepisAnoTipoPatronal(int idPessoa, int ano, int id_tipo_certidao, int id_patronal) {
         List result = new ArrayList();
-        
+
         try {
             Query query = getEntityManager().createNativeQuery(
                     " SELECT rm.* \n "
@@ -467,7 +468,7 @@ public class WebREPISDao extends DB {
                     + " INNER JOIN end_cidade c ON c.id = e.id_cidade \n";
             and += "   AND c.id = " + Integer.valueOf(of.getListaCidade().get(of.getIndexCidade()).getDescription()) + " \n";
         }
-        
+
         and += "   AND rm.dt_inativacao IS NULL \n";
 
         if (!quantidade.equals("tudo")) {
@@ -635,5 +636,15 @@ public class WebREPISDao extends DB {
 
         }
         return new ArrayList<>();
+    }
+
+    public List<RepisStatus> listaRepisStatus() {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT rs.* FROM arr_repis_status rs WHERE rs.is_ativo = TRUE");
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
     }
 }

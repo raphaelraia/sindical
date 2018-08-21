@@ -27,7 +27,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -185,8 +187,6 @@ public final class FechamentoCaixaBean implements Serializable {
     }
 
     public void previaFechamentoCaixa() {
-        Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-
         FinanceiroDao db = new FinanceiroDao();
         
         Caixa c = (Caixa) new Dao().find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
@@ -215,10 +215,13 @@ public final class FechamentoCaixaBean implements Serializable {
             );
         }
 
+        Map hash = new LinkedHashMap();
+        hash.put("caixa", c.getDescricao());
+        
         try {
             Jasper.PATH = "downloads";
             Jasper.PART_NAME = "";
-            Jasper.printReports("/Relatorios/PREVIA_FECHAMENTO_CAIXA.jasper", "previa_fechamento_caixa", lista);
+            Jasper.printReports("/Relatorios/PREVIA_FECHAMENTO_CAIXA.jasper", "previa_fechamento_caixa", lista, hash);
         } catch (Exception e) {
             e.getMessage();
         }

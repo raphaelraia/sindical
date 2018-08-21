@@ -2,6 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.ChequeRec;
+import br.com.rtools.financeiro.Conciliacao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -163,6 +164,15 @@ public class DepositoBancarioBean implements Serializable {
 
         String historico_contabil = "Deposito bancário em DINHEIRO para a conta " + plano_combo.getConta();
 
+        // LOTE DE CONCILIAÇÃO
+        Conciliacao conciliacao = novaConciliacao();
+        if (!dao.save(conciliacao)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar LOTE DE CONCILIAÇÃO!");
+            dao.rollback();
+            return;
+        }
+        // ---------------------------------------------------------------------
+
         // MOVIMENTO SAIDA -----------------------------------------------------
         Baixa baixa_saida = null;
         Lote lote_saida = null;
@@ -196,11 +206,13 @@ public class DepositoBancarioBean implements Serializable {
         }
 
         Plano5 plano_forma = plano_caixa;
-        if (!dao.save(novaFormaPagamento(dao, baixa_saida, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0, dataDeposito))) {
+        FormaPagamento fp_saida = novaFormaPagamento(dao, baixa_saida, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0, dataDeposito, conciliacao, false);
+        if (!dao.save(fp_saida)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             dao.rollback();
             return;
         }
+        // ---------------------------------------------------------------------
 
         // MOVIMENTO ENTRADA ---------------------------------------------------
         Baixa baixa_entrada = null;
@@ -235,13 +247,13 @@ public class DepositoBancarioBean implements Serializable {
         }
 
         plano_forma = plano_combo;
-
-        if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0, dataDeposito))) {
+        FormaPagamento fp_entrada = novaFormaPagamento(dao, baixa_entrada, valorDeposito, plano_forma, null, (FStatus) dao.find(new FStatus(), 15), 0, dataDeposito, conciliacao, true);
+        if (!dao.save(fp_entrada)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             dao.rollback();
             return;
         }
-
+        // ---------------------------------------------------------------------
         dao.commit();
 
         loadListaCheques();
@@ -272,10 +284,89 @@ public class DepositoBancarioBean implements Serializable {
         Plano5 plano_combo = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
         Plano5 plano_caixa = (Plano5) dao.find(new Plano5(), 1);
 
-        FStatus fstatus_liquidado = (FStatus) dao.find(new FStatus(), 9);
-        // UPDATE NOS CHEQUES
+
         for (int i = 0; i < listaSelecionado.size(); i++) {
+            // LOTE DE CONCILIAÇÃO
+            Conciliacao conciliacao = novaConciliacao();
+            if (!dao.save(conciliacao)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar LOTE DE CONCILIAÇÃO!");
+                dao.rollback();
+                return;
+            }
+            
+            // MOVIMENTO SAIDA -----------------------------------------------------
+            Baixa baixa_saida = novaBaixa(DataHoje.dataHoje());
+            if (!dao.save(baixa_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
+                dao.rollback();
+                return;
+            }
+
+            double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
+
+            String historico_contabil = "Deposito bancário do CHEQUE [ " + listaSelecionado.get(i).getChequeRec().getBanco().getBanco() + " - " + listaSelecionado.get(i).getChequeRec().getAgencia() + " - " + listaSelecionado.get(i).getChequeRec().getConta() + " - " + listaSelecionado.get(i).getChequeRec().getCheque() + " ] para a conta " + plano_combo.getConta();
+
+            Lote lote_saida = novoLote(dao, "P", plano_combo, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
+            if (!dao.save(lote_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
+                dao.rollback();
+                return;
+            }
+
+            Movimento movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
+            if (!dao.save(movimento_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Saida!");
+                dao.rollback();
+                return;
+            }
+
+            Plano5 plano_forma = plano_caixa;
+            FormaPagamento fp_saida = novaFormaPagamento(dao, baixa_saida, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 15), listaSelecionado.get(i).getFormaPagamento().getDevolucao(), DataHoje.dataHoje(), conciliacao, false);
+            if (!dao.save(fp_saida)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
+                dao.rollback();
+                return;
+            }
+
+            // MOVIMENTO ENTRADA ---------------------------------------------------
+            Baixa baixa_entrada = novaBaixa(DataHoje.dataHoje());
+            if (!dao.save(baixa_entrada)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
+                dao.rollback();
+                return;
+            }
+
+            historico_contabil = "Deposito bancário do CHEQUE [ " + listaSelecionado.get(i).getChequeRec().getBanco().getBanco() + " - " + listaSelecionado.get(i).getChequeRec().getAgencia() + " - " + listaSelecionado.get(i).getChequeRec().getConta() + " - " + listaSelecionado.get(i).getChequeRec().getCheque() + " ] para a conta " + plano_combo.getConta();
+
+            Plano5 plano = plano_caixa;
+
+            Lote lote_entrada = novoLote(dao, "R", plano, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 14), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
+            if (!dao.save(lote_entrada)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Entrada!");
+                dao.rollback();
+                return;
+            }
+
+            Movimento movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
+            if (!dao.save(movimento_entrada)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Entrada!");
+                dao.rollback();
+                return;
+            }
+
+            plano_forma = plano_combo;
+            FormaPagamento fp_entrada = novaFormaPagamento(dao, baixa_entrada, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 8), listaSelecionado.get(i).getFormaPagamento().getDevolucao(), DataHoje.dataHoje(), conciliacao, false);
+            if (!dao.save(fp_entrada)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
+                dao.rollback();
+                return;
+            }
+            
+            FStatus fstatus_liquidado = (FStatus) dao.find(new FStatus(), 9);
+            // UPDATE NOS CHEQUES
             listaSelecionado.get(i).getFormaPagamento().setStatus(fstatus_liquidado);
+            listaSelecionado.get(i).getFormaPagamento().setConciliacao(conciliacao);
+            listaSelecionado.get(i).getFormaPagamento().setConciliado(true);
 
             if (!dao.update(listaSelecionado.get(i).getFormaPagamento())) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
@@ -284,104 +375,15 @@ public class DepositoBancarioBean implements Serializable {
             }
         }
 
-        // MOVIMENTO SAIDA -----------------------------------------------------
-        Baixa baixa_saida = null;
-        Lote lote_saida = null;
-        Movimento movimento_saida = null;
-        for (int i = 0; i < listaSelecionado.size(); i++) {
-            if (baixa_saida == null) {
-                baixa_saida = novaBaixa(DataHoje.dataHoje());
-                if (!dao.save(baixa_saida)) {
-                    GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
-                    dao.rollback();
-                    return;
-                }
-            }
-
-            double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
-
-            String historico_contabil = "Deposito bancário do CHEQUE [ " + listaSelecionado.get(i).getChequeRec().getBanco().getBanco() + " - " + listaSelecionado.get(i).getChequeRec().getAgencia() + " - " + listaSelecionado.get(i).getChequeRec().getConta() + " - " + listaSelecionado.get(i).getChequeRec().getCheque() + " ] para a conta " + plano_combo.getConta();
-
-            if (lote_saida == null) {
-                lote_saida = novoLote(dao, "P", plano_combo, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
-                if (!dao.save(lote_saida)) {
-                    GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
-                    dao.rollback();
-                    return;
-                }
-            }
-
-            if (movimento_saida == null) {
-                movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
-                if (!dao.save(movimento_saida)) {
-                    GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Saida!");
-                    dao.rollback();
-                    return;
-                }
-            }
-
-            Plano5 plano_forma = plano_caixa;
-            if (!dao.save(novaFormaPagamento(dao, baixa_saida, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 15), listaSelecionado.get(i).getFormaPagamento().getDevolucao(), DataHoje.dataHoje()))) {
-                GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
-                dao.rollback();
-                return;
-            }
-        }
-
-        // MOVIMENTO ENTRADA ---------------------------------------------------
-        Baixa baixa_entrada = null;
-        Lote lote_entrada = null;
-        Movimento movimento_entrada = null;
-        for (int i = 0; i < listaSelecionado.size(); i++) {
-            if (baixa_entrada == null) {
-                baixa_entrada = novaBaixa(DataHoje.dataHoje());
-                if (!dao.save(baixa_entrada)) {
-                    GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
-                    dao.rollback();
-                    return;
-                }
-            }
-
-            double valor = listaSelecionado.get(i).getFormaPagamento().getValor();
-
-            String historico_contabil = "Deposito bancário do CHEQUE [ " + listaSelecionado.get(i).getChequeRec().getBanco().getBanco() + " - " + listaSelecionado.get(i).getChequeRec().getAgencia() + " - " + listaSelecionado.get(i).getChequeRec().getConta() + " - " + listaSelecionado.get(i).getChequeRec().getCheque() + " ] para a conta " + plano_combo.getConta();
-            
-            Plano5 plano = plano_caixa;
-
-            if (lote_entrada == null) {
-                lote_entrada = novoLote(dao, "R", plano, listaSelecionado.get(i).getChequeRec(), valor, (FStatus) dao.find(new FStatus(), 14), historico_contabil, (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.valueOf(listaFTipoDocumento.get(indexListaFTipoDocumento).getDescription())));
-                if (!dao.save(lote_entrada)) {
-                    GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Entrada!");
-                    dao.rollback();
-                    return;
-                }
-            }
-
-            movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
-            if (!dao.save(movimento_entrada)) {
-                GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Entrada!");
-                dao.rollback();
-                return;
-            }
-
-//            listaSelecionado.get(i).getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 8));
-//            if (!dao.update(listaSelecionado.get(i).getFormaPagamento())) {
-//                GenericaMensagem.warn("Erro", "Não foi possivel atualizar cheque!");
-//                dao.rollback();
-//                return;
-//            }
-            Plano5 plano_forma = plano_combo;
-            if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valor, plano_forma, listaSelecionado.get(i).getChequeRec(), (FStatus) dao.find(new FStatus(), 8), listaSelecionado.get(i).getFormaPagamento().getDevolucao(), DataHoje.dataHoje()))) {
-                GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
-                dao.rollback();
-                return;
-            }
-        }
 
         dao.commit();
 
         loadListaCheques();
         GenericaMensagem.info("Sucesso", "Cheques depositados com Sucesso!");
+    }
+
+    public Conciliacao novaConciliacao() {
+        return new Conciliacao(-1, Usuario.getUsuario(), DataHoje.dataHoje(), DataHoje.dataHoje());
     }
 
     public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, double valor, FStatus fstatus, String historico_contabil, FTipoDocumento tipoDocumento) {
@@ -469,7 +471,7 @@ public class DepositoBancarioBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequeRec cheque, FStatus fstatus, Integer devolucao, Date data_baixa) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, double valor, Plano5 plano, ChequeRec cheque, FStatus fstatus, Integer devolucao, Date data_baixa, Conciliacao conciliacao, Boolean conciliado) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -488,8 +490,9 @@ public class DepositoBancarioBean implements Serializable {
                 fstatus,
                 devolucao,
                 null,
-                null,
-                ""
+                conciliacao,
+                "",
+                conciliado
         );
     }
 

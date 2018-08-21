@@ -97,7 +97,7 @@ public class ImpressaoBoletoSocialBean {
     private ContaCobranca contaSelecionada = new ContaCobranca();
 
     private Boolean desabilitaBoletoRegistrado = false;
-    
+
     @PostConstruct
     public void init() {
         UploadFilesBean uploadFilesBean = new UploadFilesBean("Imagens/");
@@ -127,7 +127,7 @@ public class ImpressaoBoletoSocialBean {
 
     public void alterarContaRemessa() {
         contaSelecionada = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.valueOf(listaConta.get(indexConta).getDescription()));
-        
+
         atualizarTipoEnvio();
     }
 
@@ -135,7 +135,7 @@ public class ImpressaoBoletoSocialBean {
         switch (tipoEnvio) {
             case 1:
             case 4:
-                if (contaSelecionada.getId() != -1 && contaSelecionada.getCobrancaRegistrada().getId() != 3){
+                if (contaSelecionada.getId() != -1 && contaSelecionada.getCobrancaRegistrada().getId() != 3) {
                     boletoRegistrado = "registrados";
                     desabilitaBoletoRegistrado = true;
                     return;
@@ -144,7 +144,7 @@ public class ImpressaoBoletoSocialBean {
             default:
                 break;
         }
-        
+
         desabilitaBoletoRegistrado = false;
     }
 
@@ -265,9 +265,18 @@ public class ImpressaoBoletoSocialBean {
 
         List<Boleto> lista = new ArrayList();
         MovimentoDao db = new MovimentoDao();
+        // ATUALIZA O VALOR EM fin_boleto DE ACORDO COM A GRID
+        Dao dao = new Dao();
+
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
-                lista.add(db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)));
+                Boleto b = db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0));
+
+                b.setValor(Moeda.converteUS$(listaGrid.get(i).getArgumento3().toString()));
+
+                dao.update(b, true);
+
+                lista.add(b);
             }
         }
 

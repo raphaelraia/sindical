@@ -659,6 +659,10 @@
 
                                     <p:messages autoUpdate="false" closable="true" showDetail="true" />
 
+                                    <p:selectBooleanCheckbox value="#{movimentosReceberSocialBean.chkMovimentosDoBoleto}" itemLabel="Selecionar Todos">
+                                        <p:ajax event="change" update="tbl_movimentos_do_boleto" global="false" listener="#{movimentosReceberSocialBean.selMovimentosDoBoleto}"/>
+                                    </p:selectBooleanCheckbox>
+
                                     <p:dataTable value="#{movimentosReceberSocialBean.listaMovimentoDoBoleto}" var="linha_movimento" emptyMessage="Nenhum Movimento Encontrado!" scrollable="true" scrollHeight="400">
                                         <p:column style="width: 20px; text-align: center">
                                             <p:selectBooleanCheckbox value="#{linha_movimento.selecionado}" style="float: right" disabled="#{linha_movimento.movimento.baixa ne null}">

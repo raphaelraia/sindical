@@ -285,7 +285,7 @@ public class GerarMovimento extends DB {
                     return "Mensagem de cobrança não encontrada";
                 }
             }
-            
+
             ContaCobranca cc = dbc.pesquisaServicoCobranca(listaMovimento.get(i).getServicos().getId(), listaMovimento.get(i).getTipoServico().getId());
             int id_boleto = db.inserirBoletoNativo(cc.getId(), listaMovimento.get(i).getVencimento(), listaMovimento.get(i).getValor());
 
@@ -755,8 +755,7 @@ public class GerarMovimento extends DB {
                         return false;
                     }
                 }
-                
-                
+
             } else {
                 // SE NÃO FOR REGISTRADA -------------------------------------------    
                 bol.setDtVencimento(vencimento);
@@ -1344,7 +1343,8 @@ public class GerarMovimento extends DB {
                 0,
                 plano5,
                 null,
-                ""
+                "",
+                false
         );
 
         if (!dao.save(fp)) {
@@ -1381,7 +1381,7 @@ public class GerarMovimento extends DB {
         return true;
     }
 
-    public static StatusRetornoMensagem baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco, Date dataOcorrencia) {
+    public static StatusRetornoMensagem baixarMovimentoManual(List<Movimento> movimento, Usuario usuario, List<FormaPagamento> fp, double valorTotal, String pagamento, Caixa caixa, double valorTroco, Date dataOcorrencia, double valorAcrescimo) {
         try {
             String numeroComposto = "";
             if (movimento.get(0).getServicos() != null) {
@@ -1445,6 +1445,9 @@ public class GerarMovimento extends DB {
             }
 
             double valor_forma_pagamento = 0;
+
+            double acrescimo_f = valorAcrescimo, acrescimo_m = valorAcrescimo;
+
             for (FormaPagamento fp1 : fp) {
                 fp1.setBaixa(baixa);
                 double calc = (fp1.getValor() == 0) ? 100 : Moeda.multiplicar(Moeda.divisao(fp1.getValor(), valorTotal), 100);
@@ -1515,17 +1518,34 @@ public class GerarMovimento extends DB {
                     fp1.setCartaoRec(cartao_rec);
                 }
 
+                valor_forma_pagamento = Moeda.soma(valor_forma_pagamento, fp1.getValor());
+
+                if (fp1.getTipoPagamento().getId() == 4 || fp1.getTipoPagamento().getId() == 5) {
+                    if (acrescimo_f > 0) {
+                        valor_forma_pagamento = valor_forma_pagamento + acrescimo_f;
+                        fp1.setValor(fp1.getValor() + acrescimo_f);
+                        fp1.setValorLiquido(fp1.getValorLiquido() + acrescimo_f);
+                        acrescimo_f = 0;
+                    }
+                }
+
                 if (!dao.save(fp1)) {
                     dao.rollback();
                     return new StatusRetornoMensagem(Boolean.FALSE, "ERRO AO SALVAR FORMA DE PAGAMENTO");
                 }
-
-                valor_forma_pagamento = Moeda.soma(valor_forma_pagamento, fp1.getValor());
             }
 
             double valor_movimento = 0;
             for (int i = 0; i < movimento.size(); i++) {
                 movimento.get(i).setBaixa(baixa);
+
+                // CHAMADO #2548 ALTERA O VALOR DO MOVIMENTO CASO TIVER ACRÉSCIMO ( **INICIALMENTE APENAS EM CASOS DE CHEQUE** ) EM QUALQUER MOVIMENTO, NESSE CASO PEGANDO O PRIMEIRO
+                if (acrescimo_m > 0) {
+                    movimento.get(i).setCorrecao(acrescimo_m);
+                    movimento.get(i).setValorBaixa(movimento.get(i).getValorBaixa() + acrescimo_m);
+                    // ZERA PARA ADICIONAR ACRÉSCIMO APENAS NO PRIMEIRO REGISTRO
+                    acrescimo_m = 0;
+                }
 
                 if (!dao.update(movimento.get(i))) {
                     dao.rollback();
@@ -1644,7 +1664,8 @@ public class GerarMovimento extends DB {
                 0,
                 plano5,
                 null,
-                ""
+                "",
+                false
         );
 
         if (!dao.save(fp)) {

@@ -146,6 +146,8 @@ public class MovimentosReceberSocialBean implements Serializable {
     private SelecionaBoleto selecionaBoleto = new SelecionaBoleto();
 
     private Boolean imprimeVerso = false;
+    
+    private Boolean chkMovimentosDoBoleto = false;
 
     @PostConstruct
     public void init() {
@@ -162,6 +164,12 @@ public class MovimentosReceberSocialBean implements Serializable {
         GenericaSessao.remove("usuarioAutenticado");
     }
 
+    public void selMovimentosDoBoleto(){
+        for (LinhaMovimentoDoBoleto mb : listaMovimentoDoBoleto){
+            mb.setSelecionado(chkMovimentosDoBoleto);
+        }
+    }
+    
     public Boolean movimentosBaixado(Boleto b) {
         MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(b.getNrCtrBoleto());
@@ -180,6 +188,8 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         listaMovimentoDoBoleto.clear();
 
+        chkMovimentosDoBoleto = false;
+        
         MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(linhaBoletosAnexo.getBoleto().getNrCtrBoleto());
 
@@ -2470,5 +2480,13 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void setImprimeVerso(Boolean imprimeVerso) {
         this.imprimeVerso = imprimeVerso;
+    }
+
+    public Boolean getChkMovimentosDoBoleto() {
+        return chkMovimentosDoBoleto;
+    }
+
+    public void setChkMovimentosDoBoleto(Boolean chkMovimentosDoBoleto) {
+        this.chkMovimentosDoBoleto = chkMovimentosDoBoleto;
     }
 }

@@ -3,6 +3,7 @@ package br.com.rtools.financeiro;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
@@ -59,15 +60,17 @@ public class FormaPagamento implements java.io.Serializable {
     @JoinColumn(name = "id_conciliacao_plano5", referencedColumnName = "id")
     @ManyToOne
     private Plano5 conciliacaoPlano5;
-    @JoinColumn(name = "id_conciliado", referencedColumnName = "id")
+    @JoinColumn(name = "id_conciliacao", referencedColumnName = "id")
     @ManyToOne
-    private FormaPagamento conciliado;
+    private Conciliacao conciliacao;
     @Column(name = "ds_documento")
     private String documento;
+    @Column(name = "is_conciliado", nullable = false)
+    private Boolean conciliado;
 
     @Transient
     private Pessoa responsavel;
-    
+
     public FormaPagamento() {
         this.id = -1;
         this.baixa = new Baixa();
@@ -86,8 +89,9 @@ public class FormaPagamento implements java.io.Serializable {
         this.status = null;
         this.devolucao = 0;
         this.conciliacaoPlano5 = null;
-        this.conciliado = null;
+        this.conciliacao = null;
         this.documento = "";
+        this.conciliado = false;
     }
 
     public FormaPagamento(int id,
@@ -107,8 +111,9 @@ public class FormaPagamento implements java.io.Serializable {
             FStatus status,
             Integer devolucao,
             Plano5 conciliacaoPlano5,
-            FormaPagamento conciliado,
-            String documento) {
+            Conciliacao conciliacao,
+            String documento,
+            Boolean conciliado) {
         this.id = id;
         this.baixa = baixa;
         this.chequeRec = chequeRec;
@@ -126,8 +131,9 @@ public class FormaPagamento implements java.io.Serializable {
         this.status = status;
         this.devolucao = devolucao;
         this.conciliacaoPlano5 = conciliacaoPlano5;
-        this.conciliado = conciliado;
+        this.conciliacao = conciliacao;
         this.documento = documento;
+        this.conciliado = conciliado;
     }
 
     public int getId() {
@@ -250,6 +256,14 @@ public class FormaPagamento implements java.io.Serializable {
         this.dtCredito = dtCredito;
     }
 
+    public String getDtCreditoString() {
+        return DataHoje.converteData(dtCredito);
+    }
+
+    public void setDtCreditoString(String dtCreditoString) {
+        this.dtCredito = DataHoje.converte(dtCreditoString);
+    }
+
     public double getTaxa() {
         return taxa;
     }
@@ -286,12 +300,12 @@ public class FormaPagamento implements java.io.Serializable {
         this.conciliacaoPlano5 = conciliacaoPlano5;
     }
 
-    public FormaPagamento getConciliado() {
-        return conciliado;
+    public Conciliacao getConciliacao() {
+        return conciliacao;
     }
 
-    public void setConciliado(FormaPagamento conciliado) {
-        this.conciliado = conciliado;
+    public void setConciliacao(Conciliacao conciliacao) {
+        this.conciliacao = conciliacao;
     }
 
     public String getDocumento() {
@@ -303,7 +317,7 @@ public class FormaPagamento implements java.io.Serializable {
     }
 
     public Pessoa getResponsavel() {
-        if (this.id != -1){
+        if (this.id != -1) {
             responsavel = new FinanceiroDao().responsavelFormaPagamento(this.id);
         }
         return responsavel;
@@ -312,4 +326,13 @@ public class FormaPagamento implements java.io.Serializable {
     public void setResponsavel(Pessoa responsavel) {
         this.responsavel = responsavel;
     }
+
+    public Boolean getConciliado() {
+        return conciliado;
+    }
+
+    public void setConciliado(Boolean conciliado) {
+        this.conciliado = conciliado;
+    }
+
 }
