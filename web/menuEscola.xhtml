@@ -82,12 +82,11 @@
                                     <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('matriculaEscola')}" title="Matrícula Escola" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('matriculaEscola')}" title="Matrícula Escola" ajax="false" rendered="false">
                                         <p:graphicImage value="" height="70" />
                                     </p:commandLink>
-                                    <h:outputLabel value="Pessoa Física" />
-                                    <h:outputLabel value="Recebimentos" />
-                                    <h:outputLabel value="Matrícula" />
+                                    <!-- <h:outputLabel value="Pessoa Física" /> -->
+                                    <!-- <h:outputLabel value="Recebimentos" /> -->
                                 </p:panelGrid>
                             </p:panel>
                         </p:panel>

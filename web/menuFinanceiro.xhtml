@@ -132,15 +132,15 @@
                                     <p:commandLink action="#{chamadaPaginaBean.lancamentoFinanceiro()}" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-finances.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('contasAPagar')}" title="Contas à Pagar" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('contasAPagar')}" title="Contas à Pagar" ajax="false" rendered="false">
                                         <p:graphicImage value="" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('impressaoCheque')}" title="Impressão de Cheques" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('impressaoCheque')}" title="Impressão de Cheques" ajax="false" rendered="false">
                                         <p:graphicImage value="" height="80" />
                                     </p:commandLink>
                                     <h:outputLabel value="Lançamentos" />
-                                    <h:outputLabel value="Contas à Pagar" />
-                                    <h:outputLabel value="Impressão Cheques" />
+                                    <!-- <h:outputLabel value="Contas à Pagar" /> -->
+                                   <!-- <h:outputLabel value="Impressão Cheques" /> -->
 
                                 </p:panelGrid>
                             </p:panel>                             
