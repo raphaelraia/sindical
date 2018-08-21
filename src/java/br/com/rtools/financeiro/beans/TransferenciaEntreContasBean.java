@@ -263,7 +263,8 @@ public class TransferenciaEntreContasBean implements Serializable {
                 0,
                 null,
                 null,
-                ""
+                "",
+                false
         );
     }
 

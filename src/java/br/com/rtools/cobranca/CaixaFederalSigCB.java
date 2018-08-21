@@ -750,7 +750,7 @@ public class CaixaFederalSigCB extends Cobranca {
         NO SERVIDOR É OBRIGATÓRIO INSTALAR O CERTIFICADO DA CAIXA
         EX.
         
-        "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -importcert -alias CertificadoWebServiceCEF -file "C:\Users\Public\CertificadoWebServiceCEF.cer"
+        "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -importcert -alias CertificadoWebServiceCEF -file "Sindical\web\resources\CEF_Certificado.cer"
 
         INFORMAR SENHA:
         changeit
@@ -798,7 +798,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 JUROS
                         = "					<TIPO>ISENTO</TIPO>\n"
                         //+ "					<DATA>0000-00-00</DATA>\n"
-                        + "					<VALOR>0</VALOR>\n";
+                        + "					<PERCENTUAL>0</PERCENTUAL>\n";
             } else {
                 String vt = new DataHoje().incrementarDias(1, DataHoje.converteData(vencimento));
                 String vt2 = DataHoje.ano(vt) + "-" + DataHoje.mes(vt) + "-" + DataHoje.dia(vt);
@@ -808,7 +808,21 @@ public class CaixaFederalSigCB extends Cobranca {
                 JUROS
                         = "					<TIPO>TAXA_MENSAL</TIPO>\n"
                         + "					<DATA>" + vt2 + "</DATA>\n"
-                        + "					<VALOR>" + jr + "</VALOR>\n";
+                        + "					<PERCENTUAL>" + jr + "</PERCENTUAL>\n";
+            }
+
+            String MULTA = "";
+            if (boleto.getContaCobranca().getMulta() > 0) {
+                String vt = new DataHoje().incrementarDias(1, DataHoje.converteData(vencimento));
+                String vt2 = DataHoje.ano(vt) + "-" + DataHoje.mes(vt) + "-" + DataHoje.dia(vt);
+
+                String mt = Double.toString(boleto.getContaCobranca().getMulta());
+
+                MULTA
+                        = "					<MULTA>\n"
+                        + "					<DATA>" + vt2 + "</DATA>\n"
+                        + "					<PERCENTUAL>" + mt + "</PERCENTUAL>\n"
+                        + "					</MULTA>\n";
             }
 
             String NOME = AnaliseString.normalizeSpecial(AnaliseString.normalizeUpper(pessoa.getNome()));
@@ -840,7 +854,7 @@ public class CaixaFederalSigCB extends Cobranca {
             BAIRRO = (BAIRRO + "               ").substring(0, 15).trim();
             CIDADE = (CIDADE + "                                        ").substring(0, 20).trim();
 
-            String xmlTicket = TICKET_ENTRADA(HASH_AUTH, DATA_HORA, CODIGO_BENEFICIARIO, NOSSO_NUMERO, NUMERO_DOCUMENTO, VENCIMENTO, VALOR, JUROS, DOCUMENTO_E_NOME, ENDERECO, BAIRRO, CIDADE, UF, CEP);
+            String xmlTicket = TICKET_ENTRADA(HASH_AUTH, DATA_HORA, CODIGO_BENEFICIARIO, NOSSO_NUMERO, NUMERO_DOCUMENTO, VENCIMENTO, VALOR, JUROS, MULTA, DOCUMENTO_E_NOME, ENDERECO, BAIRRO, CIDADE, UF, CEP);
 
             // CONEXÃO --------
             String soapEndpointUrl = "https://barramento.caixa.gov.br/sibar/ManutencaoCobrancaBancaria/Boleto/Externo?wsdl";
@@ -905,7 +919,7 @@ public class CaixaFederalSigCB extends Cobranca {
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
     }
 
-    public String TICKET_ENTRADA(String AUTENTICACAO, String DATA_HORA, String CODIGO_BENEFICIARIO, String NOSSO_NUMERO, String NUMERO_DOCUMENTO, String VENCIMENTO, String VALOR, String JUROS, String DOCUMENTO_E_NOME, String LOGRADOURO, String BAIRRO, String CIDADE, String UF, String CEP) {
+    public String TICKET_ENTRADA(String AUTENTICACAO, String DATA_HORA, String CODIGO_BENEFICIARIO, String NOSSO_NUMERO, String NUMERO_DOCUMENTO, String VENCIMENTO, String VALOR, String JUROS, String MULTA, String DOCUMENTO_E_NOME, String LOGRADOURO, String BAIRRO, String CIDADE, String UF, String CEP) {
         return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ext=\"http://caixa.gov.br/sibar/manutencao_cobranca_bancaria/boleto/externo\" xmlns:sib=\"http://caixa.gov.br/sibar\"> \n"
                 + "   <soapenv:Header/> \n"
                 + "   <soapenv:Body> \n"
@@ -935,7 +949,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 + "                  <VALOR_ABATIMENTO>0</VALOR_ABATIMENTO> \n"
                 + "                  <POS_VENCIMENTO> \n"
                 + "                     <ACAO>DEVOLVER</ACAO> \n"
-                + "                     <NUMERO_DIAS>0</NUMERO_DIAS> \n"
+                + "                     <NUMERO_DIAS>30</NUMERO_DIAS> \n"
                 + "                  </POS_VENCIMENTO> \n"
                 + "                  <CODIGO_MOEDA>9</CODIGO_MOEDA> \n"
                 + "                  <PAGADOR> \n"
@@ -948,6 +962,7 @@ public class CaixaFederalSigCB extends Cobranca {
                 + "                        <CEP>" + CEP + "</CEP> \n"
                 + "                     </ENDERECO> \n"
                 + "                  </PAGADOR> \n"
+                + MULTA
                 + "                  <PAGAMENTO> \n"
                 + "                     <QUANTIDADE_PERMITIDA>1</QUANTIDADE_PERMITIDA> \n"
                 + "                     <TIPO>ACEITA_QUALQUER_VALOR</TIPO> \n"

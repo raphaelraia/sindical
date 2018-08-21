@@ -5,6 +5,7 @@ import br.com.rtools.financeiro.CartaoPag;
 import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ChequeRec;
+import br.com.rtools.financeiro.Conciliacao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.financeiro.ContaSaldo;
@@ -21,6 +22,7 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoBancarioDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -88,6 +90,8 @@ public class MovimentoBancarioBean implements Serializable {
 
     private Date dataChequeStatus = DataHoje.dataHoje();
 
+    private ObjectMovimentoBancario ombSelecionado;
+
     public MovimentoBancarioBean() {
         loadListaConta();
         loadListaContaOperacao();
@@ -135,6 +139,151 @@ public class MovimentoBancarioBean implements Serializable {
         loadListaContaOperacao();
         loadListaStatus();
         loadListaMovimento();
+    }
+
+    public void estornaOmb(ObjectMovimentoBancario omb) {
+        ombSelecionado = omb;
+
+        if (omb.getFormaPagamento().getConciliacao() == null) {
+            GenericaMensagem.error("Atenção", "Conciliação não encontrada!");
+            return;
+        }
+
+        String LOG_id_fp = "", LOG_valor_fp = "", LOG_tipo_fp = "";
+
+        // PROCEDIMENTO DE ESTORNO
+        List<FormaPagamento> result = new MovimentoBancarioDao().listaFormaPagamentoEstorno(omb.getFormaPagamento().getConciliacao().getId(), true);
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        // ESTORNA
+        if (!result.isEmpty()) {
+            for (FormaPagamento fp : result) {
+                switch (fp.getTipoPagamento().getId()) {
+                    // DEPÓSITO BANCÁRIO
+                    case 8:
+                        if (!dao.delete(fp)) {
+                            GenericaMensagem.error("Atenção", "Erro ao excluir Forma de Pagamento conciliada!");
+                            dao.rollback();
+                            return;
+                        }
+                        break;
+                    // CHEQUES
+                    case 4:
+                    case 5:
+                        fp.setStatus((FStatus) dao.find(new FStatus(), 7));
+                        fp.setConciliado(false);
+                        fp.setConciliacao(null);
+
+                        if (!dao.update(fp)) {
+                            GenericaMensagem.error("Atenção", "Erro ao atualizar Forma de Pagamento conciliada!");
+                            dao.rollback();
+                            return;
+                        }
+                        break;
+                    // CARTÕES
+                    case 6:
+                    case 7:
+                        fp.setStatus((FStatus) dao.find(new FStatus(), 8));
+                        fp.setConciliado(false);
+                        fp.setConciliacao(null);
+
+                        if (!dao.update(fp)) {
+                            GenericaMensagem.error("Atenção", "Erro ao atualizar Forma de Pagamento conciliada!");
+                            dao.rollback();
+                            return;
+                        }
+                        break;
+                    // OUTROS
+                    default:
+                        GenericaMensagem.error("Atenção", "Não existem outros tipos de estorno!");
+                        dao.rollback();
+                        return;
+
+                }
+
+                if (LOG_id_fp.isEmpty()) {
+                    LOG_id_fp = "" + fp.getId();
+                    LOG_tipo_fp = fp.getTipoPagamento().getDescricao();
+                    LOG_valor_fp = fp.getValorString();
+                } else {
+                    LOG_id_fp += ", " + fp.getId();
+                    LOG_tipo_fp += ", " + fp.getTipoPagamento().getDescricao();
+                    LOG_valor_fp += ", " + fp.getValorString();
+                }
+            }
+
+        }
+
+        // APAGA
+        List<FormaPagamento> result_estorna = new MovimentoBancarioDao().listaFormaPagamentoEstorno(omb.getFormaPagamento().getConciliacao().getId(), false);
+
+        String LOG_id_fp_estorna = "", LOG_valor_fp_estorna = "", LOG_tipo_fp_estorna = "";
+
+        for (FormaPagamento fp : result_estorna) {
+            if (!dao.delete(fp)) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir Forma de Pagamento!");
+                dao.rollback();
+                return;
+            }
+
+            if (!dao.delete(fp.getBaixa().getMovimento())) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir Movimento!");
+                dao.rollback();
+                return;
+            }
+
+            if (!dao.delete(fp.getBaixa())) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir Baixa!");
+                dao.rollback();
+                return;
+            }
+
+            if (!dao.delete(fp.getBaixa().getMovimento().getLote())) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir Lote!");
+                dao.rollback();
+                return;
+            }
+            
+            if (LOG_id_fp_estorna.isEmpty()) {
+                LOG_id_fp_estorna = "" + fp.getId();
+                LOG_tipo_fp_estorna = fp.getTipoPagamento().getDescricao();
+                LOG_valor_fp_estorna = fp.getValorString();
+            } else {
+                LOG_id_fp_estorna += ", " + fp.getId();
+                LOG_tipo_fp_estorna += ", " + fp.getTipoPagamento().getDescricao();
+                LOG_valor_fp_estorna += ", " + fp.getValorString();
+            }
+
+        }
+
+        if (!dao.delete(omb.getFormaPagamento().getConciliacao())) {
+            GenericaMensagem.error("Atenção", "Erro ao excluir Conciliação!");
+            dao.rollback();
+            return;
+        }
+
+        dao.commit();
+
+        NovoLog log = new NovoLog();
+
+        log.delete(
+                "** ESTORNO DE M0VIMENTO BANCÁRIO **\n"
+                + "Forma Pagamento ID: " + LOG_id_fp + " \n"
+                + "Tipo Pagamento: " + LOG_tipo_fp + " \n"
+                + "Valor: " + LOG_valor_fp + " \n"
+                + "** EXCLUSÃO DOS M0VIMENTOS BANCÁRIO **\n"
+                + "Forma Pagamento ID: " + LOG_id_fp_estorna + " \n"
+                + "Tipo Pagamento: " + LOG_tipo_fp_estorna + " \n"
+                + "Valor: " + LOG_valor_fp_estorna + " \n"
+        );
+
+        ombSelecionado = null;
+
+        loadListaMovimento();
+
+        GenericaMensagem.info("Sucesso", "Movimento Estornado!");
     }
 
     public void editarHistoricoBancario() {
@@ -772,7 +921,8 @@ public class MovimentoBancarioBean implements Serializable {
                 devolucao,
                 null,
                 null,
-                ""
+                "",
+                false
         );
 
         if (chequePag != null) {
@@ -1713,6 +1863,14 @@ public class MovimentoBancarioBean implements Serializable {
             this.valorParcial = Moeda.converteStringToDouble(valorParcialString);
         }
 
+    }
+
+    public ObjectMovimentoBancario getOmbSelecionado() {
+        return ombSelecionado;
+    }
+
+    public void setOmbSelecionado(ObjectMovimentoBancario ombSelecionado) {
+        this.ombSelecionado = ombSelecionado;
     }
 
 }

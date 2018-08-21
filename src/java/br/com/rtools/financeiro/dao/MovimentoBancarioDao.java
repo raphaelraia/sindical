@@ -6,6 +6,7 @@
 package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.ContaSaldo;
+import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.HistoricoBancario;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.principal.DB;
@@ -215,4 +216,34 @@ public class MovimentoBancarioDao extends DB {
         }
         return null;
     }
+
+    public List<FormaPagamento> listaFormaPagamentoEstorno(Integer id_conciliacao, Boolean conciliado) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT fp.* \n "
+                    + "  FROM fin_forma_pagamento fp \n "
+                    + " WHERE fp.id_conciliacao = " + id_conciliacao + " AND fp.is_conciliado = " + conciliado,
+                    FormaPagamento.class
+            );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+//
+//    public List<Movimento> listaMovimentoEstorno(Integer id_conciliacao) {
+//        try {
+//            Query qry = getEntityManager().createNativeQuery(
+//                    " SELECT m.* FROM fin_movimento m WHERE m.id_baixa IN ( \n"
+//                    + "	SELECT fp.* FROM fin_forma_pagamento fp WHERE fp.id_conciliacao = " + id_conciliacao + " \n"
+//                    + ")",
+//                    Movimento.class
+//            );
+//            return qry.getResultList();
+//        } catch (Exception e) {
+//            e.getMessage();
+//        }
+//        return new ArrayList();
+//    }
 }

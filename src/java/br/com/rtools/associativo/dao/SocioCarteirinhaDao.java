@@ -125,6 +125,9 @@ public class SocioCarteirinhaDao extends DB {
                 + " INNER JOIN soc_carteirinha AS SC ON SC.id_pessoa = P.id                             \n "
                 + " INNER JOIN soc_modelo_carteirinha AS MC ON MC.id = SC.id_modelo_carteirinha         \n "
                 + " INNER JOIN conf_social AS CS ON CS.id = 1                                           \n "
+                + "  LEFT JOIN pes_pessoa_empresa AS PE on PE.id_fisica = F.id AND PE.dt_demissao IS NULL AND PE.is_principal = TRUE \n "
+                + "  LEFT JOIN pes_juridica AS PE_J on PE_J.id = PE.id_juridica \n "
+                + "  LEFT JOIN pes_pessoa AS PE_P on PE_P.id = PE_J.id_pessoa \n "
                 + "  LEFT JOIN fin_servico_pessoa AS SP on SP.id_pessoa = P.id                          \n "
                 + "  LEFT JOIN soc_socios AS SO on SO.id_servico_pessoa = SP.id                         \n "
                 + "  LEFT JOIN matr_socios AS MT ON MT.id = SO.id_matricula_socios                      \n "
@@ -272,10 +275,10 @@ public class SocioCarteirinhaDao extends DB {
                     listWhere.add("TI.ds_documento LIKE '%" + query + "%'");
                     break;
                 case "empresa":
-                    // listWhere.add("TRIM(UPPER(func_translate(P.empresa))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))"); *
+                    listWhere.add("TRIM(UPPER(func_translate(PE_P.ds_nome))) LIKE TRIM(UPPER(func_translate('%" + query + "%')))");
                     break;
                 case "cnpj":
-                    //listWhere.add("P.cnpj LIKE '%" + query + "%'");
+                    listWhere.add("PE_P.ds_documento LIKE '%" + query + "%'");
                     break;
                 case "nascimento":
                     listWhere.add("P.dt_nascimento = '" + query + "'");

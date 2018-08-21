@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Usuario;
@@ -233,5 +234,12 @@ public class Baixa implements java.io.Serializable {
 
     public void setFilial(Filial filial) {
         this.filial = filial;
+    }
+    
+    public Movimento getMovimento() {
+        if (this.id != -1){
+            return new MovimentoDao().pesquisaMovimentoPorBaixa(this.id);
+        }
+        return null;
     }
 }

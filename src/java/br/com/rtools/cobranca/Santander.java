@@ -682,7 +682,7 @@ public class Santander extends Cobranca {
         try {
             //File flCert = new File("C:/PC201707105759.pfx");
             File flCert = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/conf/PC201707105759.pfx"));
-            if (!flCert.exists()){
+            if (!flCert.exists()) {
                 return new RespostaWebService(null, "Certificado não encontrado!");
             }
             KeyStore clientStore = KeyStore.getInstance("PKCS12");
@@ -750,6 +750,26 @@ public class Santander extends Cobranca {
             pagador_bairro = (pagador_bairro + "                                        ").substring(0, 30).trim();
             pagador_cidade = (pagador_cidade + "                                        ").substring(0, 20).trim();
 
+            String JUROS = "";
+            if (boleto.getContaCobranca().getJurosMensal() > 0) {
+                String jr = Moeda.converteDoubleToString(boleto.getContaCobranca().getJurosMensal()).replace(",", ".");
+                JUROS
+                        = "                    <entry>\n"
+                        + "                        <key>TITULO.PC-JURO</key>\n"
+                        + "                        <value>" + jr + "</value>\n"
+                        + "                    </entry>\n";
+            }
+
+            String MULTA = "";
+            if (boleto.getContaCobranca().getMulta() > 0) {
+                String mt = Moeda.converteDoubleToString(boleto.getContaCobranca().getMulta()).replace(",", ".");
+                MULTA
+                        = "                    <entry>\n"
+                        + "                        <key>TITULO.PC-MULTA</key>\n"
+                        + "                        <value>" + mt + "</value>\n"
+                        + "                    </entry>\n";
+            }
+
             String xml = TICKET_SEG_ENTRADA_TITULO(
                     boleto.getContaCobranca().getCodCedente(),
                     td,
@@ -764,7 +784,9 @@ public class Santander extends Cobranca {
                     DataHoje.converteData(vencimento).replace("/", ""),
                     DataHoje.data().replace("/", ""),
                     "02", // CÓDIGO PARA 'DM'(duplicata mercantil)) NO MANUAL SANTANDER //boleto.getContaCobranca().getEspecieDoc().toUpperCase(),
-                    valor_titulo
+                    valor_titulo,
+                    JUROS,
+                    MULTA
             );
 
             wr.write(xml);
@@ -896,7 +918,7 @@ public class Santander extends Cobranca {
         return null;
     }
 
-    public String TICKET_SEG_ENTRADA_TITULO(String CONVENIO, String TIPO_DOCUMENTO, String NUM_DOCUMENTO, String NOME, String ENDERECO, String BAIRRO, String CIDADE, String UF, String CEP, String NOSSO_NUMERO, String VENCIMENTO, String EMISSAO, String ESPECIE, String VALOR) {
+    public String TICKET_SEG_ENTRADA_TITULO(String CONVENIO, String TIPO_DOCUMENTO, String NUM_DOCUMENTO, String NOME, String ENDERECO, String BAIRRO, String CIDADE, String UF, String CEP, String NOSSO_NUMERO, String VENCIMENTO, String EMISSAO, String ESPECIE, String VALOR, String JUROS, String MULTA) {
         return "<soapenv:Envelope\n"
                 + "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n"
                 + "    xmlns:impl=\"http://impl.webservice.dl.app.bsbr.altec.com/\">\n"
@@ -969,6 +991,8 @@ public class Santander extends Cobranca {
                 + "                        <key>TITULO.VL-NOMINAL</key>\n"
                 + "                        <value>" + VALOR + "</value>\n"
                 + "                    </entry>\n"
+                + JUROS
+                + MULTA
                 //                + "                    <entry>\n"
                 //                + "                        <key>TITULO.PC-MULTA</key>\n"
                 //                + "                        <value>00000</value>\n"

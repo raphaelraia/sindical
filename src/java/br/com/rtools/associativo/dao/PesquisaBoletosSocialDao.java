@@ -38,15 +38,19 @@ public class PesquisaBoletosSocialDao extends DB {
                 + "  LEFT JOIN fin_boleto ba ON ba.id = mb.id_boleto AND m.ds_documento <> ba.ds_boleto AND m.ds_documento <> '' \n ";
 
         List<String> list_where = new ArrayList();
-
+        String order_by = " ORDER BY m.dt_vencimento DESC, m.id ";
+        
+        
         list_where.add(" WHERE m.is_ativo = true \n ");
 
         if (tipo.equals("boleto_atual")) {
             list_where.add("   AND m.ds_documento = '" + descricao + "' \n ");
+            order_by = " ORDER BY m.ds_documento,ba.ds_boleto,m.dt_vencimento, m.id";
         }
 
         if (tipo.equals("boleto_anterior")) {
             list_where.add("   AND ba.ds_boleto = '" + descricao + "' \n ");
+            order_by = " ORDER BY ba.ds_boleto,m.ds_documento,m.dt_vencimento, m.id ";
         }
 
         if (tipo.equals("beneficiario")) {
@@ -60,14 +64,19 @@ public class PesquisaBoletosSocialDao extends DB {
             list_where.add(" AND pb.id = " + descricao + " \n ");
         }
 
+        list_where.add(" AND ( ( m.ds_documento <> ba.ds_boleto and m.id in (select id_movimento from fin_movimento_boleto group by id_movimento having count(*)>1) ) \n"
+                + "            OR  ( m.id in (select id_movimento from fin_movimento_boleto group by id_movimento having count(*)=1) ) \n"
+                + "      ) \n "
+        );
+
         for (String list_where1 : list_where) {
             text += list_where1;
         }
 
-        text += " ORDER BY m.dt_vencimento DESC, m.id";
+        //text += " ORDER BY m.dt_vencimento DESC, m.id";
 
         try {
-            Query qry = getEntityManager().createNativeQuery(text);
+            Query qry = getEntityManager().createNativeQuery(text + order_by);
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();
