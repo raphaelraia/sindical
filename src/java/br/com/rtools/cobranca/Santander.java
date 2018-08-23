@@ -752,7 +752,11 @@ public class Santander extends Cobranca {
 
             String JUROS = "";
             if (boleto.getContaCobranca().getJurosMensal() > 0) {
-                String jr = Moeda.converteDoubleToString(boleto.getContaCobranca().getJurosMensal()).replace(",", ".");
+                //String jr = Moeda.converteDoubleToString(boleto.getContaCobranca().getJurosMensal()).replace(",", ".");
+
+                String jr = Moeda.converteDoubleToString(boleto.getContaCobranca().getJurosMensal()).replace(".", "").replace(",", "");
+                jr = "00000".substring(0, 5 - jr.length()) + jr;
+
                 JUROS
                         = "                    <entry>\n"
                         + "                        <key>TITULO.PC-JURO</key>\n"
@@ -762,7 +766,11 @@ public class Santander extends Cobranca {
 
             String MULTA = "";
             if (boleto.getContaCobranca().getMulta() > 0) {
-                String mt = Moeda.converteDoubleToString(boleto.getContaCobranca().getMulta()).replace(",", ".");
+                //String mt = Moeda.converteDoubleToString(boleto.getContaCobranca().getMulta()).replace(",", ".");
+
+                String mt = Moeda.converteDoubleToString(boleto.getContaCobranca().getMulta()).replace(".", "").replace(",", "");
+                mt = "00000".substring(0, 5 - mt.length()) + mt;
+
                 MULTA
                         = "                    <entry>\n"
                         + "                        <key>TITULO.PC-MULTA</key>\n"

@@ -33,7 +33,7 @@
                             <c:set scope="request" var="object" value="${cartaoBean.cartao}"/>
 
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="4">
+                                <h:panelGrid columns="5">
                                     <p:column>
                                         <h:outputLabel value="Descrição" /><br />
                                         <p:inputText id="i_nome_cartao" value="#{cartaoBean.cartao.descricao}" size="50" />
@@ -56,6 +56,11 @@
                                     <p:column>
                                         <h:outputLabel value="Taxa %" style="color: red"/><br />
                                         <p:inputText value="#{cartaoBean.cartao.taxa}" />
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{cartaoBean.cartao.ativo}" itemLabel="Ativo"/>
                                     </p:column>
                                 </h:panelGrid>
 

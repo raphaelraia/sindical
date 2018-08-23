@@ -289,7 +289,7 @@ public class ImprimirFechamentoCaixa {
             for (FormaPagamento fps : lista_fp_saida) {
                 Pessoa p = fps.getResponsavel();
                 li.add(
-                        new ParamFechamentoCaixaSaida(p.getDocumento(), p.getNome(), fps.getDocumento(), fps.getValor())
+                        new ParamFechamentoCaixaSaida(p.getDocumento(), p.getNome(), fps.getBaixa().getMovimento().getLote().getDocumento(), fps.getValor())
                 );
 
             }

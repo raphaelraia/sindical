@@ -15,7 +15,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "fin_cartao")
 @NamedQueries({
-    @NamedQuery(name = "Cartao.pesquisaID", query = "SELECT C FROM Cartao AS C WHERE C.id = :pid"),
+    @NamedQuery(name = "Cartao.pesquisaID", query = "SELECT C FROM Cartao AS C WHERE C.id = :pid")
+    ,
     @NamedQuery(name = "Cartao.findAll", query = "SELECT C FROM Cartao AS C ORDER BY C.plano5.conta ASC, C.descricao ASC, C.dias ASC")
 })
 public class Cartao implements Serializable {
@@ -41,6 +42,8 @@ public class Cartao implements Serializable {
     @JoinColumn(name = "id_plano5_despesa", referencedColumnName = "id")
     @ManyToOne
     private Plano5 plano5Despesa;
+    @Column(name = "is_ativo")
+    private Boolean ativo;
 
     public Cartao() {
         this.id = -1;
@@ -51,9 +54,10 @@ public class Cartao implements Serializable {
         this.plano5 = new Plano5();
         this.plano5Baixa = new Plano5();
         this.plano5Despesa = new Plano5();
+        this.ativo = true;
     }
 
-    public Cartao(int id, String descricao, int dias, double taxa, String debitoCredito, Plano5 plano5, Plano5 plano5Baixa, Plano5 plano5Despesa) {
+    public Cartao(int id, String descricao, int dias, double taxa, String debitoCredito, Plano5 plano5, Plano5 plano5Baixa, Plano5 plano5Despesa, Boolean ativo) {
         this.id = id;
         this.descricao = descricao;
         this.dias = dias;
@@ -62,6 +66,7 @@ public class Cartao implements Serializable {
         this.plano5 = plano5;
         this.plano5Baixa = plano5Baixa;
         this.plano5Despesa = plano5Despesa;
+        this.ativo = ativo;
     }
 
     public int getId() {
@@ -126,6 +131,14 @@ public class Cartao implements Serializable {
 
     public void setPlano5Despesa(Plano5 plano5Despesa) {
         this.plano5Despesa = plano5Despesa;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
     }
 
 }

@@ -26,6 +26,7 @@ public class MovimentoCartaoDao extends DB {
                 + " INNER JOIN fin_cartao AS c ON c.id = cr.id_cartao \n "
                 + " INNER JOIN fin_plano5 AS p ON p.id = c.id_plano5 \n "
                 + " WHERE m.id_cartao_rec > 0 AND m.id_baixa_status = 8 \n"
+                + "   AND c.is_ativo = TRUE \n"
                 + " GROUP BY c.id"
         );
 

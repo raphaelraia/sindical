@@ -265,11 +265,14 @@ public final class DigitalizacaoBean implements Serializable {
         String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + documento.getPessoa().getId() + "/" + documento.getId() + "/";
         File file = new File(path);
         
-        if (!FileUtils.deleteQuietly(file)) {
-            dao.rollback();
-            GenericaMensagem.fatal("Atenção", "NÃO FOI POSSÍVEL EXCLUIR ARQUIVOS!");
-            return;
+        if (file.exists()){
+            if (!FileUtils.deleteQuietly(file)) {
+                dao.rollback();
+                GenericaMensagem.fatal("Atenção", "NÃO FOI POSSÍVEL EXCLUIR ARQUIVOS!");
+                return;
+            }
         }
+        
         
         String delete_log
                 = "Data Emissão: " + documento.getDtEmissaoString() + " \n "

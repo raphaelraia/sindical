@@ -67,29 +67,6 @@ public class AcademiaDao extends DB {
         }
     }
 
-    public List<AcademiaServicoValor> listaAcademiaServicoValor(int idServico) {
-        try {
-            Query query = getEntityManager().createNativeQuery(
-                    "  SELECT asv.* \n "
-                    + "  FROM aca_servico_valor AS asv \n "
-                    + " INNER JOIN fin_servicos s ON s.id = asv.id_servico \n "
-                    + " INNER JOIN sis_periodo p ON p.id = asv.id_periodo \n "
-                    + " INNER JOIN aca_semana sem ON sem.id_servico_valor = asv.id \n "
-                    + " INNER JOIN aca_grade g ON g.id = sem.id_grade \n "
-                    + "	WHERE asv.id_servico = " + idServico + " \n "
-                    + "	ORDER BY s.ds_descricao ASC, p.nr_dias ASC, asv.ds_dias ASC, g.ds_hora_inicio ASC ", AcademiaServicoValor.class
-            );
-
-            List list = query.getResultList();
-            if (!list.isEmpty()) {
-                return list;
-            }
-        } catch (Exception e) {
-            return new ArrayList();
-        }
-        return new ArrayList();
-    }
-
     public List<AcademiaServicoValor> listaServicoValorPorRotina() {
         try {
             String queryString = ""
@@ -135,20 +112,28 @@ public class AcademiaDao extends DB {
     public List<AcademiaServicoValor> listaAcademiaServicoValorPorServico(int idServico) {
         try {
             Query query = getEntityManager().createNativeQuery(
-                    "  SELECT asv.* \n "
-                    + "  FROM aca_servico_valor AS asv \n "
-                    + " INNER JOIN fin_servicos s ON s.id = asv.id_servico \n "
-                    + " INNER JOIN sis_periodo p ON p.id = asv.id_periodo \n "
-                    + " INNER JOIN aca_semana sem ON sem.id_servico_valor = asv.id \n "
-                    + " INNER JOIN aca_grade g ON g.id = sem.id_grade \n "
-                    + "	WHERE asv.id_servico = " + idServico + " \n "
-                    + "   AND asv.id IN (SELECT ase.id_servico_valor FROM aca_semana ase) \n "
-                    + " ORDER BY s.ds_descricao ASC, p.nr_dias ASC, asv.ds_dias ASC, g.ds_hora_inicio ASC  ", AcademiaServicoValor.class
+                    "   SELECT asv.id \n"
+                    + "   FROM aca_servico_valor AS asv \n"
+                    + "  INNER JOIN fin_servicos s ON s.id = asv.id_servico \n"
+                    + "  INNER JOIN sis_periodo p ON p.id = asv.id_periodo \n"
+                    + "  INNER JOIN aca_semana sem ON sem.id_servico_valor = asv.id \n"
+                    + "  INNER JOIN aca_grade g ON g.id = sem.id_grade \n"
+                    + "  WHERE asv.id_servico = " + idServico + " \n"
+                    + "    AND asv.id IN (SELECT ase.id_servico_valor FROM aca_semana ase) \n"
+                    + "  GROUP BY asv.id, s.ds_descricao, p.nr_dias, asv.ds_dias \n"
+                    + "  ORDER BY s.ds_descricao ASC, p.nr_dias ASC, asv.ds_dias ASC, MIN(g.id)  ASC"
             );
 
-            List list = query.getResultList();
+            List<AcademiaServicoValor> list = query.getResultList();
+            Dao dao = new Dao();
             if (!list.isEmpty()) {
-                return list;
+
+                List result = new ArrayList();
+                for (Object ob : list) {
+                    result.add((AcademiaServicoValor) dao.find(new AcademiaServicoValor(), (Integer) ((List) ob).get(0) ));
+                }
+
+                return result;
             }
         } catch (Exception e) {
             return new ArrayList();

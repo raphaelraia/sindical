@@ -313,7 +313,7 @@
                                             </p:selectOneMenu>
                                         </h:column>
 
-                                        <h:column rendered="#{baixaGeralBean.tipoPagamento.id == 6}">
+                                        <h:column rendered="#{baixaGeralBean.tipoPagamento.id == 6 and not empty baixaGeralBean.listaCartao} ">
                                             <p:outputLabel value="Data de Crédito" /><br />
                                             <p:inputMask value="#{baixaGeralBean.dataCreditoCartaoString}" mask="99/99/9999" style="width: 100px; text-align: center">
                                                 <p:ajax event="change" update="@this" />

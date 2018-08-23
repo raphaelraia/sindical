@@ -3758,7 +3758,8 @@ public class MovimentoDao extends DB {
     }
 
     public Movimento pesquisaMovimentoPorBaixa(Integer id_baixa) {
-        String queryString = " SELECT m.* FROM fin_movimento m WHERE m.id_baixa = " + id_baixa;
+        // PEGA APENAS O PRIMEIRO MOVIMENTO, CASO TENHA MAIS DE UM ESSE CASO NÃO FUNCIONA!!!!!!!!
+        String queryString = " SELECT m.* FROM fin_movimento m WHERE m.id_baixa = " + id_baixa + " LIMIT 1";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString, Movimento.class);
 

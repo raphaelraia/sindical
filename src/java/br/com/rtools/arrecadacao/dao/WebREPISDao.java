@@ -640,7 +640,7 @@ public class WebREPISDao extends DB {
 
     public List<RepisStatus> listaRepisStatus() {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT rs.* FROM arr_repis_status rs WHERE rs.is_ativo = TRUE");
+            Query query = getEntityManager().createNativeQuery("SELECT rs.* FROM arr_repis_status rs WHERE rs.is_ativo = TRUE", RepisStatus.class);
             return query.getResultList();
         } catch (Exception e) {
             e.getMessage();

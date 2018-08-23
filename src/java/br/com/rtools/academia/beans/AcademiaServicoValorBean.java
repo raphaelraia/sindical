@@ -339,7 +339,7 @@ public class AcademiaServicoValorBean implements Serializable {
         if (!getListServicos().isEmpty()) {
             if (listAcademiaServicoValors.isEmpty()) {
                 AcademiaDao academiaDao = new AcademiaDao();
-                listAcademiaServicoValors = academiaDao.listaAcademiaServicoValor(Integer.parseInt(getListServicos().get(index[0]).getDescription()));
+                listAcademiaServicoValors = academiaDao.listaAcademiaServicoValorPorServico(Integer.parseInt(getListServicos().get(index[0]).getDescription()));
             }
         }
         return listAcademiaServicoValors;

@@ -749,9 +749,12 @@ public class CaixaFederalSigCB extends Cobranca {
         
         NO SERVIDOR É OBRIGATÓRIO INSTALAR O CERTIFICADO DA CAIXA
         EX.
-        
+        ** WINDOWS **
         "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -importcert -alias CertificadoWebServiceCEF -file "Sindical\web\resources\CEF_Certificado.cer"
 
+        ** LINUX **
+        "/opt/jdk1.8.0_51/jre/bin/keytool" -keystore "/opt/jdk1.8.0_51/jre/lib/security/cacerts" -importcert -alias CertificadoWebServiceCEF -file "/home/servidor/tomcat/Sindical/webapps/Sindical/resources/certificados/CEF_Certificado.cer"
+        
         INFORMAR SENHA:
         changeit
         

@@ -141,14 +141,16 @@ public class BaixaGeralBean implements Serializable {
         dataEmissaoRecibo = "";
     }
 
-    public void confirmarAcrescimo(){
+    public void confirmarAcrescimo() {
         confirmaAcrescimo = true;
     }
-    
-    public void atualizaCartao() {
-        Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
 
-        dataCreditoCartao = DataHoje.converte(new DataHoje().incrementarDias(cart.getDias(), quitacao));
+    public void atualizaCartao() {
+        if (!listaCartao.isEmpty()){
+            Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
+
+            dataCreditoCartao = DataHoje.converte(new DataHoje().incrementarDias(cart.getDias(), quitacao));
+        }
     }
 
     public void atualizaDataOcorrencia() {
@@ -399,14 +401,14 @@ public class BaixaGeralBean implements Serializable {
         switch (tipoPagamento.getId()) {
             case 4:
             case 5:
-                if (valorDigitado > Moeda.converteUS$(valor)){
+                if (valorDigitado > Moeda.converteUS$(valor)) {
                     Double calc = valorDigitado - Moeda.converteUS$(valor);
-                    if (calc > 1){
+                    if (calc > 1) {
                         GenericaMensagem.warn("Atenção", "Valor máximo para o acréscimo é de 1,00!");
                         return;
                     }
                 }
-                
+
                 if (!getEs().isEmpty() && getEs().equals("S")) {
                     if (numeroChequePag.isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
@@ -747,10 +749,10 @@ public class BaixaGeralBean implements Serializable {
                     break;
                 case 4:
 
-                    if (!valorAcrescimo.isEmpty() && !confirmaAcrescimo){
+                    if (!valorAcrescimo.isEmpty() && !confirmaAcrescimo) {
                         return mensagem = "É NECESSÁRIO CONFIRMAR ESSE ACRÉSCIMO!";
                     }
-                    
+
                     // CHEQUE
                     if (!getEs().isEmpty() && getEs().equals("S")) {
                         lfp.add(new FormaPagamento(-1, null, null, listaValores.get(i).getChequePag(), 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, "", false));
@@ -760,10 +762,10 @@ public class BaixaGeralBean implements Serializable {
                     break;
                 case 5:
                     // CHEQUE-PRÉ
-                    if (!valorAcrescimo.isEmpty() && !confirmaAcrescimo){
+                    if (!valorAcrescimo.isEmpty() && !confirmaAcrescimo) {
                         return mensagem = "É NECESSÁRIO CONFIRMAR ESSE ACRÉSCIMO!";
                     }
-                    
+
                     if (!getEs().isEmpty() && getEs().equals("S")) {
                         lfp.add(new FormaPagamento(-1, null, null, listaValores.get(i).getChequePag(), 0, valor_baixa, filial, listaValores.get(i).getPlano5(), null, null, listaValores.get(i).getTipoPagamento(), 0, null, 0, listaValores.get(i).getStatus(), 0, null, null, "", false));
                     } else {
@@ -1302,7 +1304,7 @@ public class BaixaGeralBean implements Serializable {
 
     public List<SelectItem> getListaCartao() {
         if (listaCartao.isEmpty()) {
-            List<Cartao> result = new Dao().list(new Cartao());
+            List<Cartao> result = new FinanceiroDao().listaCartaoAtivo();
             int conta = 0;
             if (!result.isEmpty()) {
                 for (Cartao result1 : result) {

@@ -10,6 +10,7 @@ import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.BloqueiaServicoPessoa;
 import br.com.rtools.financeiro.Caixa;
+import br.com.rtools.financeiro.Cartao;
 import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.financeiro.EstornoCaixaLote;
 import br.com.rtools.financeiro.FStatus;
@@ -2032,6 +2033,20 @@ public class FinanceiroDao extends DB {
                     + "   AND m.id_usuario_baixa = " + id_usuario + " \n"
                     + " GROUP BY m.id_baixa, m.baixa, m.es, p.ds_nome, m.tipo_pagamento \n"
                     + " ORDER BY m.baixa, m.es, m.tipo_pagamento, m.id_baixa "
+            );
+
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List<Cartao> listaCartaoAtivo() {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "  SELECT c.* \n "
+                    + "  FROM fin_cartao AS c \n "
+                    + " WHERE c.is_ativo = TRUE", Cartao.class
             );
 
             return qry.getResultList();
