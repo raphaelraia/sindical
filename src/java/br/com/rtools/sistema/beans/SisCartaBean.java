@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import static br.com.rtools.utilitarios.Jasper.TYPE;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -309,6 +310,8 @@ public class SisCartaBean implements Serializable {
                 }
 
             }
+            Jasper.IS_HEADER = true;
+            Jasper.TYPE = "default";
             Jasper.PART_NAME = "";
             jasper.finish("comunicado");
         } catch (Exception e) {

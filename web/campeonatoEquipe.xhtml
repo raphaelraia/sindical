@@ -380,13 +380,14 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
-
+                        </h:form>
+                        <h:form prependId="false">
                             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                                 <h:panelGrid columns="2" cellspacing="10">                                                    
                                     <p:commandButton value="Confirmar" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
                                     <p:commandButton value="Desfazer" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
                                 </h:panelGrid>
-                            </p:confirmDialog> 
+                            </p:confirmDialog>
                         </h:form>
                         <ui:include src="templates/templateNovaPessoaFisica.xhtml"/>
                     </p:panel>

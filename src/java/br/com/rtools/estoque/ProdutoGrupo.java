@@ -29,7 +29,7 @@ public class ProdutoGrupo implements BaseEntity, Serializable {
     private String descricao;
 
     public ProdutoGrupo() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
     }
 

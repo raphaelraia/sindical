@@ -19,13 +19,14 @@ import javax.persistence.UniqueConstraint;
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_grupo", "ds_descricao"})
 )
 @NamedQueries({
-    @NamedQuery(name = "ProdutoSubGrupo.findAll", query = "SELECT PSG FROM ProdutoSubGrupo AS PSG ORDER BY PSG.produtoGrupo.descricao ASC, PSG.descricao ASC "),
-    @NamedQuery(name = "ProdutoSubGrupo.findName", query = "SELECT PSG FROM ProdutoSubGrupo AS PSG WHERE UPPER(PSG.descricao) LIKE :pdescricao ORDER BY PSG.produtoGrupo.descricao ASC, PSG.descricao ASC "),
+    @NamedQuery(name = "ProdutoSubGrupo.findAll", query = "SELECT PSG FROM ProdutoSubGrupo AS PSG ORDER BY PSG.produtoGrupo.descricao ASC, PSG.descricao ASC ")
+    ,
+    @NamedQuery(name = "ProdutoSubGrupo.findName", query = "SELECT PSG FROM ProdutoSubGrupo AS PSG WHERE UPPER(PSG.descricao) LIKE :pdescricao ORDER BY PSG.produtoGrupo.descricao ASC, PSG.descricao ASC ")
+    ,
     @NamedQuery(name = "ProdutoSubGrupo.findGrupo", query = "SELECT PSG FROM ProdutoSubGrupo AS PSG WHERE PSG.produtoGrupo.id = :p1 ORDER BY PSG.produtoGrupo.descricao ASC, PSG.descricao ASC ")
 })
-public class ProdutoSubGrupo implements BaseEntity, Serializable {
+public class ProdutoSubGrupo implements Serializable {
 
-    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -37,7 +38,7 @@ public class ProdutoSubGrupo implements BaseEntity, Serializable {
     private String descricao;
 
     public ProdutoSubGrupo() {
-        this.id = -1;
+        this.id = null;
         this.produtoGrupo = new ProdutoGrupo();
         this.descricao = "";
     }
@@ -48,7 +49,6 @@ public class ProdutoSubGrupo implements BaseEntity, Serializable {
         this.descricao = descricao;
     }
 
-    @Override
     public Integer getId() {
         return id;
     }
@@ -73,38 +73,4 @@ public class ProdutoSubGrupo implements BaseEntity, Serializable {
         this.descricao = descricao;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 47 * hash + this.id;
-        hash = 47 * hash + (this.produtoGrupo != null ? this.produtoGrupo.hashCode() : 0);
-        hash = 47 * hash + (this.descricao != null ? this.descricao.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ProdutoSubGrupo other = (ProdutoSubGrupo) obj;
-        if (this.id != other.id) {
-            return false;
-        }
-        if (this.produtoGrupo != other.produtoGrupo && (this.produtoGrupo == null || !this.produtoGrupo.equals(other.produtoGrupo))) {
-            return false;
-        }
-        if ((this.descricao == null) ? (other.descricao != null) : !this.descricao.equals(other.descricao)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "ProdutoSubGrupo{" + "id=" + id + ", produtoGrupo=" + produtoGrupo + ", descricao=" + descricao + '}';
-    }
 }

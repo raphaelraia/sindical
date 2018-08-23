@@ -15,27 +15,27 @@
             .ui-selectonemenu {padding-right: 25px!important;}
         </style>            
     </h:head>
-    
+
     <h:body>
-        
+
         <f:subview id="header">
             <ui:include src="templates/templatePrime.xhtml"/>
             <ui:include src="templates/templateStatus.xhtml"/>
         </f:subview>
-        
+
         <f:view>
             <f:metadata>
                 <f:event type="preRenderView" listener="${produtoBean.load}"/>  
             </f:metadata>
-            
+
             <ui:include src="templates/templateAcessoFilial.xhtml"/>
-            
+
             <h:form id="form_pesquisa_produto">
                 <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                     <h:outputText value="Pesquisar Produtos" styleClass="fonteHeader" />
                     <div class="clear"></div>
                     <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
-                        <h:panelGrid columns="6" id="i_panel_grid_1" cellspacing="5">
+                        <h:panelGrid columns="8" id="i_panel_grid_1" cellspacing="5">
                             <p:outputLabel value="Filial Estoque: "  />
                             <h:column>
                                 <p:selectOneMenu value="#{produtoBean.filial_id}" disabled="#{!produtoBean.liberaAcessaFilial}">
@@ -44,17 +44,24 @@
                                 </p:selectOneMenu>
                             </h:column>        
                             <p:outputLabel value="Grupo:" />
-                            <p:selectOneMenu value="#{produtoBean.indices[6]}" >
-                                <p:ajax event="change" update="@this i_panel_grid_1" listener="#{produtoBean.listaSubGruposPesquisa.clear()}" />
-                                <f:selectItems value="#{produtoBean.listaGruposPesquisa}" />
+                            <p:selectOneMenu value="#{produtoBean.idGrupoPesquisa}" >
+                                <p:ajax event="change" update="@this i_panel_grid_1" listener="#{produtoBean.loadListSubgruposPesquisa}" />
+                                <f:selectItems value="#{produtoBean.listGruposPesquisa}" />
                             </p:selectOneMenu>
                             <p:outputLabel value="SubGrupo:" />
-                            <h:column rendered="#{produtoBean.listaSubGruposPesquisa.size() > 0}">
-                                <p:selectOneMenu value="#{produtoBean.indices[7]}">
+                            <h:column rendered="#{not empty produtoBean.listSubgruposPesquisa}">
+                                <p:selectOneMenu value="#{produtoBean.idSubgrupoPesquisa}">
                                     <p:ajax event="change" update="@this" />
-                                    <f:selectItems value="#{produtoBean.listaSubGruposPesquisa}" />
+                                    <f:selectItems value="#{produtoBean.listSubgruposPesquisa}" />
                                 </p:selectOneMenu>
-                            </h:column>                                                        
+                            </h:column>
+                            <p:outputLabel value="Tipo" />
+                            <h:column rendered="#{not empty produtoBean.listEstoqueTiposPesquisa}">
+                                <p:selectOneMenu value="#{produtoBean.idEstoqueTipoPesquisa}">
+                                    <p:ajax event="change" update="@this" />
+                                    <f:selectItems value="#{produtoBean.listEstoqueTiposPesquisa}" />
+                                </p:selectOneMenu>
+                            </h:column>
                         </h:panelGrid>
                         <h:panelGrid columns="8" styleClass="margin-top-max">
                             <p:outputLabel value="Pesquisar: "/>

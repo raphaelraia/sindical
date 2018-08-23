@@ -59,7 +59,7 @@
                                         </h:column>
                                         <p:commandButton value="Produto:" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaProduto')}" styleClass="margin-top-max" title="Pesquisar Produto"/>
                                         <p:column>
-                                            <p:panel header="#{baixaProdutoConsumoBean.produto.descricao}" styleClass="margin-top-max" rendered="#{baixaProdutoConsumoBean.produto.id != -1}">
+                                            <p:panel header="#{baixaProdutoConsumoBean.produto.descricao}" styleClass="margin-top-max" rendered="#{baixaProdutoConsumoBean.produto.id != null}">
                                                 <p:panelGrid>
                                                     <f:facet name="header">
                                                         <p:row>

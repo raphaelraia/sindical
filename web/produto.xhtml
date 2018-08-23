@@ -24,264 +24,279 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <h:panelGroup style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" layout="block">
                         <h:form id="form_produto">
-                            <c:set scope="request" var="object" value="${produtoBean.produto}" />
 
+
+                            <c:set scope="request" var="object" value="${produtoBean.produto}" />
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="false" showIcon="false" closable="true" /> 
+                            <p:growl showDetail="true" showSummary="false"  /> 
                             <!-- TELA CADASTRO -->
 
                             <h:outputText value="Produtos" styleClass="fonteHeader" />
                             <div class="clear"></div>
 
+                            <p:toolbar>
+                                <f:facet name="left">
+                                    <p:commandButton value="Novo" action="#{produtoBean.clear()}" update=":form_produto:" title="Novo"  icon="fa fa-file"/>
+                                    <span class="ui-separator" style="padding-right: 5px;">
+                                        <span class="fa fa-ellipsis-v SoftGray" />
+                                    </span>
+                                    <p:commandButton title="Salvar" action="#{produtoBean.save}" update=":form_produto:" disabled="#{controleAcessoBean.botaoSalvar}" icon="fa fa-save">
+                                        <p:confirm header="Produto" message="Deseja salvar este registro?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+                                    <p:commandButton title="Excluir" action="#{produtoBean.delete()}" update=":form_produto:" disabled="#{controleAcessoBean.botaoExcluir}" icon="fa fa-trash" rendered="#{produtoBean.produto.id ne null}" immediate="true">
+                                        <p:confirm header="Produto" message="Deseja excluir este registro?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+                                    <p:commandButton title="Pesquisar" action="#{chamadaPaginaBean.pesquisaProduto()}" actionListener="#{genericaSessao.putString('type', 'tproduto')}" icon="fa fa-search" />
+                                </f:facet>
+                                <f:facet name="right"> 
+                                    <p:menuButton value="Opções">
+                                        <p:menuitem value="Novo" action="#{produtoBean.clear()}" update=":form_produto:" />
+                                        <p:separator />
+                                        <p:menuitem value="Salvar" action="#{produtoBean.save}" update=":form_produto:" disabled="#{controleAcessoBean.botaoSalvar}" icon="fa fa-save">
+                                            <p:confirm header="Produto" message="Deseja salvar este registro?" icon="ui-icon-alert" />
+                                        </p:menuitem>
+                                        <p:menuitem value="Excluir" action="#{produtoBean.delete()}" update=":form_produto:" disabled="#{controleAcessoBean.botaoExcluir}" icon="fa fa-trash" rendered="#{produtoBean.produto.id ne null}">
+                                            <p:confirm header="Produto" message="Deseja excluir este registro?" icon="ui-icon-alert" />
+                                        </p:menuitem>
+                                        <p:menuitem value="Pesquisar" action="#{chamadaPaginaBean.pesquisaProduto()}" actionListener="#{genericaSessao.putString('type', 'tproduto')}" icon="fa fa-search" />
+                                    </p:menuButton>
+                                </f:facet>
+                            </p:toolbar>
+                            <br />
                             <p:panel styleClass="fundoCinza">
-
-                                <h:panelGrid columns="3" id="i_panel_grid_1">
-
-                                    <h:column>
-                                        <p:outputLabel value="Descrição" /><br />
-                                        <h:panelGrid columns="1">
-                                            <p:inputText value="#{produtoBean.produto.descricao}" converter="#{toUpperCase}" style="width: 300px" placeholder="Nome do Produto">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
-                                        </h:panelGrid> 
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Grupo" /><br />
-                                        <h:panelGrid columns="3"> 
-                                            <p:selectOneMenu value="#{produtoBean.indices[0]}" >
-                                                <p:ajax event="change" update="i_panel_grid_1" listener="#{produtoBean.listaSubGrupos.clear()}" />
-                                                <f:selectItems value="#{produtoBean.listaGrupos}" />
-                                            </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_grupo').show();" type="button" disabled="true"/>
-                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoGrupo', 'Produto Grupo')}" actionListener="#{produtoBean.listaGrupos.clear()}" title="Cadastrar Grupos" />
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="SubGrupo" /><br />
-                                        <h:panelGrid columns="3"> 
-                                            <h:column rendered="#{produtoBean.listaSubGrupos.size() > 0}">
-                                                <p:selectOneMenu value="#{produtoBean.indices[1]}">
-                                                    <f:selectItems value="#{produtoBean.listaSubGrupos}" />
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                            <h:column rendered="#{produtoBean.listaGrupos.size() > 0}">
-                                                <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_subgrupo').show();" type="button" disabled="true"/>
-                                                <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.pagina('produtoSubGrupo')}" title="Cadastrar SubGrupos" actionListener="#{produtoBean.listaSubGrupos.clear()}"/>
-                                            </h:column>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                </h:panelGrid>
+                                <h:panelGroup id="i_panel_grid_1" layout="block">
+                                    <div class="ui-fluid">
+                                        <div class="ui-g">
+                                            <div class="ui-g-12 ui-lg-12">
+                                                <p:inputText value="#{produtoBean.produto.descricao}" converter="#{toUpperCase}" placeholder="DESCRIÇÃO DO PRODUTO" maxlength="100">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>                                    
+                                            </div>
+                                        </div>                                        
+                                        <div class="ui-g">
+                                            <div class="ui-g-12 ui-lg-6">
+                                                <div class="ui-g">
+                                                    <div class="ui-g-12 ui-lg-12">
+                                                        <p:outputLabel value="Grupo" />                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="ui-g">
+                                                    <div class="ui-g-12 ui-lg-10 ui-md-10 ui-sm-10">
+                                                        <p:selectOneMenu value="#{produtoBean.idGrupo}" >
+                                                            <p:ajax event="change" update="i_panel_grid_1" listener="#{produtoBean.loadListSubgrupos}" />
+                                                            <f:selectItems value="#{produtoBean.listGrupos}" />
+                                                        </p:selectOneMenu>                                                        
+                                                    </div>
+                                                    <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-2">
+                                                        <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoGrupo', 'Produto Grupo')}" actionListener="#{produtoBean.loadListGrupos}" title="Cadastrar Grupos" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-6">
+                                                <div class="ui-g">
+                                                    <div class="ui-g-12 ui-lg-12">
+                                                        <p:outputLabel value="Subgrupo" />                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="ui-g">
+                                                    <div class="ui-g-12 ui-lg-10 ui-md-10 ui-sm-10">
+                                                        <p:selectOneMenu value="#{produtoBean.idSubgrupo}" rendered="#{not empty produtoBean.listSubgrupos}">
+                                                            <f:selectItems value="#{produtoBean.listSubgrupos}" />
+                                                        </p:selectOneMenu>                                                        
+                                                    </div>
+                                                    <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-2">
+                                                        <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.pagina('produtoSubGrupo')}" title="Cadastrar SubGrupos" actionListener="#{produtoBean.loadListSubgrupos}" rendered="#{not empty produtoBean.listGrupos}"/>                                                            
+                                                    </div>
+                                                </div>                                                    
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </h:panelGroup>
 
                             </p:panel>
-
-                            <br />
-
-                            <p:panel header="Detalhes">
-                                <h:panelGrid columns="7" id="i_panel_grid_2">
-                                    <h:column>
-                                        <p:outputLabel value="Unidade" /><br />
-                                        <h:panelGrid columns="3">
-                                            <h:column rendered="#{produtoBean.listaUnidades.size() > 0}">
-                                                <p:selectOneMenu value="#{produtoBean.indices[2]}">
-                                                    <f:selectItems value="#{produtoBean.listaUnidades}" />
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_novo_produto_unidade').show();" type="button" disabled="true"/>
-                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoUnidade', 'Unidade')}" title="Cadastrar Unidades" actionListener="#{produtoBean.listaUnidades.clear()}"/>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Cor" />
-                                        <h:panelGrid columns="3">
-                                            <h:column rendered="#{produtoBean.listaCores.size() > 0}">
-                                                <p:selectOneMenu value="#{produtoBean.indices[3]}" >
-                                                    <f:selectItems value="#{produtoBean.listaCores}" />
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                            <p:commandButton icon="ui-icon-plus" onclick="PF('dlg_nova_cor').show();" type="button" disabled="true"/>
-                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('Cor', 'Cor')}" title="Cadastrar Cores" actionListener="#{produtoBean.listaCores.clear()}"/>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Marca" /><br />
-                                        <h:panelGrid>
-                                            <p:inputText value="#{produtoBean.produto.marca}" converter="#{toUpperCase}">
+                            <p:panel header="Detalhes" styleClass="margin-top-max" id="i_panel_grid_2">
+                                <div class="ui-fluid">
+                                    <div class="ui-g">                                       
+                                        <div class="ui-g-12 ui-lg-3 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Modelo" />
+                                            <p:inputText value="#{produtoBean.produto.modelo}" converter="#{toUpperCase}" maxlength="100">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Fabricante" /><br />
-                                        <h:panelGrid>
-                                            <p:inputText value="#{produtoBean.produto.fabricante}" converter="#{toUpperCase}">
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-3 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Marca" />
+                                            <p:inputText value="#{produtoBean.produto.marca}" converter="#{toUpperCase}" maxlength="100">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Modelo" /><br />
-                                        <h:panelGrid>
-                                            <p:inputText value="#{produtoBean.produto.modelo}" converter="#{toUpperCase}">
+                                        </div>                                        
+                                        <div class="ui-g-12 ui-lg-2 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Fabricante" />
+                                            <p:inputText value="#{produtoBean.produto.fabricante}" converter="#{toUpperCase}" maxlength="100">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Sabor" /><br />
-                                        <h:panelGrid>
-                                            <p:inputText value="#{produtoBean.produto.sabor}" converter="#{toUpperCase}">
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-2 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Sabor" />
+                                            <p:inputText value="#{produtoBean.produto.sabor}" converter="#{toUpperCase}" maxlength="100">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Medida" /><br />
-                                        <h:panelGrid>
-                                            <p:inputText value="#{produtoBean.produto.medida}" converter="#{toUpperCase}" style="width: 90px">
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-2 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Medida" />
+                                            <p:inputText value="#{produtoBean.produto.medida}" converter="#{toUpperCase}" maxlength="100">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
+                                        </div>
+                                    </div>  
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-lg-2 ui-md-5 ui-sm-6">
+                                            <p:outputLabel value="Unidade" />
+                                            <p:selectOneMenu value="#{produtoBean.idUnidade}" rendered="#{not empty produtoBean.listUnidades}" autoWidth="true">
+                                                <f:selectItems value="#{produtoBean.listUnidades}" />
+                                            </p:selectOneMenu>                                                                                                    
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-1 ui-md-1 ui-sm-1">
+                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('ProdutoUnidade', 'Unidade')}" title="Cadastrar Unidades" actionListener="#{produtoBean.loadListUnidades}" styleClass="margin-top-max"/>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-2 ui-md-5 ui-sm-6">
+                                            <p:outputLabel value="Cor" />
+                                            <p:selectOneMenu value="#{produtoBean.idCor}" rendered="#{not empty produtoBean.listCores}" autoWidth="true">
+                                                <f:selectItems value="#{produtoBean.listCores}" />
+                                            </p:selectOneMenu>                                                                                                   
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-1 ui-md-1 ui-sm-1">
+                                            <p:commandButton icon="ui-icon-link" action="#{chamadaPaginaBean.paginaSimples('Cor', 'Cor')}" title="Cadastrar Cores" actionListener="#{produtoBean.loadListCores}" styleClass="margin-top-max"/>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-6 ui-md-2 ui-sm-12">
 
-                                </h:panelGrid>
+                                        </div>
+                                    </div>
+                                </div>
                             </p:panel>
 
                             <br />
 
                             <p:panel header="Valores">
-                                <h:panelGrid columns="3">
-                                    <h:column>
-                                        <p:outputLabel value="Valor (R$)" /><br />
-                                        <h:panelGrid>
+                                <div class="ui-fluid">
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-lg-3 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Valor (R$)" />
                                             <p:inputText value="#{produtoBean.valor}" converter="#{toCurrency}" styleClass="text-right">
                                                 <p:ajax event="blur" update="@this" />
                                             </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Margem (%)" /><br />
-                                        <h:panelGrid>
-                                            <p:inputText value="#{produtoBean.produto.margem}" styleClass="text-right">
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-3 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Margem (%)" />
+                                            <p:inputNumber value="#{produtoBean.produto.margem}" decimalPlaces="2" minValue="0" emptyValue="0.00" maxValue="99999" >
                                                 <p:ajax event="blur" update="@this" />
-                                            </p:inputText>
-                                        </h:panelGrid>
-                                    </h:column>
+                                            </p:inputNumber>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-3 ui-md-6 ui-sm-6">
+                                            <p:outputLabel value="Índice" />
+                                            <p:selectOneMenu value="#{produtoBean.idIndiceMoeda}" >
+                                                <p:ajax event="change" update="@this" />
+                                                <f:selectItems value="#{produtoBean.listIndiceMoeda}" />
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-1 ui-md-2 ui-sm-2">
+                                            <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlg_editar_indice_moeda').show()" action="#{produtoBean.editarIndiceMoeda()}" update="form_produto:panel_editar_indice_moeda" styleClass="margin-top-max"/>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-2 ui-md-4 ui-sm-12">
 
-                                    <h:column>
-                                        <p:outputLabel value="Índice" /><br />
-                                        <h:panelGrid columns="2">
-                                            <h:panelGrid columns="2">
-                                                <p:selectOneMenu value="#{produtoBean.indexIndiceMoeda}" >
-                                                    <p:ajax event="change" update="@this" />
-                                                    <f:selectItems value="#{produtoBean.listaIndiceMoeda}" />
-                                                </p:selectOneMenu>
-
-                                                <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlg_editar_indice_moeda').show()" action="#{produtoBean.editarIndiceMoeda()}" update="form_produto:panel_editar_indice_moeda"/>
-                                            </h:panelGrid>
-                                        </h:panelGrid>
-                                    </h:column>
-                                </h:panelGrid>
+                                        </div>
+                                    </div>
+                                </div>                                
                             </p:panel>
 
                             <br />
 
                             <p:panel header="Guias" id="panel_guias">
-
-                                <h:panelGrid columns="2">
-                                    
-                                    <h:column rendered="#{produtoBean.produto.validadeGuiasMesVigente eq false}">
-                                        <p:outputLabel value="Validade em dias a partir da Emissão" /><br />
-                                        <p:inputText value="#{produtoBean.produto.validadeGuiasDias}" styleClass="text-right" style="width: 220px; margin-right: 10px">
-                                            <p:ajax event="change" update="@this" />
-                                        </p:inputText>
-                                    </h:column>
-                                    
-                                    <h:column>
-                                        <br />
-                                        <p:selectBooleanCheckbox value="#{produtoBean.produto.validadeGuiasMesVigente}" itemLabel="Validade dentro do mês vigente">
-                                            <p:ajax event="change" update="panel_guias" />
-                                        </p:selectBooleanCheckbox>
-                                    </h:column>
-
-                                </h:panelGrid>
-
+                                <div class="ui-fluid">
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-lg-3 ui-md-3 ui-sm-6">
+                                            <c:if test="#{produtoBean.produto.validadeGuiasMesVigente eq false}">
+                                                <p:outputLabel value="Validade em dias a partir da Emissão" />
+                                                <p:inputText value="#{produtoBean.produto.validadeGuiasDias}" styleClass="text-right" >
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
+                                            </c:if>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-3 ui-md-3 ui-sm-6">                                            
+                                            <p:selectBooleanCheckbox value="#{produtoBean.produto.validadeGuiasMesVigente}" itemLabel="Validade dentro do mês vigente" styleClass="margin-top-max">
+                                                <p:ajax event="change" update="panel_guias" />
+                                            </p:selectBooleanCheckbox>
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-6 ui-md-6 ui-sm-6"></div>
+                                    </div>
+                                </div>
                             </p:panel>
 
                             <!-- // TELA CADASTRO -->
 
                             <!-- TELA ESTOQUE -->
 
-                            <h:column rendered="#{produtoBean.produto.id != -1}">
+                            <h:panelGroup rendered="#{produtoBean.produto.id ne null}" layout="block">
                                 <p:panel header="Estoque por Filial" id="i_tela_estoque" styleClass="margin-top-max">
-                                    <p:messages  autoUpdate="true" showDetail="true" />
-                                    <p:panelGrid styleClass="margin-top-max">
-                                        <p:row>
-                                            <p:column>
-                                                <p:outputLabel value="Filial:" />
-                                            </p:column>
-                                            <p:column>
-                                                <h:column rendered="#{produtoBean.listaFilial.size() > 0}">
-                                                    <p:selectOneMenu value="#{produtoBean.indices[5]}" disabled="#{produtoBean.estoque.id != -1}">
-                                                        <f:selectItems value="#{produtoBean.listaFilial}" />
-                                                    </p:selectOneMenu>
-                                                </h:column>                                                        
-                                            </p:column>
-                                            <p:column>
+                                    <p:messages  autoUpdate="true" showDetail="true" showSummary="false" showIcon="false"/>
+                                    <div class="ui-fluid">
+                                        <div class="ui-g">
+                                            <div class="ui-g-12 ui-lg-8 ui-md-8 ui-sm-6">
+                                                <p:outputLabel value="Filial:" />                                                   
+                                                <p:selectOneMenu value="#{produtoBean.idFilial}" disabled="#{produtoBean.estoque.id ne null}" rendered="#{not empty produtoBean.listFiliais}">
+                                                    <f:selectItems value="#{produtoBean.listFiliais}" />
+                                                </p:selectOneMenu>
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-4 ui-md-4 ui-sm-6">
                                                 <p:outputLabel value="Tipo: " />
-                                            </p:column>
-                                            <p:column>
-                                                <h:column rendered="#{produtoBean.listaTipo.size() > 0}">
-                                                    <p:selectOneMenu value="#{produtoBean.indices[4]}" disabled="#{produtoBean.estoque.id != -1}">
-                                                        <f:selectItems value="#{produtoBean.listaTipo}" />
-                                                    </p:selectOneMenu>
-                                                </h:column>                                                        
-                                            </p:column>
-                                        </p:row>
-                                    </p:panelGrid>
-                                    <p:panelGrid styleClass="margin-top-max">
-                                        <p:row>
-                                            <p:column>
+                                                <p:selectOneMenu value="#{produtoBean.idEstoqueTipo}" disabled="#{produtoBean.estoque.id ne null}">
+                                                    <f:selectItems value="#{produtoBean.listEstoqueTipos}" />
+                                                </p:selectOneMenu>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="ui-g">
+                                            <div class="ui-g-12 ui-lg-6 ui-md-6 ui-sm-6">
+                                                <p:selectBooleanCheckbox value="#{produtoBean.estoque.ativo}" itemLabel="Ativo" />                                                
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-6 ui-md-6 ui-sm-6">
+                                                <p:selectBooleanCheckbox value="#{produtoBean.estoque.controlaEstoque}" itemLabel="Controle de Estoque" />
+                                            </div>                                            
+                                        </div>
+                                        <div class="ui-g">
+                                            <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
                                                 <p:outputLabel value="Custo médio: " />
-                                            </p:column>
-                                            <p:column>
-                                                <p:inputText value="#{produtoBean.custoMedio}" converter="#{toCurrency}" styleClass="text-right">
+                                                <p:inputText value="#{produtoBean.custoMedio}" converter="#{toCurrency}" >
                                                     <p:ajax event="blur" update="@this" />
                                                 </p:inputText>
-                                            </p:column>
-                                            <p:column>
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
                                                 <p:outputLabel value="Estoque: " />
-                                            </p:column>
-                                            <p:column>
-                                                <p:inputText value="#{produtoBean.estoque.estoque}" size="1" maxlength="4"/>
-                                                <p:outputLabel value="Estoque Mínimo: " styleClass="margin-left-max"/>
-                                                <p:inputText value="#{produtoBean.estoque.estoqueMinimo}" size="1" maxlength="4"/>
-                                                <p:outputLabel value="Estoque Máximo:"  styleClass="margin-left-max"/>
-                                                <p:inputText value="#{produtoBean.estoque.estoqueMaximo}" size="1" maxlength="4"/>
-                                            </p:column>
-                                            <p:column colspan="2">
-                                                <p:selectBooleanCheckbox value="#{produtoBean.estoque.ativo}" itemLabel="Ativo"/>
-                                            </p:column>
-                                            <p:column>
-                                                <h:column rendered="#{produtoBean.estoque.id == -1}">
-                                                    <p:commandButton value="Adicionar" action="#{produtoBean.addProdutoEstoque()}" update="i_tela_estoque" title="Adicionar/Atualizar"/>
-                                                </h:column>
-                                                <h:column rendered="#{produtoBean.estoque.id != -1}">
-                                                    <p:commandButton value="Atualizar" action="#{produtoBean.addProdutoEstoque()}" update="i_tela_estoque" title="Adicionar/Atualizar"/>
-                                                </h:column>
-                                            </p:column>
-                                        </p:row>
-                                    </p:panelGrid>
-                                    <p:dataTable value="#{produtoBean.listaEstoque}" var="estoque" styleClass="margin-top-max" scrollable="true" scrollHeight="150" emptyMessage="Nenhum registro encontrado!">
+                                                <p:inputNumber value="#{produtoBean.estoque.estoque}" maxlength="4" minValue="0" decimalPlaces="0"/>
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
+                                                <p:outputLabel value="Estoque Mínimo: " />
+                                                <p:inputNumber value="#{produtoBean.estoque.estoqueMinimo}" maxlength="4" minValue="0" decimalPlaces="0"/>
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
+                                                <p:outputLabel value="Estoque Máximo:"  />
+                                                <p:inputNumber value="#{produtoBean.estoque.estoqueMaximo}" maxlength="4" minValue="0" decimalPlaces="0"/>
+                                            </div>
+                                            <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
+                                                <p:outputLabel value="Índice" />
+                                                <p:selectOneMenu value="#{produtoBean.idIndiceMoeda}" autoWidth="true">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItems value="#{produtoBean.listIndiceMoeda}" />
+                                                </p:selectOneMenu>
+                                            </div>                                            
+                                            <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
+                                                <p:commandButton icon="fa fa-plus" action="#{produtoBean.addProdutoEstoque()}" update="i_tela_estoque" title="Adicionar/Atualizar" styleClass="margin-top-max"/>
+                                            </div>
+                                        </div>                                    
+                                    </div>
+                                    <hr />
+                                    <p:dataTable value="#{produtoBean.listaEstoque}" var="estoque" styleClass="margin-top-max" scrollable="true" scrollHeight="150" emptyMessage="Nenhum registro encontrado!" reflow="true">
                                         <p:column width="25" styleClass="text-center">
                                             <p:commandButton icon="ui-icon-link" action="#{produtoBean.editEstoque(estoque)}" update=":form_produto:i_tela_estoque" title="Editar registro"/>
                                         </p:column>
@@ -311,47 +326,10 @@
                                         </f:facet>
                                     </p:dataTable>
                                 </p:panel>                                        
-                            </h:column>
+                            </h:panelGroup>
 
                             <!-- // TELA ESTOQUE -->                            
 
-                            <!-- AÇÕES -->
-
-                            <h:panelGrid styleClass="margin-top-max" columns="4">
-                                <p:commandButton value="Salvar" onclick="PF('dlg_salvar').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
-                                <p:commandButton value="Novo" action="#{produtoBean.clear()}" update=":form_produto:" />
-                                <p:commandButton value="Excluir" type="button" onclick="PF('dlg_excluir').show()" disabled="#{controleAcessoBean.botaoExcluir}" />
-                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaProduto()}" actionListener="#{genericaSessao.putString('type', 'tproduto')}" />
-                            </h:panelGrid>
-
-                            <p:dialog widgetVar="dlg_salvar" modal="true" width="400" header="Deseja salvar este registro?">
-                                <f:facet name="footer">
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton value="Sim" action="#{produtoBean.save}" update=":form_produto:" oncomplete="PF('dlg_salvar').hide(); PF('dlg_mensagem').show();"/>
-                                        <p:commandButton value="Não" onclick="PF('dlg_salvar').hide();"/>
-                                    </h:panelGrid>
-                                </f:facet>
-                            </p:dialog>
-
-                            <p:dialog widgetVar="dlg_excluir" modal="true" width="400" header="Deseja excluir este registro?" resizable="false">
-                                <f:facet name="footer">
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton value="Sim" action="#{produtoBean.delete()}" update=":form_produto:" oncomplete="PF('dlg_excluir').hide(); PF('dlg_mensagem').show();"/>
-                                        <p:commandButton value="Não" onclick="PF('dlg_excluir').hide();"/>
-                                    </h:panelGrid>
-                                </f:facet>
-                            </p:dialog>
-
-                            <p:dialog widgetVar="dlg_mensagem" modal="true" width="400" header="Mensagem" resizable="false">
-                                <h:panelGrid id="i_mensagem">
-                                    <p:outputLabel value="#{produtoBean.mensagem}" />
-                                </h:panelGrid>
-                                <f:facet name="footer">
-                                    <p:commandButton value="Ok" onclick="PF('dlg_mensagem').hide();"/>
-                                </f:facet>
-                            </p:dialog> 
-
-                            <!-- // AÇÕES -->
 
                             <!-- CADASTROS COMPLEMENTARES -->
 
@@ -423,14 +401,14 @@
 
                                     <h:panelGrid columns="3" style="width: 100%">
                                         <h:panelGrid columns="30">
-                                            <p:commandButton icon="ui-icon-check" value="#{(produtoBean.indiceMoeda.id eq -1) ? 'Adicionar' : 'Alterar'}" action="#{produtoBean.salvarIndiceMoeda()}" update="panel_editar_indice_moeda" />
+                                            <p:commandButton icon="ui-icon-check" value="#{(produtoBean.indiceMoeda eq null) ? 'Adicionar' : 'Alterar'}" action="#{produtoBean.saveIndiceMoeda()}" update="panel_editar_indice_moeda" />
 
                                             <p:commandButton icon="ui-icon-document" value="Novo" action="#{produtoBean.novoIndiceMoeda()}" update="panel_editar_indice_moeda" global="false"/>
 
                                             <p:commandButton icon="ui-icon-close" value="Cancelar" action="#{produtoBean.novoIndiceMoeda()}" update="@form" global="false"/>
                                         </h:panelGrid>
                                         <p:outputLabel value="|" />
-                                        <p:commandLink value="Excluir" action="#{produtoBean.excluirIndiceMoeda()}" update="panel_editar_indice_moeda" global="false" style="color: red; float: right" rendered="#{produtoBean.indiceMoeda.id ne -1}">
+                                        <p:commandLink value="Excluir" action="#{produtoBean.excluirIndiceMoeda()}" update="panel_editar_indice_moeda" global="false" style="color: red; float: right" rendered="#{produtoBean.indiceMoeda ne null}">
                                             <p:confirm header="Excluir Índice de Moeda" message="Deseja Realmente EXCLUIR este Índice?" icon="ui-icon-alert" />
                                         </p:commandLink>
 
@@ -438,14 +416,14 @@
 
                                 </h:panelGrid>
                             </p:dialog>
-
-                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
-                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
-                            </p:confirmDialog>
-
                         </h:form>
-                    </p:panel>
+                    </h:panelGroup>
+                    <h:form prependId="false">
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

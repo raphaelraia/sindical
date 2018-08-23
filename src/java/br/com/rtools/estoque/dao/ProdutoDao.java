@@ -32,10 +32,10 @@ public class ProdutoDao extends DB {
                         + "     OR trim(UPPER(func_translate(P.ds_fabricante))) LIKE trim(UPPER(func_translate('" + descricaoPesquisa + "')))   \n"
                         + ") )");
             }
-            if (grupo_id != -1 && subgrupo_id == -1) {
+            if (grupo_id != null && subgrupo_id == null) {
                 listWhere.add("P.id_grupo = " + grupo_id + " ");
             }
-            if (subgrupo_id != -1) {
+            if (subgrupo_id != null) {
                 listWhere.add("P.id_subgrupo = " + subgrupo_id + " ");
             }
             for (int i = 0; i < listWhere.size(); i++) {
@@ -138,19 +138,34 @@ public class ProdutoDao extends DB {
         return new ArrayList();
     }
 
-    public Estoque listaEstoquePorProdutoFilial(Produto p, Filial l) {
-        try {
-            Query q = getEntityManager().createQuery("SELECT E FROM Estoque AS E WHERE E.produto.id = :p1 AND E.filial.id = :p2 ORDER BY E.filial.filial.pessoa.nome");
-            q.setParameter("p1", p.getId());
-            q.setParameter("p2", l.getId());
-            List list = q.getResultList();
-            if (!list.isEmpty()) {
-                return (Estoque) q.getSingleResult();
-            }
-        } catch (Exception e) {
-        }
-        return null;
-    }
+//    public Estoque listaEstoquePorProdutoFilial(Produto p, Filial l) {
+//        try {
+//            Query q = getEntityManager().createQuery("SELECT E FROM Estoque AS E WHERE E.produto.id = :p1 AND E.filial.id = :p2 ORDER BY E.filial.filial.pessoa.nome");
+//            q.setParameter("p1", p.getId());
+//            q.setParameter("p2", l.getId());
+//            List list = q.getResultList();
+//            if (!list.isEmpty()) {
+//                return (Estoque) q.getSingleResult();
+//            }
+//        } catch (Exception e) {
+//        }
+//        return null;
+//    }
+//
+//    public Estoque listaEstoquePorProdutoFilial(Integer produto_id, Integer filial_id, Integer estoque_tipo_id) {
+//        try {
+//            Query q = getEntityManager().createQuery("SELECT E FROM Estoque AS E WHERE E.produto.id = :produto_id AND E.filial.id = :filial_id AND E.estoqueTipo.id = :estoque_tipo_id ");
+//            q.setParameter("produto_id", produto_id);
+//            q.setParameter("filial_id", filial_id);
+//            q.setParameter("estoque_tipo_id", estoque_tipo_id);
+//            List list = q.getResultList();
+//            if (!list.isEmpty()) {
+//                return (Estoque) q.getSingleResult();
+//            }
+//        } catch (Exception e) {
+//        }
+//        return null;
+//    }
 
     public List<EstoqueSaidaConsumo> listaEstoqueSaidaConsumoProdutoTipo(Integer produto, Integer estoqueTipo, String orderLancamento, String orderDepartamento, String orderProduto, String orderQuantidade, String orderFilial) {
         if (produto == -1) {
@@ -176,12 +191,12 @@ public class ProdutoDao extends DB {
                     + " FROM fin_indice_moeda im \n "
                     + "ORDER BY im.id", IndiceMoeda.class
             );
-            
+
             return q.getResultList();
         } catch (Exception e) {
             e.getMessage();
         }
-        
+
         return new ArrayList();
     }
 }

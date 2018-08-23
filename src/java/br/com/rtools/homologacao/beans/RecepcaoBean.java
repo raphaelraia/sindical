@@ -531,6 +531,10 @@ public class RecepcaoBean implements Serializable {
                     }
                     break;
                 } else {
+                    if(agendamentoEdit.getStatus().getId() == 4) {
+                        GenericaMensagem.warn("Alerta", "Pessoa em atendimento!");
+                        PF.closeDialog("dlg_recepcao");
+                    }
                     agendamentoEdit = new Agendamento();
                     break;
                 }

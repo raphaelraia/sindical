@@ -4,6 +4,7 @@ import br.com.rtools.estoque.Estoque;
 import br.com.rtools.estoque.EstoqueSaidaConsumo;
 import br.com.rtools.estoque.EstoqueTipo;
 import br.com.rtools.estoque.Produto;
+import br.com.rtools.estoque.dao.EstoqueDao;
 import br.com.rtools.estoque.dao.ProdutoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
@@ -125,11 +126,11 @@ public class BaixaProdutoConsumoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Cadastrar Filiais! Falar com administrador do sistema.");
             return;
         }
-        if (produto.getId() == -1) {
+        if (produto.getId() == null) {
             GenericaMensagem.warn("Validação", "Pesquisar um produto!");
             return;
         }
-        if (!estoque.isAtivo()) {
+        if (!estoque.getAtivo()) {
             GenericaMensagem.warn("Validação", "Produto está inátivado!");
             return;
         }
@@ -200,8 +201,7 @@ public class BaixaProdutoConsumoBean implements Serializable {
                 GenericaMensagem.warn("Sucesso", "Registro excluído");
                 dao.commit();
                 novoLog.saveList();
-                ProdutoDao produtoDao = new ProdutoDao();
-                estoque = (Estoque) produtoDao.listaEstoquePorProdutoFilial(produto, filial);
+                estoque = (Estoque) new EstoqueDao().find(produto.getId(), filial.getId());
                 quantidadeEstoque = estoque.getEstoque();
                 nrEstoque = estoque.getEstoque();
             } else {
@@ -261,7 +261,9 @@ public class BaixaProdutoConsumoBean implements Serializable {
     public List<EstoqueSaidaConsumo> getListEstoqueSaidaConsumo() {
         if (listEstoqueSaidaConsumo[1].isEmpty()) {
             ProdutoDao produtoDao = new ProdutoDao();
-            listEstoqueSaidaConsumo[1].addAll(produtoDao.listaEstoqueSaidaConsumoProdutoTipo(estoque.getProduto().getId(), 1, "DESC", "ASC", "ASC", "ASC", "ASC"));
+            if (estoque.getProduto() != null) {
+                listEstoqueSaidaConsumo[1].addAll(produtoDao.listaEstoqueSaidaConsumoProdutoTipo(estoque.getProduto().getId(), 1, "DESC", "ASC", "ASC", "ASC", "ASC"));
+            }
         }
         return listEstoqueSaidaConsumo[1];
     }
@@ -290,8 +292,7 @@ public class BaixaProdutoConsumoBean implements Serializable {
                 estoqueSaidaConsumo = new EstoqueSaidaConsumo();
                 estoque = new Estoque();
                 produto = p;
-                ProdutoDao produtoDao = new ProdutoDao();
-                estoque = (Estoque) produtoDao.listaEstoquePorProdutoFilial(produto, filial);
+                estoque = (Estoque) new EstoqueDao().find(produto.getId(), filial.getId());
                 if (estoque != null) {
                     quantidadeEstoque = estoque.getEstoque();
                     nrEstoque = estoque.getEstoque();
@@ -355,7 +356,7 @@ public class BaixaProdutoConsumoBean implements Serializable {
     }
 
     public void removeQuantidadeEstoque() {
-        if (estoque.getId() != -1) {
+        if (estoque.getId() != null) {
             int quantidadeAdd = 0;
             int quantidadeEst = 0;
             if (!listEstoqueSaidaConsumo[0].isEmpty()) {

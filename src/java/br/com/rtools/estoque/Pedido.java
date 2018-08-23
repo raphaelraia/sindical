@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.*;
 
 @Entity
@@ -11,16 +12,20 @@ import javax.persistence.*;
 public class Pedido implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "nr_quantidade", columnDefinition = "integer default 0")
-    private int quantidade;
+    private Integer quantidade;
     @Column(name = "nr_valor_unitario", columnDefinition = "double precision default 0")
-    private double valorUnitario;
+    private Double valorUnitario;
     @Column(name = "nr_desconto_unitario", columnDefinition = "double precision default 0")
-    private double descontoUnitario;
+    private Double descontoUnitario;
     @JoinColumn(name = "id_lote", referencedColumnName = "id")
     @OneToOne
     private Lote lote;
@@ -33,19 +38,27 @@ public class Pedido implements Serializable {
     @JoinColumn(name = "id_servico", referencedColumnName = "id")
     @ManyToOne
     private Servicos servicos;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_cadastro", nullable = false, columnDefinition = "timestamp without time zone DEFAULT current_date")
+    private Date dtCadastro;
+
+    @Transient
+    private Boolean controlaEstoque;
 
     public Pedido() {
-        this.id = -1;
+        this.id = null;
         this.quantidade = 0;
-        this.valorUnitario = 0;
-        this.descontoUnitario = 0;
+        this.valorUnitario = new Double(0);
+        this.descontoUnitario = new Double(0);
         this.lote = new Lote();
         this.produto = new Produto();
         this.estoqueTipo = new EstoqueTipo();
         this.servicos = null;
+        this.dtCadastro = new Date();
+        this.controlaEstoque = false;
     }
 
-    public Pedido(int id, int quantidade, double valorUnitario, double descontoUnitario, Lote lote, Produto produto, EstoqueTipo estoqueTipo, Servicos servicos) {
+    public Pedido(Integer id, Integer quantidade, Double valorUnitario, Double descontoUnitario, Lote lote, Produto produto, EstoqueTipo estoqueTipo, Servicos servicos, Date dtCadastro) {
         this.id = id;
         this.quantidade = quantidade;
         this.valorUnitario = valorUnitario;
@@ -54,37 +67,39 @@ public class Pedido implements Serializable {
         this.produto = produto;
         this.estoqueTipo = estoqueTipo;
         this.servicos = servicos;
+        this.dtCadastro = dtCadastro;
+        this.controlaEstoque = false;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 
-    public double getValorUnitario() {
+    public Double getValorUnitario() {
         return valorUnitario;
     }
 
-    public void setValorUnitario(double valorUnitario) {
+    public void setValorUnitario(Double valorUnitario) {
         this.valorUnitario = valorUnitario;
     }
 
-    public double getDescontoUnitario() {
+    public Double getDescontoUnitario() {
         return descontoUnitario;
     }
 
-    public void setDescontoUnitario(double descontoUnitario) {
+    public void setDescontoUnitario(Double descontoUnitario) {
         this.descontoUnitario = descontoUnitario;
     }
 
@@ -139,17 +154,28 @@ public class Pedido implements Serializable {
         this.descontoUnitario = Moeda.substituiVirgulaDouble(descontoUnitarioString);
     }
 
-    @Override
-    public String toString() {
-        return "Pedido{" + "id=" + id + ", quantidade=" + quantidade + ", valorUnitario=" + valorUnitario + ", descontoUnitario=" + descontoUnitario + ", lote=" + lote + ", produto=" + produto + ", estoqueTipo=" + estoqueTipo + '}';
-    }
-
     public Servicos getServicos() {
         return servicos;
     }
 
     public void setServicos(Servicos servicos) {
         this.servicos = servicos;
+    }
+
+    public Date getDtCadastro() {
+        return dtCadastro;
+    }
+
+    public void setDtCadastro(Date dtCadastro) {
+        this.dtCadastro = dtCadastro;
+    }
+
+    public Boolean getControlaEstoque() {
+        return controlaEstoque;
+    }
+
+    public void setControlaEstoque(Boolean controlaEstoque) {
+        this.controlaEstoque = controlaEstoque;
     }
 
 }

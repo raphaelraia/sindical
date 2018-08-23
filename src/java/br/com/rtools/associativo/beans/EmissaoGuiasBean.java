@@ -16,6 +16,7 @@ import br.com.rtools.estoque.Estoque;
 import br.com.rtools.estoque.EstoqueTipo;
 import br.com.rtools.estoque.Pedido;
 import br.com.rtools.estoque.Produto;
+import br.com.rtools.estoque.dao.EstoqueDao;
 import br.com.rtools.estoque.dao.ProdutoDao;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
@@ -69,6 +70,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -858,10 +860,6 @@ public class EmissaoGuiasBean implements Serializable {
             message = "Pesquise uma pessoa para gerar!";
             return null;
         }
-        if (pessoa.getId() == -1) {
-            message = "Pesquise uma pessoa para gerar!";
-            return null;
-        }
         if (getListServicos().isEmpty() || idServico == null) {
             message = "A lista de serviços não pode estar vazia!";
             return null;
@@ -963,20 +961,25 @@ public class EmissaoGuiasBean implements Serializable {
 
         Estoque e;
         ProdutoDao produtoDao = new ProdutoDao();
+        EstoqueDao estoqueDao = new EstoqueDao();
         for (Pedido listPedido : listPedidos) {
             listPedido.setLote(lote);
+            listPedido.setId(-1);
             if (!di.save(listPedido)) {
+                listPedido.setId(null);
                 message = " Erro ao salvar Pedido!";
                 di.rollback();
                 return null;
             }
             int qtde = 0;
-            e = produtoDao.listaEstoquePorProdutoFilial(listPedido.getProduto(), filial);
-            e.setEstoque(e.getEstoque() - listPedido.getQuantidade());
-            if (!di.update(e)) {
-                message = " Erro ao salvar Pedido!";
-                di.rollback();
-                return null;
+            if (listPedido.getControlaEstoque()) {
+                e = estoqueDao.find(listPedido.getProduto().getId(), filial.getId());
+                e.setEstoque(e.getEstoque() - listPedido.getQuantidade());
+                if (!di.update(e)) {
+                    message = " Erro ao salvar Pedido!";
+                    di.rollback();
+                    return null;
+                }
             }
             e = new Estoque();
             list_log.add("-------------------------------------------------------------------");
@@ -1398,17 +1401,32 @@ public class EmissaoGuiasBean implements Serializable {
         pedido.setValorUnitario(Moeda.substituiVirgulaDouble(valorUnitarioPedido));
         pedido.setQuantidade(quantidadePedido);
 
-        //pedido.setDescontoUnitario(Moeda.substituiVirgulaDouble(descontoUnitarioPedido));
-        if (pedido.getQuantidade() < 1) {
-            GenericaMensagem.warn("Validação", "Adicionar quantidade!");
+        Estoque e = new EstoqueDao().find(pedido.getProduto().getId(), filial.getId(), 3);
+        if (e == null) {
+            e = new EstoqueDao().find(pedido.getProduto().getId(), filial.getId(), 4);
+        }
+        if (e == null) {
+            GenericaMensagem.warn("Validação", "Estoque não cadastrado para brindes ou serviços!");
             return;
+        }
+        if (!e.getControlaEstoque()) {
+            pedido.setQuantidade(1);
+        }
+        if (e.getControlaEstoque()) {
+            pedido.setControlaEstoque(true);
+            if (pedido.getQuantidade() < 1) {
+                GenericaMensagem.warn("Validação", "Adicionar quantidade!");
+                return;
+            }
+        } else {
+            pedido.setControlaEstoque(false);
         }
         if (pedido.getValorUnitario() < .1) {
             GenericaMensagem.warn("Validação", "Informar valor do produto!");
             return;
         }
         for (Pedido listPedido : listPedidos) {
-            if (listPedido.getProduto().getId() == pedido.getProduto().getId()) {
+            if (Objects.equals(listPedido.getProduto().getId(), pedido.getProduto().getId())) {
                 GenericaMensagem.warn("Validação", "Produto já adicionado!");
                 return;
             }
@@ -1418,8 +1436,8 @@ public class EmissaoGuiasBean implements Serializable {
 
         pedido.setServicos(serv);
 
-        if (pedido.getId() == -1) {
-            pedido.setEstoqueTipo((EstoqueTipo) dao.find(new EstoqueTipo(), 3));
+        if (pedido.getId() == null) {
+            pedido.setEstoqueTipo(e.getEstoqueTipo());
             listPedidos.add(pedido);
         } else {
             dao.openTransaction();
@@ -1439,7 +1457,7 @@ public class EmissaoGuiasBean implements Serializable {
         Dao dao = new Dao();
         for (int i = 0; i < listPedidos.size(); i++) {
             if (i == index) {
-                if (listPedidos.get(index).getId() == -1) {
+                if (listPedidos.get(index).getId() == null) {
                     pedido = listPedidos.get(index);
                     listPedidos.remove(index);
                 } else {
@@ -1463,7 +1481,7 @@ public class EmissaoGuiasBean implements Serializable {
 
         for (int i = 0; i < listPedidos.size(); i++) {
             if (i == index) {
-                if (listPedidos.get(i).getId() != -1) {
+                if (listPedidos.get(i).getId() != null) {
                     if (!dao.delete(dao.find(listPedidos.get(i)))) {
                         dao.rollback();
                         erro = true;
@@ -1581,7 +1599,7 @@ public class EmissaoGuiasBean implements Serializable {
         if (GenericaSessao.exists("produtoPesquisa")) {
             Produto p = (Produto) GenericaSessao.getObject("produtoPesquisa", true);
             for (Pedido listPedido : listPedidos) {
-                if (listPedido.getProduto().getId() == p.getId()) {
+                if (Objects.equals(listPedido.getProduto().getId(), p.getId())) {
                     GenericaMensagem.warn("Validação", "Produto já adicionado!");
                     PF.update(":form_eg:i_message_pedido");
                     pedido = new Pedido();
@@ -1589,14 +1607,19 @@ public class EmissaoGuiasBean implements Serializable {
             }
             ProdutoDao produtoDao = new ProdutoDao();
             estoque = new Estoque();
-            estoque = produtoDao.listaEstoquePorProdutoFilial(p, filial);
+            estoque = new EstoqueDao().find(p.getId(), filial.getId(), 3);
+            if (estoque == null) {
+                estoque = new EstoqueDao().find(p.getId(), filial.getId(), 4);
+            }
             if (estoque == null) {
                 GenericaMensagem.warn("Validação", "Produto indisponível para esta filial!");
                 PF.update(":form_eg:i_message_pedido");
-            } else if (estoque.getEstoqueTipo().getId() == 3) {
+            } else if (estoque.getEstoqueTipo().getId() == 3 || estoque.getEstoqueTipo().getId() == 4) {
                 pedido.setProduto(p);
-                if (estoque.getEstoque() == 0) {
-                    GenericaMensagem.warn("Validação", "Quantidade indisponível!");
+                if (estoque.getControlaEstoque()) {
+                    if (estoque.getEstoque() == 0) {
+                        GenericaMensagem.warn("Validação", "Quantidade indisponível!");
+                    }
                 }
                 valorUnitarioPedido = pedido.getProduto().getValorString();
             } else {

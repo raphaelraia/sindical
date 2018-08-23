@@ -405,7 +405,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         pedido.setValorUnitario(Moeda.converteStringToDouble(valorUnitarioPedido));
         pedido.setDescontoUnitario(Moeda.converteStringToDouble(descontoUnitarioPedido));
         pedido.setQuantidade(quantidadePedido);
-        if (pedido.getProduto().getId() == -1) {
+        if (pedido.getProduto().getId() == null) {
             GenericaMensagem.warn("Validação", "Pesquisar um produto!");
             return;
         }
@@ -418,7 +418,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
         Dao dao = new Dao();
-        if (pedido.getId() == -1) {
+        if (pedido.getId() == null) {
             pedido.setEstoqueTipo((EstoqueTipo) dao.find(new EstoqueTipo(), 1));
             listaPedidos.add(pedido);
         } else {
@@ -437,7 +437,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         Dao dao = new Dao();
         for (int i = 0; i < listaPedidos.size(); i++) {
             if (i == index) {
-                if (listaPedidos.get(index).getId() == -1) {
+                if (listaPedidos.get(index).getId() == null) {
                     pedido = listaPedidos.get(index);
                     listaPedidos.remove(index);
                 } else {
@@ -459,7 +459,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         dao.openTransaction();
         for (int i = 0; i < listaPedidos.size(); i++) {
             if (i == index) {
-                if (listaPedidos.get(i).getId() != -1) {
+                if (listaPedidos.get(i).getId() != null) {
                     if (!dao.delete(dao.find(listaPedidos.get(i)))) {
                         dao.rollback();
                         erro = true;
@@ -1098,7 +1098,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
 
             for (Pedido pedidox : listaPedidos) {
-                if (pedidox.getId() == -1) {
+                if (pedidox.getId() == null) {
                     pedidox.setLote(lote);
                     if (!dao.save(pedidox)) {
                         GenericaMensagem.warn("Erro", "Erro ao Salvar Pedidos");

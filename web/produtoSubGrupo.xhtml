@@ -26,24 +26,27 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Produto SubGrupo" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="form_psg">
-                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" />
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="false" closable="true" showIcon="false"/>
+                            <p:growl showDetail="true" showSummary="false" />
                             <p:panel styleClass="fundoCinza margin-top-max">
                                 <h:panelGrid columns="5">
                                     <p:outputLabel value="Grupos:" />
-                                    <p:selectOneMenu value="#{produtoSubGrupoBean.produtoGrupo}" converter="#{entityConverter}">
+                                    <p:selectOneMenu value="#{produtoSubGrupoBean.idProdutoGrupo}">
                                         <p:ajax event="change" update="@this :form_psg:" listener="#{produtoSubGrupoBean.listProdutoSubGrupo.clear()}" />
                                         <f:selectItem itemValue="" itemLabel="Selecionar" itemDisabled="true" noSelectionOption="true"/>
-                                        <f:selectItems value="#{produtoSubGrupoBean.listProdutoGrupo}" itemValue="#{produtoGrupo}" itemLabel="#{produtoGrupo.descricao}" var="produtoGrupo"/>
+                                        <f:selectItems value="#{produtoSubGrupoBean.listProdutoGrupos}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Descrição:" />
                                     <p:inputText value="#{produtoSubGrupoBean.produtoSubGrupo.descricao}" converter="#{toUpperCase}" >
                                         <p:ajax event="blur" update="@this" />
                                     </p:inputText> 
-                                    <p:commandButton value="Salvar" action="#{produtoSubGrupoBean.save()}" update=":form_psg:" />
+                                    <p:commandButton value="Salvar" action="#{produtoSubGrupoBean.save()}" update=":form_psg:">
+                                        <p:confirm header="Produto Subgrupo" message="Deseja salvar este registro?" icon="ui-icon-alert"/>
+                                    </p:commandButton>
                                     <p:commandButton value="Novo" action="#{produtoSubGrupoBean.destroy()}" update=":form_psg:" />
                                 </h:panelGrid>
                             </p:panel>
@@ -55,11 +58,19 @@
                                     #{produtoSubGrupo.descricao}
                                 </p:column>
                                 <p:column width="25" styleClass="text-center">
-                                    <p:commandButton icon="ui-icon-trash" action="#{produtoSubGrupoBean.delete(produtoSubGrupo)}" update=":form_psg:" />
+                                    <p:commandButton icon="ui-icon-trash" action="#{produtoSubGrupoBean.delete(produtoSubGrupo)}" update=":form_psg:">
+                                        <p:confirm header="Produto Subgrupo" message="Deseja remover este registro?" />
+                                    </p:commandButton>
                                 </p:column>
                             </p:dataTable>
                         </h:form>
                     </p:panel>
+                    <h:form prependId="false">
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

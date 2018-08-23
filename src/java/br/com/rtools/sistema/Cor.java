@@ -22,25 +22,25 @@ public class Cor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 100, nullable = false, unique = true)
     private String descricao;
 
     public Cor() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
     }
 
-    public Cor(int id, String descricao) {
+    public Cor(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

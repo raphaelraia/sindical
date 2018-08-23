@@ -7,6 +7,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Messages;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -19,14 +20,12 @@ import javax.faces.bean.SessionScoped;
 public class SuspencaoBean {
 
     private Suspencao suspencao;
-    private String message;
     private List<Suspencao> listSuspencao;
 
     @PostConstruct
     public void init() {
         suspencao = new Suspencao();
-        message = "";
-        listSuspencao = new ArrayList();
+        listSuspencao = new ArrayList();        
     }
 
     @PreDestroy
@@ -41,25 +40,25 @@ public class SuspencaoBean {
 
     public void save() {
         if (suspencao.getPessoa().getId() == -1) {
-            message = "Pesquise um sócio para Suspender!";
+            Messages.warn("Pesquise um sócio para Suspender!");
             return;
         }
         if (suspencao.getDataInicial().length() < 7 || suspencao.getDataFinal().length() < 7) {
-            message = "Data inválida!";
+            Messages.warn("Data inválida!");
             return;
         }
         if (DataHoje.converteDataParaInteger(suspencao.getDataInicial())
                 > DataHoje.converteDataParaInteger(suspencao.getDataFinal())) {
-            message = "Data inicial não pode ser maior que data final!";
+            Messages.warn("Data inicial não pode ser maior que data final!");
             return;
         }
         if (suspencao.getMotivo().equals("") || suspencao.getMotivo() == null) {
-            message = "Digite um motivo de Suspensão!";
+            Messages.warn("Digite um motivo de Suspensão!");
             return;
         }
         SuspencaoDao suspencaoDB = new SuspencaoDao();
         if (suspencaoDB.exists(suspencao.getPessoa().getId()) != null) {
-            message = "Sócio já encontra-se suspenso!";
+            Messages.warn("Sócio já encontra-se suspenso!");
             return;
         }
         Dao di = new Dao();
@@ -72,9 +71,10 @@ public class SuspencaoBean {
                         + " - Período: " + suspencao.getDataInicial() + " até " + suspencao.getDataFinal()
                         + " - Motivo: " + suspencao.getMotivo()
                 );
-                message = "Suspensão salva com sucesso.";
+                Messages.info("Registro inserido com sucesso");
+                loadListSuspensao();
             } else {
-                message = "Erro ao salvar suspensão!";
+                Messages.warn("Erro ao inserir registro!");
             }
         } else {
             Suspencao s = (Suspencao) di.find(suspencao);
@@ -90,16 +90,17 @@ public class SuspencaoBean {
                         + " - Período: " + suspencao.getDataInicial() + " até " + suspencao.getDataFinal()
                         + " - Motivo: " + suspencao.getMotivo()
                 );
-                message = "Suspensão atualizada com sucesso.";
+                Messages.info("Registro atualizado com sucesso");
+                loadListSuspensao();
             } else {
-                message = "Erro ao atualizar suspensão!";
+                Messages.warn("Erro ao atualizar registro!");
             }
         }
     }
 
     public void delete() {
         if (suspencao.getId() == -1) {
-            message = "Selecione uma suspensão para ser excluída!";
+            Messages.warn("Selecione uma suspensão para ser excluída!");
             return;
         }
         Dao di = new Dao();
@@ -112,16 +113,16 @@ public class SuspencaoBean {
                     + " - Motivo: " + suspencao.getMotivo()
             );
             suspencao = new Suspencao();
-            message = "Suspensão deletada com sucesso!";
-            listSuspencao.clear();
+            loadListSuspensao();
+            Messages.info("Registro removido com sucesso");
         } else {
-            message = "Erro ao deletar suspensão!";
+            Messages.warn("Erro ao remover registro!");
         }
     }
 
     public void novo() {
         suspencao = new Suspencao();
-        message = "";
+        loadListSuspensao();
     }
 
     public String edit(Suspencao s) {
@@ -133,9 +134,6 @@ public class SuspencaoBean {
     }
 
     public List<Suspencao> getListSuspencao() {
-        if (listSuspencao.isEmpty()) {
-            listSuspencao = (List<Suspencao>) new Dao().list(new Suspencao(), true);
-        }
         return listSuspencao;
     }
 
@@ -150,15 +148,13 @@ public class SuspencaoBean {
         return suspencao;
     }
 
+    public void loadListSuspensao() {
+        listSuspencao = new ArrayList();
+        listSuspencao = (List<Suspencao>) new Dao().list(new Suspencao(), true);
+    }
+
     public void setSuspencao(Suspencao suspencao) {
         this.suspencao = suspencao;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

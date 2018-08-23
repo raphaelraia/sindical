@@ -319,13 +319,17 @@
                                     </h:panelGrid>                                    
 
                                     <h:panelGrid columns="4">
-                                        <p:outputLabel value="Qtde" />
+                                        <h:column>
+                                            <p:outputLabel value="Qtde" />                                            
+                                        </h:column>
                                         <p:outputLabel value="Valor Unit." />
                                         <p:outputLabel value="Desconto Unit." />
                                         <p:column />
-                                        <p:spinner value="#{emissaoGuiasBean.quantidadePedido}" size="5" min="0" max="#{emissaoGuiasBean.estoque.estoque}" disabled="#{emissaoGuiasBean.lote.id != -1}" style="width: 90px">
-                                            <p:ajax event="blur" update="@this" />
-                                        </p:spinner>
+                                        <h:column>
+                                            <p:spinner value="#{emissaoGuiasBean.quantidadePedido}" size="5" min="0" max="#{emissaoGuiasBean.estoque.estoque}" disabled="#{emissaoGuiasBean.lote.id != -1}" style="width: 90px" >
+                                                <p:ajax event="blur" update="@this" />
+                                            </p:spinner>                                            
+                                        </h:column>
                                         <p:inputText value="#{emissaoGuiasBean.valorUnitarioPedido}" size="8" dir="rtl" readonly="true">
                                             <p:ajax event="blur" update="@this" />
                                         </p:inputText>
