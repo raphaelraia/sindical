@@ -16,11 +16,11 @@ public class EstoqueSaidaConsumo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
-    @JoinColumn(name = "id_produto", referencedColumnName = "id")
+    private Integer id;
+    @JoinColumn(name = "id_produto", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Produto produto;
-    @JoinColumn(name = "id_tipo", referencedColumnName = "id")
+    @JoinColumn(name = "id_tipo", referencedColumnName = "id", nullable = false)
     @OneToOne
     private EstoqueTipo estoqueTipo;
     @JoinColumn(name = "id_filial_saida", referencedColumnName = "id")
@@ -29,27 +29,27 @@ public class EstoqueSaidaConsumo implements Serializable {
     @JoinColumn(name = "id_filial_entrada", referencedColumnName = "id")
     @OneToOne
     private Filial filialEntrada;
-    @JoinColumn(name = "id_departamento", referencedColumnName = "id")
+    @JoinColumn(name = "id_departamento", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Departamento departamento;
-    @Column(name = "nr_qtde", columnDefinition = "integer default 0")
-    private int quantidade;
+    @Column(name = "nr_qtde", columnDefinition = "integer default 0", nullable = false)
+    private Integer quantidade;
     @Temporal(TemporalType.DATE)
-    @Column(name = "dt_lancamento")
+    @Column(name = "dt_lancamento", nullable = false)
     private Date dtLancamento;
 
     public EstoqueSaidaConsumo() {
-        this.id = -1;
-        this.produto = new Produto();
-        this.estoqueTipo = new EstoqueTipo();
-        this.filialSaida = new Filial();
-        this.filialEntrada = new Filial();
-        this.departamento = new Departamento();
+        this.id = null;
+        this.produto = null;
+        this.estoqueTipo = null;
+        this.filialSaida = null;
+        this.filialEntrada = null;
+        this.departamento = null;
         this.quantidade = 0;
         this.dtLancamento = new Date();
     }
 
-    public EstoqueSaidaConsumo(int id, Produto produto, EstoqueTipo estoqueTipo, Filial filialSaida, Filial filialEntrada, Departamento departamento, int quantidade, String dtLancamento) {
+    public EstoqueSaidaConsumo(Integer id, Produto produto, EstoqueTipo estoqueTipo, Filial filialSaida, Filial filialEntrada, Departamento departamento, Integer quantidade, String dtLancamento) {
         this.id = id;
         this.produto = produto;
         this.estoqueTipo = estoqueTipo;
@@ -60,11 +60,11 @@ public class EstoqueSaidaConsumo implements Serializable {
         this.dtLancamento = DataHoje.converte(dtLancamento);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -108,11 +108,11 @@ public class EstoqueSaidaConsumo implements Serializable {
         this.departamento = departamento;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 

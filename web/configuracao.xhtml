@@ -29,6 +29,8 @@
                     <p:panel style="border: 0px; margin: 0 auto; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Configuração" styleClass="fonteHeader" />
                         <div class="clear"></div>
+                        <p:messages showDetail="true" showSummary="false" autoUpdate="true"/>
+                        <p:growl showDetail="true" showSummary="false" autoUpdate="true"/>
                         <h:form id="form_c">
                             <c:set scope="request" var="object" value="${configuracaoBean.configuracao}" id="idObject"/>
                             <h:panelGrid columns="2">
@@ -60,7 +62,6 @@
                                 </p:selectBooleanCheckbox>
                             </h:panelGrid>
                             <p:panel header="Emails para notificações" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max">
-                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
                                 <h:panelGrid columns="5">
                                     <p:outputLabel value="Contato"/>
                                     <p:inputText value="#{configuracaoBean.sisConfiguracaoEmail.contato}" size="25">
@@ -86,45 +87,39 @@
                             </p:panel>
                             <p:panel header="Backups" rendered="#{configuracaoBean.configuracao.id ne null and configuracaoBean.configuracao.ativo}" styleClass="margin-top-max" style="border: 1px solid orange">
                                 <p:column width="30" styleClass="text-center">
-                                    <p:commandButton action="#{configuracaoBean.backup(configuracaoBean.configuracao)}" value="GERAR BACKUP (Em desenvolvimento)" update=":form_c:" disabled="false"/>
+                                    <p:commandButton action="#{configuracaoBean.backup(configuracaoBean.configuracao)}" value="GERAR BACKUP (Em desenvolvimento)" update=":form_c:" disabled="false">
+                                        <p:confirm header="Configurações" message="Deseja Realmente gerar backup deste cliente?" icon="ui-icon-alert" />
+                                    </p:commandButton>
                                 </p:column>
                             </p:panel>
                             <h:panelGrid columns="4" styleClass="margin-top-max">
-                                <p:commandButton id="idBtnSalvar" value="Salvar" title="Salvar" onclick="PF('dlg_save').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
+                                <p:commandButton id="idBtnSalvar" value="Salvar" title="Salvar" action="#{configuracaoBean.save}" update=":form_c:"  disabled="#{controleAcessoBean.botaoSalvar}">
+                                    <p:confirm header="Configurações" message="Deseja Realmente #{configuracaoBean.configuracao.id eq null ? 'adicionar' : 'atualizar'} este registro?" icon="ui-icon-alert" />
+                                </p:commandButton>
                                 <p:commandButton action="#{configuracaoBean.clear}" value="Novo" title="Novo" update=":form_c:"  />
-                                <p:commandButton value="Excluir" title="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" />
+                                <p:commandButton value="Excluir" title="Excluir" action="#{configuracaoBean.delete}" update=":form_c:"  disabled="#{controleAcessoBean.botaoExcluir}">
+                                    <p:confirm header="Configurações" message="Deseja Realmente excluir este registro?" icon="ui-icon-alert" />
+                                </p:commandButton>
                                 <p:commandButton action="#{chamadaPaginaBean.pesquisaConfiguracao}" title="Pesquisar" value="Pesquisar"/>
-                            </h:panelGrid>
-                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" width="400" modal="true" resizable="false">
-                                <f:facet name="footer">
-                                    <p:commandButton value="Sim" title="Salvar" action="#{configuracaoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_mensagem').show()" update=":form_c: i_message"/>
-                                    <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();" />
-                                </f:facet>
-                            </p:dialog>
-                            <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" width="400" modal="true" resizable="false">
-                                <f:facet name="footer">
-                                    <p:commandButton value="Sim" title="Excluir" action="#{configuracaoBean.delete}" oncomplete="PF('dlg_delete').hide(); PF('dlg_mensagem').show()" update=":form_c:" />
-                                    <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();" />
-                                </f:facet>
-                            </p:dialog>
-                            <p:dialog widgetVar="dlg_mensagem" header="Mensagem" width="400" modal="true" resizable="false">
-                                <p:outputLabel value="#{configuracaoBean.mensagem}" id="i_message"/>
-                                <f:facet name="footer">
-                                    <p:commandButton value="OK" title="OK" onclick="PF('dlg_mensagem').hide();"/>
-                                </f:facet>
-                            </p:dialog>                            
+                            </h:panelGrid>                         
                         </h:form>
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>
         </div>
+        <h:form prependId="false">
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+            </p:confirmDialog>
+        </h:form>
         <!-- FINALIZA div wrap main -->
 
         <div id="footerx">
             <f:subview id="footer">
                 <ui:include src="templates/templateFooter.xhtml"/>
             </f:subview>
-        </div>                
+        </div>
     </h:body>
 </ui:composition>

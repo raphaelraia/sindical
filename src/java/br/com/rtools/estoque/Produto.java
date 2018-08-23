@@ -16,7 +16,7 @@ public class Produto implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 100, nullable = false)
     private String descricao;
     @Column(name = "ds_modelo", length = 100)
@@ -34,7 +34,7 @@ public class Produto implements Serializable {
     @Column(name = "ds_obs", length = 5000)
     private String observacao;
     @Column(name = "nr_qtde_embalagem", columnDefinition = "integer default 0")
-    private int quantidadeEmbalagem;
+    private Integer quantidadeEmbalagem;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_cadastro")
     private Date dtCadastro;
@@ -51,19 +51,19 @@ public class Produto implements Serializable {
     @OneToOne
     private Cor cor;
     @Column(name = "nr_valor", columnDefinition = "double precision default 0", nullable = true)
-    private double valor;
+    private Double valor;
     @JoinColumn(name = "id_indice_moeda", referencedColumnName = "id")
     @ManyToOne
     private IndiceMoeda indiceMoeda;
     @Column(name = "nr_margem")
-    private double margem;
+    private Double margem;
     @Column(name = "nr_validade_guias_dias")
     private Integer validadeGuiasDias;
     @Column(name = "is_validade_guias_mes_vigente")
     private Boolean validadeGuiasMesVigente;
 
     public Produto() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
         this.modelo = "";
         this.marca = "";
@@ -74,18 +74,18 @@ public class Produto implements Serializable {
         this.observacao = "";
         this.quantidadeEmbalagem = 0;
         this.dtCadastro = new Date();
-        this.produtoGrupo = new ProdutoGrupo();
-        this.produtoSubGrupo = new ProdutoSubGrupo();
-        this.produtoUnidade = new ProdutoUnidade();
+        this.produtoGrupo = null;
+        this.produtoSubGrupo = null;
+        this.produtoUnidade = null;
         this.cor = new Cor();
-        this.valor = 0;
-        this.indiceMoeda = new IndiceMoeda();
-        this.margem = (double) 0;
+        this.valor = new Double(0);
+        this.indiceMoeda = null;
+        this.margem = new Double(0);
         this.validadeGuiasDias = 0;
         this.validadeGuiasMesVigente = false;
     }
 
-    public Produto(int id, String descricao, String modelo, String marca, String fabricante, String sabor, String medida, String observacao, String barras, int quantidadeEmbalagem, String cadastro, ProdutoGrupo produtoGrupo, ProdutoSubGrupo produtoSubGrupo, ProdutoUnidade produtoUnidade, Cor cor, double valor, IndiceMoeda indiceMoeda, double margem, Integer validadeGuiasDias, Boolean validadeGuiasMesVigente) {
+    public Produto(Integer id, String descricao, String modelo, String marca, String fabricante, String sabor, String medida, String observacao, String barras, Integer quantidadeEmbalagem, String cadastro, ProdutoGrupo produtoGrupo, ProdutoSubGrupo produtoSubGrupo, ProdutoUnidade produtoUnidade, Cor cor, Double valor, IndiceMoeda indiceMoeda, Double margem, Integer validadeGuiasDias, Boolean validadeGuiasMesVigente) {
         this.id = id;
         this.descricao = descricao;
         this.modelo = modelo;
@@ -108,11 +108,11 @@ public class Produto implements Serializable {
         this.validadeGuiasMesVigente = validadeGuiasMesVigente;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -172,11 +172,11 @@ public class Produto implements Serializable {
         this.barras = barras;
     }
 
-    public int getQuantidadeEmbalagem() {
+    public Integer getQuantidadeEmbalagem() {
         return quantidadeEmbalagem;
     }
 
-    public void setQuantidadeEmbalagem(int quantidadeEmbalagem) {
+    public void setQuantidadeEmbalagem(Integer quantidadeEmbalagem) {
         this.quantidadeEmbalagem = quantidadeEmbalagem;
     }
 
@@ -241,11 +241,11 @@ public class Produto implements Serializable {
         return "Produto{" + "id=" + id + ", descricao=" + descricao + ", modelo=" + modelo + ", marca=" + marca + ", fabricante=" + fabricante + ", sabor=" + sabor + ", medida=" + medida + ", barras=" + barras + ", observacao=" + observacao + ", quantidadeEmbalagem=" + quantidadeEmbalagem + ", dtCadastro=" + dtCadastro + ", produtoGrupo=" + produtoGrupo + ", produtoSubGrupo=" + produtoSubGrupo + ", produtoUnidade=" + produtoUnidade + ", cor=" + cor + '}';
     }
 
-    public double getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
@@ -265,11 +265,11 @@ public class Produto implements Serializable {
         this.indiceMoeda = indiceMoeda;
     }
 
-    public double getMargem() {
+    public Double getMargem() {
         return margem;
     }
 
-    public void setMargem(double margem) {
+    public void setMargem(Double margem) {
         this.margem = margem;
     }
 

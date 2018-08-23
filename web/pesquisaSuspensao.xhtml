@@ -21,20 +21,22 @@
                         <h:form id="form_pesquisa_suspencao">
                             <p:outputLabel value="Pesquisa Suspensão" styleClass="fonteHEader"/>
                             <div class="clear"></div>
-                            <p:dataTable value="#{suspencaoBean.listSuspencao}" var="suspencao" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado">
-                                <p:column width="25" styleClass="text-center">
-                                    <p:commandButton icon="ui-icon-link" title="Editar registro nº #{suspencao.id}" action="#{suspencaoBean.edit(suspencao)}" />
-                                </p:column>
-                                <p:column headerText="Nome">
-                                    #{suspencao.pessoa.nome}
-                                </p:column>
-                                <p:column headerText="Data Inicial" width="100" styleClass="text-center">
-                                    #{suspencao.dataInicial}
-                                </p:column>
-                                <p:column headerText="Data Final" width="100" styleClass="text-center">
-                                    #{suspencao.dataFinal}
-                                </p:column>
-                            </p:dataTable>
+                            <div class="ui-fluid">
+                                <p:dataTable value="#{suspencaoBean.listSuspencao}" var="suspencao" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado">
+                                    <p:column width="25" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-link" title="Editar registro nº #{suspencao.id}" action="#{suspencaoBean.edit(suspencao)}" />
+                                    </p:column>
+                                    <p:column headerText="Nome">
+                                        #{suspencao.pessoa.nome}
+                                    </p:column>
+                                    <p:column headerText="Data Inicial" width="100" styleClass="text-center">
+                                        #{suspencao.dataInicial}
+                                    </p:column>
+                                    <p:column headerText="Data Final" width="100" styleClass="text-center">
+                                        #{suspencao.dataFinal}
+                                    </p:column>
+                                </p:dataTable>                                
+                            </div>
                         </h:form>
                     </p:panel>
                 </f:view>

@@ -188,7 +188,7 @@
                                 </p:submenu>                            
                             </p:menubar> 
                             <p:panel style="margin: 0 auto!important; width: 99%">
-                                <p:panelGrid columns="6" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center,text-center">
+                                <p:panelGrid columns="5" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center">
                                     <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
                                         <p:graphicImage value="/Imagens/icon-person.png" height="70" />
                                     </p:commandLink>                                                                        
@@ -197,9 +197,6 @@
                                     </p:commandLink>
                                     <p:commandLink action="#{chamadaPaginaBean.pagina('vendasCaravana')}" title="Vendas Caravana" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-bus.png" height="80" />
-                                    </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('organizarCaravana')}" title="Organizar Caravana" ajax="false">
-                                        <p:graphicImage value="/Imagens/icon-bus-reorder.png" height="80" />
                                     </p:commandLink>
                                     <p:commandLink action="#{chamadaPaginaBean.conviteMovimento}" title="Convite Clube" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-ticket.png" height="80" />
@@ -210,20 +207,19 @@
                                     <h:outputLabel value="Pessoa Física" />
                                     <h:outputLabel value="Recebimentos" />
                                     <h:outputLabel value="Vendas Caravana" />
-                                    <h:outputLabel value="Organizar Caravana" />
                                     <h:outputLabel value="Convite" />
                                     <h:outputLabel value="Baile" />
                                 </p:panelGrid>
                                 <h3 class="text-center">ATENDIMENTO SOCIAL</h3>
-                                <p:panelGrid columns="2" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center,text-center">
-                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
-                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
-                                    </p:commandLink>                                                                        
-                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
-                                        <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                <p:panelGrid columns="2" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center, text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('agendamentos')}" title="Agendamento" ajax="false" rendered="false">
+                                        <p:graphicImage value="" height="70" />
                                     </p:commandLink>
-                                    <h:outputLabel value="Convite" />
-                                    <h:outputLabel value="Baile" />
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('atendimentos')}" title="Atendimentos" ajax="false" rendered="false">
+                                        <p:graphicImage value="" height="70" />
+                                    </p:commandLink>
+                                    
+                                    
                                 </p:panelGrid>
                             </p:panel>
                             <p:panel styleClass="margin-top-max">

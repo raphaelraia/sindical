@@ -19,66 +19,95 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_suspensao">
+                            <c:set scope="request" var="object" value="${suspencaoBean.suspencao}"/>
+                            <h:outputScript name="tradutor_primefaces.js" library="js" />                             
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="false" showIcon="false" closable="true"  />
+                            <p:growl showDetail="true" showSummary="false" />
                             <p:outputLabel  value="Cadastro de Suspensão" styleClass="fonteHeader" />
-                            <div class="clear"></div>                    
-                            <p:panel id="id_panel_suspensao">
-                                <c:set scope="request" var="object" value="${suspencaoBean.suspencao}"/>
-                                <h:outputScript name="tradutor_primefaces.js" library="js" /> 
+                            <div class="clear"></div>
+                            <br />  
+                            <p:toolbar>
+                                <f:facet name="left">
+                                    <p:commandButton value="Novo" title="Novo registro / Limpar" action="#{suspencaoBean.clear}" update=":form_suspensao:" icon="fa fa-file"/>
+                                    <span class="ui-separator" style="padding-right: 5px;">
+                                        <span class="fa fa-ellipsis-v SoftGray" />
+                                    </span>
+                                    <p:commandButton  disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar/Atualizar" action="#{suspencaoBean.save}"  update=":form_suspensao:" icon="fa fa-save">
+                                        <p:confirm header="Produto" message="Deseja salvar este registro?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+                                    <p:commandButton title="Excluir" disabled="#{controleAcessoBean.botaoExcluir}"  action="#{suspencaoBean.delete}"  update=":form_suspensao:"  icon="fa fa-trash" rendered="#{suspencaoBean.suspencao.id ne -1}">
+                                        <p:confirm header="Produto" message="Deseja excluir este registro?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+                                        <p:commandButton action="#{chamadaPaginaBean.pesquisaSuspencao}" value="Suspensos" title="Pesquisar sócios suspensos" icon="fa fa-search" actionListener="#{suspencaoBean.loadListSuspensao}"/>
+                                </f:facet>
+                                <f:facet name="right"> 
+                                    <p:menuButton value="Opções">
+                                        <p:menuitem value="Novo" action="#{suspencaoBean.clear()}" update=":form_suspensao:"  />
+                                        <p:separator />
+                                        <p:menuitem value="Salvar" action="#{suspencaoBean.save}" update=":form_suspensao:" disabled="#{controleAcessoBean.botaoSalvar}" icon="fa fa-save">
+                                            <p:confirm header="Produto" message="Deseja salvar este registro?" icon="ui-icon-alert" />
+                                        </p:menuitem>
+                                        <p:menuitem value="Excluir" action="#{suspencaoBean.save}" update=":form_suspensao:" disabled="#{controleAcessoBean.botaoExcluir}" icon="fa fa-trash" rendered="#{suspencaoBean.suspencao.id ne -1}">
+                                            <p:confirm header="Produto" message="Deseja excluir este registro?" icon="ui-icon-alert" />
+                                        </p:menuitem>
+                                        <p:menuitem value="Suspensos" action="#{chamadaPaginaBean.pesquisa('pesquisaSuspencao')}" icon="fa fa-search" actionListener="#{suspencaoBean.loadListSuspensao}"/>
+                                    </p:menuButton>
+                                </f:facet>
+                            </p:toolbar>
+                            <br />                            
+
+                            <h:panelGroup id="id_panel_suspensao">                                
+                                <div class="ui-fluid">
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-2">
+                                            <p:commandButton icon="ui-icon-search" value="Pessoa" id="idPesquisaSocio" action="#{chamadaPaginaBean.pesquisaPessoa}" immediate="true" title="Pesquisar Pessoa" />                                                     
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-10 ui-md-10  ui-sm-12">
+                                            <p:inputText value="#{suspencaoBean.suspencao.pessoa.nome}" title="Pessoa" rendered="#{suspencaoBean.suspencao.pessoa.id != -1}" readonly="true" styleClass="no-border"/>                                                     
+                                        </div>
+                                    </div>
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
+                                            <p:outputLabel value="Data Inicial:" for="idDataInicial"/>
+                                            <p:calendar id="idDataInicial"  value="#{suspencaoBean.suspencao.dtInicial}" navigator="true" title="Data inicial" pattern="dd/MM/yyyy" readonlyInput="true" locale="pt_BR">
+                                                <p:ajax event="dateSelect" listener="#{suspencaoBean.suspencao.selecionaDataInicio}" />
+                                            </p:calendar>                                                     
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-2 ui-md-2 ui-sm-6">
+                                            <p:outputLabel value="Data Final:" for="idDataFinal"/>
+                                            <p:calendar id="idDataFinal" value="#{suspencaoBean.suspencao.dtFinal}" title="Data final" navigator="true" pattern="dd/MM/yyyy" readonlyInput="true" locale="pt_BR">
+                                                <p:ajax event="dateSelect" listener="#{suspencaoBean.suspencao.selecionaDataTermino}" />
+                                            </p:calendar>                                                     
+                                        </div>
+                                        <div class="ui-g-12 ui-lg-8 ui-md-8"></div>
+                                    </div>
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-lg-12">
+                                            <p:outputLabel value="Motivo: " for="idText"/>
+                                            <p:inputTextarea id="idText" styleClass="uppercase" rows="5" cols="80" value="#{suspencaoBean.suspencao.motivo}" title="Motivo da suspensão do sócio" placeholder="Escreva aqui o motivo da suspensão"/>                                            
+                                        </div>                                        
+                                    </div>
+                                </div>
                                 <h:panelGrid columns="2">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton icon="ui-icon-search" value="Pesquisar" id="idPesquisaSocio" action="#{chamadaPaginaBean.pesquisaPessoa}" immediate="true" title="Pesquisar Pessoa" />
                                         <p:column>
-                                            <p:outputLabel value="Pesquisar sócio" rendered="#{suspencaoBean.suspencao.pessoa.id == -1}" for="idPesquisaSocio" style="border-bottom: 1px dashed #ECF3FE;"/>
-                                            <p:outputLabel value="#{suspencaoBean.suspencao.pessoa.nome}" title="Pessoa" rendered="#{suspencaoBean.suspencao.pessoa.id != -1}"/>
                                         </p:column>                            
-                                        <p:outputLabel value="Data Inicial:" for="idDataInicial"/>
-                                        <p:calendar id="idDataInicial" size="8" value="#{suspencaoBean.suspencao.dtInicial}" navigator="true" title="Data inicial" pattern="dd/MM/yyyy" readonlyInput="true" locale="pt_BR">
-                                            <p:ajax event="dateSelect" listener="#{suspencaoBean.suspencao.selecionaDataInicio}" />
-                                        </p:calendar>
-                                        <p:outputLabel value="Data Final:" for="idDataFinal"/>
-                                        <p:calendar id="idDataFinal" size="8" value="#{suspencaoBean.suspencao.dtFinal}" title="Data final" navigator="true" pattern="dd/MM/yyyy" readonlyInput="true" locale="pt_BR">
-                                            <p:ajax event="dateSelect" listener="#{suspencaoBean.suspencao.selecionaDataTermino}" />
-                                        </p:calendar>
-                                        <p:outputLabel value="Motivo: " for="idText"/>
                                         <p:column>
-                                            <p:watermark for="idText" value="Escreva aqui o motivo da suspensão" />
-                                            <p:inputTextarea id="idText" styleClass="uppercase" rows="5" cols="80" value="#{suspencaoBean.suspencao.motivo}" title="Motivo da suspensão do sócio" />
                                         </p:column>
                                     </h:panelGrid>
                                 </h:panelGrid>
                                 <h:panelGrid columns="4">
-                                    <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar/Atualizar" type="button" onclick="PF('dlg_save').show();"/>
-                                    <p:commandButton value="Novo" title="Novo registro / Limpar" action="#{suspencaoBean.clear}" update=":form_suspensao:" />
-                                    <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" type="button" onclick="PF('dlg_delete').show();" />
-                                    <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaSuspencao}" title="Pesquisar sócios suspensos"/>
+
                                 </h:panelGrid>
-                            </p:panel>
-                            <p:dialog widgetVar="dlg_save" header="Salvar este registro?" resizable="false" width="400" modal="true">
-                                <f:facet name="footer">
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{suspencaoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show()" icon="ui-icon-check" update=":form_suspensao:"/>  
-                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide();" icon="ui-icon-close"/>
-                                    </h:panelGrid>
-                                </f:facet>
-                            </p:dialog>
-
-                            <p:dialog widgetVar="dlg_delete" header="Excluir este registro?" resizable="false" width="400" modal="true">
-                                <f:facet name="footer">
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{suspencaoBean.delete()}" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show()" update=":form_suspensao:" icon="ui-icon-check" />
-                                        <p:commandButton value="Cancelar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide();" icon="ui-icon-close"/>
-                                    </h:panelGrid>
-                                </f:facet>
-                            </p:dialog>
-
-                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true">
-                                <h:outputLabel value="#{suspencaoBean.message}" id="i_mensagem"/>
-                                <f:facet name="footer">
-                                    <p:commandButton value="Ok" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_message').hide()"/>
-                                </f:facet>
-                            </p:dialog>                    
+                            </h:panelGroup>                   
                         </h:form>
                     </p:panel>
+                    <h:form prependId="false">
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

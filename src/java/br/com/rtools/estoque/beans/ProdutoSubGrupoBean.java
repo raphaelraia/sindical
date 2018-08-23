@@ -12,22 +12,24 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
 public class ProdutoSubGrupoBean {
 
-    private List<ProdutoGrupo> listProdutoGrupo;
-    private ProdutoGrupo produtoGrupo;
+    private List<SelectItem> listProdutoGrupos;
+    private Integer idProdutoGrupo;
     private List<ProdutoSubGrupo> listProdutoSubGrupo;
     private ProdutoSubGrupo produtoSubGrupo;
 
     @PostConstruct
     public void init() {
-        produtoGrupo = new ProdutoGrupo();
+        idProdutoGrupo = null;
         produtoSubGrupo = new ProdutoSubGrupo();
-        listProdutoGrupo = new ArrayList<ProdutoGrupo>();
-        listProdutoSubGrupo = new ArrayList<ProdutoSubGrupo>();
+        listProdutoGrupos = new ArrayList<>();
+        listProdutoSubGrupo = new ArrayList<>();
+        loadListProdutoGrupos();
     }
 
     @PreDestroy
@@ -42,18 +44,18 @@ public class ProdutoSubGrupoBean {
                 return;
             }
         }
-        if(produtoSubGrupo.getDescricao().isEmpty()) {
+        if (produtoSubGrupo.getDescricao().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar descrição!");
             return;
         }
-        if(produtoGrupo == null) {
+        if (idProdutoGrupo == null) {
             GenericaMensagem.warn("Validação", "Selecionar um grupo!");
             return;
         }
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
-        produtoSubGrupo.setProdutoGrupo(produtoGrupo);
-        if (produtoSubGrupo.getId() == -1) {
+        produtoSubGrupo.setProdutoGrupo((ProdutoGrupo) di.find(new ProdutoGrupo(), idProdutoGrupo));
+        if (produtoSubGrupo.getId() == null) {
             if (di.save(produtoSubGrupo, true)) {
                 novoLog.save(produtoSubGrupo, true);
                 GenericaMensagem.info("Sucesso", "Registro adicionado com sucesso");
@@ -94,13 +96,8 @@ public class ProdutoSubGrupoBean {
     public List<ProdutoSubGrupo> getListProdutoSubGrupo() {
         if (listProdutoSubGrupo.isEmpty()) {
             Dao di = new Dao();
-            if(produtoGrupo != null) {
-                if(produtoGrupo.getId() != -1) {
-                    listProdutoSubGrupo = (List<ProdutoSubGrupo>) di.listQuery(new ProdutoSubGrupo(), "findGrupo", new Object[]{produtoGrupo.getId()});
-                    if(!listProdutoSubGrupo.isEmpty()) {
-                        produtoGrupo = listProdutoSubGrupo.get(0).getProdutoGrupo();
-                    }
-                }
+            if (idProdutoGrupo != null) {
+                listProdutoSubGrupo = (List<ProdutoSubGrupo>) di.listQuery(new ProdutoSubGrupo(), "findGrupo", new Object[]{idProdutoGrupo});
             }
         }
         return listProdutoSubGrupo;
@@ -110,27 +107,24 @@ public class ProdutoSubGrupoBean {
         this.listProdutoSubGrupo = listProdutoSubGrupo;
     }
 
-    public List<ProdutoGrupo> getListProdutoGrupo() {
-        if (listProdutoGrupo.isEmpty()) {
-            Dao di = new Dao();
-            listProdutoGrupo = (List<ProdutoGrupo>) di.list(new ProdutoGrupo(), true);
-            if(!listProdutoGrupo.isEmpty()) {
-                produtoGrupo = listProdutoGrupo.get(0);
+    public List<SelectItem> getListProdutoGrupos() {
+        return listProdutoGrupos;
+    }
+
+    public void setListProdutoGrupos(List<SelectItem> listProdutoGrupos) {
+        this.listProdutoGrupos = listProdutoGrupos;
+    }
+
+    public void loadListProdutoGrupos() {
+        Dao di = new Dao();
+        List<ProdutoGrupo> list = (List<ProdutoGrupo>) di.list(new ProdutoGrupo(), true);
+        listProdutoGrupos = new ArrayList();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idProdutoGrupo = list.get(i).getId();
             }
+            listProdutoGrupos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
-        return listProdutoGrupo;
-    }
-
-    public void setListProdutoGrupo(List<ProdutoGrupo> listProdutoGrupo) {
-        this.listProdutoGrupo = listProdutoGrupo;
-    }
-
-    public ProdutoGrupo getProdutoGrupo() {
-        return produtoGrupo;
-    }
-
-    public void setProdutoGrupo(ProdutoGrupo produtoGrupo) {
-        this.produtoGrupo = produtoGrupo;
     }
 
     public ProdutoSubGrupo getProdutoSubGrupo() {
@@ -139,6 +133,14 @@ public class ProdutoSubGrupoBean {
 
     public void setProdutoSubGrupo(ProdutoSubGrupo produtoSubGrupo) {
         this.produtoSubGrupo = produtoSubGrupo;
+    }
+
+    public Integer getIdProdutoGrupo() {
+        return idProdutoGrupo;
+    }
+
+    public void setIdProdutoGrupo(Integer idProdutoGrupo) {
+        this.idProdutoGrupo = idProdutoGrupo;
     }
 
 }

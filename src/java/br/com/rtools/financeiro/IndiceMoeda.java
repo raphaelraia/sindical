@@ -6,6 +6,7 @@
 package br.com.rtools.financeiro;
 
 import br.com.rtools.utilitarios.Moeda;
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,40 +14,36 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- *
- * @author Claudemir Rtools
- */
 @Entity
 @Table(name = "fin_indice_moeda")
-public class IndiceMoeda implements java.io.Serializable {
+public class IndiceMoeda implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao")
     private String descricao;
     @Column(name = "nr_valor")
     private Double valor;
 
     public IndiceMoeda() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
         this.valor = (double) 0;
     }
 
-    public IndiceMoeda(int id, String descricao, Double valor) {
+    public IndiceMoeda(Integer id, String descricao, Double valor) {
         this.id = id;
         this.descricao = descricao;
         this.valor = valor;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

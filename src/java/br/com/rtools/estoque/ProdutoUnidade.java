@@ -13,7 +13,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "est_unidade")
 @NamedQueries({
-    @NamedQuery(name = "ProdutoUnidade.findAll", query = "SELECT PU FROM ProdutoUnidade AS PU ORDER BY PU.descricao ASC "),
+    @NamedQuery(name = "ProdutoUnidade.findAll", query = "SELECT PU FROM ProdutoUnidade AS PU ORDER BY PU.descricao ASC ")
+    ,
     @NamedQuery(name = "ProdutoUnidade.findName", query = "SELECT PU FROM ProdutoUnidade AS PU WHERE UPPER(PU.descricao) LIKE :pdescricao ORDER BY PU.descricao ASC ")
 })
 public class ProdutoUnidade implements Serializable {
@@ -22,25 +23,25 @@ public class ProdutoUnidade implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id = -1;
+    private Integer id;
     @Column(name = "ds_descricao", length = 100, nullable = false, unique = true)
     private String descricao;
 
     public ProdutoUnidade() {
-        this.id = -1;
+        this.id = null;
         this.descricao = "";
     }
 
-    public ProdutoUnidade(int id, String descricao) {
+    public ProdutoUnidade(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
