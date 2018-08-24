@@ -629,7 +629,7 @@
                                     </p:tab>
 
                                     <p:tab id="idPessoaComplemento" title="Financeiro" >
-                                        <ui:include src="pessoaComplemento.xhtml" id="idPessoaComplementoX">  
+                                        <ui:include src="pessoaComplemento.xhtml" id="idPessoaComplementoX" rendered="#{fisicaBean.fisica.pessoa.id}">  
                                             <ui:param name="idPessoa" value="#{fisicaBean.fisica.pessoa.id}" />  
                                         </ui:include>
                                     </p:tab>

@@ -783,6 +783,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
             fisica.getPessoa().setDocumento("");
             PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
+            PF.update("form_pessoa_fisica:i_tabview_fisica:idPessoaComplemento");
             return;
         }
         if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
@@ -791,6 +792,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 GenericaMensagem.warn("Validação", "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento());
                 PF.update("form_pessoa_fisica:i_tabview_fisica:id_valida_documento");
                 PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
+                PF.update("form_pessoa_fisica:i_tabview_fisica:idPessoaComplemento");
                 // fisica.getPessoa().setDocumento("");
                 return;
             }

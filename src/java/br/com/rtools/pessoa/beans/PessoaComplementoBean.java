@@ -84,7 +84,8 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
 
     public final void loadListaStatusCobranca() {
         listaStatusCobranca.clear();
-
+        indexStatusCobranca = 0;
+        
         List<StatusCobranca> result = new PessoaDao().listaStatusCobranca();
 
         for (int i = 0; i < result.size(); i++) {

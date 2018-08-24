@@ -336,10 +336,11 @@ public class SocioCarteirinhaDao extends DB {
                     + " INNER JOIN conf_social             AS CS ON CS.id = 1                                     \n"
                     + " LEFT JOIN soc_categoria            AS C ON C.id = P.id_categoria AND P.id_categoria > 0   \n"
                     + " LEFT JOIN fin_movimento            AS M ON M.id_beneficiario = SC.id_pessoa AND M.id_servicos IN (SELECT id_servico_cartao FROM seg_registro) AND m.dt_vencimento >='06/04/2015' \n"
-                    + " LEFT JOIN soc_historico_carteirinha SH ON SH.id_carteirinha = SC.id AND SH.id_movimento = M.id ";
+                    + " LEFT JOIN soc_historico_carteirinha SH ON SH.id_carteirinha = SC.id AND SH.id_movimento = M.id "
+                    + " LEFT JOIN soc_modelo_carteirinha_categoria SMCC ON SMCC.id_categoria = P.id_categoria ";
 
             queryString2
-                    += " WHERE p.codigo > 0 and p.codigo in \n "
+                    += " WHERE (SMCC.id_modelo_carteirinha = MC.id OR P.id_categoria IS NULL) AND p.codigo > 0 AND p.codigo IN \n "
                     + "( " 
                     + in 
                     + " ) \n";

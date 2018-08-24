@@ -19,33 +19,20 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.net.URL;
-import java.security.KeyStore;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,14 +41,6 @@ import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPMessage;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -749,14 +728,31 @@ public class CaixaFederalSigCB extends Cobranca {
         
         NO SERVIDOR É OBRIGATÓRIO INSTALAR O CERTIFICADO DA CAIXA
         EX.
-        ** WINDOWS **
-        "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -importcert -alias CertificadoWebServiceCEF -file "Sindical\web\resources\CEF_Certificado.cer"
-
-        ** LINUX **
-        "/opt/jdk1.8.0_51/jre/bin/keytool" -keystore "/opt/jdk1.8.0_51/jre/lib/security/cacerts" -importcert -alias CertificadoWebServiceCEF -file "/home/servidor/tomcat/Sindical/webapps/Sindical/resources/certificados/CEF_Certificado.cer"
         
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
+        ** WINDOWS **
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
+        EXECUTAR COMANDO:
+        > "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -importcert -alias CertificadoWebServiceCEF -file "Sindical\web\resources\CEF_Certificado.cer"
         INFORMAR SENHA:
-        changeit
+        > changeit
+        VERIFICA SE ESTA SALVO NA LISTA :
+        > "C:\Program Files\Java\jdk1.8.0_162\bin\keytool" -v -list -keystore "C:\Program Files\Java\jdk1.8.0_162\jre\lib\security\cacerts" -alias CertificadoWebServiceCEF
+        
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
+        ** LINUX **
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
+        EXECUTAR COMANDO
+        > "/opt/jdk1.8.0_51/jre/bin/keytool" -keystore "/opt/jdk1.8.0_51/jre/lib/security/cacerts" -importcert -alias CertificadoWebServiceCEF -file "/home/servidor/tomcat/Sindical/webapps/Sindical/resources/certificados/CEF_Certificado.cer"
+        INFORMAR SENHA:
+        > changeit
+        VERIFICA SE ESTA SALVO NA LISTA :
+        > "/opt/jdk1.8.0_51/jre/bin/keytool" -v -list -keystore "/opt/jdk1.8.0_51/jre/lib/security/cacerts" -alias CertificadoWebServiceCEF
+                
         
         ATENÇÃO ----------------------------------------------------------------
         ATENÇÃO ----------------------------------------------------------------
