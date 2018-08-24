@@ -71,6 +71,20 @@ public class CampeonatoDao extends DB {
         }
     }
 
+    public List<Campeonato> findAll(Boolean current) {
+        try {
+            Query query;
+            if (current == null || current) {
+                query = getEntityManager().createNativeQuery("SELECT C.* FROM eve_campeonato C WHERE current_date BETWEEN C.dt_inicio AND C.dt_fim ORDER BY C.dt_inicio DESC, C.ds_titulo_complemento ASC", Campeonato.class);
+            } else {
+                query = getEntityManager().createNativeQuery("SELECT C.* FROM eve_campeonato C WHERE C.dt_fim < current_date ORDER BY C.dt_inicio DESC, C.ds_titulo_complemento ASC", Campeonato.class);
+            }
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List<ServicoPessoa> findToUpdate(Integer campeonato_id) {
         try {
             String queryString = ""
@@ -78,7 +92,7 @@ public class CampeonatoDao extends DB {
                     + "WHERE SP.id IN (\n"
                     + "SELECT id_servico_pessoa \n"
                     + "FROM matr_campeonato AS MC\n"
-                    + "WHERE id_campeonato = 3\n"
+                    + "WHERE id_campeonato = = " + campeonato_id + " \n"
                     + "UNION ALL\n"
                     + "SELECT ECD.id_servico_pessoa \n"
                     + "FROM eve_campeonato_dependente AS ECD\n"

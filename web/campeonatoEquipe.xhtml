@@ -32,26 +32,43 @@
                         <div class="clear"></div>
                         <h:form id="form_campeonato_equipe">
                             <c:set scope="request" var="object" value="${campeonatoEquipeBean.campeonatoEquipe}"/>
-                            <p:messages  showDetail="true" closable="true" autoUpdate="true"/>
+                            <p:toolbar>
+                                <f:facet name="left">
+                                    <p:commandButton value="Membros Suspensos" update=":form_campeonato_equipe:i_membros_suspensos" onclick="PF('dlg_membros_suspensos').show()" action="#{campeonatoEquipeBean.loadListMembrosSuspensos}" style="color: red" icon="fa fa-users"/>
+                                </f:facet>
+                                <f:facet name="right"> 
+                                    <p:menuButton value="Opções">
+                                        <p:menuitem value="Membros Suspensos" update=":form_campeonato_equipe:i_membros_suspensos" onclick="PF('dlg_membros_suspensos').show()" action="#{campeonatoEquipeBean.loadListMembrosSuspensos}" style="color: red" icon="fa fa-users"/>
+                                    </p:menuButton>
+                                </f:facet>
+                            </p:toolbar>                            
+                            <br />
+                            <p:messages  showDetail="true" closable="true" autoUpdate="true" showSummary="false" showIcon="false"/>
                             <p:panel>
                                 <f:facet name="header">
-                                    <h:panelGrid columns="10" cellspacing="5">
-                                        <p:outputLabel value="CAMPEONATO" styleClass="font-size-10 bold"/>
-                                        <p:selectOneMenu value="#{campeonatoEquipeBean.idCampeonato}">
-                                            <p:ajax event="change" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.loadListCampeonatoEquipes()}" />
-                                            <f:selectItems value="#{campeonatoEquipeBean.listCampeonatos}"/>
-                                        </p:selectOneMenu>
-                                        <p:outputLabel value="EQUIPE" styleClass="font-size-10 bold margin-left-max"/>
-                                        <p:selectOneMenu value="#{campeonatoEquipeBean.idEquipe}">
+                                    <h:panelGrid columns="3" cellspacing="5" columnClasses="verticalAlignTop,verticalAlignTop,verticalAlignTop,verticalAlignTop,verticalAlignTop">
+                                        <p:outputLabel value="CAMPEONATO#{not empty campeonatoEquipeBean.listCampeonatos ? '' : ': NENHUM REGISTRO ENCONTRADO'}" styleClass="font-size-10 bold"/>
+                                        <p:outputLabel value="EQUIPE" styleClass="font-size-10 bold" rendered="#{not empty campeonatoEquipeBean.listCampeonatos}"/>
+                                        <h:column />
+                                        <h:column>
+                                            <h:panelGrid columns="1">
+                                                <p:selectOneMenu value="#{campeonatoEquipeBean.idCampeonato}" rendered="#{not empty campeonatoEquipeBean.listCampeonatos}">
+                                                    <p:ajax event="change" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.loadListCampeonatoEquipes()}" />
+                                                    <f:selectItems value="#{campeonatoEquipeBean.listCampeonatos}"/>
+                                                </p:selectOneMenu>
+                                                <p:selectBooleanCheckbox value="#{campeonatoEquipeBean.vigentes}" itemLabel="Vigente">
+                                                    <p:ajax event="change" update=":form_campeonato_equipe:" listener="#{campeonatoEquipeBean.reload}"/>
+                                                </p:selectBooleanCheckbox>                                            
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <p:selectOneMenu value="#{campeonatoEquipeBean.idEquipe}" rendered="#{not empty campeonatoEquipeBean.listCampeonatos}">
                                             <p:ajax event="change" update=":form_campeonato_equipe:" />
                                             <f:selectItems value="#{campeonatoEquipeBean.listEquipes}"/>
                                         </p:selectOneMenu>
-                                        <p:commandButton value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" styleClass="margin-left-max"/>                                        
+                                        <p:commandButton value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" styleClass="margin-left-max" rendered="#{not empty campeonatoEquipeBean.listCampeonatos}"/>
                                     </h:panelGrid>                                    
                                 </f:facet>
-                            </p:panel>
-                            <p:commandButton value="Membros Suspensos" update=":form_campeonato_equipe:i_membros_suspensos" onclick="PF('dlg_membros_suspensos').show()" action="#{campeonatoEquipeBean.loadListMembrosSuspensos}" style="float: right; margin-top: 5px; color: red"/>
-
+                            </p:panel>                            
                             <p:dataTable value="#{campeonatoEquipeBean.listCampeonatoEquipes}" var="campeonatoEquipe" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10" styleClass="margin-top-max">
                                 <p:column width="30">
                                     <p:commandButton icon="ui-icon-pencil" action="#{campeonatoEquipeBean.edit(campeonatoEquipe)}" title="Editar registro nº#{campeonatoEquipe.id}" update=":form_campeonato_equipe:" />
@@ -144,7 +161,7 @@
                                                 #{matriculaCampeonato.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}
                                             </p:column>
                                             <p:column headerText="Valor Responsável" styleClass="text-center">
-                                                #{matriculaCampeonato.servicoPessoa.nrValorFixoString}
+                                                <h:outputLabel value="#{matriculaCampeonato.servicoPessoa.nrValorFixoString}" rendered="#{matriculaCampeonato.servicoPessoa.pessoa.socios.id eq -1}" />
                                             </p:column>  
                                             <p:column headerText="Inativação" styleClass="text-center" rendered="#{!campeonatoEquipeBean.ativas}">
                                                 <h:outputLabel value="#{matriculaCampeonato.servicoPessoa.dtInativacao}">

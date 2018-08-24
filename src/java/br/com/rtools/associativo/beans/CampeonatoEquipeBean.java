@@ -1,6 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.*;
+import br.com.rtools.associativo.dao.CampeonatoDao;
 import br.com.rtools.associativo.dao.CampeonatoDependenteDao;
 import br.com.rtools.associativo.dao.CampeonatoEquipeDao;
 import br.com.rtools.associativo.dao.MatriculaCampeonatoDao;
@@ -66,6 +67,7 @@ public class CampeonatoEquipeBean implements Serializable {
     private Date dataInicialSuspencao;
     private Date dataFimSuspencao;
     private String motivoSuspensao;
+    private Boolean vigentes;
 
     @PostConstruct
     public void init() {
@@ -91,6 +93,7 @@ public class CampeonatoEquipeBean implements Serializable {
         loadListEquipes();
         motivoInativacao = "";
         motivoInativacaoDependente = "";
+        vigentes = true;
     }
 
     @PreDestroy
@@ -99,9 +102,20 @@ public class CampeonatoEquipeBean implements Serializable {
         GenericaSessao.remove("campeonatoEquipeBean");
     }
 
+    public void reload() {
+        loadListCampeonatos();
+        loadListCampeonatoEquipes();
+        loadListEquipes();
+    }
+
     public void loadListCampeonatos() {
+        idCampeonato = null;
+        idEquipe = null;
         listCampeonatos = new ArrayList();
-        List<Campeonato> list = new Dao().list(new Campeonato());
+        List<Campeonato> list = new CampeonatoDao().findAll(vigentes);
+        idEquipe = null;
+        listEquipes = new ArrayList();
+        listCampeonatoEquipes = new ArrayList();
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 idCampeonato = list.get(i).getId();
@@ -113,24 +127,26 @@ public class CampeonatoEquipeBean implements Serializable {
     public void loadListEquipes() {
         idEquipe = null;
         listEquipes = new ArrayList();
-        Campeonato c = (Campeonato) new Dao().find(new Campeonato(), idCampeonato);
-        if (c != null && idCampeonato != null) {
-            List<Equipe> list = new EquipeDao().findByModalidade(c.getModalidade().getId());
-            for (int i = 0; i < list.size(); i++) {
-                Boolean disabled = false;
-                for (int x = 0; x < listCampeonatoEquipes.size(); x++) {
-                    if (Objects.equals(listCampeonatoEquipes.get(x).getEquipe().getId(), list.get(i).getId())) {
-                        disabled = true;
+        if(idCampeonato != null) {
+            Campeonato c = (Campeonato) new Dao().find(new Campeonato(), idCampeonato);
+            if (c != null && idCampeonato != null) {
+                List<Equipe> list = new EquipeDao().findByModalidade(c.getModalidade().getId());
+                for (int i = 0; i < list.size(); i++) {
+                    Boolean disabled = false;
+                    for (int x = 0; x < listCampeonatoEquipes.size(); x++) {
+                        if (Objects.equals(listCampeonatoEquipes.get(x).getEquipe().getId(), list.get(i).getId())) {
+                            disabled = true;
+                        }
                     }
-                }
-                if (!disabled) {
-                    if (idEquipe == null) {
-                        idEquipe = list.get(i).getId();
+                    if (!disabled) {
+                        if (idEquipe == null) {
+                            idEquipe = list.get(i).getId();
+                        }
                     }
-                }
 
-                listEquipes.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "", disabled));
-            }
+                    listEquipes.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao(), "", disabled));
+                }
+            }            
         }
     }
 
@@ -968,10 +984,10 @@ public class CampeonatoEquipeBean implements Serializable {
         dao.commit();
         novoLog.saveList();
         GenericaMensagem.info("Sucesso", "SUSPENSÃO CANCELADA");
-        if(editMembrosEquipe) {
+        if (editMembrosEquipe) {
             loadListMatriculaCampeonato(null);
         } else {
-            loadListMembrosSuspensos();            
+            loadListMembrosSuspensos();
         }
     }
 
@@ -1051,6 +1067,14 @@ public class CampeonatoEquipeBean implements Serializable {
     public void loadListMembrosSuspensos() {
         listMatriculaCampeonatoSuspensos = new ArrayList();
         listMatriculaCampeonatoSuspensos = new MatriculaCampeonatoDao().findAllSuspensos();
+    }
+
+    public Boolean getVigentes() {
+        return vigentes;
+    }
+
+    public void setVigentes(Boolean vigentes) {
+        this.vigentes = vigentes;
     }
 
 }
