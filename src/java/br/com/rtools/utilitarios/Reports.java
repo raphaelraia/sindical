@@ -197,7 +197,7 @@ public class Reports implements Serializable {
         this.DOWNLOAD = true;
         this.REMOVE_FILE = true;
         this.BYTES = null;
-        this.HEADER = true;
+        this.HEADER = false;
         this.HEADER_PARAMS = false;
         this.BY_LEAF = false;
         this.GROUP_NAME = "";
@@ -236,7 +236,7 @@ public class Reports implements Serializable {
         DOWNLOAD = true;
         REMOVE_FILE = true;
         BYTES = null;
-        HEADER = true;
+        HEADER = false;
         HEADER_PARAMS = false;
         BY_LEAF = false;
         USER_PATH = false;
@@ -907,7 +907,7 @@ public class Reports implements Serializable {
         DOWNLOAD = true;
         REMOVE_FILE = true;
         BYTES = null;
-        HEADER = true;
+        HEADER = false;
         // IMPRIME POR FOLHA
         BY_LEAF = false;
         GROUP_NAME = "";
