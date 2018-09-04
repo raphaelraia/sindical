@@ -2,6 +2,7 @@ package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Campeonato;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.pessoa.beans.PessoaBean;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class CampeonatoDao extends DB {
                     + "WHERE SP.id IN (\n"
                     + "SELECT id_servico_pessoa \n"
                     + "FROM matr_campeonato AS MC\n"
-                    + "WHERE id_campeonato = = " + campeonato_id + " \n"
+                    + "WHERE id_campeonato = " + campeonato_id + " \n"
                     + "UNION ALL\n"
                     + "SELECT ECD.id_servico_pessoa \n"
                     + "FROM eve_campeonato_dependente AS ECD\n"
@@ -101,6 +102,18 @@ public class CampeonatoDao extends DB {
                     + ")\n"
                     + "AND SP.is_ativo = true";
             Query query = getEntityManager().createNativeQuery(queryString, ServicoPessoa.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List findByPessoaDetalhes(Integer pessoa_id) {
+        try {
+            String queryString = ""
+                    + "select modalidade,campeonato,equipe,inicio,fim,responsavel,valor,dependente,parentesco,valor_dependente from campeonato_vw where id_responsavel = " + pessoa_id + "  or id_dependente=" + pessoa_id + "\n"
+                    + "order by inicio desc,modalidade,campeonato,equipe,inicio,fim,responsavel,dependente ";
+            Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

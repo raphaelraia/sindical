@@ -435,7 +435,8 @@ public class SocioCarteirinhaDao extends DB {
                 + " INNER JOIN soc_modelo_carteirinha           AS mc ON mc.id          = cc.id_modelo_carteirinha  \n"
                 + "  LEFT JOIN pes_pessoa_vw                    AS pt ON pt.codigo      = s.titular                 \n"
                 + "  LEFT JOIN fin_movimento                    AS m  ON m.id_pessoa    = c.id_pessoa AND m.id_servicos IN(SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 120) \n"
-                + "      WHERE s.codsocio = " + id_pessoa;
+                + "      WHERE s.codsocio = " + id_pessoa
+                + "        AND C.id_modelo_carteirinha = CC.id_modelo_carteirinha";
 
         textqry += "   GROUP BY p.codigo,                                       \n" // 0 CÓDIGO
                 + "             p.nome,                                         \n" // 1 NOME
@@ -482,6 +483,7 @@ public class SocioCarteirinhaDao extends DB {
                 + "             f.ds_pai,                                       \n" // 43
                 + "             f.ds_mae                                        \n"; // 44
         try {
+            Debugs.put("habilitaDebugQuery", textqry);
             Query qry = getEntityManager().createNativeQuery(textqry);
             if (!qry.getResultList().isEmpty()) {
                 lista = qry.getResultList();

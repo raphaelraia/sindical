@@ -11,6 +11,7 @@ import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
+import br.com.rtools.associativo.dao.CampeonatoDao;
 import br.com.rtools.associativo.dao.DeclaracaoPessoaDao;
 import br.com.rtools.associativo.dao.ExameMedicoDao;
 import br.com.rtools.associativo.dao.SociosDao;
@@ -76,6 +77,7 @@ public class PessoaBean implements Serializable {
     private List<SelectItem> listAnoDeclaracaoAnualDebitos;
     private String anoDeclaracaoAnualDebitos;
     private List<ExameMedico> listExameMedico;
+    private List<CampeonatoObject> listCampeonato;
 
     @PostConstruct
     public void init() {
@@ -100,6 +102,7 @@ public class PessoaBean implements Serializable {
         selectDetalhes = "";
         situacaoFuncionario = "ativos";
         listFuncionarios = new ArrayList();
+        listCampeonato = new ArrayList();
         listExameMedico = new ArrayList();
         listEmpregados = new ArrayList();
         listAnoDeclaracaoAnualDebitos = new ArrayList();
@@ -235,6 +238,28 @@ public class PessoaBean implements Serializable {
                     listAnoDeclaracaoAnualDebitos.add(new SelectItem(list.get(i), list.get(i), list.get(i)));
                 }
                 break;
+            case "campeonato":
+                listCampeonato = new ArrayList();
+                List listResult = new CampeonatoDao().findByPessoaDetalhes(pessoa.getId());
+
+                for (int i = 0; i < listResult.size(); i++) {
+                    List o = (List) listResult.get(i);
+                    listCampeonato.add(
+                            new CampeonatoObject(
+                                    o.get(0),
+                                    o.get(1),
+                                    o.get(2),
+                                    o.get(3),
+                                    o.get(4),
+                                    o.get(5),
+                                    o.get(6),
+                                    o.get(7),
+                                    o.get(8),
+                                    o.get(9)
+                            )
+                    );
+                }
+                break;
         }
     }
 
@@ -282,7 +307,7 @@ public class PessoaBean implements Serializable {
         }
     }
 
-    public void listenerDeclaracao(String tcase) {        
+    public void listenerDeclaracao(String tcase) {
         switch (tcase) {
             case "tipo_declaracao_pessoa":
                 descPesquisa = "";
@@ -508,6 +533,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("suspencao", "Suspenção", "SUSPENÇÃO", cab.verificarPermissao("consulta_suspencao", 4)));
             listSelectDetalhes.add(new SelectItem("declaracao_anual_debitos", "Dec. Anual de Débitos ", "DECLARAÇÃO ANUAL DE DÉBICOS", cab.verificarPermissao("declaracao_anual_debitos", 4)));
             listSelectDetalhes.add(new SelectItem("exame_medico", "Exame Médico", "CONSULTA EXAME MÉDICO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_exame_medico", 4)));
+            listSelectDetalhes.add(new SelectItem("campeonato", "Campeonato", "CONSULTA CAMPEONATO", cab.verificarPermissao("campeonato", 4)));
         }
         // PESSOA JURÍDICA
         if (tipoPessoa.equals("pessoaJuridica")) {
@@ -722,6 +748,14 @@ public class PessoaBean implements Serializable {
         this.listReferencia = listReferencia;
     }
 
+    public List<CampeonatoObject> getListCampeonato() {
+        return listCampeonato;
+    }
+
+    public void setListCampeonato(List<CampeonatoObject> listCampeonato) {
+        this.listCampeonato = listCampeonato;
+    }
+
     public class DeclaracaoPessoaObject {
 
 //        Cadastro de Pessoa Juridica (Emitidas Para os Funcionários Desta Empresa) ----> Trocar nome da coluna Titular para Funcionário
@@ -853,6 +887,114 @@ public class PessoaBean implements Serializable {
 
         public void setEmissao(Object emissao) {
             this.emissao = emissao;
+        }
+
+    }
+
+    public class CampeonatoObject {
+
+        private Object modalidade;
+        private Object campeonato;
+        private Object equipe;
+        private Object inicio;
+        private Object fim;
+        private Object responsavel;
+        private Object valor;
+        private Object dependente;
+        private Object parentesco;
+        private Object valor_dependente;
+
+        public CampeonatoObject(Object modalidade, Object campeonato, Object equipe, Object inicio, Object fim, Object responsavel, Object valor, Object dependente, Object parentesco, Object valor_dependente) {
+            this.modalidade = modalidade;
+            this.campeonato = campeonato;
+            this.equipe = equipe;
+            this.inicio = inicio;
+            this.fim = fim;
+            this.responsavel = responsavel;
+            this.valor = valor;
+            this.dependente = dependente;
+            this.parentesco = parentesco;
+            this.valor_dependente = valor_dependente;
+        }
+
+        public Object getModalidade() {
+            return modalidade;
+        }
+
+        public void setModalidade(Object modalidade) {
+            this.modalidade = modalidade;
+        }
+
+        public Object getCampeonato() {
+            return campeonato;
+        }
+
+        public void setCampeonato(Object campeonato) {
+            this.campeonato = campeonato;
+        }
+
+        public Object getEquipe() {
+            return equipe;
+        }
+
+        public void setEquipe(Object equipe) {
+            this.equipe = equipe;
+        }
+
+        public Object getInicio() {
+            return inicio;
+        }
+
+        public void setInicio(Object inicio) {
+            this.inicio = inicio;
+        }
+
+        public Object getFim() {
+            return fim;
+        }
+
+        public void setFim(Object fim) {
+            this.fim = fim;
+        }
+
+        public Object getResponsavel() {
+            return responsavel;
+        }
+
+        public void setResponsavel(Object responsavel) {
+            this.responsavel = responsavel;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
+        public Object getDependente() {
+            return dependente;
+        }
+
+        public void setDependente(Object dependente) {
+            this.dependente = dependente;
+        }
+
+        public Object getParentesco() {
+            return parentesco;
+        }
+
+        public void setParentesco(Object parentesco) {
+            this.parentesco = parentesco;
+        }
+
+        public Object getValor_dependente() {
+            return valor_dependente;
+        }
+
+        public void setValor_dependente(Object valor_dependente) {
+            this.valor_dependente = valor_dependente;
         }
 
     }

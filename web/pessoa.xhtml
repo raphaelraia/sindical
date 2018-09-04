@@ -568,6 +568,49 @@
                                     </p:dataTable>
                                 </p:panel>
                             </h:panelGroup>
+                            
+                            <!-- CAMPEONATO -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'campeonato'}">
+                                <p:panel header="Telemarketing">
+                                    <p:dataTable value="#{pessoaBean.listCampeonato}" var="campeonato" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
+                                        <p:column width="15">
+                                            <p:rowToggler />                                                
+                                        </p:column>
+                                        <p:column headerText="Inicio" width="80" styleClass="text-center">
+                                            <h:outputLabel value="#{campeonato.inicio}">
+                                                <f:convertDateTime />
+                                            </h:outputLabel>
+                                        </p:column>
+                                        <p:column headerText="Fim" width="80" styleClass="text-center">
+                                            <h:outputLabel value="#{campeonato.fim}">
+                                                <f:convertDateTime />
+                                            </h:outputLabel>
+                                        </p:column>
+                                        <p:column headerText="Campeonato" >
+                                            #{campeonato.campeonato}
+                                        </p:column>
+                                        <p:column headerText="Responsável">
+                                            #{campeonato.responsavel}
+                                        </p:column>
+                                        <p:column headerText="Dependente">
+                                            #{campeonato.dependente}
+                                        </p:column>
+                                        <p:column headerText="Modalidade" styleClass="text-center">
+                                            #{campeonato.modalidade}
+                                        </p:column>
+                                        <p:column headerText="Parentesco" styleClass="text-center">
+                                            #{campeonato.parentesco}
+                                        </p:column>
+                                        <p:column headerText="Equipe" styleClass="text-center">
+                                            #{campeonato.equipe}
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            
+                                        </p:rowExpansion>
+                                    </p:dataTable>
+                                </p:panel>
+                            </h:panelGroup>
 
                             <!-- FUNCIONÁRIOS E QTDE -->
 
