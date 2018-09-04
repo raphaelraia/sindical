@@ -75,25 +75,24 @@
                                 </p:submenu>
                             </p:menubar>
                             <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
-                                <p:panelGrid columns="2" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center">
-                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                <p:panelGrid columns="3" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('pessoaFisica')}" title="Pessoa Física">
                                         <p:graphicImage value="/Imagens/icon-person.png" height="70" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('matriculaEscola')}" title="Matrícula Escola" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-school.png" height="70" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceberSocial')}" title="Movimentos a Receber" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('matriculaEscola')}" title="Matrícula Escola" ajax="false" rendered="false">
-                                        <p:graphicImage value="" height="70" />
-                                    </p:commandLink>
                                     <h:outputLabel value="Pessoa Física" />
+                                    <h:outputLabel value="Matrícula" />
                                     <h:outputLabel value="Recebimentos" />
                                 </p:panelGrid>
                             </p:panel>
                         </p:panel>
                     </h:form>
                 </f:view>
-
-
 
                 <!-- FINALIZA div wrap main -->
             </div>

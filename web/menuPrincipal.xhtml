@@ -186,7 +186,7 @@
 
                             <h:outputLabel value="O Sindical está mudando pra você..." style="font-size: 25pt!important; float: left;  font-family: 'Cordia New'" rendered="false"/>
 
-                            <h:panelGrid columns="3" columnClasses="column01, column02, column03" style="width: 100%">
+                            <h:panelGrid columns="3" columnClasses="column01, column02, column03"  styleClass="margin-top-max">
                                 <p:column>
                                     <p:panel>
                                         <center>
@@ -195,7 +195,7 @@
                                             </h:panelGrid>
 
                                             <p:commandLink action="#{chamadaPaginaBean.pagina('pesquisaAgendaTelefone','agendaTelefone')}" title="Pesquisa Agenda Telefônica" style="clear: both" actionListener="#{agendaTelefoneBean.putType('pesquisaAgendaTelefone')}">
-                                                <h:graphicImage value="/Imagens/-icone-agenda-telefone.jpg" width="120" /><br />
+                                                <h:graphicImage value="/Imagens/icon-agenda.png" width="100" /><br />
                                             </p:commandLink>
                                             <h:column rendered="#{agendaNotificaoBean.listAniversariantes.size() > 0}">
                                                 <p:commandLink onclick="PF('dlg_agenda_contato').show();">
@@ -275,7 +275,7 @@
                                             <p:commandLink value="CLIQUE AQUI PARA BAIXAR OU EXCLUIR" onclick="PF('i_dlg_guias').show()"/>
                                         </h:panelGrid>
                                     </p:panel>
-                                    <p:panel styleClass="margin-top-max" id="id_lista" header="Agenda de Compromissos" rendered="#{!controleAcessoBean.verificarPermissao('consulta_agenda_compromissos', 4)}">
+                                    <p:panel id="id_lista" header="Agenda de Compromissos" rendered="#{!controleAcessoBean.verificarPermissao('consulta_agenda_compromissos', 4)}">
                                         <h:panelGrid columns="15">
                                             <p:outputLabel value="Status: "/>
                                             <p:selectOneMenu label="Cancelados" value="#{compromissoUsuarioBean.cancelados}">
