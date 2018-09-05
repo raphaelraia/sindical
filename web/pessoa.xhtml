@@ -568,11 +568,19 @@
                                     </p:dataTable>
                                 </p:panel>
                             </h:panelGroup>
-                            
+
                             <!-- CAMPEONATO -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'campeonato'}">
-                                <p:panel header="Campeonato">
+                                <p:panel header="Campeonato" id="i_l_campeonato">
+
+                                    <p:selectBooleanCheckbox value="#{pessoaBean.campeonatoAtivo}" itemLabel="Ativos" >
+                                        <p:ajax event="change" update="i_l_campeonato" listener="#{pessoaBean.loadListCampeonato}"/>
+                                    </p:selectBooleanCheckbox>
+                                    
+                                    <br />
+                                    <br />
+
                                     <p:dataTable value="#{pessoaBean.listCampeonato}" var="campeonato" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
                                         <p:column width="15">
                                             <p:rowToggler />                                                
@@ -606,7 +614,7 @@
                                             #{campeonato.equipe}
                                         </p:column>
                                         <p:rowExpansion>
-                                            
+
                                         </p:rowExpansion>
                                     </p:dataTable>
                                 </p:panel>

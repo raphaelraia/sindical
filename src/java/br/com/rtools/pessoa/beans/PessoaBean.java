@@ -78,9 +78,11 @@ public class PessoaBean implements Serializable {
     private String anoDeclaracaoAnualDebitos;
     private List<ExameMedico> listExameMedico;
     private List<CampeonatoObject> listCampeonato;
+    private Boolean campeonatoAtivo;
 
     @PostConstruct
     public void init() {
+        campeonatoAtivo = true;
         pessoa = new Pessoa();
         fisica = new Fisica();
         juridica = new Juridica();
@@ -239,27 +241,32 @@ public class PessoaBean implements Serializable {
                 }
                 break;
             case "campeonato":
-                listCampeonato = new ArrayList();
-                List listResult = new CampeonatoDao().findByPessoaDetalhes(pessoa.getId(), false);
-
-                for (int i = 0; i < listResult.size(); i++) {
-                    List o = (List) listResult.get(i);
-                    listCampeonato.add(
-                            new CampeonatoObject(
-                                    o.get(0),
-                                    o.get(1),
-                                    o.get(2),
-                                    o.get(3),
-                                    o.get(4),
-                                    o.get(5),
-                                    o.get(6),
-                                    o.get(7),
-                                    o.get(8),
-                                    o.get(9)
-                            )
-                    );
-                }
+                campeonatoAtivo = true;
+                loadListCampeonato();
                 break;
+        }
+    }
+
+    public void loadListCampeonato() {
+        listCampeonato = new ArrayList();
+        List listResult = new CampeonatoDao().findByPessoaDetalhes(pessoa.getId(), campeonatoAtivo);
+
+        for (int i = 0; i < listResult.size(); i++) {
+            List o = (List) listResult.get(i);
+            listCampeonato.add(
+                    new CampeonatoObject(
+                            o.get(0),
+                            o.get(1),
+                            o.get(2),
+                            o.get(3),
+                            o.get(4),
+                            o.get(5),
+                            o.get(6),
+                            o.get(7),
+                            o.get(8),
+                            o.get(9)
+                    )
+            );
         }
     }
 
@@ -754,6 +761,14 @@ public class PessoaBean implements Serializable {
 
     public void setListCampeonato(List<CampeonatoObject> listCampeonato) {
         this.listCampeonato = listCampeonato;
+    }
+
+    public Boolean getCampeonatoAtivo() {
+        return campeonatoAtivo;
+    }
+
+    public void setCampeonatoAtivo(Boolean campeonatoAtivo) {
+        this.campeonatoAtivo = campeonatoAtivo;
     }
 
     public class DeclaracaoPessoaObject {

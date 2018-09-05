@@ -111,26 +111,31 @@ public class CampeonatoDao extends DB {
     public List findByPessoaDetalhes(Integer pessoa_id, Boolean ativas) {
         try {
             String queryString = ""
-                    + "  SELECT modalidade,   \n "
-                    + "         campeonato,   \n "
-                    + "         equipe,       \n "
-                    + "         inicio,       \n "
-                    + "         fim,          \n "
-                    + "         responsavel,  \n "
-                    + "         valor,        \n "
-                    + "         dependente,   \n "
-                    + "         parentesco,   \n "
-                    + "         valor_dependente "
-                    + "     FROM campeonato_vw"
-                    + "    WHERE ( id_responsavel = " + pessoa_id + "  OR id_dependente=" + pessoa_id + " ) \n"
-                    + " ORDER BY inicio desc,  \n "
-                    + "          modalidade,   \n "
-                    + "          campeonato,   \n "
-                    + "          equipe,       \n "
-                    + "          inicio,       \n "
-                    + "          fim,          \n "
-                    + "          responsavel,  \n "
-                    + "          dependente       ";
+                    + "  SELECT modalidade,     \n "
+                    + "         campeonato,     \n "
+                    + "         equipe,         \n "
+                    + "         inicio,         \n "
+                    + "         fim,            \n "
+                    + "         responsavel,    \n "
+                    + "         valor,          \n "
+                    + "         dependente,     \n "
+                    + "         parentesco,     \n "
+                    + "         valor_dependente \n"
+                    + "    FROM campeonato_vw    \n"
+                    + "    WHERE ( id_responsavel = " + pessoa_id + "  OR id_dependente =" + pessoa_id + " ) \n";
+            if (ativas) {
+                queryString += "AND inativacao  IS NULL";
+            } else {
+                queryString += "AND inativacao  IS NOT NULL";
+            }
+            queryString += " ORDER BY inicio DESC,  \n "
+                    + "               modalidade,   \n "
+                    + "               campeonato,   \n "
+                    + "               equipe,       \n "
+                    + "               inicio,       \n "
+                    + "               fim,          \n "
+                    + "               responsavel,  \n "
+                    + "               dependente       ";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {

@@ -17,7 +17,6 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import static br.com.rtools.utilitarios.Jasper.TYPE;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
