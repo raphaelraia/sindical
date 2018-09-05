@@ -240,7 +240,7 @@ public class PessoaBean implements Serializable {
                 break;
             case "campeonato":
                 listCampeonato = new ArrayList();
-                List listResult = new CampeonatoDao().findByPessoaDetalhes(pessoa.getId());
+                List listResult = new CampeonatoDao().findByPessoaDetalhes(pessoa.getId(), false);
 
                 for (int i = 0; i < listResult.size(); i++) {
                     List o = (List) listResult.get(i);

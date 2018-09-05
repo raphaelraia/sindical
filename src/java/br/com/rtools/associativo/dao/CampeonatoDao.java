@@ -108,11 +108,29 @@ public class CampeonatoDao extends DB {
         }
     }
 
-    public List findByPessoaDetalhes(Integer pessoa_id) {
+    public List findByPessoaDetalhes(Integer pessoa_id, Boolean ativas) {
         try {
             String queryString = ""
-                    + "select modalidade,campeonato,equipe,inicio,fim,responsavel,valor,dependente,parentesco,valor_dependente from campeonato_vw where id_responsavel = " + pessoa_id + "  or id_dependente=" + pessoa_id + "\n"
-                    + "order by inicio desc,modalidade,campeonato,equipe,inicio,fim,responsavel,dependente ";
+                    + "  SELECT modalidade,   \n "
+                    + "         campeonato,   \n "
+                    + "         equipe,       \n "
+                    + "         inicio,       \n "
+                    + "         fim,          \n "
+                    + "         responsavel,  \n "
+                    + "         valor,        \n "
+                    + "         dependente,   \n "
+                    + "         parentesco,   \n "
+                    + "         valor_dependente "
+                    + "     FROM campeonato_vw"
+                    + "    WHERE ( id_responsavel = " + pessoa_id + "  OR id_dependente=" + pessoa_id + " ) \n"
+                    + " ORDER BY inicio desc,  \n "
+                    + "          modalidade,   \n "
+                    + "          campeonato,   \n "
+                    + "          equipe,       \n "
+                    + "          inicio,       \n "
+                    + "          fim,          \n "
+                    + "          responsavel,  \n "
+                    + "          dependente       ";
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {
